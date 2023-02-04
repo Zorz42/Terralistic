@@ -45,7 +45,7 @@ impl Server {
         for mod_ in mods {
             // decompress mod with snap
             let mod_ = snap::raw::Decoder::new().decompress_vec(&mod_).unwrap();
-            self.mods.mod_manager.add_mod(bincode::deserialize(&*mod_).unwrap());
+            self.mods.mod_manager.add_mod(bincode::deserialize(&mod_).unwrap());
         }
 
         // init modules
@@ -63,7 +63,7 @@ impl Server {
             *status_text.lock().unwrap() = "Loading world".to_string();
             self.load_world(world_path);
         } else {
-            generator.generate(&mut self.blocks.blocks, &mut self.walls.walls, &mut self.mods.mod_manager, 4400, 1200, 423657, &status_text);
+            generator.generate(&mut self.blocks.blocks, &mut self.walls.walls, &mut self.mods.mod_manager, 4400, 1200, 423657, status_text);
         }
 
         // start server loop
@@ -113,7 +113,7 @@ impl Server {
         // load world file into Vec<u8>
         let world_file = std::fs::read(world_path).unwrap();
         // decode world file as HashMap<String, Vec<u8>>
-        let world: HashMap<String, Vec<u8>> = bincode::deserialize(&*world_file).unwrap();
+        let world: HashMap<String, Vec<u8>> = bincode::deserialize(&world_file).unwrap();
 
         self.blocks.blocks.deserialize(world.get("blocks").unwrap()).unwrap();
         self.walls.walls.deserialize(world.get("walls").unwrap()).unwrap();

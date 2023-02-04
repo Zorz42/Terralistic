@@ -130,7 +130,7 @@ impl WorldGenerator {
         blocks.create(width, height).unwrap();
 
         let mut block_terrain = vec![vec![BlockId::new(); height as usize]; width as usize];
-        let mut wall_terrain = vec![vec![WallId::new(); height as usize]; width as usize];
+        let wall_terrain = vec![vec![WallId::new(); height as usize]; width as usize];
 
         let mut min_cave_thresholds = vec![0.0; width as usize];
         let mut max_cave_thresholds = vec![0.15; width as usize];
@@ -193,7 +193,7 @@ impl WorldGenerator {
                     let start_noise = ores_start_noises[&block][x as usize];
                     let end_noise = ores_end_noises[&block][x as usize];
                     if (start_noise, end_noise) != (-1.0, -1.0) {
-                        let ore_noise = turbulence(&ore_noises.get(&block).unwrap(), x as f32 / 15.0, y as f32 / 15.0);
+                        let ore_noise = turbulence(ore_noises.get(&block).unwrap(), x as f32 / 15.0, y as f32 / 15.0);
                         let ore_threshold = y as f32 / height as f32 * (end_noise - start_noise) + start_noise;
                         if ore_threshold > ore_noise {
                             curr_block = block;
@@ -282,28 +282,28 @@ impl LuaUserData for Biome {
                 "min_width" => {
                     match value {
                         rlua::Value::Integer(b) => this.min_width = b as i32,
-                        _ => return Err(rlua::Error::RuntimeError(format!("value is not a valid value for min_width")))
+                        _ => return Err(rlua::Error::RuntimeError("value is not a valid value for min_width".to_string()))
                     }
                     Ok(())
                 },
                 "max_width" => {
                     match value {
                         rlua::Value::Integer(b) => this.max_width = b as i32,
-                        _ => return Err(rlua::Error::RuntimeError(format!("value is not a valid value for max_width")))
+                        _ => return Err(rlua::Error::RuntimeError("value is not a valid value for max_width".to_string()))
                     }
                     Ok(())
                 },
                 "min_terrain_height" => {
                     match value {
                         rlua::Value::Integer(b) => this.min_terrain_height = b as i32,
-                        _ => return Err(rlua::Error::RuntimeError(format!("value is not a valid value for min_terrain_height")))
+                        _ => return Err(rlua::Error::RuntimeError("value is not a valid value for min_terrain_height".to_string()))
                     }
                     Ok(())
                 },
                 "max_terrain_height" => {
                     match value {
                         rlua::Value::Integer(b) => this.max_terrain_height = b as i32,
-                        _ => return Err(rlua::Error::RuntimeError(format!("value is not a valid value for max_terrain_height")))
+                        _ => return Err(rlua::Error::RuntimeError("value is not a valid value for max_terrain_height".to_string()))
                     }
                     Ok(())
                 },
@@ -313,17 +313,17 @@ impl LuaUserData for Biome {
                         rlua::Value::UserData(b) => {
                             match b.borrow::<BlockId>() {
                                 Ok(b) => this.base_block = *b,
-                                Err(_) => return Err(rlua::Error::RuntimeError(format!("value is not a valid value for base_block")))
+                                Err(_) => return Err(rlua::Error::RuntimeError("value is not a valid value for base_block".to_string()))
                             }
                         },
-                        _ => return Err(rlua::Error::RuntimeError(format!("value is not a valid value for base_block")))
+                        _ => return Err(rlua::Error::RuntimeError("value is not a valid value for base_block".to_string()))
                     }
                     Ok(())
                 },
                 "generator_function" => {
                     match value {
                         rlua::Value::String(b) => this.generator_function = Some(b.to_str().unwrap().to_string()),
-                        _ => return Err(rlua::Error::RuntimeError(format!("value is not a valid value for generator_function")))
+                        _ => return Err(rlua::Error::RuntimeError("value is not a valid value for generator_function".to_string()))
                     }
                     Ok(())
                 }

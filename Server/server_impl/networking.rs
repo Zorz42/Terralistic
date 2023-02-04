@@ -1,6 +1,6 @@
 use std::hash::{Hash, Hasher};
 use std::net::Ipv4Addr;
-use bincode;
+
 use enet::{Address, BandwidthLimit, ChannelLimit, Host, PacketMode};
 use shared::packet::{Packet, WelcomeCompletePacket};
 use events::{Event, EventManager};
@@ -80,7 +80,7 @@ impl ServerNetworking {
                     self.connections.retain(|x| x.address != peer.address());
                 }
                 enet::Event::Receive {ref packet, ref sender, ..} => {
-                    let packet: Packet = bincode::deserialize(&packet.data()).unwrap();
+                    let packet: Packet = bincode::deserialize(packet.data()).unwrap();
                     events.push_event(Event::new(PacketFromClientEvent {
                         packet,
                         conn: Connection{
