@@ -80,7 +80,7 @@ impl Blocks{
                 blocks: Vec::new(),
                 block_from_main: HashMap::new(),
                 block_data: HashMap::new(),
-                map: WorldMap::new(0, 0),
+                map: WorldMap::new_empty(),
             },
             breaking_blocks: vec![],
             block_types: Arc::new(Mutex::new(vec![])),
@@ -148,11 +148,7 @@ impl Blocks{
     Creates an empty world with given width and height
      */
     pub fn create(&mut self, width: i32, height: i32) -> Result<()> {
-        if width < 0 || height < 0 {
-            return Err(anyhow!("Width and height must be positive"));
-        }
-
-        self.block_data.map = WorldMap::new(width, height);
+        self.block_data.map = WorldMap::new(width, height)?;
         self.block_data.blocks = vec![BlockId::new(); (height * height) as usize];
         Ok(())
     }

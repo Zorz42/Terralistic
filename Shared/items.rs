@@ -4,6 +4,7 @@ use std::collections::HashMap;
 use std::ops::Deref;
 use crate::blocks::{BlockId, Blocks};
 use crate::blocks::Tool;
+use crate::walls::WallId;
 
 const ITEM_WIDTH: i32 = 8;
 
@@ -12,7 +13,7 @@ pub struct ItemType{
     pub name: String, pub display_name: String,
     pub max_stack: i32,
     pub places_block: Option<Rc<BlockType>>,
-    pub places_wall: Option<Rc<walls::WallType>>,
+    pub places_wall: Option<Rc<walls::WallId>>,
     pub tool_powers: HashMap<Rc<Tool>, i32>,
     id: i32
 }
@@ -123,7 +124,7 @@ pub struct Items {
     items: Vec<Item>,
     item_types: Vec<Rc<ItemType>>,
     block_drops: HashMap<BlockId, TileDrop>,
-    wall_drops: HashMap<i32, TileDrop>,
+    wall_drops: HashMap<WallId, TileDrop>,
 
     pub nothing: Rc<ItemType>,
 
@@ -195,12 +196,12 @@ impl Items {
         self.block_drops.get(&block_type.get_id())
     }
     /**this function sets the wall drop for the given wall type*/
-    pub fn set_wall_drop(&mut self, wall_type: Rc<walls::WallType>, drop: TileDrop) {
-        self.wall_drops.insert(wall_type.id, drop);
+    pub fn set_wall_drop(&mut self, wall_type: walls::WallId, drop: TileDrop) {
+        self.wall_drops.insert(wall_type, drop);
     }
     /**this function returns the wall drop for the given wall type*/
-    pub fn get_wall_drop(&self, wall_type: Rc<walls::WallType>) -> Option<&TileDrop> {
-        self.wall_drops.get(&wall_type.id)
+    pub fn get_wall_drop(&self, wall_type: walls::WallId) -> Option<&TileDrop> {
+        self.wall_drops.get(&wall_type)
     }
 }
 

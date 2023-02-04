@@ -12,8 +12,18 @@ pub struct WorldMap {
 }
 
 impl WorldMap {
-    pub fn new(width: i32, height: i32) -> Self {
-        Self { width, height }
+    pub fn new(width: i32, height: i32) -> Result<Self> {
+        if width < 0 || height < 0 {
+            return Err(anyhow!("Width and height must be positive"));
+        }
+        Ok(Self { width, height })
+    }
+
+    pub fn new_empty() -> Self {
+        Self {
+            width: 0,
+            height: 0,
+        }
     }
 
     pub fn get_width(&self) -> i32 {

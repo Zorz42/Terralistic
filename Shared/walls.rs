@@ -4,358 +4,333 @@ use bincode;
 use snap;
 use crate::blocks::{Blocks, CHUNK_SIZE, ToolId, UNBREAKABLE};
 use crate::blocks::Tool;
+use crate::world_map::WorldMap;
+use anyhow::{anyhow, Result};
+use events::EventManager;
 
-struct WallChangeEvent {
-    pub x: i32,
-    pub y: i32
+/**
+WallId stores id to a type of wall.
+ */
+#[derive(Deserialize, Serialize, Clone, Copy, Eq, PartialEq, Hash)]
+pub struct WallId {
+    pub id: i8,
 }
-impl WallChangeEvent{
-    pub fn new(x: i32, y: i32) -> Self{ WallChangeEvent{ x, y } }
-}
-//impl Event for WallChangeEvent {}
 
-struct WallBreakEvent {
-    pub x: i32,
-    pub y: i32
+impl WallId {
+    pub fn new() -> Self {
+        Self {
+            id: -1
+        }
+    }
 }
-impl WallBreakEvent{
-    pub fn new(x: i32, y: i32) -> Self{ WallBreakEvent{ x, y } }
-}
-//impl Event for WallBreakEvent {}
 
-struct WallStartedBreakingEvent {
-    pub x: i32,
-    pub y: i32
-}
-impl WallStartedBreakingEvent{
-    pub fn new(x: i32, y: i32) -> Self{ WallStartedBreakingEvent{ x, y } }
-}
-//impl Event for WallStartedBreakingEvent {}
-
-struct WallStoppedBreakingEvent {
-    pub x: i32,
-    pub y: i32
-}
-impl WallStoppedBreakingEvent{
-    pub fn new(x: i32, y: i32) -> Self{ WallStoppedBreakingEvent{ x, y } }
-}
-//impl Event for WallStoppedBreakingEvent {}
-
-pub struct WallType {
-    pub id: i32,
+/**
+Wall holds all information about a type of a wall.
+*/
+#[derive(Clone)]
+pub struct Wall {
+    pub id: WallId,
     pub break_time: i32,
     pub name: String,
 }
-impl WallType {
-    pub fn new(id: i32, break_time: i32, name: String) -> Self {
-        WallType {
-            id,
-            break_time,
+
+impl Wall {
+    pub fn new(name: String) -> Self {
+        Self {
+            id: WallId::new(),
+            break_time: 0,
             name
         }
     }
 }
 
-#[derive(Deserialize, Serialize, Clone)]
-struct Wall{
-    pub id: i32,
-}
-impl Wall {
-    pub fn new() -> Self {
-        Wall {
-            id: 0
-        }
-    }
+/**
+Stores the info about a breaking progress about a wall.
+*/
+pub struct BreakingWall {
+    pub break_progress: i32,
+    pub is_breaking: bool,
+    coord: (i32, i32),
 }
 
-struct BreakingWall {
-    break_progress: i32,
-    is_breaking: bool,
-    x: i32,
-    y: i32,
-}
 impl BreakingWall {
     pub fn new() -> Self {
         BreakingWall {
             break_progress: 0,
             is_breaking: false,
-            x: 0,
-            y: 0
+            coord: (0, 0),
         }
+    }
+
+    pub fn get_coord(&self) -> (i32, i32) {
+        self.coord
     }
 }
 
-#[derive(Clone)]
-struct WallChunk {
-    breaking_wall_count: u8,
+#[derive(Deserialize, Serialize)]
+struct WallsData {
+    walls: Vec<WallId>,
+    map: WorldMap,
 }
-impl WallChunk {
+
+impl WallsData {
     pub fn new() -> Self {
-        WallChunk {
-            breaking_wall_count: 0
+        Self {
+            walls: Vec::new(),
+            map: WorldMap::new_empty(),
         }
     }
 }
 
-struct Walls{
-    walls: Vec<Wall>,
-    chunks: Vec<WallChunk>,
+struct Walls {
+    walls_data: WallsData,
 
     breaking_walls: Vec<BreakingWall>,
-    wall_types: Vec<Arc<WallType>>,
+    wall_types: Vec<Wall>,
 
     curr_id: i32,
 
-    pub clear: Arc<WallType>,
+    pub clear: WallId,
     pub hammer: ToolId,
-
-    width: i32,
-    height: i32,
-
-    //pub wall_change_event: Sender<WallChangeEvent>,
-    //pub wall_break_event: Sender<WallBreakEvent>,
-    //pub wall_started_breaking_event: Sender<WallStartedBreakingEvent>,
-    //pub wall_stopped_breaking_event: Sender<WallStoppedBreakingEvent>,
 }
 
 impl Walls{
     pub fn new(blocks: &mut Blocks) -> Self {
-        let temp = Arc::new(WallType::new(0, 0, "temp".to_string()));
         let mut walls = Walls {
-            walls: Vec::new(),
-            chunks: Vec::new(),
+            walls_data: WallsData::new(),
 
             breaking_walls: Vec::new(),
             wall_types: Vec::new(),
 
             curr_id: 0,
 
-            clear: temp,
+            clear: WallId::new(),
             hammer: ToolId::new(),
-
-            width: blocks.get_width(),
-            height: blocks.get_height(),
-
-            //wall_change_event: Sender::new(),
-            //wall_break_event: Sender::new(),
-            //wall_started_breaking_event: Sender::new(),
-            //wall_stopped_breaking_event: Sender::new(),
         };
-        let clear_type = WallType::new(0, 0, "clear".to_string());
-        walls.register_wall_type(clear_type);
-        walls.clear = walls.wall_types[0].clone();
+
+        let clear_type = Wall::new("clear".to_string());
+        walls.clear = walls.register_wall_type(clear_type);
 
         let hammer = Tool::new("Hammer".to_string());
         walls.hammer = blocks.register_new_tool_type(hammer);
         walls
     }
 
-    /**creates wall and chunk vectors*/
-    pub fn create(&mut self, blocks: &Blocks){
-        self.width = blocks.get_width();
-        self.height = blocks.get_height();
-        self.walls = vec![Wall::new(); (self.get_width() * self.get_height()) as usize];
-        self.chunks = vec![WallChunk::new(); (self.get_width() / CHUNK_SIZE * self.get_height() / CHUNK_SIZE) as usize];
+    /**
+    Creates an empty map with the given dimensions.
+     */
+    pub fn create(&mut self, width: i32, height: i32) -> Result<()> {
+        self.walls_data.map = WorldMap::new(width, height)?;
+        self.walls_data.walls = vec![WallId::new(); (width * height) as usize];
+        Ok(())
     }
 
-    /**returns the wall at the given position*/
-    fn get_wall(&self, x: i32, y: i32) -> &Wall {
-        if x < 0 || y < 0 || x >= self.get_width() || y >= self.get_height() {
-            panic!("Wall is accessed out of the bounds! ({}, {})", x, y);
-        }
-        &self.walls[(x + y * self.get_width()) as usize]
+    /**
+    Returns the wall id at the given position.
+     */
+    fn get_wall(&self, x: i32, y: i32) -> Result<WallId> {
+        Ok(*self.walls_data.walls.get(self.walls_data.map.translate_coords(x, y)?).ok_or(anyhow!("Wall is accessed out of the bounds! ({}, {})", x, y))?)
     }
 
-    /**returns the mutable wall at the given position*/
-    fn get_wall_mut(&mut self, x: i32, y: i32) -> &mut Wall {
-        if x < 0 || y < 0 || x >= self.get_width() || y >= self.get_height() {
-            panic!("Wall is accessed out of the bounds! ({}, {})", x, y);
-        }
-        let width = self.get_width();
-        &mut self.walls[(x + y * width) as usize]
-    }
-
-    /**returns the chunk of the wall at the given position*/
-    fn get_chunk(&self, x: i32, y: i32) -> &WallChunk {
-        if x < 0 || y < 0 || x >= self.get_width() / CHUNK_SIZE || y >= self.get_height() / CHUNK_SIZE {
-            panic!("Wall is accessed out of the bounds! ({}, {})", x, y);
-        }
-        &self.chunks[(x + y * self.get_width() / 16) as usize]
-    }
-
-    /**returns the mutable chunk of the wall at the given position*/
-    fn get_chunk_mut(&mut self, x: i32, y: i32) -> &mut WallChunk {
-        if x < 0 || y < 0 || x >= self.get_width() / CHUNK_SIZE || y >= self.get_height() / CHUNK_SIZE {
-            panic!("Wall is accessed out of the bounds! ({}, {})", x, y);
-        }
-        let width = self.get_width() / CHUNK_SIZE;
-        &mut self.chunks[(x + y * width) as usize]
-    }
-
-    /**returns world width in blocks*/
+    /**
+    Returns the world width in blocks
+     */
     pub fn get_width(&self) -> i32 {
-        self.width
+        self.walls_data.map.get_width()
     }
 
-    /**returns world height in blocks*/
+    /**
+    Returns the world height in blocks
+     */
     pub fn get_height(&self) -> i32 {
-        self.height
+        self.walls_data.map.get_height()
     }
 
-    /**returns the wall type of the wall at given x and y*/
-    pub fn get_wall_type(&self, x: i32, y: i32) -> &WallType {
-        self.get_wall_type_by_id(self.get_wall(x, y).id)
+    /**
+    Returns the wall type of the wall at given x and y
+     */
+    pub fn get_wall_type_at(&self, x: i32, y: i32) -> Result<&Wall> {
+        Ok(self.get_wall_type(self.get_wall(x, y)?)?)
     }
 
-    /**returns the wall type with the given id*/
-    pub fn get_wall_type_by_id(&self, id: i32) -> &WallType {
-        if id < 0 || id >= self.wall_types.len() as i32 {
-            panic!("Wall type with id {} does not exist!", id);
-        }
-        &self.wall_types[id as usize]
+    /**
+    Returns the wall type with the given id
+     */
+    pub fn get_wall_type(&self, id: WallId) -> Result<&Wall> {
+        Ok(self.wall_types.get(id.id as usize).ok_or(anyhow!("Wall type with id {} does not exist!", id.id))?)
     }
 
-    /**this function sets the wall type on x and y and sends the WallChangeEvent.
-    It also removes the wall on x and y from breaking walls if it is in that list*/
-    pub fn set_wall_type(&mut self, x: i32, y: i32, wall_type: Arc<WallType>) {
-        let wall = self.get_wall(x, y);
-        if wall.id == wall_type.id {
-            return;
+    /**
+    This function sets the wall type on x and y and sends the WallChangeEvent.
+     */
+    pub fn set_wall_type(&mut self, x: i32, y: i32, wall_id: WallId) -> Result<()> {
+        let wall = self.get_wall(x, y)?;
+        if wall == wall_id {
+            return Ok(());
         }
-        self.set_wall_type_silently(x, y, wall_type);
 
-        for i in 0..self.breaking_walls.len() {
-            if self.breaking_walls[i].x == x && self.breaking_walls[i].y == y {
-                self.breaking_walls.remove(i);
-                break;
-            }
-        }
+        *self.walls_data.walls.get_mut(self.walls_data.map.translate_coords(x, y)?).ok_or(anyhow!("Wall is accessed out of the bounds! ({}, {})", x, y))? = wall_id;
+
         //self.wall_change_event.send(WallChangeEvent::new(x, y));
+
+        Ok(())
     }
 
-    /**this function sets the wall type on x and y without triggering an event (without updating the world)*/
-    pub fn set_wall_type_silently(&mut self, x: i32, y: i32, wall_type: Arc<WallType>) {
-        self.get_wall_mut(x, y).id = wall_type.id;
-    }
-
-    /**returns break progress of the wall at x and y*/
+    /**
+    Returns the break progress of the wall at x and y
+     */
     pub fn get_break_progress(&self, x: i32, y: i32) -> i32 {
         for wall in &self.breaking_walls {
-            if wall.x == x && wall.y == y {
+            if wall.coord == (x, y) {
                 return wall.break_progress;
             }
         }
         0
     }
 
-    /**returns break stage (for example to be used as a break texture stage) of the wall at x and y*/
-    pub fn get_break_stage(&self, x: i32, y: i32) -> i32 {
-        (self.get_break_progress(x, y) as f32 / self.get_wall_type(x, y).break_time as f32 * 9.0) as i32
+    /**
+    Returns the break stage (for example to be used as a break texture stage) of the wall at x and y
+     */
+    pub fn get_break_stage(&self, x: i32, y: i32) -> Result<i32> {
+        Ok((self.get_break_progress(x, y) * 9 / self.get_wall_type_at(x, y)?.break_time) as i32)
     }
 
-    /**includes the necessary steps to start breaking a wall, such as adding it to the breaking_walls list, setting is_breaking to true and sending the WallStartedBreakingEvent*/
-    pub fn start_breaking_wall(&mut self, x: i32, y: i32) {
-        if x < 0 || y < 0 || x >= self.get_width() || y >= self.get_height() {
-            panic!("Wall is accessed out of the bounds! ({}, {})", x, y);
-        }
-        if self.get_wall_type(x, y).break_time == UNBREAKABLE {
-            return;
+    /**
+    Includes the necessary steps to start breaking a wall, such as adding it to the breaking_walls list, setting is_breaking to true and sending the WallStartedBreakingEvent
+     */
+    pub fn start_breaking_wall(&mut self, x: i32, y: i32) -> Result<()> {
+        if self.get_wall_type_at(x, y)?.break_time == UNBREAKABLE {
+            return Ok(());
         }
 
         let mut breaking_wall: Option<&mut BreakingWall> = None;
         for wall in &mut self.breaking_walls {
-            if wall.x == x && wall.y == y {
+            if wall.coord == (x, y) {
                 breaking_wall = Some(wall);
                 break;
             }
         }
 
-        if breaking_wall.is_none() {
-            let mut new_breaking_wall = BreakingWall::new();
-            new_breaking_wall.x = x;
-            new_breaking_wall.y = y;
-            self.breaking_walls.push(new_breaking_wall);
-            breaking_wall = Some(self.breaking_walls.last_mut().unwrap());
-        }
+        let breaking_wall = {
+            if let Some(breaking_wall) = breaking_wall {
+                breaking_wall
+            } else {
+                let mut new_breaking_wall = BreakingWall::new();
+                new_breaking_wall.coord = (x, y);
+                self.breaking_walls.push(new_breaking_wall);
+                self.breaking_walls.last_mut().ok_or(anyhow!("Could not get last breaking wall!"))?
+            }
+        };
 
-        breaking_wall.unwrap().is_breaking = true;
 
-        self.get_chunk_mut(x / CHUNK_SIZE, y / CHUNK_SIZE).breaking_wall_count += 1;
+        breaking_wall.is_breaking = true;
+        Ok(())
 
         //self.wall_started_breaking_event.send(WallStartedBreakingEvent::new(x, y));
     }
 
-    /**includes the necessary steps to stop breaking a wall, such as removing it from the breaking_walls list, setting is_breaking to false and sending the WallStoppedBreakingEvent*/
+    /**
+    Includes the necessary steps to stop breaking a wall,
+    such as removing it from the breaking_walls list,
+    setting is_breaking to false and sending the
+    WallStoppedBreakingEvent
+     */
     pub fn stop_breaking_wall(&mut self, x: i32, y: i32) {
-        if x < 0 || y < 0 || x >= self.get_width() || y >= self.get_height() {
-            panic!("Wall is accessed out of the bounds! ({}, {})", x, y);
-        }
-
         for wall in self.breaking_walls.iter_mut() {
-            if wall.x == x && wall.y == y {
+            if wall.coord == (x, y) {
                 wall.is_breaking = false;
-                self.get_chunk_mut(x / CHUNK_SIZE, y / CHUNK_SIZE).breaking_wall_count -= 1;
                 //self.wall_stopped_breaking_event.send(WallStoppedBreakingEvent::new(x, y));
                 break;
             }
         }
     }
 
-    /**updates breaking walls by increasing break progress and pbreaking walls if necessary*/
-    pub fn update_breaking_walls(&mut self, frame_length: i32) {
-        for i in 0..self.breaking_walls.len() {
-            if self.breaking_walls[i].is_breaking {
-                self.breaking_walls[i].break_progress += frame_length;
-                if self.breaking_walls[i].break_progress > self.get_wall_type(self.breaking_walls[i].x, self.breaking_walls[i].y).break_time {
-                    self.break_wall(self.breaking_walls[i].x, self.breaking_walls[i].y);
-                }
+    /**
+    Updates breaking walls by increasing break
+    progress and breaking walls if necessary
+     */
+    pub fn update_breaking_walls(&mut self, frame_length: f32, events: &mut EventManager) -> Result<()> {
+        for breaking_wall in self.breaking_walls.iter_mut() {
+            if breaking_wall.is_breaking {
+                breaking_wall.break_progress += frame_length as i32;
             }
         }
-    }
 
-    /**breaks the wall at x and y and sends the WallBrokenEvent*/
-    pub fn break_wall(&mut self, x: i32, y: i32) {
-        if x < 0 || y < 0 || x >= self.get_width() || y >= self.get_height() {
-            panic!("Wall is accessed out of the bounds! ({}, {})", x, y);
+        let mut broken_walls = Vec::new();
+        for breaking_wall in self.breaking_walls.iter() {
+            if breaking_wall.break_progress > self.get_wall_type_at(breaking_wall.get_coord().0, breaking_wall.get_coord().1)?.break_time {
+                broken_walls.push(breaking_wall.get_coord());
+            }
         }
-        //self.wall_break_event.send(WallBreakEvent::new(x, y));
 
-        self.set_wall_type(x, y, self.clear.clone());
+        for broken_wall in broken_walls.iter() {
+            let (x, y) = *broken_wall;
+
+            //let _event = WallBreakEvent::new(x, y);
+            //self.wall_break_event.send(event);
+
+            self.set_wall_type(x, y, self.clear)?;
+
+            self.breaking_walls.retain(|breaking_wall| breaking_wall.get_coord() != *broken_wall);
+        }
+
+        Ok(())
     }
 
-    /**returns the count of breaking walls in the given chunk*/
-    pub fn get_breaking_wall_count(&self, chunk_x: i32, chunk_y: i32) -> u8 {
-        self.get_chunk(chunk_x, chunk_y).breaking_wall_count
+    /**
+    Serializes walls for saving
+     */
+    pub fn serialize(&self) -> Result<Vec<u8>> {
+        Ok(snap::raw::Encoder::new().compress_vec(&bincode::serialize(&self.walls_data)?)?)
     }
 
-    /**serializes walls for saving*/
-    pub fn to_serial(&self) -> Vec<u8> {
-        snap::raw::Encoder::new().
-            compress_vec(&bincode::
-            serialize(&self.walls).unwrap()
-            ).unwrap()
+    /**
+    Deserializes walls from u8 vector
+     */
+    pub fn deserialize(&mut self, data: Vec<u8>) -> Result<()> {
+        let decompressed = snap::raw::Decoder::new().decompress_vec(&data)?;
+        Ok(self.walls_data = bincode::deserialize(&decompressed)?)
     }
 
-    /**deserializes walls from u8 vector*/
-    pub fn from_serial(&mut self, data: Vec<u8>, blocks: &Blocks) {
-        let decompressed = snap::raw::Decoder::new().decompress_vec(&data).unwrap();
-        self.create(blocks);
-        self.walls = bincode::deserialize(&decompressed).unwrap();
+    /**
+    Registers a new wall type
+     */
+    pub fn register_wall_type(&mut self, mut wall: Wall) -> WallId {
+        wall.id.id = self.wall_types.len() as i8;
+        let result = wall.id;
+        self.wall_types.push(wall);
+        result
     }
 
-    /**registers new wall type*/
-    pub fn register_wall_type(&mut self, mut wall_type: WallType) {
-        wall_type.id = self.wall_types.len() as i32;
-        self.wall_types.push(Arc::new(wall_type));
-    }
-
-    /**returns wall type with the given name*/
-    pub fn get_wall_type_by_name(&self, name: &str) -> Option<Arc<WallType>> {
+    /**
+    Returns a wall id type with the given name
+     */
+    pub fn get_wall_id_by_name(&self, name: &str) -> Result<WallId> {
         for wall_type in &self.wall_types {
             if wall_type.name == name {
-                return Some(Arc::clone(wall_type));
+                return Ok(wall_type.id);
             }
         }
-        None
+        Err(anyhow!("No wall type with name {} found", name))
     }
+}
+
+struct WallChangeEvent {
+    pub x: i32,
+    pub y: i32
+}
+
+struct WallBreakEvent {
+    pub x: i32,
+    pub y: i32
+}
+
+struct WallStartedBreakingEvent {
+    pub x: i32,
+    pub y: i32
+}
+
+struct WallStoppedBreakingEvent {
+    pub x: i32,
+    pub y: i32
 }
