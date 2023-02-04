@@ -6,3 +6,4 @@ mod background;
 mod camera;
 mod block_selector;
 mod blocks;
+mod walls;

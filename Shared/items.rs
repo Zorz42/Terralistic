@@ -103,14 +103,9 @@ struct ItemCreationEvent {
     pub item_id: u32,
 }
 
-impl ItemCreationEvent {
-    pub fn new(item_id: u32) -> Self { ItemCreationEvent{ item_id } }
-}
-//impl Event for ItemCreationEvent {}
-
 pub struct TileDrop {
-    drop: Rc<ItemType>,
-    chance: f32
+    pub drop: Rc<ItemType>,
+    pub chance: f32
 }
 
 impl TileDrop {

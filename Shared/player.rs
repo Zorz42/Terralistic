@@ -16,15 +16,6 @@ struct PlayerHealthChangeEvent {
     /**health before the change*/
     pub old_health: i32,
 }
-impl PlayerHealthChangeEvent {
-    pub fn new(player_id: u32, old_health: i32) -> PlayerHealthChangeEvent {
-        PlayerHealthChangeEvent {
-            player_id,
-            old_health,
-        }
-    }
-}
-//impl Event for PlayerHealthChangeEvent {}
 
 /**struct with all the information about the player*/
 pub struct Player {

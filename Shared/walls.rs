@@ -82,38 +82,35 @@ impl WallsData {
     }
 }
 
-struct Walls {
+pub struct Walls {
     walls_data: WallsData,
 
     breaking_walls: Vec<BreakingWall>,
     wall_types: Vec<Wall>,
 
-    curr_id: i32,
-
     pub clear: WallId,
     pub hammer: ToolId,
 }
 
-impl Walls{
+impl Walls {
     pub fn new(blocks: &mut Blocks) -> Self {
-        let mut walls = Walls {
+        let mut result = Self {
             walls_data: WallsData::new(),
 
             breaking_walls: Vec::new(),
             wall_types: Vec::new(),
 
-            curr_id: 0,
-
             clear: WallId::new(),
             hammer: ToolId::new(),
         };
 
-        let clear_type = Wall::new("clear".to_string());
-        walls.clear = walls.register_wall_type(clear_type);
+        let clear = Wall::new("clear".to_string());
+        result.clear = result.register_wall_type(clear);
 
-        let hammer = Tool::new("Hammer".to_string());
-        walls.hammer = blocks.register_new_tool_type(hammer);
-        walls
+        let hammer = Tool::new("hammer".to_string());
+        result.hammer = blocks.register_new_tool_type(hammer);
+
+        result
     }
 
     /**
@@ -192,7 +189,7 @@ impl Walls{
     Returns the break stage (for example to be used as a break texture stage) of the wall at x and y
      */
     pub fn get_break_stage(&self, x: i32, y: i32) -> Result<i32> {
-        Ok((self.get_break_progress(x, y) * 9 / self.get_wall_type_at(x, y)?.break_time))
+        Ok(self.get_break_progress(x, y) * 9 / self.get_wall_type_at(x, y)?.break_time)
     }
 
     /**
@@ -287,7 +284,7 @@ impl Walls{
     /**
     Deserializes walls from u8 vector
      */
-    pub fn deserialize(&mut self, data: Vec<u8>) -> Result<()> {
+    pub fn deserialize(&mut self, data: &Vec<u8>) -> Result<()> {
         let decompressed = snap::raw::Decoder::new().decompress_vec(&data)?;
         self.walls_data = bincode::deserialize(&decompressed)?;
         Ok(())
@@ -313,6 +310,35 @@ impl Walls{
             }
         }
         Err(anyhow!("No wall type with name {} found", name))
+    }
+
+    /**
+    This function creates a world from a 2d vector of wall type ids
+     */
+    pub fn create_from_wall_ids(&mut self, wall_ids: Vec<Vec<WallId>>) -> Result<()> {
+        let width = wall_ids.len() as i32;
+        let height;
+        if let Some(row) = wall_ids.get(0) {
+            height = row.len() as i32;
+        } else {
+            return Err(anyhow!("Wall ids must not be empty"));
+        }
+
+        // check that all the rows have the same length
+        for row in &wall_ids {
+            if row.len() as i32 != height {
+                return Err(anyhow!("All rows must have the same length"));
+            }
+        }
+
+        self.create(width, height)?;
+        self.walls_data.walls.clear();
+        for row in wall_ids {
+            for wall_id in row {
+                self.walls_data.walls.push(wall_id);
+            }
+        }
+        Ok(())
     }
 }
 

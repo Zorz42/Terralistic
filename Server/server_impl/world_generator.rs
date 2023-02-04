@@ -6,6 +6,7 @@ use rlua::prelude::{LuaUserData};
 use rlua::UserDataMethods;
 use shared::blocks::{BlockId, Blocks};
 use shared::mod_manager::{get_mod_id, ModManager};
+use shared::walls::{WallId, Walls};
 
 fn turbulence(noise: &Perlin, x: f32, y: f32) -> f32 {
     let mut value = 0.0;
@@ -68,7 +69,7 @@ impl WorldGenerator {
         });
     }
 
-    pub fn generate(&mut self, blocks: &mut Blocks, mods: &mut ModManager, min_width: i32, height: i32, seed: u64, status_text: &Mutex<String>) {
+    pub fn generate(&mut self, blocks: &mut Blocks, walls: &mut Walls, mods: &mut ModManager, min_width: i32, height: i32, seed: u64, status_text: &Mutex<String>) {
         // create a random number generator with seed
         let mut rng = rand::rngs::StdRng::seed_from_u64(seed);
 
@@ -128,7 +129,8 @@ impl WorldGenerator {
         *status_text.lock().unwrap() = "Generating world".to_string();
         blocks.create(width, height).unwrap();
 
-        let mut terrain = vec![vec![BlockId::new(); height as usize]; width as usize];
+        let mut block_terrain = vec![vec![BlockId::new(); height as usize]; width as usize];
+        let mut wall_terrain = vec![vec![WallId::new(); height as usize]; width as usize];
 
         let mut min_cave_thresholds = vec![0.0; width as usize];
         let mut max_cave_thresholds = vec![0.15; width as usize];
@@ -214,7 +216,7 @@ impl WorldGenerator {
 
                 for y in 0..height {
                     for x in prev_x..x + 1 {
-                        terrain[x as usize][y as usize] = curr_terrain[(x - prev_x) as usize][y as usize];
+                        block_terrain[x as usize][y as usize] = curr_terrain[(x - prev_x) as usize][y as usize];
                     }
                 }
                 curr_terrain.clear();
@@ -222,7 +224,8 @@ impl WorldGenerator {
             }
         }
 
-        blocks.create_from_block_ids(terrain).unwrap();
+        blocks.create_from_block_ids(block_terrain).unwrap();
+        walls.create_from_wall_ids(wall_terrain).unwrap();
 
         println!("World generated in {}ms", start_time.elapsed().as_millis());
 

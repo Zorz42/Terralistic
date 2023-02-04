@@ -12,6 +12,7 @@ use crate::game::blocks::ClientBlocks;
 use crate::game::camera::Camera;
 use crate::game::mod_manager::ClientModManager;
 use crate::game::networking::ClientNetworking;
+use crate::game::walls::ClientWalls;
 use crate::menus::{run_loading_screen, BackgroundRect};
 
 pub struct Game {
@@ -22,10 +23,14 @@ pub struct Game {
     background: Background,
     block_selector: BlockSelector,
     blocks: ClientBlocks,
+    walls: ClientWalls,
 }
 
 impl Game {
     pub fn new(server_port: u16, server_address: String) -> Self {
+        let mut blocks = ClientBlocks::new();
+        let walls = ClientWalls::new(&mut blocks.blocks);
+
         Self {
             events: EventManager::new(),
             networking: ClientNetworking::new(server_port, server_address),
@@ -33,7 +38,8 @@ impl Game {
             camera: Camera::new(),
             background: Background::new(),
             block_selector: BlockSelector::new(),
-            blocks: ClientBlocks::new(),
+            blocks,
+            walls,
         }
     }
 
