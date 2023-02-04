@@ -1,4 +1,4 @@
-use super::{entities::*, blocks::*};
+use super::{blocks::*, entities::*};
 
 //TODO: write tests
 
@@ -8,7 +8,13 @@ const PLAYER_MAX_HEALTH: i32 = 80;
 
 /**enum of possible movement types for the player*/
 #[derive(PartialEq, Copy, Clone)]
-pub enum MovingType { Standing, Walking, Sneaking, SneakWalking, Running }
+pub enum MovingType {
+    Standing,
+    Walking,
+    Sneaking,
+    SneakWalking,
+    Running,
+}
 
 /**event that is fired when the player's health changes*/
 struct PlayerHealthChangeEvent {
@@ -49,25 +55,57 @@ impl Player {
     }
 }
 impl EntityObject for Player {
-    fn get_width(&self) -> i32 { PLAYER_WIDTH * 2 }
-    fn get_height(&self) -> i32 { PLAYER_HEIGHT * 2 }
-    fn is_colliding(&self, blocks: &Blocks, direction: Direction, colliding_x: f32, colliding_y: f32) -> bool{
+    fn get_width(&self) -> i32 {
+        PLAYER_WIDTH * 2
+    }
+    fn get_height(&self) -> i32 {
+        PLAYER_HEIGHT * 2
+    }
+    fn is_colliding(
+        &self, blocks: &Blocks, direction: Direction, colliding_x: f32, colliding_y: f32,
+    ) -> bool {
         let mut result = self.is_colliding_with_block(blocks, direction, colliding_x, colliding_y);
 
-        if !result && self.moving_type == MovingType::SneakWalking &&
-            self.is_colliding_with_block(blocks, Direction::DOWN, self.get_x(), self.get_y() + 1.0) &&
-            (!self.is_colliding_with_block(blocks, Direction::DOWN, self.get_x() + 1.0, self.get_y() + 1.0) ||
-            !self.is_colliding_with_block(blocks, Direction::DOWN, self.get_x() - 1.0, self.get_y() + 1.0)) {
+        if !result
+            && self.moving_type == MovingType::SneakWalking
+            && self.is_colliding_with_block(
+                blocks,
+                Direction::DOWN,
+                self.get_x(),
+                self.get_y() + 1.0,
+            )
+            && (!self.is_colliding_with_block(
+                blocks,
+                Direction::DOWN,
+                self.get_x() + 1.0,
+                self.get_y() + 1.0,
+            ) || !self.is_colliding_with_block(
+                blocks,
+                Direction::DOWN,
+                self.get_x() - 1.0,
+                self.get_y() + 1.0,
+            ))
+        {
             result = false;
         }
 
         let starting_x = (colliding_x / (BLOCK_WIDTH as f32 * 2.0)) as i32;
-        let ending_x = ((colliding_x + self.get_width() as f32 - 1.0) / (BLOCK_WIDTH as f32 * 2.0)) as i32;
-        let ending_y = ((colliding_y + self.get_height() as f32 - 1.0) / (BLOCK_WIDTH as f32 * 2.0)) as i32;
+        let ending_x =
+            ((colliding_x + self.get_width() as f32 - 1.0) / (BLOCK_WIDTH as f32 * 2.0)) as i32;
+        let ending_y =
+            ((colliding_y + self.get_height() as f32 - 1.0) / (BLOCK_WIDTH as f32 * 2.0)) as i32;
 
-        if !result && (colliding_y as i32 + self.get_height()) % (BLOCK_WIDTH * 2) == 1 && direction == Direction::DOWN && (self.get_velocity_y() > 3.0 || self.moving_type != MovingType::Sneaking){
+        if !result
+            && (colliding_y as i32 + self.get_height()) % (BLOCK_WIDTH * 2) == 1
+            && direction == Direction::DOWN
+            && (self.get_velocity_y() > 3.0 || self.moving_type != MovingType::Sneaking)
+        {
             for x in starting_x..=ending_x {
-                if blocks.get_block_type_at(x, ending_y).unwrap().feet_collidable {
+                if blocks
+                    .get_block_type_at(x, ending_y)
+                    .unwrap()
+                    .feet_collidable
+                {
                     result = true;
                     break;
                 }
@@ -75,25 +113,28 @@ impl EntityObject for Player {
         }
         result
     }
-    fn is_colliding_with_block(&self, blocks: &Blocks, direction: Direction, colliding_x: f32, colliding_y: f32) -> bool{
-        self.entity.is_colliding_with_block(blocks, direction, colliding_x, colliding_y)
+    fn is_colliding_with_block(
+        &self, blocks: &Blocks, direction: Direction, colliding_x: f32, colliding_y: f32,
+    ) -> bool {
+        self.entity
+            .is_colliding_with_block(blocks, direction, colliding_x, colliding_y)
     }
-    fn update_entity(&mut self, blocks: &Blocks){
+    fn update_entity(&mut self, blocks: &Blocks) {
         self.entity.update_entity(blocks);
     }
-    fn is_touching_ground(&self, blocks: &Blocks) -> bool{
+    fn is_touching_ground(&self, blocks: &Blocks) -> bool {
         self.entity.is_touching_ground(blocks)
     }
-    fn get_x(&self) -> f32{
+    fn get_x(&self) -> f32 {
         self.entity.get_x()
     }
-    fn get_y(&self) -> f32{
+    fn get_y(&self) -> f32 {
         self.entity.get_y()
     }
-    fn get_velocity_x(&self) -> f32{
+    fn get_velocity_x(&self) -> f32 {
         self.entity.get_velocity_x()
     }
-    fn get_velocity_y(&self) -> f32{
+    fn get_velocity_y(&self) -> f32 {
         self.entity.get_velocity_y()
     }
 }
@@ -144,17 +185,21 @@ impl EntityStructTrait<Player> for Players {
             let old_vel_x = entity.get_velocity_x();
             let old_vel_y = entity.get_velocity_y();
             entity.update_entity(blocks);
-            if old_vel_x != entity.get_velocity_x() || old_vel_y != entity.get_velocity_y(){
-                let _event = EntityAbsoluteVelocityChangeEvent::new(entity.entity.id, old_vel_x, old_vel_y);
+            if old_vel_x != entity.get_velocity_x() || old_vel_y != entity.get_velocity_y() {
+                let _event =
+                    EntityAbsoluteVelocityChangeEvent::new(entity.entity.id, old_vel_x, old_vel_y);
                 //self.player_absolute_velocity_change_event.send(event);
             }
         }
     }
-    fn register_entity(&mut self, entity: Player){
+    fn register_entity(&mut self, entity: Player) {
         self.players.push(entity);
     }
-    fn remove_entity(&mut self, entity_id: u32){
-        let pos = self.players.iter().position(|entity| entity.entity.id == entity_id);
+    fn remove_entity(&mut self, entity_id: u32) {
+        let pos = self
+            .players
+            .iter()
+            .position(|entity| entity.entity.id == entity_id);
         if pos.is_none() {
             return;
         }
@@ -162,13 +207,17 @@ impl EntityStructTrait<Player> for Players {
         //self.player_deletion_event.send(event);
         self.players.remove(pos.unwrap());
     }
-    fn get_entity_by_id(&self, entity_id: u32) -> Option<&Player>{
-        self.players.iter().find(|entity| entity.entity.id == entity_id)
+    fn get_entity_by_id(&self, entity_id: u32) -> Option<&Player> {
+        self.players
+            .iter()
+            .find(|entity| entity.entity.id == entity_id)
     }
-    fn get_entity_by_id_mut(&self, entity_id: u32) -> Option<&Player>{
-        self.players.iter().find(|entity| entity.entity.id == entity_id)
+    fn get_entity_by_id_mut(&self, entity_id: u32) -> Option<&Player> {
+        self.players
+            .iter()
+            .find(|entity| entity.entity.id == entity_id)
     }
-    fn get_entities(&self) -> &Vec<Player>{
+    fn get_entities(&self) -> &Vec<Player> {
         &self.players
     }
     fn set_velocity_x(&mut self, entity: &mut Player, velocity_x: f32) {

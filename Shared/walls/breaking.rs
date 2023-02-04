@@ -1,7 +1,7 @@
-use anyhow::{anyhow, Result};
-use events::EventManager;
 use crate::blocks::UNBREAKABLE;
 use crate::walls::Walls;
+use anyhow::{anyhow, Result};
+use events::EventManager;
 
 /**
 Stores the info about a breaking progress about a wall.
@@ -69,10 +69,11 @@ impl Walls {
                 let mut new_breaking_wall = BreakingWall::new();
                 new_breaking_wall.coord = (x, y);
                 self.breaking_walls.push(new_breaking_wall);
-                self.breaking_walls.last_mut().ok_or(anyhow!("Could not get last breaking wall!"))?
+                self.breaking_walls
+                    .last_mut()
+                    .ok_or(anyhow!("Could not get last breaking wall!"))?
             }
         };
-
 
         breaking_wall.is_breaking = true;
         Ok(())
@@ -100,7 +101,9 @@ impl Walls {
     Updates breaking walls by increasing break
     progress and breaking walls if necessary
      */
-    pub fn update_breaking_walls(&mut self, frame_length: f32, _events: &mut EventManager) -> Result<()> {
+    pub fn update_breaking_walls(
+        &mut self, frame_length: f32, _events: &mut EventManager,
+    ) -> Result<()> {
         for breaking_wall in self.breaking_walls.iter_mut() {
             if breaking_wall.is_breaking {
                 breaking_wall.break_progress += frame_length as i32;
@@ -109,7 +112,11 @@ impl Walls {
 
         let mut broken_walls = Vec::new();
         for breaking_wall in self.breaking_walls.iter() {
-            if breaking_wall.break_progress > self.get_wall_type_at(breaking_wall.get_coord().0, breaking_wall.get_coord().1)?.break_time {
+            if breaking_wall.break_progress
+                > self
+                    .get_wall_type_at(breaking_wall.get_coord().0, breaking_wall.get_coord().1)?
+                    .break_time
+            {
                 broken_walls.push(breaking_wall.get_coord());
             }
         }
@@ -122,7 +129,8 @@ impl Walls {
 
             self.set_wall_type(x, y, self.clear)?;
 
-            self.breaking_walls.retain(|breaking_wall| breaking_wall.get_coord() != *broken_wall);
+            self.breaking_walls
+                .retain(|breaking_wall| breaking_wall.get_coord() != *broken_wall);
         }
 
         Ok(())

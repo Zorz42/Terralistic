@@ -1,14 +1,14 @@
-use std::sync::{Arc, Mutex};
-use serde_derive::{Serialize, Deserialize};
-use bincode;
-use snap;
-use crate::blocks::{Blocks, ToolId, UNBREAKABLE};
 use crate::blocks::Tool;
-use crate::world_map::WorldMap;
-use anyhow::{anyhow, Result};
-use events::EventManager;
+use crate::blocks::{Blocks, ToolId, UNBREAKABLE};
 use crate::mod_manager::ModManager;
 use crate::walls::{BreakingWall, Wall};
+use crate::world_map::WorldMap;
+use anyhow::{anyhow, Result};
+use bincode;
+use events::EventManager;
+use serde_derive::{Deserialize, Serialize};
+use snap;
+use std::sync::{Arc, Mutex};
 
 /**
 WallId stores id to a type of wall.
@@ -20,9 +20,7 @@ pub struct WallId {
 
 impl WallId {
     pub fn new() -> Self {
-        Self {
-            id: -1
-        }
+        Self { id: -1 }
     }
 }
 
@@ -75,7 +73,10 @@ impl Walls {
 
         let mut clear = Wall::new();
         clear.name = "clear".to_string();
-        result.clear = Self::register_new_wall_type(&mut result.wall_types.lock().unwrap_or_else(|e| e.into_inner()), clear);
+        result.clear = Self::register_new_wall_type(
+            &mut result.wall_types.lock().unwrap_or_else(|e| e.into_inner()),
+            clear,
+        );
 
         let mut hammer = Tool::new();
         hammer.name = "hammer".to_string();
@@ -97,13 +98,14 @@ impl Walls {
     Initializes
      */
     pub fn init(&mut self, mods: &mut ModManager) {
-        mods.add_global_function("new_wall_type", move |_lua, _: ()| {
-            Ok(Wall::new())
-        });
+        mods.add_global_function("new_wall_type", move |_lua, _: ()| Ok(Wall::new()));
 
         let wall_types = self.wall_types.clone();
         mods.add_global_function("register_wall_type", move |_lua, wall_type: Wall| {
-            let result = Self::register_new_wall_type(&mut wall_types.lock().unwrap_or_else(|e| e.into_inner()), wall_type);
+            let result = Self::register_new_wall_type(
+                &mut wall_types.lock().unwrap_or_else(|e| e.into_inner()),
+                wall_type,
+            );
             Ok(result)
         });
 
@@ -123,7 +125,15 @@ impl Walls {
     Returns the wall id at the given position.
      */
     fn get_wall(&self, x: i32, y: i32) -> Result<WallId> {
-        Ok(*self.walls_data.walls.get(self.walls_data.map.translate_coords(x, y)?).ok_or(anyhow!("Wall is accessed out of the bounds! ({}, {})", x, y))?)
+        Ok(*self
+            .walls_data
+            .walls
+            .get(self.walls_data.map.translate_coords(x, y)?)
+            .ok_or(anyhow!(
+                "Wall is accessed out of the bounds! ({}, {})",
+                x,
+                y
+            ))?)
     }
 
     /**
@@ -152,7 +162,10 @@ impl Walls {
      */
     pub fn get_wall_type(&self, id: WallId) -> Result<Wall> {
         let walls = self.wall_types.lock().unwrap_or_else(|e| e.into_inner());
-        Ok(walls.get(id.id as usize).ok_or(anyhow!("Wall type not found"))?.clone())
+        Ok(walls
+            .get(id.id as usize)
+            .ok_or(anyhow!("Wall type not found"))?
+            .clone())
     }
 
     /**
@@ -164,7 +177,15 @@ impl Walls {
             return Ok(());
         }
 
-        *self.walls_data.walls.get_mut(self.walls_data.map.translate_coords(x, y)?).ok_or(anyhow!("Wall is accessed out of the bounds! ({}, {})", x, y))? = wall_id;
+        *self
+            .walls_data
+            .walls
+            .get_mut(self.walls_data.map.translate_coords(x, y)?)
+            .ok_or(anyhow!(
+                "Wall is accessed out of the bounds! ({}, {})",
+                x,
+                y
+            ))? = wall_id;
 
         //self.wall_change_event.send(WallChangeEvent::new(x, y));
 
@@ -192,7 +213,7 @@ impl Walls {
      */
     fn register_new_wall_type(wall_types: &mut Vec<Wall>, mut wall_type: Wall) -> WallId {
         let id = wall_types.len() as i8;
-        let result = WallId{ id };
+        let result = WallId { id };
         wall_type.id = result;
         wall_types.push(wall_type);
         result
@@ -202,7 +223,12 @@ impl Walls {
     Returns a wall id type with the given name
      */
     pub fn get_wall_id_by_name(&self, name: &str) -> Result<WallId> {
-        for wall_type in self.wall_types.lock().unwrap_or_else(|e| e.into_inner()).iter() {
+        for wall_type in self
+            .wall_types
+            .lock()
+            .unwrap_or_else(|e| e.into_inner())
+            .iter()
+        {
             if wall_type.name == name {
                 return Ok(wall_type.id);
             }
@@ -242,20 +268,20 @@ impl Walls {
 
 struct WallChangeEvent {
     pub x: i32,
-    pub y: i32
+    pub y: i32,
 }
 
 struct WallBreakEvent {
     pub x: i32,
-    pub y: i32
+    pub y: i32,
 }
 
 struct WallStartedBreakingEvent {
     pub x: i32,
-    pub y: i32
+    pub y: i32,
 }
 
 struct WallStoppedBreakingEvent {
     pub x: i32,
-    pub y: i32
+    pub y: i32,
 }

@@ -1,8 +1,8 @@
+use rlua::prelude::LuaError;
+use rlua::{Context, FromLuaMulti, Lua, ToLuaMulti};
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::string::ToString;
-use rlua::{Context, FromLuaMulti, Lua, ToLuaMulti};
-use rlua::prelude::LuaError;
-use serde::{Deserialize, Serialize};
 
 static MOD_ID_IDENT: &str = "__TERRALISTIC_MOD_ID";
 
@@ -72,12 +72,16 @@ impl GameMod {
     It takes the name of the function and the closure as input.
      */
     pub fn add_global_function<F, A, R>(&mut self, name: &str, func: F)
-                                        where F: 'static + Send + Fn(Context, A) -> Result<R, LuaError>,
-                                              A: for<'a> FromLuaMulti<'a>,
-                                              R: for<'a> ToLuaMulti<'a>, {
+    where
+        F: 'static + Send + Fn(Context, A) -> Result<R, LuaError>,
+        A: for<'a> FromLuaMulti<'a>,
+        R: for<'a> ToLuaMulti<'a>,
+    {
         self.lua.context(|lua| {
             let globals = lua.globals();
-            globals.set(name, lua.create_function(func).unwrap()).unwrap();
+            globals
+                .set(name, lua.create_function(func).unwrap())
+                .unwrap();
         });
     }
 
@@ -86,8 +90,10 @@ impl GameMod {
     It takes the name of the function and the arguments as input.
      */
     pub fn call_function<A, R>(&mut self, name: &str, args: A) -> Result<R, LuaError>
-                               where A: for<'a> ToLuaMulti<'a>,
-                                     R: for<'a> FromLuaMulti<'a> {
+    where
+        A: for<'a> ToLuaMulti<'a>,
+        R: for<'a> FromLuaMulti<'a>,
+    {
         self.lua.context(|lua| {
             let globals = lua.globals();
             let func = globals.get::<_, rlua::Function>(name)?;
@@ -129,8 +135,8 @@ struct GameModData {
 // implement serialize and deserialize for game mod
 impl Serialize for GameMod {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-        where
-            S: serde::Serializer,
+    where
+        S: serde::Serializer,
     {
         let data = GameModData {
             lua_code: self.lua_code.clone(),
@@ -142,8 +148,8 @@ impl Serialize for GameMod {
 
 impl<'de> Deserialize<'de> for GameMod {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-        where
-            D: serde::Deserializer<'de>,
+    where
+        D: serde::Deserializer<'de>,
     {
         let data = GameModData::deserialize(deserializer)?;
         Ok(Self {
@@ -192,12 +198,14 @@ impl ModManager {
     to a lua function.
      */
     pub fn add_global_function<F, A, R>(&mut self, name: &str, func: F)
-        where
-            F: 'static + Send + Clone + Fn(Context, A) -> Result<R, LuaError>,
-            A: for<'a> FromLuaMulti<'a>,
-            R: for<'a> ToLuaMulti<'a>,
+    where
+        F: 'static + Send + Clone + Fn(Context, A) -> Result<R, LuaError>,
+        A: for<'a> FromLuaMulti<'a>,
+        R: for<'a> ToLuaMulti<'a>,
     {
-        if self.state == ModManagerState::LoadingFunctions || self.state == ModManagerState::LoadingMods {
+        if self.state == ModManagerState::LoadingFunctions
+            || self.state == ModManagerState::LoadingMods
+        {
             self.state = ModManagerState::LoadingFunctions;
             for mod_ in &mut self.mods {
                 mod_.add_global_function(&("terralistic_".to_string() + name), func.clone());
@@ -207,13 +215,14 @@ impl ModManager {
         }
     }
 
-
     /**
     This function initializes all the mods if it is loading functions or loading mods.
     Else it throws an error.
      */
     pub fn init(&mut self) {
-        if self.state == ModManagerState::LoadingMods || self.state == ModManagerState::LoadingFunctions {
+        if self.state == ModManagerState::LoadingMods
+            || self.state == ModManagerState::LoadingFunctions
+        {
             // iterate over all the mods and initialize them, id passed to the mod is the index of the mod in the vector
             for (id, mod_) in self.mods.iter_mut().enumerate() {
                 mod_.init(id as i32);

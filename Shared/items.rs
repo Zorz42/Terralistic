@@ -1,33 +1,34 @@
-use super::{walls, entities::*, blocks::Block};
-use std::rc::Rc;
+use super::{blocks::Block, entities::*, walls};
+use crate::blocks::Tool;
+use crate::blocks::{BlockId, Blocks};
+use crate::walls::WallId;
 use std::collections::HashMap;
 use std::ops::Deref;
-use crate::blocks::{BlockId, Blocks};
-use crate::blocks::Tool;
-use crate::walls::WallId;
+use std::rc::Rc;
 
 const ITEM_WIDTH: i32 = 8;
 
 //TODO: write comments and tests
-pub struct ItemType{
-    pub name: String, pub display_name: String,
+pub struct ItemType {
+    pub name: String,
+    pub display_name: String,
     pub max_stack: i32,
     pub places_block: Option<Rc<Block>>,
     pub places_wall: Option<Rc<walls::WallId>>,
     pub tool_powers: HashMap<Rc<Tool>, i32>,
-    id: i32
+    id: i32,
 }
 
 impl ItemType {
     pub fn new(name: String) -> Self {
-        ItemType{
+        ItemType {
             name,
             display_name: "".to_string(),
             max_stack: 0,
             places_block: None,
             places_wall: None,
             tool_powers: HashMap::new(),
-            id: 0
+            id: 0,
         }
     }
     pub fn get_id(&self) -> i32 {
@@ -44,53 +45,65 @@ pub struct Item {
 impl Item {
     /**creates a new item*/
     pub fn new(item_type: Rc<ItemType>, x: i32, y: i32, entity_item_count: u32, id: u32) -> Self {
-        Item{
+        Item {
             item_type,
             entity_item_count,
-            entity: Entity::new(EntityType::ITEM, x, y, id)
+            entity: Entity::new(EntityType::ITEM, x, y, id),
         }
     }
     /**returns item type*/
-    pub fn get_type(&self) -> &ItemType { self.item_type.deref() }
+    pub fn get_type(&self) -> &ItemType {
+        self.item_type.deref()
+    }
 }
 
 impl EntityObject for Item {
-    fn get_width(&self) -> i32 { ITEM_WIDTH * 2 }
-    fn get_height(&self) -> i32 { ITEM_WIDTH * 2 }
-    fn is_colliding(&self, blocks: &Blocks, direction: Direction, colliding_x: f32, colliding_y: f32) -> bool{
-        self.entity.is_colliding(blocks, direction, colliding_x, colliding_y)
+    fn get_width(&self) -> i32 {
+        ITEM_WIDTH * 2
     }
-    fn is_colliding_with_block(&self, blocks: &Blocks, direction: Direction, colliding_x: f32, colliding_y: f32) -> bool{
-        self.entity.is_colliding_with_block(blocks, direction, colliding_x, colliding_y)
+    fn get_height(&self) -> i32 {
+        ITEM_WIDTH * 2
     }
-    fn update_entity(&mut self, blocks: &Blocks){
+    fn is_colliding(
+        &self, blocks: &Blocks, direction: Direction, colliding_x: f32, colliding_y: f32,
+    ) -> bool {
+        self.entity
+            .is_colliding(blocks, direction, colliding_x, colliding_y)
+    }
+    fn is_colliding_with_block(
+        &self, blocks: &Blocks, direction: Direction, colliding_x: f32, colliding_y: f32,
+    ) -> bool {
+        self.entity
+            .is_colliding_with_block(blocks, direction, colliding_x, colliding_y)
+    }
+    fn update_entity(&mut self, blocks: &Blocks) {
         self.entity.update_entity(blocks);
     }
-    fn is_touching_ground(&self, blocks: &Blocks) -> bool{
+    fn is_touching_ground(&self, blocks: &Blocks) -> bool {
         self.entity.is_touching_ground(blocks)
     }
-    fn get_x(&self) -> f32{
+    fn get_x(&self) -> f32 {
         self.entity.get_x()
     }
-    fn get_y(&self) -> f32{
+    fn get_y(&self) -> f32 {
         self.entity.get_y()
     }
-    fn get_velocity_x(&self) -> f32{
+    fn get_velocity_x(&self) -> f32 {
         self.entity.get_velocity_x()
     }
-    fn get_velocity_y(&self) -> f32{
+    fn get_velocity_y(&self) -> f32 {
         self.entity.get_velocity_y()
     }
 }
 
 pub struct ItemStack {
     pub item_type: Rc<ItemType>,
-    pub stack: i32
+    pub stack: i32,
 }
 
 impl ItemStack {
     pub fn new(item_type: Rc<ItemType>, stack: i32) -> Self {
-        ItemStack{ item_type, stack }
+        ItemStack { item_type, stack }
     }
 }
 impl Clone for ItemStack {
@@ -105,24 +118,22 @@ struct ItemCreationEvent {
 
 pub struct TileDrop {
     pub drop: Rc<ItemType>,
-    pub chance: f32
+    pub chance: f32,
 }
 
 impl TileDrop {
     pub fn new(drop: Rc<ItemType>, chance: f32) -> Self {
-        TileDrop{ drop, chance }
+        TileDrop { drop, chance }
     }
 }
 
 pub struct Items {
-
     items: Vec<Item>,
     item_types: Vec<Rc<ItemType>>,
     block_drops: HashMap<BlockId, TileDrop>,
     wall_drops: HashMap<WallId, TileDrop>,
 
     pub nothing: Rc<ItemType>,
-
     //item_creation_event: Sender<ItemCreationEvent>,
     //item_position_change_event: Sender<EntityPositionChangeEvent>,
     //item_velocity_change_event: Sender<EntityVelocityChangeEvent>,
@@ -136,7 +147,7 @@ impl Items {
         let mut item_types = Vec::new();
         item_types.push(nothing.clone());
 
-        Items{
+        Items {
             items: Vec::new(),
             item_types,
             block_drops: HashMap::new(),
@@ -150,7 +161,9 @@ impl Items {
     }
 
     /**this function spawns an item into the world*/
-    pub fn spawn_item(&mut self, item_type: Rc<ItemType>, x: i32, y: i32, entity_item_count: u32) -> u32 {
+    pub fn spawn_item(
+        &mut self, item_type: Rc<ItemType>, x: i32, y: i32, entity_item_count: u32,
+    ) -> u32 {
         let item = Item::new(item_type, x, y, entity_item_count, 0);
         self.register_entity(item);
         let item = self.items.last().unwrap();
@@ -208,11 +221,14 @@ impl EntityStructTrait<Item> for Items {
             entity.update_entity(blocks);
         }
     }
-    fn register_entity(&mut self, entity: Item){
+    fn register_entity(&mut self, entity: Item) {
         self.items.push(entity);
     }
-    fn remove_entity(&mut self, entity_id: u32){
-        let pos = self.items.iter().position(|entity| entity.entity.id == entity_id);
+    fn remove_entity(&mut self, entity_id: u32) {
+        let pos = self
+            .items
+            .iter()
+            .position(|entity| entity.entity.id == entity_id);
         if pos.is_none() {
             return;
         }
@@ -220,13 +236,17 @@ impl EntityStructTrait<Item> for Items {
         //self.item_deletion_event.send(event);
         self.items.remove(pos.unwrap());
     }
-    fn get_entity_by_id(&self, entity_id: u32) -> Option<&Item>{
-        self.items.iter().find(|entity| entity.entity.id == entity_id)
+    fn get_entity_by_id(&self, entity_id: u32) -> Option<&Item> {
+        self.items
+            .iter()
+            .find(|entity| entity.entity.id == entity_id)
     }
-    fn get_entity_by_id_mut(&self, entity_id: u32) -> Option<&Item>{
-        self.items.iter().find(|entity| entity.entity.id == entity_id)
+    fn get_entity_by_id_mut(&self, entity_id: u32) -> Option<&Item> {
+        self.items
+            .iter()
+            .find(|entity| entity.entity.id == entity_id)
     }
-    fn get_entities(&self) -> &Vec<Item>{
+    fn get_entities(&self) -> &Vec<Item> {
         &self.items
     }
     fn set_velocity_x(&mut self, entity: &mut Item, velocity_x: f32) {

@@ -5,7 +5,7 @@ mod breaking;
 mod tests;
 
 // import * from all the modules
-pub use blocks::*;
-pub use tool::*;
 pub use block_type::*;
+pub use blocks::*;
 pub use breaking::*;
+pub use tool::*;

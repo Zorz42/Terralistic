@@ -1,6 +1,5 @@
 use std::collections::HashMap;
 
-
 use std::sync::{Arc, Mutex};
 
 use serde_derive::{Deserialize, Serialize};
@@ -8,9 +7,9 @@ use snap;
 
 use crate::blocks::{Block, BreakingBlock, Tool};
 use crate::mod_manager::ModManager;
-use anyhow::{anyhow, Result};
 use crate::world_map::WorldMap;
-use events::{EventManager, Event};
+use anyhow::{anyhow, Result};
+use events::{Event, EventManager};
 
 pub const BLOCK_WIDTH: i32 = 8;
 pub const RENDER_SCALE: f32 = 2.0;
@@ -46,9 +45,7 @@ pub struct BlockId {
 
 impl BlockId {
     pub fn new() -> Self {
-        Self {
-            id: -1
-        }
+        Self { id: -1 }
     }
 }
 
@@ -73,9 +70,9 @@ pub struct Blocks {
     pub air: BlockId,
 }
 
-impl Blocks{
+impl Blocks {
     pub fn new() -> Self {
-        let mut result = Self{
+        let mut result = Self {
             block_data: BlocksData {
                 blocks: Vec::new(),
                 block_from_main: HashMap::new(),
@@ -93,7 +90,10 @@ impl Blocks{
         air.ghost = true;
         air.transparent = true;
         air.break_time = UNBREAKABLE;
-        result.air = Self::register_new_block_type(&mut result.block_types.lock().unwrap_or_else(|e| e.into_inner()), air);
+        result.air = Self::register_new_block_type(
+            &mut result.block_types.lock().unwrap_or_else(|e| e.into_inner()),
+            air,
+        );
 
         result
     }
@@ -113,13 +113,14 @@ impl Blocks{
     }
 
     pub fn init(&mut self, mods: &mut ModManager) {
-        mods.add_global_function("new_block_type", move |_lua, _: ()| {
-            Ok(Block::new())
-        });
+        mods.add_global_function("new_block_type", move |_lua, _: ()| Ok(Block::new()));
 
         let block_types = self.block_types.clone();
         mods.add_global_function("register_block_type", move |_lua, block_type: Block| {
-            let result = Self::register_new_block_type(&mut block_types.lock().unwrap_or_else(|e| e.into_inner()), block_type);
+            let result = Self::register_new_block_type(
+                &mut block_types.lock().unwrap_or_else(|e| e.into_inner()),
+                block_type,
+            );
             Ok(result)
         });
 
@@ -131,17 +132,34 @@ impl Blocks{
                     return Ok(block_type.get_id());
                 }
             }
-            Err(rlua::Error::RuntimeError("Block type not found".to_string()))
+            Err(rlua::Error::RuntimeError(
+                "Block type not found".to_string(),
+            ))
         });
 
         // a method to connect two blocks
         let block_types = self.block_types.clone();
-        mods.add_global_function("connect_blocks", move |_lua, (block_id1, block_id2): (BlockId, BlockId)| {
-            let mut block_types = block_types.lock().unwrap_or_else(|e| e.into_inner());
-            block_types.get_mut(block_id1.id as usize).ok_or(rlua::Error::RuntimeError("block type id is invalid".to_string()))?.connects_to.push(block_id2);
-            block_types.get_mut(block_id2.id as usize).ok_or(rlua::Error::RuntimeError("block type id is invalid".to_string()))?.connects_to.push(block_id1);
-            Ok(())
-        });
+        mods.add_global_function(
+            "connect_blocks",
+            move |_lua, (block_id1, block_id2): (BlockId, BlockId)| {
+                let mut block_types = block_types.lock().unwrap_or_else(|e| e.into_inner());
+                block_types
+                    .get_mut(block_id1.id as usize)
+                    .ok_or(rlua::Error::RuntimeError(
+                        "block type id is invalid".to_string(),
+                    ))?
+                    .connects_to
+                    .push(block_id2);
+                block_types
+                    .get_mut(block_id2.id as usize)
+                    .ok_or(rlua::Error::RuntimeError(
+                        "block type id is invalid".to_string(),
+                    ))?
+                    .connects_to
+                    .push(block_id1);
+                Ok(())
+            },
+        );
     }
 
     /**
@@ -186,16 +204,27 @@ impl Blocks{
     This function returns the block id at given position
      */
     pub fn get_block(&self, x: i32, y: i32) -> Result<BlockId> {
-        Ok(*self.block_data.blocks.get(self.block_data.map.translate_coords(x, y)?).ok_or(anyhow!("Coordinate out of bounds"))?)
+        Ok(*self
+            .block_data
+            .blocks
+            .get(self.block_data.map.translate_coords(x, y)?)
+            .ok_or(anyhow!("Coordinate out of bounds"))?)
     }
 
     /**
     This sets the type of a block from a coordinate.
      */
-    pub fn set_big_block(&mut self, events: &mut EventManager, x: i32, y: i32, block_id: BlockId, from_main: (i32, i32)) -> Result<()> {
+    pub fn set_big_block(
+        &mut self, events: &mut EventManager, x: i32, y: i32, block_id: BlockId,
+        from_main: (i32, i32),
+    ) -> Result<()> {
         if block_id != self.get_block(x, y)? || from_main != self.get_block_from_main(x, y)? {
             self.set_block_data(x, y, vec![])?;
-            *self.block_data.blocks.get_mut(self.block_data.map.translate_coords(x, y)?).ok_or(anyhow!("Coordinate out of bounds"))? = block_id;
+            *self
+                .block_data
+                .blocks
+                .get_mut(self.block_data.map.translate_coords(x, y)?)
+                .ok_or(anyhow!("Coordinate out of bounds"))? = block_id;
 
             self.breaking_blocks.retain(|b| b.get_coord() != (x, y));
 
@@ -209,14 +238,18 @@ impl Blocks{
     /**
     This sets the type of a block from a coordinate.
      */
-    pub fn set_block(&mut self, events: &mut EventManager, x: i32, y: i32, block_id: BlockId) -> Result<()> {
+    pub fn set_block(
+        &mut self, events: &mut EventManager, x: i32, y: i32, block_id: BlockId,
+    ) -> Result<()> {
         self.set_big_block(events, x, y, block_id, (0, 0))
     }
 
     /**
     This function sets x and y from main for a block. If it is 0, 0 the value is removed from the hashmap.
      */
-    pub(super) fn set_block_from_main(&mut self, x: i32, y: i32, from_main: (i32, i32)) -> Result<()> {
+    pub(super) fn set_block_from_main(
+        &mut self, x: i32, y: i32, from_main: (i32, i32),
+    ) -> Result<()> {
         let index = self.block_data.map.translate_coords(x, y)?;
 
         if from_main.0 == 0 && from_main.1 == 0 {
@@ -231,7 +264,11 @@ impl Blocks{
     This function gets the block from main for a block. If the value is not found, it returns 0, 0.
      */
     pub(super) fn get_block_from_main(&self, x: i32, y: i32) -> Result<(i32, i32)> {
-        Ok(*self.block_data.block_from_main.get(&self.block_data.map.translate_coords(x, y)?).unwrap_or(&(0, 0)))
+        Ok(*self
+            .block_data
+            .block_from_main
+            .get(&self.block_data.map.translate_coords(x, y)?)
+            .unwrap_or(&(0, 0)))
     }
 
     /**
@@ -251,7 +288,12 @@ impl Blocks{
     This function returns block data, if it is not found it returns an empty vector.
      */
     pub(super) fn get_block_data(&self, x: i32, y: i32) -> Result<Vec<u8>> {
-        Ok(self.block_data.block_data.get(&self.block_data.map.translate_coords(x, y)?).unwrap_or(&vec![]).clone())
+        Ok(self
+            .block_data
+            .block_data
+            .get(&self.block_data.map.translate_coords(x, y)?)
+            .unwrap_or(&vec![])
+            .clone())
     }
 
     /**
@@ -274,7 +316,7 @@ impl Blocks{
      */
     fn register_new_block_type(block_types: &mut Vec<Block>, mut block_type: Block) -> BlockId {
         let id = block_types.len() as i8;
-        let result = BlockId{ id };
+        let result = BlockId { id };
         block_type.id = result;
         block_types.push(block_type);
         result
@@ -285,7 +327,12 @@ impl Blocks{
     with commands to get the block type from the name.
      */
     pub fn get_block_id_by_name(&mut self, name: String) -> Result<BlockId> {
-        for block_type in self.block_types.lock().unwrap_or_else(|e| e.into_inner()).iter() {
+        for block_type in self
+            .block_types
+            .lock()
+            .unwrap_or_else(|e| e.into_inner())
+            .iter()
+        {
             if block_type.name == name {
                 return Ok(block_type.id);
             }
@@ -298,7 +345,12 @@ impl Blocks{
      */
     pub fn get_all_block_ids(&mut self) -> Vec<BlockId> {
         let mut result = Vec::new();
-        for block_type in self.block_types.lock().unwrap_or_else(|e| e.into_inner()).iter() {
+        for block_type in self
+            .block_types
+            .lock()
+            .unwrap_or_else(|e| e.into_inner())
+            .iter()
+        {
             result.push(block_type.id);
         }
         result
@@ -309,7 +361,10 @@ impl Blocks{
      */
     pub fn get_block_type(&self, id: BlockId) -> Result<Block> {
         let blocks = self.block_types.lock().unwrap_or_else(|e| e.into_inner());
-        Ok(blocks.get(id.id as usize).ok_or(anyhow!("Block type not found"))?.clone())
+        Ok(blocks
+            .get(id.id as usize)
+            .ok_or(anyhow!("Block type not found"))?
+            .clone())
     }
 
     /**
@@ -325,7 +380,7 @@ Event that is fired when a block is changed
  */
 pub struct BlockChangeEvent {
     pub x: i32,
-    pub y: i32
+    pub y: i32,
 }
 
 /**
@@ -333,7 +388,7 @@ Event that is fired when a random tick is fired for a block
  */
 struct BlockRandomTickEvent {
     pub x: i32,
-    pub y: i32
+    pub y: i32,
 }
 
 /**
@@ -341,7 +396,7 @@ Event that is fired when a block is updated
  */
 pub struct BlockUpdateEvent {
     pub x: i32,
-    pub y: i32
+    pub y: i32,
 }
 
 /**
@@ -376,4 +431,3 @@ pub struct BlockBreakStopPacket {
     pub y: i32,
     pub break_time: i32,
 }
-
