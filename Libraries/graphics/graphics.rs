@@ -3,19 +3,8 @@ pub use color::Color;
 
 mod theme;
 pub use theme::{
-    WHITE,
-    LIGHT_GREY,
-    GREY,
-    DARK_GREY,
-    BORDER_COLOR,
-    BLACK,
-    TRANSPARENT,
-    SPACING,
-    BUTTON_PADDING,
-    TRANSPARENCY,
-    BLUR,
-    SHADOW_INTENSITY,
-    TEXT_INPUT_WIDTH,
+    BLACK, BLUR, BORDER_COLOR, BUTTON_PADDING, DARK_GREY, GREY, LIGHT_GREY, SHADOW_INTENSITY,
+    SPACING, TEXT_INPUT_WIDTH, TRANSPARENCY, TRANSPARENT, WHITE,
 };
 
 mod transformation;
@@ -23,7 +12,7 @@ mod transformation;
 mod vertex_buffer;
 
 mod blend_mode;
-pub use blend_mode::{BlendMode, set_blend_mode};
+pub use blend_mode::{set_blend_mode, BlendMode};
 
 mod shaders;
 
@@ -52,7 +41,10 @@ mod text;
 pub use text::Font;
 
 mod container;
-pub use container::{Container, Orientation, TOP_LEFT, TOP, TOP_RIGHT, LEFT, CENTER, RIGHT, BOTTOM_LEFT, BOTTOM, BOTTOM_RIGHT};
+pub use container::{
+    Container, Orientation, BOTTOM, BOTTOM_LEFT, BOTTOM_RIGHT, CENTER, LEFT, RIGHT, TOP, TOP_LEFT,
+    TOP_RIGHT,
+};
 
 mod render_rect;
 pub use render_rect::RenderRect;
@@ -81,10 +73,11 @@ pub struct GraphicsContext {
     pub font: Font,
 }
 
-pub fn init(window_width: i32, window_height: i32, window_title: &str, default_font_data: &Vec<u8>) -> GraphicsContext {
-    GraphicsContext{
+pub fn init(
+    window_width: i32, window_height: i32, window_title: &str, default_font_data: &Vec<u8>,
+) -> GraphicsContext {
+    GraphicsContext {
         renderer: Renderer::new(window_width, window_height, window_title),
         font: Font::new(default_font_data),
     }
-
 }

@@ -66,10 +66,20 @@ impl VertexBuffer {
             gl::BindVertexArray(self.vertex_array);
 
             gl::BindBuffer(gl::ARRAY_BUFFER, self.vertex_buffer);
-            gl::BufferData(gl::ARRAY_BUFFER, (self.vertices.len() * 4) as isize, self.vertices.as_ptr() as *const _, gl::STATIC_DRAW);
+            gl::BufferData(
+                gl::ARRAY_BUFFER,
+                (self.vertices.len() * 4) as isize,
+                self.vertices.as_ptr() as *const _,
+                gl::STATIC_DRAW,
+            );
 
             gl::BindBuffer(gl::ELEMENT_ARRAY_BUFFER, self.index_buffer);
-            gl::BufferData(gl::ELEMENT_ARRAY_BUFFER, (self.indices.len() * 4) as isize, self.indices.as_ptr() as *const _, gl::STATIC_DRAW);
+            gl::BufferData(
+                gl::ELEMENT_ARRAY_BUFFER,
+                (self.indices.len() * 4) as isize,
+                self.indices.as_ptr() as *const _,
+                gl::STATIC_DRAW,
+            );
         }
     }
 
@@ -80,9 +90,23 @@ impl VertexBuffer {
             gl::BindBuffer(gl::ELEMENT_ARRAY_BUFFER, self.index_buffer);
 
             gl::VertexAttribPointer(0, 2, gl::FLOAT, gl::FALSE, (8 * 4) as i32, std::ptr::null());
-            gl::VertexAttribPointer(1, 4, gl::FLOAT, gl::FALSE, (8 * 4) as i32, (2 * 4) as *const _);
+            gl::VertexAttribPointer(
+                1,
+                4,
+                gl::FLOAT,
+                gl::FALSE,
+                (8 * 4) as i32,
+                (2 * 4) as *const _,
+            );
             if has_texture {
-                gl::VertexAttribPointer(2, 2, gl::FLOAT, gl::FALSE, (8 * 4) as i32, (6 * 4) as *const _);
+                gl::VertexAttribPointer(
+                    2,
+                    2,
+                    gl::FLOAT,
+                    gl::FALSE,
+                    (8 * 4) as i32,
+                    (6 * 4) as *const _,
+                );
             }
 
             gl::EnableVertexAttribArray(0);
@@ -95,7 +119,12 @@ impl VertexBuffer {
                 DrawMode::Triangles => gl::TRIANGLES,
                 DrawMode::Lines => gl::LINES,
             };
-            gl::DrawElements(gl_mode, self.indices.len() as i32, gl::UNSIGNED_INT, std::ptr::null());
+            gl::DrawElements(
+                gl_mode,
+                self.indices.len() as i32,
+                gl::UNSIGNED_INT,
+                std::ptr::null(),
+            );
 
             gl::DisableVertexAttribArray(0);
             gl::DisableVertexAttribArray(1);

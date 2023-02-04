@@ -8,7 +8,7 @@ pub struct Event {
 impl Event {
     pub fn new<T: Any>(event: T) -> Self {
         Self {
-            event: Box::new(event)
+            event: Box::new(event),
         }
     }
 

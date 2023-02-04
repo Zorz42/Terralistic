@@ -48,8 +48,16 @@ impl Sprite {
     /**
     Generates containers for the sprite.
      */
-    pub fn get_container(&self, graphics: &mut GraphicsContext, parent: Option<&Container>) -> Container {
-        let mut container = Container::new(self.x, self.y, self.get_width(), self.get_height(), self.orientation);
+    pub fn get_container(
+        &self, graphics: &mut GraphicsContext, parent: Option<&Container>,
+    ) -> Container {
+        let mut container = Container::new(
+            self.x,
+            self.y,
+            self.get_width(),
+            self.get_height(),
+            self.orientation,
+        );
         container.update(graphics, parent);
         container
     }
@@ -59,6 +67,14 @@ impl Sprite {
      */
     pub fn render(&self, graphics: &mut GraphicsContext, parent: Option<&Container>) {
         let container = self.get_container(graphics, parent);
-        self.texture.render(&graphics.renderer, self.scale, container.get_absolute_rect().x, container.get_absolute_rect().y, None, self.flip, Some(self.color));
+        self.texture.render(
+            &graphics.renderer,
+            self.scale,
+            container.get_absolute_rect().x,
+            container.get_absolute_rect().y,
+            None,
+            self.flip,
+            Some(self.color),
+        );
     }
 }

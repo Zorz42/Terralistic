@@ -1,6 +1,6 @@
 use crate::color::Color;
-use crate::GraphicsContext;
 use crate::vertex_buffer::DrawMode;
+use crate::GraphicsContext;
 
 /**
 This is a rectangle shape not really
@@ -19,7 +19,7 @@ impl Rect {
     Creates a new rectangle.
      */
     pub fn new(x: i32, y: i32, w: i32, h: i32) -> Self {
-        Rect{x, y, w, h}
+        Rect { x, y, w, h }
     }
 
     /**
@@ -35,12 +35,27 @@ impl Rect {
         transform.stretch(self.w as f32, self.h as f32);
 
         unsafe {
-            gl::UniformMatrix3fv(graphics.renderer.passthrough_shader.transform_matrix, 1, gl::FALSE, &transform.matrix[0]);
-            gl::Uniform4f(graphics.renderer.passthrough_shader.global_color, color.r as f32 / 255.0, color.g as f32 / 255.0, color.b as f32 / 255.0, color.a as f32 / 255.0);
+            gl::UniformMatrix3fv(
+                graphics.renderer.passthrough_shader.transform_matrix,
+                1,
+                gl::FALSE,
+                &transform.matrix[0],
+            );
+            gl::Uniform4f(
+                graphics.renderer.passthrough_shader.global_color,
+                color.r as f32 / 255.0,
+                color.g as f32 / 255.0,
+                color.b as f32 / 255.0,
+                color.a as f32 / 255.0,
+            );
             gl::Uniform1i(graphics.renderer.passthrough_shader.has_texture, 0);
         }
 
-        graphics.renderer.passthrough_shader.rect_vertex_buffer.draw(false,DrawMode::Triangles);
+        graphics
+            .renderer
+            .passthrough_shader
+            .rect_vertex_buffer
+            .draw(false, DrawMode::Triangles);
     }
 
     /**
@@ -56,11 +71,26 @@ impl Rect {
         transform.stretch(self.w as f32, self.h as f32);
 
         unsafe {
-            gl::UniformMatrix3fv(graphics.renderer.passthrough_shader.transform_matrix, 1, gl::FALSE, &transform.matrix[0]);
-            gl::Uniform4f(graphics.renderer.passthrough_shader.global_color, color.r as f32 / 255.0, color.g as f32 / 255.0, color.b as f32 / 255.0, color.a as f32 / 255.0);
+            gl::UniformMatrix3fv(
+                graphics.renderer.passthrough_shader.transform_matrix,
+                1,
+                gl::FALSE,
+                &transform.matrix[0],
+            );
+            gl::Uniform4f(
+                graphics.renderer.passthrough_shader.global_color,
+                color.r as f32 / 255.0,
+                color.g as f32 / 255.0,
+                color.b as f32 / 255.0,
+                color.a as f32 / 255.0,
+            );
             gl::Uniform1i(graphics.renderer.passthrough_shader.has_texture, 0);
         }
 
-        graphics.renderer.passthrough_shader.rect_outline_vertex_buffer.draw(false, DrawMode::Lines);
+        graphics
+            .renderer
+            .passthrough_shader
+            .rect_outline_vertex_buffer
+            .draw(false, DrawMode::Lines);
     }
 }

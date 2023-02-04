@@ -1,5 +1,5 @@
-use crate::surface::Surface;
 use crate::color::Color;
+use crate::surface::Surface;
 use std::cmp::max;
 
 pub struct Font {
@@ -14,7 +14,14 @@ Check if the column of a surface is empty.
  */
 fn is_column_empty(surface: &Surface, column: i32) -> bool {
     for y in 0..surface.get_height() {
-        if surface.get_pixel(column, y) != (Color{r: 0, g: 0, b: 0, a: 0}) {
+        if surface.get_pixel(column, y)
+            != (Color {
+                r: 0,
+                g: 0,
+                b: 0,
+                a: 0,
+            })
+        {
             return false;
         }
     }
@@ -64,9 +71,7 @@ impl Font {
             }
         }
 
-        Font{
-            font_surfaces,
-        }
+        Font { font_surfaces }
     }
 
     /**

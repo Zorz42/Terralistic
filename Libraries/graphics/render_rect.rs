@@ -1,6 +1,6 @@
-use crate::{Color, GraphicsContext, TOP_LEFT};
 use crate::Container;
 use crate::Orientation;
+use crate::{Color, GraphicsContext, TOP_LEFT};
 
 /**
 The struct RenderRect contains a container and
@@ -74,7 +74,11 @@ impl RenderRect {
         let container = self.get_container(graphics, parent_container);
         let rect = container.get_absolute_rect();
         graphics.renderer.blur_rect(rect, self.blur_radius);
-        graphics.renderer.shadow_context.render(graphics, rect, self.shadow_intensity as f32 / 255.0);
+        graphics.renderer.shadow_context.render(
+            graphics,
+            rect,
+            self.shadow_intensity as f32 / 255.0,
+        );
 
         rect.render(graphics, self.fill_color);
     }
@@ -83,8 +87,16 @@ impl RenderRect {
     This function returns the container of the rectangle.
     The container has the position of render rect.
      */
-    pub fn get_container(&self, graphics: &GraphicsContext, parent_container: Option<&Container>) -> Container {
-        let mut container = Container::new(self.render_x as i32, self.render_y as i32, self.render_w as i32, self.render_h as i32, self.orientation);
+    pub fn get_container(
+        &self, graphics: &GraphicsContext, parent_container: Option<&Container>,
+    ) -> Container {
+        let mut container = Container::new(
+            self.render_x as i32,
+            self.render_y as i32,
+            self.render_w as i32,
+            self.render_h as i32,
+            self.orientation,
+        );
         container.update(graphics, parent_container);
         container
     }

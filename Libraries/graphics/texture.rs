@@ -1,8 +1,8 @@
-use std::ffi::c_void;
-use crate::{Color, Rect, Surface};
 use crate::renderer::Renderer;
 use crate::transformation::Transformation;
 use crate::vertex_buffer::DrawMode;
+use crate::{Color, Rect, Surface};
+use std::ffi::c_void;
 
 /**
 Texture is an image stored in gpu
@@ -15,7 +15,7 @@ pub struct Texture {
 
 impl Texture {
     pub fn new() -> Self {
-        Texture{
+        Texture {
             texture_handle: u32::MAX,
             width: 0,
             height: 0,
@@ -38,7 +38,17 @@ impl Texture {
             gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MAG_FILTER, gl::NEAREST as i32);
 
             let data = surface.pixels.clone();
-            gl::TexImage2D(gl::TEXTURE_2D, 0, gl::RGBA as i32, result.width as i32, result.height as i32, 0, gl::RGBA, gl::UNSIGNED_BYTE, &data[0] as *const u8 as *const c_void);
+            gl::TexImage2D(
+                gl::TEXTURE_2D,
+                0,
+                gl::RGBA as i32,
+                result.width as i32,
+                result.height as i32,
+                0,
+                gl::RGBA,
+                gl::UNSIGNED_BYTE,
+                &data[0] as *const u8 as *const c_void,
+            );
             gl::GenerateMipmap(gl::TEXTURE_2D);
         }
 
@@ -74,9 +84,22 @@ impl Texture {
         result
     }
 
-    pub fn render(&self, renderer: &Renderer, scale: f32, x: i32, y: i32, src_rect: Option<Rect>, flipped: bool, color: Option<Color>) {
-        let src_rect = src_rect.unwrap_or(Rect::new(0, 0, self.get_texture_width(), self.get_texture_height()));
-        let color = color.unwrap_or(Color{r: 255, g: 255, b: 255, a: 255});
+    pub fn render(
+        &self, renderer: &Renderer, scale: f32, x: i32, y: i32, src_rect: Option<Rect>,
+        flipped: bool, color: Option<Color>,
+    ) {
+        let src_rect = src_rect.unwrap_or(Rect::new(
+            0,
+            0,
+            self.get_texture_width(),
+            self.get_texture_height(),
+        ));
+        let color = color.unwrap_or(Color {
+            r: 255,
+            g: 255,
+            b: 255,
+            a: 255,
+        });
 
         unsafe {
             let mut transform = renderer.normalization_transform.clone();
@@ -89,19 +112,38 @@ impl Texture {
             transform.translate(x as f32, y as f32);
             transform.stretch(src_rect.w as f32 * scale, src_rect.h as f32 * scale);
 
-            gl::UniformMatrix3fv(renderer.passthrough_shader.transform_matrix, 1, gl::FALSE, transform.matrix.as_ptr());
+            gl::UniformMatrix3fv(
+                renderer.passthrough_shader.transform_matrix,
+                1,
+                gl::FALSE,
+                transform.matrix.as_ptr(),
+            );
 
             let mut transform = self.get_normalization_transform();
             transform.translate(src_rect.x as f32, src_rect.y as f32);
             transform.stretch(src_rect.w as f32, src_rect.h as f32);
 
-            gl::UniformMatrix3fv(renderer.passthrough_shader.texture_transform_matrix, 1, gl::FALSE, transform.matrix.as_ptr());
-            gl::Uniform4f(renderer.passthrough_shader.global_color, color.r as f32 / 255.0, color.g as f32 / 255.0, color.b as f32 / 255.0, color.a as f32 / 255.0);
+            gl::UniformMatrix3fv(
+                renderer.passthrough_shader.texture_transform_matrix,
+                1,
+                gl::FALSE,
+                transform.matrix.as_ptr(),
+            );
+            gl::Uniform4f(
+                renderer.passthrough_shader.global_color,
+                color.r as f32 / 255.0,
+                color.g as f32 / 255.0,
+                color.b as f32 / 255.0,
+                color.a as f32 / 255.0,
+            );
             gl::Uniform1i(renderer.passthrough_shader.has_texture, 1);
 
             gl::BindTexture(gl::TEXTURE_2D, self.texture_handle);
 
-            renderer.passthrough_shader.rect_vertex_buffer.draw(true, DrawMode::Triangles);
+            renderer
+                .passthrough_shader
+                .rect_vertex_buffer
+                .draw(true, DrawMode::Triangles);
         }
     }
 }

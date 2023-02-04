@@ -96,9 +96,8 @@ impl Game {
         let mut paused = false;
 
         let mut resume_button = gfx::Button::new();
-        resume_button.texture = gfx::Texture::load_from_surface(
-            &graphics.font.create_text_surface("Resume"),
-        );
+        resume_button.texture =
+            gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Resume"));
         resume_button.scale = 3.0;
         resume_button.y = gfx::SPACING;
         resume_button.x = -gfx::SPACING;

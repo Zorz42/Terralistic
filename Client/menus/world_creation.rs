@@ -21,11 +21,8 @@ pub fn run_world_creation(
 ) {
     let mut title = gfx::Sprite::new();
     title.scale = 3.0;
-    title.texture = gfx::Texture::load_from_surface(
-        &graphics
-            .font
-            .create_text_surface("Create a new world:"),
-    );
+    title.texture =
+        gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Create a new world:"));
     title.y = gfx::SPACING;
     title.orientation = gfx::TOP;
 
@@ -39,11 +36,8 @@ pub fn run_world_creation(
     let mut create_button = gfx::Button::new();
     create_button.scale = 3.0;
     create_button.darken_on_disabled = true;
-    create_button.texture = gfx::Texture::load_from_surface(
-        &graphics
-            .font
-            .create_text_surface("Create world"),
-    );
+    create_button.texture =
+        gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Create world"));
     create_button.x = back_button.get_width() + gfx::SPACING;
 
     buttons_container.rect.w = back_button.get_width() + create_button.get_width() + gfx::SPACING;

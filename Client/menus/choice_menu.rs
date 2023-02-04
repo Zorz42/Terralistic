@@ -11,8 +11,7 @@ pub fn run_choice_menu(
     let mut title_lines = Vec::new();
     for line in text_lines_vec {
         let mut sprite = gfx::Sprite::new();
-        sprite.texture =
-            gfx::Texture::load_from_surface(&graphics.font.create_text_surface(line));
+        sprite.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface(line));
         sprite.scale = 3.0;
         sprite.orientation = gfx::TOP;
         sprite.y = gfx::SPACING + title_lines.len() as i32 * (sprite.get_height() + gfx::SPACING);

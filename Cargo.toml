@@ -2,7 +2,7 @@
 name = "Terralistic"
 version = "0.1.0"
 edition = "2021"
-description = "test"
+description = "Terralistic"
 build = "BuildProject/build.rs"
 
 [[bin]]

@@ -2,9 +2,9 @@ use std::hash::{Hash, Hasher};
 use std::net::Ipv4Addr;
 
 use enet::{Address, BandwidthLimit, ChannelLimit, Host, PacketMode};
-use shared::packet::{Packet, WelcomeCompletePacket};
 use events::{Event, EventManager};
 use shared::enet_global::ENET_GLOBAL;
+use shared::packet::{Packet, WelcomeCompletePacket};
 
 /**
 This struct holds the address of a connection.
@@ -46,14 +46,17 @@ impl ServerNetworking {
         //self.net_server = Some(Server::bind(format!("127.0.0.1:{}", self.server_port), Default::default()).unwrap());
         let local_addr = Address::new(Ipv4Addr::LOCALHOST, self.server_port);
 
-        self.net_server = Some(ENET_GLOBAL.create_host::<()>(
-                Some(&local_addr),
-                100,
-                ChannelLimit::Maximum,
-                BandwidthLimit::Unlimited,
-                BandwidthLimit::Unlimited,
-            ).unwrap());
-
+        self.net_server = Some(
+            ENET_GLOBAL
+                .create_host::<()>(
+                    Some(&local_addr),
+                    100,
+                    ChannelLimit::Maximum,
+                    BandwidthLimit::Unlimited,
+                    BandwidthLimit::Unlimited,
+                )
+                .unwrap(),
+        );
     }
 
     pub fn on_event(&mut self, event: &Event) {
@@ -70,8 +73,8 @@ impl ServerNetworking {
                 enet::Event::Connect(ref peer) => {
                     println!("[{:?}] connected", peer.address());
                     events.push_event(Event::new(NewConnectionEvent {
-                        conn: Connection{
-                            address: peer.address()
+                        conn: Connection {
+                            address: peer.address(),
                         },
                     }));
                 }
@@ -79,12 +82,16 @@ impl ServerNetworking {
                     println!("[{:?}] disconnected", peer.address());
                     self.connections.retain(|x| x.address != peer.address());
                 }
-                enet::Event::Receive {ref packet, ref sender, ..} => {
+                enet::Event::Receive {
+                    ref packet,
+                    ref sender,
+                    ..
+                } => {
                     let packet: Packet = bincode::deserialize(packet.data()).unwrap();
                     events.push_event(Event::new(PacketFromClientEvent {
                         packet,
-                        conn: Connection{
-                            address: sender.address()
+                        conn: Connection {
+                            address: sender.address(),
                         },
                     }));
                 }
@@ -94,15 +101,38 @@ impl ServerNetworking {
 
     pub fn send_packet(&mut self, packet: &Packet, conn: &Connection) {
         let packet_data = bincode::serialize(packet).unwrap();
-        let mut client = self.net_server.as_mut().unwrap().peers().find(|x| x.address() == conn.address).unwrap();
-        client.send_packet(enet::Packet::new(packet_data.as_slice(), PacketMode::ReliableSequenced).unwrap(), 0).unwrap();
+        let mut client = self
+            .net_server
+            .as_mut()
+            .unwrap()
+            .peers()
+            .find(|x| x.address() == conn.address)
+            .unwrap();
+        client
+            .send_packet(
+                enet::Packet::new(packet_data.as_slice(), PacketMode::ReliableSequenced).unwrap(),
+                0,
+            )
+            .unwrap();
     }
 
     pub fn send_packet_to_all(&mut self, packet: &Packet) {
         let packet_data = bincode::serialize(packet).unwrap();
         for conn in &self.connections {
-            let mut client = self.net_server.as_mut().unwrap().peers().find(|x| x.address() == conn.address).unwrap();
-            client.send_packet(enet::Packet::new(packet_data.as_slice(), PacketMode::ReliableSequenced).unwrap(), 0).unwrap();
+            let mut client = self
+                .net_server
+                .as_mut()
+                .unwrap()
+                .peers()
+                .find(|x| x.address() == conn.address)
+                .unwrap();
+            client
+                .send_packet(
+                    enet::Packet::new(packet_data.as_slice(), PacketMode::ReliableSequenced)
+                        .unwrap(),
+                    0,
+                )
+                .unwrap();
         }
     }
 

@@ -1,5 +1,5 @@
-use crate::{Color};
-use serde_derive::{Serialize, Deserialize};
+use crate::Color;
+use serde_derive::{Deserialize, Serialize};
 
 /*
 Surface is an image stored in ram.
@@ -10,7 +10,6 @@ pub struct Surface {
     width: i32,
     height: i32,
 }
-
 
 impl Surface {
     /**
@@ -46,7 +45,6 @@ impl Surface {
         bincode::deserialize(&decompressed).unwrap()
     }
 
-
     /**
     Converts 2D location to a linear location in color array.
     The index points to the red bit of the color and the next
@@ -65,7 +63,7 @@ impl Surface {
      */
     pub fn get_pixel(&self, x: i32, y: i32) -> Color {
         let index = self.get_index(x, y);
-        Color{
+        Color {
             r: self.pixels[index],
             g: self.pixels[index + 1],
             b: self.pixels[index + 2],
@@ -99,12 +97,16 @@ impl Surface {
         for xpos in 0..surface.get_width() {
             for ypos in 0..surface.get_height() {
                 let surface_color = surface.get_pixel(xpos, ypos);
-                self.set_pixel(xpos + x, ypos + y, Color {
-                    r: (surface_color.r as f32 * (color.r as f32 / 255.0)) as u8,
-                    g: (surface_color.g as f32 * (color.g as f32 / 255.0)) as u8,
-                    b: (surface_color.b as f32 * (color.b as f32 / 255.0)) as u8,
-                    a: (surface_color.a as f32 * (color.a as f32 / 255.0)) as u8,
-                });
+                self.set_pixel(
+                    xpos + x,
+                    ypos + y,
+                    Color {
+                        r: (surface_color.r as f32 * (color.r as f32 / 255.0)) as u8,
+                        g: (surface_color.g as f32 * (color.g as f32 / 255.0)) as u8,
+                        b: (surface_color.b as f32 * (color.b as f32 / 255.0)) as u8,
+                        a: (surface_color.a as f32 * (color.a as f32 / 255.0)) as u8,
+                    },
+                );
             }
         }
     }

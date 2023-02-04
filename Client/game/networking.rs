@@ -86,9 +86,7 @@ impl ClientNetworking {
                         }
 
                         // send welcome packet event
-                        events.push_event(events::Event::new(WelcomePacketEvent {
-                            packet,
-                        }));
+                        events.push_event(events::Event::new(WelcomePacketEvent { packet }));
                     }
                 };
             }

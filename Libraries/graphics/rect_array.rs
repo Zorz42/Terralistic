@@ -1,5 +1,5 @@
-use crate::{Color, GraphicsContext, Rect, Texture};
 use crate::vertex_buffer::{DrawMode, Vertex, VertexBuffer};
+use crate::{Color, GraphicsContext, Rect, Texture};
 
 /**
 The struct RectArray is used to draw multiple rectangles with the same texture
@@ -31,7 +31,10 @@ impl RectArray {
         let tex_top_left = (tex_rect.x as f32, tex_rect.y as f32);
         let tex_top_right = (tex_rect.x as f32 + tex_rect.w as f32, tex_rect.y as f32);
         let tex_bottom_left = (tex_rect.x as f32, tex_rect.y as f32 + tex_rect.h as f32);
-        let tex_bottom_right = (tex_rect.x as f32 + tex_rect.w as f32, tex_rect.y as f32 + tex_rect.h as f32);
+        let tex_bottom_right = (
+            tex_rect.x as f32 + tex_rect.w as f32,
+            tex_rect.y as f32 + tex_rect.h as f32,
+        );
 
         // first triangle
         self.vertex_buffer.add_vertex(&Vertex {
@@ -91,27 +94,48 @@ impl RectArray {
     /**
     Draws the RectArray.
      */
-    pub fn render(&self, graphics: &mut GraphicsContext, texture: Option<&Texture>, x: i32, y: i32) {
+    pub fn render(
+        &self, graphics: &mut GraphicsContext, texture: Option<&Texture>, x: i32, y: i32,
+    ) {
         unsafe {
             let mut transform = graphics.renderer.normalization_transform.clone();
 
             transform.translate(x as f32, y as f32);
 
-            gl::UniformMatrix3fv(graphics.renderer.passthrough_shader.transform_matrix, 1, gl::FALSE, transform.matrix.as_ptr());
+            gl::UniformMatrix3fv(
+                graphics.renderer.passthrough_shader.transform_matrix,
+                1,
+                gl::FALSE,
+                transform.matrix.as_ptr(),
+            );
 
             if let Some(texture) = texture {
                 let transform = texture.get_normalization_transform();
-                gl::UniformMatrix3fv(graphics.renderer.passthrough_shader.texture_transform_matrix, 1, gl::FALSE, transform.matrix.as_ptr());
+                gl::UniformMatrix3fv(
+                    graphics
+                        .renderer
+                        .passthrough_shader
+                        .texture_transform_matrix,
+                    1,
+                    gl::FALSE,
+                    transform.matrix.as_ptr(),
+                );
                 gl::Uniform1i(graphics.renderer.passthrough_shader.has_texture, 1);
                 gl::BindTexture(gl::TEXTURE_2D, texture.texture_handle);
             } else {
                 gl::Uniform1i(graphics.renderer.passthrough_shader.has_texture, 0);
             }
 
+            gl::Uniform4f(
+                graphics.renderer.passthrough_shader.global_color,
+                1.0,
+                1.0,
+                1.0,
+                1.0,
+            );
 
-            gl::Uniform4f(graphics.renderer.passthrough_shader.global_color, 1.0, 1.0, 1.0, 1.0);
-
-            self.vertex_buffer.draw(!texture.is_none(), DrawMode::Triangles);
+            self.vertex_buffer
+                .draw(!texture.is_none(), DrawMode::Triangles);
         }
     }
 }

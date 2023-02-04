@@ -194,9 +194,7 @@ pub fn run_singleplayer_selector(
     let mut title = gfx::Sprite::new();
     title.scale = 3.0;
     title.texture = gfx::Texture::load_from_surface(
-        &graphics
-            .font
-            .create_text_surface("Select a world to play!"),
+        &graphics.font.create_text_surface("Select a world to play!"),
     );
     title.y = gfx::SPACING;
     title.orientation = gfx::TOP;

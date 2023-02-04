@@ -7,27 +7,20 @@ use shared::versions::VERSION;
 pub fn run_main_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn BackgroundRect) {
     let mut singleplayer_button = gfx::Button::new();
     singleplayer_button.scale = 3.0;
-    singleplayer_button.texture = gfx::Texture::load_from_surface(
-        &graphics
-            .font
-            .create_text_surface("Singleplayer"),
-    );
+    singleplayer_button.texture =
+        gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Singleplayer"));
     singleplayer_button.orientation = gfx::CENTER;
 
     let mut multiplayer_button = gfx::Button::new();
     multiplayer_button.scale = 3.0;
-    multiplayer_button.texture = gfx::Texture::load_from_surface(
-        &graphics
-            .font
-            .create_text_surface("Multiplayer"),
-    );
+    multiplayer_button.texture =
+        gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Multiplayer"));
     multiplayer_button.orientation = gfx::CENTER;
 
     let mut settings_button = gfx::Button::new();
     settings_button.scale = 3.0;
-    settings_button.texture = gfx::Texture::load_from_surface(
-        &graphics.font.create_text_surface("Settings"),
-    );
+    settings_button.texture =
+        gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Settings"));
     settings_button.orientation = gfx::CENTER;
 
     let mut mods_button = gfx::Button::new();
@@ -43,29 +36,22 @@ pub fn run_main_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn Ba
     exit_button.orientation = gfx::CENTER;
 
     let mut debug_title = gfx::Sprite::new();
-    debug_title.texture = gfx::Texture::load_from_surface(
-        &graphics
-            .font
-            .create_text_surface("DEBUG MODE"),
-    );
+    debug_title.texture =
+        gfx::Texture::load_from_surface(&graphics.font.create_text_surface("DEBUG MODE"));
     debug_title.color = gfx::GREY;
     debug_title.orientation = gfx::TOP;
     debug_title.scale = 2.0;
     debug_title.y = SPACING / 4;
 
     let mut title = gfx::Sprite::new();
-    title.texture = gfx::Texture::load_from_surface(
-        &graphics
-            .font
-            .create_text_surface("Terralistic"),
-    );
+    title.texture =
+        gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Terralistic"));
     title.scale = 4.0;
     title.orientation = gfx::TOP;
     title.y = debug_title.y + debug_title.get_height() + SPACING / 2;
 
     let mut version = gfx::Sprite::new();
-    version.texture =
-        gfx::Texture::load_from_surface(&graphics.font.create_text_surface(VERSION));
+    version.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface(VERSION));
     version.color = gfx::GREY;
     version.orientation = gfx::BOTTOM;
     version.scale = 2.0;
