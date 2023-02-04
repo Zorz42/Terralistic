@@ -38,7 +38,7 @@ impl Renderer {
     /**
     Initializes all the values needed for rendering.
      */
-    pub fn new(window_width: i32, window_height: i32, window_title: String) -> Self {
+    pub fn new(window_width: i32, window_height: i32, window_title: &str) -> Self {
         if window_width <= 0 || window_height <= 0 {
             panic!("Invalid window dimensions");
         }
@@ -51,7 +51,7 @@ impl Renderer {
         gl_attr.set_context_profile(sdl2::video::GLProfile::Core);
         gl_attr.set_context_version(3, 3);
 
-        let sdl_window = video_subsystem.window(&window_title, window_width as u32, window_height as u32)
+        let sdl_window = video_subsystem.window(window_title, window_width as u32, window_height as u32)
             .position_centered()
             .opengl()
             .resizable()
@@ -161,7 +161,7 @@ impl Renderer {
                 _ => {}
             }
 
-            if let Some(event) = sdl_event_to_gfx_event(sdl_event) {
+            if let Some(event) = sdl_event_to_gfx_event(&sdl_event) {
                 // if event is a key press event update the key states to true
                 if let Event::KeyPress(key, ..) = event {
                     self.set_key_state(key, true);

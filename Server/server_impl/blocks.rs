@@ -66,11 +66,11 @@ impl ServerBlocks {
             networking.send_packet_to_all(&packet);
 
         } else if let Some(event) = event.downcast::<BlockChangeEvent>() {
-            let packet = Packet::new(Box::new(BlockChangePacket {
+            let packet = Packet::new(BlockChangePacket {
                 x: event.x,
                 y: event.y,
                 block: self.blocks.get_block(event.x, event.y).unwrap(),
-            }));
+            });
             networking.send_packet_to_all(&packet);
         }
     }

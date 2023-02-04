@@ -24,7 +24,7 @@ pub fn run_world_creation(
     title.texture = gfx::Texture::load_from_surface(
         &graphics
             .font
-            .create_text_surface(String::from("Create a new world:")),
+            .create_text_surface("Create a new world:"),
     );
     title.y = gfx::SPACING;
     title.orientation = gfx::TOP;
@@ -34,7 +34,7 @@ pub fn run_world_creation(
     let mut back_button = gfx::Button::new();
     back_button.scale = 3.0;
     back_button.texture =
-        gfx::Texture::load_from_surface(&graphics.font.create_text_surface(String::from("Back")));
+        gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Back"));
 
     let mut create_button = gfx::Button::new();
     create_button.scale = 3.0;
@@ -42,7 +42,7 @@ pub fn run_world_creation(
     create_button.texture = gfx::Texture::load_from_surface(
         &graphics
             .font
-            .create_text_surface(String::from("Create world")),
+            .create_text_surface("Create world"),
     );
     create_button.x = back_button.get_width() + gfx::SPACING;
 
@@ -52,14 +52,14 @@ pub fn run_world_creation(
 
     let mut world_name_input = gfx::TextInput::new(graphics);
     world_name_input.scale = 3.0;
-    world_name_input.set_hint(graphics, String::from("World name"));
+    world_name_input.set_hint(graphics, "World name");
     world_name_input.orientation = gfx::CENTER;
     world_name_input.selected = true;
     world_name_input.y = -(world_name_input.get_height() + gfx::SPACING) / 2;
 
     let mut world_seed_input = gfx::TextInput::new(graphics);
     world_seed_input.scale = 3.0;
-    world_seed_input.set_hint(graphics, String::from("World seed"));
+    world_seed_input.set_hint(graphics, "World seed");
     world_seed_input.orientation = gfx::CENTER;
     world_seed_input.y = (world_seed_input.get_height() + gfx::SPACING) / 2;
 

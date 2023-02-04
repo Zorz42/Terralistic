@@ -230,7 +230,7 @@ impl Blocks {
 
             self.set_block_from_main(x, y, from_main)?;
             let event = BlockChangeEvent { x, y };
-            events.push_event(Event::new(Box::new(event)));
+            events.push_event(Event::new(event));
         }
         Ok(())
     }
@@ -326,7 +326,7 @@ impl Blocks {
     Returns the block type that has the specified name, used
     with commands to get the block type from the name.
      */
-    pub fn get_block_id_by_name(&mut self, name: String) -> Result<BlockId> {
+    pub fn get_block_id_by_name(&mut self, name: &str) -> Result<BlockId> {
         for block_type in self
             .block_types
             .lock()

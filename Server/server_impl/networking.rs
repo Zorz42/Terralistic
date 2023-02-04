@@ -69,11 +69,11 @@ impl ServerNetworking {
             match event {
                 enet::Event::Connect(ref peer) => {
                     println!("[{:?}] connected", peer.address());
-                    events.push_event(Event::new(Box::new(NewConnectionEvent {
+                    events.push_event(Event::new(NewConnectionEvent {
                         conn: Connection{
                             address: peer.address()
                         },
-                    })));
+                    }));
                 }
                 enet::Event::Disconnect(ref peer, ..) => {
                     println!("[{:?}] disconnected", peer.address());
@@ -81,12 +81,12 @@ impl ServerNetworking {
                 }
                 enet::Event::Receive {ref packet, ref sender, ..} => {
                     let packet: Packet = bincode::deserialize(&packet.data()).unwrap();
-                    events.push_event(Event::new(Box::new(PacketFromClientEvent {
+                    events.push_event(Event::new(PacketFromClientEvent {
                         packet,
                         conn: Connection{
                             address: sender.address()
                         },
-                    })));
+                    }));
                 }
             }
         }

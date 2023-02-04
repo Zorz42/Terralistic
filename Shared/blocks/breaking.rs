@@ -101,7 +101,7 @@ impl Blocks {
         breaking_block.is_breaking = true;
 
         let event = BlockStartedBreakingEvent { x, y };
-        events.push_event(Event::new(Box::new(event)));
+        events.push_event(Event::new(event));
 
         Ok(())
     }
@@ -116,7 +116,7 @@ impl Blocks {
             if breaking_block.get_coord() == (x, y) {
                 breaking_block.is_breaking = false;
                 let event = BlockStoppedBreakingEvent { x, y };
-                events.push_event(Event::new(Box::new(event)));
+                events.push_event(Event::new(event));
                 break;
             }
         }

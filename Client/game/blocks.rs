@@ -116,7 +116,7 @@ impl ClientBlocks {
         Self {
             blocks: Blocks::new(),
             chunks: Vec::new(),
-            atlas: gfx::TextureAtlas::new(HashMap::new()),
+            atlas: gfx::TextureAtlas::new(&HashMap::new()),
             breaking_texture: gfx::Texture::new(),
         }
     }
@@ -187,17 +187,17 @@ impl ClientBlocks {
         let mut surfaces = HashMap::new();
         for id in self.blocks.get_all_block_ids() {
             let block_type = self.blocks.get_block_type(id).unwrap();
-            let image_resource = mods.get_resource(format!("blocks:{}.opa", block_type.name));
+            let image_resource = mods.get_resource(format!("blocks:{}.opa", block_type.name).as_str());
             if let Some(image_resource) = image_resource {
                 let image = gfx::Surface::deserialize(&image_resource.clone());
                 surfaces.insert(id, image);
             }
         }
 
-        self.atlas = gfx::TextureAtlas::new(surfaces);
+        self.atlas = gfx::TextureAtlas::new(&surfaces);
 
         self.breaking_texture = gfx::Texture::load_from_surface(&gfx::Surface::deserialize(
-            mods.get_resource("misc:breaking.opa".to_string()).unwrap(),
+            mods.get_resource("misc:breaking.opa").unwrap(),
         ));
     }
 

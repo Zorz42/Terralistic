@@ -10,7 +10,7 @@ pub fn run_main_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn Ba
     singleplayer_button.texture = gfx::Texture::load_from_surface(
         &graphics
             .font
-            .create_text_surface(String::from("Singleplayer")),
+            .create_text_surface("Singleplayer"),
     );
     singleplayer_button.orientation = gfx::CENTER;
 
@@ -19,34 +19,34 @@ pub fn run_main_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn Ba
     multiplayer_button.texture = gfx::Texture::load_from_surface(
         &graphics
             .font
-            .create_text_surface(String::from("Multiplayer")),
+            .create_text_surface("Multiplayer"),
     );
     multiplayer_button.orientation = gfx::CENTER;
 
     let mut settings_button = gfx::Button::new();
     settings_button.scale = 3.0;
     settings_button.texture = gfx::Texture::load_from_surface(
-        &graphics.font.create_text_surface(String::from("Settings")),
+        &graphics.font.create_text_surface("Settings"),
     );
     settings_button.orientation = gfx::CENTER;
 
     let mut mods_button = gfx::Button::new();
     mods_button.scale = 3.0;
     mods_button.texture =
-        gfx::Texture::load_from_surface(&graphics.font.create_text_surface(String::from("Mods")));
+        gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Mods"));
     mods_button.orientation = gfx::CENTER;
 
     let mut exit_button = gfx::Button::new();
     exit_button.scale = 3.0;
     exit_button.texture =
-        gfx::Texture::load_from_surface(&graphics.font.create_text_surface(String::from("Exit")));
+        gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Exit"));
     exit_button.orientation = gfx::CENTER;
 
     let mut debug_title = gfx::Sprite::new();
     debug_title.texture = gfx::Texture::load_from_surface(
         &graphics
             .font
-            .create_text_surface(String::from("DEBUG MODE")),
+            .create_text_surface("DEBUG MODE"),
     );
     debug_title.color = gfx::GREY;
     debug_title.orientation = gfx::TOP;
@@ -57,7 +57,7 @@ pub fn run_main_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn Ba
     title.texture = gfx::Texture::load_from_surface(
         &graphics
             .font
-            .create_text_surface(String::from("Terralistic")),
+            .create_text_surface("Terralistic"),
     );
     title.scale = 4.0;
     title.orientation = gfx::TOP;
@@ -65,7 +65,7 @@ pub fn run_main_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn Ba
 
     let mut version = gfx::Sprite::new();
     version.texture =
-        gfx::Texture::load_from_surface(&graphics.font.create_text_surface(String::from(VERSION)));
+        gfx::Texture::load_from_surface(&graphics.font.create_text_surface(VERSION));
     version.color = gfx::GREY;
     version.orientation = gfx::BOTTOM;
     version.scale = 2.0;
@@ -111,7 +111,7 @@ pub fn run_main_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn Ba
                                 String::from("Are you sure you want to open\nthe multiplayer menu"),
                                 graphics,
                                 menu_back,
-                                Some(String::from("No, go back")),
+                                Some("No, go back"),
                                 None,
                             ) {
                                 //TODO: delete this, it is just for testing

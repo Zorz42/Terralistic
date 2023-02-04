@@ -97,7 +97,7 @@ impl Game {
 
         let mut resume_button = gfx::Button::new();
         resume_button.texture = gfx::Texture::load_from_surface(
-            &graphics.font.create_text_surface("Resume".to_string()),
+            &graphics.font.create_text_surface("Resume"),
         );
         resume_button.scale = 3.0;
         resume_button.y = gfx::SPACING;
@@ -106,7 +106,7 @@ impl Game {
 
         let mut quit_button = gfx::Button::new();
         quit_button.texture =
-            gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Quit".to_string()));
+            gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Quit"));
         quit_button.scale = 3.0;
         quit_button.y = 2 * gfx::SPACING + resume_button.get_height();
         quit_button.x = -gfx::SPACING;
@@ -155,7 +155,7 @@ impl Game {
                     _ => {}
                 }
 
-                self.events.push_event(events::Event::new(Box::new(event)));
+                self.events.push_event(events::Event::new(event));
             }
 
             self.networking.update(&mut self.events);

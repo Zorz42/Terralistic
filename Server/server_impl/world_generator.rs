@@ -225,7 +225,7 @@ impl WorldGenerator {
         }
 
         blocks.create_from_block_ids(block_terrain).unwrap();
-        walls.create_from_wall_ids(wall_terrain).unwrap();
+        walls.create_from_wall_ids(&wall_terrain).unwrap();
 
         println!("World generated in {}ms", start_time.elapsed().as_millis());
 

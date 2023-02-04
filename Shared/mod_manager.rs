@@ -121,8 +121,8 @@ impl GameMod {
     This function gets the resource with the given path.
     It returns a byte array with the contents of the resource.
      */
-    fn get_resource(&self, path: String) -> Option<&Vec<u8>> {
-        self.resources.get(&path)
+    fn get_resource(&self, path: &str) -> Option<&Vec<u8>> {
+        self.resources.get(path)
     }
 }
 
@@ -271,9 +271,9 @@ impl ModManager {
     /**
     This function gets the resource with the given path.
      */
-    pub fn get_resource(&self, path: String) -> Option<&Vec<u8>> {
+    pub fn get_resource(&self, path: &str) -> Option<&Vec<u8>> {
         for game_mod in self.mods.iter().rev() {
-            if let Some(data) = game_mod.get_resource(path.clone()) {
+            if let Some(data) = game_mod.get_resource(path) {
                 return Some(data);
             }
         }

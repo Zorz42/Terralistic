@@ -56,7 +56,7 @@ impl TextInput {
             timer: std::time::Instant::now(),
             timer_counter: 0,
             text: String::new(),
-            text_texture: Texture::load_from_surface(&graphics.font.create_text_surface(String::from(""))),
+            text_texture: Texture::load_from_surface(&graphics.font.create_text_surface("")),
             text_changed: true,
             selected: false,
             shadow_intensity: GFX_DEFAULT_TEXT_INPUT_SHADOW_INTENSITY,
@@ -118,7 +118,7 @@ impl TextInput {
     /**
     sets the hint text in the input box
      */
-    pub fn set_hint(&mut self, graphics: &mut GraphicsContext, hint: String) {
+    pub fn set_hint(&mut self, graphics: &mut GraphicsContext, hint: &str) {
         self.hint_texture = Texture::load_from_surface(&graphics.font.create_text_surface(hint));
     }
 
@@ -168,7 +168,7 @@ impl TextInput {
         let rect = container.get_absolute_rect();
 
         if self.text_changed && self.text.len() > 0 {
-            self.text_texture = Texture::load_from_surface(&graphics.font.create_text_surface(self.text.clone()));
+            self.text_texture = Texture::load_from_surface(&graphics.font.create_text_surface(self.text.as_str()));
         }
 
         let hover_progress_target = if self.is_hovered(graphics, parent_container) { 1.0 } else { 0.0 };
@@ -238,12 +238,12 @@ impl TextInput {
             let text_begin_x = i32::min(rect.x + (self.padding as f32 * self.scale) as i32, rect.x + (self.padding as f32 * self.scale) as i32 + rect.w - texture_width);
 
             // w1 is the width of the text before the cursor.0
-            let mut w1 = graphics.font.create_text_surface(self.text[..self.get_cursor().0].to_string()).get_width() as f32 * self.scale;
+            let mut w1 = graphics.font.create_text_surface(&self.text[..self.get_cursor().0]).get_width() as f32 * self.scale;
             if self.get_cursor().0 == 0 {
                 w1 = 0.0;
             }
             // w2 is the width of the text before the cursor.1
-            let mut w2 = graphics.font.create_text_surface(self.text[..self.get_cursor().1].to_string()).get_width() as f32 * self.scale;
+            let mut w2 = graphics.font.create_text_surface(&self.text[..self.get_cursor().1]).get_width() as f32 * self.scale;
             if self.get_cursor().1 == 0 {
                 w2 = 0.0;
             }

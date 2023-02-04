@@ -239,7 +239,7 @@ impl Walls {
     /**
     This function creates a world from a 2d vector of wall type ids
      */
-    pub fn create_from_wall_ids(&mut self, wall_ids: Vec<Vec<WallId>>) -> Result<()> {
+    pub fn create_from_wall_ids(&mut self, wall_ids: &Vec<Vec<WallId>>) -> Result<()> {
         let width = wall_ids.len() as i32;
         let height;
         if let Some(row) = wall_ids.get(0) {
@@ -249,7 +249,7 @@ impl Walls {
         }
 
         // check that all the rows have the same length
-        for row in &wall_ids {
+        for row in wall_ids {
             if row.len() as i32 != height {
                 return Err(anyhow!("All rows must have the same length"));
             }
@@ -259,7 +259,7 @@ impl Walls {
         self.walls_data.walls.clear();
         for row in wall_ids {
             for wall_id in row {
-                self.walls_data.walls.push(wall_id);
+                self.walls_data.walls.push(*wall_id);
             }
         }
         Ok(())
