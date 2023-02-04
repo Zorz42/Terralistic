@@ -3,13 +3,15 @@ use crate::game::networking::WelcomePacketEvent;
 use events::{Event, EventManager};
 use graphics as gfx;
 use graphics::GraphicsContext;
-use shared::blocks::{BlockBreakStartPacket, BlockBreakStopPacket, BlockChangeEvent, BlockChangePacket, BlockId};
+use shared::blocks::{
+    BlockBreakStartPacket, BlockBreakStopPacket, BlockChangeEvent, BlockChangePacket, BlockId,
+};
 use shared::blocks::{
     Blocks, BlocksWelcomePacket, BLOCK_WIDTH, CHUNK_SIZE, RENDER_BLOCK_WIDTH, RENDER_SCALE,
 };
 use shared::mod_manager::ModManager;
-use std::collections::HashMap;
 use shared::packet::Packet;
+use std::collections::HashMap;
 
 pub struct RenderBlockChunk {
     needs_update: bool,
@@ -137,30 +139,38 @@ impl ClientBlocks {
 
     pub fn on_event(&mut self, event: &Event, events: &mut EventManager) {
         if let Some(event) = event.downcast::<WelcomePacketEvent>() {
-
             if let Some(packet) = event.packet.deserialize::<BlocksWelcomePacket>() {
                 self.blocks.create(packet.width, packet.height).unwrap();
                 self.blocks.deserialize(&packet.data).unwrap();
             }
-
         } else if let Some(event) = event.downcast::<Packet>() {
-
             if let Some(packet) = event.deserialize::<BlockBreakStartPacket>() {
-                self.blocks.start_breaking_block(events, packet.x, packet.y).unwrap();
+                self.blocks
+                    .start_breaking_block(events, packet.x, packet.y)
+                    .unwrap();
             } else if let Some(packet) = event.deserialize::<BlockBreakStopPacket>() {
-                self.blocks.stop_breaking_block(events, packet.x, packet.y).unwrap();
-                self.blocks.set_break_progress(packet.x, packet.y, packet.break_time).unwrap();
+                self.blocks
+                    .stop_breaking_block(events, packet.x, packet.y)
+                    .unwrap();
+                self.blocks
+                    .set_break_progress(packet.x, packet.y, packet.break_time)
+                    .unwrap();
             } else if let Some(packet) = event.deserialize::<BlockChangePacket>() {
-                self.blocks.set_block(events, packet.x, packet.y, packet.block).unwrap();
+                self.blocks
+                    .set_block(events, packet.x, packet.y, packet.block)
+                    .unwrap();
             }
-
         } else if let Some(event) = event.downcast::<BlockChangeEvent>() {
-
-            for (x, y) in [(event.x, event.y), (event.x - 1, event.y), (event.x + 1, event.y), (event.x, event.y - 1), (event.x, event.y + 1)] {
+            for (x, y) in [
+                (event.x, event.y),
+                (event.x - 1, event.y),
+                (event.x + 1, event.y),
+                (event.x, event.y - 1),
+                (event.x, event.y + 1),
+            ] {
                 let chunk_index = self.get_chunk_index(x / CHUNK_SIZE, y / CHUNK_SIZE);
                 self.chunks.get_mut(chunk_index).unwrap().needs_update = true;
             }
-
         }
     }
 
@@ -186,7 +196,9 @@ impl ClientBlocks {
 
         self.atlas = gfx::TextureAtlas::new(surfaces);
 
-        self.breaking_texture = gfx::Texture::load_from_surface(&gfx::Surface::deserialize(mods.get_resource("misc:breaking.opa".to_string()).unwrap()));
+        self.breaking_texture = gfx::Texture::load_from_surface(&gfx::Surface::deserialize(
+            mods.get_resource("misc:breaking.opa".to_string()).unwrap(),
+        ));
     }
 
     pub fn render(&mut self, graphics: &mut GraphicsContext, camera: &Camera) {
@@ -200,7 +212,8 @@ impl ClientBlocks {
             bottom_right_x as i32 / BLOCK_WIDTH,
             bottom_right_y as i32 / BLOCK_WIDTH,
         );
-        let (top_left_chunk_x, top_left_chunk_y) = (top_left_x / CHUNK_SIZE, top_left_y / CHUNK_SIZE);
+        let (top_left_chunk_x, top_left_chunk_y) =
+            (top_left_x / CHUNK_SIZE, top_left_y / CHUNK_SIZE);
         let (bottom_right_chunk_x, bottom_right_chunk_y) = (
             bottom_right_x / CHUNK_SIZE + 1,
             bottom_right_y / CHUNK_SIZE + 1,
@@ -227,19 +240,40 @@ impl ClientBlocks {
             }
         }
 
-
         for breaking_block in self.blocks.get_breaking_blocks() {
-            if breaking_block.coord.0 < top_left_x || breaking_block.coord.0 > bottom_right_x || breaking_block.coord.1 < top_left_y || breaking_block.coord.1 > bottom_right_y {
+            if breaking_block.coord.0 < top_left_x
+                || breaking_block.coord.0 > bottom_right_x
+                || breaking_block.coord.1 < top_left_y
+                || breaking_block.coord.1 > bottom_right_y
+            {
                 continue;
             }
 
-            let (x, y) = (breaking_block.coord.0 * RENDER_BLOCK_WIDTH - (camera.get_top_left(graphics).0 * RENDER_SCALE) as i32, breaking_block.coord.1 * RENDER_BLOCK_WIDTH - (camera.get_top_left(graphics).1 * RENDER_SCALE) as i32);
-            let break_stage = self.blocks.get_break_stage(breaking_block.coord.0, breaking_block.coord.1).unwrap();
-            self.breaking_texture.render(&graphics.renderer, RENDER_SCALE, x, y, Some(gfx::Rect::new(0, break_stage * 8, 8, 8)), false, None);
+            let (x, y) = (
+                breaking_block.coord.0 * RENDER_BLOCK_WIDTH
+                    - (camera.get_top_left(graphics).0 * RENDER_SCALE) as i32,
+                breaking_block.coord.1 * RENDER_BLOCK_WIDTH
+                    - (camera.get_top_left(graphics).1 * RENDER_SCALE) as i32,
+            );
+            let break_stage = self
+                .blocks
+                .get_break_stage(breaking_block.coord.0, breaking_block.coord.1)
+                .unwrap();
+            self.breaking_texture.render(
+                &graphics.renderer,
+                RENDER_SCALE,
+                x,
+                y,
+                Some(gfx::Rect::new(0, break_stage * 8, 8, 8)),
+                false,
+                None,
+            );
         }
     }
 
     pub fn update(&mut self, frame_length: f32, events: &mut EventManager) {
-        self.blocks.update_breaking_blocks(events, frame_length).unwrap();
+        self.blocks
+            .update_breaking_blocks(events, frame_length)
+            .unwrap();
     }
 }
