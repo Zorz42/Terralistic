@@ -4,27 +4,15 @@ use crate::blocks::Blocks;
 const MAX_LIGHT: i32 = 100;
 
 /**event that fires when the light color is changed*/
-pub struct LightColorChangeEvent {//TODO: implement new events
+pub struct LightColorChangeEvent {
     pub x: i32,
     pub y: i32,
 }
-impl LightColorChangeEvent {
-    pub fn new(x: i32, y: i32) -> Self {
-        LightColorChangeEvent{ x, y }
-    }
-}
-
 /**event that fires when the light is scheduled to be updated*/
 pub struct LightUpdateScheduleEvent {
     pub x: i32,
     pub y: i32,
 }
-impl LightUpdateScheduleEvent {
-    pub fn new(x: i32, y: i32) -> Self {
-        LightUpdateScheduleEvent{ x, y }
-    }
-}
-//impl Event for LightColorChangeEvent {}
 
 /**struct that contains the light rgb values*/
 #[derive(PartialEq, Clone, Copy)]
@@ -56,7 +44,6 @@ impl Light {
         }
     }
 }
-//impl Event for LightUpdateScheduleEvent {}
 
 /**struct that manages all the lights in the world*/
 struct Lights {

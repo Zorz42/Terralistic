@@ -1,6 +1,7 @@
 mod networking;
 mod mod_manager;
 mod blocks;
+mod walls;
 mod world_generator;
 
 use std::collections::HashMap;
@@ -10,6 +11,7 @@ use events::EventManager;
 use crate::blocks::ServerBlocks;
 use crate::mod_manager::ServerModManager;
 use crate::networking::ServerNetworking;
+use crate::walls::ServerWalls;
 use crate::world_generator::WorldGenerator;
 
 pub struct Server {
@@ -18,16 +20,20 @@ pub struct Server {
     networking: ServerNetworking,
     mods: ServerModManager,
     blocks: ServerBlocks,
+    walls: ServerWalls,
 }
 
 impl Server {
     pub fn new(port: u16) -> Self {
+        let mut blocks = ServerBlocks::new();
+        let walls = ServerWalls::new(&mut blocks.blocks);
         Self {
             tps_limit: 20.0,
             events: EventManager::new(),
             networking: ServerNetworking::new(port),
             mods: ServerModManager::new(),
-            blocks: ServerBlocks::new(),
+            blocks,
+            walls,
         }
     }
 
@@ -56,7 +62,7 @@ impl Server {
             *status_text.lock().unwrap() = "Loading world".to_string();
             self.load_world(world_path);
         } else {
-            generator.generate(&mut self.blocks.blocks, &mut self.mods.mod_manager, 4400, 1200, 423657, &status_text);
+            generator.generate(&mut self.blocks.blocks, &mut self.walls.walls, &mut self.mods.mod_manager, 4400, 1200, 423657, &status_text);
         }
 
         // start server loop
@@ -109,11 +115,13 @@ impl Server {
         let world: HashMap<String, Vec<u8>> = bincode::deserialize(&*world_file).unwrap();
 
         self.blocks.blocks.deserialize(world.get("blocks").unwrap()).unwrap();
+        self.walls.walls.deserialize(world.get("walls").unwrap()).unwrap();
     }
 
     fn save_world(&self, world_path: &Path) {
         let mut world = HashMap::new();
         world.insert("blocks".to_string(), self.blocks.blocks.serialize().unwrap());
+        world.insert("walls".to_string(), self.walls.walls.serialize().unwrap());
 
         let world_file = bincode::serialize(&world).unwrap();
         // if world file exists, overwrite it, otherwise create it

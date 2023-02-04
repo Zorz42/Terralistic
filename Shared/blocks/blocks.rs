@@ -331,21 +331,24 @@ impl Blocks{
 Event that is fired when a block is changed
  */
 pub struct BlockChangeEvent {
-    pub x: i32, pub y: i32
+    pub x: i32,
+    pub y: i32
 }
 
 /**
 Event that is fired when a random tick is fired for a block
  */
 struct BlockRandomTickEvent {
-    x: i32, y: i32
+    pub x: i32,
+    pub y: i32
 }
 
 /**
 Event that is fired when a block is updated
  */
 pub struct BlockUpdateEvent {
-    x: i32, y: i32
+    pub x: i32,
+    pub y: i32
 }
 
 /**

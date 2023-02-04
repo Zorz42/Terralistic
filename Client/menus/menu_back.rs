@@ -48,8 +48,7 @@ impl Background for MenuBack {
         let scale = graphics.renderer.get_window_height() as f32
             / self.background.get_texture_height() as f32;
         let texture_width_scaled = self.background.get_texture_width() as f32 * scale;
-        let pos = ((self.background_timer.elapsed().as_millis() as f32 * scale / 150.0)
-            as u64
+        let pos = ((self.background_timer.elapsed().as_millis() as f32 * scale / 150.0) as u64
             % texture_width_scaled as u64) as i32;
 
         for i in -1..graphics.renderer.get_window_width() as i32
