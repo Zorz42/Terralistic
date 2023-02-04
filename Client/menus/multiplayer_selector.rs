@@ -58,7 +58,7 @@ impl ServerCard {
 
         let mut title = gfx::Sprite::new();
         title.texture =
-            gfx::Texture::load_from_surface(&graphics.font.create_text_surface(name.clone()));
+            gfx::Texture::load_from_surface(&graphics.font.create_text_surface(name.clone().as_str()));
         title.x = icon.x + icon.get_width() + gfx::SPACING;
         title.y = gfx::SPACING;
         title.scale = 3.0;
@@ -186,7 +186,7 @@ pub fn run_multiplayer_selector(
     title.texture = gfx::Texture::load_from_surface(
         &graphics
             .font
-            .create_text_surface(String::from("Select a server to play!")),
+            .create_text_surface("Select a server to play!"),
     );
     title.y = gfx::SPACING;
     title.orientation = gfx::TOP;
@@ -194,14 +194,14 @@ pub fn run_multiplayer_selector(
     let mut back_button = gfx::Button::new();
     back_button.scale = 3.0;
     back_button.texture =
-        gfx::Texture::load_from_surface(&graphics.font.create_text_surface(String::from("Back")));
+        gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Back"));
     back_button.y = -gfx::SPACING;
     back_button.orientation = gfx::BOTTOM;
 
     let mut new_world_button = gfx::Button::new();
     new_world_button.scale = 3.0;
     new_world_button.texture =
-        gfx::Texture::load_from_surface(&graphics.font.create_text_surface(String::from("New")));
+        gfx::Texture::load_from_surface(&graphics.font.create_text_surface("New"));
     new_world_button.y = -gfx::SPACING;
     new_world_button.x = -gfx::SPACING;
     new_world_button.orientation = gfx::BOTTOM_RIGHT;
