@@ -1,5 +1,5 @@
-use crate::surface::Surface;
 use crate::color::Color;
+use crate::surface::Surface;
 use std::cmp::max;
 
 pub struct Font {
@@ -14,7 +14,14 @@ Check if the column of a surface is empty.
  */
 fn is_column_empty(surface: &Surface, column: i32) -> bool {
     for y in 0..surface.get_height() {
-        if surface.get_pixel(column, y) != (Color{r: 0, g: 0, b: 0, a: 0}) {
+        if surface.get_pixel(column, y)
+            != (Color {
+                r: 0,
+                g: 0,
+                b: 0,
+                a: 0,
+            })
+        {
             return false;
         }
     }
@@ -27,9 +34,9 @@ impl Font {
     Loads all the characters in the file and stores them in a
     surface array. The index of the array is the ascii value.
      */
-    pub fn new(font_data: Vec<u8>) -> Self {
+    pub fn new(font_data: &Vec<u8>) -> Self {
         let mut font_surfaces = vec![];
-        let font_surface = Surface::deserialize(&font_data);
+        let font_surface = Surface::deserialize(font_data);
 
         for y in 0..16 {
             for x in 0..16 {
@@ -64,15 +71,13 @@ impl Font {
             }
         }
 
-        Font{
-            font_surfaces,
-        }
+        Font { font_surfaces }
     }
 
     /**
     This function creates a surface with the text on it.
      */
-    pub fn create_text_surface(&self, text: String) -> Surface {
+    pub fn create_text_surface(&self, text: &str) -> Surface {
         let mut width = 0;
         let height = self.font_surfaces[0].get_height();
         for c in text.chars() {

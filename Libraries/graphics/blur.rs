@@ -1,7 +1,7 @@
-use std::ffi::{c_void};
-use crate::Rect;
 use crate::shaders::compile_shader;
 use crate::transformation::Transformation;
+use crate::Rect;
+use std::ffi::c_void;
 
 const BLUR_VERTEX_SHADER_CODE: &str = r#"
 #version 330 core
@@ -64,8 +64,13 @@ impl BlurContext {
                 gl::GetUniformLocation(blur_shader, "transform_matrix\0".as_ptr() as *const i8)
             },
             texture_transform_matrix_uniform: unsafe {
-                gl::GetUniformLocation(blur_shader, "texture_transform_matrix\0".as_ptr() as *const i8) },
-            texture_sampler_uniform: unsafe { gl::GetUniformLocation(blur_shader, "texture_sampler\0".as_ptr() as *const i8)
+                gl::GetUniformLocation(
+                    blur_shader,
+                    "texture_transform_matrix\0".as_ptr() as *const i8,
+                )
+            },
+            texture_sampler_uniform: unsafe {
+                gl::GetUniformLocation(blur_shader, "texture_sampler\0".as_ptr() as *const i8)
             },
             blur_offset_uniform: unsafe {
                 gl::GetUniformLocation(blur_shader, "blur_offset\0".as_ptr() as *const i8)
@@ -78,17 +83,16 @@ impl BlurContext {
                 unsafe {
                     gl::GenBuffers(1, &mut buffer);
 
-                    let rect_vertex_array: [f32; 12] = [
-                        0.0, 0.0,
-                        1.0, 0.0,
-                        0.0, 1.0,
-                        1.0, 0.0,
-                        0.0, 1.0,
-                        1.0, 1.0,
-                    ];
+                    let rect_vertex_array: [f32; 12] =
+                        [0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 1.0];
 
                     gl::BindBuffer(gl::ARRAY_BUFFER, buffer);
-                    gl::BufferData(gl::ARRAY_BUFFER, 4 * 12, rect_vertex_array.as_ptr() as *const c_void, gl::STATIC_DRAW);
+                    gl::BufferData(
+                        gl::ARRAY_BUFFER,
+                        4 * 12,
+                        rect_vertex_array.as_ptr() as *const c_void,
+                        gl::STATIC_DRAW,
+                    );
                     gl::BindBuffer(gl::ARRAY_BUFFER, 0);
                 }
                 buffer
@@ -113,7 +117,10 @@ impl BlurContext {
     /**
     Blurs region on a given texture.
      */
-    pub(crate) fn blur_region(&self, rect: &Rect, radius: i32, gl_texture: u32, back_texture: u32, width: f32, height: f32, texture_transform: &Transformation) {
+    pub(crate) fn blur_region(
+        &self, rect: &Rect, radius: i32, gl_texture: u32, back_texture: u32, width: f32,
+        height: f32, texture_transform: &Transformation,
+    ) {
         if !self.blur_enabled {
             return;
         }
@@ -135,28 +142,45 @@ impl BlurContext {
             gl::Uniform4f(self.limit_uniform, x2, -y1, x1, -y2);
             gl::Uniform1i(self.texture_sampler_uniform, 0);
 
-
             let mut transform = texture_transform.clone();
             transform.translate(rect.x as f32, rect.y as f32);
             transform.stretch(rect.w as f32, rect.h as f32);
 
-            gl::UniformMatrix3fv(self.transform_matrix_uniform, 1, gl::FALSE, transform.matrix.as_ptr());
-
+            gl::UniformMatrix3fv(
+                self.transform_matrix_uniform,
+                1,
+                gl::FALSE,
+                transform.matrix.as_ptr(),
+            );
 
             transform = Transformation::new();
             transform.stretch(1.0 / width, -1.0 / height);
             transform.translate(rect.x as f32, rect.y as f32);
             transform.stretch(rect.w as f32, rect.h as f32);
 
-            gl::UniformMatrix3fv(self.texture_transform_matrix_uniform, 1, gl::FALSE, transform.matrix.as_ptr());
+            gl::UniformMatrix3fv(
+                self.texture_transform_matrix_uniform,
+                1,
+                gl::FALSE,
+                transform.matrix.as_ptr(),
+            );
             gl::BindBuffer(gl::ARRAY_BUFFER, self.rect_vertex_buffer);
             gl::VertexAttribPointer(0, 2, gl::FLOAT, gl::FALSE, 0, std::ptr::null());
 
-
             let mut radius = radius;
             while radius > 10 {
-                self.blur_rect(0.0, (radius as f32 / height / 10.0) as f32, gl_texture, back_texture);
-                self.blur_rect((radius as f32 / width / 10.0) as f32, 0.0, back_texture, gl_texture);
+                self.blur_rect(
+                    0.0,
+                    (radius as f32 / height / 10.0) as f32,
+                    gl_texture,
+                    back_texture,
+                );
+                self.blur_rect(
+                    (radius as f32 / width / 10.0) as f32,
+                    0.0,
+                    back_texture,
+                    gl_texture,
+                );
                 radius = (radius as f32 * BLUR_QUALITY).sqrt() as i32;
             }
 

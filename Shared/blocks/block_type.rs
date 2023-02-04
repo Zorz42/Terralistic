@@ -1,13 +1,13 @@
-use std::sync::Arc;
-use rlua::UserDataMethods;
-use crate::blocks::BlockId;
 use crate::blocks::tool::Tool;
+use crate::blocks::BlockId;
+use rlua::UserDataMethods;
+use std::sync::Arc;
 
 /**
 Includes properties for each block type
  */
 #[derive(Clone)]
-pub struct BlockType {
+pub struct Block {
     // tool that can break the block, none means it can be broken by hand or any tool
     // TODO: implement for lua
     pub effective_tool: Option<Arc<Tool>>,
@@ -42,109 +42,164 @@ pub struct BlockType {
 /**
 make BlockType Lua compatible, implement getter and setter for every field except id and image
  */
-impl rlua::UserData for BlockType {
+impl rlua::UserData for Block {
     fn add_methods<'lua, M: UserDataMethods<'lua, Self>>(methods: &mut M) {
         // add meta method to set fields, id and image are not accessible
-        methods.add_meta_method_mut(rlua::MetaMethod::NewIndex, |_lua_ctx, this, (key, value): (String, rlua::Value)| {
-            match key.as_str() {
+        methods.add_meta_method_mut(
+            rlua::MetaMethod::NewIndex,
+            |_lua_ctx, this, (key, value): (String, rlua::Value)| match key.as_str() {
                 "required_tool_power" => {
                     match value {
                         rlua::Value::Integer(i) => this.required_tool_power = i as i32,
-                        _ => return Err(rlua::Error::RuntimeError("value is not a valid value for required_tool_power".to_string()))
+                        _ => {
+                            return Err(rlua::Error::RuntimeError(
+                                "value is not a valid value for required_tool_power".to_string(),
+                            ))
+                        }
                     }
                     Ok(())
-                },
+                }
                 "ghost" => {
                     match value {
                         rlua::Value::Boolean(b) => this.ghost = b,
-                        _ => return Err(rlua::Error::RuntimeError("value is not a valid value for ghost".to_string()))
+                        _ => {
+                            return Err(rlua::Error::RuntimeError(
+                                "value is not a valid value for ghost".to_string(),
+                            ))
+                        }
                     }
                     Ok(())
-                },
+                }
                 "transparent" => {
                     match value {
                         rlua::Value::Boolean(b) => this.transparent = b,
-                        _ => return Err(rlua::Error::RuntimeError("value is not a valid value for transparent".to_string()))
+                        _ => {
+                            return Err(rlua::Error::RuntimeError(
+                                "value is not a valid value for transparent".to_string(),
+                            ))
+                        }
                     }
                     Ok(())
-                },
+                }
                 "name" => {
                     match value {
-                        rlua::Value::String(s) => this.name = s.to_str().unwrap_or("unknown").to_string(),
-                        _ => return Err(rlua::Error::RuntimeError("value is not a valid value for name".to_string()))
+                        rlua::Value::String(s) => {
+                            this.name = s.to_str().unwrap_or("unknown").to_string()
+                        }
+                        _ => {
+                            return Err(rlua::Error::RuntimeError(
+                                "value is not a valid value for name".to_string(),
+                            ))
+                        }
                     }
                     Ok(())
-                },
+                }
                 "break_time" => {
                     match value {
                         rlua::Value::Integer(i) => this.break_time = i as i32,
-                        _ => return Err(rlua::Error::RuntimeError("value is not a valid value for break_time".to_string()))
+                        _ => {
+                            return Err(rlua::Error::RuntimeError(
+                                "value is not a valid value for break_time".to_string(),
+                            ))
+                        }
                     }
                     Ok(())
-                },
+                }
                 "light_emission_r" => {
                     match value {
                         rlua::Value::Integer(i) => this.light_emission_r = i as u8,
-                        _ => return Err(rlua::Error::RuntimeError("value is not a valid value for light_emission_r".to_string()))
+                        _ => {
+                            return Err(rlua::Error::RuntimeError(
+                                "value is not a valid value for light_emission_r".to_string(),
+                            ))
+                        }
                     }
                     Ok(())
-                },
+                }
                 "light_emission_g" => {
                     match value {
                         rlua::Value::Integer(i) => this.light_emission_g = i as u8,
-                        _ => return Err(rlua::Error::RuntimeError("value is not a valid value for light_emission_g".to_string()))
+                        _ => {
+                            return Err(rlua::Error::RuntimeError(
+                                "value is not a valid value for light_emission_g".to_string(),
+                            ))
+                        }
                     }
                     Ok(())
-                },
+                }
                 "light_emission_b" => {
                     match value {
                         rlua::Value::Integer(i) => this.light_emission_b = i as u8,
-                        _ => return Err(rlua::Error::RuntimeError("value is not a valid value for light_emission_b".to_string()))
+                        _ => {
+                            return Err(rlua::Error::RuntimeError(
+                                "value is not a valid value for light_emission_b".to_string(),
+                            ))
+                        }
                     }
                     Ok(())
-                },
+                }
                 "width" => {
                     match value {
                         rlua::Value::Integer(i) => this.width = i as i32,
-                        _ => return Err(rlua::Error::RuntimeError("value is not a valid value for width".to_string()))
+                        _ => {
+                            return Err(rlua::Error::RuntimeError(
+                                "value is not a valid value for width".to_string(),
+                            ))
+                        }
                     }
                     Ok(())
-                },
+                }
                 "height" => {
                     match value {
                         rlua::Value::Integer(i) => this.height = i as i32,
-                        _ => return Err(rlua::Error::RuntimeError("value is not a valid value for height".to_string()))
+                        _ => {
+                            return Err(rlua::Error::RuntimeError(
+                                "value is not a valid value for height".to_string(),
+                            ))
+                        }
                     }
                     Ok(())
-                },
+                }
                 "can_update_states" => {
                     match value {
                         rlua::Value::Boolean(b) => this.can_update_states = b,
-                        _ => return Err(rlua::Error::RuntimeError("value is not a valid value for can_update_states".to_string()))
+                        _ => {
+                            return Err(rlua::Error::RuntimeError(
+                                "value is not a valid value for can_update_states".to_string(),
+                            ))
+                        }
                     }
                     Ok(())
-                },
+                }
                 "feet_collidable" => {
                     match value {
                         rlua::Value::Boolean(b) => this.feet_collidable = b,
-                        _ => return Err(rlua::Error::RuntimeError("value is not a valid value for feet_collidable".to_string()))
+                        _ => {
+                            return Err(rlua::Error::RuntimeError(
+                                "value is not a valid value for feet_collidable".to_string(),
+                            ))
+                        }
                     }
                     Ok(())
-                },
-                _ => Err(rlua::Error::RuntimeError(format!("{} is not a valid field of BlockType", key))),
-            }
-        });
+                }
+                _ => Err(rlua::Error::RuntimeError(format!(
+                    "{} is not a valid field of BlockType",
+                    key
+                ))),
+            },
+        );
     }
 }
-impl BlockType {
+impl Block {
     /**
     Creates a new block type with default values
      */
     pub fn new() -> Self {
-        BlockType {
+        Block {
             effective_tool: None,
             required_tool_power: 0,
-            ghost: false, transparent: false,
+            ghost: false,
+            transparent: false,
             name: "".to_string(),
             connects_to: vec![],
             break_time: 0,
@@ -170,7 +225,7 @@ impl BlockType {
 /**
 Block types are equal if they have the same id
  */
-impl PartialEq for BlockType {
+impl PartialEq for Block {
     fn eq(&self, other: &Self) -> bool {
         self.id == other.id
     }

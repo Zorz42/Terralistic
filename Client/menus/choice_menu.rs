@@ -4,15 +4,14 @@ use graphics::GraphicsContext;
 
 pub fn run_choice_menu(
     menu_title: String, graphics: &mut GraphicsContext, menu_back: &mut dyn BackgroundRect,
-    confirm_name_override: Option<String>, back_name_override: Option<String>,
+    confirm_name_override: Option<&str>, back_name_override: Option<&str>,
 ) -> bool {
     let text_lines_vec = menu_title.split('\n').collect::<Vec<&str>>();
 
     let mut title_lines = Vec::new();
     for line in text_lines_vec {
         let mut sprite = gfx::Sprite::new();
-        sprite.texture =
-            gfx::Texture::load_from_surface(&graphics.font.create_text_surface(String::from(line)));
+        sprite.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface(line));
         sprite.scale = 3.0;
         sprite.orientation = gfx::TOP;
         sprite.y = gfx::SPACING + title_lines.len() as i32 * (sprite.get_height() + gfx::SPACING);
@@ -21,13 +20,13 @@ pub fn run_choice_menu(
 
     let mut buttons_container = gfx::Container::new(0, 0, 0, 0, gfx::BOTTOM);
 
-    let back_str = back_name_override.unwrap_or(String::from("Back"));
+    let back_str = back_name_override.unwrap_or("Back");
     let mut back_button = gfx::Button::new();
     back_button.scale = 3.0;
     back_button.texture =
         gfx::Texture::load_from_surface(&graphics.font.create_text_surface(back_str));
 
-    let confirm_str = confirm_name_override.unwrap_or(String::from("Confirm"));
+    let confirm_str = confirm_name_override.unwrap_or("Confirm");
     let mut confirm_button = gfx::Button::new();
     confirm_button.scale = 3.0;
     confirm_button.texture =

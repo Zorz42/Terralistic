@@ -1,6 +1,6 @@
+use crate::{Color, Rect, Surface, Texture};
 use std::collections::HashMap;
 use std::hash::Hash;
-use crate::{Color, Rect, Surface, Texture};
 
 /**
 Texture atlas is a struct that holds a texture and a list of rectangles
@@ -12,7 +12,7 @@ pub struct TextureAtlas<KeyType> {
 }
 
 impl<KeyType: Eq + Hash + Clone> TextureAtlas<KeyType> {
-    pub fn new(surfaces: HashMap<KeyType, Surface>) -> Self {
+    pub fn new(surfaces: &HashMap<KeyType, Surface>) -> Self {
         if surfaces.len() == 0 {
             return Self {
                 texture: Texture::new(),
@@ -21,24 +21,27 @@ impl<KeyType: Eq + Hash + Clone> TextureAtlas<KeyType> {
         }
 
         let mut total_width = 0;
-        for (_, surface) in &surfaces {
+        for (_, surface) in surfaces {
             total_width += surface.get_width();
         }
 
         let mut max_height = 0;
-        for (_, surface) in &surfaces {
+        for (_, surface) in surfaces {
             total_width += surface.get_width();
             if surface.get_height() > max_height {
                 max_height = surface.get_height();
             }
-        };
+        }
 
         let mut main_surface = Surface::new(total_width, max_height);
         let mut rects = HashMap::new();
 
         let mut x = 0;
-        for (key, surface) in &surfaces {
-            rects.insert(key.clone(), Rect::new(x, 0, surface.get_width(), surface.get_height()));
+        for (key, surface) in surfaces {
+            rects.insert(
+                key.clone(),
+                Rect::new(x, 0, surface.get_width(), surface.get_height()),
+            );
             main_surface.draw(x, 0, &surface, Color::new(255, 255, 255, 255));
             x += surface.get_width();
         }

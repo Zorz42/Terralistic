@@ -1,12 +1,12 @@
-use std::collections::HashMap;
-use std::sync::{Arc, Mutex};
 use noise::{NoiseFn, Perlin};
 use rand::{RngCore, SeedableRng};
-use rlua::prelude::{LuaUserData};
+use rlua::prelude::LuaUserData;
 use rlua::UserDataMethods;
 use shared::blocks::{BlockId, Blocks};
 use shared::mod_manager::{get_mod_id, ModManager};
 use shared::walls::{WallId, Walls};
+use std::collections::HashMap;
+use std::sync::{Arc, Mutex};
 
 fn turbulence(noise: &Perlin, x: f32, y: f32) -> f32 {
     let mut value = 0.0;
@@ -62,14 +62,24 @@ impl WorldGenerator {
         // lua function connect_biomes(biome1, biome2, weight) takes two biome ids and a weight and connects them
         // the weight is how likely it is to go from biome1 to biome2 (and vice versa)
         let biomes = self.biomes.clone();
-        mods.add_global_function("connect_biomes", move |_, (biome1, biome2, weight): (i32, i32, i32)| {
-            biomes.lock().unwrap()[biome1 as usize].adjacent_biomes.push((weight, biome2));
-            biomes.lock().unwrap()[biome2 as usize].adjacent_biomes.push((weight, biome1));
-            Ok(())
-        });
+        mods.add_global_function(
+            "connect_biomes",
+            move |_, (biome1, biome2, weight): (i32, i32, i32)| {
+                biomes.lock().unwrap()[biome1 as usize]
+                    .adjacent_biomes
+                    .push((weight, biome2));
+                biomes.lock().unwrap()[biome2 as usize]
+                    .adjacent_biomes
+                    .push((weight, biome1));
+                Ok(())
+            },
+        );
     }
 
-    pub fn generate(&mut self, blocks: &mut Blocks, walls: &mut Walls, mods: &mut ModManager, min_width: i32, height: i32, seed: u64, status_text: &Mutex<String>) {
+    pub fn generate(
+        &mut self, blocks: &mut Blocks, walls: &mut Walls, mods: &mut ModManager, min_width: i32,
+        height: i32, seed: u64, status_text: &Mutex<String>,
+    ) {
         // create a random number generator with seed
         let mut rng = rand::rngs::StdRng::seed_from_u64(seed);
 
@@ -90,7 +100,8 @@ impl WorldGenerator {
             // determine the width of the current biome
             // the width is a random number between the min and max width
             let biome = &self.biomes.lock().unwrap()[curr_biome as usize];
-            let biome_width = rand::random::<i32>().abs() % (biome.max_width - biome.min_width) + biome.min_width;
+            let biome_width =
+                rand::random::<i32>().abs() % (biome.max_width - biome.min_width) + biome.min_width;
             for _ in 0..biome_width {
                 min_heights.push(biome.min_terrain_height as f32);
                 max_heights.push(biome.max_terrain_height as f32);
@@ -121,7 +132,10 @@ impl WorldGenerator {
 
         let mut next_task = || {
             current_task += 1;
-            *status_text.lock().unwrap() = format!("Generating world {}%", (current_task as f32 / total_tasks as f32 * 100.0) as i32);
+            *status_text.lock().unwrap() = format!(
+                "Generating world {}%",
+                (current_task as f32 / total_tasks as f32 * 100.0) as i32
+            );
         };
 
         let start_time = std::time::Instant::now();
@@ -130,7 +144,7 @@ impl WorldGenerator {
         blocks.create(width, height).unwrap();
 
         let mut block_terrain = vec![vec![BlockId::new(); height as usize]; width as usize];
-        let mut wall_terrain = vec![vec![WallId::new(); height as usize]; width as usize];
+        let wall_terrain = vec![vec![WallId::new(); height as usize]; width as usize];
 
         let mut min_cave_thresholds = vec![0.0; width as usize];
         let mut max_cave_thresholds = vec![0.15; width as usize];
@@ -161,8 +175,14 @@ impl WorldGenerator {
 
         for block_id in blocks.get_all_block_ids() {
             for _ in 0..5 {
-                ores_start_noises.insert(block_id, convolve(&ores_start_noises[&block_id], convolution_size));
-                ores_end_noises.insert(block_id, convolve(&ores_end_noises[&block_id], convolution_size));
+                ores_start_noises.insert(
+                    block_id,
+                    convolve(&ores_start_noises[&block_id], convolution_size),
+                );
+                ores_end_noises.insert(
+                    block_id,
+                    convolve(&ores_end_noises[&block_id], convolution_size),
+                );
             }
         }
 
@@ -179,22 +199,35 @@ impl WorldGenerator {
         for x in 0..width {
             curr_terrain.push(vec![BlockId::new(); height as usize]);
 
-            let terrain_noise_val = ((turbulence(&terrain_noise, x as f32 / 150.0, 0.0) + 1.0) * (max_heights[x as usize] - min_heights[x as usize])) as i32 + min_heights[x as usize] as i32 + height * 2 / 3;
+            let terrain_noise_val = ((turbulence(&terrain_noise, x as f32 / 150.0, 0.0) + 1.0)
+                * (max_heights[x as usize] - min_heights[x as usize]))
+                as i32
+                + min_heights[x as usize] as i32
+                + height * 2 / 3;
             for y in 0..height {
                 next_task();
                 let terrain_height = height - y;
 
-                let cave_noise_val = f32::abs(turbulence(&cave_noise, x as f32 / 80.0, y as f32 / 80.0));
-                let cave_threshold = y as f32 / height as f32 * (max_cave_thresholds[x as usize] - min_cave_thresholds[x as usize]) + min_cave_thresholds[x as usize];
+                let cave_noise_val =
+                    f32::abs(turbulence(&cave_noise, x as f32 / 80.0, y as f32 / 80.0));
+                let cave_threshold = y as f32 / height as f32
+                    * (max_cave_thresholds[x as usize] - min_cave_thresholds[x as usize])
+                    + min_cave_thresholds[x as usize];
 
-                let mut curr_block = self.biomes.lock().unwrap()[biome_ids[x as usize] as usize].base_block;
+                let mut curr_block =
+                    self.biomes.lock().unwrap()[biome_ids[x as usize] as usize].base_block;
 
                 for block in blocks.get_all_block_ids() {
                     let start_noise = ores_start_noises[&block][x as usize];
                     let end_noise = ores_end_noises[&block][x as usize];
                     if (start_noise, end_noise) != (-1.0, -1.0) {
-                        let ore_noise = turbulence(&ore_noises.get(&block).unwrap(), x as f32 / 15.0, y as f32 / 15.0);
-                        let ore_threshold = y as f32 / height as f32 * (end_noise - start_noise) + start_noise;
+                        let ore_noise = turbulence(
+                            ore_noises.get(&block).unwrap(),
+                            x as f32 / 15.0,
+                            y as f32 / 15.0,
+                        );
+                        let ore_threshold =
+                            y as f32 / height as f32 * (end_noise - start_noise) + start_noise;
                         if ore_threshold > ore_noise {
                             curr_block = block;
                         }
@@ -211,12 +244,17 @@ impl WorldGenerator {
             if x == width - 1 || biome_ids[x as usize] != biome_ids[(x + 1) as usize] {
                 let curr_biome = &self.biomes.lock().unwrap()[biome_ids[x as usize] as usize];
                 if let Some(generator_function) = &curr_biome.generator_function {
-                    curr_terrain = mods.get_mod(curr_biome.mod_id).unwrap().call_function(generator_function, (curr_terrain, x - prev_x + 1, height)).unwrap();
+                    curr_terrain = mods
+                        .get_mod(curr_biome.mod_id)
+                        .unwrap()
+                        .call_function(generator_function, (curr_terrain, x - prev_x + 1, height))
+                        .unwrap();
                 }
 
                 for y in 0..height {
                     for x in prev_x..x + 1 {
-                        block_terrain[x as usize][y as usize] = curr_terrain[(x - prev_x) as usize][y as usize];
+                        block_terrain[x as usize][y as usize] =
+                            curr_terrain[(x - prev_x) as usize][y as usize];
                     }
                 }
                 curr_terrain.clear();
@@ -225,12 +263,15 @@ impl WorldGenerator {
         }
 
         blocks.create_from_block_ids(block_terrain).unwrap();
-        walls.create_from_wall_ids(wall_terrain).unwrap();
+        walls.create_from_wall_ids(&wall_terrain).unwrap();
 
         println!("World generated in {}ms", start_time.elapsed().as_millis());
 
         if current_task != total_tasks {
-            panic!("Not all tasks were completed! {} != {}", current_task, total_tasks);
+            panic!(
+                "Not all tasks were completed! {} != {}",
+                current_task, total_tasks
+            );
         }
     }
 }
@@ -277,68 +318,105 @@ impl LuaUserData for Biome {
     // implement index and new_index metamethods to allow reading and writing to fields
     fn add_methods<'lua, M: UserDataMethods<'lua, Self>>(methods: &mut M) {
         // add meta method to set fields
-        methods.add_meta_method_mut(rlua::MetaMethod::NewIndex, |_lua_ctx, this, (key, value): (String, rlua::Value)| {
-            match key.as_str() {
-                "min_width" => {
-                    match value {
-                        rlua::Value::Integer(b) => this.min_width = b as i32,
-                        _ => return Err(rlua::Error::RuntimeError(format!("value is not a valid value for min_width")))
-                    }
-                    Ok(())
-                },
-                "max_width" => {
-                    match value {
-                        rlua::Value::Integer(b) => this.max_width = b as i32,
-                        _ => return Err(rlua::Error::RuntimeError(format!("value is not a valid value for max_width")))
-                    }
-                    Ok(())
-                },
-                "min_terrain_height" => {
-                    match value {
-                        rlua::Value::Integer(b) => this.min_terrain_height = b as i32,
-                        _ => return Err(rlua::Error::RuntimeError(format!("value is not a valid value for min_terrain_height")))
-                    }
-                    Ok(())
-                },
-                "max_terrain_height" => {
-                    match value {
-                        rlua::Value::Integer(b) => this.max_terrain_height = b as i32,
-                        _ => return Err(rlua::Error::RuntimeError(format!("value is not a valid value for max_terrain_height")))
-                    }
-                    Ok(())
-                },
-                "base_block" => {
-                    // base_block is a BlockId, so we need to convert the value to a BlockId
-                    match value {
-                        rlua::Value::UserData(b) => {
-                            match b.borrow::<BlockId>() {
-                                Ok(b) => this.base_block = *b,
-                                Err(_) => return Err(rlua::Error::RuntimeError(format!("value is not a valid value for base_block")))
+        methods.add_meta_method_mut(
+            rlua::MetaMethod::NewIndex,
+            |_lua_ctx, this, (key, value): (String, rlua::Value)| {
+                match key.as_str() {
+                    "min_width" => {
+                        match value {
+                            rlua::Value::Integer(b) => this.min_width = b as i32,
+                            _ => {
+                                return Err(rlua::Error::RuntimeError(
+                                    "value is not a valid value for min_width".to_string(),
+                                ))
                             }
-                        },
-                        _ => return Err(rlua::Error::RuntimeError(format!("value is not a valid value for base_block")))
+                        }
+                        Ok(())
                     }
-                    Ok(())
-                },
-                "generator_function" => {
-                    match value {
-                        rlua::Value::String(b) => this.generator_function = Some(b.to_str().unwrap().to_string()),
-                        _ => return Err(rlua::Error::RuntimeError(format!("value is not a valid value for generator_function")))
+                    "max_width" => {
+                        match value {
+                            rlua::Value::Integer(b) => this.max_width = b as i32,
+                            _ => {
+                                return Err(rlua::Error::RuntimeError(
+                                    "value is not a valid value for max_width".to_string(),
+                                ))
+                            }
+                        }
+                        Ok(())
                     }
-                    Ok(())
+                    "min_terrain_height" => {
+                        match value {
+                            rlua::Value::Integer(b) => this.min_terrain_height = b as i32,
+                            _ => {
+                                return Err(rlua::Error::RuntimeError(
+                                    "value is not a valid value for min_terrain_height".to_string(),
+                                ))
+                            }
+                        }
+                        Ok(())
+                    }
+                    "max_terrain_height" => {
+                        match value {
+                            rlua::Value::Integer(b) => this.max_terrain_height = b as i32,
+                            _ => {
+                                return Err(rlua::Error::RuntimeError(
+                                    "value is not a valid value for max_terrain_height".to_string(),
+                                ))
+                            }
+                        }
+                        Ok(())
+                    }
+                    "base_block" => {
+                        // base_block is a BlockId, so we need to convert the value to a BlockId
+                        match value {
+                            rlua::Value::UserData(b) => match b.borrow::<BlockId>() {
+                                Ok(b) => this.base_block = *b,
+                                Err(_) => {
+                                    return Err(rlua::Error::RuntimeError(
+                                        "value is not a valid value for base_block".to_string(),
+                                    ))
+                                }
+                            },
+                            _ => {
+                                return Err(rlua::Error::RuntimeError(
+                                    "value is not a valid value for base_block".to_string(),
+                                ))
+                            }
+                        }
+                        Ok(())
+                    }
+                    "generator_function" => {
+                        match value {
+                            rlua::Value::String(b) => {
+                                this.generator_function = Some(b.to_str().unwrap().to_string())
+                            }
+                            _ => {
+                                return Err(rlua::Error::RuntimeError(
+                                    "value is not a valid value for generator_function".to_string(),
+                                ))
+                            }
+                        }
+                        Ok(())
+                    }
+                    _ => Err(rlua::Error::RuntimeError(format!(
+                        "{} is not a valid field of Biome",
+                        key
+                    ))),
                 }
-                _ => Err(rlua::Error::RuntimeError(format!("{} is not a valid field of Biome", key))),
-            }
-        });
+            },
+        );
 
         // add method to add an ore
-        methods.add_method_mut("add_ore", |_, this, (block, start_noise, end_noise): (BlockId, f32, f32)| {
-            this.ores.push(Ore {
-                block,
-                start_noise,
-                end_noise,
-            });
-            Ok(())
-        });
+        methods.add_method_mut(
+            "add_ore",
+            |_, this, (block, start_noise, end_noise): (BlockId, f32, f32)| {
+                this.ores.push(Ore {
+                    block,
+                    start_noise,
+                    end_noise,
+                });
+                Ok(())
+            },
+        );
     }
 }

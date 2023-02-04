@@ -1,5 +1,5 @@
 use crate::menus::background_rect::BackgroundRect;
-use crate::menus::{run_choice_menu, run_multiplayer_selector, run_singleplayer_selector};
+use crate::menus::{run_choice_menu, run_singleplayer_selector};
 use graphics as gfx;
 use graphics::SPACING;
 use shared::versions::VERSION;
@@ -7,65 +7,51 @@ use shared::versions::VERSION;
 pub fn run_main_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn BackgroundRect) {
     let mut singleplayer_button = gfx::Button::new();
     singleplayer_button.scale = 3.0;
-    singleplayer_button.texture = gfx::Texture::load_from_surface(
-        &graphics
-            .font
-            .create_text_surface(String::from("Singleplayer")),
-    );
+    singleplayer_button.texture =
+        gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Singleplayer"));
     singleplayer_button.orientation = gfx::CENTER;
 
     let mut multiplayer_button = gfx::Button::new();
     multiplayer_button.scale = 3.0;
-    multiplayer_button.texture = gfx::Texture::load_from_surface(
-        &graphics
-            .font
-            .create_text_surface(String::from("Multiplayer")),
-    );
+    multiplayer_button.texture =
+        gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Multiplayer"));
     multiplayer_button.orientation = gfx::CENTER;
 
     let mut settings_button = gfx::Button::new();
     settings_button.scale = 3.0;
-    settings_button.texture = gfx::Texture::load_from_surface(
-        &graphics.font.create_text_surface(String::from("Settings")),
-    );
+    settings_button.texture =
+        gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Settings"));
     settings_button.orientation = gfx::CENTER;
 
     let mut mods_button = gfx::Button::new();
     mods_button.scale = 3.0;
     mods_button.texture =
-        gfx::Texture::load_from_surface(&graphics.font.create_text_surface(String::from("Mods")));
+        gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Mods"));
     mods_button.orientation = gfx::CENTER;
 
     let mut exit_button = gfx::Button::new();
     exit_button.scale = 3.0;
     exit_button.texture =
-        gfx::Texture::load_from_surface(&graphics.font.create_text_surface(String::from("Exit")));
+        gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Exit"));
     exit_button.orientation = gfx::CENTER;
 
     let mut debug_title = gfx::Sprite::new();
-    debug_title.texture = gfx::Texture::load_from_surface(
-        &graphics
-            .font
-            .create_text_surface(String::from("DEBUG MODE")),
-    );
+    debug_title.texture =
+        gfx::Texture::load_from_surface(&graphics.font.create_text_surface("DEBUG MODE"));
     debug_title.color = gfx::GREY;
     debug_title.orientation = gfx::TOP;
     debug_title.scale = 2.0;
     debug_title.y = SPACING / 4;
 
     let mut title = gfx::Sprite::new();
-    title.texture = gfx::Texture::load_from_surface(
-        &graphics
-            .font
-            .create_text_surface(String::from("Terralistic")),
-    );
+    title.texture =
+        gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Terralistic"));
     title.scale = 4.0;
     title.orientation = gfx::TOP;
     title.y = debug_title.y + debug_title.get_height() + SPACING / 2;
 
     let mut version = gfx::Sprite::new();
-    version.texture =
-        gfx::Texture::load_from_surface(&graphics.font.create_text_surface(String::from(VERSION)));
+    version.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface(VERSION));
     version.color = gfx::GREY;
     version.orientation = gfx::BOTTOM;
     version.scale = 2.0;
@@ -107,8 +93,16 @@ pub fn run_main_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn Ba
                         } else if multiplayer_button
                             .is_hovered(graphics, Some(menu_back.get_back_rect_container()))
                         {
-                            run_multiplayer_selector(graphics, menu_back);
-                            println!("Multiplayer clicked");
+                            if run_choice_menu(
+                                String::from("Are you sure you want to open\nthe multiplayer menu"),
+                                graphics,
+                                menu_back,
+                                Some(String::from("No, go back")),
+                                None,
+                            ) {
+                                //TODO: delete this, it is just for testing
+                                println!("Multiplayer clicked");
+                            }
                         } else if settings_button
                             .is_hovered(graphics, Some(menu_back.get_back_rect_container()))
                         {

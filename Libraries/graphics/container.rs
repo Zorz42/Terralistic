@@ -6,15 +6,15 @@ pub struct Orientation {
     pub y: f32,
 }
 
-pub const TOP_LEFT: Orientation =     Orientation{x: 0.0 , y: 0.0};
-pub const TOP: Orientation =          Orientation{x: 0.5 , y: 0.0};
-pub const TOP_RIGHT: Orientation =    Orientation{x: 1.0 , y: 0.0};
-pub const LEFT: Orientation =         Orientation{x: 0.0 , y: 0.5};
-pub const CENTER: Orientation =       Orientation{x: 0.5 , y: 0.5};
-pub const RIGHT: Orientation =        Orientation{x: 1.0 , y: 0.5};
-pub const BOTTOM_LEFT: Orientation =  Orientation{x: 0.0 , y: 1.0};
-pub const BOTTOM: Orientation =       Orientation{x: 0.5 , y: 1.0};
-pub const BOTTOM_RIGHT: Orientation = Orientation{x: 1.0 , y: 1.0};
+pub const TOP_LEFT: Orientation = Orientation { x: 0.0, y: 0.0 };
+pub const TOP: Orientation = Orientation { x: 0.5, y: 0.0 };
+pub const TOP_RIGHT: Orientation = Orientation { x: 1.0, y: 0.0 };
+pub const LEFT: Orientation = Orientation { x: 0.0, y: 0.5 };
+pub const CENTER: Orientation = Orientation { x: 0.5, y: 0.5 };
+pub const RIGHT: Orientation = Orientation { x: 1.0, y: 0.5 };
+pub const BOTTOM_LEFT: Orientation = Orientation { x: 0.0, y: 1.0 };
+pub const BOTTOM: Orientation = Orientation { x: 0.5, y: 1.0 };
+pub const BOTTOM_RIGHT: Orientation = Orientation { x: 1.0, y: 1.0 };
 
 /**
 This struct has coodinates and size of a rectangle.
@@ -32,7 +32,7 @@ impl Container {
     Creates a new container.
     */
     pub fn new(x: i32, y: i32, w: i32, h: i32, orientation: Orientation) -> Self {
-        Container{
+        Container {
             rect: Rect::new(x, y, w, h),
             abs_rect: Rect::new(x, y, w, h),
             orientation,
@@ -56,11 +56,20 @@ impl Container {
         let parent_rect = if let Some(parent) = parent_container {
             parent.get_absolute_rect().clone()
         } else {
-            Rect::new(0, 0, graphics.renderer.get_window_width() as i32, graphics.renderer.get_window_height() as i32)
+            Rect::new(
+                0,
+                0,
+                graphics.renderer.get_window_width() as i32,
+                graphics.renderer.get_window_height() as i32,
+            )
         };
 
         self.abs_rect = self.rect.clone();
-        self.abs_rect.x = parent_rect.x + self.rect.x + (parent_rect.w as f32 * self.orientation.x) as i32 - (self.rect.w as f32 * self.orientation.x) as i32;
-        self.abs_rect.y = parent_rect.y + self.rect.y + (parent_rect.h as f32 * self.orientation.y) as i32 - (self.rect.h as f32 * self.orientation.y) as i32;
+        self.abs_rect.x =
+            parent_rect.x + self.rect.x + (parent_rect.w as f32 * self.orientation.x) as i32
+                - (self.rect.w as f32 * self.orientation.x) as i32;
+        self.abs_rect.y =
+            parent_rect.y + self.rect.y + (parent_rect.h as f32 * self.orientation.y) as i32
+                - (self.rect.h as f32 * self.orientation.y) as i32;
     }
 }

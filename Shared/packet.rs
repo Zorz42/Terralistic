@@ -1,8 +1,8 @@
-use std::any::TypeId;
-use std::hash::{Hash, Hasher};
 use fnv::FnvHasher;
 use serde::de::DeserializeOwned;
-use serde_derive::{Serialize, Deserialize};
+use serde_derive::{Deserialize, Serialize};
+use std::any::TypeId;
+use std::hash::{Hash, Hasher};
 
 /**
 Packet has an id and data. Id is determined by the hash of the object
@@ -33,10 +33,7 @@ impl Packet {
     pub fn new<T: serde::Serialize + 'static>(data: T) -> Self {
         let id = get_type_id::<T>();
         let data = bincode::serialize(&data).unwrap();
-        Self {
-            id,
-            data,
-        }
+        Self { id, data }
     }
 
     /**

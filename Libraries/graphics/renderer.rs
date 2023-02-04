@@ -1,15 +1,15 @@
-extern crate sdl2;
 extern crate queues;
+extern crate sdl2;
 
-use queues::*;
-use std::collections::HashMap;
-use copypasta::ClipboardContext;
-use crate::{BlendMode, Event, Key, Rect, set_blend_mode};
 use crate::blur::BlurContext;
-use crate::events::{sdl_event_to_gfx_event};
+use crate::events::sdl_event_to_gfx_event;
 use crate::passthrough_shader::PassthroughShader;
 use crate::shadow::ShadowContext;
 use crate::transformation::Transformation;
+use crate::{set_blend_mode, BlendMode, Event, Key, Rect};
+use copypasta::ClipboardContext;
+use queues::*;
+use std::collections::HashMap;
 
 /**
 This stores all the values needed for rendering.
@@ -38,7 +38,7 @@ impl Renderer {
     /**
     Initializes all the values needed for rendering.
      */
-    pub fn new(window_width: i32, window_height: i32, window_title: String) -> Self {
+    pub fn new(window_width: i32, window_height: i32, window_title: &str) -> Self {
         if window_width <= 0 || window_height <= 0 {
             panic!("Invalid window dimensions");
         }
@@ -51,16 +51,18 @@ impl Renderer {
         gl_attr.set_context_profile(sdl2::video::GLProfile::Core);
         gl_attr.set_context_version(3, 3);
 
-        let sdl_window = video_subsystem.window(&window_title, window_width as u32, window_height as u32)
+        let sdl_window = video_subsystem
+            .window(window_title, window_width as u32, window_height as u32)
             .position_centered()
             .opengl()
             .resizable()
             .build()
             .unwrap();
 
-
         let _gl_context = sdl_window.gl_create_context().unwrap();
-        let _gl = gl::load_with(|s| video_subsystem.gl_get_proc_address(s) as *const std::os::raw::c_void);
+        let _gl = gl::load_with(|s| {
+            video_subsystem.gl_get_proc_address(s) as *const std::os::raw::c_void
+        });
 
         unsafe {
             gl::Enable(gl::BLEND);
@@ -69,11 +71,11 @@ impl Renderer {
 
         // enable vsync
         video_subsystem.gl_set_swap_interval(1).unwrap();
-        
+
         let passthrough_shader = PassthroughShader::new();
-        let mut window_texture= 0;
-        let mut window_texture_back= 0;
-        let mut window_framebuffer= 0;
+        let mut window_texture = 0;
+        let mut window_texture_back = 0;
+        let mut window_framebuffer = 0;
 
         unsafe {
             gl::GenTextures(1, &mut window_texture);
@@ -117,24 +119,67 @@ impl Renderer {
         let height = height as i32;
 
         self.normalization_transform = Transformation::new();
-        self.normalization_transform.stretch(2.0 / width as f32, -2.0 / height as f32);
-        self.normalization_transform.translate(-width as f32 / 2.0, -height as f32 / 2.0);
+        self.normalization_transform
+            .stretch(2.0 / width as f32, -2.0 / height as f32);
+        self.normalization_transform
+            .translate(-width as f32 / 2.0, -height as f32 / 2.0);
 
         unsafe {
             gl::BindTexture(gl::TEXTURE_2D, self.window_texture);
-            gl::TexImage2D(gl::TEXTURE_2D, 0, gl::RGBA as gl::types::GLint, self.get_window_width() as i32, self.get_window_height() as i32, 0, gl::BGRA as gl::types::GLenum, gl::UNSIGNED_BYTE, std::ptr::null());
+            gl::TexImage2D(
+                gl::TEXTURE_2D,
+                0,
+                gl::RGBA as gl::types::GLint,
+                self.get_window_width() as i32,
+                self.get_window_height() as i32,
+                0,
+                gl::BGRA as gl::types::GLenum,
+                gl::UNSIGNED_BYTE,
+                std::ptr::null(),
+            );
 
-            gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MAG_FILTER, gl::NEAREST as gl::types::GLint);
-            gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MIN_FILTER, gl::NEAREST as gl::types::GLint);
+            gl::TexParameteri(
+                gl::TEXTURE_2D,
+                gl::TEXTURE_MAG_FILTER,
+                gl::NEAREST as gl::types::GLint,
+            );
+            gl::TexParameteri(
+                gl::TEXTURE_2D,
+                gl::TEXTURE_MIN_FILTER,
+                gl::NEAREST as gl::types::GLint,
+            );
 
             gl::BindTexture(gl::TEXTURE_2D, self.window_texture_back);
-            gl::TexImage2D(gl::TEXTURE_2D, 0, gl::RGBA as gl::types::GLint, self.get_window_width() as i32, self.get_window_height() as i32, 0, gl::BGRA, gl::UNSIGNED_BYTE, std::ptr::null());
+            gl::TexImage2D(
+                gl::TEXTURE_2D,
+                0,
+                gl::RGBA as gl::types::GLint,
+                self.get_window_width() as i32,
+                self.get_window_height() as i32,
+                0,
+                gl::BGRA,
+                gl::UNSIGNED_BYTE,
+                std::ptr::null(),
+            );
 
-            gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MAG_FILTER, gl::NEAREST as gl::types::GLint);
-            gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MIN_FILTER, gl::NEAREST as gl::types::GLint);
+            gl::TexParameteri(
+                gl::TEXTURE_2D,
+                gl::TEXTURE_MAG_FILTER,
+                gl::NEAREST as gl::types::GLint,
+            );
+            gl::TexParameteri(
+                gl::TEXTURE_2D,
+                gl::TEXTURE_MIN_FILTER,
+                gl::NEAREST as gl::types::GLint,
+            );
 
             // set glViewport
-            gl::Viewport(0, 0, self.get_window_width() as i32, self.get_window_height() as i32);
+            gl::Viewport(
+                0,
+                0,
+                self.get_window_width() as i32,
+                self.get_window_height() as i32,
+            );
         }
     }
 
@@ -151,7 +196,10 @@ impl Renderer {
         for sdl_event in sdl_events {
             match sdl_event {
                 // handle window resize
-                sdl2::event::Event::Window { win_event: sdl2::event::WindowEvent::Resized(_width, _height), .. } => {
+                sdl2::event::Event::Window {
+                    win_event: sdl2::event::WindowEvent::Resized(_width, _height),
+                    ..
+                } => {
                     self.handle_window_resize();
                 }
                 // handle quit event
@@ -161,7 +209,7 @@ impl Renderer {
                 _ => {}
             }
 
-            if let Some(event) = sdl_event_to_gfx_event(sdl_event) {
+            if let Some(event) = sdl_event_to_gfx_event(&sdl_event) {
                 // if event is a key press event update the key states to true
                 if let Event::KeyPress(key, ..) = event {
                     self.set_key_state(key, true);
@@ -216,17 +264,59 @@ impl Renderer {
     pub fn update_window(&mut self) {
         unsafe {
             gl::BindFramebuffer(gl::READ_FRAMEBUFFER, self.window_framebuffer);
-            gl::FramebufferTexture2D(gl::READ_FRAMEBUFFER, gl::COLOR_ATTACHMENT0, gl::TEXTURE_2D, self.window_texture, 0);
+            gl::FramebufferTexture2D(
+                gl::READ_FRAMEBUFFER,
+                gl::COLOR_ATTACHMENT0,
+                gl::TEXTURE_2D,
+                self.window_texture,
+                0,
+            );
             gl::BindFramebuffer(gl::DRAW_FRAMEBUFFER, 0);
 
-            #[cfg(target_os = "windows")] {
-                gl::BlitFramebuffer(0, 0, self.get_window_width() as i32 * 2, self.get_window_height() as i32 * 2, 0, 0, self.get_window_width() as i32 * 2, self.get_window_height() as i32 * 2, gl::COLOR_BUFFER_BIT, gl::NEAREST);
+            #[cfg(target_os = "windows")]
+            {
+                gl::BlitFramebuffer(
+                    0,
+                    0,
+                    self.get_window_width() as i32 * 2,
+                    self.get_window_height() as i32 * 2,
+                    0,
+                    0,
+                    self.get_window_width() as i32 * 2,
+                    self.get_window_height() as i32 * 2,
+                    gl::COLOR_BUFFER_BIT,
+                    gl::NEAREST,
+                );
             }
-            #[cfg(target_os = "macos")] {
-                gl::BlitFramebuffer(0, 0, (self.get_window_width() as f32 * 2.0) as i32, (self.get_window_height() as f32 * 2.0) as i32, 0, 0, self.get_window_width() as i32 * 2, self.get_window_height() as i32 * 2, gl::COLOR_BUFFER_BIT, gl::NEAREST);
+            #[cfg(target_os = "macos")]
+            {
+                gl::BlitFramebuffer(
+                    0,
+                    0,
+                    (self.get_window_width() as f32 * 2.0) as i32,
+                    (self.get_window_height() as f32 * 2.0) as i32,
+                    0,
+                    0,
+                    self.get_window_width() as i32 * 2,
+                    self.get_window_height() as i32 * 2,
+                    gl::COLOR_BUFFER_BIT,
+                    gl::NEAREST,
+                );
             }
-            #[cfg(target_os = "linux")] {
-                gl::BlitFramebuffer(0, 0, (self.get_window_width() as f32 * 2.0) as i32, (self.get_window_height() as f32 * 2.0) as i32, 0, 0, self.get_window_width() as i32 * 2, self.get_window_height() as i32 * 2, gl::COLOR_BUFFER_BIT, gl::NEAREST);
+            #[cfg(target_os = "linux")]
+            {
+                gl::BlitFramebuffer(
+                    0,
+                    0,
+                    (self.get_window_width() as f32 * 2.0) as i32,
+                    (self.get_window_height() as f32 * 2.0) as i32,
+                    0,
+                    0,
+                    self.get_window_width() as i32 * 2,
+                    self.get_window_height() as i32 * 2,
+                    gl::COLOR_BUFFER_BIT,
+                    gl::NEAREST,
+                );
             }
         }
 
@@ -241,7 +331,9 @@ impl Renderer {
     Sets the minimum window size
      */
     pub fn set_min_window_size(&mut self, width: u32, height: u32) {
-        self.sdl_window.set_minimum_size(width, height).expect("Failed to set minimum window size");
+        self.sdl_window
+            .set_minimum_size(width, height)
+            .expect("Failed to set minimum window size");
     }
 
     /**
@@ -290,8 +382,19 @@ impl Renderer {
     /**
     Blurs given texture
      */
-    pub(crate) fn blur_region(&self, rect: &Rect, radius: i32, gl_texture: u32, back_texture: u32, width: f32, height: f32, texture_transform: &Transformation) {
-        self.blur_context.blur_region(rect, radius, gl_texture, back_texture, width, height, texture_transform);
+    pub(crate) fn blur_region(
+        &self, rect: &Rect, radius: i32, gl_texture: u32, back_texture: u32, width: f32,
+        height: f32, texture_transform: &Transformation,
+    ) {
+        self.blur_context.blur_region(
+            rect,
+            radius,
+            gl_texture,
+            back_texture,
+            width,
+            height,
+            texture_transform,
+        );
         unsafe {
             gl::UseProgram(self.passthrough_shader.passthrough_shader);
         }
@@ -301,7 +404,15 @@ impl Renderer {
     Blurs a given rectangle on the screen
      */
     pub(crate) fn blur_rect(&self, rect: &Rect, radius: i32) {
-        self.blur_region(rect, radius, self.window_texture, self.window_texture_back, self.get_window_width() as f32, self.get_window_height() as f32, &self.normalization_transform);
+        self.blur_region(
+            rect,
+            radius,
+            self.window_texture,
+            self.window_texture_back,
+            self.get_window_width() as f32,
+            self.get_window_height() as f32,
+            &self.normalization_transform,
+        );
     }
 }
 

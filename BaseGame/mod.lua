@@ -32,6 +32,9 @@ stone_block = 0
 copper_ore = 0
 grass_block = 0
 
+-- global variables for wall IDs
+dirt_wall = 0
+
 -- global variables for biome IDs
 plains = 0
 hills = 0
@@ -71,6 +74,11 @@ function init()
     grass_block = terralistic_register_block_type(block_type)
 
     terralistic_connect_blocks(dirt_block, grass_block);
+
+    -- register walls
+    wall_type = terralistic_new_wall_type()
+    wall_type["name"] = "dirt_wall"
+    dirt_wall = terralistic_register_wall_type(wall_type)
 
     terralistic_print("BaseGame mod loaded.")
 end

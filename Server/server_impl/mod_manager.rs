@@ -1,7 +1,7 @@
+use crate::networking::{NewConnectionEvent, ServerNetworking};
+use events::Event;
 use shared::mod_manager::{ModManager, ModsWelcomePacket};
 use shared::packet::Packet;
-use events::Event;
-use crate::networking::{NewConnectionEvent, ServerNetworking};
 
 /**
 Server mod manager that manages all the mods for the server.
@@ -29,10 +29,11 @@ impl ServerModManager {
     It adds the BaseGame mod to the shared mod manager and initializes it.
      */
     pub fn init(&mut self) {
-        self.mod_manager.add_global_function("print", |_, text: String| {
-            println!("[server mod] {}", text);
-            Ok(())
-        });
+        self.mod_manager
+            .add_global_function("print", |_, text: String| {
+                println!("[server mod] {}", text);
+                Ok(())
+            });
 
         self.mod_manager.init();
         for game_mod in self.mod_manager.mods_mut() {
@@ -46,9 +47,7 @@ impl ServerModManager {
             for game_mod in self.mod_manager.mods_mut() {
                 mods.push(bincode::serialize(game_mod).unwrap());
             }
-            let welcome_packet = Packet::new(ModsWelcomePacket {
-                mods,
-            });
+            let welcome_packet = Packet::new(ModsWelcomePacket { mods });
             networking.send_packet(&welcome_packet, &event.conn);
         }
     }

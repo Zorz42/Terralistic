@@ -6,8 +6,10 @@ pub struct Event {
 }
 
 impl Event {
-    pub fn new(event: Box<dyn Any>) -> Self {
-        Self { event }
+    pub fn new<T: Any>(event: T) -> Self {
+        Self {
+            event: Box::new(event),
+        }
     }
 
     pub fn downcast<T: Any>(&self) -> Option<&T> {

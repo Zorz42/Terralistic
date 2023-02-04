@@ -1,4 +1,4 @@
-use crate::blocks::{Blocks};
+use crate::blocks::Blocks;
 use anyhow::{anyhow, Result};
 use events::{Event, EventManager};
 
@@ -63,13 +63,19 @@ impl Blocks {
     Gets the break stage of a block, which is usually rendered.
      */
     pub fn get_break_stage(&self, x: i32, y: i32) -> Result<i32> {
-        Ok((self.get_break_progress(x, y)? as f32 / self.get_block_type_at(x, y)?.break_time as f32 * 9.0) as i32)
+        Ok(
+            (self.get_break_progress(x, y)? as f32
+                / self.get_block_type_at(x, y)?.break_time as f32
+                * 9.0) as i32,
+        )
     }
 
     /**
     Adds a block to the breaking list, which means that the block is being broken.
      */
-    pub fn start_breaking_block(&mut self, events: &mut EventManager, x: i32, y: i32) -> Result<()> {
+    pub fn start_breaking_block(
+        &mut self, events: &mut EventManager, x: i32, y: i32,
+    ) -> Result<()> {
         self.block_data.map.translate_coords(x, y)?;
 
         let mut breaking_block: Option<&mut BreakingBlock> = None;
@@ -86,14 +92,16 @@ impl Blocks {
             } else {
                 let new_breaking_block = BreakingBlock::new((x, y));
                 self.breaking_blocks.push(new_breaking_block);
-                self.breaking_blocks.last_mut().ok_or(anyhow!("Failed to get last breaking block!"))?
+                self.breaking_blocks
+                    .last_mut()
+                    .ok_or(anyhow!("Failed to get last breaking block!"))?
             }
         };
 
         breaking_block.is_breaking = true;
 
-        let event = BlockStartedBreakingEvent{ x, y };
-        events.push_event(Event::new(Box::new(event)));
+        let event = BlockStartedBreakingEvent { x, y };
+        events.push_event(Event::new(event));
 
         Ok(())
     }
@@ -107,8 +115,8 @@ impl Blocks {
         for breaking_block in self.breaking_blocks.iter_mut() {
             if breaking_block.get_coord() == (x, y) {
                 breaking_block.is_breaking = false;
-                let event = BlockStoppedBreakingEvent{ x, y };
-                events.push_event(Event::new(Box::new(event)));
+                let event = BlockStoppedBreakingEvent { x, y };
+                events.push_event(Event::new(event));
                 break;
             }
         }
@@ -118,7 +126,9 @@ impl Blocks {
     /**
     Updates the breaking progress of all blocks that are being broken.
      */
-    pub fn update_breaking_blocks(&mut self, events: &mut EventManager, frame_length: f32) -> Result<()> {
+    pub fn update_breaking_blocks(
+        &mut self, events: &mut EventManager, frame_length: f32,
+    ) -> Result<()> {
         for breaking_block in self.breaking_blocks.iter_mut() {
             if breaking_block.is_breaking {
                 breaking_block.break_progress += frame_length as i32;
@@ -127,7 +137,11 @@ impl Blocks {
 
         let mut broken_blocks = Vec::new();
         for breaking_block in self.breaking_blocks.iter() {
-            if breaking_block.break_progress > self.get_block_type_at(breaking_block.get_coord().0, breaking_block.get_coord().1)?.break_time {
+            if breaking_block.break_progress
+                > self
+                    .get_block_type_at(breaking_block.get_coord().0, breaking_block.get_coord().1)?
+                    .break_time
+            {
                 broken_blocks.push(breaking_block.get_coord());
             }
         }
@@ -142,7 +156,8 @@ impl Blocks {
 
             self.set_block(events, transformed_x, transformed_y, self.air)?;
 
-            self.breaking_blocks.retain(|breaking_block| breaking_block.get_coord() != *broken_block);
+            self.breaking_blocks
+                .retain(|breaking_block| breaking_block.get_coord() != *broken_block);
         }
 
         Ok(())
@@ -161,7 +176,7 @@ Event that is fired when a block is broken
  */
 pub struct BlockBreakEvent {
     pub x: i32,
-    pub y: i32
+    pub y: i32,
 }
 
 /**
@@ -169,7 +184,7 @@ Event that is fired when a block has started breaking
  */
 pub struct BlockStartedBreakingEvent {
     pub x: i32,
-    pub y: i32
+    pub y: i32,
 }
 
 /**
@@ -177,5 +192,5 @@ Event that is fired when a block has stopped breaking
  */
 pub struct BlockStoppedBreakingEvent {
     pub x: i32,
-    pub y: i32
+    pub y: i32,
 }

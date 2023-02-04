@@ -15,28 +15,30 @@ pub enum Event {
 /**
 Translates sdl type deprecated_events to our event type
  */
-pub(crate) fn sdl_event_to_gfx_event(sdl_event: sdl2::event::Event) -> Option<Event> {
+pub(crate) fn sdl_event_to_gfx_event(sdl_event: &sdl2::event::Event) -> Option<Event> {
     match sdl_event {
-        sdl2::event::Event::KeyDown { keycode: Some(keycode), repeat, .. } => {
-            Some(Event::KeyPress(sdl_key_to_gfx_key(keycode), repeat))
-        }
+        sdl2::event::Event::KeyDown {
+            keycode: Some(keycode),
+            repeat,
+            ..
+        } => Some(Event::KeyPress(sdl_key_to_gfx_key(keycode), *repeat)),
 
-        sdl2::event::Event::KeyUp { keycode: Some(keycode), repeat, .. } => {
-            Some(Event::KeyRelease(sdl_key_to_gfx_key(keycode), repeat))
-        }
+        sdl2::event::Event::KeyUp {
+            keycode: Some(keycode),
+            repeat,
+            ..
+        } => Some(Event::KeyRelease(sdl_key_to_gfx_key(keycode), *repeat)),
 
-        sdl2::event::Event::MouseWheel { y, .. } => {
-            Some(Event::MouseScroll(y as f32))
-        }
-        sdl2::event::Event::MouseButtonDown { mouse_btn, .. } => {
-            Some(Event::KeyPress(sdl_mouse_button_to_gfx_key(mouse_btn), false))
-        }
-        sdl2::event::Event::MouseButtonUp { mouse_btn, .. } => {
-            Some(Event::KeyRelease(sdl_mouse_button_to_gfx_key(mouse_btn), false))
-        }
-        sdl2::event::Event::TextInput { text, .. } => {
-            Some(Event::TextInput(text.clone()))
-        }
+        sdl2::event::Event::MouseWheel { y, .. } => Some(Event::MouseScroll(*y as f32)),
+        sdl2::event::Event::MouseButtonDown { mouse_btn, .. } => Some(Event::KeyPress(
+            sdl_mouse_button_to_gfx_key(mouse_btn),
+            false,
+        )),
+        sdl2::event::Event::MouseButtonUp { mouse_btn, .. } => Some(Event::KeyRelease(
+            sdl_mouse_button_to_gfx_key(mouse_btn),
+            false,
+        )),
+        sdl2::event::Event::TextInput { text, .. } => Some(Event::TextInput(text.clone())),
 
         _ => None,
     }
@@ -113,7 +115,7 @@ pub enum Key {
 /**
 This function converts a sdl key to a graphics key
  */
-fn sdl_key_to_gfx_key(key: sdl2::keyboard::Keycode) -> Key {
+fn sdl_key_to_gfx_key(key: &sdl2::keyboard::Keycode) -> Key {
     match key {
         sdl2::keyboard::Keycode::Space => Key::Space,
         sdl2::keyboard::Keycode::A => Key::A,
@@ -179,7 +181,7 @@ fn sdl_key_to_gfx_key(key: sdl2::keyboard::Keycode) -> Key {
 /**
 This function converts a sdl mouse button to a graphics key
  */
-pub fn sdl_mouse_button_to_gfx_key(button: sdl2::mouse::MouseButton) -> Key {
+pub fn sdl_mouse_button_to_gfx_key(button: &sdl2::mouse::MouseButton) -> Key {
     match button {
         sdl2::mouse::MouseButton::Left => Key::MouseLeft,
         sdl2::mouse::MouseButton::Right => Key::MouseRight,

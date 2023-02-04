@@ -1,4 +1,5 @@
 use crate::blocks::Blocks;
+
 use serde_derive::{Deserialize, Serialize};
 
 /**
@@ -10,9 +11,9 @@ pub struct Tool {
 }
 
 impl Tool {
-    pub fn new(name: String) -> Self {
-        Tool{
-            name,
+    pub fn new() -> Self {
+        Tool {
+            name: String::new(),
             id: -1,
         }
     }
@@ -25,9 +26,7 @@ pub struct ToolId {
 
 impl ToolId {
     pub fn new() -> Self {
-        Self {
-            id: -1
-        }
+        Self { id: -1 }
     }
 }
 
@@ -48,7 +47,7 @@ impl Blocks {
     pub fn get_tool_id_by_name(&mut self, name: String) -> Option<ToolId> {
         for tool_type in self.tool_types.iter() {
             if tool_type.name == name {
-                return Some(ToolId{ id: tool_type.id });
+                return Some(ToolId { id: tool_type.id });
             }
         }
         None
@@ -58,6 +57,8 @@ impl Blocks {
     Returns the reference to the Tool with the specified id.
      */
     pub fn get_tool_by_id(&mut self, id: ToolId) -> Option<&Tool> {
-        self.tool_types.iter().find(|&tool_type| tool_type.id == id.id)
+        self.tool_types
+            .iter()
+            .find(|&tool_type| tool_type.id == id.id)
     }
 }

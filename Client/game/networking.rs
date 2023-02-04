@@ -86,9 +86,7 @@ impl ClientNetworking {
                         }
 
                         // send welcome packet event
-                        events.push_event(events::Event::new(Box::new(WelcomePacketEvent {
-                            packet,
-                        })));
+                        events.push_event(events::Event::new(WelcomePacketEvent { packet }));
                     }
                 };
             }
@@ -110,7 +108,7 @@ impl ClientNetworking {
                     let packet = bincode::deserialize::<Packet>(packet.data()).unwrap();
 
                     // send welcome packet event
-                    events.push_event(events::Event::new(Box::new(packet)));
+                    events.push_event(events::Event::new(packet));
                 }
             };
         }

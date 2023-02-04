@@ -1,6 +1,6 @@
-use std::rc::Rc;
-use crate::blocks::*;
 use super::liquid_type::*;
+use crate::blocks::*;
+use std::rc::Rc;
 
 const MAX_LIQUID_LEVEL: i32 = 100;
 
@@ -15,7 +15,7 @@ struct Liquid {
 impl Liquid {
     pub fn new() -> Liquid {
         Liquid {
-            id: 0,//TODO: change to Rc<LiquidType>?
+            id: 0, //TODO: change to Rc<LiquidType>?
             level: 0.0,
         }
     }
@@ -37,15 +37,15 @@ impl Liquids {
         let mut liquids_object = Liquids {
             liquid_types: Vec::new(),
             liquids: Vec::new(),
-            empty: Rc::new(temp),//temporarily assign
+            empty: Rc::new(temp), //temporarily assign
             width: blocks.get_width(),
-            height: blocks.get_height()
+            height: blocks.get_height(),
         };
         let mut empty = LiquidType::new("empty".to_string());
         empty.flow_time = 0;
         empty.speed_multiplier = 1.0;
         liquids_object.register_liquid_type(empty);
-        liquids_object.empty = liquids_object.liquid_types[0].clone();//assign the real empty liquid Rc
+        liquids_object.empty = liquids_object.liquid_types[0].clone(); //assign the real empty liquid Rc
         liquids_object
     }
 
@@ -67,7 +67,8 @@ impl Liquids {
 
     /**returns whether the given liquid is flowable*/
     fn is_flowable(&self, x: i32, y: i32, blocks: &Blocks) -> bool {
-        blocks.get_block_type_at(x, y).unwrap().ghost && self.get_liquid_type(x, y).id == self.empty.id
+        blocks.get_block_type_at(x, y).unwrap().ghost
+            && self.get_liquid_type(x, y).id == self.empty.id
     }
 
     /**creates the liquid array*/
@@ -75,7 +76,8 @@ impl Liquids {
         self.liquids = Vec::new();
         self.height = blocks.get_height();
         self.width = blocks.get_width();
-        self.liquids.resize_with((self.width * self.height) as usize, Liquid::new);
+        self.liquids
+            .resize_with((self.width * self.height) as usize, Liquid::new);
     }
 
     /**returns the width of the liquid array*/
@@ -143,15 +145,27 @@ impl Liquids {
         let mut left_exists = false;
         let mut right_exists = false;
 
-        if y < self.get_height() - 1 && (self.is_flowable(x, y + 1, blocks) || (self.get_liquid_type(x, y + 1).id == self.get_liquid_type(x, y).id && self.get_liquid_level(x, y + 1) as i32 != MAX_LIQUID_LEVEL)) {
+        if y < self.get_height() - 1
+            && (self.is_flowable(x, y + 1, blocks)
+                || (self.get_liquid_type(x, y + 1).id == self.get_liquid_type(x, y).id
+                    && self.get_liquid_level(x, y + 1) as i32 != MAX_LIQUID_LEVEL))
+        {
             under_exists = true
         }
 
-        if x > 0 && (self.is_flowable(x - 1, y, blocks) || (self.get_liquid_type(x - 1, y).id == self.get_liquid_type(x, y).id && self.get_liquid_level(x - 1, y) as i32 != MAX_LIQUID_LEVEL)) {
+        if x > 0
+            && (self.is_flowable(x - 1, y, blocks)
+                || (self.get_liquid_type(x - 1, y).id == self.get_liquid_type(x, y).id
+                    && self.get_liquid_level(x - 1, y) as i32 != MAX_LIQUID_LEVEL))
+        {
             left_exists = true
         }
 
-        if x < self.get_width() - 1 && (self.is_flowable(x + 1, y, blocks) || (self.get_liquid_type(x + 1, y).id == self.get_liquid_type(x, y).id && self.get_liquid_level(x + 1, y) as i32 != MAX_LIQUID_LEVEL)) {
+        if x < self.get_width() - 1
+            && (self.is_flowable(x + 1, y, blocks)
+                || (self.get_liquid_type(x + 1, y).id == self.get_liquid_type(x, y).id
+                    && self.get_liquid_level(x + 1, y) as i32 != MAX_LIQUID_LEVEL))
+        {
             right_exists = true
         }
 
@@ -179,18 +193,29 @@ impl Liquids {
             self.set_liquid_type(x - 1, y, self.get_liquid_type(x, y));
         }
 
-        if left_exists && right_exists && self.get_liquid_level(x + 1, y) as i32 != self.get_liquid_level(x, y) as i32 && self.get_liquid_level(x - 1, y) as i32 != self.get_liquid_level(x, y) as i32 {
-            let avg = (self.get_liquid_level(x + 1, y) + self.get_liquid_level(x - 1, y) + self.get_liquid_level(x, y)) / 3.0;
+        if left_exists
+            && right_exists
+            && self.get_liquid_level(x + 1, y) as i32 != self.get_liquid_level(x, y) as i32
+            && self.get_liquid_level(x - 1, y) as i32 != self.get_liquid_level(x, y) as i32
+        {
+            let avg = (self.get_liquid_level(x + 1, y)
+                + self.get_liquid_level(x - 1, y)
+                + self.get_liquid_level(x, y))
+                / 3.0;
 
             self.set_liquid_level(x, y, avg);
             self.set_liquid_level(x + 1, y, avg);
             self.set_liquid_level(x - 1, y, avg);
-        } else if left_exists && self.get_liquid_level(x - 1, y) as i32 != self.get_liquid_level(x, y) as i32 {
+        } else if left_exists
+            && self.get_liquid_level(x - 1, y) as i32 != self.get_liquid_level(x, y) as i32
+        {
             let avg = (self.get_liquid_level(x - 1, y) + self.get_liquid_level(x, y)) / 2.0;
 
             self.set_liquid_level(x, y, avg);
             self.set_liquid_level(x - 1, y, avg);
-        } else if right_exists && self.get_liquid_level(x + 1, y) as i32 != self.get_liquid_level(x, y) as i32 {
+        } else if right_exists
+            && self.get_liquid_level(x + 1, y) as i32 != self.get_liquid_level(x, y) as i32
+        {
             let avg = (self.get_liquid_level(x + 1, y) + self.get_liquid_level(x, y)) / 2.0;
 
             self.set_liquid_level(x, y, avg);
@@ -224,7 +249,8 @@ impl Liquids {
     /**registers a new liquid type*/
     pub fn register_liquid_type(&mut self, mut liquid_type: LiquidType) {
         liquid_type.id = self.liquid_types.len() as i32;
-        self.liquid_types.insert(liquid_type.id as usize, Rc::new(liquid_type));
+        self.liquid_types
+            .insert(liquid_type.id as usize, Rc::new(liquid_type));
     }
 
     /**returns the number of liquid types*/

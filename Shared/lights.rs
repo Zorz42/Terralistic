@@ -1,5 +1,5 @@
-use std::cmp::max;
 use crate::blocks::Blocks;
+use std::cmp::max;
 
 const MAX_LIGHT: i32 = 100;
 
@@ -56,7 +56,6 @@ struct Lights {
 
 impl Lights {
     pub fn new(blocks: &Blocks) -> Self {
-
         Lights {
             lights: Vec::new(),
             width: blocks.get_width(),
@@ -138,11 +137,31 @@ impl Lights {
         let mut color_to_be = LightColor::new(0, 0, 0);
         for neighbour in neighbours {
             if neighbour[0] != -1 {
-                let light_step = if blocks.get_block_type_at(neighbour[0], neighbour[1]).unwrap().transparent { 3 } else { 15 };
+                let light_step = if blocks
+                    .get_block_type_at(neighbour[0], neighbour[1])
+                    .unwrap()
+                    .transparent
+                {
+                    3
+                } else {
+                    15
+                };
 
-                let r = if light_step > self.get_light_color(neighbour[0], neighbour[1]).r { 0 } else { self.get_light_color(neighbour[0], neighbour[1]).r - light_step };
-                let g = if light_step > self.get_light_color(neighbour[0], neighbour[1]).g { 0 } else { self.get_light_color(neighbour[0], neighbour[1]).g - light_step };
-                let b = if light_step > self.get_light_color(neighbour[0], neighbour[1]).b { 0 } else { self.get_light_color(neighbour[0], neighbour[1]).b - light_step };
+                let r = if light_step > self.get_light_color(neighbour[0], neighbour[1]).r {
+                    0
+                } else {
+                    self.get_light_color(neighbour[0], neighbour[1]).r - light_step
+                };
+                let g = if light_step > self.get_light_color(neighbour[0], neighbour[1]).g {
+                    0
+                } else {
+                    self.get_light_color(neighbour[0], neighbour[1]).g - light_step
+                };
+                let b = if light_step > self.get_light_color(neighbour[0], neighbour[1]).b {
+                    0
+                } else {
+                    self.get_light_color(neighbour[0], neighbour[1]).b - light_step
+                };
 
                 if r > color_to_be.r {
                     color_to_be.r = r;
@@ -218,7 +237,15 @@ impl Lights {
     pub fn update_light_emitter(&mut self, x: i32, y: i32, blocks: &Blocks) {
         let block_type = blocks.get_block_type_at(x, y).unwrap();
         if block_type.get_id() != blocks.air {
-            self.set_light_source(x, y, LightColor::new(block_type.light_emission_r as i32, block_type.light_emission_g as i32, block_type.light_emission_b as i32));
+            self.set_light_source(
+                x,
+                y,
+                LightColor::new(
+                    block_type.light_emission_r as i32,
+                    block_type.light_emission_g as i32,
+                    block_type.light_emission_b as i32,
+                ),
+            );
         }
     }
 }

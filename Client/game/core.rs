@@ -57,6 +57,7 @@ impl Game {
             *loading_text2.lock().unwrap() = "Loading mods".to_string();
             let mut mods = ClientModManager::new();
             let mut blocks = ClientBlocks::new();
+            let mut walls = ClientWalls::new(&mut blocks.blocks);
 
             while let Some(event) = events.pop_event() {
                 mods.on_event(&event);
@@ -64,12 +65,13 @@ impl Game {
             }
 
             blocks.init(&mut mods.mod_manager);
+            walls.init(&mut mods.mod_manager);
 
             *loading_text2.lock().unwrap() = "Initializing mods".to_string();
             mods.init();
 
             loading_text2.lock().unwrap().clear();
-            (mods, blocks)
+            (mods, blocks, walls)
         });
 
         run_loading_screen(graphics, menu_back, &loading_text);
@@ -77,6 +79,7 @@ impl Game {
         let result = init_thread.join().unwrap();
         self.mods = result.0;
         self.blocks = result.1;
+        self.walls = result.2;
 
         self.camera.set_position(
             self.blocks.blocks.get_width() as f32 / 2.0 * BLOCK_WIDTH as f32,
@@ -93,9 +96,8 @@ impl Game {
         let mut paused = false;
 
         let mut resume_button = gfx::Button::new();
-        resume_button.texture = gfx::Texture::load_from_surface(
-            &graphics.font.create_text_surface("Resume".to_string()),
-        );
+        resume_button.texture =
+            gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Resume"));
         resume_button.scale = 3.0;
         resume_button.y = gfx::SPACING;
         resume_button.x = -gfx::SPACING;
@@ -103,7 +105,7 @@ impl Game {
 
         let mut quit_button = gfx::Button::new();
         quit_button.texture =
-            gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Quit".to_string()));
+            gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Quit"));
         quit_button.scale = 3.0;
         quit_button.y = 2 * gfx::SPACING + resume_button.get_height();
         quit_button.x = -gfx::SPACING;
@@ -152,7 +154,7 @@ impl Game {
                     _ => {}
                 }
 
-                self.events.push_event(events::Event::new(Box::new(event)));
+                self.events.push_event(events::Event::new(event));
             }
 
             self.networking.update(&mut self.events);
