@@ -264,6 +264,29 @@ impl Walls {
         }
         Ok(())
     }
+
+    /**
+    Returns all wall ids.
+     */
+    pub fn get_all_wall_ids(&mut self) -> Vec<WallId> {
+        let mut result = Vec::new();
+        for wall_type in self
+            .wall_types
+            .lock()
+            .unwrap_or_else(|e| e.into_inner())
+            .iter()
+        {
+            result.push(wall_type.id);
+        }
+        result
+    }
+
+    /**
+    Returns all breaking walls
+     */
+    pub fn get_breaking_walls(&self) -> &Vec<BreakingWall> {
+        &self.breaking_walls
+    }
 }
 
 struct WallChangeEvent {
@@ -284,4 +307,14 @@ struct WallStartedBreakingEvent {
 struct WallStoppedBreakingEvent {
     pub x: i32,
     pub y: i32,
+}
+
+/**
+A welcome packet that carries all the information about the world walls
+ */
+#[derive(Serialize, Deserialize)]
+pub struct WallsWelcomePacket {
+    pub data: Vec<u8>,
+    pub width: i32,
+    pub height: i32,
 }

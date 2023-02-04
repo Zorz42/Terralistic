@@ -144,7 +144,7 @@ impl WorldGenerator {
         blocks.create(width, height).unwrap();
 
         let mut block_terrain = vec![vec![BlockId::new(); height as usize]; width as usize];
-        let wall_terrain = vec![vec![WallId::new(); height as usize]; width as usize];
+        let mut wall_terrain = vec![vec![WallId::new(); height as usize]; width as usize];
 
         let mut min_cave_thresholds = vec![0.0; width as usize];
         let mut max_cave_thresholds = vec![0.15; width as usize];
@@ -239,6 +239,11 @@ impl WorldGenerator {
                 };
 
                 curr_terrain[(x - prev_x) as usize][y as usize] = curr_block;
+
+                // 50% chance of wall
+                if rand::random::<i32>() % 2 ==  0 {
+                    wall_terrain[x as usize][y as usize] = self.biomes.lock().unwrap()[biome_ids[x as usize] as usize].base_wall;
+                }
             }
 
             if x == width - 1 || biome_ids[x as usize] != biome_ids[(x + 1) as usize] {
@@ -262,7 +267,7 @@ impl WorldGenerator {
             }
         }
 
-        blocks.create_from_block_ids(block_terrain).unwrap();
+        blocks.create_from_block_ids(&block_terrain).unwrap();
         walls.create_from_wall_ids(&wall_terrain).unwrap();
 
         println!("World generated in {}ms", start_time.elapsed().as_millis());
@@ -290,6 +295,7 @@ struct Biome {
     pub min_terrain_height: i32,
     pub max_terrain_height: i32,
     pub base_block: BlockId,
+    pub base_wall: WallId,
     // the first element is connection weight, the second is the biome id
     pub adjacent_biomes: Vec<(i32, i32)>,
     pub mod_id: i32,
@@ -305,6 +311,7 @@ impl Biome {
             min_terrain_height: 0,
             max_terrain_height: 0,
             base_block: BlockId::new(),
+            base_wall: WallId::new(),
             adjacent_biomes: Vec::new(),
             mod_id,
             generator_function: None,
@@ -380,6 +387,25 @@ impl LuaUserData for Biome {
                             _ => {
                                 return Err(rlua::Error::RuntimeError(
                                     "value is not a valid value for base_block".to_string(),
+                                ))
+                            }
+                        }
+                        Ok(())
+                    }
+                    "base_wall" => {
+                        // base_wall is a WallId, so we need to convert the value to a WallId
+                        match value {
+                            rlua::Value::UserData(b) => match b.borrow::<WallId>() {
+                                Ok(b) => this.base_wall = *b,
+                                Err(_) => {
+                                    return Err(rlua::Error::RuntimeError(
+                                        "value is not a valid value for base_wall".to_string(),
+                                    ))
+                                }
+                            },
+                            _ => {
+                                return Err(rlua::Error::RuntimeError(
+                                    "value is not a valid value for base_wall".to_string(),
                                 ))
                             }
                         }

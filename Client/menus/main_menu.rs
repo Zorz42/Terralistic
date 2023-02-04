@@ -1,5 +1,5 @@
 use crate::menus::background_rect::BackgroundRect;
-use crate::menus::{run_choice_menu, run_multiplayer_selector, run_singleplayer_selector};
+use crate::menus::{run_multiplayer_selector, run_singleplayer_selector};
 use graphics as gfx;
 use graphics::SPACING;
 use shared::versions::VERSION;

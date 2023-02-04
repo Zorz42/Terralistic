@@ -77,7 +77,7 @@ function init()
 
     -- register walls
     wall_type = terralistic_new_wall_type()
-    wall_type["name"] = "dirt_wall"
+    wall_type["name"] = "dirt"
     dirt_wall = terralistic_register_wall_type(wall_type)
 
     terralistic_print("BaseGame mod loaded.")
@@ -94,6 +94,7 @@ function init_server()
     biome["min_width"] = 100
     biome["max_width"] = 300
     biome["base_block"] = dirt_block
+    biome["base_wall"] = dirt_wall
     biome["generator_function"] = "generate_plains"
     biome:add_ore(stone_block, -2.0, 3.0);
     biome:add_ore(copper_ore, -0.9, -0.4);
@@ -106,6 +107,7 @@ function init_server()
     biome["min_width"] = 100
     biome["max_width"] = 300
     biome["base_block"] = dirt_block
+    biome["base_wall"] = dirt_wall
     biome["generator_function"] = "generate_plains"
     biome:add_ore(stone_block, -2.0, 3.0);
     biome:add_ore(copper_ore, -0.9, -0.4);
@@ -119,6 +121,7 @@ function init_server()
     biome["min_width"] = 100
     biome["max_width"] = 300
     biome["base_block"] = dirt_block
+    biome["base_wall"] = dirt_wall
     biome:add_ore(stone_block, 1.0, 1.0);
     biome:add_ore(copper_ore, -0.42, -0.38);
     mountains = terralistic_register_biome(biome)

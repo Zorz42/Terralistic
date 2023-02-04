@@ -18,16 +18,6 @@ pub const UNBREAKABLE: i32 = -1;
 pub const CHUNK_SIZE: i32 = 16;
 pub const RANDOM_TICK_SPEED: i32 = 10;
 
-/**
-A welcome packet that carries all the information about the world blocks
- */
-#[derive(Serialize, Deserialize)]
-pub struct BlocksWelcomePacket {
-    pub data: Vec<u8>,
-    pub width: i32,
-    pub height: i32,
-}
-
 #[derive(Serialize, Deserialize)]
 pub(super) struct BlocksData {
     pub map: WorldMap,
@@ -174,7 +164,7 @@ impl Blocks {
     /**
     This function creates a world from a 2d vector of block type ids
      */
-    pub fn create_from_block_ids(&mut self, block_ids: Vec<Vec<BlockId>>) -> Result<()> {
+    pub fn create_from_block_ids(&mut self, block_ids: &Vec<Vec<BlockId>>) -> Result<()> {
         let width = block_ids.len() as i32;
         let height;
         if let Some(row) = block_ids.get(0) {
@@ -184,7 +174,7 @@ impl Blocks {
         }
 
         // check that all the rows have the same length
-        for row in &block_ids {
+        for row in block_ids {
             if row.len() as i32 != height {
                 return Err(anyhow!("All rows must have the same length"));
             }
@@ -194,7 +184,7 @@ impl Blocks {
         self.block_data.blocks.clear();
         for row in block_ids {
             for block_id in row {
-                self.block_data.blocks.push(block_id);
+                self.block_data.blocks.push(*block_id);
             }
         }
         Ok(())
@@ -397,6 +387,16 @@ Event that is fired when a block is updated
 pub struct BlockUpdateEvent {
     pub x: i32,
     pub y: i32,
+}
+
+/**
+A welcome packet that carries all the information about the world blocks
+ */
+#[derive(Serialize, Deserialize)]
+pub struct BlocksWelcomePacket {
+    pub data: Vec<u8>,
+    pub width: i32,
+    pub height: i32,
 }
 
 /**

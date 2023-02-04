@@ -1,15 +1,14 @@
-use super::world_creation::run_world_creation;
-use crate::game::private_world::run_private_world;
+
+
 use crate::menus::background_rect::BackgroundRect;
 use crate::menus::run_choice_menu;
 
 use directories::BaseDirs;
 use graphics as gfx;
 use graphics::GraphicsContext;
-use std::fs;
-use std::path::PathBuf;
 use serde_derive::{Deserialize, Serialize};
 
+use std::path::PathBuf;
 
 pub const MENU_WIDTH: i32 = 800;
 
@@ -25,7 +24,6 @@ impl ServerInfo {
     }
 }
 
-
 /**
 World is a struct that contains all information to
 render the server in Server selector.
@@ -39,10 +37,8 @@ pub struct ServerCard {
     icon: gfx::Sprite,
 }
 
-
 impl ServerCard {
     pub fn new(graphics: &GraphicsContext, name: String, ip: String) -> Self {
-
         let mut rect = gfx::RenderRect::new(0.0, 0.0, (MENU_WIDTH - 2 * gfx::SPACING) as f32, 0.0);
         rect.orientation = gfx::TOP;
         rect.fill_color.a = 100;
@@ -57,8 +53,9 @@ impl ServerCard {
         icon.orientation = gfx::LEFT;
 
         let mut title = gfx::Sprite::new();
-        title.texture =
-            gfx::Texture::load_from_surface(&graphics.font.create_text_surface(name.clone().as_str()));
+        title.texture = gfx::Texture::load_from_surface(
+            &graphics.font.create_text_surface(name.as_str()),
+        );
         title.x = icon.x + icon.get_width() + gfx::SPACING;
         title.y = gfx::SPACING;
         title.scale = 3.0;
@@ -146,7 +143,9 @@ pub struct ServerList {
 
 impl ServerList {
     pub fn new(graphics: &GraphicsContext, file_path: PathBuf) -> ServerList {
-        let mut world_list = ServerList { servers: Vec::new() };
+        let mut world_list = ServerList {
+            servers: Vec::new(),
+        };
         world_list.refresh(graphics, file_path);
         world_list
     }
@@ -156,17 +155,21 @@ impl ServerList {
 
         if !file_path.exists() {
             temp_servers = Ok(Vec::new());
-            &std::fs::write(file_path, &bincode::serialize::<&Vec<ServerInfo>>(&temp_servers.as_ref().unwrap()).unwrap()).unwrap();
+            let _ = &std::fs::write(
+                file_path,
+                bincode::serialize::<&Vec<ServerInfo>>(&temp_servers.as_ref().unwrap()).unwrap(),
+            )
+            .unwrap();
         } else {
-            temp_servers = bincode::deserialize::<Vec<ServerInfo>>(
-                &std::fs::read(file_path).unwrap(),
-            );
+            temp_servers =
+                bincode::deserialize::<Vec<ServerInfo>>(&std::fs::read(file_path).unwrap());
         }
 
         if temp_servers.is_ok() {
             self.servers.clear();
             for server in temp_servers.unwrap() {
-                self.servers.push(ServerCard::new(graphics, server.name, server.ip));
+                self.servers
+                    .push(ServerCard::new(graphics, server.name, server.ip));
             }
         }
     }
@@ -175,7 +178,6 @@ impl ServerList {
 pub fn run_multiplayer_selector(
     graphics: &mut GraphicsContext, menu_back: &mut dyn BackgroundRect,
 ) {
-
     let base_dirs = BaseDirs::new().unwrap();
     let servers_file = base_dirs.data_dir().join("Terralistic").join("servers.txt");
 
@@ -282,7 +284,7 @@ pub fn run_multiplayer_selector(
 
         let hoverable = graphics.renderer.get_mouse_y() as i32 > top_height
             && (graphics.renderer.get_mouse_y() as i32)
-            < graphics.renderer.get_window_height() as i32 - bottom_height;
+                < graphics.renderer.get_window_height() as i32 - bottom_height;
 
         for server in &mut server_list.servers {
             server.set_enabled(hoverable);

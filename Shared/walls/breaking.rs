@@ -9,7 +9,7 @@ Stores the info about a breaking progress about a wall.
 pub struct BreakingWall {
     pub break_progress: i32,
     pub is_breaking: bool,
-    coord: (i32, i32),
+    pub coord: (i32, i32),
 }
 
 impl BreakingWall {
