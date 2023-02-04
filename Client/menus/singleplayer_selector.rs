@@ -281,7 +281,7 @@ pub fn run_singleplayer_selector(
                     }
                 }
                 gfx::Event::MouseScroll(delta) => {
-                    position += delta as f32 * 2.0;
+                    position += delta * 2.0;
                 }
                 _ => {}
             }

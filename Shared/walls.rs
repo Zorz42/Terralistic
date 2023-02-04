@@ -1,8 +1,8 @@
-use std::sync::Arc;
+
 use serde_derive::{Serialize, Deserialize};
 use bincode;
 use snap;
-use crate::blocks::{Blocks, CHUNK_SIZE, ToolId, UNBREAKABLE};
+use crate::blocks::{Blocks, ToolId, UNBREAKABLE};
 use crate::blocks::Tool;
 use crate::world_map::WorldMap;
 use anyhow::{anyhow, Result};
@@ -150,14 +150,14 @@ impl Walls{
     Returns the wall type of the wall at given x and y
      */
     pub fn get_wall_type_at(&self, x: i32, y: i32) -> Result<&Wall> {
-        Ok(self.get_wall_type(self.get_wall(x, y)?)?)
+        self.get_wall_type(self.get_wall(x, y)?)
     }
 
     /**
     Returns the wall type with the given id
      */
     pub fn get_wall_type(&self, id: WallId) -> Result<&Wall> {
-        Ok(self.wall_types.get(id.id as usize).ok_or(anyhow!("Wall type with id {} does not exist!", id.id))?)
+        self.wall_types.get(id.id as usize).ok_or(anyhow!("Wall type with id {} does not exist!", id.id))
     }
 
     /**
@@ -192,7 +192,7 @@ impl Walls{
     Returns the break stage (for example to be used as a break texture stage) of the wall at x and y
      */
     pub fn get_break_stage(&self, x: i32, y: i32) -> Result<i32> {
-        Ok((self.get_break_progress(x, y) * 9 / self.get_wall_type_at(x, y)?.break_time) as i32)
+        Ok((self.get_break_progress(x, y) * 9 / self.get_wall_type_at(x, y)?.break_time))
     }
 
     /**
@@ -249,7 +249,7 @@ impl Walls{
     Updates breaking walls by increasing break
     progress and breaking walls if necessary
      */
-    pub fn update_breaking_walls(&mut self, frame_length: f32, events: &mut EventManager) -> Result<()> {
+    pub fn update_breaking_walls(&mut self, frame_length: f32, _events: &mut EventManager) -> Result<()> {
         for breaking_wall in self.breaking_walls.iter_mut() {
             if breaking_wall.is_breaking {
                 breaking_wall.break_progress += frame_length as i32;
@@ -289,7 +289,8 @@ impl Walls{
      */
     pub fn deserialize(&mut self, data: Vec<u8>) -> Result<()> {
         let decompressed = snap::raw::Decoder::new().decompress_vec(&data)?;
-        Ok(self.walls_data = bincode::deserialize(&decompressed)?)
+        self.walls_data = bincode::deserialize(&decompressed)?;
+        Ok(())
     }
 
     /**
