@@ -18,3 +18,6 @@ pub use world_creation::run_world_creation;
 
 mod choice_menu;
 pub use choice_menu::run_choice_menu;
+
+mod multiplayer_selector;
+pub use multiplayer_selector::run_multiplayer_selector;
