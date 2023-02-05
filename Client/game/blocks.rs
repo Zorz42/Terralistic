@@ -36,8 +36,13 @@ impl RenderBlockChunk {
     }
 
     pub fn render(
-        &mut self, graphics: &mut GraphicsContext, atlas: &gfx::TextureAtlas<BlockId>,
-        world_x: i32, world_y: i32, blocks: &Blocks, camera: &Camera,
+        &mut self,
+        graphics: &mut GraphicsContext,
+        atlas: &gfx::TextureAtlas<BlockId>,
+        world_x: i32,
+        world_y: i32,
+        blocks: &Blocks,
+        camera: &Camera,
     ) {
         if self.needs_update {
             self.needs_update = false;

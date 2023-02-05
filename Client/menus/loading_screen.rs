@@ -14,7 +14,8 @@ The text is shared through the SharedMut<String> which is updated by the loading
 When the string is empty, the loading screen is closed.
  */
 pub fn run_loading_screen(
-    graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn BackgroundRect,
+    graphics: &mut gfx::GraphicsContext,
+    menu_back: &mut dyn BackgroundRect,
     loading_text: &Mutex<String>,
 ) {
     let mut loading_text_sprite = gfx::Sprite::new();

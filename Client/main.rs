@@ -4,8 +4,8 @@ use graphics as gfx;
 
 use crate::menus::MenuBack;
 
-mod menus;
 mod game;
+mod menus;
 
 fn main() {
     let mut graphics = gfx::init(

@@ -3,12 +3,10 @@ use crate::game::networking::WelcomePacketEvent;
 use events::{Event, EventManager};
 use graphics as gfx;
 use graphics::GraphicsContext;
-use shared::blocks::{
-    Blocks, BLOCK_WIDTH, CHUNK_SIZE, RENDER_BLOCK_WIDTH, RENDER_SCALE,
-};
+use shared::blocks::{Blocks, BLOCK_WIDTH, CHUNK_SIZE, RENDER_BLOCK_WIDTH, RENDER_SCALE};
 use shared::mod_manager::ModManager;
-use std::collections::HashMap;
 use shared::walls::{WallId, Walls, WallsWelcomePacket};
+use std::collections::HashMap;
 
 pub struct RenderWallChunk {
     needs_update: bool,
@@ -32,8 +30,13 @@ impl RenderWallChunk {
     }
 
     pub fn render(
-        &mut self, graphics: &mut GraphicsContext, atlas: &gfx::TextureAtlas<WallId>,
-        world_x: i32, world_y: i32, walls: &Walls, camera: &Camera,
+        &mut self,
+        graphics: &mut GraphicsContext,
+        atlas: &gfx::TextureAtlas<WallId>,
+        world_x: i32,
+        world_y: i32,
+        walls: &Walls,
+        camera: &Camera,
     ) {
         if self.needs_update {
             self.needs_update = false;

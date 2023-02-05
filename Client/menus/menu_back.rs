@@ -86,7 +86,9 @@ impl BackgroundRect for MenuBack {
     Gets the width of the background rectangle.
      */
     fn get_back_rect_width(
-        &self, graphics: &gfx::GraphicsContext, parent_container: Option<&gfx::Container>,
+        &self,
+        graphics: &gfx::GraphicsContext,
+        parent_container: Option<&gfx::Container>,
     ) -> i32 {
         self.back_rect
             .get_container(graphics, parent_container)

@@ -1,13 +1,13 @@
-use std::path::PathBuf;
 use crate::menus::background_rect::BackgroundRect;
 use graphics as gfx;
 use graphics::GraphicsContext;
+use std::path::PathBuf;
 use terralistic_server::MULTIPLAYER_PORT;
 
-use std::net::{IpAddr, Ipv4Addr};
 use super::multiplayer_selector::ServerInfo;
+use std::net::{IpAddr, Ipv4Addr};
 
-fn is_valid_ip (ip: &str) -> bool {
+fn is_valid_ip(ip: &str) -> bool {
     if ip.contains(':') && ip.contains('.') {
         //port specified
         let ip_port: Vec<&str> = ip.split(':').collect();
@@ -29,8 +29,9 @@ fn is_valid_ip (ip: &str) -> bool {
 
 /**this function runs the add server menu.*/
 pub fn run_add_server_menu(
-    graphics: &mut GraphicsContext, menu_back: &mut dyn BackgroundRect,
-    _file_path: PathBuf//will be used to not allow 2 servers with the same name to exist
+    graphics: &mut GraphicsContext,
+    menu_back: &mut dyn BackgroundRect,
+    _file_path: PathBuf, //will be used to not allow 2 servers with the same name to exist
 ) -> Option<ServerInfo> {
     let mut title = gfx::Sprite::new();
     title.scale = 3.0;
@@ -88,7 +89,6 @@ pub fn run_add_server_menu(
 
     //this is where the menu is drawn
     'render_loop: while graphics.renderer.is_window_open() {
-
         add_button.disabled = server_name_input.text.is_empty() || server_ip_input.text.is_empty();
 
         while let Some(event) = graphics.renderer.get_event() {
@@ -102,10 +102,18 @@ pub fn run_add_server_menu(
                             break 'render_loop;
                         }
                         if add_button.is_hovered(graphics, Some(&buttons_container))
-                            && is_valid_ip(&server_ip_input.text){
+                            && is_valid_ip(&server_ip_input.text)
+                        {
                             let ip = server_ip_input.text.split(':').next().unwrap().to_string();
                             let port = if server_ip_input.text.contains(':') {
-                                server_ip_input.text.split(':').last().unwrap().to_string().parse::<u16>().unwrap()
+                                server_ip_input
+                                    .text
+                                    .split(':')
+                                    .last()
+                                    .unwrap()
+                                    .to_string()
+                                    .parse::<u16>()
+                                    .unwrap()
                             } else {
                                 MULTIPLAYER_PORT
                             };
@@ -121,13 +129,20 @@ pub fn run_add_server_menu(
                         }
                     }
                     gfx::Key::Enter => {
-                        if !server_name_input.text.is_empty() &&
-                            !server_ip_input.text.is_empty() &&
-                            is_valid_ip(&server_ip_input.text)
+                        if !server_name_input.text.is_empty()
+                            && !server_ip_input.text.is_empty()
+                            && is_valid_ip(&server_ip_input.text)
                         {
                             let ip = server_ip_input.text.split(':').next().unwrap().to_string();
                             let port = if server_ip_input.text.contains(':') {
-                                server_ip_input.text.split(':').last().unwrap().to_string().parse::<u16>().unwrap()
+                                server_ip_input
+                                    .text
+                                    .split(':')
+                                    .last()
+                                    .unwrap()
+                                    .to_string()
+                                    .parse::<u16>()
+                                    .unwrap()
                             } else {
                                 MULTIPLAYER_PORT
                             };

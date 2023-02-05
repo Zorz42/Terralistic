@@ -108,7 +108,10 @@ impl World {
     This function renders the world card on the x and y position.
      */
     pub fn render(
-        &mut self, graphics: &mut GraphicsContext, x: i32, y: i32,
+        &mut self,
+        graphics: &mut GraphicsContext,
+        x: i32,
+        y: i32,
         parent_container: Option<&gfx::Container>,
     ) {
         self.rect.x = x as f32;
@@ -142,7 +145,9 @@ impl World {
     This function returns the container of the world card.
      */
     pub fn get_container(
-        &self, graphics: &GraphicsContext, parent_container: Option<&gfx::Container>,
+        &self,
+        graphics: &GraphicsContext,
+        parent_container: Option<&gfx::Container>,
     ) -> gfx::Container {
         self.rect.get_container(graphics, parent_container)
     }
@@ -187,7 +192,8 @@ impl WorldList {
 }
 
 pub fn run_singleplayer_selector(
-    graphics: &mut GraphicsContext, menu_back: &mut dyn BackgroundRect,
+    graphics: &mut GraphicsContext,
+    menu_back: &mut dyn BackgroundRect,
 ) {
     let mut world_list = WorldList::new(graphics);
 

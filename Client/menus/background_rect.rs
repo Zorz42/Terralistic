@@ -19,7 +19,9 @@ container.
 pub trait BackgroundRect: Background {
     fn set_back_rect_width(&mut self, width: i32);
     fn get_back_rect_width(
-        &self, graphics: &GraphicsContext, parent_container: Option<&Container>,
+        &self,
+        graphics: &GraphicsContext,
+        parent_container: Option<&Container>,
     ) -> i32;
     fn get_back_rect_container(&self) -> &Container;
 }

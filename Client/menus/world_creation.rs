@@ -16,7 +16,8 @@ fn world_name_exists(worlds_list: &Vec<World>, name: &str) -> bool {
 
 /**this function runs the world creation menu.*/
 pub fn run_world_creation(
-    graphics: &mut GraphicsContext, menu_back: &mut dyn BackgroundRect,
+    graphics: &mut GraphicsContext,
+    menu_back: &mut dyn BackgroundRect,
     worlds_list: &mut Vec<World>,
 ) {
     let mut title = gfx::Sprite::new();

@@ -7,7 +7,9 @@ use terralistic_server::Server;
 use terralistic_server::SINGLEPLAYER_PORT;
 
 pub fn run_private_world(
-    graphics: &mut GraphicsContext, menu_back: &mut dyn BackgroundRect, world_path: &PathBuf,
+    graphics: &mut GraphicsContext,
+    menu_back: &mut dyn BackgroundRect,
+    world_path: &PathBuf,
 ) {
     let server_running = Arc::new(Mutex::new(true));
     let server_running2 = server_running.clone();
