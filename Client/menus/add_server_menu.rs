@@ -3,8 +3,10 @@ use crate::menus::background_rect::BackgroundRect;
 use directories::BaseDirs;
 use graphics as gfx;
 use graphics::GraphicsContext;
-use crate::game::private_world::SINGLEPLAYER_PORT;
-use std::net::IpAddr;
+use terralistic_server::MULTIPLAYER_PORT;
+use terralistic_server;
+use std::net::Ipv4Addr;
+use chrono::format::parse;
 use super::multiplayer_selector::ServerInfo;
 
 fn is_valid_ip (ip: &str) -> bool {
@@ -19,12 +21,12 @@ fn is_valid_ip (ip: &str) -> bool {
         if port.parse::<u16>().is_err() {
             return false;
         }
-        if ip.parse::<IpAddr>().is_err() {
+        if ip.parse::<Ipv4Addr>().is_err() {
             return false;
         }
         return true;
     }
-    if ip.parse::<IpAddr>().is_err() {
+    if ip.parse::<Ipv4Addr>().is_err() {
         return false;
     } else { true }
 }
@@ -105,7 +107,13 @@ pub fn run_add_server_menu(
                         }
                         if add_button.is_hovered(graphics, Some(&buttons_container))
                             && is_valid_ip(&server_ip_input.text){
-                            return Some(ServerInfo::new(server_name_input.text.clone(), server_ip_input.text.clone()));
+                            let ip = server_ip_input.text.split(":").next().unwrap().to_string();
+                            let port = if server_ip_input.text.contains(":") {
+                                server_ip_input.text.split(":").last().unwrap().to_string().parse::<u16>().unwrap()
+                            } else {
+                                MULTIPLAYER_PORT
+                            };
+                            return Some(ServerInfo::new(server_name_input.text.clone(), ip, port));
                         }
                     }
                     gfx::Key::Escape => {
@@ -121,7 +129,13 @@ pub fn run_add_server_menu(
                             !server_ip_input.text.is_empty() &&
                             is_valid_ip(&server_ip_input.text)
                         {
-                            return Some(ServerInfo::new(server_name_input.text.clone(), server_ip_input.text.clone()));
+                            let ip = server_ip_input.text.split(":").next().unwrap().to_string();
+                            let port = if server_ip_input.text.contains(":") {
+                                server_ip_input.text.split(":").last().unwrap().to_string().parse::<u16>().unwrap()
+                            } else {
+                                MULTIPLAYER_PORT
+                            };
+                            return Some(ServerInfo::new(server_name_input.text.clone(), ip, port));
                         }
                     }
                     _ => {}

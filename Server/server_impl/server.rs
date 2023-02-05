@@ -14,6 +14,9 @@ use std::collections::HashMap;
 use std::path::Path;
 use std::sync::Mutex;
 
+pub const SINGLEPLAYER_PORT: u16 = 49152;
+pub const MULTIPLAYER_PORT: u16 = 49153;
+
 pub struct Server {
     tps_limit: f32,
     events: EventManager,

@@ -217,8 +217,10 @@ impl WorldGenerator {
             if let Some(height) = heights.get(x as usize + 1) {
                 walls_height = i32::min(walls_height, *height);
             }
-            if let Some(height) = heights.get(x as usize - 1) {
-                walls_height = i32::min(walls_height, *height);
+            if x > 0 {
+                if let Some(height) = heights.get(x as usize - 1) {
+                    walls_height = i32::min(walls_height, *height);
+                }
             }
 
 
