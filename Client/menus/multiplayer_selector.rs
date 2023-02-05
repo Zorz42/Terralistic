@@ -1,12 +1,11 @@
-
-
 use crate::menus::background_rect::BackgroundRect;
-use crate::menus::run_choice_menu;
+use crate::menus::{run_add_server_menu, run_choice_menu};
 
 use directories::BaseDirs;
 use graphics as gfx;
 use graphics::GraphicsContext;
 use serde_derive::{Deserialize, Serialize};
+use serde_json;
 
 use std::path::PathBuf;
 
@@ -151,18 +150,13 @@ impl ServerList {
     }
 
     pub fn refresh(&mut self, graphics: &GraphicsContext, file_path: PathBuf) {
-        let temp_servers;
+        let temp_servers: Result<Vec<ServerInfo>, _>;
 
         if !file_path.exists() {
             temp_servers = Ok(Vec::new());
-            let _ = &std::fs::write(
-                file_path,
-                bincode::serialize::<&Vec<ServerInfo>>(&temp_servers.as_ref().unwrap()).unwrap(),
-            )
-            .unwrap();
+            let _ = &std::fs::write(file_path, serde_json::to_string(&temp_servers.as_ref().unwrap()).unwrap()).unwrap();
         } else {
-            temp_servers =
-                bincode::deserialize::<Vec<ServerInfo>>(&std::fs::read(file_path).unwrap());
+            temp_servers = serde_json::from_str(&std::fs::read_to_string(file_path).unwrap());
         }
 
         if temp_servers.is_ok() {
@@ -172,6 +166,16 @@ impl ServerList {
                     .push(ServerCard::new(graphics, server.name, server.ip));
             }
         }
+    }
+
+    pub fn save(&self, file_path: PathBuf) {
+        let server_infos: Vec<ServerInfo> = self
+            .servers
+            .iter()
+            .map(|server| ServerInfo::new(server.server_info.name.clone(), server.server_info.ip.clone()))
+            .collect();
+
+        let _ = &std::fs::write(file_path, serde_json::to_string(&server_infos).unwrap()).unwrap();
     }
 }
 
@@ -237,12 +241,15 @@ pub fn run_multiplayer_selector(
                             if new_world_button
                                 .is_hovered(graphics, Some(menu_back.get_back_rect_container()))
                             {
-                                //run_world_creation(graphics, menu_back, &mut world_list.worlds);//TODO: server creation
-                                //world_list.refresh(graphics);
+                                if let Some(server) = run_add_server_menu(graphics, menu_back, servers_file.clone()) {
+                                    server_list.servers.push(ServerCard::new(graphics, server.name, server.ip));
+                                }
+                                server_list.save(servers_file.clone());
+                                //server_list.refresh(graphics, servers_file.clone());
                             }
 
                             let mut needs_refresh = false;
-                            for server in &mut server_list.servers {
+                            for server in &server_list.servers {
                                 if server.play_button.is_hovered(
                                     graphics,
                                     Some(&server.get_container(
@@ -258,8 +265,10 @@ pub fn run_multiplayer_selector(
                                         Some(menu_back.get_back_rect_container()),
                                     )),
                                 ) && run_choice_menu(format!("The world \"{}\" will be deleted.\nDo you want to proceed?", server.server_info.name), graphics, menu_back, None, None) {
-                                    //fs::remove_file(server.get_file_path()).unwrap();//TODO: remove server
+                                    server_list.servers.remove(server_list.servers.iter().position(|s| s.server_info.name == server.server_info.name).unwrap());
+                                    server_list.save(servers_file.clone());
                                     needs_refresh = true;
+                                    break;
                                 }
                             }
                             if needs_refresh {

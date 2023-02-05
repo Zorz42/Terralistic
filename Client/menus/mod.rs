@@ -21,3 +21,6 @@ pub use choice_menu::run_choice_menu;
 
 mod multiplayer_selector;
 pub use multiplayer_selector::run_multiplayer_selector;
+
+mod add_server_menu;
+pub use add_server_menu::run_add_server_menu;

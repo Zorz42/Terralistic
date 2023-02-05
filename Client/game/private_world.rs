@@ -5,7 +5,7 @@ use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
 use terralistic_server::Server;
 
-const SINGLEPLAYER_PORT: u16 = 49152;
+pub const SINGLEPLAYER_PORT: u16 = 49152;
 
 pub fn run_private_world(
     graphics: &mut GraphicsContext, menu_back: &mut dyn BackgroundRect, world_path: &PathBuf,
