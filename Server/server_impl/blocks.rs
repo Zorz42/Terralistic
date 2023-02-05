@@ -33,9 +33,7 @@ impl ServerBlocks {
     ) {
         if let Some(event) = event.downcast::<NewConnectionEvent>() {
             let welcome_packet = Packet::new(BlocksWelcomePacket {
-                data: self.blocks.serialize().unwrap(),
-                width: self.blocks.get_width(),
-                height: self.blocks.get_height(),
+                data: self.blocks.serialize().unwrap()
             });
             networking.send_packet(&welcome_packet, &event.conn);
         } else if let Some(event) = event.downcast::<PacketFromClientEvent>() {

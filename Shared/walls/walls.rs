@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use crate::blocks::Tool;
 use crate::blocks::{Blocks, ToolId};
 use crate::mod_manager::ModManager;
@@ -205,6 +206,7 @@ impl Walls {
     pub fn deserialize(&mut self, data: &Vec<u8>) -> Result<()> {
         let decompressed = snap::raw::Decoder::new().decompress_vec(data)?;
         self.walls_data = bincode::deserialize(&decompressed)?;
+
         Ok(())
     }
 
@@ -262,6 +264,7 @@ impl Walls {
                 self.walls_data.walls.push(*wall_id);
             }
         }
+
         Ok(())
     }
 
@@ -314,7 +317,5 @@ A welcome packet that carries all the information about the world walls
  */
 #[derive(Serialize, Deserialize)]
 pub struct WallsWelcomePacket {
-    pub data: Vec<u8>,
-    pub width: i32,
-    pub height: i32,
+    pub data: Vec<u8>
 }

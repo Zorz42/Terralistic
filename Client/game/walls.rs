@@ -60,25 +60,25 @@ impl RenderWallChunk {
                         if Self::can_connect_to(curr_x - 1, curr_y, walls) {
                             dest_rect.x += RENDER_BLOCK_WIDTH;
                             dest_rect.w -= RENDER_BLOCK_WIDTH;
-                            curr_wall_rect.x += RENDER_BLOCK_WIDTH;
-                            curr_wall_rect.w -= RENDER_BLOCK_WIDTH;
+                            curr_wall_rect.x += BLOCK_WIDTH;
+                            curr_wall_rect.w -= BLOCK_WIDTH;
                         }
 
                         if Self::can_connect_to(curr_x + 1, curr_y, walls) {
                             dest_rect.w -= RENDER_BLOCK_WIDTH;
-                            curr_wall_rect.w -= RENDER_BLOCK_WIDTH;
+                            curr_wall_rect.w -= BLOCK_WIDTH;
                         }
 
                         if Self::can_connect_to(curr_x, curr_y - 1, walls) {
                             dest_rect.y += RENDER_BLOCK_WIDTH;
                             dest_rect.h -= RENDER_BLOCK_WIDTH;
-                            curr_wall_rect.y += RENDER_BLOCK_WIDTH;
-                            curr_wall_rect.h -= RENDER_BLOCK_WIDTH;
+                            curr_wall_rect.y += BLOCK_WIDTH;
+                            curr_wall_rect.h -= BLOCK_WIDTH;
                         }
 
                         if Self::can_connect_to(curr_x, curr_y + 1, walls) {
                             dest_rect.h -= RENDER_BLOCK_WIDTH;
-                            curr_wall_rect.h -= RENDER_BLOCK_WIDTH;
+                            curr_wall_rect.h -= BLOCK_WIDTH;
                         }
 
                         self.rect_array.add_rect(
@@ -146,7 +146,6 @@ impl ClientWalls {
     pub fn on_event(&mut self, event: &Event) {
         if let Some(event) = event.downcast::<WelcomePacketEvent>() {
             if let Some(packet) = event.packet.deserialize::<WallsWelcomePacket>() {
-                self.walls.create(packet.width, packet.height).unwrap();
                 self.walls.deserialize(&packet.data).unwrap();
             }
         }
@@ -166,7 +165,7 @@ impl ClientWalls {
         for id in self.walls.get_all_wall_ids() {
             let wall_type = self.walls.get_wall_type(id).unwrap();
             let image_resource =
-                mods.get_resource(format!("wall:{}.opa", wall_type.name).as_str());
+                mods.get_resource(format!("walls:{}.opa", wall_type.name).as_str());
             if let Some(image_resource) = image_resource {
                 let image = gfx::Surface::deserialize(&image_resource.clone());
                 surfaces.insert(id, image);

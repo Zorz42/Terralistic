@@ -91,12 +91,13 @@ impl Server {
             self.networking.update(&mut self.events);
             self.mods.update();
             self.blocks.update(&mut self.events, delta_time);
+            self.walls.update(delta_time, &mut self.events);
 
             // handle events
             while let Some(event) = self.events.pop_event() {
                 self.mods.on_event(&event, &mut self.networking);
-                self.blocks
-                    .on_event(&event, &mut self.events, &mut self.networking);
+                self.blocks.on_event(&event, &mut self.events, &mut self.networking);
+                self.walls.on_event(&event, &mut self.networking);
                 self.networking.on_event(&event);
             }
 

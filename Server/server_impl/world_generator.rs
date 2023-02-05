@@ -196,14 +196,32 @@ impl WorldGenerator {
         let mut curr_terrain = Vec::new();
         let mut prev_x = 0;
 
+        let heights = {
+            let mut heights = Vec::new();
+            for x in 0..width {
+                let terrain_noise_val = ((turbulence(&terrain_noise, x as f32 / 150.0, 0.0) + 1.0)
+                    * (max_heights[x as usize] - min_heights[x as usize]))
+                    as i32
+                    + min_heights[x as usize] as i32
+                    + height * 2 / 3;
+                heights.push(terrain_noise_val);
+            }
+            heights
+        };
+
         for x in 0..width {
             curr_terrain.push(vec![BlockId::new(); height as usize]);
 
-            let terrain_noise_val = ((turbulence(&terrain_noise, x as f32 / 150.0, 0.0) + 1.0)
-                * (max_heights[x as usize] - min_heights[x as usize]))
-                as i32
-                + min_heights[x as usize] as i32
-                + height * 2 / 3;
+            let terrain_noise_val = heights[x as usize];
+            let mut walls_height = heights[x as usize];
+            if let Some(height) = heights.get(x as usize + 1) {
+                walls_height = i32::min(walls_height, *height);
+            }
+            if let Some(height) = heights.get(x as usize - 1) {
+                walls_height = i32::min(walls_height, *height);
+            }
+
+
             for y in 0..height {
                 next_task();
                 let terrain_height = height - y;
@@ -214,35 +232,34 @@ impl WorldGenerator {
                     * (max_cave_thresholds[x as usize] - min_cave_thresholds[x as usize])
                     + min_cave_thresholds[x as usize];
 
-                let mut curr_block =
-                    self.biomes.lock().unwrap()[biome_ids[x as usize] as usize].base_block;
+                let mut curr_block = self.biomes.lock().unwrap()[biome_ids[x as usize] as usize].base_block;
 
-                for block in blocks.get_all_block_ids() {
-                    let start_noise = ores_start_noises[&block][x as usize];
-                    let end_noise = ores_end_noises[&block][x as usize];
-                    if (start_noise, end_noise) != (-1.0, -1.0) {
-                        let ore_noise = turbulence(
-                            ore_noises.get(&block).unwrap(),
-                            x as f32 / 15.0,
-                            y as f32 / 15.0,
-                        );
-                        let ore_threshold =
-                            y as f32 / height as f32 * (end_noise - start_noise) + start_noise;
-                        if ore_threshold > ore_noise {
-                            curr_block = block;
+                if terrain_height > terrain_noise_val || cave_threshold > cave_noise_val {
+                    curr_block = blocks.air;
+                } else {
+                    for block in blocks.get_all_block_ids() {
+                        let start_noise = ores_start_noises[&block][x as usize];
+                        let end_noise = ores_end_noises[&block][x as usize];
+                        if (start_noise, end_noise) != (-1.0, -1.0) {
+                            let ore_noise = turbulence(
+                                ore_noises.get(&block).unwrap(),
+                                x as f32 / 15.0,
+                                y as f32 / 15.0,
+                            );
+                            let ore_threshold = y as f32 / height as f32 * (end_noise - start_noise) + start_noise;
+                            if ore_threshold > ore_noise {
+                                curr_block = block;
+                            }
                         }
                     }
                 }
 
-                if terrain_height > terrain_noise_val || cave_threshold > cave_noise_val {
-                    curr_block = blocks.air;
-                };
-
                 curr_terrain[(x - prev_x) as usize][y as usize] = curr_block;
 
-                // 50% chance of wall
-                if rand::random::<i32>() % 2 ==  0 {
+                if terrain_height < walls_height {
                     wall_terrain[x as usize][y as usize] = self.biomes.lock().unwrap()[biome_ids[x as usize] as usize].base_wall;
+                } else {
+                    wall_terrain[x as usize][y as usize] = walls.clear;
                 }
             }
 

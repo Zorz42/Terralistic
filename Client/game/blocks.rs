@@ -140,7 +140,6 @@ impl ClientBlocks {
     pub fn on_event(&mut self, event: &Event, events: &mut EventManager) {
         if let Some(event) = event.downcast::<WelcomePacketEvent>() {
             if let Some(packet) = event.packet.deserialize::<BlocksWelcomePacket>() {
-                self.blocks.create(packet.width, packet.height).unwrap();
                 self.blocks.deserialize(&packet.data).unwrap();
             }
         } else if let Some(event) = event.downcast::<Packet>() {
