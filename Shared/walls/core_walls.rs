@@ -18,6 +18,12 @@ pub struct WallId {
     pub id: i8,
 }
 
+impl Default for WallId {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl WallId {
     pub fn new() -> Self {
         Self { id: -1 }
@@ -202,7 +208,7 @@ impl Walls {
     /**
     Deserializes walls from u8 vector
      */
-    pub fn deserialize(&mut self, data: &Vec<u8>) -> Result<()> {
+    pub fn deserialize(&mut self, data: &[u8]) -> Result<()> {
         let decompressed = snap::raw::Decoder::new().decompress_vec(data)?;
         self.walls_data = bincode::deserialize(&decompressed)?;
 
@@ -316,5 +322,5 @@ A welcome packet that carries all the information about the world walls
  */
 #[derive(Serialize, Deserialize)]
 pub struct WallsWelcomePacket {
-    pub data: Vec<u8>
+    pub data: Vec<u8>,
 }

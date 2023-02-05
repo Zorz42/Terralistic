@@ -39,6 +39,12 @@ pub struct Block {
     pub feet_collidable: bool,
 }
 
+impl Default for Block {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 /**
 make BlockType Lua compatible, implement getter and setter for every field except id and image
  */

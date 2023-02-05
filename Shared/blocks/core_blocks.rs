@@ -33,6 +33,12 @@ pub struct BlockId {
     pub(super) id: i8,
 }
 
+impl Default for BlockId {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl BlockId {
     pub fn new() -> Self {
         Self { id: -1 }
@@ -58,6 +64,12 @@ pub struct Blocks {
     pub(super) block_types: Arc<Mutex<Vec<Block>>>,
     pub(super) tool_types: Vec<Tool>,
     pub air: BlockId,
+}
+
+impl Default for Blocks {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl Blocks {
@@ -205,7 +217,11 @@ impl Blocks {
     This sets the type of a block from a coordinate.
      */
     pub fn set_big_block(
-        &mut self, events: &mut EventManager, x: i32, y: i32, block_id: BlockId,
+        &mut self,
+        events: &mut EventManager,
+        x: i32,
+        y: i32,
+        block_id: BlockId,
         from_main: (i32, i32),
     ) -> Result<()> {
         if block_id != self.get_block(x, y)? || from_main != self.get_block_from_main(x, y)? {
@@ -229,7 +245,11 @@ impl Blocks {
     This sets the type of a block from a coordinate.
      */
     pub fn set_block(
-        &mut self, events: &mut EventManager, x: i32, y: i32, block_id: BlockId,
+        &mut self,
+        events: &mut EventManager,
+        x: i32,
+        y: i32,
+        block_id: BlockId,
     ) -> Result<()> {
         self.set_big_block(events, x, y, block_id, (0, 0))
     }
@@ -238,7 +258,10 @@ impl Blocks {
     This function sets x and y from main for a block. If it is 0, 0 the value is removed from the hashmap.
      */
     pub(super) fn set_block_from_main(
-        &mut self, x: i32, y: i32, from_main: (i32, i32),
+        &mut self,
+        x: i32,
+        y: i32,
+        from_main: (i32, i32),
     ) -> Result<()> {
         let index = self.block_data.map.translate_coords(x, y)?;
 
@@ -296,7 +319,7 @@ impl Blocks {
     /**
     Deserializes the world, used for loading the world and receiving it from the server.
      */
-    pub fn deserialize(&mut self, serial: &Vec<u8>) -> Result<()> {
+    pub fn deserialize(&mut self, serial: &[u8]) -> Result<()> {
         self.block_data = bincode::deserialize(&snap::raw::Decoder::new().decompress_vec(serial)?)?;
         Ok(())
     }
@@ -394,7 +417,7 @@ A welcome packet that carries all the information about the world blocks
  */
 #[derive(Serialize, Deserialize)]
 pub struct BlocksWelcomePacket {
-    pub data: Vec<u8>
+    pub data: Vec<u8>,
 }
 
 /**

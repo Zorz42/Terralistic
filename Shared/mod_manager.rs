@@ -169,6 +169,12 @@ pub struct ModManager {
     state: ModManagerState,
 }
 
+impl Default for ModManager {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl ModManager {
     /**
     Creates a new mod manager.

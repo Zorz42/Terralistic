@@ -26,6 +26,12 @@ impl BreakingWall {
     }
 }
 
+impl Default for BreakingWall {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Walls {
     /**
     Returns the break progress of the wall at x and y
@@ -102,7 +108,9 @@ impl Walls {
     progress and breaking walls if necessary
      */
     pub fn update_breaking_walls(
-        &mut self, frame_length: f32, _events: &mut EventManager,
+        &mut self,
+        frame_length: f32,
+        _events: &mut EventManager,
     ) -> Result<()> {
         for breaking_wall in self.breaking_walls.iter_mut() {
             if breaking_wall.is_breaking {

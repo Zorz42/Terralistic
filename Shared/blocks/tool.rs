@@ -10,6 +10,12 @@ pub struct Tool {
     pub id: i32,
 }
 
+impl Default for Tool {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Tool {
     pub fn new() -> Self {
         Tool {
@@ -22,6 +28,12 @@ impl Tool {
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct ToolId {
     pub(super) id: i32,
+}
+
+impl Default for ToolId {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl ToolId {

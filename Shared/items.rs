@@ -65,13 +65,21 @@ impl EntityObject for Item {
         ITEM_WIDTH * 2
     }
     fn is_colliding(
-        &self, blocks: &Blocks, direction: Direction, colliding_x: f32, colliding_y: f32,
+        &self,
+        blocks: &Blocks,
+        direction: Direction,
+        colliding_x: f32,
+        colliding_y: f32,
     ) -> bool {
         self.entity
             .is_colliding(blocks, direction, colliding_x, colliding_y)
     }
     fn is_colliding_with_block(
-        &self, blocks: &Blocks, direction: Direction, colliding_x: f32, colliding_y: f32,
+        &self,
+        blocks: &Blocks,
+        direction: Direction,
+        colliding_x: f32,
+        colliding_y: f32,
     ) -> bool {
         self.entity
             .is_colliding_with_block(blocks, direction, colliding_x, colliding_y)
@@ -96,6 +104,7 @@ impl EntityObject for Item {
     }
 }
 
+#[derive(Clone)]
 pub struct ItemStack {
     pub item_type: Rc<ItemType>,
     pub stack: i32,
@@ -104,11 +113,6 @@ pub struct ItemStack {
 impl ItemStack {
     pub fn new(item_type: Rc<ItemType>, stack: i32) -> Self {
         ItemStack { item_type, stack }
-    }
-}
-impl Clone for ItemStack {
-    fn clone(&self) -> Self {
-        ItemStack::new(Rc::clone(&self.item_type), self.stack)
     }
 }
 
@@ -140,12 +144,17 @@ pub struct Items {
     //item_deletion_event: Sender<EntityDeletionEvent>
 }
 
+impl Default for Items {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Items {
     pub fn new() -> Self {
         let nothing = Rc::new(ItemType::new("nothing".to_string()));
 
-        let mut item_types = Vec::new();
-        item_types.push(nothing.clone());
+        let item_types = vec![nothing.clone()];
 
         Items {
             items: Vec::new(),
@@ -162,7 +171,11 @@ impl Items {
 
     /**this function spawns an item into the world*/
     pub fn spawn_item(
-        &mut self, item_type: Rc<ItemType>, x: i32, y: i32, entity_item_count: u32,
+        &mut self,
+        item_type: Rc<ItemType>,
+        x: i32,
+        y: i32,
+        entity_item_count: u32,
     ) -> u32 {
         let item = Item::new(item_type, x, y, entity_item_count, 0);
         self.register_entity(item);
