@@ -15,6 +15,12 @@ pub struct Sprite {
     pub color: Color,
 }
 
+impl Default for Sprite {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Sprite {
     /**
     Creates a new Sprite with default values.
@@ -49,7 +55,9 @@ impl Sprite {
     Generates containers for the sprite.
      */
     pub fn get_container(
-        &self, graphics: &mut GraphicsContext, parent: Option<&Container>,
+        &self,
+        graphics: &mut GraphicsContext,
+        parent: Option<&Container>,
     ) -> Container {
         let mut container = Container::new(
             self.x,
@@ -70,8 +78,10 @@ impl Sprite {
         self.texture.render(
             &graphics.renderer,
             self.scale,
-            container.get_absolute_rect().x,
-            container.get_absolute_rect().y,
+            (
+                container.get_absolute_rect().x,
+                container.get_absolute_rect().y,
+            ),
             None,
             self.flip,
             Some(self.color),

@@ -13,7 +13,7 @@ pub struct TextureAtlas<KeyType> {
 
 impl<KeyType: Eq + Hash + Clone> TextureAtlas<KeyType> {
     pub fn new(surfaces: &HashMap<KeyType, Surface>) -> Self {
-        if surfaces.len() == 0 {
+        if surfaces.is_empty() {
             return Self {
                 texture: Texture::new(),
                 rects: HashMap::new(),
@@ -21,12 +21,12 @@ impl<KeyType: Eq + Hash + Clone> TextureAtlas<KeyType> {
         }
 
         let mut total_width = 0;
-        for (_, surface) in surfaces {
+        for surface in surfaces.values() {
             total_width += surface.get_width();
         }
 
         let mut max_height = 0;
-        for (_, surface) in surfaces {
+        for surface in surfaces.values() {
             total_width += surface.get_width();
             if surface.get_height() > max_height {
                 max_height = surface.get_height();
@@ -42,7 +42,7 @@ impl<KeyType: Eq + Hash + Clone> TextureAtlas<KeyType> {
                 key.clone(),
                 Rect::new(x, 0, surface.get_width(), surface.get_height()),
             );
-            main_surface.draw(x, 0, &surface, Color::new(255, 255, 255, 255));
+            main_surface.draw(x, 0, surface, Color::new(255, 255, 255, 255));
             x += surface.get_width();
         }
 

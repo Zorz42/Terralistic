@@ -1,5 +1,3 @@
-use sdl2;
-
 /**
 A collection of all supported deprecated_events
  */

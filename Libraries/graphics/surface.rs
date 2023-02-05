@@ -40,8 +40,8 @@ impl Surface {
     /**
     Deserializes a surface from a vector of bytes the same way it was serialized.
      */
-    pub fn deserialize(buffer: &Vec<u8>) -> Self {
-        let decompressed = snap::raw::Decoder::new().decompress_vec(&buffer).unwrap();
+    pub fn deserialize(buffer: &[u8]) -> Self {
+        let decompressed = snap::raw::Decoder::new().decompress_vec(buffer).unwrap();
         bincode::deserialize(&decompressed).unwrap()
     }
 

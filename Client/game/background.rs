@@ -37,8 +37,10 @@ impl Background {
             self.image.render(
                 &graphics.renderer,
                 scale,
-                position_x + i * (self.image.get_texture_width() as f32 * scale) as i32,
-                0,
+                (
+                    position_x + i * (self.image.get_texture_width() as f32 * scale) as i32,
+                    0,
+                ),
                 None,
                 false,
                 None,

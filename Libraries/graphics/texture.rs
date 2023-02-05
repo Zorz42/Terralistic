@@ -13,6 +13,12 @@ pub struct Texture {
     height: i32,
 }
 
+impl Default for Texture {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Texture {
     pub fn new() -> Self {
         Texture {
@@ -42,8 +48,8 @@ impl Texture {
                 gl::TEXTURE_2D,
                 0,
                 gl::RGBA as i32,
-                result.width as i32,
-                result.height as i32,
+                result.width,
+                result.height,
                 0,
                 gl::RGBA,
                 gl::UNSIGNED_BYTE,
@@ -85,8 +91,13 @@ impl Texture {
     }
 
     pub fn render(
-        &self, renderer: &Renderer, scale: f32, x: i32, y: i32, src_rect: Option<Rect>,
-        flipped: bool, color: Option<Color>,
+        &self,
+        renderer: &Renderer,
+        scale: f32,
+        pos: (i32, i32),
+        src_rect: Option<Rect>,
+        flipped: bool,
+        color: Option<Color>,
     ) {
         let src_rect = src_rect.unwrap_or(Rect::new(
             0,
@@ -105,11 +116,11 @@ impl Texture {
             let mut transform = renderer.normalization_transform.clone();
 
             if flipped {
-                transform.translate(src_rect.w as f32 * scale + x as f32 * 2.0, 0.0);
+                transform.translate(src_rect.w as f32 * scale + pos.0 as f32 * 2.0, 0.0);
                 transform.stretch(-1.0, 1.0);
             }
 
-            transform.translate(x as f32, y as f32);
+            transform.translate(pos.0 as f32, pos.1 as f32);
             transform.stretch(src_rect.w as f32 * scale, src_rect.h as f32 * scale);
 
             gl::UniformMatrix3fv(

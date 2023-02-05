@@ -14,7 +14,6 @@ This stores all the values needed for rendering.
  */
 pub struct Renderer {
     _gl_context: sdl2::video::GLContext,
-    _gl: (),
     sdl_window: sdl2::video::Window,
     sdl_event_pump: sdl2::EventPump,
     pub(crate) normalization_transform: Transformation,
@@ -57,10 +56,8 @@ impl Renderer {
             .build()
             .unwrap();
 
-        let _gl_context = sdl_window.gl_create_context().unwrap();
-        let _gl = gl::load_with(|s| {
-            video_subsystem.gl_get_proc_address(s) as *const std::os::raw::c_void
-        });
+        let gl_context = sdl_window.gl_create_context().unwrap();
+        gl::load_with(|s| video_subsystem.gl_get_proc_address(s) as *const std::os::raw::c_void);
 
         unsafe {
             gl::Enable(gl::BLEND);
@@ -85,8 +82,7 @@ impl Renderer {
         let shadow_context = ShadowContext::new();
 
         let mut result = Renderer {
-            _gl_context,
-            _gl,
+            _gl_context: gl_context,
             sdl_window,
             sdl_event_pump: sdl.event_pump().unwrap(),
             normalization_transform: Transformation::new(),
@@ -338,14 +334,14 @@ impl Renderer {
     Get the current window width
      */
     pub fn get_window_width(&self) -> u32 {
-        self.sdl_window.size().0 as u32
+        self.sdl_window.size().0
     }
 
     /**
     Get the current window height
      */
     pub fn get_window_height(&self) -> u32 {
-        self.sdl_window.size().1 as u32
+        self.sdl_window.size().1
     }
 
     /**
@@ -381,16 +377,20 @@ impl Renderer {
     Blurs given texture
      */
     pub(crate) fn blur_region(
-        &self, rect: &Rect, radius: i32, gl_texture: u32, back_texture: u32, width: f32,
-        height: f32, texture_transform: &Transformation,
+        &self,
+        rect: &Rect,
+        radius: i32,
+        gl_texture: u32,
+        back_texture: u32,
+        size: (f32, f32),
+        texture_transform: &Transformation,
     ) {
         self.blur_context.blur_region(
             rect,
             radius,
             gl_texture,
             back_texture,
-            width,
-            height,
+            size,
             texture_transform,
         );
         unsafe {
@@ -407,8 +407,10 @@ impl Renderer {
             radius,
             self.window_texture,
             self.window_texture_back,
-            self.get_window_width() as f32,
-            self.get_window_height() as f32,
+            (
+                self.get_window_width() as f32,
+                self.get_window_height() as f32,
+            ),
             &self.normalization_transform,
         );
     }

@@ -26,6 +26,12 @@ pub struct Button {
     timer_counter: u32,
 }
 
+impl Default for Button {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Button {
     /**
     Creates a new button.
@@ -68,7 +74,9 @@ impl Button {
     Generates the container for the button.
      */
     pub fn get_container(
-        &self, graphics: &GraphicsContext, parent_container: Option<&Container>,
+        &self,
+        graphics: &GraphicsContext,
+        parent_container: Option<&Container>,
     ) -> Container {
         let mut container = Container::new(
             self.x,
@@ -85,7 +93,9 @@ impl Button {
     Checks if the button is hovered with a mouse.
      */
     pub fn is_hovered(
-        &self, graphics: &GraphicsContext, parent_container: Option<&Container>,
+        &self,
+        graphics: &GraphicsContext,
+        parent_container: Option<&Container>,
     ) -> bool {
         if self.disabled {
             return false;
@@ -155,10 +165,10 @@ impl Button {
             std::cmp::max(0, rect.w - 2 * padding as i32),
             std::cmp::max(0, rect.h - 2 * padding as i32),
         );
-        rect.render(&graphics, self.color);
-        rect.render_outline(&graphics, self.border_color);
-        hover_rect.render(&graphics, button_color);
-        hover_rect.render_outline(&graphics, button_border_color);
+        rect.render(graphics, self.color);
+        rect.render_outline(graphics, self.border_color);
+        hover_rect.render(graphics, button_color);
+        hover_rect.render_outline(graphics, button_border_color);
 
         let texture_scale = self.scale + self.hover_progress * 0.4;
         let x = rect.x + rect.w / 2
@@ -166,9 +176,9 @@ impl Button {
         let y = rect.y + rect.h / 2
             - (self.texture.get_texture_height() as f32 * texture_scale / 2.0) as i32;
         self.texture
-            .render(&graphics.renderer, texture_scale, x, y, None, false, None);
+            .render(&graphics.renderer, texture_scale, (x, y), None, false, None);
         if self.disabled && self.darken_on_disabled {
-            rect.render(&graphics, Color::new(0, 0, 0, 100));
+            rect.render(graphics, Color::new(0, 0, 0, 100));
         }
     }
 }

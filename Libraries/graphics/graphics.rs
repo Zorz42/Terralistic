@@ -74,7 +74,10 @@ pub struct GraphicsContext {
 }
 
 pub fn init(
-    window_width: i32, window_height: i32, window_title: &str, default_font_data: &Vec<u8>,
+    window_width: i32,
+    window_height: i32,
+    window_title: &str,
+    default_font_data: &[u8],
 ) -> GraphicsContext {
     GraphicsContext {
         renderer: Renderer::new(window_width, window_height, window_title),

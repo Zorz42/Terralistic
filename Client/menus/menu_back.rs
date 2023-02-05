@@ -58,8 +58,7 @@ impl Background for MenuBack {
             self.background.render(
                 &graphics.renderer,
                 scale,
-                pos + (i as f32 * texture_width_scaled) as i32,
-                0,
+                (pos + (i as f32 * texture_width_scaled) as i32, 0),
                 None,
                 false,
                 None,

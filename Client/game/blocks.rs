@@ -267,8 +267,7 @@ impl ClientBlocks {
             self.breaking_texture.render(
                 &graphics.renderer,
                 RENDER_SCALE,
-                x,
-                y,
+                (x, y),
                 Some(gfx::Rect::new(0, break_stage * 8, 8, 8)),
                 false,
                 None,
