@@ -193,12 +193,8 @@ impl Game {
                 self.mods.on_event(&event);
                 self.blocks.on_event(&event, &mut self.events);
                 self.walls.on_event(&event);
-                self.block_selector.on_event(
-                    graphics,
-                    &mut self.networking,
-                    &mut self.camera,
-                    &event,
-                );
+                self.block_selector
+                    .on_event(graphics, &mut self.networking, &self.camera, &event);
             }
 
             graphics.renderer.update_window();

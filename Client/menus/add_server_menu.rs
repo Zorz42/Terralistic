@@ -95,8 +95,8 @@ pub fn run_add_server_menu(
             //sorts out the events
             server_name_input.on_event(&event, graphics, None);
             server_ip_input.on_event(&event, graphics, None);
-            match event {
-                gfx::Event::KeyRelease(key, ..) => match key {
+            if let gfx::Event::KeyRelease(key, ..) = event {
+                match key {
                     gfx::Key::MouseLeft => {
                         if back_button.is_hovered(graphics, Some(&buttons_container)) {
                             break 'render_loop;
@@ -150,8 +150,7 @@ pub fn run_add_server_menu(
                         }
                     }
                     _ => {}
-                },
-                _ => {}
+                }
             }
         }
         menu_back.set_back_rect_width(700);

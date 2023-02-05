@@ -1,7 +1,7 @@
 use crate::game::core::Game;
 use crate::menus::{run_loading_screen, BackgroundRect};
 use graphics::GraphicsContext;
-use std::path::PathBuf;
+use std::path::Path;
 use std::sync::{Arc, Mutex};
 use terralistic_server::Server;
 use terralistic_server::SINGLEPLAYER_PORT;
@@ -9,7 +9,7 @@ use terralistic_server::SINGLEPLAYER_PORT;
 pub fn run_private_world(
     graphics: &mut GraphicsContext,
     menu_back: &mut dyn BackgroundRect,
-    world_path: &PathBuf,
+    world_path: &Path,
 ) {
     let server_running = Arc::new(Mutex::new(true));
     let server_running2 = server_running.clone();
@@ -20,14 +20,14 @@ pub fn run_private_world(
     let loading_text2 = loading_text.clone();
 
     // start server in async thread
-    let world_path2 = world_path.clone();
+    let world_path = world_path.to_path_buf();
     let server_thread = std::thread::spawn(move || {
         let mut server = Server::new(SINGLEPLAYER_PORT);
         server.start(
             &server_running2,
             &loading_text2,
             vec![include_bytes!("../../BaseGame/BaseGame.mod").to_vec()],
-            &world_path2,
+            &world_path,
         );
     });
 

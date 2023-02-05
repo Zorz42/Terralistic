@@ -12,7 +12,7 @@ fn main() {
         1130,
         700,
         "Terralistic",
-        &include_bytes!("../Build/Resources/font.opa").to_vec(),
+        include_bytes!("../Build/Resources/font.opa"),
     );
     graphics.renderer.set_min_window_size(
         graphics.renderer.get_window_width(),

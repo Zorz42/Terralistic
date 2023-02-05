@@ -6,11 +6,11 @@ description = "Terralistic"
 build = "BuildProject/build.rs"
 
 [[bin]]
-name = "Terralistic"
+name = "terralistic"
 path = "Client/main.rs"
 
 [[bin]]
-name = "TerralisticServer"
+name = "teralistic_server"
 path = "Server/main.rs"
 
 [dependencies]

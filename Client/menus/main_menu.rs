@@ -82,35 +82,32 @@ pub fn run_main_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn Ba
 
     while graphics.renderer.is_window_open() {
         while let Some(event) = graphics.renderer.get_event() {
-            match event {
-                gfx::Event::KeyRelease(key, ..) => {
-                    // check for every button if it was clicked with the left mouse button
-                    if key == gfx::Key::MouseLeft {
-                        if singleplayer_button
-                            .is_hovered(graphics, Some(menu_back.get_back_rect_container()))
-                        {
-                            run_singleplayer_selector(graphics, menu_back);
-                        } else if multiplayer_button
-                            .is_hovered(graphics, Some(menu_back.get_back_rect_container()))
-                        {
-                            println!("Multiplayer clicked");
-                            run_multiplayer_selector(graphics, menu_back);
-                        } else if settings_button
-                            .is_hovered(graphics, Some(menu_back.get_back_rect_container()))
-                        {
-                            println!("Settings clicked");
-                        } else if mods_button
-                            .is_hovered(graphics, Some(menu_back.get_back_rect_container()))
-                        {
-                            println!("Mods clicked");
-                        } else if exit_button
-                            .is_hovered(graphics, Some(menu_back.get_back_rect_container()))
-                        {
-                            graphics.renderer.close_window();
-                        }
+            if let gfx::Event::KeyRelease(key, ..) = event {
+                // check for every button if it was clicked with the left mouse button
+                if key == gfx::Key::MouseLeft {
+                    if singleplayer_button
+                        .is_hovered(graphics, Some(menu_back.get_back_rect_container()))
+                    {
+                        run_singleplayer_selector(graphics, menu_back);
+                    } else if multiplayer_button
+                        .is_hovered(graphics, Some(menu_back.get_back_rect_container()))
+                    {
+                        println!("Multiplayer clicked");
+                        run_multiplayer_selector(graphics, menu_back);
+                    } else if settings_button
+                        .is_hovered(graphics, Some(menu_back.get_back_rect_container()))
+                    {
+                        println!("Settings clicked");
+                    } else if mods_button
+                        .is_hovered(graphics, Some(menu_back.get_back_rect_container()))
+                    {
+                        println!("Mods clicked");
+                    } else if exit_button
+                        .is_hovered(graphics, Some(menu_back.get_back_rect_container()))
+                    {
+                        graphics.renderer.close_window();
                     }
                 }
-                _ => {}
             }
         }
 

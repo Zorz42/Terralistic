@@ -90,8 +90,8 @@ pub fn run_world_creation(
             //sorts out the events
             world_name_input.on_event(&event, graphics, None);
             world_seed_input.on_event(&event, graphics, None);
-            match event {
-                gfx::Event::KeyRelease(key, ..) => match key {
+            if let gfx::Event::KeyRelease(key, ..) = event {
+                match key {
                     gfx::Key::MouseLeft => {
                         if back_button.is_hovered(graphics, Some(&buttons_container)) {
                             break 'render_loop;
@@ -118,8 +118,7 @@ pub fn run_world_creation(
                         }
                     }
                     _ => {}
-                },
-                _ => {}
+                }
             }
         }
         menu_back.set_back_rect_width(700);
@@ -127,7 +126,6 @@ pub fn run_world_creation(
         menu_back.render_back(graphics);
 
         //render input fields
-
         buttons_container.update(graphics, Some(menu_back.get_back_rect_container()));
 
         title.render(graphics, Some(menu_back.get_back_rect_container()));

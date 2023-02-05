@@ -45,9 +45,9 @@ impl ServerCard {
         rect.smooth_factor = 60.0;
 
         let mut icon = gfx::Sprite::new();
-        icon.texture = gfx::Texture::load_from_surface(&gfx::Surface::deserialize(
-            &include_bytes!("../../Build/Resources/world_icon.opa").to_vec(),
-        ));
+        icon.texture = gfx::Texture::load_from_surface(&gfx::Surface::deserialize(include_bytes!(
+            "../../Build/Resources/world_icon.opa"
+        )));
         rect.h = icon.get_height() as f32 + 2.0 * gfx::SPACING as f32;
         icon.x = gfx::SPACING;
         icon.orientation = gfx::LEFT;
@@ -61,7 +61,7 @@ impl ServerCard {
 
         let mut play_button = gfx::Button::new();
         play_button.texture = gfx::Texture::load_from_surface(&gfx::Surface::deserialize(
-            &include_bytes!("../../Build/Resources/join_button.opa").to_vec(),
+            include_bytes!("../../Build/Resources/join_button.opa"),
         ));
         play_button.scale = 3.0;
         play_button.margin = 5;
@@ -71,7 +71,7 @@ impl ServerCard {
 
         let mut delete_button = gfx::Button::new();
         delete_button.texture = gfx::Texture::load_from_surface(&gfx::Surface::deserialize(
-            &include_bytes!("../../Build/Resources/remove_button.opa").to_vec(),
+            include_bytes!("../../Build/Resources/remove_button.opa"),
         ));
         delete_button.scale = 3.0;
         delete_button.margin = 5;
@@ -168,9 +168,9 @@ impl ServerList {
             temp_servers = serde_json::from_str(&std::fs::read_to_string(file_path).unwrap());
         }
 
-        if temp_servers.is_ok() {
+        if let Ok(temp_servers) = temp_servers {
             self.servers.clear();
-            for server in temp_servers.unwrap() {
+            for server in temp_servers {
                 self.servers.push(ServerCard::new(
                     graphics,
                     server.name,
