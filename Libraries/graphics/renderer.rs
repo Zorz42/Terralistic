@@ -1,4 +1,3 @@
-extern crate queues;
 extern crate sdl2;
 
 use crate::blur::BlurContext;
@@ -8,8 +7,7 @@ use crate::shadow::ShadowContext;
 use crate::transformation::Transformation;
 use crate::{set_blend_mode, BlendMode, Event, Key, Rect};
 use copypasta::ClipboardContext;
-use queues::*;
-use std::collections::HashMap;
+use std::collections::{HashMap, VecDeque};
 
 /**
 This stores all the values needed for rendering.
@@ -25,7 +23,7 @@ pub struct Renderer {
     window_framebuffer: u32,
     blur_context: BlurContext,
     pub(crate) passthrough_shader: PassthroughShader,
-    events_queue: Queue<Event>,
+    events_queue: VecDeque<Event>,
     window_open: bool,
     // Keep track of all Key states as a hashmap
     key_states: HashMap<Key, bool>,
@@ -100,7 +98,7 @@ impl Renderer {
             blur_context: BlurContext::new(),
             passthrough_shader,
             shadow_context,
-            events_queue: Queue::new(),
+            events_queue: VecDeque::new(),
             window_open: true,
             clipboard_context: ClipboardContext::new().unwrap(),
         };
@@ -234,13 +232,13 @@ impl Renderer {
      */
     pub fn get_event(&mut self) -> Option<Event> {
         for event in self.get_events() {
-            self.events_queue.add(event).unwrap();
+            self.events_queue.push_back(event);
         }
 
-        if self.events_queue.size() == 0 {
+        if self.events_queue.is_empty() {
             None
         } else {
-            Some(self.events_queue.remove().unwrap())
+            Some(self.events_queue.pop_front().unwrap())
         }
     }
 

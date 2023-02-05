@@ -22,9 +22,7 @@ fn is_valid_ip (ip: &str) -> bool {
         }
         return true;
     }
-    if ip.parse::<IpAddr>().is_err() {
-        return false;
-    } else { true }
+    !ip.parse::<IpAddr>().is_err()
 }
 
 /**this function runs the add server menu.*/
