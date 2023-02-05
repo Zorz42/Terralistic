@@ -31,7 +31,7 @@ impl ServerModManager {
     pub fn init(&mut self) {
         self.mod_manager
             .add_global_function("print", |_, text: String| {
-                println!("[server mod] {}", text);
+                println!("[server mod] {text}");
                 Ok(())
             });
 
