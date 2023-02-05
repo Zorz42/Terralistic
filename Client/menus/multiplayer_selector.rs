@@ -1,5 +1,6 @@
 use crate::menus::background_rect::BackgroundRect;
 use crate::menus::{run_add_server_menu, run_choice_menu};
+use crate::game::core::Game;
 
 use directories::BaseDirs;
 use graphics as gfx;
@@ -8,6 +9,7 @@ use serde_derive::{Deserialize, Serialize};
 
 
 use std::path::PathBuf;
+use terralistic_server::{MULTIPLAYER_PORT, SINGLEPLAYER_PORT};
 
 pub const MENU_WIDTH: i32 = 800;
 
@@ -15,11 +17,12 @@ pub const MENU_WIDTH: i32 = 800;
 pub struct ServerInfo {
     name: String,
     ip: String,
+    port: u16,
 }
 
 impl ServerInfo {
-    pub fn new(name: String, ip: String) -> Self {
-        Self { name, ip }
+    pub fn new(name: String, ip: String, port: u16) -> Self {
+        Self { name, ip, port }
     }
 }
 
@@ -37,7 +40,7 @@ pub struct ServerCard {
 }
 
 impl ServerCard {
-    pub fn new(graphics: &GraphicsContext, name: String, ip: String) -> Self {
+    pub fn new(graphics: &GraphicsContext, name: String, ip: String, port: u16) -> Self {
         let mut rect = gfx::RenderRect::new(0.0, 0.0, (MENU_WIDTH - 2 * gfx::SPACING) as f32, 0.0);
         rect.orientation = gfx::TOP;
         rect.fill_color.a = 100;
@@ -61,7 +64,7 @@ impl ServerCard {
 
         let mut play_button = gfx::Button::new();
         play_button.texture = gfx::Texture::load_from_surface(&gfx::Surface::deserialize(
-            &include_bytes!("../../Build/Resources/play_button.opa").to_vec(),
+            &include_bytes!("../../Build/Resources/join_button.opa").to_vec(),
         ));
         play_button.scale = 3.0;
         play_button.margin = 5;
@@ -71,7 +74,7 @@ impl ServerCard {
 
         let mut delete_button = gfx::Button::new();
         delete_button.texture = gfx::Texture::load_from_surface(&gfx::Surface::deserialize(
-            &include_bytes!("../../Build/Resources/delete_button.opa").to_vec(),
+            &include_bytes!("../../Build/Resources/remove_button.opa").to_vec(),
         ));
         delete_button.scale = 3.0;
         delete_button.margin = 5;
@@ -80,7 +83,7 @@ impl ServerCard {
         delete_button.orientation = gfx::BOTTOM_LEFT;
 
         Self {
-            server_info: ServerInfo::new(name, ip),
+            server_info: ServerInfo::new(name, ip, port),
             rect,
             play_button,
             delete_button,
@@ -163,7 +166,7 @@ impl ServerList {
             self.servers.clear();
             for server in temp_servers.unwrap() {
                 self.servers
-                    .push(ServerCard::new(graphics, server.name, server.ip));
+                    .push(ServerCard::new(graphics, server.name, server.ip, server.port));
             }
         }
     }
@@ -172,7 +175,7 @@ impl ServerList {
         let server_infos: Vec<ServerInfo> = self
             .servers
             .iter()
-            .map(|server| ServerInfo::new(server.server_info.name.clone(), server.server_info.ip.clone()))
+            .map(|server| ServerInfo::new(server.server_info.name.clone(), server.server_info.ip.clone(), server.server_info.port.clone()))
             .collect();
 
         let _ = &std::fs::write(file_path, serde_json::to_string(&server_infos).unwrap()).unwrap();
@@ -242,7 +245,7 @@ pub fn run_multiplayer_selector(
                                 .is_hovered(graphics, Some(menu_back.get_back_rect_container()))
                             {
                                 if let Some(server) = run_add_server_menu(graphics, menu_back, servers_file.clone()) {
-                                    server_list.servers.push(ServerCard::new(graphics, server.name, server.ip));
+                                    server_list.servers.push(ServerCard::new(graphics, server.name, server.ip, server.port));
                                 }
                                 server_list.save(servers_file.clone());
                             }
@@ -254,7 +257,8 @@ pub fn run_multiplayer_selector(
                                         Some(menu_back.get_back_rect_container()),
                                     )),
                                 ) {
-                                    //run_private_world(graphics, menu_back, world.get_file_path());//TODO: join server
+                                    let mut game = Game::new(server.server_info.port, server.server_info.ip.clone());
+                                    game.run(graphics, menu_back);
                                 } else if server.delete_button.is_hovered(
                                     graphics,
                                     Some(&server.get_container(
