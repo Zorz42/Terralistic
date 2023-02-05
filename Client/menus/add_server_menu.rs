@@ -33,7 +33,7 @@ fn is_valid_ip (ip: &str) -> bool {
 /**this function runs the add server menu.*/
 pub fn run_add_server_menu(
     graphics: &mut GraphicsContext, menu_back: &mut dyn BackgroundRect,
-    _file_path: PathBuf
+    _file_path: PathBuf//will be used to not allow 2 servers with the same name to exist
 ) -> Option<ServerInfo> {
     let mut title = gfx::Sprite::new();
     title.scale = 3.0;
