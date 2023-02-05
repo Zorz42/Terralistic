@@ -9,7 +9,6 @@ use serde_derive::{Deserialize, Serialize};
 
 
 use std::path::PathBuf;
-use terralistic_server::{MULTIPLAYER_PORT, SINGLEPLAYER_PORT};
 
 pub const MENU_WIDTH: i32 = 800;
 
