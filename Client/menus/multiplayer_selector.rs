@@ -245,10 +245,7 @@ pub fn run_multiplayer_selector(
                                     server_list.servers.push(ServerCard::new(graphics, server.name, server.ip));
                                 }
                                 server_list.save(servers_file.clone());
-                                //server_list.refresh(graphics, servers_file.clone());
                             }
-
-                            let mut needs_refresh = false;
                             for server in &server_list.servers {
                                 if server.play_button.is_hovered(
                                     graphics,
@@ -267,12 +264,8 @@ pub fn run_multiplayer_selector(
                                 ) && run_choice_menu(format!("The world \"{}\" will be deleted.\nDo you want to proceed?", server.server_info.name), graphics, menu_back, None, None) {
                                     server_list.servers.remove(server_list.servers.iter().position(|s| s.server_info.name == server.server_info.name).unwrap());
                                     server_list.save(servers_file.clone());
-                                    needs_refresh = true;
                                     break;
                                 }
-                            }
-                            if needs_refresh {
-                                server_list.refresh(graphics, servers_file.clone());
                             }
                         }
                         gfx::Key::Escape => {
