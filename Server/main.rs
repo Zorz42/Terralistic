@@ -14,6 +14,6 @@ fn main() {
         &server_running,
         &loading_text,
         vec![include_bytes!("../BaseGame/BaseGame.mod").to_vec()],
-        &*path.join("server.world")
+        &path.join("server.world")
     );
 }

@@ -76,7 +76,7 @@ fn generate_resources(resources_path: PathBuf, prefix: String) -> HashMap<String
             ));
         } else {
             let (file_name, data) = process_file(path);
-            resources.insert(format!("{}{}", prefix, file_name), data);
+            resources.insert(format!("{prefix}{file_name}"), data);
         }
     }
 

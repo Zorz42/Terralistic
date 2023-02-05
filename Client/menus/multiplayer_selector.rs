@@ -174,7 +174,7 @@ impl ServerList {
         let server_infos: Vec<ServerInfo> = self
             .servers
             .iter()
-            .map(|server| ServerInfo::new(server.server_info.name.clone(), server.server_info.ip.clone(), server.server_info.port.clone()))
+            .map(|server| ServerInfo::new(server.server_info.name.clone(), server.server_info.ip.clone(), server.server_info.port))
             .collect();
 
         let _ = &std::fs::write(file_path, serde_json::to_string(&server_infos).unwrap()).unwrap();

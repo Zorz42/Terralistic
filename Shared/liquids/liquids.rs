@@ -52,7 +52,7 @@ impl Liquids {
     /**this function returns a liquid at the given position*/
     fn get_liquid(&self, x: i32, y: i32) -> &Liquid {
         if x < 0 || y < 0 || x >= self.width || y >= self.height {
-            panic!("Liquid is accessed out of the bounds! ({}, {})", x, y);
+            panic!("Liquid is accessed out of the bounds! ({x}, {y})");
         }
         &self.liquids[(y * self.width + x) as usize]
     }
@@ -60,7 +60,7 @@ impl Liquids {
     /**this function returns a mutable liquid at the given position*/
     fn get_liquid_mut(&mut self, x: i32, y: i32) -> &mut Liquid {
         if x < 0 || y < 0 || x >= self.width || y >= self.height {
-            panic!("Liquid is accessed out of the bounds! ({}, {})", x, y);
+            panic!("Liquid is accessed out of the bounds! ({x}, {y})");
         }
         &mut self.liquids[(y * self.width + x) as usize]
     }
@@ -98,7 +98,7 @@ impl Liquids {
     /**returns the liquid type by id*/
     pub fn get_liquid_type_by_id(&self, id: i32) -> Rc<LiquidType> {
         if id < 0 || id >= self.liquid_types.len() as i32 {
-            panic!("Liquid type id is out of bounds! ({})", id);
+            panic!("Liquid type id is out of bounds! ({id})");
         }
         self.liquid_types[id as usize].clone()
     }

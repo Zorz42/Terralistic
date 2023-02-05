@@ -3,7 +3,7 @@ use crate::menus::background_rect::BackgroundRect;
 use graphics as gfx;
 use graphics::GraphicsContext;
 use terralistic_server::MULTIPLAYER_PORT;
-use terralistic_server;
+
 use std::net::{IpAddr, Ipv4Addr};
 use super::multiplayer_selector::ServerInfo;
 
@@ -24,7 +24,7 @@ fn is_valid_ip (ip: &str) -> bool {
         }
         return true;
     }
-    !ip.parse::<IpAddr>().is_err()
+    ip.parse::<IpAddr>().is_ok()
 }
 
 /**this function runs the add server menu.*/
@@ -103,9 +103,9 @@ pub fn run_add_server_menu(
                         }
                         if add_button.is_hovered(graphics, Some(&buttons_container))
                             && is_valid_ip(&server_ip_input.text){
-                            let ip = server_ip_input.text.split(":").next().unwrap().to_string();
-                            let port = if server_ip_input.text.contains(":") {
-                                server_ip_input.text.split(":").last().unwrap().to_string().parse::<u16>().unwrap()
+                            let ip = server_ip_input.text.split(':').next().unwrap().to_string();
+                            let port = if server_ip_input.text.contains(':') {
+                                server_ip_input.text.split(':').last().unwrap().to_string().parse::<u16>().unwrap()
                             } else {
                                 MULTIPLAYER_PORT
                             };
@@ -125,9 +125,9 @@ pub fn run_add_server_menu(
                             !server_ip_input.text.is_empty() &&
                             is_valid_ip(&server_ip_input.text)
                         {
-                            let ip = server_ip_input.text.split(":").next().unwrap().to_string();
-                            let port = if server_ip_input.text.contains(":") {
-                                server_ip_input.text.split(":").last().unwrap().to_string().parse::<u16>().unwrap()
+                            let ip = server_ip_input.text.split(':').next().unwrap().to_string();
+                            let port = if server_ip_input.text.contains(':') {
+                                server_ip_input.text.split(':').last().unwrap().to_string().parse::<u16>().unwrap()
                             } else {
                                 MULTIPLAYER_PORT
                             };

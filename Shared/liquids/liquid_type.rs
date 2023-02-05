@@ -21,8 +21,7 @@ impl rlua::UserData for LiquidType {
                 "flow_time" => Ok(this.flow_time.to_lua(lua_ctx).unwrap()),
                 "speed_multiplier" => Ok(this.speed_multiplier.to_lua(lua_ctx).unwrap()),
                 _ => Err(rlua::Error::RuntimeError(format!(
-                    "{} is not a valid field of LiquidType",
-                    key
+                    "{key} is not a valid field of LiquidType"
                 ))),
             },
         );
@@ -63,8 +62,7 @@ impl rlua::UserData for LiquidType {
                     Ok(())
                 }
                 _ => Err(rlua::Error::RuntimeError(format!(
-                    "{} is not a valid field of LiquidType",
-                    key
+                    "{key} is not a valid field of LiquidType"
                 ))),
             },
         );

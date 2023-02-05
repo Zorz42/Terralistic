@@ -59,8 +59,7 @@ impl rlua::UserData for Wall {
                     Ok(())
                 }
                 _ => Err(rlua::Error::RuntimeError(format!(
-                    "{} is not a valid field of Wall",
-                    key
+                    "{key} is not a valid field of Wall"
                 ))),
             },
         );

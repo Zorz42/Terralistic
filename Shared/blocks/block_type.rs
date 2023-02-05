@@ -183,8 +183,7 @@ impl rlua::UserData for Block {
                     Ok(())
                 }
                 _ => Err(rlua::Error::RuntimeError(format!(
-                    "{} is not a valid field of BlockType",
-                    key
+                    "{key} is not a valid field of BlockType"
                 ))),
             },
         );
