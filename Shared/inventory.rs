@@ -37,7 +37,7 @@ impl InventoryItemChangeEvent {
 //impl Event for InventoryItemChangeEvent {}
 
 /**struct that contains all recipes*/
-struct Recipes {
+pub struct Recipes {
     recipes: Vec<Rc<Recipe>>,
 }
 impl Recipes {

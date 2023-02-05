@@ -112,7 +112,7 @@ impl Clone for ItemStack {
     }
 }
 
-struct ItemCreationEvent {
+pub struct ItemCreationEvent {
     pub item_id: u32,
 }
 

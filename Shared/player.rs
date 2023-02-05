@@ -4,7 +4,7 @@ use super::{blocks::*, entities::*};
 
 const PLAYER_HEIGHT: i32 = 24;
 const PLAYER_WIDTH: i32 = 16;
-const PLAYER_MAX_HEALTH: i32 = 80;
+pub const PLAYER_MAX_HEALTH: i32 = 80;
 
 /**enum of possible movement types for the player*/
 #[derive(PartialEq, Copy, Clone)]
@@ -17,7 +17,7 @@ pub enum MovingType {
 }
 
 /**event that is fired when the player's health changes*/
-struct PlayerHealthChangeEvent {
+pub struct PlayerHealthChangeEvent {
     pub player_id: u32,
     /**health before the change*/
     pub old_health: i32,

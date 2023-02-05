@@ -1,6 +1,5 @@
 use std::path::PathBuf;
 use crate::menus::background_rect::BackgroundRect;
-use directories::BaseDirs;
 use graphics as gfx;
 use graphics::GraphicsContext;
 use terralistic_server::MULTIPLAYER_PORT;
@@ -34,7 +33,7 @@ fn is_valid_ip (ip: &str) -> bool {
 /**this function runs the add server menu.*/
 pub fn run_add_server_menu(
     graphics: &mut GraphicsContext, menu_back: &mut dyn BackgroundRect,
-    file_path: PathBuf
+    _file_path: PathBuf
 ) -> Option<ServerInfo> {
     let mut title = gfx::Sprite::new();
     title.scale = 3.0;

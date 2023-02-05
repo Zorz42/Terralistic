@@ -4,13 +4,9 @@ use events::{Event, EventManager};
 use graphics as gfx;
 use graphics::GraphicsContext;
 use shared::blocks::{
-    BlockBreakStartPacket, BlockBreakStopPacket, BlockChangeEvent, BlockChangePacket, BlockId,
-};
-use shared::blocks::{
-    Blocks, BlocksWelcomePacket, BLOCK_WIDTH, CHUNK_SIZE, RENDER_BLOCK_WIDTH, RENDER_SCALE,
+    Blocks, BLOCK_WIDTH, CHUNK_SIZE, RENDER_BLOCK_WIDTH, RENDER_SCALE,
 };
 use shared::mod_manager::ModManager;
-use shared::packet::Packet;
 use std::collections::HashMap;
 use shared::walls::{WallId, Walls, WallsWelcomePacket};
 
