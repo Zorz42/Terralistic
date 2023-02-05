@@ -277,7 +277,7 @@ impl Blocks {
     /**
     This function returns block data, if it is not found it returns an empty vector.
      */
-    pub(super) fn get_block_data(&self, x: i32, y: i32) -> Result<Vec<u8>> {
+    pub fn get_block_data(&self, x: i32, y: i32) -> Result<Vec<u8>> {
         Ok(self
             .block_data
             .block_data
@@ -376,7 +376,7 @@ pub struct BlockChangeEvent {
 /**
 Event that is fired when a random tick is fired for a block
  */
-struct BlockRandomTickEvent {
+pub struct BlockRandomTickEvent {
     pub x: i32,
     pub y: i32,
 }

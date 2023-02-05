@@ -1,7 +1,7 @@
 use crate::blocks::Blocks;
 use std::cmp::max;
 
-const MAX_LIGHT: i32 = 100;
+pub const MAX_LIGHT: i32 = 100;
 
 /**event that fires when the light color is changed*/
 pub struct LightColorChangeEvent {
@@ -28,7 +28,7 @@ impl LightColor {
 }
 
 /**struct that contains the light data for a given coordinate*/
-struct Light {
+pub struct Light {
     pub color: LightColor,
     pub source_color: LightColor,
     pub source: bool,
@@ -46,7 +46,7 @@ impl Light {
 }
 
 /**struct that manages all the lights in the world*/
-struct Lights {
+pub struct Lights {
     lights: Vec<Light>,
     width: i32,
     height: i32,

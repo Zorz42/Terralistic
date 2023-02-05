@@ -1,4 +1,3 @@
-use std::collections::HashMap;
 use crate::blocks::Tool;
 use crate::blocks::{Blocks, ToolId};
 use crate::mod_manager::ModManager;
@@ -292,22 +291,22 @@ impl Walls {
     }
 }
 
-struct WallChangeEvent {
+pub struct WallChangeEvent {
     pub x: i32,
     pub y: i32,
 }
 
-struct WallBreakEvent {
+pub struct WallBreakEvent {
     pub x: i32,
     pub y: i32,
 }
 
-struct WallStartedBreakingEvent {
+pub struct WallStartedBreakingEvent {
     pub x: i32,
     pub y: i32,
 }
 
-struct WallStoppedBreakingEvent {
+pub struct WallStoppedBreakingEvent {
     pub x: i32,
     pub y: i32,
 }
