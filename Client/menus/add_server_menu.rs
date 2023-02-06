@@ -2,10 +2,11 @@ use std::path::PathBuf;
 use crate::menus::background_rect::BackgroundRect;
 use graphics as gfx;
 use graphics::GraphicsContext;
-use terralistic_server::MULTIPLAYER_PORT;
+use terralistic_server::{MULTIPLAYER_PORT, Server};
 use terralistic_server;
 use std::net::Ipv4Addr;
 use chrono::format::parse;
+use crate::menus::multiplayer_selector::ServerCard;
 use super::multiplayer_selector::ServerInfo;
 
 fn is_valid_ip (ip: &str) -> bool {
@@ -30,10 +31,20 @@ fn is_valid_ip (ip: &str) -> bool {
     } else { true }
 }
 
+fn server_exists (name: &str, servers_list: &Vec<ServerCard>) -> bool {
+    for server in servers_list {
+        if server.server_info.name == name {
+            return true;
+        }
+    }
+    false
+}
+
+
 /**this function runs the add server menu.*/
 pub fn run_add_server_menu(
     graphics: &mut GraphicsContext, menu_back: &mut dyn BackgroundRect,
-    _file_path: PathBuf//will be used to not allow 2 servers with the same name to exist
+    servers_list: &Vec<ServerCard>,
 ) -> Option<ServerInfo> {
     let mut title = gfx::Sprite::new();
     title.scale = 3.0;
@@ -92,7 +103,8 @@ pub fn run_add_server_menu(
     //this is where the menu is drawn
     'render_loop: while graphics.renderer.is_window_open() {
 
-        add_button.disabled = server_name_input.text.is_empty() || server_ip_input.text.is_empty();
+        add_button.disabled = server_name_input.text.is_empty() || server_ip_input.text.is_empty() ||
+            server_exists(&server_name_input.text, servers_list) || !is_valid_ip(&server_ip_input.text);
 
         while let Some(event) = graphics.renderer.get_event() {
             //sorts out the events
@@ -104,8 +116,7 @@ pub fn run_add_server_menu(
                         if back_button.is_hovered(graphics, Some(&buttons_container)) {
                             break 'render_loop;
                         }
-                        if add_button.is_hovered(graphics, Some(&buttons_container))
-                            && is_valid_ip(&server_ip_input.text){
+                        if add_button.is_hovered(graphics, Some(&buttons_container)) {
                             let ip = server_ip_input.text.split(":").next().unwrap().to_string();
                             let port = if server_ip_input.text.contains(":") {
                                 server_ip_input.text.split(":").last().unwrap().to_string().parse::<u16>().unwrap()

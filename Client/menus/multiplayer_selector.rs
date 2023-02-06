@@ -15,7 +15,7 @@ pub const MENU_WIDTH: i32 = 800;
 
 #[derive(Serialize, Deserialize)]
 pub struct ServerInfo {
-    name: String,
+    pub name: String,
     ip: String,
     port: u16,
 }
@@ -244,7 +244,7 @@ pub fn run_multiplayer_selector(
                             if new_world_button
                                 .is_hovered(graphics, Some(menu_back.get_back_rect_container()))
                             {
-                                if let Some(server) = run_add_server_menu(graphics, menu_back, servers_file.clone()) {
+                                if let Some(server) = run_add_server_menu(graphics, menu_back, &server_list.servers) {
                                     server_list.servers.push(ServerCard::new(graphics, server.name, server.ip, server.port));
                                 }
                                 server_list.save(servers_file.clone());
