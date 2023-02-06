@@ -3,21 +3,17 @@ name = "Terralistic"
 version = "0.1.0"
 edition = "2021"
 description = "Terralistic"
-build = "BuildProject/build.rs"
+build = "build_main.rs"
 
 [[bin]]
 name = "terralistic"
-path = "Client/main.rs"
+path = "client_main.rs"
 
 [[bin]]
-name = "teralistic_server"
-path = "Server/main.rs"
+name = "terralistic_server"
+path = "server_main.rs"
 
 [dependencies]
-graphics = {"path" = "Libraries/graphics/"}
-events = {"path" = "Libraries/events/"}
-terralistic_server = {"path" = "Server/server_impl/"}
-shared = {"path" = "Shared/"}
 directories = "4.0"
 chrono = "0.4"
 bincode = "1.3"
@@ -27,6 +23,28 @@ anyhow = "1.0"
 serde = "1.0"
 serde_derive = "1.0"
 serde_json = "1.0"
+gl = "0.14"
+snap = "1.1"
+copypasta = "0.8"
+rand = "0.8"
+noise = "0.8"
+once_cell = "1.17"
+fnv = "1.0"
+
+# set custom dependency for windows
+[target.'cfg(windows)'.dependencies]
+sdl2 = { version = "=0.35.1", features = ["bundled", "static-link"] }
+sdl2-sys = { version = "=0.35.1", features = ["bundled", "static-link"] }
+
+# set custom dependency for linux
+[target.'cfg(unix)'.dependencies]
+sdl2 = { version = "=0.35.1", features = ["use-pkgconfig", "static-link"] }
+sdl2-sys = { version = "=0.35.1", features = ["use-pkgconfig", "static-link"] }
+
+# set custom dependency for macos
+[target.'cfg(target_os = "macos")'.dependencies]
+sdl2 = { version = "=0.35.1", features = ["bundled", "static-link"] }
+sdl2-sys = { version = "=0.35.1", features = ["bundled", "static-link"] }
 
 [profile.release]
 strip = true
@@ -35,14 +53,35 @@ codegen-units = 1
 opt-level = 3
 
 [build-dependencies]
-png = "0.17"
-snap = "1.1"
-graphics = {"path" = "Libraries/graphics/"}
-shared = {"path" = "Shared/"}
-darklua = "0.8"
+bincode = "1.3"
+rlua = "0.19"
+enet = "0.3"
+anyhow = "1.0"
 serde = "1.0"
 serde_derive = "1.0"
-bincode = "1.3"
+gl = "0.14"
+snap = "1.1"
+copypasta = "0.8"
+once_cell = "1.17"
+fnv = "1.0"
+darklua = "0.8"
+png = "0.17"
+
+
+# set custom dependency for windows
+[target.'cfg(windows)'.build-dependencies]
+sdl2 = { version = "=0.35.1", features = ["bundled", "static-link"] }
+sdl2-sys = { version = "=0.35.1", features = ["bundled", "static-link"] }
+
+# set custom dependency for linux
+[target.'cfg(unix)'.build-dependencies]
+sdl2 = { version = "=0.35.1", features = ["use-pkgconfig", "static-link"] }
+sdl2-sys = { version = "=0.35.1", features = ["use-pkgconfig", "static-link"] }
+
+# set custom dependency for macos
+[target.'cfg(target_os = "macos")'.build-dependencies]
+sdl2 = { version = "=0.35.1", features = ["bundled", "static-link"] }
+sdl2-sys = { version = "=0.35.1", features = ["bundled", "static-link"] }
 
 [package.metadata.bundle.bin.Terralistic]
 name = "Terralistic"

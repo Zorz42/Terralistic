@@ -5,4 +5,4 @@ Output/
 .idea/
 **/*.mod
 
-**/target
+target

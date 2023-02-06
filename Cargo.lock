@@ -9,19 +9,23 @@ dependencies = [
  "anyhow",
  "bincode",
  "chrono",
+ "copypasta",
  "darklua",
  "directories",
  "enet",
- "events",
- "graphics",
+ "fnv",
+ "gl",
+ "noise",
+ "once_cell",
  "png",
+ "rand 0.8.5",
  "rlua",
+ "sdl2",
+ "sdl2-sys",
  "serde",
  "serde_derive",
  "serde_json",
- "shared",
  "snap",
- "terralistic_server",
 ]
 
 [[package]]
@@ -462,10 +466,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "events"
-version = "0.1.0"
-
-[[package]]
 name = "flate2"
 version = "1.0.25"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -566,20 +566,6 @@ name = "glob"
 version = "0.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d2fabcfbdc87f4758337ca535fb41a6d701b65693ce38287d856d1674551ec9b"
-
-[[package]]
-name = "graphics"
-version = "0.1.0"
-dependencies = [
- "bincode",
- "copypasta",
- "gl",
- "sdl2",
- "sdl2-sys",
- "serde",
- "serde_derive",
- "snap",
-]
 
 [[package]]
 name = "hashbrown"
@@ -1289,23 +1275,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "shared"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "bincode",
- "enet",
- "events",
- "fnv",
- "once_cell",
- "rand 0.8.5",
- "rlua",
- "serde",
- "serde_derive",
- "snap",
-]
-
-[[package]]
 name = "shlex"
 version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1408,21 +1377,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "be55cf8942feac5c765c2c993422806843c9a9a45d4d5c407ad6dd2ea95eb9b6"
 dependencies = [
  "winapi-util",
-]
-
-[[package]]
-name = "terralistic_server"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "bincode",
- "enet",
- "events",
- "noise",
- "rand 0.8.5",
- "rlua",
- "shared",
- "snap",
 ]
 
 [[package]]
