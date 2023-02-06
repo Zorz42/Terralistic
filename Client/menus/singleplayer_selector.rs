@@ -55,8 +55,7 @@ impl World {
         icon.orientation = gfx::LEFT;
 
         let mut title = gfx::Sprite::new();
-        title.texture =
-            gfx::Texture::load_from_surface(&graphics.font.create_text_surface(name.as_str()));
+        title.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface(&name));
         title.x = icon.x + icon.get_width() + gfx::SPACING;
         title.y = gfx::SPACING;
         title.scale = 3.0;

@@ -43,6 +43,7 @@ impl Game {
         }
     }
 
+    #[allow(clippy::too_many_lines)]
     pub fn run(&mut self, graphics: &mut GraphicsContext, menu_back: &mut dyn BackgroundRect) {
         // load base game mod
         let timer = std::time::Instant::now();
@@ -115,18 +116,42 @@ impl Game {
 
         let pause_rect_width =
             i32::max(resume_button.get_width(), quit_button.get_width()) + 2 * gfx::SPACING;
-        let mut pause_rect =
-            gfx::RenderRect::new(0.0, 0.0, 0.0, graphics.renderer.get_window_height() as f32);
+        let mut pause_rect = gfx::RenderRect::new(0.0, 0.0, 0.0, 0.0);
         pause_rect.fill_color = gfx::BLACK;
         pause_rect.fill_color.a = gfx::TRANSPARENCY;
         pause_rect.border_color = gfx::BORDER_COLOR;
         pause_rect.blur_radius = gfx::BLUR;
         pause_rect.shadow_intensity = gfx::SHADOW_INTENSITY;
         pause_rect.smooth_factor = 60.0;
+        pause_rect.w = pause_rect_width as f32;
 
         let ms_timer = std::time::Instant::now();
         let mut ms_counter = 0;
         let mut prev_time = std::time::Instant::now();
+
+        let mut fps_counter = 0;
+        let mut frame_time_counter = 0.0;
+        let mut max_frame_time = 0.0;
+        let mut stat_update_timer = std::time::Instant::now();
+
+        let mut fps_stat = 0;
+        let mut max_frame_time_stat = 0.0;
+        let mut avg_frame_time_stat = 0.0;
+
+        let mut debug_menu_open = false;
+
+        let mut debug_menu_rect = gfx::RenderRect::new(0.0, 0.0, 0.0, 0.0);
+        debug_menu_rect.fill_color = gfx::BLACK;
+        debug_menu_rect.fill_color.a = gfx::TRANSPARENCY;
+        debug_menu_rect.border_color = gfx::BORDER_COLOR;
+        debug_menu_rect.blur_radius = gfx::BLUR;
+        debug_menu_rect.shadow_intensity = gfx::SHADOW_INTENSITY;
+        debug_menu_rect.smooth_factor = 60.0;
+        debug_menu_rect.orientation = gfx::BOTTOM_RIGHT;
+        debug_menu_rect.y = -gfx::SPACING as f32;
+        debug_menu_rect.w = 300.0;
+        debug_menu_rect.h = 200.0;
+
         'main_loop: while graphics.renderer.is_window_open() {
             let delta_time = (std::time::Instant::now() - prev_time).as_secs_f32() * 1000.0;
             prev_time = std::time::Instant::now();
@@ -136,6 +161,8 @@ impl Game {
                     gfx::Event::KeyPress(key, false) => {
                         if key == gfx::Key::Escape {
                             paused = !paused;
+                        } else if key == gfx::Key::M {
+                            debug_menu_open = !debug_menu_open;
                         }
                     }
                     gfx::Event::KeyRelease(key, false) => {
@@ -159,6 +186,17 @@ impl Game {
                 self.events.push_event(events::Event::new(event));
             }
 
+            if stat_update_timer.elapsed().as_secs() >= 1 {
+                fps_stat = fps_counter;
+                max_frame_time_stat = max_frame_time;
+                avg_frame_time_stat = frame_time_counter / fps_counter as f32;
+
+                fps_counter = 0;
+                max_frame_time = 0.0;
+                frame_time_counter = 0.0;
+                stat_update_timer = std::time::Instant::now();
+            }
+
             self.networking.update(&mut self.events);
             self.mods.update();
             self.blocks.update(delta_time, &mut self.events);
@@ -175,10 +213,7 @@ impl Game {
             self.block_selector
                 .render(graphics, &mut self.networking, &self.camera);
 
-            pause_rect.w = if paused { pause_rect_width as f32 } else { 0.0 };
-            pause_rect.shadow_intensity = (pause_rect.get_container(graphics, None).rect.w as f32
-                / pause_rect_width as f32
-                * gfx::SHADOW_INTENSITY as f32) as i32;
+            pause_rect.x = if paused { 0.0 } else { -pause_rect.w - 100.0 };
             pause_rect.render(graphics, None);
 
             if graphics.renderer.get_window_height() != pause_rect.h as u32 {
@@ -196,6 +231,63 @@ impl Game {
                 self.block_selector
                     .on_event(graphics, &mut self.networking, &self.camera, &event);
             }
+
+            debug_menu_rect.x = if debug_menu_open {
+                -gfx::SPACING as f32
+            } else {
+                debug_menu_rect.w + 100.0
+            };
+            debug_menu_rect.render(graphics, None);
+
+            if debug_menu_rect.get_container(graphics, None).rect.x
+                < graphics.renderer.get_window_width() as i32
+            {
+                let mut texts = Vec::new();
+                texts.push(format!("FPS: {fps_stat}"));
+                texts.push(format!("{max_frame_time_stat:.2} ms max"));
+                texts.push(format!("{avg_frame_time_stat:.2} ms avg"));
+
+                let mut text_textures = Vec::new();
+                for text in texts {
+                    text_textures.push(gfx::Texture::load_from_surface(
+                        &graphics.font.create_text_surface(&text),
+                    ));
+                }
+
+                let scale = 3.0;
+
+                let mut width = 0;
+                let mut height = 0;
+                for texture in &text_textures {
+                    width = i32::max(width, (texture.get_texture_width() as f32 * scale) as i32);
+                    height += (texture.get_texture_height() as f32 * scale) as i32;
+                }
+
+                debug_menu_rect.w = width as f32 + 2.0 * gfx::SPACING as f32;
+                debug_menu_rect.h = height as f32 + 2.0 * gfx::SPACING as f32;
+
+                let mut y = gfx::SPACING as i32;
+                let debug_menu_rect_container = debug_menu_rect.get_container(graphics, None);
+                let debug_menu_rect_container = debug_menu_rect_container.get_absolute_rect();
+                for texture in &text_textures {
+                    texture.render(
+                        &mut graphics.renderer,
+                        scale,
+                        (
+                            debug_menu_rect_container.x + gfx::SPACING as i32,
+                            debug_menu_rect_container.y + y,
+                        ),
+                        None,
+                        false,
+                        None,
+                    );
+                    y += (texture.get_texture_height() as f32 * scale) as i32;
+                }
+            }
+
+            fps_counter += 1;
+            frame_time_counter += prev_time.elapsed().as_secs_f32() * 1000.0;
+            max_frame_time = f32::max(max_frame_time, prev_time.elapsed().as_secs_f32() * 1000.0);
 
             graphics.renderer.update_window();
         }

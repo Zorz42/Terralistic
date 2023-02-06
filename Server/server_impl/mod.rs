@@ -50,18 +50,11 @@
 #![warn(clippy::unwrap_used)]
 #![warn(clippy::verbose_file_reads)]
 
-extern crate core;
+mod blocks;
+mod mod_manager;
+mod networking;
+mod server;
+mod walls;
+mod world_generator;
 
-pub mod blocks;
-pub mod enet_global;
-pub mod entities;
-pub mod inventory;
-pub mod items;
-pub mod lights;
-pub mod liquids;
-pub mod mod_manager;
-pub mod packet;
-pub mod player;
-pub mod versions;
-pub mod walls;
-mod world_map;
+pub use server::{Server, MULTIPLAYER_PORT, SINGLEPLAYER_PORT};

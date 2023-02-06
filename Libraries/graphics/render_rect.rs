@@ -73,7 +73,7 @@ impl RenderRect {
 
         let container = self.get_container(graphics, parent_container);
         let rect = container.get_absolute_rect();
-        graphics.renderer.blur_rect(rect, self.blur_radius);
+        graphics.renderer.blur_rect(rect.clone(), self.blur_radius);
         graphics.renderer.shadow_context.render(
             graphics,
             rect,

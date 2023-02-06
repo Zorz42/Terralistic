@@ -82,9 +82,8 @@ pub fn run_loading_screen(
                         - loading_back_bar.w / 2.0;
                 }
 
-                loading_text_sprite.texture = gfx::Texture::load_from_surface(
-                    &graphics.font.create_text_surface(curr_text.as_str()),
-                );
+                loading_text_sprite.texture =
+                    gfx::Texture::load_from_surface(&graphics.font.create_text_surface(&curr_text));
             }
         }
 

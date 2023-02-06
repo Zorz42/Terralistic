@@ -191,8 +191,7 @@ impl ClientBlocks {
         let mut surfaces = HashMap::new();
         for id in self.blocks.get_all_block_ids() {
             let block_type = self.blocks.get_block_type(id).unwrap();
-            let image_resource =
-                mods.get_resource(format!("blocks:{}.opa", block_type.name).as_str());
+            let image_resource = mods.get_resource(&format!("blocks:{}.opa", block_type.name));
             if let Some(image_resource) = image_resource {
                 let image = gfx::Surface::deserialize(&image_resource.clone());
                 surfaces.insert(id, image);

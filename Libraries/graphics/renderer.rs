@@ -378,7 +378,7 @@ impl Renderer {
      */
     pub(crate) fn blur_region(
         &self,
-        rect: &Rect,
+        rect: Rect,
         radius: i32,
         gl_texture: u32,
         back_texture: u32,
@@ -401,7 +401,7 @@ impl Renderer {
     /**
     Blurs a given rectangle on the screen
      */
-    pub(crate) fn blur_rect(&self, rect: &Rect, radius: i32) {
+    pub(crate) fn blur_rect(&self, rect: Rect, radius: i32) {
         self.blur_region(
             rect,
             radius,

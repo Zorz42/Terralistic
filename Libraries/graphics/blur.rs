@@ -119,7 +119,7 @@ impl BlurContext {
      */
     pub(crate) fn blur_region(
         &self,
-        rect: &Rect,
+        mut rect: Rect,
         radius: i32,
         gl_texture: u32,
         back_texture: u32,
@@ -133,6 +133,25 @@ impl BlurContext {
         unsafe {
             if self.anti_stutter {
                 gl::Finish();
+            }
+
+            let mut x1 = rect.x;
+            let mut y1 = rect.y;
+            let mut x2 = rect.x + rect.w;
+            let mut y2 = rect.y + rect.h;
+
+            x1 = x1.max(0);
+            y1 = y1.max(0);
+            x2 = x2.min(size.0 as i32);
+            y2 = y2.min(size.1 as i32);
+
+            rect.x = x1;
+            rect.y = y1;
+            rect.w = x2 - x1;
+            rect.h = y2 - y1;
+
+            if rect.w <= 0 || rect.h <= 0 {
+                return;
             }
 
             gl::UseProgram(self.blur_shader);
