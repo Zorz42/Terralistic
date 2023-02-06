@@ -197,7 +197,7 @@ impl TextInput {
 
         if self.text_changed && !self.text.is_empty() {
             self.text_texture =
-                Texture::load_from_surface(&graphics.font.create_text_surface(self.text.as_str()));
+                Texture::load_from_surface(&graphics.font.create_text_surface(&self.text));
         }
 
         let hover_progress_target = if self.is_hovered(graphics, parent_container) {
@@ -378,7 +378,7 @@ impl TextInput {
                         }
                     }
 
-                    self.text.insert_str(self.cursor.0, new_text.as_str());
+                    self.text.insert_str(self.cursor.0, &new_text);
                     self.cursor.0 += new_text.len();
                     self.text_changed = true;
                     self.cursor.1 = self.cursor.0;
@@ -484,7 +484,7 @@ impl TextInput {
                                     ); //add text filtering lol
                                     self.cursor.0 = self.get_cursor().0;
                                 }
-                                self.text.insert_str(self.cursor.0, text.as_str());
+                                self.text.insert_str(self.cursor.0, &text);
                                 self.cursor.0 += text.len();
                                 self.cursor.1 = self.cursor.0;
                                 self.text_changed = true;

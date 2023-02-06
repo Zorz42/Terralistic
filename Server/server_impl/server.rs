@@ -1,9 +1,3 @@
-mod blocks;
-mod mod_manager;
-mod networking;
-mod walls;
-mod world_generator;
-
 use crate::blocks::ServerBlocks;
 use crate::mod_manager::ServerModManager;
 use crate::networking::ServerNetworking;

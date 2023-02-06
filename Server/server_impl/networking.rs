@@ -116,7 +116,7 @@ impl ServerNetworking {
             .unwrap();
         client
             .send_packet(
-                enet::Packet::new(packet_data.as_slice(), PacketMode::ReliableSequenced).unwrap(),
+                enet::Packet::new(&packet_data, PacketMode::ReliableSequenced).unwrap(),
                 0,
             )
             .unwrap();
@@ -134,8 +134,7 @@ impl ServerNetworking {
                 .unwrap();
             client
                 .send_packet(
-                    enet::Packet::new(packet_data.as_slice(), PacketMode::ReliableSequenced)
-                        .unwrap(),
+                    enet::Packet::new(&packet_data, PacketMode::ReliableSequenced).unwrap(),
                     0,
                 )
                 .unwrap();
