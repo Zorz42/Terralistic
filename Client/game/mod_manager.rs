@@ -7,7 +7,7 @@ Client mod manager that manages all the mods for the client.
 It is used to initialize, update and stop all the mods.
 It uses the shared mod manager to do this.
 It also gets mods from the server and adds them to the shared mod manager
-and always loads the BaseGame mod.
+and always loads the `BaseGame` mod.
  */
 pub struct ClientModManager {
     pub mod_manager: ModManager,

@@ -9,8 +9,8 @@ const PROGRESS_BAR_HEIGHT: i32 = 50;
 const PROGRESS_BAR_Y_OFFSET: i32 = 100;
 
 /**
-Loading screen displays back_menu and text which describes the current loading state.
-The text is shared through the SharedMut<String> which is updated by the loading thread.
+Loading screen displays `back_menu` and text which describes the current loading state.
+The text is shared through the `SharedMut`<String> which is updated by the loading thread.
 When the string is empty, the loading screen is closed.
  */
 pub fn run_loading_screen(

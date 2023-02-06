@@ -49,6 +49,12 @@
 #![warn(clippy::unwrap_in_result)]
 #![warn(clippy::unwrap_used)]
 #![warn(clippy::verbose_file_reads)]
+// disable some Clippy lints
+#![allow(clippy::cast_possible_truncation)]
+#![allow(clippy::cast_possible_wrap)]
+#![allow(clippy::cast_precision_loss)]
+#![allow(clippy::cast_sign_loss)]
+#![allow(clippy::suboptimal_flops)]
 
 mod blocks;
 mod mod_manager;

@@ -72,7 +72,7 @@ pub fn run_choice_menu(
 
         buttons_container.update(graphics, Some(menu_back.get_back_rect_container()));
 
-        for sprite in title_lines.iter_mut() {
+        for sprite in &mut title_lines {
             sprite.render(graphics, Some(menu_back.get_back_rect_container()));
         }
 

@@ -49,26 +49,35 @@
 #![warn(clippy::unwrap_in_result)]
 #![warn(clippy::unwrap_used)]
 #![warn(clippy::verbose_file_reads)]
+// disable some Clippy lints
+#![allow(clippy::cast_possible_truncation)]
+#![allow(clippy::cast_possible_wrap)]
+#![allow(clippy::cast_precision_loss)]
+#![allow(clippy::cast_sign_loss)]
+#![allow(clippy::suboptimal_flops)]
 
-use std::any::Any;
-use std::collections::VecDeque;
+extern crate alloc;
+use alloc::collections::VecDeque;
+use core::any::Any;
 
 pub struct Event {
-    event: Box<dyn Any>,
+    event: Box<dyn Any + Send>,
 }
 
 impl Event {
-    pub fn new<T: Any>(event: T) -> Self {
+    pub fn new<T: Any + Send>(event: T) -> Self {
         Self {
             event: Box::new(event),
         }
     }
 
-    pub fn downcast<T: Any>(&self) -> Option<&T> {
+    #[must_use]
+    pub fn downcast<T: Any + Send>(&self) -> Option<&T> {
         self.event.downcast_ref::<T>()
     }
 }
 
+// SAFETY: Event is Send because it is only a wrapper around a Box<dyn Any + Send>
 unsafe impl Send for Event {}
 
 /**
@@ -85,8 +94,9 @@ impl Default for EventManager {
 }
 
 impl EventManager {
-    pub fn new() -> EventManager {
-        EventManager {
+    #[must_use]
+    pub fn new() -> Self {
+        Self {
             event_queue: VecDeque::new(),
         }
     }

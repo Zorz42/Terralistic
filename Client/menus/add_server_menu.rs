@@ -1,7 +1,7 @@
 use crate::menus::background_rect::BackgroundRect;
 use graphics as gfx;
 use graphics::GraphicsContext;
-use std::path::PathBuf;
+
 use terralistic_server::MULTIPLAYER_PORT;
 use crate::menus::multiplayer_selector::ServerCard;
 

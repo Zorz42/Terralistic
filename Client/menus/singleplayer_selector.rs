@@ -157,7 +157,7 @@ impl World {
 }
 
 /**
-WorldList is a struct that is used to list all worlds in the world folder
+`WorldList` is a struct that is used to list all worlds in the world folder
 and render them in the singleplayer selector menu.
  */
 pub struct WorldList {
@@ -165,8 +165,8 @@ pub struct WorldList {
 }
 
 impl WorldList {
-    pub fn new(graphics: &GraphicsContext) -> WorldList {
-        let mut world_list = WorldList { worlds: Vec::new() };
+    pub fn new(graphics: &GraphicsContext) -> Self {
+        let mut world_list = Self { worlds: Vec::new() };
         world_list.refresh(graphics);
         world_list
     }

@@ -46,10 +46,10 @@ impl Game {
     #[allow(clippy::too_many_lines)]
     pub fn run(&mut self, graphics: &mut GraphicsContext, menu_back: &mut dyn BackgroundRect) {
         // load base game mod
-        let timer = std::time::Instant::now();
-
         let mut events = EventManager::new();
         self.networking.init(&mut events);
+
+        let timer = std::time::Instant::now();
 
         let loading_text = Arc::new(Mutex::new("Loading".to_string()));
         let loading_text2 = loading_text.clone();
@@ -153,7 +153,7 @@ impl Game {
         debug_menu_rect.h = 200.0;
 
         'main_loop: while graphics.renderer.is_window_open() {
-            let delta_time = (std::time::Instant::now() - prev_time).as_secs_f32() * 1000.0;
+            let delta_time = prev_time.elapsed().as_secs_f32() * 1000.0;
             prev_time = std::time::Instant::now();
 
             while let Some(event) = graphics.renderer.get_event() {
@@ -266,15 +266,15 @@ impl Game {
                 debug_menu_rect.w = width as f32 + 2.0 * gfx::SPACING as f32;
                 debug_menu_rect.h = height as f32 + 2.0 * gfx::SPACING as f32;
 
-                let mut y = gfx::SPACING as i32;
+                let mut y = gfx::SPACING;
                 let debug_menu_rect_container = debug_menu_rect.get_container(graphics, None);
                 let debug_menu_rect_container = debug_menu_rect_container.get_absolute_rect();
                 for texture in &text_textures {
                     texture.render(
-                        &mut graphics.renderer,
+                        &graphics.renderer,
                         scale,
                         (
-                            debug_menu_rect_container.x + gfx::SPACING as i32,
+                            debug_menu_rect_container.x + gfx::SPACING,
                             debug_menu_rect_container.y + y,
                         ),
                         None,

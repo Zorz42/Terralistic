@@ -137,7 +137,7 @@ impl ServerCard {
 }
 
 /**
-WorldList is a struct that is used to list all worlds in the world folder
+`WorldList` is a struct that is used to list all worlds in the world folder
 and render them in the singleplayer selector menu.
  */
 pub struct ServerList {
@@ -145,8 +145,8 @@ pub struct ServerList {
 }
 
 impl ServerList {
-    pub fn new(graphics: &GraphicsContext, file_path: PathBuf) -> ServerList {
-        let mut world_list = ServerList {
+    pub fn new(graphics: &GraphicsContext, file_path: PathBuf) -> Self {
+        let mut world_list = Self {
             servers: Vec::new(),
         };
         world_list.refresh(graphics, file_path);
