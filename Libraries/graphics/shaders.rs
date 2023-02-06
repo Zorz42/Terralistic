@@ -16,8 +16,10 @@ pub(crate) fn compile_shader(vertex_code: &str, fragment_code: &str) -> u32 {
         if success == 0 {
             let mut len = 0;
             gl::GetShaderiv(vertex_id, gl::INFO_LOG_LENGTH, &mut len);
-            let mut buffer = Vec::with_capacity(len as usize);
-            buffer.set_len(len as usize);
+
+            // create a buffer with the correct size
+            let mut buffer = vec![0; len as usize];
+
             gl::GetShaderInfoLog(
                 vertex_id,
                 len,
@@ -40,8 +42,10 @@ pub(crate) fn compile_shader(vertex_code: &str, fragment_code: &str) -> u32 {
         if success == 0 {
             let mut len = 0;
             gl::GetShaderiv(fragment_id, gl::INFO_LOG_LENGTH, &mut len);
-            let mut buffer = Vec::with_capacity(len as usize);
-            buffer.set_len(len as usize);
+
+            // create a buffer with the correct size
+            let mut buffer = vec![0; len as usize];
+
             gl::GetShaderInfoLog(
                 fragment_id,
                 len,

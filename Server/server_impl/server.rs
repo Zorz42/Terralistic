@@ -1,6 +1,6 @@
-mod networking;
-mod mod_manager;
 mod blocks;
+mod mod_manager;
+mod networking;
 mod walls;
 mod world_generator;
 
@@ -41,7 +41,10 @@ impl Server {
     }
 
     pub fn start(
-        &mut self, is_running: &Mutex<bool>, status_text: &Mutex<String>, mods: Vec<Vec<u8>>,
+        &mut self,
+        is_running: &Mutex<bool>,
+        status_text: &Mutex<String>,
+        mods: Vec<Vec<u8>>,
         world_path: &Path,
     ) {
         println!("Starting server...");
@@ -72,8 +75,7 @@ impl Server {
             self.load_world(world_path);
         } else {
             generator.generate(
-                &mut self.blocks.blocks,
-                &mut self.walls.walls,
+                (&mut self.blocks.blocks, &mut self.walls.walls),
                 &mut self.mods.mod_manager,
                 4400,
                 1200,
@@ -99,7 +101,8 @@ impl Server {
             // handle events
             while let Some(event) = self.events.pop_event() {
                 self.mods.on_event(&event, &mut self.networking);
-                self.blocks.on_event(&event, &mut self.events, &mut self.networking);
+                self.blocks
+                    .on_event(&event, &mut self.events, &mut self.networking);
                 self.walls.on_event(&event, &mut self.networking);
                 self.networking.on_event(&event);
             }

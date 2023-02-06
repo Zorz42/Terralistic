@@ -3,8 +3,11 @@ use graphics as gfx;
 use graphics::GraphicsContext;
 
 pub fn run_choice_menu(
-    menu_title: String, graphics: &mut GraphicsContext, menu_back: &mut dyn BackgroundRect,
-    confirm_name_override: Option<&str>, back_name_override: Option<&str>,
+    menu_title: String,
+    graphics: &mut GraphicsContext,
+    menu_back: &mut dyn BackgroundRect,
+    confirm_name_override: Option<&str>,
+    back_name_override: Option<&str>,
 ) -> bool {
     let text_lines_vec = menu_title.split('\n').collect::<Vec<&str>>();
 

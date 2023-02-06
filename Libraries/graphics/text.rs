@@ -34,7 +34,7 @@ impl Font {
     Loads all the characters in the file and stores them in a
     surface array. The index of the array is the ascii value.
      */
-    pub fn new(font_data: &Vec<u8>) -> Self {
+    pub fn new(font_data: &[u8]) -> Self {
         let mut font_surfaces = vec![];
         let font_surface = Surface::deserialize(font_data);
 

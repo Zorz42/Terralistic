@@ -9,7 +9,7 @@ use shared::packet::{Packet, WelcomeCompletePacket};
 /**
 This struct holds the address of a connection.
  */
-#[derive(Clone, PartialEq, Eq)]
+#[derive(Clone, Eq)]
 pub struct Connection {
     pub(super) address: Address,
 }
@@ -18,6 +18,12 @@ impl Hash for Connection {
     fn hash<H: Hasher>(&self, state: &mut H) {
         self.address.ip().hash(state);
         self.address.port().hash(state);
+    }
+}
+
+impl PartialEq for Connection {
+    fn eq(&self, other: &Self) -> bool {
+        self.address.ip() == other.address.ip() && self.address.port() == other.address.port()
     }
 }
 

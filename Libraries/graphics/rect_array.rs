@@ -9,6 +9,12 @@ pub struct RectArray {
     vertex_buffer: VertexBuffer,
 }
 
+impl Default for RectArray {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl RectArray {
     /**
     Creates a new RectArray.
@@ -95,7 +101,11 @@ impl RectArray {
     Draws the RectArray.
      */
     pub fn render(
-        &self, graphics: &mut GraphicsContext, texture: Option<&Texture>, x: i32, y: i32,
+        &self,
+        graphics: &mut GraphicsContext,
+        texture: Option<&Texture>,
+        x: i32,
+        y: i32,
     ) {
         unsafe {
             let mut transform = graphics.renderer.normalization_transform.clone();
@@ -135,7 +145,7 @@ impl RectArray {
             );
 
             self.vertex_buffer
-                .draw(!texture.is_none(), DrawMode::Triangles);
+                .draw(texture.is_some(), DrawMode::Triangles);
         }
     }
 }

@@ -36,8 +36,13 @@ impl RenderBlockChunk {
     }
 
     pub fn render(
-        &mut self, graphics: &mut GraphicsContext, atlas: &gfx::TextureAtlas<BlockId>,
-        world_x: i32, world_y: i32, blocks: &Blocks, camera: &Camera,
+        &mut self,
+        graphics: &mut GraphicsContext,
+        atlas: &gfx::TextureAtlas<BlockId>,
+        world_x: i32,
+        world_y: i32,
+        blocks: &Blocks,
+        camera: &Camera,
     ) {
         if self.needs_update {
             self.needs_update = false;
@@ -131,7 +136,7 @@ impl ClientBlocks {
             || x >= self.blocks.get_width() / CHUNK_SIZE
             || y >= self.blocks.get_height() / CHUNK_SIZE
         {
-            panic!("Tried to get chunk at {}, {} but it is out of bounds", x, y);
+            panic!("Tried to get chunk at {x}, {y} but it is out of bounds");
         }
 
         (x + y * (self.blocks.get_width() / CHUNK_SIZE)) as usize
@@ -262,8 +267,7 @@ impl ClientBlocks {
             self.breaking_texture.render(
                 &graphics.renderer,
                 RENDER_SCALE,
-                x,
-                y,
+                (x, y),
                 Some(gfx::Rect::new(0, break_stage * 8, 8, 8)),
                 false,
                 None,

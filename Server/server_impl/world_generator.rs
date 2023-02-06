@@ -77,9 +77,16 @@ impl WorldGenerator {
     }
 
     pub fn generate(
-        &mut self, blocks: &mut Blocks, walls: &mut Walls, mods: &mut ModManager, min_width: i32,
-        height: i32, seed: u64, status_text: &Mutex<String>,
+        &mut self,
+        world: (&mut Blocks, &mut Walls),
+        mods: &mut ModManager,
+        min_width: i32,
+        height: i32,
+        seed: u64,
+        status_text: &Mutex<String>,
     ) {
+        let blocks = world.0;
+        let walls = world.1;
         // create a random number generator with seed
         let mut rng = rand::rngs::StdRng::seed_from_u64(seed);
 
@@ -125,7 +132,7 @@ impl WorldGenerator {
             }
         }
 
-        println!("Creating a world with size {}x{}", width, height);
+        println!("Creating a world with size {width}x{height}");
 
         let mut current_task = 0;
         let total_tasks = width * height;
@@ -223,7 +230,6 @@ impl WorldGenerator {
                 }
             }
 
-
             for y in 0..height {
                 next_task();
                 let terrain_height = height - y;
@@ -234,7 +240,8 @@ impl WorldGenerator {
                     * (max_cave_thresholds[x as usize] - min_cave_thresholds[x as usize])
                     + min_cave_thresholds[x as usize];
 
-                let mut curr_block = self.biomes.lock().unwrap()[biome_ids[x as usize] as usize].base_block;
+                let mut curr_block =
+                    self.biomes.lock().unwrap()[biome_ids[x as usize] as usize].base_block;
 
                 if terrain_height > terrain_noise_val || cave_threshold > cave_noise_val {
                     curr_block = blocks.air;
@@ -248,7 +255,8 @@ impl WorldGenerator {
                                 x as f32 / 15.0,
                                 y as f32 / 15.0,
                             );
-                            let ore_threshold = y as f32 / height as f32 * (end_noise - start_noise) + start_noise;
+                            let ore_threshold =
+                                y as f32 / height as f32 * (end_noise - start_noise) + start_noise;
                             if ore_threshold > ore_noise {
                                 curr_block = block;
                             }
@@ -259,7 +267,8 @@ impl WorldGenerator {
                 curr_terrain[(x - prev_x) as usize][y as usize] = curr_block;
 
                 if terrain_height < walls_height {
-                    wall_terrain[x as usize][y as usize] = self.biomes.lock().unwrap()[biome_ids[x as usize] as usize].base_wall;
+                    wall_terrain[x as usize][y as usize] =
+                        self.biomes.lock().unwrap()[biome_ids[x as usize] as usize].base_wall;
                 } else {
                     wall_terrain[x as usize][y as usize] = walls.clear;
                 }
@@ -292,10 +301,7 @@ impl WorldGenerator {
         println!("World generated in {}ms", start_time.elapsed().as_millis());
 
         if current_task != total_tasks {
-            panic!(
-                "Not all tasks were completed! {} != {}",
-                current_task, total_tasks
-            );
+            panic!("Not all tasks were completed! {current_task} != {total_tasks}");
         }
     }
 }
@@ -444,8 +450,7 @@ impl LuaUserData for Biome {
                         Ok(())
                     }
                     _ => Err(rlua::Error::RuntimeError(format!(
-                        "{} is not a valid field of Biome",
-                        key
+                        "{key} is not a valid field of Biome"
                     ))),
                 }
             },

@@ -1,15 +1,13 @@
+use crate::game::core::Game;
 use crate::menus::background_rect::BackgroundRect;
 use crate::menus::{run_add_server_menu, run_choice_menu};
-use crate::game::core::Game;
 
 use directories::BaseDirs;
 use graphics as gfx;
 use graphics::GraphicsContext;
 use serde_derive::{Deserialize, Serialize};
-use serde_json;
 
 use std::path::PathBuf;
-use terralistic_server::{MULTIPLAYER_PORT, SINGLEPLAYER_PORT};
 
 pub const MENU_WIDTH: i32 = 800;
 
@@ -47,24 +45,23 @@ impl ServerCard {
         rect.smooth_factor = 60.0;
 
         let mut icon = gfx::Sprite::new();
-        icon.texture = gfx::Texture::load_from_surface(&gfx::Surface::deserialize(
-            &include_bytes!("../../Build/Resources/world_icon.opa").to_vec(),
-        ));
+        icon.texture = gfx::Texture::load_from_surface(&gfx::Surface::deserialize(include_bytes!(
+            "../../Build/Resources/world_icon.opa"
+        )));
         rect.h = icon.get_height() as f32 + 2.0 * gfx::SPACING as f32;
         icon.x = gfx::SPACING;
         icon.orientation = gfx::LEFT;
 
         let mut title = gfx::Sprite::new();
-        title.texture = gfx::Texture::load_from_surface(
-            &graphics.font.create_text_surface(name.as_str()),
-        );
+        title.texture =
+            gfx::Texture::load_from_surface(&graphics.font.create_text_surface(name.as_str()));
         title.x = icon.x + icon.get_width() + gfx::SPACING;
         title.y = gfx::SPACING;
         title.scale = 3.0;
 
         let mut play_button = gfx::Button::new();
         play_button.texture = gfx::Texture::load_from_surface(&gfx::Surface::deserialize(
-            &include_bytes!("../../Build/Resources/join_button.opa").to_vec(),
+            include_bytes!("../../Build/Resources/join_button.opa"),
         ));
         play_button.scale = 3.0;
         play_button.margin = 5;
@@ -74,7 +71,7 @@ impl ServerCard {
 
         let mut delete_button = gfx::Button::new();
         delete_button.texture = gfx::Texture::load_from_surface(&gfx::Surface::deserialize(
-            &include_bytes!("../../Build/Resources/remove_button.opa").to_vec(),
+            include_bytes!("../../Build/Resources/remove_button.opa"),
         ));
         delete_button.scale = 3.0;
         delete_button.margin = 5;
@@ -96,7 +93,10 @@ impl ServerCard {
     This function renders the world card on the x and y position.
      */
     pub fn render(
-        &mut self, graphics: &mut GraphicsContext, x: i32, y: i32,
+        &mut self,
+        graphics: &mut GraphicsContext,
+        x: i32,
+        y: i32,
         parent_container: Option<&gfx::Container>,
     ) {
         self.rect.x = x as f32;
@@ -129,7 +129,9 @@ impl ServerCard {
     This function returns the container of the world card.
      */
     pub fn get_container(
-        &self, graphics: &GraphicsContext, parent_container: Option<&gfx::Container>,
+        &self,
+        graphics: &GraphicsContext,
+        parent_container: Option<&gfx::Container>,
     ) -> gfx::Container {
         self.rect.get_container(graphics, parent_container)
     }
@@ -157,16 +159,24 @@ impl ServerList {
 
         if !file_path.exists() {
             temp_servers = Ok(Vec::new());
-            let _ = &std::fs::write(file_path, serde_json::to_string(&temp_servers.as_ref().unwrap()).unwrap()).unwrap();
+            let _ = &std::fs::write(
+                file_path,
+                serde_json::to_string(&temp_servers.as_ref().unwrap()).unwrap(),
+            )
+            .unwrap();
         } else {
             temp_servers = serde_json::from_str(&std::fs::read_to_string(file_path).unwrap());
         }
 
-        if temp_servers.is_ok() {
+        if let Ok(temp_servers) = temp_servers {
             self.servers.clear();
-            for server in temp_servers.unwrap() {
-                self.servers
-                    .push(ServerCard::new(graphics, server.name, server.ip, server.port));
+            for server in temp_servers {
+                self.servers.push(ServerCard::new(
+                    graphics,
+                    server.name,
+                    server.ip,
+                    server.port,
+                ));
             }
         }
     }
@@ -175,7 +185,13 @@ impl ServerList {
         let server_infos: Vec<ServerInfo> = self
             .servers
             .iter()
-            .map(|server| ServerInfo::new(server.server_info.name.clone(), server.server_info.ip.clone(), server.server_info.port.clone()))
+            .map(|server| {
+                ServerInfo::new(
+                    server.server_info.name.clone(),
+                    server.server_info.ip.clone(),
+                    server.server_info.port,
+                )
+            })
             .collect();
 
         let _ = &std::fs::write(file_path, serde_json::to_string(&server_infos).unwrap()).unwrap();
@@ -183,7 +199,8 @@ impl ServerList {
 }
 
 pub fn run_multiplayer_selector(
-    graphics: &mut GraphicsContext, menu_back: &mut dyn BackgroundRect,
+    graphics: &mut GraphicsContext,
+    menu_back: &mut dyn BackgroundRect,
 ) {
     let base_dirs = BaseDirs::new().unwrap();
     let servers_file = base_dirs.data_dir().join("Terralistic").join("servers.txt");
@@ -244,8 +261,15 @@ pub fn run_multiplayer_selector(
                             if new_world_button
                                 .is_hovered(graphics, Some(menu_back.get_back_rect_container()))
                             {
-                                if let Some(server) = run_add_server_menu(graphics, menu_back, &server_list.servers) {
-                                    server_list.servers.push(ServerCard::new(graphics, server.name, server.ip, server.port));
+                                if let Some(server) =
+                                    run_add_server_menu(graphics, menu_back, &server_list.servers)
+                                {
+                                    server_list.servers.push(ServerCard::new(
+                                        graphics,
+                                        server.name,
+                                        server.ip,
+                                        server.port,
+                                    ));
                                 }
                                 server_list.save(servers_file.clone());
                             }

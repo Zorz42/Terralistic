@@ -47,9 +47,9 @@ impl World {
         rect.smooth_factor = 60.0;
 
         let mut icon = gfx::Sprite::new();
-        icon.texture = gfx::Texture::load_from_surface(&gfx::Surface::deserialize(
-            &include_bytes!("../../Build/Resources/world_icon.opa").to_vec(),
-        ));
+        icon.texture = gfx::Texture::load_from_surface(&gfx::Surface::deserialize(include_bytes!(
+            "../../Build/Resources/world_icon.opa"
+        )));
         rect.h = icon.get_height() as f32 + 2.0 * gfx::SPACING as f32;
         icon.x = gfx::SPACING;
         icon.orientation = gfx::LEFT;
@@ -63,7 +63,7 @@ impl World {
 
         let mut play_button = gfx::Button::new();
         play_button.texture = gfx::Texture::load_from_surface(&gfx::Surface::deserialize(
-            &include_bytes!("../../Build/Resources/play_button.opa").to_vec(),
+            include_bytes!("../../Build/Resources/play_button.opa"),
         ));
         play_button.scale = 3.0;
         play_button.margin = 5;
@@ -73,7 +73,7 @@ impl World {
 
         let mut delete_button = gfx::Button::new();
         delete_button.texture = gfx::Texture::load_from_surface(&gfx::Surface::deserialize(
-            &include_bytes!("../../Build/Resources/delete_button.opa").to_vec(),
+            include_bytes!("../../Build/Resources/delete_button.opa"),
         ));
         delete_button.scale = 3.0;
         delete_button.margin = 5;
@@ -108,7 +108,10 @@ impl World {
     This function renders the world card on the x and y position.
      */
     pub fn render(
-        &mut self, graphics: &mut GraphicsContext, x: i32, y: i32,
+        &mut self,
+        graphics: &mut GraphicsContext,
+        x: i32,
+        y: i32,
         parent_container: Option<&gfx::Container>,
     ) {
         self.rect.x = x as f32;
@@ -142,7 +145,9 @@ impl World {
     This function returns the container of the world card.
      */
     pub fn get_container(
-        &self, graphics: &GraphicsContext, parent_container: Option<&gfx::Container>,
+        &self,
+        graphics: &GraphicsContext,
+        parent_container: Option<&gfx::Container>,
     ) -> gfx::Container {
         self.rect.get_container(graphics, parent_container)
     }
@@ -187,7 +192,8 @@ impl WorldList {
 }
 
 pub fn run_singleplayer_selector(
-    graphics: &mut GraphicsContext, menu_back: &mut dyn BackgroundRect,
+    graphics: &mut GraphicsContext,
+    menu_back: &mut dyn BackgroundRect,
 ) {
     let mut world_list = WorldList::new(graphics);
 

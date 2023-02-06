@@ -17,7 +17,7 @@ pub const BOTTOM: Orientation = Orientation { x: 0.5, y: 1.0 };
 pub const BOTTOM_RIGHT: Orientation = Orientation { x: 1.0, y: 1.0 };
 
 /**
-This struct has coodinates and size of a rectangle.
+This struct has coordinates and size of a rectangle.
 Is has orientation and parent container. It also has
 a function to get absolute value of the rectangle.
  */
@@ -28,9 +28,9 @@ pub struct Container {
 }
 
 impl Container {
-    /*
+    /**
     Creates a new container.
-    */
+     */
     pub fn new(x: i32, y: i32, w: i32, h: i32, orientation: Orientation) -> Self {
         Container {
             rect: Rect::new(x, y, w, h),
@@ -54,7 +54,7 @@ impl Container {
      */
     pub fn update(&mut self, graphics: &GraphicsContext, parent_container: Option<&Container>) {
         let parent_rect = if let Some(parent) = parent_container {
-            parent.get_absolute_rect().clone()
+            *parent.get_absolute_rect()
         } else {
             Rect::new(
                 0,
@@ -64,7 +64,7 @@ impl Container {
             )
         };
 
-        self.abs_rect = self.rect.clone();
+        self.abs_rect = self.rect;
         self.abs_rect.x =
             parent_rect.x + self.rect.x + (parent_rect.w as f32 * self.orientation.x) as i32
                 - (self.rect.w as f32 * self.orientation.x) as i32;

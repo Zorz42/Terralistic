@@ -62,7 +62,11 @@ impl EntityObject for Player {
         PLAYER_HEIGHT * 2
     }
     fn is_colliding(
-        &self, blocks: &Blocks, direction: Direction, colliding_x: f32, colliding_y: f32,
+        &self,
+        blocks: &Blocks,
+        direction: Direction,
+        colliding_x: f32,
+        colliding_y: f32,
     ) -> bool {
         let mut result = self.is_colliding_with_block(blocks, direction, colliding_x, colliding_y);
 
@@ -114,7 +118,11 @@ impl EntityObject for Player {
         result
     }
     fn is_colliding_with_block(
-        &self, blocks: &Blocks, direction: Direction, colliding_x: f32, colliding_y: f32,
+        &self,
+        blocks: &Blocks,
+        direction: Direction,
+        colliding_x: f32,
+        colliding_y: f32,
     ) -> bool {
         self.entity
             .is_colliding_with_block(blocks, direction, colliding_x, colliding_y)
@@ -147,6 +155,13 @@ pub struct Players {
     //player_absolute_velocity_change_event: Sender<EntityAbsoluteVelocityChangeEvent>,
     //player_deletion_event: Sender<EntityDeletionEvent>
 }
+
+impl Default for Players {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Players {
     pub fn new() -> Players {
         Players {

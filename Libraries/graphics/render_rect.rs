@@ -88,7 +88,9 @@ impl RenderRect {
     The container has the position of render rect.
      */
     pub fn get_container(
-        &self, graphics: &GraphicsContext, parent_container: Option<&Container>,
+        &self,
+        graphics: &GraphicsContext,
+        parent_container: Option<&Container>,
     ) -> Container {
         let mut container = Container::new(
             self.render_x as i32,

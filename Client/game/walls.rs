@@ -3,12 +3,10 @@ use crate::game::networking::WelcomePacketEvent;
 use events::{Event, EventManager};
 use graphics as gfx;
 use graphics::GraphicsContext;
-use shared::blocks::{
-    Blocks, BLOCK_WIDTH, CHUNK_SIZE, RENDER_BLOCK_WIDTH, RENDER_SCALE,
-};
+use shared::blocks::{Blocks, BLOCK_WIDTH, CHUNK_SIZE, RENDER_BLOCK_WIDTH, RENDER_SCALE};
 use shared::mod_manager::ModManager;
-use std::collections::HashMap;
 use shared::walls::{WallId, Walls, WallsWelcomePacket};
+use std::collections::HashMap;
 
 pub struct RenderWallChunk {
     needs_update: bool,
@@ -32,8 +30,13 @@ impl RenderWallChunk {
     }
 
     pub fn render(
-        &mut self, graphics: &mut GraphicsContext, atlas: &gfx::TextureAtlas<WallId>,
-        world_x: i32, world_y: i32, walls: &Walls, camera: &Camera,
+        &mut self,
+        graphics: &mut GraphicsContext,
+        atlas: &gfx::TextureAtlas<WallId>,
+        world_x: i32,
+        world_y: i32,
+        walls: &Walls,
+        camera: &Camera,
     ) {
         if self.needs_update {
             self.needs_update = false;
@@ -133,7 +136,7 @@ impl ClientWalls {
             || x >= self.walls.get_width() / CHUNK_SIZE
             || y >= self.walls.get_height() / CHUNK_SIZE
         {
-            panic!("Tried to get chunk at {}, {} but it is out of bounds", x, y);
+            panic!("Tried to get chunk at {x}, {y} but it is out of bounds");
         }
 
         (x + y * (self.walls.get_width() / CHUNK_SIZE)) as usize
@@ -236,8 +239,7 @@ impl ClientWalls {
             self.breaking_texture.render(
                 &graphics.renderer,
                 RENDER_SCALE,
-                x,
-                y,
+                (x, y),
                 Some(gfx::Rect::new(0, break_stage * 8, 8, 8)),
                 false,
                 None,

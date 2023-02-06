@@ -1,6 +1,6 @@
+use std::sync::{Arc, Mutex};
 use terralistic_server::Server;
 use terralistic_server::MULTIPLAYER_PORT;
-use std::sync::{Arc, Mutex};
 
 fn main() {
     let server_running = Arc::new(Mutex::new(true));
@@ -14,6 +14,6 @@ fn main() {
         &server_running,
         &loading_text,
         vec![include_bytes!("../BaseGame/BaseGame.mod").to_vec()],
-        &*path.join("server.world")
+        &path.join("server.world"),
     );
 }

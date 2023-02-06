@@ -78,8 +78,7 @@ impl ShadowContext {
         self.shadow_texture.render(
             &graphics.renderer,
             1.0,
-            rect.x - 200,
-            rect.y - 200,
+            (rect.x - 200, rect.y - 200),
             Some(Rect::new(0, 0, shadow_edge_width.floor() as i32, 200)),
             false,
             Some(shadow_color),
@@ -87,8 +86,7 @@ impl ShadowContext {
         self.shadow_texture.render(
             &graphics.renderer,
             1.0,
-            rect.x - 200,
-            rect.y,
+            (rect.x - 200, rect.y),
             Some(Rect::new(
                 0,
                 200,
@@ -102,8 +100,10 @@ impl ShadowContext {
         self.shadow_texture.render(
             &graphics.renderer,
             1.0,
-            rect.x + rect.w - (shadow_edge_width.ceil() as i32) + 200,
-            rect.y - 200,
+            (
+                rect.x + rect.w - (shadow_edge_width.ceil() as i32) + 200,
+                rect.y - 200,
+            ),
             Some(Rect::new(
                 700 - (shadow_edge_width.ceil() as i32),
                 0,
@@ -116,8 +116,7 @@ impl ShadowContext {
         self.shadow_texture.render(
             &graphics.renderer,
             1.0,
-            rect.x + rect.w,
-            rect.y,
+            (rect.x + rect.w, rect.y),
             Some(Rect::new(
                 500,
                 200,
@@ -131,8 +130,10 @@ impl ShadowContext {
         self.shadow_texture.render(
             &graphics.renderer,
             1.0,
-            rect.x - 200,
-            rect.y + rect.h - (shadow_edge_height.floor() as i32) + 200,
+            (
+                rect.x - 200,
+                rect.y + rect.h - (shadow_edge_height.floor() as i32) + 200,
+            ),
             Some(Rect::new(
                 0,
                 700 - (shadow_edge_height.floor() as i32),
@@ -145,8 +146,7 @@ impl ShadowContext {
         self.shadow_texture.render(
             &graphics.renderer,
             1.0,
-            rect.x - 200,
-            rect.y + rect.h,
+            (rect.x - 200, rect.y + rect.h),
             Some(Rect::new(0, 500, shadow_edge_width.floor() as i32, 200)),
             false,
             Some(shadow_color),
@@ -155,8 +155,10 @@ impl ShadowContext {
         self.shadow_texture.render(
             &graphics.renderer,
             1.0,
-            rect.x + rect.w,
-            rect.y + rect.h - (shadow_edge_height.floor() as i32) + 200,
+            (
+                rect.x + rect.w,
+                rect.y + rect.h - (shadow_edge_height.floor() as i32) + 200,
+            ),
             Some(Rect::new(
                 500,
                 700 - (shadow_edge_height.floor() as i32),
@@ -169,8 +171,10 @@ impl ShadowContext {
         self.shadow_texture.render(
             &graphics.renderer,
             1.0,
-            rect.x + rect.w - (shadow_edge_width.ceil() as i32) + 200,
-            rect.y + rect.h,
+            (
+                rect.x + rect.w - (shadow_edge_width.ceil() as i32) + 200,
+                rect.y + rect.h,
+            ),
             Some(Rect::new(
                 700 - (shadow_edge_width.ceil() as i32),
                 500,
@@ -187,8 +191,7 @@ impl ShadowContext {
                 self.shadow_texture.render(
                     &graphics.renderer,
                     1.0,
-                    rect.x - 200,
-                    rect.y + rect.h - 150 - height_to_render,
+                    (rect.x - 200, rect.y + rect.h - 150 - height_to_render),
                     Some(Rect::new(0, 300, 200, i32::min(100, height_to_render))),
                     false,
                     Some(shadow_color),
@@ -196,8 +199,7 @@ impl ShadowContext {
                 self.shadow_texture.render(
                     &graphics.renderer,
                     1.0,
-                    rect.x + rect.w,
-                    rect.y + rect.h - 150 - height_to_render,
+                    (rect.x + rect.w, rect.y + rect.h - 150 - height_to_render),
                     Some(Rect::new(500, 300, 200, i32::min(100, height_to_render))),
                     false,
                     Some(shadow_color),
@@ -212,8 +214,7 @@ impl ShadowContext {
                 self.shadow_texture.render(
                     &graphics.renderer,
                     1.0,
-                    rect.x + rect.w - 150 - width_to_render,
-                    rect.y - 200,
+                    (rect.x + rect.w - 150 - width_to_render, rect.y - 200),
                     Some(Rect::new(300, 0, i32::min(100, width_to_render), 200)),
                     false,
                     Some(shadow_color),
@@ -221,8 +222,7 @@ impl ShadowContext {
                 self.shadow_texture.render(
                     &graphics.renderer,
                     1.0,
-                    rect.x + rect.w - 150 - width_to_render,
-                    rect.y + rect.h,
+                    (rect.x + rect.w - 150 - width_to_render, rect.y + rect.h),
                     Some(Rect::new(300, 500, i32::min(100, width_to_render), 200)),
                     false,
                     Some(shadow_color),

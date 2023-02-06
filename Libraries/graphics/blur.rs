@@ -118,8 +118,13 @@ impl BlurContext {
     Blurs region on a given texture.
      */
     pub(crate) fn blur_region(
-        &self, rect: &Rect, radius: i32, gl_texture: u32, back_texture: u32, width: f32,
-        height: f32, texture_transform: &Transformation,
+        &self,
+        rect: &Rect,
+        radius: i32,
+        gl_texture: u32,
+        back_texture: u32,
+        size: (f32, f32),
+        texture_transform: &Transformation,
     ) {
         if !self.blur_enabled {
             return;
@@ -134,10 +139,10 @@ impl BlurContext {
 
             gl::EnableVertexAttribArray(0);
 
-            let x1 = (rect.x as f32 + 1.0) / width;
-            let y1 = (rect.y as f32 + 1.0) / height;
-            let x2 = (rect.x as f32 + rect.w as f32 - 1.0) / width;
-            let y2 = (rect.y as f32 + rect.h as f32 - 1.0) / height;
+            let x1 = (rect.x as f32 + 1.0) / size.0;
+            let y1 = (rect.y as f32 + 1.0) / size.1;
+            let x2 = (rect.x as f32 + rect.w as f32 - 1.0) / size.0;
+            let y2 = (rect.y as f32 + rect.h as f32 - 1.0) / size.1;
 
             gl::Uniform4f(self.limit_uniform, x2, -y1, x1, -y2);
             gl::Uniform1i(self.texture_sampler_uniform, 0);
@@ -154,7 +159,7 @@ impl BlurContext {
             );
 
             transform = Transformation::new();
-            transform.stretch(1.0 / width, -1.0 / height);
+            transform.stretch(1.0 / size.0, -1.0 / size.1);
             transform.translate(rect.x as f32, rect.y as f32);
             transform.stretch(rect.w as f32, rect.h as f32);
 
@@ -169,18 +174,8 @@ impl BlurContext {
 
             let mut radius = radius;
             while radius > 10 {
-                self.blur_rect(
-                    0.0,
-                    (radius as f32 / height / 10.0) as f32,
-                    gl_texture,
-                    back_texture,
-                );
-                self.blur_rect(
-                    (radius as f32 / width / 10.0) as f32,
-                    0.0,
-                    back_texture,
-                    gl_texture,
-                );
+                self.blur_rect(0.0, radius as f32 / size.1 / 10.0, gl_texture, back_texture);
+                self.blur_rect(radius as f32 / size.0 / 10.0, 0.0, back_texture, gl_texture);
                 radius = (radius as f32 * BLUR_QUALITY).sqrt() as i32;
             }
 

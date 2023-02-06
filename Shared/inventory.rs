@@ -1,7 +1,6 @@
 use super::{entities::*, items::*, player::*};
 use crate::blocks::Block;
 use crate::blocks::{Blocks, BLOCK_WIDTH};
-use std::mem::MaybeUninit;
 use std::{collections::hash_map::HashMap, rc::Rc};
 
 //TODO: iKramp do debug assertions for all panics
@@ -40,6 +39,13 @@ impl InventoryItemChangeEvent {
 pub struct Recipes {
     recipes: Vec<Rc<Recipe>>,
 }
+
+impl Default for Recipes {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Recipes {
     pub fn new() -> Self {
         Recipes {
@@ -72,19 +78,16 @@ pub struct Inventory {
     mouse_item: ItemStack,
     item_counts: Vec<i32>,
     available_recipes: Vec<Rc<Recipe>>,
-    inventory_arr: [ItemStack; INVENTORY_SIZE],
+    inventory_arr: Vec<ItemStack>,
     pub selected_slot: i32,
-    //pub item_change_event: Sender<InventoryItemChangeEvent>,
 }
 impl Inventory {
     pub fn new(items: &Items) -> Self {
-        //some shenanigans because an array can't be directly initialized with non copy types
-        let mut temp_arr: [MaybeUninit<ItemStack>; INVENTORY_SIZE] =
-            unsafe { MaybeUninit::uninit().assume_init() };
-        for i in 0..INVENTORY_SIZE {
-            temp_arr[i] = MaybeUninit::new(ItemStack::new(items.nothing.clone(), 0));
+        let mut inventory_arr = Vec::new();
+        for _ in 0..INVENTORY_SIZE {
+            inventory_arr.push(ItemStack::new(items.nothing.clone(), 0));
         }
-        let inventory_arr: [ItemStack; INVENTORY_SIZE] = unsafe { std::mem::transmute(temp_arr) };
+
         let mouse_item = ItemStack::new(Rc::clone(&items.nothing), 0);
         let item_counts = vec![items.get_num_item_types() as i32; 0];
 
@@ -114,7 +117,11 @@ impl Inventory {
 
     /**returns whether the player has enough items to craft the recipe*/
     fn can_craft_recipe(
-        &self, recipe: &Recipe, blocks: &Blocks, items: &Items, players: &Players,
+        &self,
+        recipe: &Recipe,
+        blocks: &Blocks,
+        items: &Items,
+        players: &Players,
     ) -> bool {
         for i in 0..items.get_num_item_types() {
             if recipe.ingredients.get(&(i as i32)).unwrap_or(&0)
@@ -173,7 +180,11 @@ impl Inventory {
     }
     /**adds an item to the inventory*/
     pub fn add_item(
-        &mut self, item: Rc<ItemType>, mut count: i32, blocks: &Blocks, items: &Items,
+        &mut self,
+        item: Rc<ItemType>,
+        mut count: i32,
+        blocks: &Blocks,
+        items: &Items,
         players: &Players,
     ) -> i32 {
         if count <= 0 {
@@ -207,7 +218,11 @@ impl Inventory {
     }
     /**removes an item from the inventory*/
     pub fn remove_item(
-        &mut self, item: Rc<ItemType>, mut count: i32, blocks: &Blocks, items: &Items,
+        &mut self,
+        item: Rc<ItemType>,
+        mut count: i32,
+        blocks: &Blocks,
+        items: &Items,
         players: &Players,
     ) -> i32 {
         if count <= 0 {
@@ -232,7 +247,12 @@ impl Inventory {
     }
     /**sets an inventory slot to an item*/
     pub fn set_item(
-        &mut self, slot: i32, item: ItemStack, blocks: &Blocks, items: &Items, players: &Players,
+        &mut self,
+        slot: i32,
+        item: ItemStack,
+        blocks: &Blocks,
+        items: &Items,
+        players: &Players,
     ) {
         if slot < 0 || slot >= INVENTORY_SIZE as i32 {
             #[cfg(debug_assertions)] //only panic in debug mode
@@ -303,7 +323,12 @@ impl Inventory {
     }
     /**increases the stack count of an item in an inventory slot*/
     pub fn increase_stack(
-        &mut self, slot: i32, stack: i32, blocks: &Blocks, items: &Items, players: &Players,
+        &mut self,
+        slot: i32,
+        stack: i32,
+        blocks: &Blocks,
+        items: &Items,
+        players: &Players,
     ) -> i32 {
         let mut stack_to_be = self.get_item(slot).stack + stack;
 
@@ -322,7 +347,12 @@ impl Inventory {
     }
     /**decreases the stack count of an item in an inventory slot*/
     pub fn decrease_stack(
-        &mut self, slot: i32, stack: i32, blocks: &Blocks, items: &Items, players: &Players,
+        &mut self,
+        slot: i32,
+        stack: i32,
+        blocks: &Blocks,
+        items: &Items,
+        players: &Players,
     ) -> i32 {
         if stack > self.get_item(slot).stack {
             let prev_stack = self.get_item(slot).stack;

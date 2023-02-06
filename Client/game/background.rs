@@ -16,9 +16,9 @@ impl Background {
     }
 
     pub fn init(&mut self) {
-        self.image = gfx::Texture::load_from_surface(&gfx::Surface::deserialize(
-            &include_bytes!("../../Build/Resources/background.opa").to_vec(),
-        ));
+        self.image = gfx::Texture::load_from_surface(&gfx::Surface::deserialize(include_bytes!(
+            "../../Build/Resources/background.opa"
+        )));
     }
 
     pub fn render(&self, graphics: &mut gfx::GraphicsContext, camera: &Camera) {
@@ -37,8 +37,10 @@ impl Background {
             self.image.render(
                 &graphics.renderer,
                 scale,
-                position_x + i * (self.image.get_texture_width() as f32 * scale) as i32,
-                0,
+                (
+                    position_x + i * (self.image.get_texture_width() as f32 * scale) as i32,
+                    0,
+                ),
                 None,
                 false,
                 None,

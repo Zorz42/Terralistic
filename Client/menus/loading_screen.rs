@@ -14,7 +14,8 @@ The text is shared through the SharedMut<String> which is updated by the loading
 When the string is empty, the loading screen is closed.
  */
 pub fn run_loading_screen(
-    graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn BackgroundRect,
+    graphics: &mut gfx::GraphicsContext,
+    menu_back: &mut dyn BackgroundRect,
     loading_text: &Mutex<String>,
 ) {
     let mut loading_text_sprite = gfx::Sprite::new();
@@ -58,11 +59,11 @@ pub fn run_loading_screen(
                     ending.remove(ending.len() - 1);
                     // check if the ending is a number
                     let num = ending.parse::<f32>();
-                    if num.is_ok() {
+                    if let Ok(num) = num {
                         // remove the ending from the text
                         curr_text.truncate(i);
 
-                        progress_bar_progress = num.unwrap() / 100.0;
+                        progress_bar_progress = num / 100.0;
                     }
                 }
 

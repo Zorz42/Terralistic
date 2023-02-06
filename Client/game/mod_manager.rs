@@ -30,7 +30,7 @@ impl ClientModManager {
     pub fn init(&mut self) {
         self.mod_manager
             .add_global_function("print", |_, text: String| {
-                println!("[client mod] {}", text);
+                println!("[client mod] {text}");
                 Ok(())
             });
 

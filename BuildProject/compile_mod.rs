@@ -76,7 +76,7 @@ fn generate_resources(resources_path: PathBuf, prefix: String) -> HashMap<String
             ));
         } else {
             let (file_name, data) = process_file(path);
-            resources.insert(format!("{}{}", prefix, file_name), data);
+            resources.insert(format!("{prefix}{file_name}"), data);
         }
     }
 
@@ -163,7 +163,11 @@ fn process_template(data: Vec<u8>) -> Vec<u8> {
 }
 
 fn copy_edge(
-    source: &gfx::Surface, source_x: i32, source_y: i32, target: &mut gfx::Surface, target_x: i32,
+    source: &gfx::Surface,
+    source_x: i32,
+    source_y: i32,
+    target: &mut gfx::Surface,
+    target_x: i32,
     target_y: i32,
 ) {
     for y in 0..8 {

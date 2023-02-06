@@ -29,7 +29,7 @@ impl MenuBack {
 
         Self {
             background: gfx::Texture::load_from_surface(&gfx::Surface::deserialize(
-                &include_bytes!("../../Build/Resources/background.opa").to_vec(),
+                include_bytes!("../../Build/Resources/background.opa"),
             )),
             background_timer: std::time::Instant::now(),
             back_rect,
@@ -58,8 +58,7 @@ impl Background for MenuBack {
             self.background.render(
                 &graphics.renderer,
                 scale,
-                pos + (i as f32 * texture_width_scaled) as i32,
-                0,
+                (pos + (i as f32 * texture_width_scaled) as i32, 0),
                 None,
                 false,
                 None,
@@ -86,7 +85,9 @@ impl BackgroundRect for MenuBack {
     Gets the width of the background rectangle.
      */
     fn get_back_rect_width(
-        &self, graphics: &gfx::GraphicsContext, parent_container: Option<&gfx::Container>,
+        &self,
+        graphics: &gfx::GraphicsContext,
+        parent_container: Option<&gfx::Container>,
     ) -> i32 {
         self.back_rect
             .get_container(graphics, parent_container)

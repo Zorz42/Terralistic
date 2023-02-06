@@ -11,6 +11,12 @@ pub struct Wall {
     pub name: String,
 }
 
+impl Default for Wall {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Wall {
     pub fn new() -> Self {
         Self {
@@ -59,8 +65,7 @@ impl rlua::UserData for Wall {
                     Ok(())
                 }
                 _ => Err(rlua::Error::RuntimeError(format!(
-                    "{} is not a valid field of Wall",
-                    key
+                    "{key} is not a valid field of Wall"
                 ))),
             },
         );

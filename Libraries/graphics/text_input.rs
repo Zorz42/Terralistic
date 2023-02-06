@@ -92,7 +92,9 @@ impl TextInput {
     Generates the container for the text input. It it private, since a text input should never contain other elements.
      */
     fn get_container(
-        &self, graphics: &GraphicsContext, parent_container: Option<&Container>,
+        &self,
+        graphics: &GraphicsContext,
+        parent_container: Option<&Container>,
     ) -> Container {
         let mut container = Container::new(
             self.x,
@@ -109,7 +111,9 @@ impl TextInput {
     Checks if the button is hovered with a mouse
      */
     pub fn is_hovered(
-        &self, graphics: &GraphicsContext, parent_container: Option<&Container>,
+        &self,
+        graphics: &GraphicsContext,
+        parent_container: Option<&Container>,
     ) -> bool {
         let container = self.get_container(graphics, parent_container);
         let rect = container.get_absolute_rect();
@@ -171,9 +175,9 @@ impl TextInput {
 
     /**finds a space character on the left*/
     fn find_space_left(&self, mut initial_pos: usize, is_ctrl_pressed: bool) -> usize {
-        if initial_pos > 0 {
-            initial_pos -= 1;
-        }
+        // subtract 1 if initial_pos is bigger than 0
+        initial_pos = initial_pos.saturating_sub(1);
+
         if is_ctrl_pressed {
             while initial_pos > 0
                 && !SPACE_CHARACTERS.contains(&self.text.chars().nth(initial_pos - 1).unwrap())
@@ -191,7 +195,7 @@ impl TextInput {
         let container = self.get_container(graphics, parent_container);
         let rect = container.get_absolute_rect();
 
-        if self.text_changed && self.text.len() > 0 {
+        if self.text_changed && !self.text.is_empty() {
             self.text_texture =
                 Texture::load_from_surface(&graphics.font.create_text_surface(self.text.as_str()));
         }
@@ -246,7 +250,7 @@ impl TextInput {
         );
 
         rect.render(graphics, color);
-        rect.render_outline(&graphics, border_color);
+        rect.render_outline(graphics, border_color);
 
         graphics.renderer.shadow_context.render(
             graphics,
@@ -264,15 +268,17 @@ impl TextInput {
         if self.text.is_empty() {
             src_rect.w = 0;
         }
-        src_rect.x = self.text_texture.get_texture_width() as i32 - src_rect.w;
+        src_rect.x = self.text_texture.get_texture_width() - src_rect.w;
 
         self.hint_texture.render(
             &graphics.renderer,
             self.scale,
-            (rect.x as f32 + rect.w as f32 / 2.0
-                - self.hint_texture.get_texture_width() as f32 / 2.0 * self.scale)
-                as i32,
-            rect.y + (self.padding as f32 * self.scale) as i32,
+            (
+                (rect.x as f32 + rect.w as f32 / 2.0
+                    - self.hint_texture.get_texture_width() as f32 / 2.0 * self.scale)
+                    as i32,
+                rect.y + (self.padding as f32 * self.scale) as i32,
+            ),
             None,
             false,
             Some(GREY.set_a((255.0 * self.hint_color_progress) as u8)),
@@ -282,9 +288,11 @@ impl TextInput {
             self.text_texture.render(
                 &graphics.renderer,
                 self.scale,
-                rect.x + (self.padding as f32 * self.scale) as i32,
-                rect.y + rect.h / 2
-                    - (self.text_texture.get_texture_height() as f32 * self.scale / 2.0) as i32,
+                (
+                    rect.x + (self.padding as f32 * self.scale) as i32,
+                    rect.y + rect.h / 2
+                        - (self.text_texture.get_texture_height() as f32 * self.scale / 2.0) as i32,
+                ),
                 Some(src_rect),
                 false,
                 None,
@@ -345,7 +353,9 @@ impl TextInput {
     }
 
     pub fn on_event(
-        &mut self, event: &Event, graphics: &mut GraphicsContext,
+        &mut self,
+        event: &Event,
+        graphics: &mut GraphicsContext,
         parent_container: Option<&Container>,
     ) {
         match event {
@@ -467,7 +477,6 @@ impl TextInput {
                     Key::V => {
                         if graphics.renderer.get_key_state(Key::LeftControl) {
                             if let Ok(text) = graphics.renderer.clipboard_context.get_contents() {
-                                println!("Clipboard text: {}", text);
                                 if self.cursor.0 != self.cursor.1 {
                                     self.text.replace_range(
                                         self.get_cursor().0..self.get_cursor().1,
@@ -483,24 +492,24 @@ impl TextInput {
                         }
                     }
                     Key::X => {
-                        if graphics.renderer.get_key_state(Key::LeftControl) {
-                            if self.cursor.0 != self.cursor.1 {
-                                if graphics.renderer.get_key_state(Key::LeftControl) {
-                                    graphics
-                                        .renderer
-                                        .clipboard_context
-                                        .set_contents(
-                                            self.text[self.get_cursor().0..self.get_cursor().1]
-                                                .to_string(),
-                                        )
-                                        .unwrap();
-                                }
-                                self.text
-                                    .replace_range(self.get_cursor().0..self.get_cursor().1, ""); //add text filtering lol
-                                self.cursor.0 = self.get_cursor().0;
-                                self.cursor.1 = self.cursor.0;
-                                self.text_changed = true;
+                        if graphics.renderer.get_key_state(Key::LeftControl)
+                            && self.cursor.0 != self.cursor.1
+                        {
+                            if graphics.renderer.get_key_state(Key::LeftControl) {
+                                graphics
+                                    .renderer
+                                    .clipboard_context
+                                    .set_contents(
+                                        self.text[self.get_cursor().0..self.get_cursor().1]
+                                            .to_string(),
+                                    )
+                                    .unwrap();
                             }
+                            self.text
+                                .replace_range(self.get_cursor().0..self.get_cursor().1, ""); //add text filtering lol
+                            self.cursor.0 = self.get_cursor().0;
+                            self.cursor.1 = self.cursor.0;
+                            self.text_changed = true;
                         }
                     }
                     _ => {}

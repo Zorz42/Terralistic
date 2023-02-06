@@ -34,6 +34,13 @@ pub struct Light {
     pub source: bool,
     pub update_light: bool,
 }
+
+impl Default for Light {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Light {
     pub fn new() -> Self {
         Light {
