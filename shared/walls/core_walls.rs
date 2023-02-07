@@ -8,11 +8,11 @@ use bincode;
 
 use serde_derive::{Deserialize, Serialize};
 use snap;
-use std::sync::{Arc, Mutex};
+use std::sync::Mutex;
+extern crate alloc;
+use alloc::sync::Arc;
 
-/**
-`WallId` stores id to a type of wall.
- */
+/// `WallId` stores id to a type of wall.
 #[derive(Deserialize, Serialize, Clone, Copy, Eq, PartialEq, Hash)]
 pub struct WallId {
     pub id: i8,
@@ -26,7 +26,7 @@ impl Default for WallId {
 
 impl WallId {
     #[must_use]
-    pub fn new() -> Self {
+    pub const fn new() -> Self {
         Self { id: -1 }
     }
 }
@@ -42,13 +42,13 @@ impl rlua::UserData for WallId {
 }
 
 #[derive(Deserialize, Serialize)]
-struct WallsData {
+pub(super) struct WallsData {
     walls: Vec<WallId>,
-    map: WorldMap,
+    pub(super) map: WorldMap,
 }
 
 impl WallsData {
-    pub fn new() -> Self {
+    pub const fn new() -> Self {
         Self {
             walls: Vec::new(),
             map: WorldMap::new_empty(),
@@ -57,7 +57,7 @@ impl WallsData {
 }
 
 pub struct Walls {
-    walls_data: WallsData,
+    pub(super) walls_data: WallsData,
 
     pub(super) breaking_walls: Vec<BreakingWall>,
     wall_types: Arc<Mutex<Vec<Wall>>>,
@@ -79,7 +79,7 @@ impl Walls {
         };
 
         let mut clear = Wall::new();
-        clear.name = "clear".to_string();
+        clear.name = "clear".to_owned();
         result.clear = Self::register_new_wall_type(
             &mut result
                 .wall_types
@@ -89,28 +89,25 @@ impl Walls {
         );
 
         let mut hammer = Tool::new();
-        hammer.name = "hammer".to_string();
+        hammer.name = "hammer".to_owned();
         result.hammer = blocks.register_new_tool_type(hammer);
 
         result
     }
 
-    /**
-    Creates an empty map with the given dimensions.
-     */
+    /// Creates an empty map with the given dimensions.
+    /// # Errors
+    /// Returns an error if the dimensions are invalid.
     pub fn create(&mut self, width: i32, height: i32) -> Result<()> {
         self.walls_data.map = WorldMap::new(width, height)?;
         self.walls_data.walls = vec![WallId::new(); (width * height) as usize];
         Ok(())
     }
 
-    /**
-    Initializes
-     */
     pub fn init(&mut self, mods: &mut ModManager) {
         mods.add_global_function("new_wall_type", move |_lua, _: ()| Ok(Wall::new()));
 
-        let wall_types = self.wall_types.clone();
+        let mut wall_types = self.wall_types.clone();
         mods.add_global_function("register_wall_type", move |_lua, wall_type: Wall| {
             let result = Self::register_new_wall_type(
                 &mut wall_types
@@ -121,61 +118,50 @@ impl Walls {
             Ok(result)
         });
 
-        let wall_types = self.wall_types.clone();
+        wall_types = self.wall_types.clone();
         mods.add_global_function("get_wall_id_by_name", move |_lua, name: String| {
             let wall_types = wall_types
                 .lock()
                 .unwrap_or_else(std::sync::PoisonError::into_inner);
-            for wall_type in wall_types.iter() {
+            let iter = wall_types.iter();
+            for wall_type in iter {
                 if wall_type.name == name {
                     return Ok(wall_type.get_id());
                 }
             }
-            Err(rlua::Error::RuntimeError("Wall type not found".to_string()))
+            Err(rlua::Error::RuntimeError("Wall type not found".to_owned()))
         });
     }
 
-    /**
-    Returns the wall id at the given position.
-     */
+    /// Returns the wall id at the given position.
     fn get_wall(&self, x: i32, y: i32) -> Result<WallId> {
         Ok(*self
             .walls_data
             .walls
             .get(self.walls_data.map.translate_coords(x, y)?)
-            .ok_or(anyhow!(
-                "Wall is accessed out of the bounds! ({}, {})",
-                x,
-                y
-            ))?)
+            .ok_or_else(|| anyhow!("Wall is accessed out of the bounds! ({}, {})", x, y))?)
     }
 
-    /**
-    Returns the world width in blocks
-     */
     #[must_use]
-    pub fn get_width(&self) -> i32 {
+    pub const fn get_width(&self) -> i32 {
         self.walls_data.map.get_width()
     }
 
-    /**
-    Returns the world height in blocks
-     */
     #[must_use]
-    pub fn get_height(&self) -> i32 {
+    pub const fn get_height(&self) -> i32 {
         self.walls_data.map.get_height()
     }
 
-    /**
-    Returns the wall type of the wall at given x and y
-     */
+    /// Returns the wall type of the wall at given x and y
+    /// # Errors
+    /// Returns an error if the coordinates are invalid.
     pub fn get_wall_type_at(&self, x: i32, y: i32) -> Result<Wall> {
         self.get_wall_type(self.get_wall(x, y)?)
     }
 
-    /**
-    Returns the wall type with the given id
-     */
+    /// Returns the wall type with the given id
+    /// # Errors
+    /// Returns an error if the id is invalid.
     pub fn get_wall_type(&self, id: WallId) -> Result<Wall> {
         let walls = self
             .wall_types
@@ -183,13 +169,13 @@ impl Walls {
             .unwrap_or_else(std::sync::PoisonError::into_inner);
         Ok(walls
             .get(id.id as usize)
-            .ok_or(anyhow!("Wall type not found"))?
+            .ok_or_else(|| anyhow!("Wall type not found"))?
             .clone())
     }
 
-    /**
-    This function sets the wall type on x and y and sends the WallChangeEvent.
-     */
+    /// This function sets the wall type on x and y and sends the `WallChangeEvent`.
+    /// # Errors
+    /// Returns an error if the coordinates are invalid.
     pub fn set_wall_type(&mut self, x: i32, y: i32, wall_id: WallId) -> Result<()> {
         let wall = self.get_wall(x, y)?;
         if wall == wall_id {
@@ -200,27 +186,24 @@ impl Walls {
             .walls_data
             .walls
             .get_mut(self.walls_data.map.translate_coords(x, y)?)
-            .ok_or(anyhow!(
-                "Wall is accessed out of the bounds! ({}, {})",
-                x,
-                y
-            ))? = wall_id;
+            .ok_or_else(|| anyhow!("Wall is accessed out of the bounds! ({}, {})", x, y))? =
+            wall_id;
 
         //self.wall_change_event.send(WallChangeEvent::new(x, y));
 
         Ok(())
     }
 
-    /**
-    Serializes walls for saving
-     */
+    /// Serializes walls for saving
+    /// # Errors
+    /// Returns an error if the serialization fails.
     pub fn serialize(&self) -> Result<Vec<u8>> {
         Ok(snap::raw::Encoder::new().compress_vec(&bincode::serialize(&self.walls_data)?)?)
     }
 
-    /**
-    Deserializes walls from u8 vector
-     */
+    /// Deserializes walls from u8 vector
+    /// # Errors
+    /// Returns an error if the deserialization fails.
     pub fn deserialize(&mut self, data: &[u8]) -> Result<()> {
         let decompressed = snap::raw::Decoder::new().decompress_vec(data)?;
         self.walls_data = bincode::deserialize(&decompressed)?;
@@ -228,9 +211,7 @@ impl Walls {
         Ok(())
     }
 
-    /**
-    This function adds a new wall type, but is used internally by mods.
-     */
+    /// This function adds a new wall type, but is used internally by mods.
     fn register_new_wall_type(wall_types: &mut Vec<Wall>, mut wall_type: Wall) -> WallId {
         let id = wall_types.len() as i8;
         let result = WallId { id };
@@ -239,16 +220,16 @@ impl Walls {
         result
     }
 
-    /**
-    Returns a wall id type with the given name
-     */
+    /// Returns a wall id type with the given name
+    /// # Errors
+    /// Returns an error if the name is invalid.
     pub fn get_wall_id_by_name(&self, name: &str) -> Result<WallId> {
-        for wall_type in self
+        let wall_types = self
             .wall_types
             .lock()
-            .unwrap_or_else(std::sync::PoisonError::into_inner)
-            .iter()
-        {
+            .unwrap_or_else(std::sync::PoisonError::into_inner);
+        let iter = wall_types.iter();
+        for wall_type in iter {
             if wall_type.name == name {
                 return Ok(wall_type.id);
             }
@@ -256,9 +237,9 @@ impl Walls {
         Err(anyhow!("No wall type with name {} found", name))
     }
 
-    /**
-    This function creates a world from a 2d vector of wall type ids
-     */
+    /// This function creates a world from a 2d vector of wall type ids
+    /// # Errors
+    /// Returns an error if the wall ids are invalid or the length of the rows are not the same.
     pub fn create_from_wall_ids(&mut self, wall_ids: &Vec<Vec<WallId>>) -> Result<()> {
         let width = wall_ids.len() as i32;
         let height;
@@ -286,25 +267,21 @@ impl Walls {
         Ok(())
     }
 
-    /**
-    Returns all wall ids.
-     */
+    /// Returns all wall ids.
     pub fn get_all_wall_ids(&mut self) -> Vec<WallId> {
         let mut result = Vec::new();
-        for wall_type in self
+        let wall_types = self
             .wall_types
             .lock()
-            .unwrap_or_else(std::sync::PoisonError::into_inner)
-            .iter()
-        {
+            .unwrap_or_else(std::sync::PoisonError::into_inner);
+        let iter = wall_types.iter();
+        for wall_type in iter {
             result.push(wall_type.id);
         }
         result
     }
 
-    /**
-    Returns all breaking walls
-     */
+    /// Returns all breaking walls
     #[must_use]
     pub fn get_breaking_walls(&self) -> &Vec<BreakingWall> {
         &self.breaking_walls
@@ -331,9 +308,7 @@ pub struct WallStoppedBreakingEvent {
     pub y: i32,
 }
 
-/**
-A welcome packet that carries all the information about the world walls
- */
+/// A welcome packet that carries all the information about the world walls
 #[derive(Serialize, Deserialize)]
 pub struct WallsWelcomePacket {
     pub data: Vec<u8>,

@@ -3,9 +3,7 @@ use crate::shared::blocks::UNBREAKABLE;
 use crate::shared::walls::Walls;
 use anyhow::{anyhow, Result};
 
-/**
-Stores the info about a breaking progress about a wall.
- */
+/// Stores the info about a breaking progress about a wall.
 pub struct BreakingWall {
     pub break_progress: i32,
     pub is_breaking: bool,
@@ -14,7 +12,7 @@ pub struct BreakingWall {
 
 impl BreakingWall {
     #[must_use]
-    pub fn new() -> Self {
+    pub const fn new() -> Self {
         Self {
             break_progress: 0,
             is_breaking: false,
@@ -23,7 +21,7 @@ impl BreakingWall {
     }
 
     #[must_use]
-    pub fn get_coord(&self) -> (i32, i32) {
+    pub const fn get_coord(&self) -> (i32, i32) {
         self.coord
     }
 }
@@ -35,29 +33,31 @@ impl Default for BreakingWall {
 }
 
 impl Walls {
-    /**
-    Returns the break progress of the wall at x and y
-     */
-    #[must_use]
-    pub fn get_break_progress(&self, x: i32, y: i32) -> i32 {
+    /// Returns the break progress of the wall at x and y
+    /// # Errors
+    /// Returns an error if the coordinates are out of bounds.
+    pub fn get_break_progress(&self, x: i32, y: i32) -> Result<i32> {
+        self.walls_data.map.translate_coords(x, y)?;
+
         for wall in &self.breaking_walls {
             if wall.coord == (x, y) {
-                return wall.break_progress;
+                return Ok(wall.break_progress);
             }
         }
-        0
+        Ok(0)
     }
 
-    /**
-    Returns the break stage (for example to be used as a break texture stage) of the wall at x and y
-     */
+    /// Returns the break stage (for example to be used as a break texture stage) of the wall at x and y
+    /// # Errors
+    /// Returns an error if the coordinates are out of bounds.
     pub fn get_break_stage(&self, x: i32, y: i32) -> Result<i32> {
-        Ok(self.get_break_progress(x, y) * 9 / self.get_wall_type_at(x, y)?.break_time)
+        Ok(self.get_break_progress(x, y)? * 9 / self.get_wall_type_at(x, y)?.break_time)
     }
 
-    /**
-    Includes the necessary steps to start breaking a wall, such as adding it to the breaking_walls list, setting is_breaking to true and sending the WallStartedBreakingEvent
-     */
+    /// Includes the necessary steps to start breaking a wall, such as adding it to the
+    /// `breaking_walls` list, setting `is_breaking` to true and sending the `WallStartedBreakingEvent`
+    /// # Errors
+    /// Returns an error if the coordinates are out of bounds.
     pub fn start_breaking_wall(&mut self, x: i32, y: i32) -> Result<()> {
         if self.get_wall_type_at(x, y)?.break_time == UNBREAKABLE {
             return Ok(());
@@ -80,7 +80,7 @@ impl Walls {
                 self.breaking_walls.push(new_breaking_wall);
                 self.breaking_walls
                     .last_mut()
-                    .ok_or(anyhow!("Could not get last breaking wall!"))?
+                    .ok_or_else(|| anyhow!("Could not get last breaking wall!"))?
             }
         };
 
@@ -89,13 +89,11 @@ impl Walls {
 
         //self.wall_started_breaking_event.send(WallStartedBreakingEvent::new(x, y));
     }
-
-    /**
-    Includes the necessary steps to stop breaking a wall,
-    such as removing it from the breaking_walls list,
-    setting is_breaking to false and sending the
-    WallStoppedBreakingEvent
-     */
+    
+    /// Includes the necessary steps to stop breaking a wall,
+    /// such as removing it from the `breaking_walls` list,
+    /// setting `is_breaking` to false and sending the
+    /// `WallStoppedBreakingEvent`
     pub fn stop_breaking_wall(&mut self, x: i32, y: i32) {
         for wall in &mut self.breaking_walls {
             if wall.coord == (x, y) {
@@ -105,11 +103,11 @@ impl Walls {
             }
         }
     }
-
-    /**
-    Updates breaking walls by increasing break
-    progress and breaking walls if necessary
-     */
+    
+    /// Updates breaking walls by increasing break
+    /// progress and breaking walls if necessary
+    /// # Errors
+    /// Returns an error if breaking walls are out of bounds.
     pub fn update_breaking_walls(
         &mut self,
         frame_length: f32,

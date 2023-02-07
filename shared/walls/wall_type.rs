@@ -19,7 +19,7 @@ impl Default for Wall {
 
 impl Wall {
     #[must_use]
-    pub fn new() -> Self {
+    pub const fn new() -> Self {
         Self {
             id: WallId::new(),
             break_time: 0,
@@ -28,7 +28,7 @@ impl Wall {
     }
 
     #[must_use]
-    pub fn get_id(&self) -> WallId {
+    pub const fn get_id(&self) -> WallId {
         self.id
     }
 }
