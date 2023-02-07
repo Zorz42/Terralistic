@@ -89,7 +89,7 @@ impl Walls {
 
         //self.wall_started_breaking_event.send(WallStartedBreakingEvent::new(x, y));
     }
-    
+
     /// Includes the necessary steps to stop breaking a wall,
     /// such as removing it from the `breaking_walls` list,
     /// setting `is_breaking` to false and sending the
@@ -103,7 +103,7 @@ impl Walls {
             }
         }
     }
-    
+
     /// Updates breaking walls by increasing break
     /// progress and breaking walls if necessary
     /// # Errors
