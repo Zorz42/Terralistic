@@ -3,7 +3,7 @@ use crate::libraries::graphics as gfx;
 use crate::libraries::graphics::GraphicsContext;
 
 pub fn run_choice_menu(
-    menu_title: String,
+    menu_title: &str,
     graphics: &mut GraphicsContext,
     menu_back: &mut dyn BackgroundRect,
     confirm_name_override: Option<&str>,

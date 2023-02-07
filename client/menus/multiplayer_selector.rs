@@ -332,7 +332,7 @@ fn update_elements(
                                     graphics,
                                     Some(menu_back.get_back_rect_container()),
                                 )),
-                            ) && run_choice_menu(format!("The world \"{}\" will be deleted.\nDo you want to proceed?", server.server_info.name), graphics, menu_back, None, None) {
+                            ) && run_choice_menu(format!("The world \"{}\" will be deleted.\nDo you want to proceed?", server.server_info.name).as_str(), graphics, menu_back, None, None) {
                                 let pos = elements.server_list
                                     .servers
                                     .iter()

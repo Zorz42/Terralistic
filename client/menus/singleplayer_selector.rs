@@ -268,7 +268,7 @@ pub fn run_singleplayer_selector(
                                     graphics,
                                     Some(menu_back.get_back_rect_container()),
                                 )),
-                            ) && run_choice_menu(format!("The world \"{}\" will be deleted.\nDo you want to proceed?", world.name), graphics, menu_back, None, None) {
+                            ) && run_choice_menu(format!("The world \"{}\" will be deleted.\nDo you want to proceed?", world.name).as_str(), graphics, menu_back, None, None) {
                                 fs::remove_file(world.get_file_path()).unwrap();
                                 needs_refresh = true;
                             }
