@@ -24,6 +24,19 @@ impl ServerInfo {
     }
 }
 
+/**struct to pass around UI elements for rendering and updating*/
+struct MultiplayerSelectorElements {
+    position: f32,
+    top_rect: gfx::RenderRect,
+    bottom_rect: gfx::RenderRect,
+    title: gfx::Sprite,
+    back_button: gfx::Button,
+    new_world_button: gfx::Button,
+    server_list: ServerList,
+    top_height: i32,
+    bottom_height: i32,
+}
+
 /**
 World is a struct that contains all information to
 render the server in server selector.
@@ -35,18 +48,6 @@ pub struct ServerCard {
     delete_button: gfx::Button,
     title: gfx::Sprite,
     icon: gfx::Sprite,
-}
-
-struct MultiplayerSelectorElements {
-    position: f32,
-    top_rect: gfx::RenderRect,
-    bottom_rect: gfx::RenderRect,
-    title: gfx::Sprite,
-    back_button: gfx::Button,
-    new_world_button: gfx::Button,
-    server_list: ServerList,
-    top_height: i32,
-    bottom_height: i32,
 }
 
 impl ServerCard {

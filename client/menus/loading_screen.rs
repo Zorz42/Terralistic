@@ -67,7 +67,7 @@ pub fn run_loading_screen(
                     }
                 }
 
-                if progress_bar_progress == -1.0 {
+                if progress_bar_progress == -1.0_f32 {
                     loading_back_bar.w = 0.0;
                     loading_back_bar.h = 0.0;
                     loading_bar.w = 0.0;

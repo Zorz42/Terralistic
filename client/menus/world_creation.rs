@@ -76,8 +76,12 @@ pub fn run_world_creation(
 
     //this is where the menu is drawn
     'render_loop: while graphics.renderer.is_window_open() {
-        let world_path = BaseDirs::new()
-            .unwrap()
+        let Some(base_dirs) = BaseDirs::new() else {
+            println!("Failed to get base directories!");
+            return;
+        };
+
+        let world_path = base_dirs
             .data_dir()
             .join("Terralistic")
             .join("Worlds")
