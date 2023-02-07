@@ -25,7 +25,6 @@
 #![warn(clippy::let_underscore_must_use)]
 #![warn(clippy::map_err_ignore)]
 #![warn(clippy::mem_forget)]
-#![warn(clippy::multiple_inherent_impl)]
 #![warn(clippy::non_ascii_literal)]
 #![warn(clippy::panic)]
 #![warn(clippy::panic_in_result_fn)]

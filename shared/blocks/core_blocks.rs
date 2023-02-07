@@ -1,6 +1,8 @@
 use std::collections::HashMap;
 
-use std::sync::{Arc, Mutex};
+extern crate alloc;
+use alloc::sync::Arc;
+use std::sync::Mutex;
 
 use serde_derive::{Deserialize, Serialize};
 use snap;
@@ -41,7 +43,7 @@ impl Default for BlockId {
 
 impl BlockId {
     #[must_use]
-    pub fn new() -> Self {
+    pub const fn new() -> Self {
         Self { id: -1 }
     }
 }
@@ -90,7 +92,7 @@ impl Blocks {
         };
 
         let mut air = Block::new();
-        air.name = "air".to_string();
+        air.name = "air".to_owned();
         air.ghost = true;
         air.transparent = true;
         air.break_time = UNBREAKABLE;
@@ -105,26 +107,20 @@ impl Blocks {
         result
     }
 
-    /**
-    Returns the width of the world in blocks.
-     */
     #[must_use]
-    pub fn get_width(&self) -> i32 {
+    pub const fn get_width(&self) -> i32 {
         self.block_data.map.get_width()
     }
 
-    /**
-    Returns the height of the world in blocks.
-     */
     #[must_use]
-    pub fn get_height(&self) -> i32 {
+    pub const fn get_height(&self) -> i32 {
         self.block_data.map.get_height()
     }
 
     pub fn init(&mut self, mods: &mut ModManager) {
         mods.add_global_function("new_block_type", move |_lua, _: ()| Ok(Block::new()));
 
-        let block_types = self.block_types.clone();
+        let mut block_types = self.block_types.clone();
         mods.add_global_function("register_block_type", move |_lua, block_type: Block| {
             let result = Self::register_new_block_type(
                 &mut block_types
@@ -135,23 +131,22 @@ impl Blocks {
             Ok(result)
         });
 
-        let block_types = self.block_types.clone();
+        block_types = self.block_types.clone();
         mods.add_global_function("get_block_id_by_name", move |_lua, name: String| {
             let block_types = block_types
                 .lock()
                 .unwrap_or_else(std::sync::PoisonError::into_inner);
-            for block_type in block_types.iter() {
+            let iter = block_types.iter();
+            for block_type in iter {
                 if block_type.name == name {
                     return Ok(block_type.get_id());
                 }
             }
-            Err(rlua::Error::RuntimeError(
-                "Block type not found".to_string(),
-            ))
+            Err(rlua::Error::RuntimeError("Block type not found".to_owned()))
         });
 
         // a method to connect two blocks
-        let block_types = self.block_types.clone();
+        block_types = self.block_types.clone();
         mods.add_global_function(
             "connect_blocks",
             move |_lua, (block_id1, block_id2): (BlockId, BlockId)| {
@@ -161,14 +156,14 @@ impl Blocks {
                 block_types
                     .get_mut(block_id1.id as usize)
                     .ok_or(rlua::Error::RuntimeError(
-                        "block type id is invalid".to_string(),
+                        "block type id is invalid".to_owned(),
                     ))?
                     .connects_to
                     .push(block_id2);
                 block_types
                     .get_mut(block_id2.id as usize)
                     .ok_or(rlua::Error::RuntimeError(
-                        "block type id is invalid".to_string(),
+                        "block type id is invalid".to_owned(),
                     ))?
                     .connects_to
                     .push(block_id1);
@@ -177,18 +172,18 @@ impl Blocks {
         );
     }
 
-    /**
-    Creates an empty world with given width and height
-     */
+    /// Creates an empty world with given width and height
+    /// # Errors
+    /// Returns an error if dimensions are invalid
     pub fn create(&mut self, width: i32, height: i32) -> Result<()> {
         self.block_data.map = WorldMap::new(width, height)?;
         self.block_data.blocks = vec![BlockId::new(); (height * height) as usize];
         Ok(())
     }
 
-    /**
-    This function creates a world from a 2d vector of block type ids
-     */
+    /// This function creates a world from a 2d vector of block type ids
+    /// # Errors
+    /// Returns an error if any of the ids are invalid or if the rows have different lengths
     pub fn create_from_block_ids(&mut self, block_ids: &Vec<Vec<BlockId>>) -> Result<()> {
         let width = block_ids.len() as i32;
         let height;
@@ -215,20 +210,20 @@ impl Blocks {
         Ok(())
     }
 
-    /**
-    This function returns the block id at given position
-     */
+    /// This function returns the block id at given position
+    /// # Errors
+    /// Returns an error if the position is out of bounds
     pub fn get_block(&self, x: i32, y: i32) -> Result<BlockId> {
         Ok(*self
             .block_data
             .blocks
             .get(self.block_data.map.translate_coords(x, y)?)
-            .ok_or(anyhow!("Coordinate out of bounds"))?)
+            .ok_or_else(|| anyhow!("Coordinate out of bounds"))?)
     }
 
-    /**
-    This sets the type of a block from a coordinate.
-     */
+    /// This sets the type of a block from a coordinate.
+    /// # Errors
+    /// Returns an error if the position is out of bounds
     pub fn set_big_block(
         &mut self,
         events: &mut EventManager,
@@ -243,7 +238,7 @@ impl Blocks {
                 .block_data
                 .blocks
                 .get_mut(self.block_data.map.translate_coords(x, y)?)
-                .ok_or(anyhow!("Coordinate out of bounds"))? = block_id;
+                .ok_or_else(|| anyhow!("Coordinate out of bounds"))? = block_id;
 
             self.breaking_blocks.retain(|b| b.get_coord() != (x, y));
 
@@ -254,9 +249,9 @@ impl Blocks {
         Ok(())
     }
 
-    /**
-    This sets the type of a block from a coordinate.
-     */
+    /// This sets the type of a block from a coordinate.
+    /// # Errors
+    /// Returns an error if the position is out of bounds
     pub fn set_block(
         &mut self,
         events: &mut EventManager,
@@ -267,9 +262,9 @@ impl Blocks {
         self.set_big_block(events, x, y, block_id, (0, 0))
     }
 
-    /**
-    This function sets x and y from main for a block. If it is 0, 0 the value is removed from the hashmap.
-     */
+    /// This function sets x and y from main for a block. If it is 0, 0 the value is removed from the hashmap.
+    /// # Errors
+    /// Returns an error if the position is out of bounds
     pub(super) fn set_block_from_main(
         &mut self,
         x: i32,
@@ -286,9 +281,9 @@ impl Blocks {
         Ok(())
     }
 
-    /**
-    This function gets the block from main for a block. If the value is not found, it returns 0, 0.
-     */
+    /// This function gets the block from main for a block. If the value is not found, it returns 0, 0.
+    /// # Errors
+    /// Returns an error if the position is out of bounds
     pub(super) fn get_block_from_main(&self, x: i32, y: i32) -> Result<(i32, i32)> {
         Ok(*self
             .block_data
@@ -297,9 +292,9 @@ impl Blocks {
             .unwrap_or(&(0, 0)))
     }
 
-    /**
-    This function sets the block data for a block. If it is empty the value is removed from the hashmap.
-     */
+    /// This function sets the block data for a block. If it is empty the value is removed from the hashmap.
+    /// # Errors
+    /// Returns an error if the position is out of bounds
     pub(super) fn set_block_data(&mut self, x: i32, y: i32, data: Vec<u8>) -> Result<()> {
         let index = self.block_data.map.translate_coords(x, y)?;
         if data.is_empty() {
@@ -310,9 +305,9 @@ impl Blocks {
         Ok(())
     }
 
-    /**
-    This function returns block data, if it is not found it returns an empty vector.
-     */
+    /// This function returns block data, if it is not found it returns an empty vector.
+    /// # Errors
+    /// Returns an error if the position is out of bounds
     pub fn get_block_data(&self, x: i32, y: i32) -> Result<Vec<u8>> {
         Ok(self
             .block_data
@@ -322,24 +317,22 @@ impl Blocks {
             .clone())
     }
 
-    /**
-    Serializes the world, used for saving the world and sending it to the client.
-     */
+    /// Serializes the world, used for saving the world and sending it to the client.
+    /// # Errors
+    /// Returns an error if the serialization fails
     pub fn serialize(&self) -> Result<Vec<u8>> {
         Ok(snap::raw::Encoder::new().compress_vec(&bincode::serialize(&self.block_data)?)?)
     }
 
-    /**
-    Deserializes the world, used for loading the world and receiving it from the server.
-     */
+    /// Deserializes the world, used for loading the world and receiving it from the server.
+    /// # Errors
+    /// Returns an error if the deserialization fails
     pub fn deserialize(&mut self, serial: &[u8]) -> Result<()> {
         self.block_data = bincode::deserialize(&snap::raw::Decoder::new().decompress_vec(serial)?)?;
         Ok(())
     }
 
-    /**
-    This function adds a new block type, but is used internally by mods.
-     */
+    /// This function adds a new block type, but is used internally by mods.
     fn register_new_block_type(block_types: &mut Vec<Block>, mut block_type: Block) -> BlockId {
         let id = block_types.len() as i8;
         let result = BlockId { id };
@@ -348,17 +341,17 @@ impl Blocks {
         result
     }
 
-    /**
-    Returns the block type that has the specified name, used
-    with commands to get the block type from the name.
-     */
+    /// Returns the block type that has the specified name, used
+    /// with commands to get the block type from the name.
+    /// # Errors
+    /// Returns an error if the block type is not found
     pub fn get_block_id_by_name(&mut self, name: &str) -> Result<BlockId> {
-        for block_type in self
+        let block_types = self
             .block_types
             .lock()
-            .unwrap_or_else(std::sync::PoisonError::into_inner)
-            .iter()
-        {
+            .unwrap_or_else(std::sync::PoisonError::into_inner);
+        let iter = block_types.iter();
+        for block_type in iter {
             if block_type.name == name {
                 return Ok(block_type.id);
             }
@@ -366,25 +359,23 @@ impl Blocks {
         Err(anyhow!("Block type not found"))
     }
 
-    /**
-    Returns all block ids.
-     */
+    /// Returns all block ids.
     pub fn get_all_block_ids(&mut self) -> Vec<BlockId> {
         let mut result = Vec::new();
-        for block_type in self
+        let block_types = self
             .block_types
             .lock()
-            .unwrap_or_else(std::sync::PoisonError::into_inner)
-            .iter()
-        {
+            .unwrap_or_else(std::sync::PoisonError::into_inner);
+        let iter = block_types.iter();
+        for block_type in iter {
             result.push(block_type.id);
         }
         result
     }
 
-    /**
-    Returns the block type that has the specified id.
-     */
+    /// Returns the block type that has the specified id.
+    /// # Errors
+    /// Returns an error if the block type is not found
     pub fn get_block_type(&self, id: BlockId) -> Result<Block> {
         let blocks = self
             .block_types
@@ -392,53 +383,43 @@ impl Blocks {
             .unwrap_or_else(std::sync::PoisonError::into_inner);
         Ok(blocks
             .get(id.id as usize)
-            .ok_or(anyhow!("Block type not found"))?
+            .ok_or_else(|| anyhow!("Block type not found"))?
             .clone())
     }
 
-    /**
-    Returns the block type at specified coordinates.
-     */
+    /// Returns the block type at specified coordinates.
+    /// # Errors
+    /// Returns an error if the block type is not found
     pub fn get_block_type_at(&self, x: i32, y: i32) -> Result<Block> {
         self.get_block_type(self.get_block(x, y)?)
     }
 }
 
-/**
-Event that is fired when a block is changed
- */
+/// Event that is fired when a block is changed
 pub struct BlockChangeEvent {
     pub x: i32,
     pub y: i32,
 }
 
-/**
-Event that is fired when a random tick is fired for a block
- */
+/// Event that is fired when a random tick is fired for a block
 pub struct BlockRandomTickEvent {
     pub x: i32,
     pub y: i32,
 }
 
-/**
-Event that is fired when a block is updated
- */
+/// Event that is fired when a block is updated
 pub struct BlockUpdateEvent {
     pub x: i32,
     pub y: i32,
 }
 
-/**
-A welcome packet that carries all the information about the world blocks
- */
+/// A welcome packet that carries all the information about the world blocks
 #[derive(Serialize, Deserialize)]
 pub struct BlocksWelcomePacket {
     pub data: Vec<u8>,
 }
 
-/**
-A packet that is sent to the client to update the block at the specified coordinates.
- */
+/// A packet that is sent to the client to update the block at the specified coordinates.
 #[derive(Serialize, Deserialize)]
 pub struct BlockChangePacket {
     pub x: i32,
@@ -446,22 +427,18 @@ pub struct BlockChangePacket {
     pub block: BlockId,
 }
 
-/**
-A packet that is sent to the server, when client starts
-to break a block and when the server should start to
-break the block.
- */
+/// A packet that is sent to the server, when client starts
+/// to break a block and when the server should start to
+/// break the block.
 #[derive(Serialize, Deserialize)]
 pub struct BlockBreakStartPacket {
     pub x: i32,
     pub y: i32,
 }
 
-/**
-A packet that is sent to the server, when client stops
-breaking a block and when the server should stop
-breaking the block.
- */
+/// A packet that is sent to the server, when client stops
+/// breaking a block and when the server should stop
+/// breaking the block.
 #[derive(Serialize, Deserialize)]
 pub struct BlockBreakStopPacket {
     pub x: i32,

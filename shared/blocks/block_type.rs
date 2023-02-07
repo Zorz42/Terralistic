@@ -54,152 +54,59 @@ impl rlua::UserData for Block {
         // add meta method to set fields, id and image are not accessible
         methods.add_meta_method_mut(
             rlua::MetaMethod::NewIndex,
-            |_lua_ctx, this, (key, value): (String, rlua::Value)| match key.as_str() {
-                "required_tool_power" => {
-                    match value {
-                        rlua::Value::Integer(i) => this.required_tool_power = i as i32,
+            |_lua_ctx, this, (key, value): (String, rlua::Value)| match value {
+                rlua::Value::Integer(value) => {
+                    match key.as_str() {
+                        "required_tool_power" => this.required_tool_power = value as i32,
+                        "break_time" => this.break_time = value as i32,
+                        "light_emission_r" => this.light_emission_r = value as u8,
+                        "light_emission_g" => this.light_emission_g = value as u8,
+                        "light_emission_b" => this.light_emission_b = value as u8,
+                        "width" => this.width = value as i32,
+                        "height" => this.height = value as i32,
                         _ => {
-                            return Err(rlua::Error::RuntimeError(
-                                "value is not a valid value for required_tool_power".to_string(),
-                            ))
+                            return Err(rlua::Error::RuntimeError(format!(
+                                "{key} is not a valid field of BlockType for integer value"
+                            )))
                         }
-                    }
+                    };
                     Ok(())
                 }
-                "ghost" => {
-                    match value {
-                        rlua::Value::Boolean(b) => this.ghost = b,
+                rlua::Value::Boolean(value) => {
+                    match key.as_str() {
+                        "ghost" => this.ghost = value,
+                        "transparent" => this.transparent = value,
+                        "can_update_states" => this.can_update_states = value,
+                        "feet_collidable" => this.feet_collidable = value,
                         _ => {
-                            return Err(rlua::Error::RuntimeError(
-                                "value is not a valid value for ghost".to_string(),
-                            ))
+                            return Err(rlua::Error::RuntimeError(format!(
+                                "{key} is not a valid field of BlockType for boolean value"
+                            )))
                         }
-                    }
+                    };
                     Ok(())
                 }
-                "transparent" => {
-                    match value {
-                        rlua::Value::Boolean(b) => this.transparent = b,
+                rlua::Value::String(value) => {
+                    match key.as_str() {
+                        "name" => this.name = value.to_str().unwrap_or("undefined").to_owned(),
                         _ => {
-                            return Err(rlua::Error::RuntimeError(
-                                "value is not a valid value for transparent".to_string(),
-                            ))
+                            return Err(rlua::Error::RuntimeError(format!(
+                                "{key} is not a valid field of BlockType for string value"
+                            )))
                         }
-                    }
+                    };
                     Ok(())
                 }
-                "name" => {
-                    match value {
-                        rlua::Value::String(s) => {
-                            this.name = s.to_str().unwrap_or("unknown").to_string()
-                        }
-                        _ => {
-                            return Err(rlua::Error::RuntimeError(
-                                "value is not a valid value for name".to_string(),
-                            ))
-                        }
-                    }
-                    Ok(())
-                }
-                "break_time" => {
-                    match value {
-                        rlua::Value::Integer(i) => this.break_time = i as i32,
-                        _ => {
-                            return Err(rlua::Error::RuntimeError(
-                                "value is not a valid value for break_time".to_string(),
-                            ))
-                        }
-                    }
-                    Ok(())
-                }
-                "light_emission_r" => {
-                    match value {
-                        rlua::Value::Integer(i) => this.light_emission_r = i as u8,
-                        _ => {
-                            return Err(rlua::Error::RuntimeError(
-                                "value is not a valid value for light_emission_r".to_string(),
-                            ))
-                        }
-                    }
-                    Ok(())
-                }
-                "light_emission_g" => {
-                    match value {
-                        rlua::Value::Integer(i) => this.light_emission_g = i as u8,
-                        _ => {
-                            return Err(rlua::Error::RuntimeError(
-                                "value is not a valid value for light_emission_g".to_string(),
-                            ))
-                        }
-                    }
-                    Ok(())
-                }
-                "light_emission_b" => {
-                    match value {
-                        rlua::Value::Integer(i) => this.light_emission_b = i as u8,
-                        _ => {
-                            return Err(rlua::Error::RuntimeError(
-                                "value is not a valid value for light_emission_b".to_string(),
-                            ))
-                        }
-                    }
-                    Ok(())
-                }
-                "width" => {
-                    match value {
-                        rlua::Value::Integer(i) => this.width = i as i32,
-                        _ => {
-                            return Err(rlua::Error::RuntimeError(
-                                "value is not a valid value for width".to_string(),
-                            ))
-                        }
-                    }
-                    Ok(())
-                }
-                "height" => {
-                    match value {
-                        rlua::Value::Integer(i) => this.height = i as i32,
-                        _ => {
-                            return Err(rlua::Error::RuntimeError(
-                                "value is not a valid value for height".to_string(),
-                            ))
-                        }
-                    }
-                    Ok(())
-                }
-                "can_update_states" => {
-                    match value {
-                        rlua::Value::Boolean(b) => this.can_update_states = b,
-                        _ => {
-                            return Err(rlua::Error::RuntimeError(
-                                "value is not a valid value for can_update_states".to_string(),
-                            ))
-                        }
-                    }
-                    Ok(())
-                }
-                "feet_collidable" => {
-                    match value {
-                        rlua::Value::Boolean(b) => this.feet_collidable = b,
-                        _ => {
-                            return Err(rlua::Error::RuntimeError(
-                                "value is not a valid value for feet_collidable".to_string(),
-                            ))
-                        }
-                    }
-                    Ok(())
-                }
-                _ => Err(rlua::Error::RuntimeError(format!(
-                    "{key} is not a valid field of BlockType"
-                ))),
+                _ => Err(rlua::Error::RuntimeError(
+                    "Not a valid value type of BlockType".to_owned(),
+                )),
             },
         );
     }
 }
+
 impl Block {
-    /**
-    Creates a new block type with default values
-     */
+    /// Creates a new block type with default values
     #[must_use]
     pub fn new() -> Self {
         Self {
@@ -221,18 +128,14 @@ impl Block {
         }
     }
 
-    /**
-    This function returns the block id
-     */
+    /// This function returns the block id
     #[must_use]
     pub const fn get_id(&self) -> BlockId {
         self.id
     }
 }
 
-/**
-Block types are equal if they have the same id
- */
+/// Block types are equal if they have the same id
 impl PartialEq for Block {
     fn eq(&self, other: &Self) -> bool {
         self.id == other.id
