@@ -140,10 +140,7 @@ pub fn run_add_server_menu(
                         }
                     }
                     gfx::Key::Enter => {
-                        if !server_name_input.text.is_empty()
-                            && !server_ip_input.text.is_empty()
-                            && is_valid_ip(&server_ip_input.text)
-                        {
+                        if !add_button.disabled {
                             let ip = server_ip_input.text.split(':').next().unwrap().to_string();
                             let port = if server_ip_input.text.contains(':') {
                                 server_ip_input

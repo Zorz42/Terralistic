@@ -110,9 +110,7 @@ pub fn run_world_creation(
                         }
                     }
                     gfx::Key::Enter => {
-                        if !world_name_input.text.is_empty()
-                            && !world_name_exists(worlds_list, &world_name_input.text)
-                        {
+                        if !create_button.disabled {
                             run_private_world(graphics, menu_back, &world_path);
                             break 'render_loop;
                         }
