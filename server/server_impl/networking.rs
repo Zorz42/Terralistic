@@ -68,7 +68,7 @@ impl ServerNetworking {
     pub fn on_event(&mut self, event: &Event) {
         // handle new connection event
         if let Some(event) = event.downcast::<NewConnectionEvent>() {
-            self.send_packet(&Packet::new(WelcomeCompletePacket {}), &event.conn);
+            self.send_packet(&Packet::new(WelcomeCompletePacket {}).unwrap(), &event.conn);
             self.connections.push(event.conn.clone());
         }
     }

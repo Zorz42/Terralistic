@@ -24,7 +24,8 @@ impl ServerWalls {
         if let Some(event) = event.downcast::<NewConnectionEvent>() {
             let welcome_packet = Packet::new(WallsWelcomePacket {
                 data: self.walls.serialize().unwrap(),
-            });
+            })
+            .unwrap();
             networking.send_packet(&welcome_packet, &event.conn);
         }
     }

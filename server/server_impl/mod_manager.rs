@@ -1,6 +1,6 @@
 use super::networking::{NewConnectionEvent, ServerNetworking};
 use crate::libraries::events::Event;
-use crate::shared::mod_manager::{ModManager, ModsWelcomePacket};
+use crate::shared::mod_manager::{GameMod, ModManager, ModsWelcomePacket};
 use crate::shared::packet::Packet;
 
 /**
@@ -18,9 +18,9 @@ impl ServerModManager {
     /**
     Creates a new server mod manager.
      */
-    pub fn new() -> Self {
+    pub fn new(mods: Vec<GameMod>) -> Self {
         Self {
-            mod_manager: ModManager::new(),
+            mod_manager: ModManager::new(mods),
         }
     }
 
@@ -33,9 +33,10 @@ impl ServerModManager {
             .add_global_function("print", |_, text: String| {
                 println!("[server mod] {text}");
                 Ok(())
-            });
+            })
+            .unwrap();
 
-        self.mod_manager.init();
+        self.mod_manager.init().unwrap();
         for game_mod in self.mod_manager.mods_mut() {
             game_mod.call_function::<(), ()>("init_server", ()).unwrap();
         }
@@ -47,7 +48,7 @@ impl ServerModManager {
             for game_mod in self.mod_manager.mods_mut() {
                 mods.push(bincode::serialize(game_mod).unwrap());
             }
-            let welcome_packet = Packet::new(ModsWelcomePacket { mods });
+            let welcome_packet = Packet::new(ModsWelcomePacket { mods }).unwrap();
             networking.send_packet(&welcome_packet, &event.conn);
         }
     }
@@ -57,7 +58,7 @@ impl ServerModManager {
     It updates the shared mod manager.
      */
     pub fn update(&mut self) {
-        self.mod_manager.update();
+        self.mod_manager.update().unwrap();
     }
 
     /**
@@ -65,6 +66,6 @@ impl ServerModManager {
     It stops the shared mod manager.
      */
     pub fn stop(&mut self) {
-        self.mod_manager.stop();
+        self.mod_manager.stop().unwrap();
     }
 }

@@ -29,7 +29,7 @@ impl Server {
             tps_limit: 20.0,
             events: EventManager::new(),
             networking: ServerNetworking::new(port),
-            mods: ServerModManager::new(),
+            mods: ServerModManager::new(Vec::new()),
             blocks,
             walls,
         }
@@ -39,20 +39,21 @@ impl Server {
         &mut self,
         is_running: &Mutex<bool>,
         status_text: &Mutex<String>,
-        mods: Vec<Vec<u8>>,
+        mods_serialized: Vec<Vec<u8>>,
         world_path: &Path,
     ) {
         println!("Starting server...");
         let timer = std::time::Instant::now();
         *status_text.lock().unwrap() = "Starting server".to_string();
 
-        for mod_ in mods {
+        let mut mods = Vec::new();
+        for game_mod in mods_serialized {
             // decompress mod with snap
-            let mod_ = snap::raw::Decoder::new().decompress_vec(&mod_).unwrap();
-            self.mods
-                .mod_manager
-                .add_mod(bincode::deserialize(&mod_).unwrap());
+            let game_mod = snap::raw::Decoder::new().decompress_vec(&game_mod).unwrap();
+            mods.push(bincode::deserialize(&game_mod).unwrap());
         }
+
+        self.mods = ServerModManager::new(mods);
 
         // init modules
         self.networking.init();

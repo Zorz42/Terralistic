@@ -75,17 +75,20 @@ impl BlockSelector {
     fn start_breaking(&mut self, networking: &mut ClientNetworking, pos: (i32, i32)) {
         self.breaking = true;
 
-        networking.send_packet(&Packet::new(BlockBreakStartPacket { x: pos.0, y: pos.1 }))
+        networking.send_packet(&Packet::new(BlockBreakStartPacket { x: pos.0, y: pos.1 }).unwrap())
     }
 
     fn stop_breaking(&mut self, networking: &mut ClientNetworking, pos: (i32, i32)) {
         self.breaking = false;
 
-        networking.send_packet(&Packet::new(BlockBreakStopPacket {
-            x: pos.0,
-            y: pos.1,
-            break_time: 0, // server ignores this
-        }))
+        networking.send_packet(
+            &Packet::new(BlockBreakStopPacket {
+                x: pos.0,
+                y: pos.1,
+                break_time: 0, // server ignores this
+            })
+            .unwrap(),
+        );
     }
 
     /**

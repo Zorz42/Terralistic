@@ -37,7 +37,8 @@ impl ServerBlocks {
         if let Some(event) = event.downcast::<NewConnectionEvent>() {
             let welcome_packet = Packet::new(BlocksWelcomePacket {
                 data: self.blocks.serialize().unwrap(),
-            });
+            })
+            .unwrap();
             networking.send_packet(&welcome_packet, &event.conn);
         } else if let Some(event) = event.downcast::<PacketFromClientEvent>() {
             if let Some(packet) = event.packet.try_deserialize::<BlockBreakStartPacket>() {
@@ -64,21 +65,24 @@ impl ServerBlocks {
             let packet = Packet::new(BlockBreakStartPacket {
                 x: event.x,
                 y: event.y,
-            });
+            })
+            .unwrap();
             networking.send_packet_to_all(&packet);
         } else if let Some(event) = event.downcast::<BlockStoppedBreakingEvent>() {
             let packet = Packet::new(BlockBreakStopPacket {
                 x: event.x,
                 y: event.y,
                 break_time: self.blocks.get_break_progress(event.x, event.y).unwrap(),
-            });
+            })
+            .unwrap();
             networking.send_packet_to_all(&packet);
         } else if let Some(event) = event.downcast::<BlockChangeEvent>() {
             let packet = Packet::new(BlockChangePacket {
                 x: event.x,
                 y: event.y,
                 block: self.blocks.get_block(event.x, event.y).unwrap(),
-            });
+            })
+            .unwrap();
             networking.send_packet_to_all(&packet);
         }
     }

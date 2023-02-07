@@ -1,6 +1,6 @@
 use super::networking::WelcomePacketEvent;
 use crate::libraries::events::Event;
-use crate::shared::mod_manager::{ModManager, ModsWelcomePacket};
+use crate::shared::mod_manager::{GameMod, ModManager, ModsWelcomePacket};
 
 /**
 client mod manager that manages all the mods for the client.
@@ -19,7 +19,7 @@ impl ClientModManager {
      */
     pub fn new() -> Self {
         Self {
-            mod_manager: ModManager::new(),
+            mod_manager: ModManager::new(Vec::new()),
         }
     }
 
@@ -32,9 +32,10 @@ impl ClientModManager {
             .add_global_function("print", |_, text: String| {
                 println!("[client mod] {text}");
                 Ok(())
-            });
+            })
+            .unwrap();
 
-        self.mod_manager.init();
+        self.mod_manager.init().unwrap();
     }
 
     /**
@@ -42,16 +43,18 @@ impl ClientModManager {
     It updates the shared mod manager.
      */
     pub fn update(&mut self) {
-        self.mod_manager.update();
+        self.mod_manager.update().unwrap();
     }
 
     pub fn on_event(&mut self, event: &Event) {
         if let Some(event) = event.downcast::<WelcomePacketEvent>() {
             if let Some(packet) = event.packet.try_deserialize::<ModsWelcomePacket>() {
+                let mut game_mods = Vec::new();
                 for mod_data in packet.mods {
                     let game_mod = bincode::deserialize(&mod_data).unwrap();
-                    self.mod_manager.add_mod(game_mod);
+                    game_mods.push(game_mod);
                 }
+                self.mod_manager = ModManager::new(game_mods);
             }
         }
     }
@@ -61,6 +64,6 @@ impl ClientModManager {
     It stops the shared mod manager.
      */
     pub fn stop(&mut self) {
-        self.mod_manager.stop();
+        self.mod_manager.stop().unwrap();
     }
 }
