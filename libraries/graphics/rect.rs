@@ -18,8 +18,8 @@ impl Rect {
     /**
     Creates a new rectangle.
      */
-    pub fn new(x: i32, y: i32, w: i32, h: i32) -> Self {
-        Rect { x, y, w, h }
+    #[must_use] pub fn new(x: i32, y: i32, w: i32, h: i32) -> Self {
+        Self { x, y, w, h }
     }
 
     /**

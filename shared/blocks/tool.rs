@@ -17,8 +17,8 @@ impl Default for Tool {
 }
 
 impl Tool {
-    pub fn new() -> Self {
-        Tool {
+    #[must_use] pub fn new() -> Self {
+        Self {
             name: String::new(),
             id: -1,
         }
@@ -37,7 +37,7 @@ impl Default for ToolId {
 }
 
 impl ToolId {
-    pub fn new() -> Self {
+    #[must_use] pub fn new() -> Self {
         Self { id: -1 }
     }
 }
@@ -57,7 +57,7 @@ impl Blocks {
     Returns the tool type that has the specified name
      */
     pub fn get_tool_id_by_name(&mut self, name: String) -> Option<ToolId> {
-        for tool_type in self.tool_types.iter() {
+        for tool_type in &self.tool_types {
             if tool_type.name == name {
                 return Some(ToolId { id: tool_type.id });
             }

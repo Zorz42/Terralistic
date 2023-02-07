@@ -2,7 +2,7 @@ use super::vertex_buffer::{DrawMode, Vertex, VertexBuffer};
 use super::{Color, GraphicsContext, Rect, Texture};
 
 /**
-The struct RectArray is used to draw multiple rectangles with the same texture
+The struct `RectArray` is used to draw multiple rectangles with the same texture
 and in one draw call. This is much faster than drawing each rectangle individually.
  */
 pub struct RectArray {
@@ -19,8 +19,8 @@ impl RectArray {
     /**
     Creates a new RectArray.
      */
-    pub fn new() -> Self {
-        RectArray {
+    #[must_use] pub fn new() -> Self {
+        Self {
             vertex_buffer: VertexBuffer::new(),
         }
     }

@@ -43,7 +43,7 @@ Passthrough shader context struct holds shaders needed for drawing
 rectangles and all uniform handles. It also holds a vertex buffer
 for drawing rectangles.
  */
-pub(crate) struct PassthroughShader {
+pub struct PassthroughShader {
     pub passthrough_shader: u32,
     pub rect_vertex_buffer: VertexBuffer,
     pub rect_outline_vertex_buffer: VertexBuffer,
@@ -241,25 +241,25 @@ impl PassthroughShader {
         rect_outline_vertex_buffer.upload();
 
         let has_texture = unsafe {
-            gl::GetUniformLocation(passthrough_shader, "has_texture\0".as_ptr() as *const i8)
+            gl::GetUniformLocation(passthrough_shader, "has_texture\0".as_ptr().cast::<i8>())
         };
         let global_color = unsafe {
-            gl::GetUniformLocation(passthrough_shader, "global_color\0".as_ptr() as *const i8)
+            gl::GetUniformLocation(passthrough_shader, "global_color\0".as_ptr().cast::<i8>())
         };
         let transform_matrix = unsafe {
             gl::GetUniformLocation(
                 passthrough_shader,
-                "transform_matrix\0".as_ptr() as *const i8,
+                "transform_matrix\0".as_ptr().cast::<i8>(),
             )
         };
         let texture_transform_matrix = unsafe {
             gl::GetUniformLocation(
                 passthrough_shader,
-                "texture_transform_matrix\0".as_ptr() as *const i8,
+                "texture_transform_matrix\0".as_ptr().cast::<i8>(),
             )
         };
 
-        PassthroughShader {
+        Self {
             passthrough_shader,
             rect_vertex_buffer,
             rect_outline_vertex_buffer,

@@ -1,5 +1,5 @@
-use super::liquid_type::*;
-use crate::shared::blocks::*;
+use super::liquid_type::LiquidType;
+use crate::shared::blocks::Blocks;
 use std::rc::Rc;
 
 const MAX_LIQUID_LEVEL: i32 = 100;
@@ -13,8 +13,8 @@ struct Liquid {
 }
 
 impl Liquid {
-    pub fn new() -> Liquid {
-        Liquid {
+    pub fn new() -> Self {
+        Self {
             id: 0, //TODO: change to Rc<LiquidType>?
             level: 0.0,
         }
@@ -32,9 +32,9 @@ pub struct Liquids {
 }
 
 impl Liquids {
-    pub fn new(blocks: &Blocks) -> Liquids {
+    #[must_use] pub fn new(blocks: &Blocks) -> Self {
         let temp = LiquidType::new("temp".to_string());
-        let mut liquids_object = Liquids {
+        let mut liquids_object = Self {
             liquid_types: Vec::new(),
             liquids: Vec::new(),
             empty: Rc::new(temp), //temporarily assign
@@ -51,17 +51,13 @@ impl Liquids {
 
     /**this function returns a liquid at the given position*/
     fn get_liquid(&self, x: i32, y: i32) -> &Liquid {
-        if x < 0 || y < 0 || x >= self.width || y >= self.height {
-            panic!("Liquid is accessed out of the bounds! ({x}, {y})");
-        }
+        assert!(!(x < 0 || y < 0 || x >= self.width || y >= self.height), "Liquid is accessed out of the bounds! ({x}, {y})");
         &self.liquids[(y * self.width + x) as usize]
     }
 
     /**this function returns a mutable liquid at the given position*/
     fn get_liquid_mut(&mut self, x: i32, y: i32) -> &mut Liquid {
-        if x < 0 || y < 0 || x >= self.width || y >= self.height {
-            panic!("Liquid is accessed out of the bounds! ({x}, {y})");
-        }
+        assert!(!(x < 0 || y < 0 || x >= self.width || y >= self.height), "Liquid is accessed out of the bounds! ({x}, {y})");
         &mut self.liquids[(y * self.width + x) as usize]
     }
 
@@ -81,30 +77,28 @@ impl Liquids {
     }
 
     /**returns the width of the liquid array*/
-    pub fn get_width(&self) -> i32 {
+    #[must_use] pub fn get_width(&self) -> i32 {
         self.width
     }
 
     /**returns the height of the liquid array*/
-    pub fn get_height(&self) -> i32 {
+    #[must_use] pub fn get_height(&self) -> i32 {
         self.height
     }
 
     /**returns the liquid type at the given position*/
-    pub fn get_liquid_type(&self, x: i32, y: i32) -> Rc<LiquidType> {
+    #[must_use] pub fn get_liquid_type(&self, x: i32, y: i32) -> Rc<LiquidType> {
         self.get_liquid_type_by_id(self.get_liquid(x, y).id)
     }
 
     /**returns the liquid type by id*/
-    pub fn get_liquid_type_by_id(&self, id: i32) -> Rc<LiquidType> {
-        if id < 0 || id >= self.liquid_types.len() as i32 {
-            panic!("Liquid type id is out of bounds! ({id})");
-        }
+    #[must_use] pub fn get_liquid_type_by_id(&self, id: i32) -> Rc<LiquidType> {
+        assert!(!(id < 0 || id >= self.liquid_types.len() as i32), "Liquid type id is out of bounds! ({id})");
         self.liquid_types[id as usize].clone()
     }
 
     /**returns the liquid type by name*/
-    pub fn get_liquid_type_by_name(&self, name: &str) -> Option<Rc<LiquidType>> {
+    #[must_use] pub fn get_liquid_type_by_name(&self, name: &str) -> Option<Rc<LiquidType>> {
         for i in 0..self.liquid_types.len() {
             if self.liquid_types[i].name == name {
                 return Some(self.liquid_types[i].clone());
@@ -224,7 +218,7 @@ impl Liquids {
     }
 
     /**returns the liquid level at the given position*/
-    pub fn get_liquid_level(&self, x: i32, y: i32) -> f32 {
+    #[must_use] pub fn get_liquid_level(&self, x: i32, y: i32) -> f32 {
         self.get_liquid(x, y).level
     }
 
@@ -254,7 +248,7 @@ impl Liquids {
     }
 
     /**returns the number of liquid types*/
-    pub fn get_liquid_type_count(&self) -> u32 {
+    #[must_use] pub fn get_liquid_type_count(&self) -> u32 {
         self.liquid_types.len() as u32
     }
 }

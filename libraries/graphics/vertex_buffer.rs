@@ -5,7 +5,7 @@ pub enum DrawMode {
     Lines,
 }
 
-pub(crate) struct Vertex {
+pub struct Vertex {
     pub(crate) x: f32,
     pub(crate) y: f32,
     pub(crate) color: color::Color,
@@ -13,7 +13,7 @@ pub(crate) struct Vertex {
     pub(crate) tex_y: f32,
 }
 
-pub(crate) struct VertexBuffer {
+pub struct VertexBuffer {
     vertices: Vec<f32>,
     indices: Vec<u32>,
     vertex_buffer: u32,
@@ -33,7 +33,7 @@ impl Drop for VertexBuffer {
 
 impl VertexBuffer {
     pub fn new() -> Self {
-        let mut result = VertexBuffer {
+        let mut result = Self {
             vertices: Vec::new(),
             indices: Vec::new(),
             vertex_buffer: 0,
@@ -69,7 +69,7 @@ impl VertexBuffer {
             gl::BufferData(
                 gl::ARRAY_BUFFER,
                 (self.vertices.len() * 4) as isize,
-                self.vertices.as_ptr() as *const _,
+                self.vertices.as_ptr().cast(),
                 gl::STATIC_DRAW,
             );
 
@@ -77,7 +77,7 @@ impl VertexBuffer {
             gl::BufferData(
                 gl::ELEMENT_ARRAY_BUFFER,
                 (self.indices.len() * 4) as isize,
-                self.indices.as_ptr() as *const _,
+                self.indices.as_ptr().cast(),
                 gl::STATIC_DRAW,
             );
         }

@@ -1,9 +1,9 @@
 use super::{Color, GraphicsContext, Rect, Surface, Texture};
 
 /**
-ShadowContext is a struct that contains the information needed to draw a shadow.
+`ShadowContext` is a struct that contains the information needed to draw a shadow.
  */
-pub(crate) struct ShadowContext {
+pub struct ShadowContext {
     pub shadow_texture: Texture,
 }
 
@@ -63,7 +63,7 @@ impl ShadowContext {
 
         let shadow_texture = Texture::load_from_surface(&surface);
 
-        ShadowContext { shadow_texture }
+        Self { shadow_texture }
     }
 
     /**

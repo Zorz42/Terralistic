@@ -2,7 +2,7 @@ use anyhow::{anyhow, Result};
 use serde_derive::{Deserialize, Serialize};
 
 /**
-WorldMap contains the width and height of the map and is used
+`WorldMap` contains the width and height of the map and is used
 for everything that needs to know the size of the map.
  */
 #[derive(Serialize, Deserialize)]

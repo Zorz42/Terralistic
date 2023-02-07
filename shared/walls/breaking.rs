@@ -13,15 +13,15 @@ pub struct BreakingWall {
 }
 
 impl BreakingWall {
-    pub fn new() -> Self {
-        BreakingWall {
+    #[must_use] pub fn new() -> Self {
+        Self {
             break_progress: 0,
             is_breaking: false,
             coord: (0, 0),
         }
     }
 
-    pub fn get_coord(&self) -> (i32, i32) {
+    #[must_use] pub fn get_coord(&self) -> (i32, i32) {
         self.coord
     }
 }
@@ -36,7 +36,7 @@ impl Walls {
     /**
     Returns the break progress of the wall at x and y
      */
-    pub fn get_break_progress(&self, x: i32, y: i32) -> i32 {
+    #[must_use] pub fn get_break_progress(&self, x: i32, y: i32) -> i32 {
         for wall in &self.breaking_walls {
             if wall.coord == (x, y) {
                 return wall.break_progress;
@@ -94,7 +94,7 @@ impl Walls {
     WallStoppedBreakingEvent
      */
     pub fn stop_breaking_wall(&mut self, x: i32, y: i32) {
-        for wall in self.breaking_walls.iter_mut() {
+        for wall in &mut self.breaking_walls {
             if wall.coord == (x, y) {
                 wall.is_breaking = false;
                 //self.wall_stopped_breaking_event.send(WallStoppedBreakingEvent::new(x, y));
@@ -112,14 +112,14 @@ impl Walls {
         frame_length: f32,
         _events: &mut EventManager,
     ) -> Result<()> {
-        for breaking_wall in self.breaking_walls.iter_mut() {
+        for breaking_wall in &mut self.breaking_walls {
             if breaking_wall.is_breaking {
                 breaking_wall.break_progress += frame_length as i32;
             }
         }
 
         let mut broken_walls = Vec::new();
-        for breaking_wall in self.breaking_walls.iter() {
+        for breaking_wall in &self.breaking_walls {
             if breaking_wall.break_progress
                 > self
                     .get_wall_type_at(breaking_wall.get_coord().0, breaking_wall.get_coord().1)?
@@ -129,7 +129,7 @@ impl Walls {
             }
         }
 
-        for broken_wall in broken_walls.iter() {
+        for broken_wall in &broken_walls {
             let (x, y) = *broken_wall;
 
             //let _event = WallBreakEvent::new(x, y);

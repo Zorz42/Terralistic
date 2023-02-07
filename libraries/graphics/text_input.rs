@@ -41,12 +41,12 @@ pub struct TextInput {
 }
 
 impl TextInput {
-    pub fn new(graphics: &mut GraphicsContext) -> TextInput {
+    pub fn new(graphics: &mut GraphicsContext) -> Self {
         let mut cursor_rect = RenderRect::new(0.0, 0.0, 1.0, 1.0);
         cursor_rect.smooth_factor = 30.0;
         cursor_rect.fill_color = WHITE;
 
-        TextInput {
+        Self {
             x: 0,
             y: 0,
             orientation: TOP_LEFT,
@@ -77,14 +77,14 @@ impl TextInput {
     /**
     Calculates the width.
      */
-    pub fn get_width(&self) -> i32 {
+    #[must_use] pub fn get_width(&self) -> i32 {
         ((self.width + self.padding * 2) as f32 * self.scale) as i32
     }
 
     /**
     Calculates the height.
      */
-    pub fn get_height(&self) -> i32 {
+    #[must_use] pub fn get_height(&self) -> i32 {
         ((self.text_texture.get_texture_height() + self.padding * 2) as f32 * self.scale) as i32
     }
 
@@ -110,7 +110,7 @@ impl TextInput {
     /**
     Checks if the button is hovered with a mouse
      */
-    pub fn is_hovered(
+    #[must_use] pub fn is_hovered(
         &self,
         graphics: &GraphicsContext,
         parent_container: Option<&Container>,
@@ -128,7 +128,7 @@ impl TextInput {
     /**
     returns the text in the input box
      */
-    pub fn get_text(&self) -> &str {
+    #[must_use] pub fn get_text(&self) -> &str {
         &self.text
     }
 

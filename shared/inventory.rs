@@ -1,4 +1,4 @@
-use super::{entities::*, items::*, player::*};
+use super::{entities::{EntityObject, EntityStructTrait}, items::{ItemStack, ItemType, Items}, player::{Player, Players}};
 use crate::shared::blocks::Block;
 use crate::shared::blocks::{Blocks, BLOCK_WIDTH};
 use std::{collections::hash_map::HashMap, rc::Rc};
@@ -29,8 +29,8 @@ pub struct InventoryItemChangeEvent {
     pub item_pos: i32,
 }
 impl InventoryItemChangeEvent {
-    pub fn new(item_pos: i32) -> Self {
-        InventoryItemChangeEvent { item_pos }
+    #[must_use] pub fn new(item_pos: i32) -> Self {
+        Self { item_pos }
     }
 }
 //impl Event for InventoryItemChangeEvent {}
@@ -47,21 +47,21 @@ impl Default for Recipes {
 }
 
 impl Recipes {
-    pub fn new() -> Self {
-        Recipes {
+    #[must_use] pub fn new() -> Self {
+        Self {
             recipes: Vec::new(),
         }
     }
     pub fn register_a_recipe(&mut self, recipe: Rc<Recipe>) {
         self.recipes.push(recipe);
     }
-    pub fn get_all_recipes(&self) -> &Vec<Rc<Recipe>> {
+    #[must_use] pub fn get_all_recipes(&self) -> &Vec<Rc<Recipe>> {
         &self.recipes
     }
 }
 impl Clone for Recipes {
     fn clone(&self) -> Self {
-        let mut new_r = Recipes {
+        let mut new_r = Self {
             recipes: Vec::new(),
         };
         for recipe in &self.recipes {
@@ -82,7 +82,7 @@ pub struct Inventory {
     pub selected_slot: i32,
 }
 impl Inventory {
-    pub fn new(items: &Items) -> Self {
+    #[must_use] pub fn new(items: &Items) -> Self {
         let mut inventory_arr = Vec::new();
         for _ in 0..INVENTORY_SIZE {
             inventory_arr.push(ItemStack::new(items.nothing.clone(), 0));
@@ -91,7 +91,7 @@ impl Inventory {
         let mouse_item = ItemStack::new(Rc::clone(&items.nothing), 0);
         let item_counts = vec![items.get_num_item_types() as i32; 0];
 
-        Inventory {
+        Self {
             recipes: Recipes::new(),
             player_id: 0,
             mouse_item,
@@ -102,8 +102,8 @@ impl Inventory {
             //item_change_event: Sender::new(),
         }
     }
-    pub fn from_existing(inventory: &Inventory) -> Self {
-        Inventory {
+    #[must_use] pub fn from_existing(inventory: &Self) -> Self {
+        Self {
             recipes: inventory.recipes.clone(),
             player_id: inventory.player_id,
             mouse_item: ItemStack::new(Rc::clone(&inventory.mouse_item.item_type.clone()), 0),
@@ -160,7 +160,7 @@ impl Inventory {
         }
     }
     /**returns available recipes*/
-    pub fn get_available_recipes(&self) -> &Vec<Rc<Recipe>> {
+    #[must_use] pub fn get_available_recipes(&self) -> &Vec<Rc<Recipe>> {
         &self.available_recipes
     }
     /**updates the list of available recipes*/
@@ -187,10 +187,8 @@ impl Inventory {
         items: &Items,
         players: &Players,
     ) -> i32 {
-        if count <= 0 {
-            #[cfg(debug_assertions)] //only panic in debug mode
-            panic!("item count cannot be negative");
-        }
+        //only panic in debug mode
+assert!(count > 0, "item count cannot be negative");
         for i in 0..INVENTORY_SIZE as i32 {
             if self.get_item(i).item_type.get_id() == item.get_id() {
                 count -= self.increase_stack(i, count, blocks, items, players);
@@ -225,10 +223,8 @@ impl Inventory {
         items: &Items,
         players: &Players,
     ) -> i32 {
-        if count <= 0 {
-            #[cfg(debug_assertions)] //only panic in debug mode
-            panic!("item count cannot be negative");
-        }
+        //only panic in debug mode
+assert!(count > 0, "item count cannot be negative");
         for i in 0..INVENTORY_SIZE as i32 {
             if self.get_item(i).item_type.get_id() == item.get_id() {
                 count -= self.decrease_stack(i, count, blocks, items, players);
@@ -254,10 +250,8 @@ impl Inventory {
         items: &Items,
         players: &Players,
     ) {
-        if slot < 0 || slot >= INVENTORY_SIZE as i32 {
-            #[cfg(debug_assertions)] //only panic in debug mode
-            panic!("slot out of bounds");
-        }
+        //only panic in debug mode
+assert!(!(slot < 0 || slot >= INVENTORY_SIZE as i32), "slot out of bounds");
         if self.item_counts.is_empty() {
             self.item_counts = vec![items.get_num_item_types() as i32; 0];
 
@@ -278,11 +272,9 @@ impl Inventory {
         //self.item_change_event.send(InventoryItemChangeEvent::new(slot));
     }
     /**gets an item from an inventory slot*/
-    pub fn get_item(&self, slot: i32) -> &ItemStack {
-        if slot < -1 || slot >= INVENTORY_SIZE as i32 {
-            #[cfg(debug_assertions)] //only panic in debug mode
-            panic!("slot out of bounds");
-        }
+    #[must_use] pub fn get_item(&self, slot: i32) -> &ItemStack {
+        //only panic in debug mode
+assert!(!(slot < -1 || slot >= INVENTORY_SIZE as i32), "slot out of bounds");
         if slot == -1 {
             return &self.mouse_item;
         }
@@ -290,17 +282,15 @@ impl Inventory {
     }
     /**gets a mutable reference to an item from an inventory slot*/
     pub fn get_item_mut(&mut self, slot: i32) -> &mut ItemStack {
-        if slot < -1 || slot >= INVENTORY_SIZE as i32 {
-            #[cfg(debug_assertions)] //only panic in debug mode
-            panic!("slot out of bounds");
-        }
+        //only panic in debug mode
+assert!(!(slot < -1 || slot >= INVENTORY_SIZE as i32), "slot out of bounds");
         if slot == -1 {
             return &mut self.mouse_item;
         }
         &mut self.inventory_arr[slot as usize]
     }
     /**counts the items of 1 type in the inventory*/
-    pub fn count_items(&self, item_id: i32) -> i32 {
+    #[must_use] pub fn count_items(&self, item_id: i32) -> i32 {
         let mut result = 0;
         for i in 0..INVENTORY_SIZE as i32 {
             if self.get_item(i).item_type.get_id() == item_id {
@@ -310,15 +300,13 @@ impl Inventory {
         result
     }
     /**returns the item in the selected slot*/
-    pub fn get_selected_slot(&self) -> &ItemStack {
+    #[must_use] pub fn get_selected_slot(&self) -> &ItemStack {
         self.get_item(self.selected_slot)
     }
     /**swaps an item in an inventory slot with the item in the mouse slot*/
     pub fn swap_with_mouse_item(&mut self, slot: i32) {
-        if slot < 0 || slot >= INVENTORY_SIZE as i32 {
-            #[cfg(debug_assertions)] //only panic in debug mode
-            panic!("slot out of bounds");
-        }
+        //only panic in debug mode
+assert!(!(slot < 0 || slot >= INVENTORY_SIZE as i32), "slot out of bounds");
         std::mem::swap(&mut self.inventory_arr[slot as usize], &mut self.mouse_item);
     }
     /**increases the stack count of an item in an inventory slot*/
@@ -380,7 +368,7 @@ impl Inventory {
         }
     }
     /**serailizes the inventory, used when saving the world or sending it to the client*/
-    pub fn serialize(&self) -> Vec<u8> {
+    #[must_use] pub fn serialize(&self) -> Vec<u8> {
         let mut serial: Vec<u8> = Vec::new();
         for item in &self.inventory_arr {
             serial.append(&mut item.item_type.get_id().to_le_bytes().to_vec());

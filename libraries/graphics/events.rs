@@ -1,5 +1,5 @@
 /**
-A collection of all supported deprecated_events
+A collection of all supported `deprecated_events`
  */
 #[derive(Clone)]
 pub enum Event {
@@ -11,9 +11,9 @@ pub enum Event {
 }
 
 /**
-Translates sdl type deprecated_events to our event type
+Translates sdl type `deprecated_events` to our event type
  */
-pub(crate) fn sdl_event_to_gfx_event(sdl_event: &sdl2::event::Event) -> Option<Event> {
+pub fn sdl_event_to_gfx_event(sdl_event: &sdl2::event::Event) -> Option<Event> {
     match sdl_event {
         sdl2::event::Event::KeyDown {
             keycode: Some(keycode),

@@ -20,8 +20,8 @@ impl Default for Texture {
 }
 
 impl Texture {
-    pub fn new() -> Self {
-        Texture {
+    #[must_use] pub fn new() -> Self {
+        Self {
             texture_handle: u32::MAX,
             width: 0,
             height: 0,
@@ -31,8 +31,8 @@ impl Texture {
     /**
     Loads a Surface into gpu memory.
      */
-    pub fn load_from_surface(surface: &Surface) -> Self {
-        let mut result = Texture::new();
+    #[must_use] pub fn load_from_surface(surface: &Surface) -> Self {
+        let mut result = Self::new();
         result.width = surface.get_width();
         result.height = surface.get_height();
 
@@ -53,7 +53,7 @@ impl Texture {
                 0,
                 gl::RGBA,
                 gl::UNSIGNED_BYTE,
-                &data[0] as *const u8 as *const c_void,
+                std::ptr::addr_of!(data[0]) as *const c_void,
             );
             gl::GenerateMipmap(gl::TEXTURE_2D);
         }
@@ -75,11 +75,11 @@ impl Texture {
         }
     }
 
-    pub fn get_texture_width(&self) -> i32 {
+    #[must_use] pub fn get_texture_width(&self) -> i32 {
         self.width
     }
 
-    pub fn get_texture_height(&self) -> i32 {
+    #[must_use] pub fn get_texture_height(&self) -> i32 {
         self.height
     }
 

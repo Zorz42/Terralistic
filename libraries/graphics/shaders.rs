@@ -1,7 +1,7 @@
 /**
 This compiles fragment and vertex shader and returns the compiled shader program
  */
-pub(crate) fn compile_shader(vertex_code: &str, fragment_code: &str) -> u32 {
+pub fn compile_shader(vertex_code: &str, fragment_code: &str) -> u32 {
     unsafe {
         let vertex_id = gl::CreateShader(gl::VERTEX_SHADER);
         let fragment_id = gl::CreateShader(gl::FRAGMENT_SHADER);
@@ -24,7 +24,7 @@ pub(crate) fn compile_shader(vertex_code: &str, fragment_code: &str) -> u32 {
                 vertex_id,
                 len,
                 std::ptr::null_mut(),
-                buffer.as_mut_ptr() as *mut i8,
+                buffer.as_mut_ptr().cast::<i8>(),
             );
             panic!(
                 "Vertex shader compilation failed: {}",
@@ -50,7 +50,7 @@ pub(crate) fn compile_shader(vertex_code: &str, fragment_code: &str) -> u32 {
                 fragment_id,
                 len,
                 std::ptr::null_mut(),
-                buffer.as_mut_ptr() as *mut i8,
+                buffer.as_mut_ptr().cast::<i8>(),
             );
             panic!(
                 "Fragment shader compilation failed: {}",

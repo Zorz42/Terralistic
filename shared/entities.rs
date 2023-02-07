@@ -2,12 +2,12 @@ use crate::shared::blocks::{Blocks, BLOCK_WIDTH};
 use once_cell::sync::Lazy;
 use std::sync::Mutex;
 
-#[derive(PartialEq)]
+#[derive(PartialEq, Eq)]
 pub enum EntityType {
     ITEM,
     PLAYER,
 } //TODO: remove this since they're now in separate objects?
-#[derive(PartialEq, Copy, Clone)]
+#[derive(PartialEq, Eq, Copy, Clone)]
 pub enum Direction {
     LEFT,
     RIGHT,
@@ -66,8 +66,8 @@ pub struct Entity {
 }
 
 impl Entity {
-    pub fn new(entity_type: EntityType, x: i32, y: i32, id: u32) -> Entity {
-        let mut entity = Entity {
+    pub fn new(entity_type: EntityType, x: i32, y: i32, id: u32) -> Self {
+        let mut entity = Self {
             x: x as f32,
             y: y as f32,
             velocity_x: 0.0,
@@ -125,8 +125,8 @@ impl EntityObject for Entity {
         let ending_y =
             ((colliding_y + self.get_height() as f32 - 1.0) / (BLOCK_WIDTH * 2) as f32) as i32;
 
-        for x in starting_x..ending_x + 1 {
-            for y in starting_y..ending_y + 1 {
+        for x in starting_x..=ending_x {
+            for y in starting_y..=ending_y {
                 if !blocks.get_block_type_at(x, y).unwrap().ghost
                     && !blocks.get_block_type_at(x, y).unwrap().feet_collidable
                 {
@@ -227,8 +227,8 @@ pub struct EntityVelocityChangeEvent {
     pub entity_id: u32,
 }
 impl EntityVelocityChangeEvent {
-    pub fn new(entity_id: u32) -> Self {
-        EntityVelocityChangeEvent { entity_id }
+    #[must_use] pub fn new(entity_id: u32) -> Self {
+        Self { entity_id }
     }
 }
 
@@ -238,8 +238,8 @@ pub struct EntityAbsoluteVelocityChangeEvent {
     pub old_vel_y: f32,
 }
 impl EntityAbsoluteVelocityChangeEvent {
-    pub fn new(entity_id: u32, old_vel_x: f32, old_vel_y: f32) -> Self {
-        EntityAbsoluteVelocityChangeEvent {
+    #[must_use] pub fn new(entity_id: u32, old_vel_x: f32, old_vel_y: f32) -> Self {
+        Self {
             entity_id,
             old_vel_x,
             old_vel_y,
@@ -250,16 +250,16 @@ pub struct EntityPositionChangeEvent {
     pub entity_id: u32,
 }
 impl EntityPositionChangeEvent {
-    pub fn new(entity_id: u32) -> Self {
-        EntityPositionChangeEvent { entity_id }
+    #[must_use] pub fn new(entity_id: u32) -> Self {
+        Self { entity_id }
     }
 }
 pub struct EntityDeletionEvent {
     pub entity_id: u32,
 }
 impl EntityDeletionEvent {
-    pub fn new(entity_id: u32) -> Self {
-        EntityDeletionEvent { entity_id }
+    #[must_use] pub fn new(entity_id: u32) -> Self {
+        Self { entity_id }
     }
 }
 

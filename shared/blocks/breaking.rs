@@ -12,7 +12,7 @@ pub struct BreakingBlock {
 }
 
 impl BreakingBlock {
-    pub fn new(coord: (i32, i32)) -> Self {
+    #[must_use] pub fn new(coord: (i32, i32)) -> Self {
         Self {
             break_progress: 0,
             is_breaking: true,
@@ -20,7 +20,7 @@ impl BreakingBlock {
         }
     }
 
-    pub fn get_coord(&self) -> (i32, i32) {
+    #[must_use] pub fn get_coord(&self) -> (i32, i32) {
         self.coord
     }
 }
@@ -32,7 +32,7 @@ impl Blocks {
     pub fn get_break_progress(&self, x: i32, y: i32) -> Result<i32> {
         self.block_data.map.translate_coords(x, y)?;
 
-        for breaking_block in self.breaking_blocks.iter() {
+        for breaking_block in &self.breaking_blocks {
             if breaking_block.coord == (x, y) {
                 return Ok(breaking_block.break_progress);
             }
@@ -46,7 +46,7 @@ impl Blocks {
     pub fn set_break_progress(&mut self, x: i32, y: i32, progress: i32) -> Result<()> {
         self.block_data.map.translate_coords(x, y)?;
 
-        for breaking_block in self.breaking_blocks.iter_mut() {
+        for breaking_block in &mut self.breaking_blocks {
             if breaking_block.coord == (x, y) {
                 breaking_block.break_progress = progress;
                 return Ok(());
@@ -82,7 +82,7 @@ impl Blocks {
         self.block_data.map.translate_coords(x, y)?;
 
         let mut breaking_block: Option<&mut BreakingBlock> = None;
-        for i in self.breaking_blocks.iter_mut() {
+        for i in &mut self.breaking_blocks {
             if i.coord == (x, y) {
                 breaking_block = Some(i);
                 break;
@@ -115,7 +115,7 @@ impl Blocks {
     pub fn stop_breaking_block(&mut self, events: &mut EventManager, x: i32, y: i32) -> Result<()> {
         self.block_data.map.translate_coords(x, y)?;
 
-        for breaking_block in self.breaking_blocks.iter_mut() {
+        for breaking_block in &mut self.breaking_blocks {
             if breaking_block.get_coord() == (x, y) {
                 breaking_block.is_breaking = false;
                 let event = BlockStoppedBreakingEvent { x, y };
@@ -134,14 +134,14 @@ impl Blocks {
         events: &mut EventManager,
         frame_length: f32,
     ) -> Result<()> {
-        for breaking_block in self.breaking_blocks.iter_mut() {
+        for breaking_block in &mut self.breaking_blocks {
             if breaking_block.is_breaking {
                 breaking_block.break_progress += frame_length as i32;
             }
         }
 
         let mut broken_blocks = Vec::new();
-        for breaking_block in self.breaking_blocks.iter() {
+        for breaking_block in &self.breaking_blocks {
             if breaking_block.break_progress
                 > self
                     .get_block_type_at(breaking_block.get_coord().0, breaking_block.get_coord().1)?
@@ -151,7 +151,7 @@ impl Blocks {
             }
         }
 
-        for broken_block in broken_blocks.iter() {
+        for broken_block in &broken_blocks {
             let (x, y) = *broken_block;
             let transformed_x = x - self.get_block_from_main(x, y)?.0;
             let transformed_y = y - self.get_block_from_main(x, y)?.1;
@@ -171,7 +171,7 @@ impl Blocks {
     /**
     returns and immutable reference to the breaking blocks
      */
-    pub fn get_breaking_blocks(&self) -> &Vec<BreakingBlock> {
+    #[must_use] pub fn get_breaking_blocks(&self) -> &Vec<BreakingBlock> {
         &self.breaking_blocks
     }
 }

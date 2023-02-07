@@ -73,7 +73,7 @@ pub struct GraphicsContext {
     pub font: Font,
 }
 
-pub fn init(
+#[must_use] pub fn init(
     window_width: i32,
     window_height: i32,
     window_title: &str,

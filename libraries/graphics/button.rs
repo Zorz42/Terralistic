@@ -36,8 +36,8 @@ impl Button {
     /**
     Creates a new button.
      */
-    pub fn new() -> Self {
-        Button {
+    #[must_use] pub fn new() -> Self {
+        Self {
             x: 0,
             y: 0,
             orientation: TOP_LEFT,
@@ -59,21 +59,21 @@ impl Button {
     /**
     Calculates the width based on the image width and the margin.
      */
-    pub fn get_width(&self) -> i32 {
+    #[must_use] pub fn get_width(&self) -> i32 {
         ((self.texture.get_texture_width() as f32 + self.margin as f32 * 2.0) * self.scale) as i32
     }
 
     /**
     Calculates the height based on the image height and the margin.
      */
-    pub fn get_height(&self) -> i32 {
+    #[must_use] pub fn get_height(&self) -> i32 {
         ((self.texture.get_texture_height() as f32 + self.margin as f32 * 2.0) * self.scale) as i32
     }
 
     /**
     Generates the container for the button.
      */
-    pub fn get_container(
+    #[must_use] pub fn get_container(
         &self,
         graphics: &GraphicsContext,
         parent_container: Option<&Container>,
@@ -92,7 +92,7 @@ impl Button {
     /**
     Checks if the button is hovered with a mouse.
      */
-    pub fn is_hovered(
+    #[must_use] pub fn is_hovered(
         &self,
         graphics: &GraphicsContext,
         parent_container: Option<&Container>,

@@ -1,4 +1,4 @@
-use super::{blocks::*, entities::*};
+use super::{blocks::{BLOCK_WIDTH, Blocks}, entities::{Direction, Entity, EntityAbsoluteVelocityChangeEvent, EntityDeletionEvent, EntityObject, EntityPositionChangeEvent, EntityStructTrait, EntityType, EntityVelocityChangeEvent}};
 
 //TODO: write tests
 
@@ -7,7 +7,7 @@ const PLAYER_WIDTH: i32 = 16;
 pub const PLAYER_MAX_HEALTH: i32 = 80;
 
 /**enum of possible movement types for the player*/
-#[derive(PartialEq, Copy, Clone)]
+#[derive(PartialEq, Eq, Copy, Clone)]
 pub enum MovingType {
     Standing,
     Walking,
@@ -33,8 +33,8 @@ pub struct Player {
 }
 
 impl Player {
-    pub fn new(x: i32, y: i32, name: String, health: i32, id: u32) -> Player {
-        Player {
+    #[must_use] pub fn new(x: i32, y: i32, name: String, health: i32, id: u32) -> Self {
+        Self {
             entity: Entity::new(EntityType::PLAYER, x, y, id),
             health,
             name,
@@ -47,10 +47,10 @@ impl Player {
         self.health = health;
     }
     /**returns the player's health*/
-    pub fn get_health(&self) -> i32 {
+    #[must_use] pub fn get_health(&self) -> i32 {
         self.health
     }
-    pub fn get_id(&self) -> u32 {
+    #[must_use] pub fn get_id(&self) -> u32 {
         self.entity.id
     }
 }
@@ -163,8 +163,8 @@ impl Default for Players {
 }
 
 impl Players {
-    pub fn new() -> Players {
-        Players {
+    #[must_use] pub fn new() -> Self {
+        Self {
             players: Vec::new(),
             //player_health_change_event: Sender::new(),
             //player_position_change_event: Sender::new(),
@@ -184,7 +184,7 @@ impl Players {
         }
     }
     /**this function returns the player's health*/
-    pub fn get_health(&self, player_id: u32) -> i32 {
+    #[must_use] pub fn get_health(&self, player_id: u32) -> i32 {
         for player in &self.players {
             if player.entity.id == player_id {
                 return player.get_health();

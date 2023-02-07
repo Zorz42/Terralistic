@@ -31,8 +31,8 @@ impl Container {
     /**
     Creates a new container.
      */
-    pub fn new(x: i32, y: i32, w: i32, h: i32, orientation: Orientation) -> Self {
-        Container {
+    #[must_use] pub fn new(x: i32, y: i32, w: i32, h: i32, orientation: Orientation) -> Self {
+        Self {
             rect: Rect::new(x, y, w, h),
             abs_rect: Rect::new(x, y, w, h),
             orientation,
@@ -45,14 +45,14 @@ impl Container {
     of the parent container. If parent is None, the parent is the
     window. This function needs graphics_context to get the window size.
      */
-    pub fn get_absolute_rect(&self) -> &Rect {
+    #[must_use] pub fn get_absolute_rect(&self) -> &Rect {
         &self.abs_rect
     }
 
     /**
     This function gets parent container and updates the absolute values
      */
-    pub fn update(&mut self, graphics: &GraphicsContext, parent_container: Option<&Container>) {
+    pub fn update(&mut self, graphics: &GraphicsContext, parent_container: Option<&Self>) {
         let parent_rect = if let Some(parent) = parent_container {
             *parent.get_absolute_rect()
         } else {

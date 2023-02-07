@@ -55,6 +55,7 @@
 #![allow(clippy::cast_precision_loss)]
 #![allow(clippy::cast_sign_loss)]
 #![allow(clippy::suboptimal_flops)]
+#![allow(clippy::cast_lossless)]
 
 use crate::build_project::compile_mod::compile_mod;
 use crate::build_project::compile_resource_pack::compile_resource_pack;

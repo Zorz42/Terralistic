@@ -46,7 +46,7 @@ impl Default for Block {
 }
 
 /**
-make BlockType Lua compatible, implement getter and setter for every field except id and image
+make `BlockType` Lua compatible, implement getter and setter for every field except id and image
  */
 impl rlua::UserData for Block {
     fn add_methods<'lua, M: UserDataMethods<'lua, Self>>(methods: &mut M) {
@@ -199,13 +199,13 @@ impl Block {
     /**
     Creates a new block type with default values
      */
-    pub fn new() -> Self {
-        Block {
+    #[must_use] pub fn new() -> Self {
+        Self {
             effective_tool: None,
             required_tool_power: 0,
             ghost: false,
             transparent: false,
-            name: "".to_string(),
+            name: String::new(),
             connects_to: vec![],
             break_time: 0,
             light_emission_r: 0,
@@ -222,7 +222,7 @@ impl Block {
     /**
     This function returns the block id
      */
-    pub fn get_id(&self) -> BlockId {
+    #[must_use] pub fn get_id(&self) -> BlockId {
         self.id
     }
 }

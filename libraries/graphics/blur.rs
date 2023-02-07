@@ -1,7 +1,7 @@
 use super::shaders::compile_shader;
 use super::transformation::Transformation;
 use super::Rect;
-use std::ffi::c_void;
+
 
 const BLUR_VERTEX_SHADER_CODE: &str = r#"
 #version 330 core
@@ -38,7 +38,7 @@ void main() {
 Blur context struct holds shaders needed for blurring and
 all uniform handles.
  */
-pub(crate) struct BlurContext {
+pub struct BlurContext {
     blur_shader: u32,
     transform_matrix_uniform: i32,
     texture_transform_matrix_uniform: i32,
@@ -58,25 +58,25 @@ impl BlurContext {
      */
     pub(crate) fn new() -> Self {
         let blur_shader = compile_shader(BLUR_VERTEX_SHADER_CODE, BLUR_FRAGMENT_SHADER_CODE);
-        BlurContext {
+        Self {
             blur_shader,
             transform_matrix_uniform: unsafe {
-                gl::GetUniformLocation(blur_shader, "transform_matrix\0".as_ptr() as *const i8)
+                gl::GetUniformLocation(blur_shader, "transform_matrix\0".as_ptr().cast::<i8>())
             },
             texture_transform_matrix_uniform: unsafe {
                 gl::GetUniformLocation(
                     blur_shader,
-                    "texture_transform_matrix\0".as_ptr() as *const i8,
+                    "texture_transform_matrix\0".as_ptr().cast::<i8>(),
                 )
             },
             texture_sampler_uniform: unsafe {
-                gl::GetUniformLocation(blur_shader, "texture_sampler\0".as_ptr() as *const i8)
+                gl::GetUniformLocation(blur_shader, "texture_sampler\0".as_ptr().cast::<i8>())
             },
             blur_offset_uniform: unsafe {
-                gl::GetUniformLocation(blur_shader, "blur_offset\0".as_ptr() as *const i8)
+                gl::GetUniformLocation(blur_shader, "blur_offset\0".as_ptr().cast::<i8>())
             },
             limit_uniform: unsafe {
-                gl::GetUniformLocation(blur_shader, "limit\0".as_ptr() as *const i8)
+                gl::GetUniformLocation(blur_shader, "limit\0".as_ptr().cast::<i8>())
             },
             rect_vertex_buffer: {
                 let mut buffer = 0;
@@ -90,7 +90,7 @@ impl BlurContext {
                     gl::BufferData(
                         gl::ARRAY_BUFFER,
                         4 * 12,
-                        rect_vertex_array.as_ptr() as *const c_void,
+                        rect_vertex_array.as_ptr().cast::<std::ffi::c_void>(),
                         gl::STATIC_DRAW,
                     );
                     gl::BindBuffer(gl::ARRAY_BUFFER, 0);

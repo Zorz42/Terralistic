@@ -41,7 +41,7 @@ impl Packet {
     If the type of the packet is not the same as the type that you are trying to deserialize to,
     it will return None.
      */
-    pub fn deserialize<T: DeserializeOwned + 'static>(&self) -> Option<T> {
+    #[must_use] pub fn deserialize<T: DeserializeOwned + 'static>(&self) -> Option<T> {
         if self.id == get_type_id::<T>() {
             Some(bincode::deserialize(&self.data).unwrap())
         } else {
@@ -54,4 +54,4 @@ impl Packet {
 This packet is sent when all the welcome packets have been sent.
  */
 #[derive(Serialize, Deserialize)]
-pub struct WelcomeCompletePacket {}
+pub struct WelcomeCompletePacket;

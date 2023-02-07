@@ -2,7 +2,7 @@
 Transformation is a 3x3 matrix used to move and scale drawn objects.
  */
 #[derive(Clone)]
-pub(crate) struct Transformation {
+pub struct Transformation {
     pub matrix: [f32; 9],
 }
 
@@ -10,8 +10,8 @@ impl Transformation {
     /**
     A new Transformation always contains identity matrix.
      */
-    pub fn new() -> Transformation {
-        Transformation {
+    pub fn new() -> Self {
+        Self {
             matrix: [1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0],
         }
     }
@@ -36,7 +36,7 @@ impl Transformation {
 }
 
 impl std::ops::Mul for Transformation {
-    type Output = Transformation;
+    type Output = Self;
 
     /**
     Matrix multiplication

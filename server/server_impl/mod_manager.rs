@@ -8,7 +8,7 @@ server mod manager that manages all the mods for the server.
 It is used to initialize, update and stop all the mods.
 It uses the shared mod manager to do this.
 It gets all the mods from the world
-and always loads the base_game mod.
+and always loads the `base_game` mod.
  */
 pub struct ServerModManager {
     pub mod_manager: ModManager,

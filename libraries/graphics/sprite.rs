@@ -25,8 +25,8 @@ impl Sprite {
     /**
     Creates a new Sprite with default values.
      */
-    pub fn new() -> Sprite {
-        Sprite {
+    #[must_use] pub fn new() -> Self {
+        Self {
             texture: Texture::new(),
             x: 0,
             y: 0,
@@ -40,14 +40,14 @@ impl Sprite {
     /**
     Returns width of the sprite.
      */
-    pub fn get_width(&self) -> i32 {
+    #[must_use] pub fn get_width(&self) -> i32 {
         (self.texture.get_texture_width() as f32 * self.scale) as i32
     }
 
     /**
     Returns height of the sprite.
      */
-    pub fn get_height(&self) -> i32 {
+    #[must_use] pub fn get_height(&self) -> i32 {
         (self.texture.get_texture_height() as f32 * self.scale) as i32
     }
 

@@ -3,11 +3,11 @@ use super::Orientation;
 use super::{Color, GraphicsContext, TOP_LEFT};
 
 /**
-The struct RenderRect contains a container and
+The struct `RenderRect` contains a container and
 moves smoothly visually to the saved position
-it has a smooth_factor. At every render the position
+it has a `smooth_factor`. At every render the position
 of the container is changed by the distance to the
-target position divided by the smooth_factor. It is 1 by default.
+target position divided by the `smooth_factor`. It is 1 by default.
  */
 pub struct RenderRect {
     pub x: f32,
@@ -29,8 +29,8 @@ pub struct RenderRect {
 }
 
 impl RenderRect {
-    pub fn new(x: f32, y: f32, w: f32, h: f32) -> Self {
-        RenderRect {
+    #[must_use] pub fn new(x: f32, y: f32, w: f32, h: f32) -> Self {
+        Self {
             x,
             y,
             w,
@@ -73,7 +73,7 @@ impl RenderRect {
 
         let container = self.get_container(graphics, parent_container);
         let rect = container.get_absolute_rect();
-        graphics.renderer.blur_rect(rect.clone(), self.blur_radius);
+        graphics.renderer.blur_rect(*rect, self.blur_radius);
         graphics.renderer.shadow_context.render(
             graphics,
             rect,
@@ -87,7 +87,7 @@ impl RenderRect {
     This function returns the container of the rectangle.
     The container has the position of render rect.
      */
-    pub fn get_container(
+    #[must_use] pub fn get_container(
         &self,
         graphics: &GraphicsContext,
         parent_container: Option<&Container>,

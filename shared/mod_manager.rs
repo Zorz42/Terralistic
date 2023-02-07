@@ -27,8 +27,8 @@ pub fn get_mod_id(context: Context) -> Result<i32, LuaError> {
 Game mod contains lua code that can be used to modify the game.
 It also contains resources that can be used by the lua code.
 resources are a map of strings to byte arrays. The string key
-is the path of the resource file, relative to the game_mod
-but without the game_mod/ prefix and instead with a / separator
+is the path of the resource file, relative to the `game_mod`
+but without the `game_mod`/ prefix and instead with a / separator
 it has a : separator. The byte array is the contents of the file.
  */
 pub struct GameMod {
@@ -39,7 +39,7 @@ pub struct GameMod {
 }
 
 impl GameMod {
-    pub fn new(lua_code: String, resources: HashMap<String, Vec<u8>>) -> Self {
+    #[must_use] pub fn new(lua_code: String, resources: HashMap<String, Vec<u8>>) -> Self {
         Self {
             lua_code,
             resources,
@@ -179,7 +179,7 @@ impl ModManager {
     /**
     Creates a new mod manager.
     */
-    pub fn new() -> Self {
+    #[must_use] pub fn new() -> Self {
         Self {
             mods: Vec::new(),
             state: ModManagerState::LoadingMods,
@@ -277,7 +277,7 @@ impl ModManager {
     /**
     This function gets the resource with the given path.
      */
-    pub fn get_resource(&self, path: &str) -> Option<&Vec<u8>> {
+    #[must_use] pub fn get_resource(&self, path: &str) -> Option<&Vec<u8>> {
         for game_mod in self.mods.iter().rev() {
             if let Some(data) = game_mod.get_resource(path) {
                 return Some(data);

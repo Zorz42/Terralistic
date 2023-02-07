@@ -18,7 +18,7 @@ impl MenuBack {
     /**
     Creates a new MenuBack.
      */
-    pub fn new() -> Self {
+    #[must_use] pub fn new() -> Self {
         let mut back_rect = gfx::RenderRect::new(0.0, 0.0, 0.0, 0.0);
         back_rect.border_color = gfx::BORDER_COLOR;
         back_rect.fill_color.a = gfx::TRANSPARENCY;

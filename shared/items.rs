@@ -1,9 +1,9 @@
-use super::{blocks::Block, entities::*, walls};
+use super::{blocks::Block, entities::{Direction, Entity, EntityDeletionEvent, EntityObject, EntityPositionChangeEvent, EntityStructTrait, EntityType, EntityVelocityChangeEvent}, walls};
 use crate::shared::blocks::Tool;
 use crate::shared::blocks::{BlockId, Blocks};
 use crate::shared::walls::WallId;
 use std::collections::HashMap;
-use std::ops::Deref;
+
 use std::rc::Rc;
 
 const ITEM_WIDTH: i32 = 8;
@@ -20,10 +20,10 @@ pub struct ItemType {
 }
 
 impl ItemType {
-    pub fn new(name: String) -> Self {
-        ItemType {
+    #[must_use] pub fn new(name: String) -> Self {
+        Self {
             name,
-            display_name: "".to_string(),
+            display_name: String::new(),
             max_stack: 0,
             places_block: None,
             places_wall: None,
@@ -31,7 +31,7 @@ impl ItemType {
             id: 0,
         }
     }
-    pub fn get_id(&self) -> i32 {
+    #[must_use] pub fn get_id(&self) -> i32 {
         self.id
     }
 }
@@ -44,16 +44,16 @@ pub struct Item {
 
 impl Item {
     /**creates a new item*/
-    pub fn new(item_type: Rc<ItemType>, x: i32, y: i32, entity_item_count: u32, id: u32) -> Self {
-        Item {
+    #[must_use] pub fn new(item_type: Rc<ItemType>, x: i32, y: i32, entity_item_count: u32, id: u32) -> Self {
+        Self {
             item_type,
             entity_item_count,
             entity: Entity::new(EntityType::ITEM, x, y, id),
         }
     }
     /**returns item type*/
-    pub fn get_type(&self) -> &ItemType {
-        self.item_type.deref()
+    #[must_use] pub fn get_type(&self) -> &ItemType {
+        &self.item_type
     }
 }
 
@@ -111,8 +111,8 @@ pub struct ItemStack {
 }
 
 impl ItemStack {
-    pub fn new(item_type: Rc<ItemType>, stack: i32) -> Self {
-        ItemStack { item_type, stack }
+    #[must_use] pub fn new(item_type: Rc<ItemType>, stack: i32) -> Self {
+        Self { item_type, stack }
     }
 }
 
@@ -126,8 +126,8 @@ pub struct TileDrop {
 }
 
 impl TileDrop {
-    pub fn new(drop: Rc<ItemType>, chance: f32) -> Self {
-        TileDrop { drop, chance }
+    #[must_use] pub fn new(drop: Rc<ItemType>, chance: f32) -> Self {
+        Self { drop, chance }
     }
 }
 
@@ -151,12 +151,12 @@ impl Default for Items {
 }
 
 impl Items {
-    pub fn new() -> Self {
+    #[must_use] pub fn new() -> Self {
         let nothing = Rc::new(ItemType::new("nothing".to_string()));
 
         let item_types = vec![nothing.clone()];
 
-        Items {
+        Self {
             items: Vec::new(),
             item_types,
             block_drops: HashMap::new(),
@@ -189,14 +189,12 @@ impl Items {
         self.item_types.push(Rc::from(item_type));
     }
     /**this function returns the item type with the given id*/
-    pub fn get_item_type(&self, id: i32) -> Rc<ItemType> {
-        if id < 0 || id >= self.item_types.len() as i32 {
-            panic!("Item type id does not exist.");
-        }
+    #[must_use] pub fn get_item_type(&self, id: i32) -> Rc<ItemType> {
+        assert!(!(id < 0 || id >= self.item_types.len() as i32), "Item type id does not exist.");
         self.item_types[id as usize].clone()
     }
     /**this function returns the item type with the given name*/
-    pub fn get_item_type_by_name(&self, name: &str) -> Option<Rc<ItemType>> {
+    #[must_use] pub fn get_item_type_by_name(&self, name: &str) -> Option<Rc<ItemType>> {
         for item_type in &self.item_types {
             if item_type.name == name {
                 return Option::Some(item_type.clone());
@@ -205,7 +203,7 @@ impl Items {
         Option::None
     }
     /**this function returns the number of item types*/
-    pub fn get_num_item_types(&self) -> usize {
+    #[must_use] pub fn get_num_item_types(&self) -> usize {
         self.item_types.len()
     }
     /**this function sets the block drop for the given block type*/
@@ -213,7 +211,7 @@ impl Items {
         self.block_drops.insert(block_type.get_id(), drop);
     }
     /**this function returns the block drop for the given block type*/
-    pub fn get_block_drop(&self, block_type: Rc<Block>) -> Option<&TileDrop> {
+    #[must_use] pub fn get_block_drop(&self, block_type: Rc<Block>) -> Option<&TileDrop> {
         self.block_drops.get(&block_type.get_id())
     }
     /**this function sets the wall drop for the given wall type*/
@@ -221,7 +219,7 @@ impl Items {
         self.wall_drops.insert(wall_type, drop);
     }
     /**this function returns the wall drop for the given wall type*/
-    pub fn get_wall_drop(&self, wall_type: walls::WallId) -> Option<&TileDrop> {
+    #[must_use] pub fn get_wall_drop(&self, wall_type: walls::WallId) -> Option<&TileDrop> {
         self.wall_drops.get(&wall_type)
     }
 }

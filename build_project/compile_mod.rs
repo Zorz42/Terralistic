@@ -35,7 +35,7 @@ pub fn compile_mod(mod_path: PathBuf) {
     generator.write_block(&block);
 
     let minified_lua_code = generator.into_string();
-    let resources = generate_resources(mod_path.join("../resources"), "".to_string());
+    let resources = generate_resources(mod_path.join("../resources"), String::new());
     let mod_obj = GameMod::new(minified_lua_code, resources);
 
     // serialize the mod to a byte array
