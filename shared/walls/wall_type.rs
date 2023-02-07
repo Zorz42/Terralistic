@@ -41,34 +41,32 @@ impl rlua::UserData for Wall {
         // add meta method to set fields, id and image are not accessible
         methods.add_meta_method_mut(
             rlua::MetaMethod::NewIndex,
-            |_lua_ctx, this, (key, value): (String, rlua::Value)| match key.as_str() {
-                "name" => {
-                    match value {
-                        rlua::Value::String(s) => {
-                            this.name = s.to_str().unwrap_or("unknown").to_string()
-                        }
+            |_lua_ctx, this, (key, value): (String, rlua::Value)| match value {
+                rlua::Value::Integer(value) => {
+                    match key.as_str() {
+                        "break_time" => this.break_time = value as i32,
                         _ => {
-                            return Err(rlua::Error::RuntimeError(
-                                "value is not a valid value for name".to_string(),
-                            ))
+                            return Err(rlua::Error::RuntimeError(format!(
+                                "{key} is not a valid field of Wall for integer value"
+                            )))
                         }
-                    }
+                    };
                     Ok(())
                 }
-                "break_time" => {
-                    match value {
-                        rlua::Value::Integer(i) => this.break_time = i as i32,
+                rlua::Value::String(value) => {
+                    match key.as_str() {
+                        "name" => this.name = value.to_str().unwrap_or("undefined").to_owned(),
                         _ => {
-                            return Err(rlua::Error::RuntimeError(
-                                "value is not a valid value for break_time".to_string(),
-                            ))
+                            return Err(rlua::Error::RuntimeError(format!(
+                                "{key} is not a valid field of Wall for string value"
+                            )))
                         }
-                    }
+                    };
                     Ok(())
                 }
-                _ => Err(rlua::Error::RuntimeError(format!(
-                    "{key} is not a valid field of Wall"
-                ))),
+                _ => Err(rlua::Error::RuntimeError(
+                    "Unknown type for Wall".to_owned(),
+                )),
             },
         );
     }
