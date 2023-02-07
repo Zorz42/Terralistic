@@ -19,7 +19,7 @@ pub struct ServerInfo {
 }
 
 impl ServerInfo {
-    pub fn new(name: String, ip: String, port: u16) -> Self {
+    pub const fn new(name: String, ip: String, port: u16) -> Self {
         Self { name, ip, port }
     }
 }
@@ -112,7 +112,7 @@ impl ServerCard {
     /**
     This function returns height of the world card.
      */
-    pub fn get_height(&self) -> i32 {
+    pub const fn get_height(&self) -> i32 {
         self.rect.h as i32
     }
 
@@ -154,29 +154,31 @@ impl ServerList {
     }
 
     pub fn refresh(&mut self, graphics: &GraphicsContext, file_path: PathBuf) {
-        let temp_servers: Result<Vec<ServerInfo>, _>;
+        let temp_servers: Vec<ServerInfo>;
 
-        if !file_path.exists() {
-            temp_servers = Ok(Vec::new());
-            let _ = &std::fs::write(
-                file_path,
-                serde_json::to_string(&temp_servers.as_ref().unwrap()).unwrap(),
-            )
-            .unwrap();
+        if file_path.exists() {
+            let file = std::fs::read_to_string(file_path).unwrap_or_else(|_| String::new());
+            temp_servers = serde_json::from_str(&file).unwrap_or_else(|_| Vec::new());
         } else {
-            temp_servers = serde_json::from_str(&std::fs::read_to_string(file_path).unwrap());
+            temp_servers = Vec::new();
+            let serial = serde_json::to_string(&temp_servers).unwrap_or_default();
+            let res = std::fs::write(
+                file_path,
+                serial,
+            );
+            if res.is_err() {
+                println!("Failed to create a server file!");
+            }
         }
 
-        if let Ok(temp_servers) = temp_servers {
-            self.servers.clear();
-            for server in temp_servers {
-                self.servers.push(ServerCard::new(
-                    graphics,
-                    server.name,
-                    server.ip,
-                    server.port,
-                ));
-            }
+        self.servers.clear();
+        for server in temp_servers {
+            self.servers.push(ServerCard::new(
+                graphics,
+                server.name,
+                server.ip,
+                server.port,
+            ));
         }
     }
 
@@ -193,7 +195,10 @@ impl ServerList {
             })
             .collect();
 
-        let _ = &std::fs::write(file_path, serde_json::to_string(&server_infos).unwrap()).unwrap();
+        let res = std::fs::write(file_path, serde_json::to_string(&server_infos).unwrap_or_default());
+        if res.is_err() {
+            println!("Failed to save servers!");
+        }
     }
 }
 
@@ -320,14 +325,14 @@ pub fn run_multiplayer_selector(
         }
 
         let mut current_y = gfx::SPACING;
-        for i in 0..server_list.servers.len() {
-            server_list.servers[i].render(
+        for server in &mut server_list.servers {
+            server.render(
                 graphics,
                 0,
                 current_y + top_height + position as i32,
                 Some(menu_back.get_back_rect_container()),
             );
-            current_y += server_list.servers[i].get_height() + gfx::SPACING;
+            current_y += server.get_height() + gfx::SPACING;
         }
 
         top_rect.w = menu_back.get_back_rect_width(graphics, None) as f32;

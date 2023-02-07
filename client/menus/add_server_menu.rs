@@ -8,15 +8,35 @@ use crate::server::server_impl::MULTIPLAYER_PORT;
 use super::multiplayer_selector::ServerInfo;
 use std::net::{IpAddr, Ipv4Addr};
 
-fn is_valid_ip(ip: &str) -> bool {
-    if ip.contains(':') && ip.contains('.') {
+fn get_ip_port(server_ip_input: &str) -> (String, u16) {
+    let ip = server_ip_input.split(':').next().unwrap_or("127.0.0.1").to_owned();
+    let port = if server_ip_input.contains(':') {
+        server_ip_input
+            .split(':')
+            .last()
+            .unwrap_or("-1")//-1 so it fails on next unwrap and always defaults to MULTIPLAYER_PORT
+            .to_owned()
+            .parse::<u16>()
+            .unwrap_or(MULTIPLAYER_PORT)
+    } else {
+        MULTIPLAYER_PORT
+    };
+    (ip, port)
+}
+
+fn is_valid_ip(ip_: &str) -> bool {
+    if ip_.contains(':') && ip_.contains('.') {
         //port specified
-        let ip_port: Vec<&str> = ip.split(':').collect();
+        let ip_port: Vec<&str> = ip_.split(':').collect();
         if ip_port.len() != 2 {
             return false;
         }
-        let ip = ip_port[0];
-        let port = ip_port[1];
+        let Some(ip) = ip_port.first() else {
+            return false;
+        };
+        let Some(port) = ip_port.get(1) else {
+            return false;
+        };
         if port.parse::<u16>().is_err() {
             return false;
         }
@@ -25,7 +45,7 @@ fn is_valid_ip(ip: &str) -> bool {
         }
         return true;
     }
-    ip.parse::<IpAddr>().is_ok()
+    ip_.parse::<IpAddr>().is_ok()
 }
 
 fn server_exists(name: &str, servers_list: &Vec<ServerCard>) -> bool {
@@ -115,19 +135,7 @@ pub fn run_add_server_menu(
                             break 'render_loop;
                         }
                         if add_button.is_hovered(graphics, Some(&buttons_container)) {
-                            let ip = server_ip_input.text.split(':').next().unwrap().to_string();
-                            let port = if server_ip_input.text.contains(':') {
-                                server_ip_input
-                                    .text
-                                    .split(':')
-                                    .last()
-                                    .unwrap()
-                                    .to_string()
-                                    .parse::<u16>()
-                                    .unwrap()
-                            } else {
-                                MULTIPLAYER_PORT
-                            };
+                            let (ip, port) = get_ip_port(&server_ip_input.text);
                             return Some(ServerInfo::new(server_name_input.text.clone(), ip, port));
                         }
                     }
@@ -141,19 +149,7 @@ pub fn run_add_server_menu(
                     }
                     gfx::Key::Enter => {
                         if !add_button.disabled {
-                            let ip = server_ip_input.text.split(':').next().unwrap().to_string();
-                            let port = if server_ip_input.text.contains(':') {
-                                server_ip_input
-                                    .text
-                                    .split(':')
-                                    .last()
-                                    .unwrap()
-                                    .to_string()
-                                    .parse::<u16>()
-                                    .unwrap()
-                            } else {
-                                MULTIPLAYER_PORT
-                            };
+                            let (ip, port) = get_ip_port(&server_ip_input.text);
                             return Some(ServerInfo::new(server_name_input.text.clone(), ip, port));
                         }
                     }
