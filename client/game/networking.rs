@@ -82,7 +82,7 @@ impl ClientNetworking {
                     Event::Receive { ref packet, .. } => {
                         let packet = bincode::deserialize::<Packet>(packet.data()).unwrap();
 
-                        if packet.deserialize::<WelcomeCompletePacket>().is_some() {
+                        if packet.try_deserialize::<WelcomeCompletePacket>().is_some() {
                             break 'welcome_loop;
                         }
 

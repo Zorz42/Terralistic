@@ -47,7 +47,7 @@ impl ClientModManager {
 
     pub fn on_event(&mut self, event: &Event) {
         if let Some(event) = event.downcast::<WelcomePacketEvent>() {
-            if let Some(packet) = event.packet.deserialize::<ModsWelcomePacket>() {
+            if let Some(packet) = event.packet.try_deserialize::<ModsWelcomePacket>() {
                 for mod_data in packet.mods {
                     let game_mod = bincode::deserialize(&mod_data).unwrap();
                     self.mod_manager.add_mod(game_mod);

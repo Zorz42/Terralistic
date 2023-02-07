@@ -1,8 +1,8 @@
+use core::any::TypeId;
+use core::hash::{Hash, Hasher};
 use fnv::FnvHasher;
 use serde::de::DeserializeOwned;
 use serde_derive::{Deserialize, Serialize};
-use std::any::TypeId;
-use std::hash::{Hash, Hasher};
 
 /**
 Packet has an id and data. Id is determined by the hash of the object
@@ -42,7 +42,7 @@ impl Packet {
     it will return None.
      */
     #[must_use]
-    pub fn deserialize<T: DeserializeOwned + 'static>(&self) -> Option<T> {
+    pub fn try_deserialize<T: DeserializeOwned + 'static>(&self) -> Option<T> {
         if self.id == get_type_id::<T>() {
             Some(bincode::deserialize(&self.data).unwrap())
         } else {

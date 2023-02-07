@@ -144,22 +144,22 @@ impl ClientBlocks {
 
     pub fn on_event(&mut self, event: &Event, events: &mut EventManager) {
         if let Some(event) = event.downcast::<WelcomePacketEvent>() {
-            if let Some(packet) = event.packet.deserialize::<BlocksWelcomePacket>() {
+            if let Some(packet) = event.packet.try_deserialize::<BlocksWelcomePacket>() {
                 self.blocks.deserialize(&packet.data).unwrap();
             }
         } else if let Some(event) = event.downcast::<Packet>() {
-            if let Some(packet) = event.deserialize::<BlockBreakStartPacket>() {
+            if let Some(packet) = event.try_deserialize::<BlockBreakStartPacket>() {
                 self.blocks
                     .start_breaking_block(events, packet.x, packet.y)
                     .unwrap();
-            } else if let Some(packet) = event.deserialize::<BlockBreakStopPacket>() {
+            } else if let Some(packet) = event.try_deserialize::<BlockBreakStopPacket>() {
                 self.blocks
                     .stop_breaking_block(events, packet.x, packet.y)
                     .unwrap();
                 self.blocks
                     .set_break_progress(packet.x, packet.y, packet.break_time)
                     .unwrap();
-            } else if let Some(packet) = event.deserialize::<BlockChangePacket>() {
+            } else if let Some(packet) = event.try_deserialize::<BlockChangePacket>() {
                 self.blocks
                     .set_block(events, packet.x, packet.y, packet.block)
                     .unwrap();

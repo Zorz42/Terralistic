@@ -19,18 +19,18 @@ impl WorldMap {
         Ok(Self { width, height })
     }
 
-    pub fn new_empty() -> Self {
+    pub const fn new_empty() -> Self {
         Self {
             width: 0,
             height: 0,
         }
     }
 
-    pub fn get_width(&self) -> i32 {
+    pub const fn get_width(&self) -> i32 {
         self.width
     }
 
-    pub fn get_height(&self) -> i32 {
+    pub const fn get_height(&self) -> i32 {
         self.height
     }
 

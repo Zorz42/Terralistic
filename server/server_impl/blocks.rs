@@ -40,7 +40,7 @@ impl ServerBlocks {
             });
             networking.send_packet(&welcome_packet, &event.conn);
         } else if let Some(event) = event.downcast::<PacketFromClientEvent>() {
-            if let Some(packet) = event.packet.deserialize::<BlockBreakStartPacket>() {
+            if let Some(packet) = event.packet.try_deserialize::<BlockBreakStartPacket>() {
                 if let Some(pos) = self.conns_breaking.get(&event.conn) {
                     self.blocks
                         .stop_breaking_block(events, pos.0, pos.1)
@@ -54,7 +54,7 @@ impl ServerBlocks {
                     .unwrap();
             }
 
-            if let Some(packet) = event.packet.deserialize::<BlockBreakStopPacket>() {
+            if let Some(packet) = event.packet.try_deserialize::<BlockBreakStopPacket>() {
                 self.conns_breaking.remove(&event.conn);
                 self.blocks
                     .stop_breaking_block(events, packet.x, packet.y)

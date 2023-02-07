@@ -1,7 +1,8 @@
 use super::tool::Tool;
 use super::BlockId;
 use rlua::UserDataMethods;
-use std::sync::Arc;
+extern crate alloc;
+use alloc::sync::Arc;
 
 /**
 Includes properties for each block type
@@ -224,7 +225,7 @@ impl Block {
     This function returns the block id
      */
     #[must_use]
-    pub fn get_id(&self) -> BlockId {
+    pub const fn get_id(&self) -> BlockId {
         self.id
     }
 }

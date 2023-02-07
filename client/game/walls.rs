@@ -144,7 +144,7 @@ impl ClientWalls {
 
     pub fn on_event(&mut self, event: &Event) {
         if let Some(event) = event.downcast::<WelcomePacketEvent>() {
-            if let Some(packet) = event.packet.deserialize::<WallsWelcomePacket>() {
+            if let Some(packet) = event.packet.try_deserialize::<WallsWelcomePacket>() {
                 self.walls.deserialize(&packet.data).unwrap();
             }
         }

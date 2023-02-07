@@ -2,9 +2,7 @@ use super::Blocks;
 use crate::libraries::events::{Event, EventManager};
 use anyhow::{anyhow, Result};
 
-/**
-Breaking block struct represents a block that is currently being broken.
- */
+/// Breaking block struct represents a block that is currently being broken.
 pub struct BreakingBlock {
     pub break_progress: i32,
     pub is_breaking: bool,
@@ -13,7 +11,7 @@ pub struct BreakingBlock {
 
 impl BreakingBlock {
     #[must_use]
-    pub fn new(coord: (i32, i32)) -> Self {
+    pub const fn new(coord: (i32, i32)) -> Self {
         Self {
             break_progress: 0,
             is_breaking: true,
@@ -22,15 +20,15 @@ impl BreakingBlock {
     }
 
     #[must_use]
-    pub fn get_coord(&self) -> (i32, i32) {
+    pub const fn get_coord(&self) -> (i32, i32) {
         self.coord
     }
 }
 
 impl Blocks {
-    /**
-    Gets the breaking progress of a block.
-     */
+    /// Gets the breaking progress of a block.
+    /// # Errors
+    /// Returns an error if the coordinates are out of bounds.
     pub fn get_break_progress(&self, x: i32, y: i32) -> Result<i32> {
         self.block_data.map.translate_coords(x, y)?;
 
@@ -42,9 +40,9 @@ impl Blocks {
         Ok(0)
     }
 
-    /**
-    Sets the breaking progress of a block.
-     */
+    /// Sets the breaking progress of a block.
+    /// # Errors
+    /// Returns an error if the coordinates are out of bounds.
     pub fn set_break_progress(&mut self, x: i32, y: i32, progress: i32) -> Result<()> {
         self.block_data.map.translate_coords(x, y)?;
 
@@ -61,9 +59,9 @@ impl Blocks {
         Ok(())
     }
 
-    /**
-    Gets the break stage of a block, which is usually rendered.
-     */
+    /// Gets the break stage of a block, which is usually rendered.
+    /// # Errors
+    /// Returns an error if the coordinates are out of bounds.
     pub fn get_break_stage(&self, x: i32, y: i32) -> Result<i32> {
         Ok(
             (self.get_break_progress(x, y)? as f32
@@ -72,9 +70,9 @@ impl Blocks {
         )
     }
 
-    /**
-    Adds a block to the breaking list, which means that the block is being broken.
-     */
+    /// Adds a block to the breaking list, which means that the block is being broken.
+    /// # Errors
+    /// Returns an error if the coordinates are out of bounds.
     pub fn start_breaking_block(
         &mut self,
         events: &mut EventManager,
@@ -99,7 +97,7 @@ impl Blocks {
                 self.breaking_blocks.push(new_breaking_block);
                 self.breaking_blocks
                     .last_mut()
-                    .ok_or(anyhow!("Failed to get last breaking block!"))?
+                    .ok_or_else(|| anyhow!("Failed to get last breaking block!"))?
             }
         };
 
@@ -111,9 +109,9 @@ impl Blocks {
         Ok(())
     }
 
-    /**
-    Stops breaking a block.
-     */
+    /// Stops breaking a block.
+    /// # Errors
+    /// Returns an error if the coordinates are out of bounds.
     pub fn stop_breaking_block(&mut self, events: &mut EventManager, x: i32, y: i32) -> Result<()> {
         self.block_data.map.translate_coords(x, y)?;
 
@@ -128,9 +126,9 @@ impl Blocks {
         Ok(())
     }
 
-    /**
-    Updates the breaking progress of all blocks that are being broken.
-     */
+    /// Updates the breaking progress of all blocks that are being broken.
+    /// # Errors
+    /// Returns an error if the coordinates in the breaking blocks are out of bounds.
     pub fn update_breaking_blocks(
         &mut self,
         events: &mut EventManager,
@@ -170,34 +168,26 @@ impl Blocks {
         Ok(())
     }
 
-    /**
-    returns and immutable reference to the breaking blocks
-     */
+    /// Returns and immutable reference to the breaking blocks
     #[must_use]
-    pub fn get_breaking_blocks(&self) -> &Vec<BreakingBlock> {
+    pub const fn get_breaking_blocks(&self) -> &Vec<BreakingBlock> {
         &self.breaking_blocks
     }
 }
 
-/**
-Event that is fired when a block is broken
- */
+/// Event that is fired when a block is broken
 pub struct BlockBreakEvent {
     pub x: i32,
     pub y: i32,
 }
 
-/**
-Event that is fired when a block has started breaking
- */
+/// Event that is fired when a block has started breaking
 pub struct BlockStartedBreakingEvent {
     pub x: i32,
     pub y: i32,
 }
 
-/**
-Event that is fired when a block has stopped breaking
- */
+/// Event that is fired when a block has stopped breaking
 pub struct BlockStoppedBreakingEvent {
     pub x: i32,
     pub y: i32,
