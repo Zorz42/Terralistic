@@ -17,7 +17,8 @@ impl Default for Tool {
 }
 
 impl Tool {
-    #[must_use] pub fn new() -> Self {
+    #[must_use]
+    pub fn new() -> Self {
         Self {
             name: String::new(),
             id: -1,
@@ -37,7 +38,8 @@ impl Default for ToolId {
 }
 
 impl ToolId {
-    #[must_use] pub fn new() -> Self {
+    #[must_use]
+    pub fn new() -> Self {
         Self { id: -1 }
     }
 }

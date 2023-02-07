@@ -90,7 +90,10 @@ impl WorldGenerator {
         // create a random number generator with seed
         let mut rng = rand::rngs::StdRng::seed_from_u64(seed);
 
-        assert!(self.biomes.lock().unwrap().len() != 0, "No biomes were added! Cannot generate world!");
+        assert!(
+            self.biomes.lock().unwrap().len() != 0,
+            "No biomes were added! Cannot generate world!"
+        );
 
         let mut min_heights = Vec::new();
         let mut max_heights = Vec::new();
@@ -298,7 +301,10 @@ impl WorldGenerator {
 
         println!("World generated in {}ms", start_time.elapsed().as_millis());
 
-        assert!(current_task == total_tasks, "Not all tasks were completed! {current_task} != {total_tasks}");
+        assert!(
+            current_task == total_tasks,
+            "Not all tasks were completed! {current_task} != {total_tasks}"
+        );
     }
 }
 

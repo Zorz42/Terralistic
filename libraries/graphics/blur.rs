@@ -2,7 +2,6 @@ use super::shaders::compile_shader;
 use super::transformation::Transformation;
 use super::Rect;
 
-
 const BLUR_VERTEX_SHADER_CODE: &str = r#"
 #version 330 core
 

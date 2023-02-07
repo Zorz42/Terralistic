@@ -199,7 +199,8 @@ impl Block {
     /**
     Creates a new block type with default values
      */
-    #[must_use] pub fn new() -> Self {
+    #[must_use]
+    pub fn new() -> Self {
         Self {
             effective_tool: None,
             required_tool_power: 0,
@@ -222,7 +223,8 @@ impl Block {
     /**
     This function returns the block id
      */
-    #[must_use] pub fn get_id(&self) -> BlockId {
+    #[must_use]
+    pub fn get_id(&self) -> BlockId {
         self.id
     }
 }

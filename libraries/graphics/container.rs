@@ -31,7 +31,8 @@ impl Container {
     /**
     Creates a new container.
      */
-    #[must_use] pub fn new(x: i32, y: i32, w: i32, h: i32, orientation: Orientation) -> Self {
+    #[must_use]
+    pub fn new(x: i32, y: i32, w: i32, h: i32, orientation: Orientation) -> Self {
         Self {
             rect: Rect::new(x, y, w, h),
             abs_rect: Rect::new(x, y, w, h),
@@ -45,7 +46,8 @@ impl Container {
     of the parent container. If parent is None, the parent is the
     window. This function needs graphics_context to get the window size.
      */
-    #[must_use] pub fn get_absolute_rect(&self) -> &Rect {
+    #[must_use]
+    pub fn get_absolute_rect(&self) -> &Rect {
         &self.abs_rect
     }
 

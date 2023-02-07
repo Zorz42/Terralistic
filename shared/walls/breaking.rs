@@ -13,7 +13,8 @@ pub struct BreakingWall {
 }
 
 impl BreakingWall {
-    #[must_use] pub fn new() -> Self {
+    #[must_use]
+    pub fn new() -> Self {
         Self {
             break_progress: 0,
             is_breaking: false,
@@ -21,7 +22,8 @@ impl BreakingWall {
         }
     }
 
-    #[must_use] pub fn get_coord(&self) -> (i32, i32) {
+    #[must_use]
+    pub fn get_coord(&self) -> (i32, i32) {
         self.coord
     }
 }
@@ -36,7 +38,8 @@ impl Walls {
     /**
     Returns the break progress of the wall at x and y
      */
-    #[must_use] pub fn get_break_progress(&self, x: i32, y: i32) -> i32 {
+    #[must_use]
+    pub fn get_break_progress(&self, x: i32, y: i32) -> i32 {
         for wall in &self.breaking_walls {
             if wall.coord == (x, y) {
                 return wall.break_progress;

@@ -15,7 +15,8 @@ impl Surface {
     /**
     Creates a new surface with all transparent pixels.
      */
-    #[must_use] pub fn new(width: i32, height: i32) -> Self {
+    #[must_use]
+    pub fn new(width: i32, height: i32) -> Self {
         assert!(!(width < 0 || height < 0), "Dimensions negative");
 
         Self {
@@ -29,7 +30,8 @@ impl Surface {
     Serializes the surface into a vector of bytes.
     It is serialized with bincode and compressed with snap.
      */
-    #[must_use] pub fn serialize(&self) -> Vec<u8> {
+    #[must_use]
+    pub fn serialize(&self) -> Vec<u8> {
         let mut buffer = Vec::new();
         bincode::serialize_into(&mut buffer, &self).unwrap();
         snap::raw::Encoder::new().compress_vec(&buffer).unwrap()
@@ -38,7 +40,8 @@ impl Surface {
     /**
     Deserializes a surface from a vector of bytes the same way it was serialized.
      */
-    #[must_use] pub fn deserialize(buffer: &[u8]) -> Self {
+    #[must_use]
+    pub fn deserialize(buffer: &[u8]) -> Self {
         let decompressed = snap::raw::Decoder::new().decompress_vec(buffer).unwrap();
         bincode::deserialize(&decompressed).unwrap()
     }
@@ -49,7 +52,10 @@ impl Surface {
     three to green, blue, alpha.
      */
     fn get_index(&self, x: i32, y: i32) -> usize {
-        assert!(!(x < 0 || x >= self.width || y < 0 || y >= self.height), "Pixel out of bounds");
+        assert!(
+            !(x < 0 || x >= self.width || y < 0 || y >= self.height),
+            "Pixel out of bounds"
+        );
 
         (y * self.width + x) as usize * 4
     }
@@ -57,7 +63,8 @@ impl Surface {
     /**
     Retrieves the pixel color on a specified location.
      */
-    #[must_use] pub fn get_pixel(&self, x: i32, y: i32) -> Color {
+    #[must_use]
+    pub fn get_pixel(&self, x: i32, y: i32) -> Color {
         let index = self.get_index(x, y);
         Color {
             r: self.pixels[index],
@@ -78,11 +85,13 @@ impl Surface {
         self.pixels[index + 3] = color.a;
     }
 
-    #[must_use] pub fn get_width(&self) -> i32 {
+    #[must_use]
+    pub fn get_width(&self) -> i32 {
         self.width
     }
 
-    #[must_use] pub fn get_height(&self) -> i32 {
+    #[must_use]
+    pub fn get_height(&self) -> i32 {
         self.height
     }
 

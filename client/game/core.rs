@@ -27,7 +27,8 @@ pub struct Game {
 }
 
 impl Game {
-    #[must_use] pub fn new(server_port: u16, server_address: String) -> Self {
+    #[must_use]
+    pub fn new(server_port: u16, server_address: String) -> Self {
         let mut blocks = ClientBlocks::new();
         let walls = ClientWalls::new(&mut blocks.blocks);
 

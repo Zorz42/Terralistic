@@ -22,7 +22,8 @@ pub struct LightColor {
     pub b: i32,
 }
 impl LightColor {
-    #[must_use] pub fn new(r: i32, g: i32, b: i32) -> Self {
+    #[must_use]
+    pub fn new(r: i32, g: i32, b: i32) -> Self {
         Self { r, g, b }
     }
 }
@@ -42,7 +43,8 @@ impl Default for Light {
 }
 
 impl Light {
-    #[must_use] pub fn new() -> Self {
+    #[must_use]
+    pub fn new() -> Self {
         Self {
             color: LightColor::new(0, 0, 0),
             source_color: LightColor::new(0, 0, 0),
@@ -62,7 +64,8 @@ pub struct Lights {
 }
 
 impl Lights {
-    #[must_use] pub fn new(blocks: &Blocks) -> Self {
+    #[must_use]
+    pub fn new(blocks: &Blocks) -> Self {
         Self {
             lights: Vec::new(),
             width: blocks.get_width(),
@@ -109,11 +112,13 @@ impl Lights {
         //self.blocks.borrow().block_change_event.add_listener(&self_shared_mut);
     }*/
     /**returns the wodth of the light vector*/
-    #[must_use] pub fn get_width(&self) -> i32 {
+    #[must_use]
+    pub fn get_width(&self) -> i32 {
         self.width
     }
     /**returns the height of the light vector*/
-    #[must_use] pub fn get_height(&self) -> i32 {
+    #[must_use]
+    pub fn get_height(&self) -> i32 {
         self.height
     }
     /**updates the light at the given coordinate*/
@@ -202,15 +207,18 @@ impl Lights {
         }
     }
     /**returns whether the coordinates x and y are a light source*/
-    #[must_use] pub fn is_light_source(&self, x: i32, y: i32) -> bool {
+    #[must_use]
+    pub fn is_light_source(&self, x: i32, y: i32) -> bool {
         self.get_light(x, y).source
     }
     /**returns the light color at the given coordinate*/
-    #[must_use] pub fn get_light_color(&self, x: i32, y: i32) -> LightColor {
+    #[must_use]
+    pub fn get_light_color(&self, x: i32, y: i32) -> LightColor {
         self.get_light(x, y).color
     }
     /**returns the light source color at the given coordinate*/
-    #[must_use] pub fn get_light_source_color(&self, x: i32, y: i32) -> LightColor {
+    #[must_use]
+    pub fn get_light_source_color(&self, x: i32, y: i32) -> LightColor {
         self.get_light(x, y).source_color
     }
     /**schedules a light update for the given coordinate*/
@@ -219,7 +227,8 @@ impl Lights {
         //self.light_update_schedule_event.send(LightUpdateScheduleEvent::new(x, y));
     }
     /**returns whether the light at the given coordinate needs to be updated*/
-    #[must_use] pub fn has_scheduled_light_update(&self, x: i32, y: i32) -> bool {
+    #[must_use]
+    pub fn has_scheduled_light_update(&self, x: i32, y: i32) -> bool {
         self.get_light(x, y).update_light
     }
     /**schedules a light update for the neighbours of the given coordinate*/

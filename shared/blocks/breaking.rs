@@ -12,7 +12,8 @@ pub struct BreakingBlock {
 }
 
 impl BreakingBlock {
-    #[must_use] pub fn new(coord: (i32, i32)) -> Self {
+    #[must_use]
+    pub fn new(coord: (i32, i32)) -> Self {
         Self {
             break_progress: 0,
             is_breaking: true,
@@ -20,7 +21,8 @@ impl BreakingBlock {
         }
     }
 
-    #[must_use] pub fn get_coord(&self) -> (i32, i32) {
+    #[must_use]
+    pub fn get_coord(&self) -> (i32, i32) {
         self.coord
     }
 }
@@ -171,7 +173,8 @@ impl Blocks {
     /**
     returns and immutable reference to the breaking blocks
      */
-    #[must_use] pub fn get_breaking_blocks(&self) -> &Vec<BreakingBlock> {
+    #[must_use]
+    pub fn get_breaking_blocks(&self) -> &Vec<BreakingBlock> {
         &self.breaking_blocks
     }
 }

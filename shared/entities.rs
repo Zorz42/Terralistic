@@ -227,7 +227,8 @@ pub struct EntityVelocityChangeEvent {
     pub entity_id: u32,
 }
 impl EntityVelocityChangeEvent {
-    #[must_use] pub fn new(entity_id: u32) -> Self {
+    #[must_use]
+    pub fn new(entity_id: u32) -> Self {
         Self { entity_id }
     }
 }
@@ -238,7 +239,8 @@ pub struct EntityAbsoluteVelocityChangeEvent {
     pub old_vel_y: f32,
 }
 impl EntityAbsoluteVelocityChangeEvent {
-    #[must_use] pub fn new(entity_id: u32, old_vel_x: f32, old_vel_y: f32) -> Self {
+    #[must_use]
+    pub fn new(entity_id: u32, old_vel_x: f32, old_vel_y: f32) -> Self {
         Self {
             entity_id,
             old_vel_x,
@@ -250,7 +252,8 @@ pub struct EntityPositionChangeEvent {
     pub entity_id: u32,
 }
 impl EntityPositionChangeEvent {
-    #[must_use] pub fn new(entity_id: u32) -> Self {
+    #[must_use]
+    pub fn new(entity_id: u32) -> Self {
         Self { entity_id }
     }
 }
@@ -258,7 +261,8 @@ pub struct EntityDeletionEvent {
     pub entity_id: u32,
 }
 impl EntityDeletionEvent {
-    #[must_use] pub fn new(entity_id: u32) -> Self {
+    #[must_use]
+    pub fn new(entity_id: u32) -> Self {
         Self { entity_id }
     }
 }

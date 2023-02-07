@@ -29,7 +29,8 @@ pub struct RenderRect {
 }
 
 impl RenderRect {
-    #[must_use] pub fn new(x: f32, y: f32, w: f32, h: f32) -> Self {
+    #[must_use]
+    pub fn new(x: f32, y: f32, w: f32, h: f32) -> Self {
         Self {
             x,
             y,
@@ -87,7 +88,8 @@ impl RenderRect {
     This function returns the container of the rectangle.
     The container has the position of render rect.
      */
-    #[must_use] pub fn get_container(
+    #[must_use]
+    pub fn get_container(
         &self,
         graphics: &GraphicsContext,
         parent_container: Option<&Container>,

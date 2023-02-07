@@ -1,4 +1,10 @@
-use super::{blocks::{BLOCK_WIDTH, Blocks}, entities::{Direction, Entity, EntityAbsoluteVelocityChangeEvent, EntityDeletionEvent, EntityObject, EntityPositionChangeEvent, EntityStructTrait, EntityType, EntityVelocityChangeEvent}};
+use super::{
+    blocks::{Blocks, BLOCK_WIDTH},
+    entities::{
+        Direction, Entity, EntityAbsoluteVelocityChangeEvent, EntityDeletionEvent, EntityObject,
+        EntityPositionChangeEvent, EntityStructTrait, EntityType, EntityVelocityChangeEvent,
+    },
+};
 
 //TODO: write tests
 
@@ -33,7 +39,8 @@ pub struct Player {
 }
 
 impl Player {
-    #[must_use] pub fn new(x: i32, y: i32, name: String, health: i32, id: u32) -> Self {
+    #[must_use]
+    pub fn new(x: i32, y: i32, name: String, health: i32, id: u32) -> Self {
         Self {
             entity: Entity::new(EntityType::PLAYER, x, y, id),
             health,
@@ -47,10 +54,12 @@ impl Player {
         self.health = health;
     }
     /**returns the player's health*/
-    #[must_use] pub fn get_health(&self) -> i32 {
+    #[must_use]
+    pub fn get_health(&self) -> i32 {
         self.health
     }
-    #[must_use] pub fn get_id(&self) -> u32 {
+    #[must_use]
+    pub fn get_id(&self) -> u32 {
         self.entity.id
     }
 }
@@ -163,7 +172,8 @@ impl Default for Players {
 }
 
 impl Players {
-    #[must_use] pub fn new() -> Self {
+    #[must_use]
+    pub fn new() -> Self {
         Self {
             players: Vec::new(),
             //player_health_change_event: Sender::new(),
@@ -184,7 +194,8 @@ impl Players {
         }
     }
     /**this function returns the player's health*/
-    #[must_use] pub fn get_health(&self, player_id: u32) -> i32 {
+    #[must_use]
+    pub fn get_health(&self, player_id: u32) -> i32 {
         for player in &self.players {
             if player.entity.id == player_id {
                 return player.get_health();

@@ -39,7 +39,8 @@ pub struct GameMod {
 }
 
 impl GameMod {
-    #[must_use] pub fn new(lua_code: String, resources: HashMap<String, Vec<u8>>) -> Self {
+    #[must_use]
+    pub fn new(lua_code: String, resources: HashMap<String, Vec<u8>>) -> Self {
         Self {
             lua_code,
             resources,
@@ -179,7 +180,8 @@ impl ModManager {
     /**
     Creates a new mod manager.
     */
-    #[must_use] pub fn new() -> Self {
+    #[must_use]
+    pub fn new() -> Self {
         Self {
             mods: Vec::new(),
             state: ModManagerState::LoadingMods,
@@ -277,7 +279,8 @@ impl ModManager {
     /**
     This function gets the resource with the given path.
      */
-    #[must_use] pub fn get_resource(&self, path: &str) -> Option<&Vec<u8>> {
+    #[must_use]
+    pub fn get_resource(&self, path: &str) -> Option<&Vec<u8>> {
         for game_mod in self.mods.iter().rev() {
             if let Some(data) = game_mod.get_resource(path) {
                 return Some(data);

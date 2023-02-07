@@ -41,7 +41,8 @@ impl Packet {
     If the type of the packet is not the same as the type that you are trying to deserialize to,
     it will return None.
      */
-    #[must_use] pub fn deserialize<T: DeserializeOwned + 'static>(&self) -> Option<T> {
+    #[must_use]
+    pub fn deserialize<T: DeserializeOwned + 'static>(&self) -> Option<T> {
         if self.id == get_type_id::<T>() {
             Some(bincode::deserialize(&self.data).unwrap())
         } else {

@@ -70,7 +70,8 @@ impl rlua::UserData for LiquidType {
 }
 
 impl LiquidType {
-    #[must_use] pub fn new(name: String) -> Self {
+    #[must_use]
+    pub fn new(name: String) -> Self {
         Self {
             name,
             flow_time: 1,
@@ -78,7 +79,8 @@ impl LiquidType {
             id: 0,
         }
     }
-    #[must_use] pub fn get_id(&self) -> i32 {
+    #[must_use]
+    pub fn get_id(&self) -> i32 {
         self.id
     }
 }

@@ -12,7 +12,8 @@ pub struct TextureAtlas<KeyType> {
 }
 
 impl<KeyType: Eq + Hash + Clone> TextureAtlas<KeyType> {
-    #[must_use] pub fn new(surfaces: &HashMap<KeyType, Surface>) -> Self {
+    #[must_use]
+    pub fn new(surfaces: &HashMap<KeyType, Surface>) -> Self {
         if surfaces.is_empty() {
             return Self {
                 texture: Texture::new(),
@@ -52,7 +53,8 @@ impl<KeyType: Eq + Hash + Clone> TextureAtlas<KeyType> {
         }
     }
 
-    #[must_use] pub fn get_texture(&self) -> &Texture {
+    #[must_use]
+    pub fn get_texture(&self) -> &Texture {
         &self.texture
     }
 

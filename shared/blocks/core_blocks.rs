@@ -40,7 +40,8 @@ impl Default for BlockId {
 }
 
 impl BlockId {
-    #[must_use] pub fn new() -> Self {
+    #[must_use]
+    pub fn new() -> Self {
         Self { id: -1 }
     }
 }
@@ -73,7 +74,8 @@ impl Default for Blocks {
 }
 
 impl Blocks {
-    #[must_use] pub fn new() -> Self {
+    #[must_use]
+    pub fn new() -> Self {
         let mut result = Self {
             block_data: BlocksData {
                 blocks: Vec::new(),
@@ -93,7 +95,10 @@ impl Blocks {
         air.transparent = true;
         air.break_time = UNBREAKABLE;
         result.air = Self::register_new_block_type(
-            &mut result.block_types.lock().unwrap_or_else(std::sync::PoisonError::into_inner),
+            &mut result
+                .block_types
+                .lock()
+                .unwrap_or_else(std::sync::PoisonError::into_inner),
             air,
         );
 
@@ -103,14 +108,16 @@ impl Blocks {
     /**
     Returns the width of the world in blocks.
      */
-    #[must_use] pub fn get_width(&self) -> i32 {
+    #[must_use]
+    pub fn get_width(&self) -> i32 {
         self.block_data.map.get_width()
     }
 
     /**
     Returns the height of the world in blocks.
      */
-    #[must_use] pub fn get_height(&self) -> i32 {
+    #[must_use]
+    pub fn get_height(&self) -> i32 {
         self.block_data.map.get_height()
     }
 
@@ -120,7 +127,9 @@ impl Blocks {
         let block_types = self.block_types.clone();
         mods.add_global_function("register_block_type", move |_lua, block_type: Block| {
             let result = Self::register_new_block_type(
-                &mut block_types.lock().unwrap_or_else(std::sync::PoisonError::into_inner),
+                &mut block_types
+                    .lock()
+                    .unwrap_or_else(std::sync::PoisonError::into_inner),
                 block_type,
             );
             Ok(result)
@@ -128,7 +137,9 @@ impl Blocks {
 
         let block_types = self.block_types.clone();
         mods.add_global_function("get_block_id_by_name", move |_lua, name: String| {
-            let block_types = block_types.lock().unwrap_or_else(std::sync::PoisonError::into_inner);
+            let block_types = block_types
+                .lock()
+                .unwrap_or_else(std::sync::PoisonError::into_inner);
             for block_type in block_types.iter() {
                 if block_type.name == name {
                     return Ok(block_type.get_id());
@@ -144,7 +155,9 @@ impl Blocks {
         mods.add_global_function(
             "connect_blocks",
             move |_lua, (block_id1, block_id2): (BlockId, BlockId)| {
-                let mut block_types = block_types.lock().unwrap_or_else(std::sync::PoisonError::into_inner);
+                let mut block_types = block_types
+                    .lock()
+                    .unwrap_or_else(std::sync::PoisonError::into_inner);
                 block_types
                     .get_mut(block_id1.id as usize)
                     .ok_or(rlua::Error::RuntimeError(
@@ -373,7 +386,10 @@ impl Blocks {
     Returns the block type that has the specified id.
      */
     pub fn get_block_type(&self, id: BlockId) -> Result<Block> {
-        let blocks = self.block_types.lock().unwrap_or_else(std::sync::PoisonError::into_inner);
+        let blocks = self
+            .block_types
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner);
         Ok(blocks
             .get(id.id as usize)
             .ok_or(anyhow!("Block type not found"))?

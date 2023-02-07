@@ -34,7 +34,8 @@ impl Font {
     Loads all the characters in the file and stores them in a
     surface array. The index of the array is the ascii value.
      */
-    #[must_use] pub fn new(font_data: &[u8]) -> Self {
+    #[must_use]
+    pub fn new(font_data: &[u8]) -> Self {
         let mut font_surfaces = vec![];
         let font_surface = Surface::deserialize(font_data);
 
@@ -77,7 +78,8 @@ impl Font {
     /**
     This function creates a surface with the text on it.
      */
-    #[must_use] pub fn create_text_surface(&self, text: &str) -> Surface {
+    #[must_use]
+    pub fn create_text_surface(&self, text: &str) -> Surface {
         let mut width = 0;
         let height = self.font_surfaces[0].get_height();
         for c in text.chars() {

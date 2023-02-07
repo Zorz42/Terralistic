@@ -34,7 +34,10 @@ impl Renderer {
     Initializes all the values needed for rendering.
      */
     pub fn new(window_width: i32, window_height: i32, window_title: &str) -> Self {
-        assert!(!(window_width <= 0 || window_height <= 0), "Invalid window dimensions");
+        assert!(
+            !(window_width <= 0 || window_height <= 0),
+            "Invalid window dimensions"
+        );
 
         let sdl = sdl2::init().unwrap();
         let video_subsystem = sdl.video().unwrap();
@@ -53,7 +56,11 @@ impl Renderer {
             .unwrap();
 
         let gl_context = sdl_window.gl_create_context().unwrap();
-        gl::load_with(|s| video_subsystem.gl_get_proc_address(s).cast::<std::ffi::c_void>());
+        gl::load_with(|s| {
+            video_subsystem
+                .gl_get_proc_address(s)
+                .cast::<std::ffi::c_void>()
+        });
 
         unsafe {
             gl::Enable(gl::BLEND);

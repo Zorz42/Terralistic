@@ -19,7 +19,8 @@ impl RectArray {
     /**
     Creates a new RectArray.
      */
-    #[must_use] pub fn new() -> Self {
+    #[must_use]
+    pub fn new() -> Self {
         Self {
             vertex_buffer: VertexBuffer::new(),
         }

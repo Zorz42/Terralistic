@@ -3,7 +3,8 @@ use std::fs::File;
 use std::io::Write;
 use std::path::PathBuf;
 
-#[must_use] pub fn png_file_to_opa_bytes(png_path: PathBuf) -> Vec<u8> {
+#[must_use]
+pub fn png_file_to_opa_bytes(png_path: PathBuf) -> Vec<u8> {
     let decoder = png::Decoder::new(File::open(png_path).unwrap());
     let mut reader = decoder.read_info().unwrap();
     let mut buf = vec![0; reader.output_buffer_size()];

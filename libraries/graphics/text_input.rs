@@ -77,14 +77,16 @@ impl TextInput {
     /**
     Calculates the width.
      */
-    #[must_use] pub fn get_width(&self) -> i32 {
+    #[must_use]
+    pub fn get_width(&self) -> i32 {
         ((self.width + self.padding * 2) as f32 * self.scale) as i32
     }
 
     /**
     Calculates the height.
      */
-    #[must_use] pub fn get_height(&self) -> i32 {
+    #[must_use]
+    pub fn get_height(&self) -> i32 {
         ((self.text_texture.get_texture_height() + self.padding * 2) as f32 * self.scale) as i32
     }
 
@@ -110,7 +112,8 @@ impl TextInput {
     /**
     Checks if the button is hovered with a mouse
      */
-    #[must_use] pub fn is_hovered(
+    #[must_use]
+    pub fn is_hovered(
         &self,
         graphics: &GraphicsContext,
         parent_container: Option<&Container>,
@@ -128,7 +131,8 @@ impl TextInput {
     /**
     returns the text in the input box
      */
-    #[must_use] pub fn get_text(&self) -> &str {
+    #[must_use]
+    pub fn get_text(&self) -> &str {
         &self.text
     }
 

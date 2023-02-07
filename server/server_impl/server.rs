@@ -21,7 +21,8 @@ pub struct Server {
 }
 
 impl Server {
-    #[must_use] pub fn new(port: u16) -> Self {
+    #[must_use]
+    pub fn new(port: u16) -> Self {
         let mut blocks = ServerBlocks::new();
         let walls = ServerWalls::new(&mut blocks.blocks);
         Self {
@@ -106,8 +107,7 @@ impl Server {
             }
 
             // sleep
-            let sleep_time = 1000.0 / self.tps_limit
-                - last_time.elapsed().as_secs_f32() * 1000.0;
+            let sleep_time = 1000.0 / self.tps_limit - last_time.elapsed().as_secs_f32() * 1000.0;
             if sleep_time > 0.0 {
                 std::thread::sleep(std::time::Duration::from_secs_f32(sleep_time / 1000.0));
             }

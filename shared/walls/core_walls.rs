@@ -25,7 +25,8 @@ impl Default for WallId {
 }
 
 impl WallId {
-    #[must_use] pub fn new() -> Self {
+    #[must_use]
+    pub fn new() -> Self {
         Self { id: -1 }
     }
 }
@@ -80,7 +81,10 @@ impl Walls {
         let mut clear = Wall::new();
         clear.name = "clear".to_string();
         result.clear = Self::register_new_wall_type(
-            &mut result.wall_types.lock().unwrap_or_else(std::sync::PoisonError::into_inner),
+            &mut result
+                .wall_types
+                .lock()
+                .unwrap_or_else(std::sync::PoisonError::into_inner),
             clear,
         );
 
@@ -109,7 +113,9 @@ impl Walls {
         let wall_types = self.wall_types.clone();
         mods.add_global_function("register_wall_type", move |_lua, wall_type: Wall| {
             let result = Self::register_new_wall_type(
-                &mut wall_types.lock().unwrap_or_else(std::sync::PoisonError::into_inner),
+                &mut wall_types
+                    .lock()
+                    .unwrap_or_else(std::sync::PoisonError::into_inner),
                 wall_type,
             );
             Ok(result)
@@ -117,7 +123,9 @@ impl Walls {
 
         let wall_types = self.wall_types.clone();
         mods.add_global_function("get_wall_id_by_name", move |_lua, name: String| {
-            let wall_types = wall_types.lock().unwrap_or_else(std::sync::PoisonError::into_inner);
+            let wall_types = wall_types
+                .lock()
+                .unwrap_or_else(std::sync::PoisonError::into_inner);
             for wall_type in wall_types.iter() {
                 if wall_type.name == name {
                     return Ok(wall_type.get_id());
@@ -145,14 +153,16 @@ impl Walls {
     /**
     Returns the world width in blocks
      */
-    #[must_use] pub fn get_width(&self) -> i32 {
+    #[must_use]
+    pub fn get_width(&self) -> i32 {
         self.walls_data.map.get_width()
     }
 
     /**
     Returns the world height in blocks
      */
-    #[must_use] pub fn get_height(&self) -> i32 {
+    #[must_use]
+    pub fn get_height(&self) -> i32 {
         self.walls_data.map.get_height()
     }
 
@@ -167,7 +177,10 @@ impl Walls {
     Returns the wall type with the given id
      */
     pub fn get_wall_type(&self, id: WallId) -> Result<Wall> {
-        let walls = self.wall_types.lock().unwrap_or_else(std::sync::PoisonError::into_inner);
+        let walls = self
+            .wall_types
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner);
         Ok(walls
             .get(id.id as usize)
             .ok_or(anyhow!("Wall type not found"))?
@@ -292,7 +305,8 @@ impl Walls {
     /**
     Returns all breaking walls
      */
-    #[must_use] pub fn get_breaking_walls(&self) -> &Vec<BreakingWall> {
+    #[must_use]
+    pub fn get_breaking_walls(&self) -> &Vec<BreakingWall> {
         &self.breaking_walls
     }
 }
