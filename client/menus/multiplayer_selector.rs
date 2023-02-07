@@ -7,7 +7,7 @@ use crate::libraries::graphics::GraphicsContext;
 use directories::BaseDirs;
 use serde_derive::{Deserialize, Serialize};
 
-use std::path::PathBuf;
+use std::path::{PathBuf, Path};
 
 pub const MENU_WIDTH: i32 = 800;
 
@@ -35,6 +35,18 @@ pub struct ServerCard {
     delete_button: gfx::Button,
     title: gfx::Sprite,
     icon: gfx::Sprite,
+}
+
+struct MultiplayerSelectorElements {
+    position: f32,
+    top_rect: gfx::RenderRect,
+    bottom_rect: gfx::RenderRect,
+    title: gfx::Sprite,
+    back_button: gfx::Button,
+    new_world_button: gfx::Button,
+    server_list: ServerList,
+    top_height: i32,
+    bottom_height: i32,
 }
 
 impl ServerCard {
@@ -206,10 +218,13 @@ pub fn run_multiplayer_selector(
     graphics: &mut GraphicsContext,
     menu_back: &mut dyn BackgroundRect,
 ) {
-    let base_dirs = BaseDirs::new().unwrap();
+    let Some(base_dirs) = BaseDirs::new() else {
+        println!("Failed to get base directories!");
+        return;
+    };
     let servers_file = base_dirs.data_dir().join("Terralistic").join("servers.txt");
 
-    let mut server_list = ServerList::new(graphics, servers_file.clone());
+    let server_list = ServerList::new(graphics, servers_file.clone());
 
     let mut title = gfx::Sprite::new();
     title.scale = 3.0;
@@ -248,136 +263,175 @@ pub fn run_multiplayer_selector(
     bottom_rect.blur_radius = gfx::BLUR;
     bottom_rect.orientation = gfx::BOTTOM;
 
-    let mut top_rect_visibility = 1.0;
-    let mut position: f32 = 0.0;
+    let position: f32 = 0.0;
 
-    'render_loop: while graphics.renderer.is_window_open() {
-        while let Some(event) = graphics.renderer.get_event() {
-            match event {
-                gfx::Event::KeyRelease(key, ..) => {
-                    match key {
-                        gfx::Key::MouseLeft => {
-                            if back_button
-                                .is_hovered(graphics, Some(menu_back.get_back_rect_container()))
-                            {
-                                break 'render_loop;
-                            }
-                            if new_world_button
-                                .is_hovered(graphics, Some(menu_back.get_back_rect_container()))
-                            {
-                                if let Some(server) =
-                                    run_add_server_menu(graphics, menu_back, &server_list.servers)
-                                {
-                                    server_list.servers.push(ServerCard::new(
-                                        graphics,
-                                        server.name,
-                                        server.ip,
-                                        server.port,
-                                    ));
-                                }
-                                server_list.save(servers_file.clone());
-                            }
-                            for server in &server_list.servers {
-                                if server.play_button.is_hovered(
-                                    graphics,
-                                    Some(&server.get_container(
-                                        graphics,
-                                        Some(menu_back.get_back_rect_container()),
-                                    )),
-                                ) {
-                                    let mut game = Game::new(server.server_info.port, server.server_info.ip.clone());
-                                    game.run(graphics, menu_back);
-                                } else if server.delete_button.is_hovered(
-                                    graphics,
-                                    Some(&server.get_container(
-                                        graphics,
-                                        Some(menu_back.get_back_rect_container()),
-                                    )),
-                                ) && run_choice_menu(format!("The world \"{}\" will be deleted.\nDo you want to proceed?", server.server_info.name), graphics, menu_back, None, None) {
-                                    server_list.servers.remove(server_list.servers.iter().position(|s| s.server_info.name == server.server_info.name).unwrap());
-                                    server_list.save(servers_file.clone());
-                                    break;
-                                }
-                            }
-                        }
-                        gfx::Key::Escape => {
-                            break 'render_loop;
-                        }
-                        _ => {}
-                    }
-                }
-                gfx::Event::MouseScroll(delta) => {
-                    position += delta * 2.0;
-                }
-                _ => {}
-            }
+    let mut elements = MultiplayerSelectorElements {
+        position,
+        top_rect,
+        bottom_rect,
+        title,
+        back_button,
+        new_world_button,
+        server_list,
+        top_height,
+        bottom_height
+    };
+
+    while graphics.renderer.is_window_open() {
+        //update_elements returns true if the loop is to be broken
+        if update_elements(graphics, menu_back, &mut elements, &servers_file) {
+            break;
         }
-        menu_back.set_back_rect_width(MENU_WIDTH);
-
-        menu_back.render_back(graphics);
-
-        let hoverable = graphics.renderer.get_mouse_y() as i32 > top_height
-            && (graphics.renderer.get_mouse_y() as i32)
-                < graphics.renderer.get_window_height() as i32 - bottom_height;
-
-        for server in &mut server_list.servers {
-            server.set_enabled(hoverable);
-        }
-
-        let mut current_y = gfx::SPACING;
-        for server in &mut server_list.servers {
-            server.render(
-                graphics,
-                0,
-                current_y + top_height + position as i32,
-                Some(menu_back.get_back_rect_container()),
-            );
-            current_y += server.get_height() + gfx::SPACING;
-        }
-
-        top_rect.w = menu_back.get_back_rect_width(graphics, None) as f32;
-        top_rect_visibility +=
-            ((if position < -5.0 { 1.0 } else { 0.0 }) - top_rect_visibility) / 20.0;
-
-        if top_rect_visibility < 0.01 {
-            top_rect_visibility = 0.0;
-        }
-
-        if top_rect_visibility > 0.99 {
-            top_rect_visibility = 1.0;
-        }
-
-        top_rect.fill_color.a = (top_rect_visibility * gfx::TRANSPARENCY as f32 / 2.0) as u8;
-        top_rect.blur_radius = (top_rect_visibility * gfx::BLUR as f32) as i32;
-        top_rect.shadow_intensity = (top_rect_visibility * gfx::SHADOW_INTENSITY as f32) as i32;
-        if top_rect_visibility > 0.0 {
-            top_rect.render(graphics, Some(menu_back.get_back_rect_container()));
-        }
-
-        bottom_rect.w = menu_back.get_back_rect_width(graphics, None) as f32;
-        let mut scroll_limit =
-            current_y - graphics.renderer.get_window_height() as i32 + top_height + bottom_height;
-        if scroll_limit < 0 {
-            scroll_limit = 0;
-        }
-
-        if scroll_limit > 0 {
-            bottom_rect.render(graphics, Some(menu_back.get_back_rect_container()));
-        }
-
-        if position > 0.0 {
-            position -= position / 20.0;
-        }
-
-        if position < -scroll_limit as f32 {
-            position -= (position + scroll_limit as f32) / 20.0;
-        }
-
-        title.render(graphics, Some(menu_back.get_back_rect_container()));
-        back_button.render(graphics, Some(menu_back.get_back_rect_container()));
-
-        new_world_button.render(graphics, Some(menu_back.get_back_rect_container()));
-
-        graphics.renderer.update_window();
+        render_elements(graphics, menu_back, &mut elements);
     }
+}
+fn update_elements(
+    graphics: &mut GraphicsContext,
+    menu_back: &mut dyn BackgroundRect,
+    elements: &mut MultiplayerSelectorElements,
+    servers_file: &Path,
+) -> bool {
+    while let Some(event) = graphics.renderer.get_event() {
+        match event {
+            gfx::Event::KeyRelease(key, ..) => {
+                match key {
+                    gfx::Key::MouseLeft => {
+                        if elements.back_button
+                            .is_hovered(graphics, Some(menu_back.get_back_rect_container()))
+                        {
+                            return true;
+                        }
+                        if elements.new_world_button
+                            .is_hovered(graphics, Some(menu_back.get_back_rect_container()))
+                        {
+                            if let Some(server) =
+                                run_add_server_menu(graphics, menu_back, &elements.server_list.servers)
+                            {
+                                elements.server_list.servers.push(ServerCard::new(
+                                    graphics,
+                                    server.name,
+                                    server.ip,
+                                    server.port,
+                                ));
+                            }
+                            elements.server_list.save(servers_file.to_path_buf());
+                        }
+                        for server in &elements.server_list.servers {
+                            if server.play_button.is_hovered(
+                                graphics,
+                                Some(&server.get_container(
+                                    graphics,
+                                    Some(menu_back.get_back_rect_container()),
+                                )),
+                            ) {
+                                let mut game = Game::new(server.server_info.port, server.server_info.ip.clone());
+                                game.run(graphics, menu_back);
+                            } else if server.delete_button.is_hovered(
+                                graphics,
+                                Some(&server.get_container(
+                                    graphics,
+                                    Some(menu_back.get_back_rect_container()),
+                                )),
+                            ) && run_choice_menu(format!("The world \"{}\" will be deleted.\nDo you want to proceed?", server.server_info.name), graphics, menu_back, None, None) {
+                                let pos = elements.server_list
+                                    .servers
+                                    .iter()
+                                    .position(|s| s.server_info.name == server.server_info.name);
+                                if let Some(pos) = pos {
+                                    elements.server_list.servers.remove(pos);
+                                    elements.server_list.save(servers_file.to_path_buf());
+                                }
+                                break;
+                            }
+                        }
+                    }
+                    gfx::Key::Escape => {
+                        return true
+                    }
+                    _ => {}
+                }
+            }
+            gfx::Event::MouseScroll(delta) => {
+                elements.position += delta * 2.0;
+            }
+            _ => {}
+        }
+    }
+    false
+}
+
+fn render_elements(
+    graphics: &mut GraphicsContext,
+    menu_back: &mut dyn BackgroundRect,
+    elements: &mut MultiplayerSelectorElements,
+) {
+    let mut top_rect_visibility = 1.0;
+
+    menu_back.set_back_rect_width(MENU_WIDTH);
+
+    menu_back.render_back(graphics);
+
+    let hoverable = graphics.renderer.get_mouse_y() as i32 > elements.top_height
+        && (graphics.renderer.get_mouse_y() as i32)
+        < graphics.renderer.get_window_height() as i32 - elements.bottom_height;
+
+    for server in &mut elements.server_list.servers {
+        server.set_enabled(hoverable);
+    }
+
+    let mut current_y = gfx::SPACING;
+    for server in &mut elements.server_list.servers {
+        server.render(
+            graphics,
+            0,
+            current_y + elements.top_height + elements.position as i32,
+            Some(menu_back.get_back_rect_container()),
+        );
+        current_y += server.get_height() + gfx::SPACING;
+    }
+
+    elements.top_rect.w = menu_back.get_back_rect_width(graphics, None) as f32;
+    top_rect_visibility +=
+        ((if elements.position < -5.0 { 1.0 } else { 0.0 }) - top_rect_visibility) / 20.0;
+
+    if top_rect_visibility < 0.01 {
+        top_rect_visibility = 0.0;
+    }
+
+    if top_rect_visibility > 0.99 {
+        top_rect_visibility = 1.0;
+    }
+
+    elements.top_rect.fill_color.a = (top_rect_visibility * gfx::TRANSPARENCY as f32 / 2.0) as u8;
+    elements.top_rect.blur_radius = (top_rect_visibility * gfx::BLUR as f32) as i32;
+    elements.top_rect.shadow_intensity = (top_rect_visibility * gfx::SHADOW_INTENSITY as f32) as i32;
+    if top_rect_visibility > 0.0 {
+        elements.top_rect.render(graphics, Some(menu_back.get_back_rect_container()));
+    }
+
+    elements.bottom_rect.w = menu_back.get_back_rect_width(graphics, None) as f32;
+    let mut scroll_limit =
+        current_y - graphics.renderer.get_window_height() as i32 + elements.top_height + elements.bottom_height;
+    if scroll_limit < 0 {
+        scroll_limit = 0;
+    }
+
+    if scroll_limit > 0 {
+        elements.bottom_rect.render(graphics, Some(menu_back.get_back_rect_container()));
+    }
+
+    if elements.position > 0.0 {
+        elements.position -= elements.position / 20.0;
+    }
+
+    if elements.position < -scroll_limit as f32 {
+        elements.position -= (elements.position + scroll_limit as f32) / 20.0;
+    }
+
+    elements.title.render(graphics, Some(menu_back.get_back_rect_container()));
+    elements.back_button.render(graphics, Some(menu_back.get_back_rect_container()));
+
+    elements.new_world_button.render(graphics, Some(menu_back.get_back_rect_container()));
+
+    graphics.renderer.update_window();
 }
