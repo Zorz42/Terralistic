@@ -57,6 +57,7 @@
 #![allow(clippy::cast_lossless)]
 #![allow(clippy::module_name_repetitions)]
 #![allow(clippy::struct_excessive_bools)]
+#![allow(clippy::similar_names)]
 
 use crate::build_project::compile_mod::compile_mod;
 use crate::build_project::compile_resource_pack::compile_resource_pack;

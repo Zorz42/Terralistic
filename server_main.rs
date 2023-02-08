@@ -57,6 +57,7 @@
 #![allow(clippy::cast_lossless)]
 #![allow(clippy::module_name_repetitions)]
 #![allow(clippy::struct_excessive_bools)]
+#![allow(clippy::similar_names)]
 
 use crate::server::server_impl::Server;
 use crate::server::server_impl::MULTIPLAYER_PORT;

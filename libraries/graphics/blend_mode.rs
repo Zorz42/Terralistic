@@ -4,6 +4,7 @@ pub enum BlendMode {
 }
 
 pub fn set_blend_mode(blend_mode: BlendMode) {
+    // Safety: OpenGL functions are unsafe
     unsafe {
         match blend_mode {
             BlendMode::Alpha => {
