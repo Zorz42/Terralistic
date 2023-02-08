@@ -51,13 +51,15 @@ impl WorldGenerator {
         mods.add_global_function("new_biome", move |lua_ctx, _: ()| {
             let mod_id = get_mod_id(lua_ctx).unwrap();
             Ok(Biome::new(mod_id))
-        });
+        })
+        .unwrap();
 
         let biomes = self.biomes.clone();
         mods.add_global_function("register_biome", move |_, biome: Biome| {
             biomes.lock().unwrap().push(biome);
             Ok(biomes.lock().unwrap().len() - 1)
-        });
+        })
+        .unwrap();
 
         // lua function connect_biomes(biome1, biome2, weight) takes two biome ids and a weight and connects them
         // the weight is how likely it is to go from biome1 to biome2 (and vice versa)
@@ -73,7 +75,8 @@ impl WorldGenerator {
                     .push((weight, biome1));
                 Ok(())
             },
-        );
+        )
+        .unwrap();
     }
 
     pub fn generate(

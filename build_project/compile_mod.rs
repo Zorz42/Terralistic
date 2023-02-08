@@ -119,7 +119,9 @@ fn process_template(data: Vec<u8>) -> Vec<u8> {
     for step in 0..16 {
         for y in 0..8 {
             for x in 0..8 {
-                new_surface.set_pixel(x, y + step * 8, surface.get_pixel(x, y).unwrap());
+                new_surface
+                    .set_pixel(x, y + step * 8, surface.get_pixel(x, y).unwrap())
+                    .unwrap();
             }
         }
     }
@@ -143,19 +145,27 @@ fn process_template(data: Vec<u8>) -> Vec<u8> {
 
     for step in 0..16 {
         if step & 8 == 0 && step & 1 == 0 {
-            new_surface.set_pixel(0, step * 8, gfx::Color::new(0, 0, 0, 0));
+            new_surface
+                .set_pixel(0, step * 8, gfx::Color::new(0, 0, 0, 0))
+                .unwrap();
         }
 
         if step & 1 == 0 && step & 2 == 0 {
-            new_surface.set_pixel(7, step * 8, gfx::Color::new(0, 0, 0, 0));
+            new_surface
+                .set_pixel(7, step * 8, gfx::Color::new(0, 0, 0, 0))
+                .unwrap();
         }
 
         if step & 2 == 0 && step & 4 == 0 {
-            new_surface.set_pixel(7, step * 8 + 7, gfx::Color::new(0, 0, 0, 0));
+            new_surface
+                .set_pixel(7, step * 8 + 7, gfx::Color::new(0, 0, 0, 0))
+                .unwrap();
         }
 
         if step & 4 == 0 && step & 8 == 0 {
-            new_surface.set_pixel(0, step * 8 + 7, gfx::Color::new(0, 0, 0, 0));
+            new_surface
+                .set_pixel(0, step * 8 + 7, gfx::Color::new(0, 0, 0, 0))
+                .unwrap();
         }
     }
 
@@ -180,7 +190,9 @@ fn copy_edge(
                     pixel
                 };
 
-                target.set_pixel(target_x + x, target_y + y, applied_pixel);
+                target
+                    .set_pixel(target_x + x, target_y + y, applied_pixel)
+                    .unwrap();
             }
         }
     }

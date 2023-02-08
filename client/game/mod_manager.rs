@@ -1,6 +1,6 @@
 use super::networking::WelcomePacketEvent;
 use crate::libraries::events::Event;
-use crate::shared::mod_manager::{GameMod, ModManager, ModsWelcomePacket};
+use crate::shared::mod_manager::{ModManager, ModsWelcomePacket};
 
 /**
 client mod manager that manages all the mods for the client.

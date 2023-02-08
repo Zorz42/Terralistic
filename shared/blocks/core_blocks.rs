@@ -118,7 +118,8 @@ impl Blocks {
     }
 
     pub fn init(&mut self, mods: &mut ModManager) {
-        mods.add_global_function("new_block_type", move |_lua, _: ()| Ok(Block::new()));
+        mods.add_global_function("new_block_type", move |_lua, _: ()| Ok(Block::new()))
+            .unwrap();
 
         let mut block_types = self.block_types.clone();
         mods.add_global_function("register_block_type", move |_lua, block_type: Block| {
@@ -129,7 +130,8 @@ impl Blocks {
                 block_type,
             );
             Ok(result)
-        });
+        })
+        .unwrap();
 
         block_types = self.block_types.clone();
         mods.add_global_function("get_block_id_by_name", move |_lua, name: String| {
@@ -143,7 +145,8 @@ impl Blocks {
                 }
             }
             Err(rlua::Error::RuntimeError("Block type not found".to_owned()))
-        });
+        })
+        .unwrap();
 
         // a method to connect two blocks
         block_types = self.block_types.clone();
@@ -169,7 +172,8 @@ impl Blocks {
                     .push(block_id1);
                 Ok(())
             },
-        );
+        )
+        .unwrap();
     }
 
     /// Creates an empty world with given width and height

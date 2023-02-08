@@ -35,28 +35,28 @@ impl ShadowContext {
         for x in 0..700 {
             for y in 0..200 {
                 let h = 200 - y;
-                set_gaussian_pixel(h, x, y);
+                set_gaussian_pixel(h, x, y).unwrap();
             }
         }
 
         for x in 0..200 {
             for y in 0..700 {
                 let h = 200 - x;
-                set_gaussian_pixel(h, x, y);
+                set_gaussian_pixel(h, x, y).unwrap();
             }
         }
 
         for x in 0..700 {
             for y in 500..700 {
                 let h = y - 500;
-                set_gaussian_pixel(h, x, y);
+                set_gaussian_pixel(h, x, y).unwrap();
             }
         }
 
         for x in 500..700 {
             for y in 0..700 {
                 let h = x - 500;
-                set_gaussian_pixel(h, x, y);
+                set_gaussian_pixel(h, x, y).unwrap();
             }
         }
 
