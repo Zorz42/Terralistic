@@ -7,11 +7,11 @@ pub enum DrawMode {
 }
 
 pub struct Vertex {
-    pub(crate) x: f32,
-    pub(crate) y: f32,
-    pub(crate) color: color::Color,
-    pub(crate) tex_x: f32,
-    pub(crate) tex_y: f32,
+    pub(super) x: f32,
+    pub(super) y: f32,
+    pub(super) color: color::Color,
+    pub(super) tex_x: f32,
+    pub(super) tex_y: f32,
 }
 
 pub struct VertexBuffer {

@@ -14,18 +14,18 @@ pub struct Renderer {
     _gl_context: sdl2::video::GLContext,
     sdl_window: sdl2::video::Window,
     sdl_event_pump: sdl2::EventPump,
-    pub(crate) normalization_transform: Transformation,
+    pub(super) normalization_transform: Transformation,
     window_texture: u32,
     window_texture_back: u32,
     window_framebuffer: u32,
     blur_context: BlurContext,
-    pub(crate) passthrough_shader: PassthroughShader,
+    pub(super) passthrough_shader: PassthroughShader,
     events_queue: VecDeque<Event>,
     window_open: bool,
     // Keep track of all Key states as a hashmap
     key_states: HashMap<Key, bool>,
     events: Vec<Event>,
-    pub(crate) shadow_context: ShadowContext,
+    pub(super) shadow_context: ShadowContext,
     pub clipboard_context: ClipboardContext,
 }
 
@@ -94,7 +94,7 @@ impl Renderer {
             window_framebuffer,
             key_states: HashMap::new(),
             events: Vec::new(),
-            blur_context: BlurContext::new(),
+            blur_context: BlurContext::new().unwrap(),
             passthrough_shader,
             shadow_context,
             events_queue: VecDeque::new(),
@@ -379,7 +379,7 @@ impl Renderer {
     /**
     Blurs given texture
      */
-    pub(crate) fn blur_region(
+    pub(super) fn blur_region(
         &self,
         rect: Rect,
         radius: i32,
@@ -404,7 +404,7 @@ impl Renderer {
     /**
     Blurs a given rectangle on the screen
      */
-    pub(crate) fn blur_rect(&self, rect: Rect, radius: i32) {
+    pub(super) fn blur_rect(&self, rect: Rect, radius: i32) {
         self.blur_region(
             rect,
             radius,

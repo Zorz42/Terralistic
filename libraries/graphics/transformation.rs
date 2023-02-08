@@ -13,14 +13,14 @@ impl Transformation {
     }
 
     /// Moves the object around.
-    pub(crate) fn translate(&mut self, x: f32, y: f32) {
+    pub(super) fn translate(&mut self, x: f32, y: f32) {
         let mut transformation = Self::new();
         transformation.matrix = [1.0, 0.0, 0.0, 0.0, 1.0, 0.0, x, y, 1.0];
         *self = self.clone() * transformation;
     }
 
     /// Scales the object.
-    pub(crate) fn stretch(&mut self, x: f32, y: f32) {
+    pub(super) fn stretch(&mut self, x: f32, y: f32) {
         let mut transformation = Self::new();
         transformation.matrix = [x, 0.0, 0.0, 0.0, y, 0.0, 0.0, 0.0, 1.0];
         *self = self.clone() * transformation;

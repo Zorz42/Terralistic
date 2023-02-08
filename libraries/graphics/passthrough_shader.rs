@@ -57,7 +57,7 @@ impl PassthroughShader {
     /**
     Creates a new passthrough shader context. Opengl context must be initialized.
      */
-    pub(crate) fn new() -> Self {
+    pub(super) fn new() -> Self {
         let passthrough_shader = compile_shader(VERTEX_SHADER_CODE, FRAGMENT_SHADER_CODE).unwrap();
         let mut rect_vertex_buffer = VertexBuffer::new();
         let mut rect_outline_vertex_buffer = VertexBuffer::new();

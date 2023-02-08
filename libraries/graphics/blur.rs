@@ -1,6 +1,7 @@
 use super::shaders::compile_shader;
 use super::transformation::Transformation;
 use super::Rect;
+use anyhow::Result;
 
 const BLUR_VERTEX_SHADER_CODE: &str = r#"
 #version 330 core
@@ -33,10 +34,8 @@ void main() {
 }
 "#;
 
-/**
-Blur context struct holds shaders needed for blurring and
-all uniform handles.
- */
+/// Blur context struct holds shaders needed for blurring and
+/// all uniform handles.
 pub struct BlurContext {
     blur_shader: u32,
     transform_matrix_uniform: i32,
@@ -45,41 +44,46 @@ pub struct BlurContext {
     blur_offset_uniform: i32,
     limit_uniform: i32,
     rect_vertex_buffer: u32,
-    pub(crate) blur_enabled: bool,
-    pub(crate) anti_stutter: bool,
+    pub(super) blur_enabled: bool,
+    pub(super) anti_stutter: bool,
 }
 
 const BLUR_QUALITY: f32 = 3.0;
 
 impl BlurContext {
-    /**
-    Creates a new blur context. Opengl context must be initialized.
-     */
-    pub(crate) fn new() -> Self {
-        let blur_shader =
-            compile_shader(BLUR_VERTEX_SHADER_CODE, BLUR_FRAGMENT_SHADER_CODE).unwrap();
-        Self {
+    /// Creates a new blur context. Opengl context must be initialized.
+    /// # Errors
+    /// Returns an error if shader compilation fails.
+    pub(super) fn new() -> Result<Self> {
+        let blur_shader = compile_shader(BLUR_VERTEX_SHADER_CODE, BLUR_FRAGMENT_SHADER_CODE)?;
+        Ok(Self {
             blur_shader,
+            // Safety: shader is valid
             transform_matrix_uniform: unsafe {
                 gl::GetUniformLocation(blur_shader, "transform_matrix\0".as_ptr().cast::<i8>())
             },
+            // Safety: shader is valid
             texture_transform_matrix_uniform: unsafe {
                 gl::GetUniformLocation(
                     blur_shader,
                     "texture_transform_matrix\0".as_ptr().cast::<i8>(),
                 )
             },
+            // Safety: shader is valid
             texture_sampler_uniform: unsafe {
                 gl::GetUniformLocation(blur_shader, "texture_sampler\0".as_ptr().cast::<i8>())
             },
+            // Safety: shader is valid
             blur_offset_uniform: unsafe {
                 gl::GetUniformLocation(blur_shader, "blur_offset\0".as_ptr().cast::<i8>())
             },
+            // Safety: shader is valid
             limit_uniform: unsafe {
                 gl::GetUniformLocation(blur_shader, "limit\0".as_ptr().cast::<i8>())
             },
             rect_vertex_buffer: {
                 let mut buffer = 0;
+                // Safety: use of opengl functions is safe
                 unsafe {
                     gl::GenBuffers(1, &mut buffer);
 
@@ -90,7 +94,7 @@ impl BlurContext {
                     gl::BufferData(
                         gl::ARRAY_BUFFER,
                         4 * 12,
-                        rect_vertex_array.as_ptr().cast::<std::ffi::c_void>(),
+                        rect_vertex_array.as_ptr().cast::<core::ffi::c_void>(),
                         gl::STATIC_DRAW,
                     );
                     gl::BindBuffer(gl::ARRAY_BUFFER, 0);
@@ -99,13 +103,12 @@ impl BlurContext {
             },
             blur_enabled: true,
             anti_stutter: false,
-        }
+        })
     }
 
-    /**
-    Only applies blur shader pass to the given texture.
-     */
+    /// Only applies blur shader pass to the given texture.
     fn blur_rect(&self, offset_x: f32, offset_y: f32, gl_texture1: u32, gl_texture2: u32) {
+        // Safety: use of opengl functions is safe
         unsafe {
             gl::BindTexture(gl::TEXTURE_2D, gl_texture1);
             gl::FramebufferTexture(gl::FRAMEBUFFER, gl::COLOR_ATTACHMENT0, gl_texture2, 0);
@@ -114,10 +117,8 @@ impl BlurContext {
         }
     }
 
-    /**
-    Blurs region on a given texture.
-     */
-    pub(crate) fn blur_region(
+    /// Blurs region on a given texture.
+    pub(super) fn blur_region(
         &self,
         mut rect: Rect,
         radius: i32,
@@ -130,25 +131,26 @@ impl BlurContext {
             return;
         }
 
+        // Safety: use of opengl functions is safe
         unsafe {
             if self.anti_stutter {
                 gl::Finish();
             }
 
-            let mut x1 = rect.x;
-            let mut y1 = rect.y;
-            let mut x2 = rect.x + rect.w;
-            let mut y2 = rect.y + rect.h;
+            let mut begin_x = rect.x;
+            let mut begin_y = rect.y;
+            let mut end_x = rect.x + rect.w;
+            let mut end_y = rect.y + rect.h;
 
-            x1 = x1.max(0);
-            y1 = y1.max(0);
-            x2 = x2.min(size.0 as i32);
-            y2 = y2.min(size.1 as i32);
+            begin_x = begin_x.max(0);
+            begin_y = begin_y.max(0);
+            end_x = end_x.min(size.0 as i32);
+            end_y = end_y.min(size.1 as i32);
 
-            rect.x = x1;
-            rect.y = y1;
-            rect.w = x2 - x1;
-            rect.h = y2 - y1;
+            rect.x = begin_x;
+            rect.y = begin_y;
+            rect.w = end_x - begin_x;
+            rect.h = end_y - begin_y;
 
             if rect.w <= 0 || rect.h <= 0 {
                 return;
@@ -203,11 +205,10 @@ impl BlurContext {
     }
 }
 
-/**
-Drop function for blur context.
- */
+/// Drop function for blur context.
 impl Drop for BlurContext {
     fn drop(&mut self) {
+        // Safety: blur shader is valid or 0
         unsafe {
             gl::DeleteProgram(self.blur_shader);
         }

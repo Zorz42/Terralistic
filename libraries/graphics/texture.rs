@@ -8,7 +8,7 @@ use std::ffi::c_void;
 Texture is an image stored in gpu
  */
 pub struct Texture {
-    pub(crate) texture_handle: u32,
+    pub(super) texture_handle: u32,
     width: i32,
     height: i32,
 }
@@ -87,7 +87,7 @@ impl Texture {
         self.height
     }
 
-    pub(crate) fn get_normalization_transform(&self) -> Transformation {
+    pub(super) fn get_normalization_transform(&self) -> Transformation {
         let mut result = Transformation::new();
         result.translate(-1.0, 1.0);
         result.stretch(1.0 / self.width as f32, 1.0 / self.height as f32);
