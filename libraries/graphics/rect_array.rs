@@ -1,10 +1,8 @@
 use super::vertex_buffer::{DrawMode, Vertex, VertexBuffer};
 use super::{Color, GraphicsContext, Rect, Texture};
 
-/**
-The struct `RectArray` is used to draw multiple rectangles with the same texture
-and in one draw call. This is much faster than drawing each rectangle individually.
- */
+/// The struct `RectArray` is used to draw multiple rectangles with the same texture
+/// and in one draw call. This is much faster than drawing each rectangle individually.
 pub struct RectArray {
     vertex_buffer: VertexBuffer,
 }
@@ -16,9 +14,7 @@ impl Default for RectArray {
 }
 
 impl RectArray {
-    /**
-    Creates a new RectArray.
-     */
+    /// Creates a new `RectArray`.
     #[must_use]
     pub fn new() -> Self {
         Self {
@@ -26,9 +22,7 @@ impl RectArray {
         }
     }
 
-    /**
-    Adds a rectangle to the RectArray.
-     */
+    /// Adds a rectangle to the `RectArray`.
     pub fn add_rect(&mut self, rect: &Rect, colors: &[Color; 4], tex_rect: &Rect) {
         let top_left = (rect.x as f32, rect.y as f32);
         let top_right = (rect.x as f32 + rect.w as f32, rect.y as f32);
@@ -98,9 +92,7 @@ impl RectArray {
         self.vertex_buffer.upload();
     }
 
-    /**
-    Draws the RectArray.
-     */
+    /// Draws the `RectArray`.
     pub fn render(
         &self,
         graphics: &mut GraphicsContext,
@@ -108,6 +100,7 @@ impl RectArray {
         x: i32,
         y: i32,
     ) {
+        // Safety: we are using the opengl functions correctly
         unsafe {
             let mut transform = graphics.renderer.normalization_transform.clone();
 
@@ -121,7 +114,7 @@ impl RectArray {
             );
 
             if let Some(texture) = texture {
-                let transform = texture.get_normalization_transform();
+                transform = texture.get_normalization_transform();
                 gl::UniformMatrix3fv(
                     graphics
                         .renderer

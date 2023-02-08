@@ -1,10 +1,8 @@
 use super::{Color, Container, GraphicsContext, Orientation, Texture, TOP_LEFT};
 
-/**
-Sprite is a struct that represents a texture that can be rendered to the screen.
-It has a position, a scale, and an orientation. It can also be flipped and has
-a color.
- */
+/// Sprite is a struct that represents a texture that can be rendered to the screen.
+/// It has a position, a scale, and an orientation. It can also be flipped and has
+/// a color.
 pub struct Sprite {
     pub texture: Texture,
     pub x: i32,
@@ -22,11 +20,9 @@ impl Default for Sprite {
 }
 
 impl Sprite {
-    /**
-    Creates a new Sprite with default values.
-     */
+    /// Creates a new Sprite with default values.
     #[must_use]
-    pub fn new() -> Self {
+    pub const fn new() -> Self {
         Self {
             texture: Texture::new(),
             x: 0,
@@ -38,25 +34,19 @@ impl Sprite {
         }
     }
 
-    /**
-    Returns width of the sprite.
-     */
+    /// Returns width of the sprite.
     #[must_use]
     pub fn get_width(&self) -> i32 {
         (self.texture.get_texture_width() as f32 * self.scale) as i32
     }
 
-    /**
-    Returns height of the sprite.
-     */
+    /// Returns height of the sprite.
     #[must_use]
     pub fn get_height(&self) -> i32 {
         (self.texture.get_texture_height() as f32 * self.scale) as i32
     }
 
-    /**
-    Generates containers for the sprite.
-     */
+    /// Generates containers for the sprite.
     pub fn get_container(
         &self,
         graphics: &mut GraphicsContext,
@@ -73,9 +63,7 @@ impl Sprite {
         container
     }
 
-    /**
-    Renders the sprite.
-     */
+    /// Renders the sprite.
     pub fn render(&self, graphics: &mut GraphicsContext, parent: Option<&Container>) {
         let container = self.get_container(graphics, parent);
         self.texture.render(

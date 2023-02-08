@@ -74,26 +74,20 @@ impl TextInput {
         }
     }
 
-    /**
-    Calculates the width.
-     */
+    /// Calculates the width.
     #[must_use]
     pub fn get_width(&self) -> i32 {
         ((self.width + self.padding * 2) as f32 * self.scale) as i32
     }
 
-    /**
-    Calculates the height.
-     */
+    /// Calculates the height.
     #[must_use]
     pub fn get_height(&self) -> i32 {
         ((self.text_texture.get_texture_height() as i32 + self.padding * 2) as f32 * self.scale)
             as i32
     }
 
-    /**
-    Generates the container for the text input. It it private, since a text input should never contain other elements.
-     */
+    /// Generates the container for the text input. It it private, since a text input should never contain other elements.
     fn get_container(
         &self,
         graphics: &GraphicsContext,
@@ -110,9 +104,7 @@ impl TextInput {
         container
     }
 
-    /**
-    Checks if the button is hovered with a mouse
-     */
+    /// Checks if the button is hovered with a mouse
     #[must_use]
     pub fn is_hovered(
         &self,
@@ -129,33 +121,25 @@ impl TextInput {
             && mouse_y <= rect.y + rect.h
     }
 
-    /**
-    returns the text in the input box
-     */
+    /// returns the text in the input box
     #[must_use]
     pub fn get_text(&self) -> &str {
         &self.text
     }
 
-    /**
-    sets the text in the input box
-     */
+    /// sets the text in the input box
     pub fn set_text(&mut self, text: String) {
         self.text = text;
         self.text_changed = true;
     }
 
-    /**
-    sets the hint text in the input box
-     */
+    /// sets the hint text in the input box
     pub fn set_hint(&mut self, graphics: &mut GraphicsContext, hint: &str) {
         self.hint_texture = Texture::load_from_surface(&graphics.font.create_text_surface(hint));
     }
 
-    /**
-    returns the cursor in order
-     */
-    fn get_cursor(&self) -> (usize, usize) {
+    /// returns the cursor in order
+    const fn get_cursor(&self) -> (usize, usize) {
         if self.cursor.0 > self.cursor.1 {
             (self.cursor.1, self.cursor.0)
         } else {
@@ -163,14 +147,15 @@ impl TextInput {
         }
     }
 
-    /**finds a space character on the right*/
+    /// finds a space character on the right
     fn find_space_right(&self, mut initial_pos: usize, is_ctrl_pressed: bool) -> usize {
         if initial_pos < self.text.len() {
             initial_pos += 1;
         }
+
         if is_ctrl_pressed {
             while initial_pos < self.text.len()
-                && !SPACE_CHARACTERS.contains(&self.text.chars().nth(initial_pos).unwrap())
+                && !SPACE_CHARACTERS.contains(&self.text.chars().nth(initial_pos).unwrap_or('\0'))
             {
                 initial_pos += 1;
             }
@@ -178,14 +163,15 @@ impl TextInput {
         initial_pos
     }
 
-    /**finds a space character on the left*/
+    /// finds a space character on the left
     fn find_space_left(&self, mut initial_pos: usize, is_ctrl_pressed: bool) -> usize {
         // subtract 1 if initial_pos is bigger than 0
         initial_pos = initial_pos.saturating_sub(1);
 
         if is_ctrl_pressed {
             while initial_pos > 0
-                && !SPACE_CHARACTERS.contains(&self.text.chars().nth(initial_pos - 1).unwrap())
+                && !SPACE_CHARACTERS
+                    .contains(&self.text.chars().nth(initial_pos - 1).unwrap_or('\0'))
             {
                 initial_pos -= 1;
             }
@@ -193,9 +179,8 @@ impl TextInput {
         initial_pos
     }
 
-    /**
-    renders the text input
-     */
+    /// renders the text input
+    #[allow(clippy::too_many_lines)] // TODO: split this function up
     pub fn render(&mut self, graphics: &GraphicsContext, parent_container: Option<&Container>) {
         let container = self.get_container(graphics, parent_container);
         let rect = container.get_absolute_rect();
@@ -317,23 +302,26 @@ impl TextInput {
             );
 
             // w1 is the width of the text before the cursor.0
-            let mut w1 = graphics
-                .font
-                .create_text_surface(&self.text[..self.get_cursor().0])
-                .get_width() as f32
-                * self.scale;
-            if self.get_cursor().0 == 0 {
-                w1 = 0.0;
-            }
+            let w1 = if self.get_cursor().0 == 0 {
+                0.0
+            } else {
+                graphics
+                    .font
+                    .create_text_surface(self.text.get(..self.get_cursor().0).unwrap_or(""))
+                    .get_width() as f32
+                    * self.scale
+            };
+
             // w2 is the width of the text before the cursor.1
-            let mut w2 = graphics
-                .font
-                .create_text_surface(&self.text[..self.get_cursor().1])
-                .get_width() as f32
-                * self.scale;
-            if self.get_cursor().1 == 0 {
-                w2 = 0.0;
-            }
+            let w2 = if self.get_cursor().1 == 0 {
+                0.0
+            } else {
+                graphics
+                    .font
+                    .create_text_surface(self.text.get(..self.get_cursor().1).unwrap_or(""))
+                    .get_width() as f32
+                    * self.scale
+            };
 
             let x1 = text_begin_x as f32 + w1 - 3.0;
             let x2 = text_begin_x as f32 + w2 + 1.0;
@@ -357,6 +345,8 @@ impl TextInput {
         self.text_changed = false;
     }
 
+    #[allow(clippy::too_many_lines)] // TODO: split this up
+    #[allow(clippy::cognitive_complexity)]
     pub fn on_event(
         &mut self,
         event: &Event,
@@ -474,9 +464,14 @@ impl TextInput {
                                 .renderer
                                 .clipboard_context
                                 .set_contents(
-                                    self.text[self.get_cursor().0..self.get_cursor().1].to_string(),
+                                    self.text
+                                        .get(self.get_cursor().0..self.get_cursor().1)
+                                        .unwrap_or("")
+                                        .to_owned(),
                                 )
-                                .unwrap();
+                                .unwrap_or_else(|e| {
+                                    println!("Error setting clipboard contents: {e}");
+                                });
                         }
                     }
                     Key::V => {
@@ -505,10 +500,14 @@ impl TextInput {
                                     .renderer
                                     .clipboard_context
                                     .set_contents(
-                                        self.text[self.get_cursor().0..self.get_cursor().1]
-                                            .to_string(),
+                                        self.text
+                                            .get(self.get_cursor().0..self.get_cursor().1)
+                                            .unwrap_or("")
+                                            .to_owned(),
                                     )
-                                    .unwrap();
+                                    .unwrap_or_else(|e| {
+                                        println!("Failed to copy to clipboard {e}");
+                                    });
                             }
                             self.text
                                 .replace_range(self.get_cursor().0..self.get_cursor().1, ""); //add text filtering lol

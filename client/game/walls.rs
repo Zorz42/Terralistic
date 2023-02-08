@@ -45,7 +45,7 @@ impl RenderWallChunk {
             for x in 0..CHUNK_SIZE {
                 for y in 0..CHUNK_SIZE {
                     let curr_wall = walls.get_wall_type_at(world_x + x, world_y + y).unwrap();
-                    if let Some(curr_wall_rect) = atlas.get_rect(curr_wall.get_id()) {
+                    if let Some(curr_wall_rect) = atlas.get_rect(&curr_wall.get_id()) {
                         let mut curr_wall_rect = *curr_wall_rect;
                         let mut dest_rect = gfx::Rect::new(
                             (x - 1) * RENDER_BLOCK_WIDTH,

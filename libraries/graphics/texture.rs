@@ -42,13 +42,6 @@ impl Texture {
             gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MAG_FILTER, gl::NEAREST as i32);
 
             let data = surface.pixels.clone();
-            let data_begin = {
-                if let Some(data_begin) = data.first() {
-                    data_begin
-                } else {
-                    return result;
-                }
-            };
 
             gl::TexImage2D(
                 gl::TEXTURE_2D,
@@ -59,7 +52,7 @@ impl Texture {
                 0,
                 gl::RGBA,
                 gl::UNSIGNED_BYTE,
-                std::ptr::addr_of!(data_begin) as *const core::ffi::c_void,
+                data.as_ptr() as *const core::ffi::c_void,
             );
             gl::GenerateMipmap(gl::TEXTURE_2D);
         }

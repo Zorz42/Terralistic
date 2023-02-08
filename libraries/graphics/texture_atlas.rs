@@ -1,11 +1,9 @@
 use super::{Color, Rect, Surface, Texture};
+use core::hash::Hash;
 use std::collections::HashMap;
-use std::hash::Hash;
 
-/**
-Texture atlas is a struct that holds a texture and a list of rectangles
-that represent the position of each sprite in the texture.
- */
+/// Texture atlas is a struct that holds a texture and a list of rectangles
+/// that represent the position of each sprite in the texture.
 pub struct TextureAtlas<KeyType> {
     texture: Texture,
     rects: HashMap<KeyType, Rect>,
@@ -48,7 +46,9 @@ impl<KeyType: Eq + Hash + Clone> TextureAtlas<KeyType> {
                     surface.get_height() as i32,
                 ),
             );
-            main_surface.draw(x, 0, surface, Color::new(255, 255, 255, 255));
+            main_surface
+                .draw(x, 0, surface, Color::new(255, 255, 255, 255))
+                .unwrap();
             x += surface.get_width() as i32;
         }
 
@@ -59,11 +59,11 @@ impl<KeyType: Eq + Hash + Clone> TextureAtlas<KeyType> {
     }
 
     #[must_use]
-    pub fn get_texture(&self) -> &Texture {
+    pub const fn get_texture(&self) -> &Texture {
         &self.texture
     }
 
-    pub fn get_rect(&self, index: KeyType) -> Option<&Rect> {
-        self.rects.get(&index)
+    pub fn get_rect(&self, index: &KeyType) -> Option<&Rect> {
+        self.rects.get(index)
     }
 }

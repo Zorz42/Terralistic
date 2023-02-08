@@ -51,7 +51,7 @@ impl RenderBlockChunk {
             for x in 0..CHUNK_SIZE {
                 for y in 0..CHUNK_SIZE {
                     let curr_block = blocks.get_block_type_at(world_x + x, world_y + y).unwrap();
-                    if let Some(curr_block_rect) = atlas.get_rect(curr_block.get_id()) {
+                    if let Some(curr_block_rect) = atlas.get_rect(&curr_block.get_id()) {
                         let mut curr_block_rect = *curr_block_rect;
                         let mut block_state = 0;
                         let block_type =
