@@ -14,7 +14,7 @@ Check if the column of a surface is empty.
  */
 fn is_column_empty(surface: &Surface, column: i32) -> bool {
     for y in 0..surface.get_height() {
-        if surface.get_pixel(column, y)
+        if surface.get_pixel(column, y).unwrap()
             != (Color {
                 r: 0,
                 g: 0,
@@ -37,14 +37,18 @@ impl Font {
     #[must_use]
     pub fn new(font_data: &[u8]) -> Self {
         let mut font_surfaces = vec![];
-        let font_surface = Surface::deserialize(font_data);
+        let font_surface = Surface::deserialize_from_bytes(font_data).unwrap();
 
         for y in 0..16 {
             for x in 0..16 {
-                let mut surface = Surface::new(16, 16);
+                let mut surface = Surface::new(16, 16).unwrap();
                 for x2 in 0..16 {
                     for y2 in 0..16 {
-                        surface.set_pixel(x2, y2, font_surface.get_pixel(x * 16 + x2, y * 16 + y2));
+                        surface.set_pixel(
+                            x2,
+                            y2,
+                            font_surface.get_pixel(x * 16 + x2, y * 16 + y2).unwrap(),
+                        );
                     }
                 }
 
@@ -61,10 +65,10 @@ impl Font {
                 }
 
                 // create new surface with the correct width
-                let mut new_surface = Surface::new(16 - left - right, 16);
+                let mut new_surface = Surface::new(16 - left - right, 16).unwrap();
                 for x2 in 0..16 - left - right {
                     for y2 in 0..16 {
-                        new_surface.set_pixel(x2, y2, surface.get_pixel(x2 + left, y2));
+                        new_surface.set_pixel(x2, y2, surface.get_pixel(x2 + left, y2).unwrap());
                     }
                 }
 
@@ -92,12 +96,16 @@ impl Font {
         // if width is 0, set it to 1
         width = max(width, 1);
 
-        let mut surface = Surface::new(width, height);
+        let mut surface = Surface::new(width, height).unwrap();
         let mut x = 0;
         for c in text.chars() {
             for x2 in 0..self.font_surfaces[c as usize].get_width() {
                 for y2 in 0..self.font_surfaces[c as usize].get_height() {
-                    surface.set_pixel(x + x2, y2, self.font_surfaces[c as usize].get_pixel(x2, y2));
+                    surface.set_pixel(
+                        x + x2,
+                        y2,
+                        self.font_surfaces[c as usize].get_pixel(x2, y2).unwrap(),
+                    );
                 }
             }
             x += self.font_surfaces[c as usize].get_width() + CHAR_SPACING;

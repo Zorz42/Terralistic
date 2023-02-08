@@ -16,9 +16,12 @@ impl Background {
     }
 
     pub fn init(&mut self) {
-        self.image = gfx::Texture::load_from_surface(&gfx::Surface::deserialize(include_bytes!(
-            "../../Build/Resources/background.opa"
-        )));
+        self.image = gfx::Texture::load_from_surface(
+            &gfx::Surface::deserialize_from_bytes(include_bytes!(
+                "../../Build/Resources/background.opa"
+            ))
+            .unwrap(),
+        );
     }
 
     pub fn render(&self, graphics: &mut gfx::GraphicsContext, camera: &Camera) {

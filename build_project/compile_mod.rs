@@ -112,14 +112,14 @@ fn process_file(file_path: PathBuf) -> (String, Vec<u8>) {
 }
 
 fn process_template(data: Vec<u8>) -> Vec<u8> {
-    let surface = gfx::Surface::deserialize(&data);
-    let mut new_surface = gfx::Surface::new(8, 8 * 16);
+    let surface = gfx::Surface::deserialize_from_bytes(&data).unwrap();
+    let mut new_surface = gfx::Surface::new(8, 8 * 16).unwrap();
 
     // first take first 8x8 area from surface and copy it to 16 times in the new surface
     for step in 0..16 {
         for y in 0..8 {
             for x in 0..8 {
-                new_surface.set_pixel(x, y + step * 8, surface.get_pixel(x, y));
+                new_surface.set_pixel(x, y + step * 8, surface.get_pixel(x, y).unwrap());
             }
         }
     }
@@ -159,7 +159,7 @@ fn process_template(data: Vec<u8>) -> Vec<u8> {
         }
     }
 
-    new_surface.serialize()
+    new_surface.serialize_to_bytes().unwrap()
 }
 
 fn copy_edge(
@@ -172,7 +172,7 @@ fn copy_edge(
 ) {
     for y in 0..8 {
         for x in 0..8 {
-            let pixel = source.get_pixel(source_x + x, source_y + y);
+            let pixel = source.get_pixel(source_x + x, source_y + y).unwrap();
             if pixel.a != 0 {
                 let applied_pixel = if pixel == gfx::Color::new(0, 255, 0, 255) {
                     gfx::Color::new(0, 0, 0, 0)

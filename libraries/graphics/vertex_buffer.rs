@@ -94,7 +94,7 @@ impl VertexBuffer {
             gl::BindBuffer(gl::ARRAY_BUFFER, self.vertex_buffer);
             gl::BindBuffer(gl::ELEMENT_ARRAY_BUFFER, self.index_buffer);
 
-            gl::VertexAttribPointer(0, 2, gl::FLOAT, gl::FALSE, 8 * 4, std::ptr::null());
+            gl::VertexAttribPointer(0, 2, gl::FLOAT, gl::FALSE, 8 * 4, core::ptr::null());
             gl::VertexAttribPointer(1, 4, gl::FLOAT, gl::FALSE, 8 * 4, (2 * 4) as *const _);
             if has_texture {
                 gl::VertexAttribPointer(2, 2, gl::FLOAT, gl::FALSE, 8 * 4, (6 * 4) as *const _);
@@ -115,7 +115,7 @@ impl VertexBuffer {
                 gl_mode,
                 self.indices.len() as i32,
                 gl::UNSIGNED_INT,
-                std::ptr::null(),
+                core::ptr::null(),
             );
 
             gl::DisableVertexAttribArray(0);

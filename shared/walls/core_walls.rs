@@ -3,7 +3,7 @@ use crate::shared::blocks::{Blocks, ToolId};
 use crate::shared::mod_manager::ModManager;
 use crate::shared::walls::{BreakingWall, Wall};
 use crate::shared::world_map::WorldMap;
-use anyhow::{anyhow, Result};
+use anyhow::{anyhow, bail, Result};
 use bincode;
 
 use serde_derive::{Deserialize, Serialize};
@@ -234,7 +234,7 @@ impl Walls {
                 return Ok(wall_type.id);
             }
         }
-        Err(anyhow!("No wall type with name {} found", name))
+        bail!("No wall type with name {} found", name)
     }
 
     /// This function creates a world from a 2d vector of wall type ids
@@ -246,13 +246,13 @@ impl Walls {
         if let Some(row) = wall_ids.get(0) {
             height = row.len() as i32;
         } else {
-            return Err(anyhow!("Wall ids must not be empty"));
+            bail!("Wall ids must not be empty");
         }
 
         // check that all the rows have the same length
         for row in wall_ids {
             if row.len() as i32 != height {
-                return Err(anyhow!("All rows must have the same length"));
+                bail!("All rows must have the same length");
             }
         }
 

@@ -1,4 +1,4 @@
-use anyhow::{anyhow, Result};
+use anyhow::{anyhow, bail, Result};
 use serde_derive::{Deserialize, Serialize};
 
 /// `WorldMap` contains the width and height of the map and is used
@@ -12,7 +12,7 @@ pub struct WorldMap {
 impl WorldMap {
     pub fn new(width: i32, height: i32) -> Result<Self> {
         if width < 0 || height < 0 {
-            return Err(anyhow!("Width and height must be positive"));
+            bail!("Width and height must be positive");
         }
         Ok(Self { width, height })
     }
@@ -35,7 +35,7 @@ impl WorldMap {
     /// Translates a x y coordinate to a single number.
     pub fn translate_coords(&self, x: i32, y: i32) -> Result<usize> {
         if x < 0 || y < 0 || x >= self.width || y >= self.height {
-            return Err(anyhow!("Coordinates are out of bounds! x: {}, y: {}", x, y));
+            bail!("Coordinates are out of bounds! x: {}, y: {}", x, y);
         }
 
         Ok((x * self.height + y) as usize)

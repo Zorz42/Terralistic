@@ -11,7 +11,7 @@ use crate::libraries::events::{Event, EventManager};
 use crate::shared::blocks::{Block, BreakingBlock, Tool};
 use crate::shared::mod_manager::ModManager;
 use crate::shared::world_map::WorldMap;
-use anyhow::{anyhow, Result};
+use anyhow::{anyhow, bail, Result};
 
 pub const BLOCK_WIDTH: i32 = 8;
 pub const RENDER_SCALE: f32 = 2.0;
@@ -190,13 +190,13 @@ impl Blocks {
         if let Some(row) = block_ids.get(0) {
             height = row.len() as i32;
         } else {
-            return Err(anyhow!("Block ids must not be empty"));
+            bail!("Block ids must not be empty");
         }
 
         // check that all the rows have the same length
         for row in block_ids {
             if row.len() as i32 != height {
-                return Err(anyhow!("All rows must have the same length"));
+                bail!("All rows must have the same length");
             }
         }
 
@@ -356,7 +356,7 @@ impl Blocks {
                 return Ok(block_type.id);
             }
         }
-        Err(anyhow!("Block type not found"))
+        bail!("Block type not found")
     }
 
     /// Returns all block ids.

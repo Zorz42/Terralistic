@@ -34,7 +34,7 @@ impl<KeyType: Eq + Hash + Clone> TextureAtlas<KeyType> {
             }
         }
 
-        let mut main_surface = Surface::new(total_width, max_height);
+        let mut main_surface = Surface::new(total_width, max_height).unwrap();
         let mut rects = HashMap::new();
 
         let mut x = 0;

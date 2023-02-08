@@ -166,16 +166,17 @@ impl ClientWalls {
             let image_resource =
                 mods.get_resource(format!("walls:{}.opa", wall_type.name).as_str());
             if let Some(image_resource) = image_resource {
-                let image = gfx::Surface::deserialize(&image_resource.clone());
+                let image = gfx::Surface::deserialize_from_bytes(&image_resource.clone()).unwrap();
                 surfaces.insert(id, image);
             }
         }
 
         self.atlas = gfx::TextureAtlas::new(&surfaces);
 
-        self.breaking_texture = gfx::Texture::load_from_surface(&gfx::Surface::deserialize(
-            mods.get_resource("misc:breaking.opa").unwrap(),
-        ));
+        self.breaking_texture = gfx::Texture::load_from_surface(
+            &gfx::Surface::deserialize_from_bytes(mods.get_resource("misc:breaking.opa").unwrap())
+                .unwrap(),
+        );
     }
 
     pub fn render(&mut self, graphics: &mut GraphicsContext, camera: &Camera) {

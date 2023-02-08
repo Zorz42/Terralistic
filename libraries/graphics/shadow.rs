@@ -12,7 +12,7 @@ impl ShadowContext {
     Creates a new ShadowContext.
      */
     pub fn new() -> Self {
-        let mut surface = Surface::new(700, 700);
+        let mut surface = Surface::new(700, 700).unwrap();
         // fill surface with black color
         for x in 0..surface.get_width() {
             for y in 0..surface.get_height() {
@@ -25,7 +25,7 @@ impl ShadowContext {
         // curve.
         let mut set_gaussian_pixel = |h, x, y| {
             let alpha = std::f32::consts::E.powf(-((h * h) as f32 / 2000.0));
-            let prev_alpha = surface.get_pixel(x, y).a as f32 / 255.0;
+            let prev_alpha = surface.get_pixel(x, y).unwrap().a as f32 / 255.0;
             surface.set_pixel(
                 x,
                 y,

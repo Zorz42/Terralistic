@@ -29,9 +29,12 @@ impl MenuBack {
         back_rect.smooth_factor = 60.0;
 
         Self {
-            background: gfx::Texture::load_from_surface(&gfx::Surface::deserialize(
-                include_bytes!("../../Build/Resources/background.opa"),
-            )),
+            background: gfx::Texture::load_from_surface(
+                &gfx::Surface::deserialize_from_bytes(include_bytes!(
+                    "../../Build/Resources/background.opa"
+                ))
+                .unwrap(),
+            ),
             background_timer: std::time::Instant::now(),
             back_rect,
             back_container: gfx::Container::new(0, 0, 0, 0, gfx::TOP_LEFT),

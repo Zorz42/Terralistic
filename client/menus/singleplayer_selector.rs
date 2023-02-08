@@ -63,7 +63,11 @@ pub struct World {
 impl World {
     pub fn new(graphics: &GraphicsContext, file_path: PathBuf) -> Self {
         let stem = file_path.file_stem();
-        let name = stem.map_or("incorrect_file_path", |name_| name_.to_str().unwrap_or("invalid_text_format")).to_owned();
+        let name = stem
+            .map_or("incorrect_file_path", |name_| {
+                name_.to_str().unwrap_or("invalid_text_format")
+            })
+            .to_owned();
 
         let mut rect = gfx::RenderRect::new(0.0, 0.0, (MENU_WIDTH - 2 * gfx::SPACING) as f32, 0.0);
         rect.orientation = gfx::TOP;
@@ -71,9 +75,12 @@ impl World {
         rect.smooth_factor = 60.0;
 
         let mut icon = gfx::Sprite::new();
-        icon.texture = gfx::Texture::load_from_surface(&gfx::Surface::deserialize(include_bytes!(
-            "../../Build/Resources/world_icon.opa"
-        )));
+        icon.texture = gfx::Texture::load_from_surface(
+            &gfx::Surface::deserialize_from_bytes(include_bytes!(
+                "../../Build/Resources/world_icon.opa"
+            ))
+            .unwrap(),
+        );
         rect.h = icon.get_height() as f32 + 2.0 * gfx::SPACING as f32;
         icon.x = gfx::SPACING;
         icon.orientation = gfx::LEFT;
@@ -85,9 +92,12 @@ impl World {
         title.scale = 3.0;
 
         let mut play_button = gfx::Button::new();
-        play_button.texture = gfx::Texture::load_from_surface(&gfx::Surface::deserialize(
-            include_bytes!("../../Build/Resources/play_button.opa"),
-        ));
+        play_button.texture = gfx::Texture::load_from_surface(
+            &gfx::Surface::deserialize_from_bytes(include_bytes!(
+                "../../Build/Resources/play_button.opa"
+            ))
+            .unwrap(),
+        );
         play_button.scale = 3.0;
         play_button.margin = 5;
         play_button.x = icon.x + icon.get_width() + gfx::SPACING;
@@ -95,9 +105,12 @@ impl World {
         play_button.orientation = gfx::BOTTOM_LEFT;
 
         let mut delete_button = gfx::Button::new();
-        delete_button.texture = gfx::Texture::load_from_surface(&gfx::Surface::deserialize(
-            include_bytes!("../../Build/Resources/delete_button.opa"),
-        ));
+        delete_button.texture = gfx::Texture::load_from_surface(
+            &gfx::Surface::deserialize_from_bytes(include_bytes!(
+                "../../Build/Resources/delete_button.opa"
+            ))
+            .unwrap(),
+        );
         delete_button.scale = 3.0;
         delete_button.margin = 5;
         delete_button.x = play_button.x + play_button.get_width() + gfx::SPACING;
@@ -197,7 +210,7 @@ impl WorldList {
 
     pub fn refresh(&mut self, graphics: &GraphicsContext) {
         let base_dirs;
-        if let Some(base_dirs_) = BaseDirs::new(){
+        if let Some(base_dirs_) = BaseDirs::new() {
             base_dirs = base_dirs_;
         } else {
             return;
@@ -267,7 +280,7 @@ pub fn run_singleplayer_selector(
 
     let position: f32 = 0.0;
 
-    let mut elements = SigleplayerSelectorElements{
+    let mut elements = SigleplayerSelectorElements {
         position,
         top_rect,
         bottom_rect,
@@ -287,62 +300,72 @@ pub fn run_singleplayer_selector(
     }
 }
 
-fn update_elements (
+fn update_elements(
     graphics: &mut GraphicsContext,
     menu_back: &mut dyn BackgroundRect,
     elements: &mut SigleplayerSelectorElements,
 ) -> bool {
     while let Some(event) = graphics.renderer.get_event() {
         match event {
-            gfx::Event::KeyRelease(key, ..) => {
-                match key {
-                    gfx::Key::MouseLeft => {
-                        if elements.back_button
-                            .is_hovered(graphics, Some(menu_back.get_back_rect_container()))
-                        {
-                            return true;
-                        }
-                        if elements.new_world_button
-                            .is_hovered(graphics, Some(menu_back.get_back_rect_container()))
-                        {
-                            run_world_creation(graphics, menu_back, &mut elements.world_list.worlds);
-                            elements.world_list.refresh(graphics);
-                        }
-
-                        let mut needs_refresh = false;
-                        for world in &mut elements.world_list.worlds {
-                            if world.play_button.is_hovered(
-                                graphics,
-                                Some(&world.get_container(
-                                    graphics,
-                                    Some(menu_back.get_back_rect_container()),
-                                )),
-                            ) {
-                                run_private_world(graphics, menu_back, world.get_file_path());
-                            } else if world.delete_button.is_hovered(
-                                graphics,
-                                Some(&world.get_container(
-                                    graphics,
-                                    Some(menu_back.get_back_rect_container()),
-                                )),
-                            ) && run_choice_menu(format!("The world \"{}\" will be deleted.\nDo you want to proceed?", world.name).as_str(), graphics, menu_back, None, None) {
-                                let res = fs::remove_file(world.get_file_path());
-                                if res.is_err() {
-                                    println!("failed to delete the world");
-                                }
-                                needs_refresh = true;
-                            }
-                        }
-                        if needs_refresh {
-                            elements.world_list.refresh(graphics);
-                        }
-                    }
-                    gfx::Key::Escape => {
+            gfx::Event::KeyRelease(key, ..) => match key {
+                gfx::Key::MouseLeft => {
+                    if elements
+                        .back_button
+                        .is_hovered(graphics, Some(menu_back.get_back_rect_container()))
+                    {
                         return true;
                     }
-                    _ => {}
+                    if elements
+                        .new_world_button
+                        .is_hovered(graphics, Some(menu_back.get_back_rect_container()))
+                    {
+                        run_world_creation(graphics, menu_back, &mut elements.world_list.worlds);
+                        elements.world_list.refresh(graphics);
+                    }
+
+                    let mut needs_refresh = false;
+                    for world in &mut elements.world_list.worlds {
+                        if world.play_button.is_hovered(
+                            graphics,
+                            Some(&world.get_container(
+                                graphics,
+                                Some(menu_back.get_back_rect_container()),
+                            )),
+                        ) {
+                            run_private_world(graphics, menu_back, world.get_file_path());
+                        } else if world.delete_button.is_hovered(
+                            graphics,
+                            Some(&world.get_container(
+                                graphics,
+                                Some(menu_back.get_back_rect_container()),
+                            )),
+                        ) && run_choice_menu(
+                            format!(
+                                "The world \"{}\" will be deleted.\nDo you want to proceed?",
+                                world.name
+                            )
+                            .as_str(),
+                            graphics,
+                            menu_back,
+                            None,
+                            None,
+                        ) {
+                            let res = fs::remove_file(world.get_file_path());
+                            if res.is_err() {
+                                println!("failed to delete the world");
+                            }
+                            needs_refresh = true;
+                        }
+                    }
+                    if needs_refresh {
+                        elements.world_list.refresh(graphics);
+                    }
                 }
-            }
+                gfx::Key::Escape => {
+                    return true;
+                }
+                _ => {}
+            },
             gfx::Event::MouseScroll(delta) => {
                 elements.position += delta * 2.0;
             }
@@ -352,7 +375,7 @@ fn update_elements (
     false
 }
 
-fn render_elements (
+fn render_elements(
     graphics: &mut GraphicsContext,
     menu_back: &mut dyn BackgroundRect,
     elements: &mut SigleplayerSelectorElements,
@@ -365,7 +388,7 @@ fn render_elements (
 
     let hoverable = graphics.renderer.get_mouse_y() as i32 > elements.top_height
         && (graphics.renderer.get_mouse_y() as i32)
-        < graphics.renderer.get_window_height() as i32 - elements.bottom_height;
+            < graphics.renderer.get_window_height() as i32 - elements.bottom_height;
 
     for world in &mut elements.world_list.worlds {
         world.set_enabled(hoverable);
@@ -396,20 +419,26 @@ fn render_elements (
 
     elements.top_rect.fill_color.a = (top_rect_visibility * gfx::TRANSPARENCY as f32 / 2.0) as u8;
     elements.top_rect.blur_radius = (top_rect_visibility * gfx::BLUR as f32) as i32;
-    elements.top_rect.shadow_intensity = (top_rect_visibility * gfx::SHADOW_INTENSITY as f32) as i32;
+    elements.top_rect.shadow_intensity =
+        (top_rect_visibility * gfx::SHADOW_INTENSITY as f32) as i32;
     if top_rect_visibility > 0.0 {
-        elements.top_rect.render(graphics, Some(menu_back.get_back_rect_container()));
+        elements
+            .top_rect
+            .render(graphics, Some(menu_back.get_back_rect_container()));
     }
 
     elements.bottom_rect.w = menu_back.get_back_rect_width(graphics, None) as f32;
-    let mut scroll_limit =
-        current_y - graphics.renderer.get_window_height() as i32 + elements.top_height + elements.bottom_height;
+    let mut scroll_limit = current_y - graphics.renderer.get_window_height() as i32
+        + elements.top_height
+        + elements.bottom_height;
     if scroll_limit < 0 {
         scroll_limit = 0;
     }
 
     if scroll_limit > 0 {
-        elements.bottom_rect.render(graphics, Some(menu_back.get_back_rect_container()));
+        elements
+            .bottom_rect
+            .render(graphics, Some(menu_back.get_back_rect_container()));
     }
 
     if elements.position > 0.0 {
@@ -420,10 +449,16 @@ fn render_elements (
         elements.position -= (elements.position + scroll_limit as f32) / 20.0;
     }
 
-    elements.title.render(graphics, Some(menu_back.get_back_rect_container()));
-    elements.back_button.render(graphics, Some(menu_back.get_back_rect_container()));
+    elements
+        .title
+        .render(graphics, Some(menu_back.get_back_rect_container()));
+    elements
+        .back_button
+        .render(graphics, Some(menu_back.get_back_rect_container()));
 
-    elements.new_world_button.render(graphics, Some(menu_back.get_back_rect_container()));
+    elements
+        .new_world_button
+        .render(graphics, Some(menu_back.get_back_rect_container()));
 
     graphics.renderer.update_window();
 }
