@@ -1,6 +1,6 @@
 use super::color::Color;
 use super::surface::Surface;
-use std::cmp::max;
+use core::cmp::max;
 
 pub struct Font {
     font_surfaces: Vec<Surface>,

@@ -43,9 +43,9 @@ impl Renderer {
     /// - This function can fail if the clipboard context fails to initialize.
     pub fn new(window_width: u32, window_height: u32, window_title: &str) -> Result<Self> {
         let sdl = sdl2::init();
-        let sdl = sdl.map_err(|e| anyhow::anyhow!(e))?;
+        let sdl = sdl.map_err(|e| anyhow!(e))?;
         let video_subsystem = sdl.video();
-        let video_subsystem = video_subsystem.map_err(|e| anyhow::anyhow!(e))?;
+        let video_subsystem = video_subsystem.map_err(|e| anyhow!(e))?;
 
         let gl_attr = video_subsystem.gl_attr();
 
@@ -59,9 +59,7 @@ impl Renderer {
             .resizable()
             .build()?;
 
-        let gl_context = sdl_window
-            .gl_create_context()
-            .map_err(|e| anyhow::anyhow!(e))?;
+        let gl_context = sdl_window.gl_create_context().map_err(|e| anyhow!(e))?;
         gl::load_with(|s| {
             video_subsystem
                 .gl_get_proc_address(s)
@@ -77,7 +75,7 @@ impl Renderer {
         // enable vsync
         video_subsystem
             .gl_set_swap_interval(1)
-            .map_err(|e| anyhow::anyhow!(e))?;
+            .map_err(|e| anyhow!(e))?;
 
         let passthrough_shader = PassthroughShader::new()?;
         let mut window_texture = 0;
@@ -97,7 +95,7 @@ impl Renderer {
         let mut result = Self {
             _gl_context: gl_context,
             sdl_window,
-            sdl_event_pump: sdl.event_pump().map_err(|e| anyhow::anyhow!(e))?,
+            sdl_event_pump: sdl.event_pump().map_err(|e| anyhow!(e))?,
             normalization_transform: Transformation::new(),
             window_texture,
             window_texture_back,
@@ -109,7 +107,7 @@ impl Renderer {
             shadow_context,
             events_queue: VecDeque::new(),
             window_open: true,
-            clipboard_context: ClipboardContext::new().map_err(|e| anyhow::anyhow!(e))?,
+            clipboard_context: ClipboardContext::new().map_err(|e| anyhow!(e))?,
         };
 
         result.handle_window_resize();

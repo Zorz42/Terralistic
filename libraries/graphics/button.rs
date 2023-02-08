@@ -4,10 +4,8 @@ use super::theme::{
 };
 use super::{Color, Container, GraphicsContext, Key, Orientation, Rect, Texture, TOP_LEFT};
 
-/**
-A Button is a rectangle with an image in it.
-It can be clicked and has a hover animation.
- */
+/// A Button is a rectangle with an image in it.
+/// It can be clicked and has a hover animation.
 pub struct Button {
     pub x: i32,
     pub y: i32,
@@ -33,9 +31,7 @@ impl Default for Button {
 }
 
 impl Button {
-    /**
-    Creates a new button.
-     */
+    /// Creates a new button.
     #[must_use]
     pub fn new() -> Self {
         Self {
@@ -57,25 +53,19 @@ impl Button {
         }
     }
 
-    /**
-    Calculates the width based on the image width and the margin.
-     */
+    /// Calculates the width based on the image width and the margin.
     #[must_use]
     pub fn get_width(&self) -> i32 {
         ((self.texture.get_texture_width() as f32 + self.margin as f32 * 2.0) * self.scale) as i32
     }
 
-    /**
-    Calculates the height based on the image height and the margin.
-     */
+    /// Calculates the height based on the image height and the margin.
     #[must_use]
     pub fn get_height(&self) -> i32 {
         ((self.texture.get_texture_height() as f32 + self.margin as f32 * 2.0) * self.scale) as i32
     }
 
-    /**
-    Generates the container for the button.
-     */
+    /// Generates the container for the button.
     #[must_use]
     pub fn get_container(
         &self,
@@ -93,9 +83,7 @@ impl Button {
         container
     }
 
-    /**
-    Checks if the button is hovered with a mouse.
-     */
+    /// Checks if the button is hovered with a mouse.
     #[must_use]
     pub fn is_hovered(
         &self,
@@ -116,9 +104,7 @@ impl Button {
             && mouse_y <= rect.y + rect.h
     }
 
-    /**
-    Renders the button.
-     */
+    /// Renders the button.
     pub fn render(&mut self, graphics: &GraphicsContext, parent_container: Option<&Container>) {
         let container = self.get_container(graphics, parent_container);
         let rect = container.get_absolute_rect();
@@ -167,8 +153,8 @@ impl Button {
         let hover_rect = Rect::new(
             rect.x + padding as i32,
             rect.y + padding as i32,
-            std::cmp::max(0, rect.w - 2 * padding as i32),
-            std::cmp::max(0, rect.h - 2 * padding as i32),
+            core::cmp::max(0, rect.w - 2 * padding as i32),
+            core::cmp::max(0, rect.h - 2 * padding as i32),
         );
         rect.render(graphics, self.color);
         rect.render_outline(graphics, self.border_color);

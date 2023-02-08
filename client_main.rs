@@ -58,6 +58,7 @@
 #![allow(clippy::module_name_repetitions)]
 #![allow(clippy::struct_excessive_bools)]
 #![allow(clippy::similar_names)]
+#![allow(clippy::ptr_as_ptr)]
 
 use crate::libraries::graphics as gfx;
 

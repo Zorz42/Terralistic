@@ -2,13 +2,11 @@ use super::Container;
 use super::Orientation;
 use super::{Color, GraphicsContext, TOP_LEFT};
 
-/**
-The struct `RenderRect` contains a container and
-moves smoothly visually to the saved position
-it has a `smooth_factor`. At every render the position
-of the container is changed by the distance to the
-target position divided by the `smooth_factor`. It is 1 by default.
- */
+/// The struct `RenderRect` contains a container and
+/// moves smoothly visually to the saved position
+/// it has a `smooth_factor`. At every render the position
+/// of the container is changed by the distance to the
+/// target position divided by the `smooth_factor`. It is 1 by default.
 pub struct RenderRect {
     pub x: f32,
     pub y: f32,
@@ -59,10 +57,8 @@ impl RenderRect {
         }
     }
 
-    /**
-    This function renders the rectangle, it uses Rect class to render.
-    It also approaches the position to the target position.
-     */
+    /// This function renders the rectangle, it uses Rect class to render.
+    /// It also approaches the position to the target position.
     pub fn render(&mut self, graphics: &GraphicsContext, parent_container: Option<&Container>) {
         while self.ms_counter < self.approach_timer.elapsed().as_millis() as u32 {
             self.ms_counter += 1;
@@ -84,10 +80,8 @@ impl RenderRect {
         rect.render(graphics, self.fill_color);
     }
 
-    /**
-    This function returns the container of the rectangle.
-    The container has the position of render rect.
-     */
+    /// This function returns the container of the rectangle.
+    /// The container has the position of render rect.
     #[must_use]
     pub fn get_container(
         &self,
@@ -105,9 +99,7 @@ impl RenderRect {
         container
     }
 
-    /**
-    This function jumps the rectangle to the target position.
-     */
+    /// This function jumps the rectangle to the target position.
     pub fn jump_to_target(&mut self) {
         self.render_x = self.x;
         self.render_y = self.y;

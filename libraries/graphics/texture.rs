@@ -2,11 +2,8 @@ use super::renderer::Renderer;
 use super::transformation::Transformation;
 use super::vertex_buffer::DrawMode;
 use super::{Color, Rect, Surface};
-use std::ffi::c_void;
 
-/**
-Texture is an image stored in gpu
- */
+/// Texture is an image stored in gpu
 pub struct Texture {
     pub(super) texture_handle: u32,
     width: u32,
@@ -21,7 +18,7 @@ impl Default for Texture {
 
 impl Texture {
     #[must_use]
-    pub fn new() -> Self {
+    pub const fn new() -> Self {
         Self {
             texture_handle: u32::MAX,
             width: 0,
@@ -29,15 +26,14 @@ impl Texture {
         }
     }
 
-    /**
-    Loads a Surface into gpu memory.
-     */
+    /// Loads a Surface into gpu memory.
     #[must_use]
     pub fn load_from_surface(surface: &Surface) -> Self {
         let mut result = Self::new();
         result.width = surface.get_width();
         result.height = surface.get_height();
 
+        // Safety: We are using OpenGL functions correctly.
         unsafe {
             gl::GenTextures(1, &mut result.texture_handle);
             gl::BindTexture(gl::TEXTURE_2D, result.texture_handle);
@@ -46,6 +42,14 @@ impl Texture {
             gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MAG_FILTER, gl::NEAREST as i32);
 
             let data = surface.pixels.clone();
+            let data_begin = {
+                if let Some(data_begin) = data.first() {
+                    data_begin
+                } else {
+                    return result;
+                }
+            };
+
             gl::TexImage2D(
                 gl::TEXTURE_2D,
                 0,
@@ -55,7 +59,7 @@ impl Texture {
                 0,
                 gl::RGBA,
                 gl::UNSIGNED_BYTE,
-                std::ptr::addr_of!(data[0]) as *const c_void,
+                std::ptr::addr_of!(data_begin) as *const core::ffi::c_void,
             );
             gl::GenerateMipmap(gl::TEXTURE_2D);
         }
@@ -63,11 +67,10 @@ impl Texture {
         result
     }
 
-    /**
-    Deletes the current texture if it exists.
-     */
+    /// Deletes the current texture if it exists.
     fn free_texture(&mut self) {
         if self.texture_handle != u32::MAX {
+            // Safety: We are using OpenGL functions correctly.
             unsafe {
                 gl::DeleteTextures(1, &self.texture_handle);
             }
@@ -78,12 +81,12 @@ impl Texture {
     }
 
     #[must_use]
-    pub fn get_texture_width(&self) -> u32 {
+    pub const fn get_texture_width(&self) -> u32 {
         self.width
     }
 
     #[must_use]
-    pub fn get_texture_height(&self) -> u32 {
+    pub const fn get_texture_height(&self) -> u32 {
         self.height
     }
 
@@ -103,12 +106,15 @@ impl Texture {
         flipped: bool,
         color: Option<Color>,
     ) {
-        let src_rect = src_rect.unwrap_or(Rect::new(
-            0,
-            0,
-            self.get_texture_width() as i32,
-            self.get_texture_height() as i32,
-        ));
+        let src_rect = src_rect.unwrap_or_else(|| {
+            Rect::new(
+                0,
+                0,
+                self.get_texture_width() as i32,
+                self.get_texture_height() as i32,
+            )
+        });
+
         let color = color.unwrap_or(Color {
             r: 255,
             g: 255,
@@ -116,6 +122,7 @@ impl Texture {
             a: 255,
         });
 
+        // Safety: We are using OpenGL functions correctly.
         unsafe {
             let mut transform = renderer.normalization_transform.clone();
 
@@ -134,7 +141,7 @@ impl Texture {
                 transform.matrix.as_ptr(),
             );
 
-            let mut transform = self.get_normalization_transform();
+            transform = self.get_normalization_transform();
             transform.translate(src_rect.x as f32, src_rect.y as f32);
             transform.stretch(src_rect.w as f32, src_rect.h as f32);
 
@@ -163,9 +170,7 @@ impl Texture {
     }
 }
 
-/**
-Free the surface when it goes out of scope.
- */
+/// Free the surface when it goes out of scope.
 impl Drop for Texture {
     fn drop(&mut self) {
         self.free_texture();

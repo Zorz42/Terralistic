@@ -2,10 +2,7 @@ use super::color::Color;
 use super::vertex_buffer::DrawMode;
 use super::GraphicsContext;
 
-/**
-This is a rectangle shape not really
-meant to be rendered.
- */
+/// This is a rectangle shape.
 #[derive(Clone, Copy)]
 pub struct Rect {
     pub x: i32,
@@ -15,17 +12,13 @@ pub struct Rect {
 }
 
 impl Rect {
-    /**
-    Creates a new rectangle.
-     */
+    /// Creates a new rectangle.
     #[must_use]
-    pub fn new(x: i32, y: i32, w: i32, h: i32) -> Self {
+    pub const fn new(x: i32, y: i32, w: i32, h: i32) -> Self {
         Self { x, y, w, h }
     }
 
-    /**
-    Renders the rectangle on the screen.
-     */
+    /// Renders the rectangle on the screen.
     pub fn render(&self, graphics: &GraphicsContext, color: Color) {
         if color.a == 0 {
             return;
@@ -35,6 +28,7 @@ impl Rect {
         transform.translate(self.x as f32, self.y as f32);
         transform.stretch(self.w as f32, self.h as f32);
 
+        // Safety: We are using a valid shader.
         unsafe {
             gl::UniformMatrix3fv(
                 graphics.renderer.passthrough_shader.transform_matrix,
@@ -59,9 +53,7 @@ impl Rect {
             .draw(false, DrawMode::Triangles);
     }
 
-    /**
-    Renders the rectangle outline on the screen.
-     */
+    /// Renders the rectangle outline on the screen.
     pub fn render_outline(&self, graphics: &GraphicsContext, color: Color) {
         if color.a == 0 {
             return;
@@ -71,6 +63,7 @@ impl Rect {
         transform.translate(self.x as f32, self.y as f32);
         transform.stretch(self.w as f32, self.h as f32);
 
+        // Safety: We are using a valid shader.
         unsafe {
             gl::UniformMatrix3fv(
                 graphics.renderer.passthrough_shader.transform_matrix,
