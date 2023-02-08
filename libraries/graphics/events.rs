@@ -15,40 +15,20 @@ pub fn sdl_event_to_gfx_event(sdl_event: &sdl2::event::Event) -> Option<Event> {
             keycode: Some(keycode),
             repeat,
             ..
-        } => {
-            if let Some(key) = sdl_key_to_gfx_key(keycode) {
-                Some(Event::KeyPress(key, *repeat))
-            } else {
-                None
-            }
-        }
+        } => sdl_key_to_gfx_key(keycode).map(|key| Event::KeyPress(key, *repeat)),
 
         sdl2::event::Event::KeyUp {
             keycode: Some(keycode),
             repeat,
             ..
-        } => {
-            if let Some(key) = sdl_key_to_gfx_key(keycode) {
-                Some(Event::KeyRelease(key, *repeat))
-            } else {
-                None
-            }
-        }
+        } => sdl_key_to_gfx_key(keycode).map(|key| Event::KeyRelease(key, *repeat)),
 
         sdl2::event::Event::MouseWheel { y, .. } => Some(Event::MouseScroll(*y as f32)),
         sdl2::event::Event::MouseButtonDown { mouse_btn, .. } => {
-            if let Some(key) = sdl_mouse_button_to_gfx_key(mouse_btn) {
-                Some(Event::KeyPress(key, false))
-            } else {
-                None
-            }
+            sdl_mouse_button_to_gfx_key(mouse_btn).map(|key| Event::KeyPress(key, false))
         }
         sdl2::event::Event::MouseButtonUp { mouse_btn, .. } => {
-            if let Some(key) = sdl_mouse_button_to_gfx_key(mouse_btn) {
-                Some(Event::KeyRelease(key, false))
-            } else {
-                None
-            }
+            sdl_mouse_button_to_gfx_key(mouse_btn).map(|key| Event::KeyRelease(key, false))
         }
         sdl2::event::Event::TextInput { text, .. } => Some(Event::TextInput(text.clone())),
 

@@ -7,7 +7,7 @@ pub struct ShadowContext {
 }
 
 impl ShadowContext {
-    /// Creates a new ShadowContext.
+    /// Creates a new `ShadowContext`.
     pub fn new() -> Self {
         let mut surface = Surface::new(700, 700);
         // fill surface with black color

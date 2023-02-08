@@ -114,9 +114,9 @@ impl EntityObject for Entity {
         if colliding_x < 0.0
             || colliding_y < 0.0
             || colliding_y
-                >= (blocks.get_height() as i32 * BLOCK_WIDTH * 2 - self.get_height() as i32) as f32
+                >= (blocks.get_height() as i32 * BLOCK_WIDTH * 2 - self.get_height()) as f32
             || colliding_x
-                >= (blocks.get_width() as i32 * BLOCK_WIDTH * 2 - self.get_width() as i32) as f32
+                >= (blocks.get_width() as i32 * BLOCK_WIDTH * 2 - self.get_width()) as f32
         {
             return true;
         }

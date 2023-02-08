@@ -9,12 +9,16 @@ use super::multiplayer_selector::ServerInfo;
 use std::net::{IpAddr, Ipv4Addr};
 
 fn get_ip_port(server_ip_input: &str) -> (String, u16) {
-    let ip = server_ip_input.split(':').next().unwrap_or("127.0.0.1").to_owned();
+    let ip = server_ip_input
+        .split(':')
+        .next()
+        .unwrap_or("127.0.0.1")
+        .to_owned();
     let port = if server_ip_input.contains(':') {
         server_ip_input
             .split(':')
             .last()
-            .unwrap_or("-1")//-1 so it fails on next unwrap and always defaults to MULTIPLAYER_PORT
+            .unwrap_or("-1") //-1 so it fails on next unwrap and always defaults to MULTIPLAYER_PORT
             .to_owned()
             .parse::<u16>()
             .unwrap_or(MULTIPLAYER_PORT)

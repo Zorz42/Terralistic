@@ -12,6 +12,7 @@ pub struct Surface {
 
 impl Surface {
     /// Creates a new surface with all transparent pixels.
+    #[must_use]
     pub fn new(width: u32, height: u32) -> Self {
         Self {
             pixels: std::vec![0; (width * height * 4) as usize],
