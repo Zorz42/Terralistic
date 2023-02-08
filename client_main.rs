@@ -80,16 +80,33 @@ pub mod client {
 }
 
 fn main() {
-    let mut graphics = gfx::init(
+    let graphics_result = gfx::init(
         1130,
         700,
         "Terralistic",
         include_bytes!("Build/Resources/font.opa"),
     );
-    graphics.renderer.set_min_window_size(
-        graphics.renderer.get_window_width(),
-        graphics.renderer.get_window_height(),
-    );
+
+    let mut graphics;
+
+    match graphics_result {
+        Ok(g) => graphics = g,
+        Err(e) => {
+            println!("Failed to initialize graphics: {e}");
+            return;
+        }
+    }
+
+    if graphics
+        .renderer
+        .set_min_window_size(
+            graphics.renderer.get_window_width(),
+            graphics.renderer.get_window_height(),
+        )
+        .is_err()
+    {
+        println!("Failed to set minimum window size");
+    }
 
     let mut menu_back = MenuBack::new();
 

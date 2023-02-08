@@ -1,6 +1,7 @@
 use super::shaders::compile_shader;
 use super::vertex_buffer::{Vertex, VertexBuffer};
 use super::Color;
+use anyhow::Result;
 
 const VERTEX_SHADER_CODE: &str = r#"
 #version 330 core
@@ -38,11 +39,9 @@ void main() {
 }
 "#;
 
-/**
-Passthrough shader context struct holds shaders needed for drawing
-rectangles and all uniform handles. It also holds a vertex buffer
-for drawing rectangles.
- */
+/// Passthrough shader context struct holds shaders needed for drawing
+/// rectangles and all uniform handles. It also holds a vertex buffer
+/// for drawing rectangles.
 pub struct PassthroughShader {
     pub passthrough_shader: u32,
     pub rect_vertex_buffer: VertexBuffer,
@@ -54,204 +53,78 @@ pub struct PassthroughShader {
 }
 
 impl PassthroughShader {
-    /**
-    Creates a new passthrough shader context. Opengl context must be initialized.
-     */
-    pub(super) fn new() -> Self {
-        let passthrough_shader = compile_shader(VERTEX_SHADER_CODE, FRAGMENT_SHADER_CODE).unwrap();
+    /// Creates a new passthrough shader context. Opengl context must be initialized.
+    /// # Errors
+    /// Returns an error if the shader compilation fails.
+    pub(super) fn new() -> Result<Self> {
+        let passthrough_shader = compile_shader(VERTEX_SHADER_CODE, FRAGMENT_SHADER_CODE)?;
         let mut rect_vertex_buffer = VertexBuffer::new();
         let mut rect_outline_vertex_buffer = VertexBuffer::new();
 
-        rect_vertex_buffer.add_vertex(&Vertex {
-            x: 0.0,
-            y: 0.0,
-            color: Color {
-                r: 255,
-                g: 255,
-                b: 255,
-                a: 255,
-            },
-            tex_x: 0.0,
-            tex_y: 0.0,
-        });
-        rect_vertex_buffer.add_vertex(&Vertex {
-            x: 1.0,
-            y: 0.0,
-            color: Color {
-                r: 255,
-                g: 255,
-                b: 255,
-                a: 255,
-            },
-            tex_x: 1.0,
-            tex_y: 0.0,
-        });
-        rect_vertex_buffer.add_vertex(&Vertex {
-            x: 0.0,
-            y: 1.0,
-            color: Color {
-                r: 255,
-                g: 255,
-                b: 255,
-                a: 255,
-            },
-            tex_x: 0.0,
-            tex_y: 1.0,
-        });
-
-        rect_vertex_buffer.add_vertex(&Vertex {
-            x: 1.0,
-            y: 1.0,
-            color: Color {
-                r: 255,
-                g: 255,
-                b: 255,
-                a: 255,
-            },
-            tex_x: 1.0,
-            tex_y: 1.0,
-        });
-        rect_vertex_buffer.add_vertex(&Vertex {
-            x: 1.0,
-            y: 0.0,
-            color: Color {
-                r: 255,
-                g: 255,
-                b: 255,
-                a: 255,
-            },
-            tex_x: 1.0,
-            tex_y: 0.0,
-        });
-        rect_vertex_buffer.add_vertex(&Vertex {
-            x: 0.0,
-            y: 1.0,
-            color: Color {
-                r: 255,
-                g: 255,
-                b: 255,
-                a: 255,
-            },
-            tex_x: 0.0,
-            tex_y: 1.0,
-        });
-
+        for (x, y) in [
+            (0.0, 0.0),
+            (1.0, 0.0),
+            (0.0, 1.0),
+            (1.0, 1.0),
+            (1.0, 0.0),
+            (0.0, 1.0),
+        ] {
+            rect_vertex_buffer.add_vertex(&Vertex {
+                x,
+                y,
+                color: Color {
+                    r: 255,
+                    g: 255,
+                    b: 255,
+                    a: 255,
+                },
+                tex_x: x,
+                tex_y: y,
+            });
+        }
         rect_vertex_buffer.upload();
 
-        rect_outline_vertex_buffer.add_vertex(&Vertex {
-            x: 0.0,
-            y: 0.0,
-            color: Color {
-                r: 255,
-                g: 255,
-                b: 255,
-                a: 255,
-            },
-            tex_x: 0.0,
-            tex_y: 0.0,
-        });
-        rect_outline_vertex_buffer.add_vertex(&Vertex {
-            x: 1.0,
-            y: 0.0,
-            color: Color {
-                r: 255,
-                g: 255,
-                b: 255,
-                a: 255,
-            },
-            tex_x: 1.0,
-            tex_y: 0.0,
-        });
-
-        rect_outline_vertex_buffer.add_vertex(&Vertex {
-            x: 1.0,
-            y: 0.0,
-            color: Color {
-                r: 255,
-                g: 255,
-                b: 255,
-                a: 255,
-            },
-            tex_x: 1.0,
-            tex_y: 0.0,
-        });
-        rect_outline_vertex_buffer.add_vertex(&Vertex {
-            x: 1.0,
-            y: 1.0,
-            color: Color {
-                r: 255,
-                g: 255,
-                b: 255,
-                a: 255,
-            },
-            tex_x: 1.0,
-            tex_y: 1.0,
-        });
-
-        rect_outline_vertex_buffer.add_vertex(&Vertex {
-            x: 1.0,
-            y: 1.0,
-            color: Color {
-                r: 255,
-                g: 255,
-                b: 255,
-                a: 255,
-            },
-            tex_x: 1.0,
-            tex_y: 1.0,
-        });
-        rect_outline_vertex_buffer.add_vertex(&Vertex {
-            x: 0.0,
-            y: 1.0,
-            color: Color {
-                r: 255,
-                g: 255,
-                b: 255,
-                a: 255,
-            },
-            tex_x: 0.0,
-            tex_y: 1.0,
-        });
-
-        rect_outline_vertex_buffer.add_vertex(&Vertex {
-            x: 0.0,
-            y: 1.0,
-            color: Color {
-                r: 255,
-                g: 255,
-                b: 255,
-                a: 255,
-            },
-            tex_x: 0.0,
-            tex_y: 1.0,
-        });
-        rect_outline_vertex_buffer.add_vertex(&Vertex {
-            x: 0.0,
-            y: 0.0,
-            color: Color {
-                r: 255,
-                g: 255,
-                b: 255,
-                a: 255,
-            },
-            tex_x: 0.0,
-            tex_y: 0.0,
-        });
-
+        for (x, y) in [
+            (0.0, 0.0),
+            (1.0, 0.0),
+            (1.0, 0.0),
+            (1.0, 1.0),
+            (1.0, 1.0),
+            (0.0, 1.0),
+            (0.0, 1.0),
+            (0.0, 0.0),
+        ] {
+            rect_outline_vertex_buffer.add_vertex(&Vertex {
+                x,
+                y,
+                color: Color {
+                    r: 255,
+                    g: 255,
+                    b: 255,
+                    a: 255,
+                },
+                tex_x: x,
+                tex_y: y,
+            });
+        }
         rect_outline_vertex_buffer.upload();
 
+        // Safety: We are using a null terminated string
         let has_texture = unsafe {
             gl::GetUniformLocation(passthrough_shader, "has_texture\0".as_ptr().cast::<i8>())
         };
+        // Safety: We are using a null terminated string
         let global_color = unsafe {
             gl::GetUniformLocation(passthrough_shader, "global_color\0".as_ptr().cast::<i8>())
         };
+        // Safety: We are using a null terminated string
         let transform_matrix = unsafe {
             gl::GetUniformLocation(
                 passthrough_shader,
                 "transform_matrix\0".as_ptr().cast::<i8>(),
             )
         };
+        // Safety: We are using a null terminated string
         let texture_transform_matrix = unsafe {
             gl::GetUniformLocation(
                 passthrough_shader,
@@ -259,7 +132,7 @@ impl PassthroughShader {
             )
         };
 
-        Self {
+        Ok(Self {
             passthrough_shader,
             rect_vertex_buffer,
             rect_outline_vertex_buffer,
@@ -267,6 +140,6 @@ impl PassthroughShader {
             global_color,
             transform_matrix,
             texture_transform_matrix,
-        }
+        })
     }
 }

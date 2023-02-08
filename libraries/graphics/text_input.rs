@@ -87,7 +87,8 @@ impl TextInput {
      */
     #[must_use]
     pub fn get_height(&self) -> i32 {
-        ((self.text_texture.get_texture_height() + self.padding * 2) as f32 * self.scale) as i32
+        ((self.text_texture.get_texture_height() as i32 + self.padding * 2) as f32 * self.scale)
+            as i32
     }
 
     /**
@@ -265,14 +266,14 @@ impl TextInput {
         let mut src_rect = Rect::new(
             0,
             0,
-            self.text_texture.get_texture_width(),
-            self.text_texture.get_texture_height(),
+            self.text_texture.get_texture_width() as i32,
+            self.text_texture.get_texture_height() as i32,
         );
         src_rect.w = i32::min(src_rect.w, self.width);
         if self.text.is_empty() {
             src_rect.w = 0;
         }
-        src_rect.x = self.text_texture.get_texture_width() - src_rect.w;
+        src_rect.x = self.text_texture.get_texture_width() as i32 - src_rect.w;
 
         self.hint_texture.render(
             &graphics.renderer,

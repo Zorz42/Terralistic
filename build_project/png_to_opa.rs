@@ -11,7 +11,7 @@ pub fn png_file_to_opa_bytes(png_path: PathBuf) -> Vec<u8> {
     let info = reader.next_frame(&mut buf).unwrap();
     let bytes = &buf[..info.buffer_size()];
     // create surface from pixels
-    let mut surface = gfx::Surface::new(info.width as i32, info.height as i32).unwrap();
+    let mut surface = gfx::Surface::new(info.width, info.height);
     for y in 0..info.height {
         for x in 0..info.width {
             let index = (y * info.width + x) as usize * 4;
@@ -21,7 +21,7 @@ pub fn png_file_to_opa_bytes(png_path: PathBuf) -> Vec<u8> {
                 b: bytes[index + 2],
                 a: bytes[index + 3],
             };
-            surface.set_pixel(x as i32, y as i32, color);
+            surface.set_pixel(x as i32, y as i32, color).unwrap();
         }
     }
     // serialize surface and write to file

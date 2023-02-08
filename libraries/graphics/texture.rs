@@ -9,8 +9,8 @@ Texture is an image stored in gpu
  */
 pub struct Texture {
     pub(super) texture_handle: u32,
-    width: i32,
-    height: i32,
+    width: u32,
+    height: u32,
 }
 
 impl Default for Texture {
@@ -50,8 +50,8 @@ impl Texture {
                 gl::TEXTURE_2D,
                 0,
                 gl::RGBA as i32,
-                result.width,
-                result.height,
+                result.width as i32,
+                result.height as i32,
                 0,
                 gl::RGBA,
                 gl::UNSIGNED_BYTE,
@@ -78,12 +78,12 @@ impl Texture {
     }
 
     #[must_use]
-    pub fn get_texture_width(&self) -> i32 {
+    pub fn get_texture_width(&self) -> u32 {
         self.width
     }
 
     #[must_use]
-    pub fn get_texture_height(&self) -> i32 {
+    pub fn get_texture_height(&self) -> u32 {
         self.height
     }
 
@@ -106,8 +106,8 @@ impl Texture {
         let src_rect = src_rect.unwrap_or(Rect::new(
             0,
             0,
-            self.get_texture_width(),
-            self.get_texture_height(),
+            self.get_texture_width() as i32,
+            self.get_texture_height() as i32,
         ));
         let color = color.unwrap_or(Color {
             r: 255,

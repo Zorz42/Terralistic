@@ -151,11 +151,11 @@ impl Inventory {
                     let block_id = blocks
                         .get_block(
                             std::cmp::min(
-                                blocks.get_width(),
+                                blocks.get_width() as i32,
                                 std::cmp::max(0, player_coords[0] / (BLOCK_WIDTH * 2) + x),
                             ),
                             std::cmp::min(
-                                blocks.get_height(),
+                                blocks.get_height() as i32,
                                 std::cmp::max(0, player_coords[1] / (BLOCK_WIDTH * 2) + y),
                             ),
                         )

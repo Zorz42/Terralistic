@@ -22,7 +22,7 @@ impl RenderWallChunk {
     }
 
     fn can_connect_to(x: i32, y: i32, walls: &Walls) -> bool {
-        if x < 0 || y < 0 || x >= walls.get_width() || y >= walls.get_height() {
+        if x < 0 || y < 0 || x >= walls.get_width() as i32 || y >= walls.get_height() as i32 {
             return true;
         }
         let wall = walls.get_wall_type_at(x, y).unwrap();
@@ -133,13 +133,13 @@ impl ClientWalls {
         // check if x and y are in bounds
         if x < 0
             || y < 0
-            || x >= self.walls.get_width() / CHUNK_SIZE
-            || y >= self.walls.get_height() / CHUNK_SIZE
+            || x >= self.walls.get_width() as i32 / CHUNK_SIZE
+            || y >= self.walls.get_height() as i32 / CHUNK_SIZE
         {
             panic!("Tried to get chunk at {x}, {y} but it is out of bounds");
         }
 
-        (x + y * (self.walls.get_width() / CHUNK_SIZE)) as usize
+        (x + y * (self.walls.get_width() as i32 / CHUNK_SIZE)) as usize
     }
 
     pub fn on_event(&mut self, event: &Event) {
@@ -155,7 +155,9 @@ impl ClientWalls {
     }
 
     pub fn load_resources(&mut self, mods: &mut ModManager) {
-        for _ in 0..self.walls.get_width() / CHUNK_SIZE * self.walls.get_height() / CHUNK_SIZE {
+        for _ in 0..self.walls.get_width() as i32 / CHUNK_SIZE * self.walls.get_height() as i32
+            / CHUNK_SIZE
+        {
             self.chunks.push(RenderWallChunk::new());
         }
 
@@ -200,8 +202,8 @@ impl ClientWalls {
             for y in top_left_chunk_y..bottom_right_chunk_y {
                 if x >= 0
                     && y >= 0
-                    && x < self.walls.get_width() / CHUNK_SIZE
-                    && y < self.walls.get_height() / CHUNK_SIZE
+                    && x < self.walls.get_width() as i32 / CHUNK_SIZE
+                    && y < self.walls.get_height() as i32 / CHUNK_SIZE
                 {
                     let chunk_index = self.get_chunk_index(x, y);
                     let chunk = &mut self.chunks[chunk_index];

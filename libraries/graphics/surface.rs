@@ -6,24 +6,18 @@ use serde_derive::{Deserialize, Serialize};
 #[derive(Serialize, Deserialize, Clone)]
 pub struct Surface {
     pub(super) pixels: Vec<u8>,
-    width: i32,
-    height: i32,
+    width: u32,
+    height: u32,
 }
 
 impl Surface {
     /// Creates a new surface with all transparent pixels.
-    /// # Errors
-    /// Returns an error if the width or height is negative.
-    pub fn new(width: i32, height: i32) -> Result<Self> {
-        if width < 0 || height < 0 {
-            bail!("Dimensions negative");
-        }
-
-        Ok(Self {
+    pub fn new(width: u32, height: u32) -> Self {
+        Self {
             pixels: std::vec![0; (width * height * 4) as usize],
             width,
             height,
-        })
+        }
     }
 
     /// Serializes the surface into a vector of bytes.
@@ -48,11 +42,11 @@ impl Surface {
     /// The index points to the red bit of the color and the next
     /// three to green, blue, alpha.
     fn get_index(&self, x: i32, y: i32) -> Result<usize> {
-        if x < 0 || x >= self.width || y < 0 || y >= self.height {
+        if x < 0 || x >= self.width as i32 || y < 0 || y >= self.height as i32 {
             bail!("Pixel out of bounds");
         }
 
-        Ok((y * self.width + x) as usize * 4)
+        Ok((y * self.width as i32 + x) as usize * 4)
     }
 
     /// Retrieves the pixel color on a specified location.
@@ -99,12 +93,12 @@ impl Surface {
     }
 
     #[must_use]
-    pub const fn get_width(&self) -> i32 {
+    pub const fn get_width(&self) -> u32 {
         self.width
     }
 
     #[must_use]
-    pub const fn get_height(&self) -> i32 {
+    pub const fn get_height(&self) -> u32 {
         self.height
     }
 
@@ -114,10 +108,10 @@ impl Surface {
     pub fn draw(&mut self, x: i32, y: i32, surface: &Self, color: Color) -> Result<()> {
         for xpos in 0..surface.get_width() {
             for ypos in 0..surface.get_height() {
-                let surface_color = surface.get_pixel(xpos, ypos)?;
+                let surface_color = surface.get_pixel(xpos as i32, ypos as i32)?;
                 self.set_pixel(
-                    xpos + x,
-                    ypos + y,
+                    xpos as i32 + x,
+                    ypos as i32 + y,
                     Color {
                         r: (surface_color.r as f32 * (color.r as f32 / 255.0)) as u8,
                         g: (surface_color.g as f32 * (color.g as f32 / 255.0)) as u8,

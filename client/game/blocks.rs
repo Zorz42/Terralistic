@@ -27,7 +27,7 @@ impl RenderBlockChunk {
     }
 
     fn can_connect_to(block_type: BlockId, x: i32, y: i32, blocks: &Blocks) -> bool {
-        if x < 0 || y < 0 || x >= blocks.get_width() || y >= blocks.get_height() {
+        if x < 0 || y < 0 || x >= blocks.get_width() as i32 || y >= blocks.get_height() as i32 {
             return true;
         }
         let block = blocks.get_block_type_at(x, y).unwrap();
@@ -133,13 +133,13 @@ impl ClientBlocks {
         // check if x and y are in bounds
         if x < 0
             || y < 0
-            || x >= self.blocks.get_width() / CHUNK_SIZE
-            || y >= self.blocks.get_height() / CHUNK_SIZE
+            || x >= self.blocks.get_width() as i32 / CHUNK_SIZE
+            || y >= self.blocks.get_height() as i32 / CHUNK_SIZE
         {
             panic!("Tried to get chunk at {x}, {y} but it is out of bounds");
         }
 
-        (x + y * (self.blocks.get_width() / CHUNK_SIZE)) as usize
+        (x + y * (self.blocks.get_width() as i32 / CHUNK_SIZE)) as usize
     }
 
     pub fn on_event(&mut self, event: &Event, events: &mut EventManager) {
@@ -183,7 +183,9 @@ impl ClientBlocks {
     }
 
     pub fn load_resources(&mut self, mods: &mut ModManager) {
-        for _ in 0..self.blocks.get_width() / CHUNK_SIZE * self.blocks.get_height() / CHUNK_SIZE {
+        for _ in 0..self.blocks.get_width() as i32 / CHUNK_SIZE * self.blocks.get_height() as i32
+            / CHUNK_SIZE
+        {
             self.chunks.push(RenderBlockChunk::new());
         }
 
@@ -227,8 +229,8 @@ impl ClientBlocks {
             for y in top_left_chunk_y..bottom_right_chunk_y {
                 if x >= 0
                     && y >= 0
-                    && x < self.blocks.get_width() / CHUNK_SIZE
-                    && y < self.blocks.get_height() / CHUNK_SIZE
+                    && x < self.blocks.get_width() as i32 / CHUNK_SIZE
+                    && y < self.blocks.get_height() as i32 / CHUNK_SIZE
                 {
                     let chunk_index = self.get_chunk_index(x, y);
                     let chunk = &mut self.chunks[chunk_index];

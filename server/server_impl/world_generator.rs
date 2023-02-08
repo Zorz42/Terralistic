@@ -80,8 +80,8 @@ impl WorldGenerator {
         &mut self,
         world: (&mut Blocks, &mut Walls),
         mods: &mut ModManager,
-        min_width: i32,
-        height: i32,
+        min_width: u32,
+        height: u32,
         seed: u64,
         status_text: &Mutex<String>,
     ) {
@@ -109,7 +109,7 @@ impl WorldGenerator {
             // the width is a random number between the min and max width
             let biome = &self.biomes.lock().unwrap()[curr_biome as usize];
             let biome_width =
-                rand::random::<i32>().abs() % (biome.max_width - biome.min_width) + biome.min_width;
+                rand::random::<u32>() % (biome.max_width - biome.min_width) + biome.min_width;
             for _ in 0..biome_width {
                 min_heights.push(biome.min_terrain_height as f32);
                 max_heights.push(biome.max_terrain_height as f32);
@@ -149,7 +149,7 @@ impl WorldGenerator {
         let start_time = std::time::Instant::now();
 
         *status_text.lock().unwrap() = "Generating world".to_string();
-        blocks.create(width, height).unwrap();
+        blocks.create(width, height);
 
         let mut block_terrain = vec![vec![BlockId::new(); height as usize]; width as usize];
         let mut wall_terrain = vec![vec![WallId::new(); height as usize]; width as usize];
@@ -209,8 +209,8 @@ impl WorldGenerator {
             for x in 0..width {
                 let terrain_noise_val = ((turbulence(&terrain_noise, x as f32 / 150.0, 0.0) + 1.0)
                     * (max_heights[x as usize] - min_heights[x as usize]))
-                    as i32
-                    + min_heights[x as usize] as i32
+                    as u32
+                    + min_heights[x as usize] as u32
                     + height * 2 / 3;
                 heights.push(terrain_noise_val);
             }
@@ -223,11 +223,11 @@ impl WorldGenerator {
             let terrain_noise_val = heights[x as usize];
             let mut walls_height = heights[x as usize];
             if let Some(height) = heights.get(x as usize + 1) {
-                walls_height = i32::min(walls_height, *height);
+                walls_height = u32::min(walls_height, *height);
             }
             if x > 0 {
                 if let Some(height) = heights.get(x as usize - 1) {
-                    walls_height = i32::min(walls_height, *height);
+                    walls_height = u32::min(walls_height, *height);
                 }
             }
 
@@ -317,10 +317,10 @@ struct Ore {
 
 #[derive(Clone)]
 struct Biome {
-    pub min_width: i32,
-    pub max_width: i32,
-    pub min_terrain_height: i32,
-    pub max_terrain_height: i32,
+    pub min_width: u32,
+    pub max_width: u32,
+    pub min_terrain_height: u32,
+    pub max_terrain_height: u32,
     pub base_block: BlockId,
     pub base_wall: WallId,
     // the first element is connection weight, the second is the biome id
@@ -358,7 +358,7 @@ impl LuaUserData for Biome {
                 match key.as_str() {
                     "min_width" => {
                         match value {
-                            rlua::Value::Integer(b) => this.min_width = b as i32,
+                            rlua::Value::Integer(b) => this.min_width = b as u32,
                             _ => {
                                 return Err(rlua::Error::RuntimeError(
                                     "value is not a valid value for min_width".to_string(),
@@ -369,7 +369,7 @@ impl LuaUserData for Biome {
                     }
                     "max_width" => {
                         match value {
-                            rlua::Value::Integer(b) => this.max_width = b as i32,
+                            rlua::Value::Integer(b) => this.max_width = b as u32,
                             _ => {
                                 return Err(rlua::Error::RuntimeError(
                                     "value is not a valid value for max_width".to_string(),
@@ -380,7 +380,7 @@ impl LuaUserData for Biome {
                     }
                     "min_terrain_height" => {
                         match value {
-                            rlua::Value::Integer(b) => this.min_terrain_height = b as i32,
+                            rlua::Value::Integer(b) => this.min_terrain_height = b as u32,
                             _ => {
                                 return Err(rlua::Error::RuntimeError(
                                     "value is not a valid value for min_terrain_height".to_string(),
@@ -391,7 +391,7 @@ impl LuaUserData for Biome {
                     }
                     "max_terrain_height" => {
                         match value {
-                            rlua::Value::Integer(b) => this.max_terrain_height = b as i32,
+                            rlua::Value::Integer(b) => this.max_terrain_height = b as u32,
                             _ => {
                                 return Err(rlua::Error::RuntimeError(
                                     "value is not a valid value for max_terrain_height".to_string(),

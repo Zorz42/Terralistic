@@ -292,11 +292,12 @@ pub fn run_singleplayer_selector(
         bottom_height,
     };
 
+    let mut top_rect_visibility = 1.0;
     while graphics.renderer.is_window_open() {
         if update_elements(graphics, menu_back, &mut elements) {
             break;
         }
-        render_elements(graphics, menu_back, &mut elements);
+        render_elements(graphics, menu_back, &mut elements, &mut top_rect_visibility);
     }
 }
 
@@ -379,9 +380,8 @@ fn render_elements(
     graphics: &mut GraphicsContext,
     menu_back: &mut dyn BackgroundRect,
     elements: &mut SigleplayerSelectorElements,
+    top_rect_visibility: &mut f32,
 ) {
-    let mut top_rect_visibility = 1.0;
-
     menu_back.set_back_rect_width(MENU_WIDTH);
 
     menu_back.render_back(graphics);
@@ -394,7 +394,7 @@ fn render_elements(
         world.set_enabled(hoverable);
     }
 
-    let current_y = gfx::SPACING;
+    let mut current_y = gfx::SPACING;
 
     for world in &mut elements.world_list.worlds {
         world.render(
@@ -403,25 +403,26 @@ fn render_elements(
             current_y + elements.top_height + elements.position as i32,
             Some(menu_back.get_back_rect_container()),
         );
+        current_y += world.get_height() + gfx::SPACING;
     }
 
     elements.top_rect.w = menu_back.get_back_rect_width(graphics, None) as f32;
-    top_rect_visibility +=
-        ((if elements.position < -5.0 { 1.0 } else { 0.0 }) - top_rect_visibility) / 20.0;
+    *top_rect_visibility +=
+        ((if elements.position < -5.0 { 1.0 } else { 0.0 }) - *top_rect_visibility) / 20.0;
 
-    if top_rect_visibility < 0.01 {
-        top_rect_visibility = 0.0;
+    if *top_rect_visibility < 0.01 {
+        *top_rect_visibility = 0.0;
     }
 
-    if top_rect_visibility > 0.99 {
-        top_rect_visibility = 1.0;
+    if *top_rect_visibility > 0.99 {
+        *top_rect_visibility = 1.0;
     }
 
-    elements.top_rect.fill_color.a = (top_rect_visibility * gfx::TRANSPARENCY as f32 / 2.0) as u8;
-    elements.top_rect.blur_radius = (top_rect_visibility * gfx::BLUR as f32) as i32;
+    elements.top_rect.fill_color.a = (*top_rect_visibility * gfx::TRANSPARENCY as f32 / 2.0) as u8;
+    elements.top_rect.blur_radius = (*top_rect_visibility * gfx::BLUR as f32) as i32;
     elements.top_rect.shadow_intensity =
-        (top_rect_visibility * gfx::SHADOW_INTENSITY as f32) as i32;
-    if top_rect_visibility > 0.0 {
+        (*top_rect_visibility * gfx::SHADOW_INTENSITY as f32) as i32;
+    if *top_rect_visibility > 0.0 {
         elements
             .top_rect
             .render(graphics, Some(menu_back.get_back_rect_container()));

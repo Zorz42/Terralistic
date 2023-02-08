@@ -191,7 +191,7 @@ impl BlurContext {
                 transform.matrix.as_ptr(),
             );
             gl::BindBuffer(gl::ARRAY_BUFFER, self.rect_vertex_buffer);
-            gl::VertexAttribPointer(0, 2, gl::FLOAT, gl::FALSE, 0, std::ptr::null());
+            gl::VertexAttribPointer(0, 2, gl::FLOAT, gl::FALSE, 0, core::ptr::null());
 
             let mut radius = radius;
             while radius > 10 {

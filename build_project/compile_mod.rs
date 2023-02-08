@@ -35,7 +35,7 @@ pub fn compile_mod(mod_path: PathBuf) {
     generator.write_block(&block);
 
     let minified_lua_code = generator.into_string();
-    let resources = generate_resources(mod_path.join("../resources"), String::new());
+    let resources = generate_resources(mod_path.join("resources"), String::new());
     let mod_obj = GameMod::new(minified_lua_code, resources);
 
     // serialize the mod to a byte array
@@ -113,7 +113,7 @@ fn process_file(file_path: PathBuf) -> (String, Vec<u8>) {
 
 fn process_template(data: Vec<u8>) -> Vec<u8> {
     let surface = gfx::Surface::deserialize_from_bytes(&data).unwrap();
-    let mut new_surface = gfx::Surface::new(8, 8 * 16).unwrap();
+    let mut new_surface = gfx::Surface::new(8, 8 * 16);
 
     // first take first 8x8 area from surface and copy it to 16 times in the new surface
     for step in 0..16 {
@@ -136,7 +136,7 @@ fn process_template(data: Vec<u8>) -> Vec<u8> {
     for i in 0..num_textures {
         for step in 0..16 {
             if step & (1 << (i % 4)) == 0 {
-                copy_edge(&surface, 0, 8 + 8 * i, &mut new_surface, 0, step * 8);
+                copy_edge(&surface, 0, 8 + 8 * i as i32, &mut new_surface, 0, step * 8);
             }
         }
     }

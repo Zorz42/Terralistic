@@ -108,12 +108,12 @@ impl Blocks {
     }
 
     #[must_use]
-    pub const fn get_width(&self) -> i32 {
+    pub const fn get_width(&self) -> u32 {
         self.block_data.map.get_width()
     }
 
     #[must_use]
-    pub const fn get_height(&self) -> i32 {
+    pub const fn get_height(&self) -> u32 {
         self.block_data.map.get_height()
     }
 
@@ -173,34 +173,31 @@ impl Blocks {
     }
 
     /// Creates an empty world with given width and height
-    /// # Errors
-    /// Returns an error if dimensions are invalid
-    pub fn create(&mut self, width: i32, height: i32) -> Result<()> {
-        self.block_data.map = WorldMap::new(width, height)?;
+    pub fn create(&mut self, width: u32, height: u32) {
+        self.block_data.map = WorldMap::new(width, height);
         self.block_data.blocks = vec![BlockId::new(); (height * height) as usize];
-        Ok(())
     }
 
     /// This function creates a world from a 2d vector of block type ids
     /// # Errors
     /// Returns an error if any of the ids are invalid or if the rows have different lengths
     pub fn create_from_block_ids(&mut self, block_ids: &Vec<Vec<BlockId>>) -> Result<()> {
-        let width = block_ids.len() as i32;
+        let width = block_ids.len() as u32;
         let height;
         if let Some(row) = block_ids.get(0) {
-            height = row.len() as i32;
+            height = row.len() as u32;
         } else {
             bail!("Block ids must not be empty");
         }
 
         // check that all the rows have the same length
         for row in block_ids {
-            if row.len() as i32 != height {
+            if row.len() as u32 != height {
                 bail!("All rows must have the same length");
             }
         }
 
-        self.create(width, height)?;
+        self.create(width, height);
         self.block_data.blocks.clear();
         for row in block_ids {
             for block_id in row {

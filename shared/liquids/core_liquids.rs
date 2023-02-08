@@ -26,8 +26,8 @@ pub struct Liquids {
     liquid_types: Vec<Rc<LiquidType>>,
     liquids: Vec<Liquid>,
     pub empty: Rc<LiquidType>,
-    width: i32,
-    height: i32,
+    width: u32,
+    height: u32,
     //TODO: new event sender
 }
 
@@ -53,19 +53,19 @@ impl Liquids {
     /**this function returns a liquid at the given position*/
     fn get_liquid(&self, x: i32, y: i32) -> &Liquid {
         assert!(
-            !(x < 0 || y < 0 || x >= self.width || y >= self.height),
+            !(x < 0 || y < 0 || x >= self.width as i32 || y >= self.height as i32),
             "Liquid is accessed out of the bounds! ({x}, {y})"
         );
-        &self.liquids[(y * self.width + x) as usize]
+        &self.liquids[(y * self.width as i32 + x) as usize]
     }
 
     /**this function returns a mutable liquid at the given position*/
     fn get_liquid_mut(&mut self, x: i32, y: i32) -> &mut Liquid {
         assert!(
-            !(x < 0 || y < 0 || x >= self.width || y >= self.height),
+            !(x < 0 || y < 0 || x >= self.width as i32 || y >= self.height as i32),
             "Liquid is accessed out of the bounds! ({x}, {y})"
         );
-        &mut self.liquids[(y * self.width + x) as usize]
+        &mut self.liquids[(y * self.width as i32 + x) as usize]
     }
 
     /**returns whether the given liquid is flowable*/
@@ -85,13 +85,13 @@ impl Liquids {
 
     /**returns the width of the liquid array*/
     #[must_use]
-    pub fn get_width(&self) -> i32 {
+    pub fn get_width(&self) -> u32 {
         self.width
     }
 
     /**returns the height of the liquid array*/
     #[must_use]
-    pub fn get_height(&self) -> i32 {
+    pub fn get_height(&self) -> u32 {
         self.height
     }
 
@@ -154,7 +154,7 @@ impl Liquids {
         let mut left_exists = false;
         let mut right_exists = false;
 
-        if y < self.get_height() - 1
+        if y < self.get_height() as i32 - 1
             && (self.is_flowable(x, y + 1, blocks)
                 || (self.get_liquid_type(x, y + 1).id == self.get_liquid_type(x, y).id
                     && self.get_liquid_level(x, y + 1) as i32 != MAX_LIQUID_LEVEL))
@@ -170,7 +170,7 @@ impl Liquids {
             left_exists = true
         }
 
-        if x < self.get_width() - 1
+        if x < self.get_width() as i32 - 1
             && (self.is_flowable(x + 1, y, blocks)
                 || (self.get_liquid_type(x + 1, y).id == self.get_liquid_type(x, y).id
                     && self.get_liquid_level(x + 1, y) as i32 != MAX_LIQUID_LEVEL))

@@ -96,12 +96,9 @@ impl Walls {
     }
 
     /// Creates an empty map with the given dimensions.
-    /// # Errors
-    /// Returns an error if the dimensions are invalid.
-    pub fn create(&mut self, width: i32, height: i32) -> Result<()> {
-        self.walls_data.map = WorldMap::new(width, height)?;
+    pub fn create(&mut self, width: u32, height: u32) {
+        self.walls_data.map = WorldMap::new(width, height);
         self.walls_data.walls = vec![WallId::new(); (width * height) as usize];
-        Ok(())
     }
 
     pub fn init(&mut self, mods: &mut ModManager) {
@@ -143,12 +140,12 @@ impl Walls {
     }
 
     #[must_use]
-    pub const fn get_width(&self) -> i32 {
+    pub const fn get_width(&self) -> u32 {
         self.walls_data.map.get_width()
     }
 
     #[must_use]
-    pub const fn get_height(&self) -> i32 {
+    pub const fn get_height(&self) -> u32 {
         self.walls_data.map.get_height()
     }
 
@@ -241,22 +238,22 @@ impl Walls {
     /// # Errors
     /// Returns an error if the wall ids are invalid or the length of the rows are not the same.
     pub fn create_from_wall_ids(&mut self, wall_ids: &Vec<Vec<WallId>>) -> Result<()> {
-        let width = wall_ids.len() as i32;
+        let width = wall_ids.len() as u32;
         let height;
         if let Some(row) = wall_ids.get(0) {
-            height = row.len() as i32;
+            height = row.len() as u32;
         } else {
             bail!("Wall ids must not be empty");
         }
 
         // check that all the rows have the same length
         for row in wall_ids {
-            if row.len() as i32 != height {
+            if row.len() as u32 != height {
                 bail!("All rows must have the same length");
             }
         }
 
-        self.create(width, height)?;
+        self.create(width, height);
         self.walls_data.walls.clear();
         for row in wall_ids {
             for wall_id in row {

@@ -57,8 +57,8 @@ impl Light {
 /**struct that manages all the lights in the world*/
 pub struct Lights {
     lights: Vec<Light>,
-    width: i32,
-    height: i32,
+    width: u32,
+    height: u32,
     //pub light_color_change_event: Sender<LightColorChangeEvent>,
     //pub light_update_schedule_event: Sender<LightUpdateScheduleEvent>,
 }
@@ -76,24 +76,24 @@ impl Lights {
     }
     /**returns the light at the given coordinate*/
     fn get_light(&self, x: i32, y: i32) -> &Light {
-        &self.lights[(x + y * self.width) as usize]
+        &self.lights[(x + y * self.width as i32) as usize]
     }
     /**returns mutable light at the given coordinate*/
     fn get_light_mut(&mut self, x: i32, y: i32) -> &mut Light {
-        &mut self.lights[(x + y * self.width) as usize]
+        &mut self.lights[(x + y * self.width as i32) as usize]
     }
     /**sets the light color at the given coordinate*/
     fn set_light_color(&mut self, x: i32, y: i32, color: LightColor) {
         if self.get_light(x, y).color != color {
             self.get_light_mut(x, y).color = color;
             //self.light_color_change_event.send(LightColorChangeEvent::new(x, y));
-            if x < self.width - 1 {
+            if x < self.width as i32 - 1 {
                 self.get_light_mut(x + 1, y).update_light = true;
             }
             if x > 0 {
                 self.get_light_mut(x - 1, y).update_light = true;
             }
-            if y < self.height - 1 {
+            if y < self.height as i32 - 1 {
                 self.get_light_mut(x, y + 1).update_light = true;
             }
             if y > 0 {
@@ -113,12 +113,12 @@ impl Lights {
     }*/
     /**returns the wodth of the light vector*/
     #[must_use]
-    pub fn get_width(&self) -> i32 {
+    pub fn get_width(&self) -> u32 {
         self.width
     }
     /**returns the height of the light vector*/
     #[must_use]
-    pub fn get_height(&self) -> i32 {
+    pub fn get_height(&self) -> u32 {
         self.height
     }
     /**updates the light at the given coordinate*/
@@ -132,7 +132,7 @@ impl Lights {
                 neighbours[0][0] = x - 1;
                 neighbours[0][1] = y;
             }
-            if x != self.width - 1 {
+            if x != self.width as i32 - 1 {
                 neighbours[1][0] = x + 1;
                 neighbours[1][1] = y;
             }
@@ -140,7 +140,7 @@ impl Lights {
                 neighbours[2][0] = x;
                 neighbours[2][1] = y - 1;
             }
-            if y != self.height - 1 {
+            if y != self.height as i32 - 1 {
                 neighbours[3][0] = x;
                 neighbours[3][1] = y + 1;
             }
@@ -239,13 +239,13 @@ impl Lights {
         if x != 0 {
             self.schedule_light_update(x - 1, y);
         }
-        if x != width - 1 {
+        if x != width as i32 - 1 {
             self.schedule_light_update(x + 1, y);
         }
         if y != 0 {
             self.schedule_light_update(x, y - 1);
         }
-        if y != height - 1 {
+        if y != height as i32 - 1 {
             self.schedule_light_update(x, y + 1);
         }
     }

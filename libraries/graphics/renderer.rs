@@ -5,11 +5,12 @@ use super::shadow::ShadowContext;
 use super::transformation::Transformation;
 use super::{set_blend_mode, BlendMode, Event, Key, Rect};
 use copypasta::ClipboardContext;
-use std::collections::{HashMap, VecDeque};
+use std::collections::HashMap;
+extern crate alloc;
+use alloc::collections::VecDeque;
+use anyhow::{anyhow, Result};
 
-/**
-This stores all the values needed for rendering.
- */
+/// This stores all the values needed for rendering.
 pub struct Renderer {
     _gl_context: sdl2::video::GLContext,
     sdl_window: sdl2::video::Window,
@@ -30,17 +31,21 @@ pub struct Renderer {
 }
 
 impl Renderer {
-    /**
-    Initializes all the values needed for rendering.
-     */
-    pub fn new(window_width: i32, window_height: i32, window_title: &str) -> Self {
-        assert!(
-            !(window_width <= 0 || window_height <= 0),
-            "Invalid window dimensions"
-        );
-
-        let sdl = sdl2::init().unwrap();
-        let video_subsystem = sdl.video().unwrap();
+    /// Initializes all the values needed for rendering.
+    /// It usually fails because the system doesn't support graphics.
+    /// # Errors
+    /// - This function can fail if SDL2 fails to initialize.
+    /// - This function can fail if OpenGL fails to initialize.
+    /// - This function can fail if the window fails to initialize.
+    /// - This function can fail if the passthrough shader fails to initialize.
+    /// - This function can fail if the blur context fails to initialize.
+    /// - This function can fail if the shadow context fails to initialize.
+    /// - This function can fail if the clipboard context fails to initialize.
+    pub fn new(window_width: u32, window_height: u32, window_title: &str) -> Result<Self> {
+        let sdl = sdl2::init();
+        let sdl = sdl.map_err(|e| anyhow::anyhow!(e))?;
+        let video_subsystem = sdl.video();
+        let video_subsystem = video_subsystem.map_err(|e| anyhow::anyhow!(e))?;
 
         let gl_attr = video_subsystem.gl_attr();
 
@@ -48,33 +53,38 @@ impl Renderer {
         gl_attr.set_context_version(3, 3);
 
         let sdl_window = video_subsystem
-            .window(window_title, window_width as u32, window_height as u32)
+            .window(window_title, window_width, window_height)
             .position_centered()
             .opengl()
             .resizable()
-            .build()
-            .unwrap();
+            .build()?;
 
-        let gl_context = sdl_window.gl_create_context().unwrap();
+        let gl_context = sdl_window
+            .gl_create_context()
+            .map_err(|e| anyhow::anyhow!(e))?;
         gl::load_with(|s| {
             video_subsystem
                 .gl_get_proc_address(s)
-                .cast::<std::ffi::c_void>()
+                .cast::<core::ffi::c_void>()
         });
 
+        // Safety: We are calling OpenGL functions safely.
         unsafe {
             gl::Enable(gl::BLEND);
         }
         set_blend_mode(BlendMode::Alpha);
 
         // enable vsync
-        video_subsystem.gl_set_swap_interval(1).unwrap();
+        video_subsystem
+            .gl_set_swap_interval(1)
+            .map_err(|e| anyhow::anyhow!(e))?;
 
-        let passthrough_shader = PassthroughShader::new();
+        let passthrough_shader = PassthroughShader::new()?;
         let mut window_texture = 0;
         let mut window_texture_back = 0;
         let mut window_framebuffer = 0;
 
+        // Safety: We are calling OpenGL functions safely.
         unsafe {
             gl::GenTextures(1, &mut window_texture);
             gl::GenTextures(1, &mut window_texture_back);
@@ -87,29 +97,27 @@ impl Renderer {
         let mut result = Self {
             _gl_context: gl_context,
             sdl_window,
-            sdl_event_pump: sdl.event_pump().unwrap(),
+            sdl_event_pump: sdl.event_pump().map_err(|e| anyhow::anyhow!(e))?,
             normalization_transform: Transformation::new(),
             window_texture,
             window_texture_back,
             window_framebuffer,
             key_states: HashMap::new(),
             events: Vec::new(),
-            blur_context: BlurContext::new().unwrap(),
+            blur_context: BlurContext::new()?,
             passthrough_shader,
             shadow_context,
             events_queue: VecDeque::new(),
             window_open: true,
-            clipboard_context: ClipboardContext::new().unwrap(),
+            clipboard_context: ClipboardContext::new().map_err(|e| anyhow::anyhow!(e))?,
         };
 
         result.handle_window_resize();
 
-        result
+        Ok(result)
     }
 
-    /**
-    Is called every time the window is resized.
-     */
+    /// Is called every time the window is resized.
     pub fn handle_window_resize(&mut self) {
         let (width, height) = self.sdl_window.size();
         let width = width as i32;
@@ -121,6 +129,7 @@ impl Renderer {
         self.normalization_transform
             .translate(-width as f32 / 2.0, -height as f32 / 2.0);
 
+        // Safety: We are calling OpenGL functions safely.
         unsafe {
             gl::BindTexture(gl::TEXTURE_2D, self.window_texture);
             gl::TexImage2D(
@@ -132,7 +141,7 @@ impl Renderer {
                 0,
                 gl::BGRA as gl::types::GLenum,
                 gl::UNSIGNED_BYTE,
-                std::ptr::null(),
+                core::ptr::null(),
             );
 
             gl::TexParameteri(
@@ -156,7 +165,7 @@ impl Renderer {
                 0,
                 gl::BGRA,
                 gl::UNSIGNED_BYTE,
-                std::ptr::null(),
+                core::ptr::null(),
             );
 
             gl::TexParameteri(
@@ -170,7 +179,6 @@ impl Renderer {
                 gl::NEAREST as gl::types::GLint,
             );
 
-            // set glViewport
             gl::Viewport(
                 0,
                 0,
@@ -180,9 +188,7 @@ impl Renderer {
         }
     }
 
-    /**
-    Returns an array of deprecated_events, such as key presses
-     */
+    /// Returns an array of events, such as key presses
     fn get_events(&mut self) -> Vec<Event> {
         let mut sdl_events = vec![];
 
@@ -226,39 +232,27 @@ impl Renderer {
         result
     }
 
-    /**
-    Returns an event, returns None if there are no deprecated_events
-     */
+    /// Returns an event, returns None if there are no events
     pub fn get_event(&mut self) -> Option<Event> {
         for event in self.get_events() {
             self.events_queue.push_back(event);
         }
-
-        if self.events_queue.is_empty() {
-            None
-        } else {
-            Some(self.events_queue.pop_front().unwrap())
-        }
+        self.events_queue.pop_front()
     }
 
-    /**
-    Checks if the window is open, this becomes false, when the user closes the window, or the program closes it
-     */
-    pub fn is_window_open(&self) -> bool {
+    /// Checks if the window is open, this becomes false, when the user closes the window, or the program closes it
+    pub const fn is_window_open(&self) -> bool {
         self.window_open
     }
 
-    /**
-    Closes the window
-     */
+    /// Closes the window
     pub fn close_window(&mut self) {
         self.window_open = false;
     }
 
-    /**
-    Should be called after rendering
-     */
+    /// Should be called after rendering
     pub fn update_window(&mut self) {
+        // Safety: We are calling OpenGL functions safely.
         unsafe {
             gl::BindFramebuffer(gl::READ_FRAMEBUFFER, self.window_framebuffer);
             gl::FramebufferTexture2D(
@@ -319,66 +313,50 @@ impl Renderer {
 
         self.sdl_window.gl_swap_window();
 
+        // Safety: We are calling OpenGL functions safely.
         unsafe {
             gl::BindFramebuffer(gl::FRAMEBUFFER, self.window_framebuffer);
         }
     }
 
-    /**
-    Sets the minimum window size
-     */
-    pub fn set_min_window_size(&mut self, width: u32, height: u32) {
+    /// Sets the minimum window size
+    pub fn set_min_window_size(&mut self, width: u32, height: u32) -> Result<()> {
         self.sdl_window
             .set_minimum_size(width, height)
-            .expect("Failed to set minimum window size");
+            .map_err(|e| anyhow!(e))
     }
 
-    /**
-    Get the current window width
-     */
+    /// Get the current window width
     pub fn get_window_width(&self) -> u32 {
         self.sdl_window.size().0
     }
 
-    /**
-    Get the current window height
-     */
+    /// Get the current window height
     pub fn get_window_height(&self) -> u32 {
         self.sdl_window.size().1
     }
 
-    /**
-    Gets mouse x position
-     */
+    /// Gets mouse x position
     pub fn get_mouse_x(&self) -> f32 {
-        // get mouse position
         self.sdl_event_pump.mouse_state().x() as f32
     }
 
-    /**
-    Gets mouse y position
-     */
+    /// Gets mouse y position
     pub fn get_mouse_y(&self) -> f32 {
         self.sdl_event_pump.mouse_state().y() as f32
     }
 
-    /**
-    Gets key state
-     */
+    /// Gets key state
     pub fn get_key_state(&self, key: Key) -> bool {
         *self.key_states.get(&key).unwrap_or(&false)
     }
 
-    /**
-    Sets key state
-     */
+    /// Sets key state
     pub fn set_key_state(&mut self, key: Key, state: bool) {
         *self.key_states.entry(key).or_insert(false) = state;
     }
 
-    /**
-    Blurs given texture
-     */
+    /// Blurs given texture
     pub(super) fn blur_region(
         &self,
         rect: Rect,
@@ -396,14 +374,13 @@ impl Renderer {
             size,
             texture_transform,
         );
+        // Safety: We are calling OpenGL functions safely.
         unsafe {
             gl::UseProgram(self.passthrough_shader.passthrough_shader);
         }
     }
 
-    /**
-    Blurs a given rectangle on the screen
-     */
+    /// Blurs a given rectangle on the screen
     pub(super) fn blur_rect(&self, rect: Rect, radius: i32) {
         self.blur_region(
             rect,
@@ -419,14 +396,11 @@ impl Renderer {
     }
 }
 
-/**
-Implement the Drop trait for the Renderer
- */
+/// Implement the Drop trait for the Renderer
 impl Drop for Renderer {
-    /**
-    Closes, destroys the window and cleans up the resources
-     */
+    /// Closes, destroys the window and cleans up the resources
     fn drop(&mut self) {
+        // Safety: We are calling OpenGL functions safely.
         unsafe {
             gl::DeleteFramebuffers(1, &self.window_framebuffer);
             gl::DeleteTextures(1, &self.window_texture);

@@ -73,15 +73,19 @@ pub struct GraphicsContext {
     pub font: Font,
 }
 
-#[must_use]
+use anyhow::Result;
+
+/// Initializes the graphics context.
+/// # Errors
+/// If the renderer fails to initialize.
 pub fn init(
-    window_width: i32,
-    window_height: i32,
+    window_width: u32,
+    window_height: u32,
     window_title: &str,
     default_font_data: &[u8],
-) -> GraphicsContext {
-    GraphicsContext {
-        renderer: Renderer::new(window_width, window_height, window_title),
+) -> Result<GraphicsContext> {
+    Ok(GraphicsContext {
+        renderer: Renderer::new(window_width, window_height, window_title)?,
         font: Font::new(default_font_data),
-    }
+    })
 }
