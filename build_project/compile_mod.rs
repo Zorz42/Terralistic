@@ -119,9 +119,8 @@ fn process_template(data: Vec<u8>) -> Vec<u8> {
     for step in 0..16 {
         for y in 0..8 {
             for x in 0..8 {
-                new_surface
-                    .set_pixel(x, y + step * 8, surface.get_pixel(x, y).unwrap())
-                    .unwrap();
+                *new_surface.get_pixel_mut(x, y + step * 8).unwrap() =
+                    *surface.get_pixel(x, y).unwrap();
             }
         }
     }
@@ -145,27 +144,19 @@ fn process_template(data: Vec<u8>) -> Vec<u8> {
 
     for step in 0..16 {
         if step & 8 == 0 && step & 1 == 0 {
-            new_surface
-                .set_pixel(0, step * 8, gfx::Color::new(0, 0, 0, 0))
-                .unwrap();
+            *new_surface.get_pixel_mut(0, step * 8).unwrap() = gfx::Color::new(0, 0, 0, 0);
         }
 
         if step & 1 == 0 && step & 2 == 0 {
-            new_surface
-                .set_pixel(7, step * 8, gfx::Color::new(0, 0, 0, 0))
-                .unwrap();
+            *new_surface.get_pixel_mut(7, step * 8).unwrap() = gfx::Color::new(0, 0, 0, 0);
         }
 
         if step & 2 == 0 && step & 4 == 0 {
-            new_surface
-                .set_pixel(7, step * 8 + 7, gfx::Color::new(0, 0, 0, 0))
-                .unwrap();
+            *new_surface.get_pixel_mut(7, step * 8 + 7).unwrap() = gfx::Color::new(0, 0, 0, 0);
         }
 
         if step & 4 == 0 && step & 8 == 0 {
-            new_surface
-                .set_pixel(0, step * 8 + 7, gfx::Color::new(0, 0, 0, 0))
-                .unwrap();
+            *new_surface.get_pixel_mut(0, step * 8 + 7).unwrap() = gfx::Color::new(0, 0, 0, 0);
         }
     }
 
@@ -182,7 +173,7 @@ fn copy_edge(
 ) {
     for y in 0..8 {
         for x in 0..8 {
-            let pixel = source.get_pixel(source_x + x, source_y + y).unwrap();
+            let pixel = *source.get_pixel(source_x + x, source_y + y).unwrap();
             if pixel.a != 0 {
                 let applied_pixel = if pixel == gfx::Color::new(0, 255, 0, 255) {
                     gfx::Color::new(0, 0, 0, 0)
@@ -190,9 +181,7 @@ fn copy_edge(
                     pixel
                 };
 
-                target
-                    .set_pixel(target_x + x, target_y + y, applied_pixel)
-                    .unwrap();
+                *target.get_pixel_mut(target_x + x, target_y + y).unwrap() = applied_pixel;
             }
         }
     }

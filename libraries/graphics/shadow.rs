@@ -1,5 +1,4 @@
 use super::{Color, GraphicsContext, Rect, Surface, Texture};
-use anyhow::Result;
 
 /// `ShadowContext` is a struct that contains the information needed to draw a shadow.
 pub struct ShadowContext {
@@ -7,56 +6,46 @@ pub struct ShadowContext {
 }
 
 impl ShadowContext {
+    /// Sets the pixel at the given position to the given color.
+    /// The color is blended with the previous color using the alpha channel.
+    /// The alpha channel is calculated using a gaussian curve.
+    fn set_gaussian_pixel(h: i32, pixel: &mut Color) {
+        let alpha = core::f32::consts::E.powf(-((h * h) as f32 / 2000.0));
+        let prev_alpha = pixel.a as f32 / 255.0;
+        *pixel = Color::new(0, 0, 0, (alpha * prev_alpha * 255.0) as u8);
+    }
+
     /// Creates a new `ShadowContext`.
     pub fn new() -> Self {
         let mut surface = Surface::new(700, 700);
         // fill surface with black color
-        for x in 0..surface.get_width() {
-            for y in 0..surface.get_height() {
-                surface
-                    .set_pixel(x as i32, y as i32, Color::new(0, 0, 0, 255))
-                    .unwrap();
-            }
+        for (_, _, pixel) in surface.iter_mut() {
+            *pixel = Color::new(0, 0, 0, 255);
         }
 
         // draw a shadow to the surface with center rectangle being transparent with
         // size 300, 300 and offset 200, 200. The blur around the rectangle is a gaussian
         // curve.
-        let mut set_gaussian_pixel = |h, x, y| -> Result<()> {
-            let alpha = core::f32::consts::E.powf(-((h * h) as f32 / 2000.0));
-            let prev_alpha = surface.get_pixel(x, y)?.a as f32 / 255.0;
-            surface.set_pixel(
-                x,
-                y,
-                Color::new(0, 0, 0, (alpha * prev_alpha * 255.0) as u8),
-            )
-        };
 
-        for x in 0..700 {
-            for y in 0..200 {
+        for (x, y, pixel) in surface.iter_mut() {
+            if y < 200 {
                 let h = 200 - y;
-                set_gaussian_pixel(h, x, y).unwrap();
+                Self::set_gaussian_pixel(h, pixel);
             }
-        }
 
-        for x in 0..200 {
-            for y in 0..700 {
+            if x < 200 {
                 let h = 200 - x;
-                set_gaussian_pixel(h, x, y).unwrap();
+                Self::set_gaussian_pixel(h, pixel);
             }
-        }
 
-        for x in 0..700 {
-            for y in 500..700 {
+            if y > 500 {
                 let h = y - 500;
-                set_gaussian_pixel(h, x, y).unwrap();
+                Self::set_gaussian_pixel(h, pixel);
             }
-        }
 
-        for x in 500..700 {
-            for y in 0..700 {
+            if x > 500 {
                 let h = x - 500;
-                set_gaussian_pixel(h, x, y).unwrap();
+                Self::set_gaussian_pixel(h, pixel);
             }
         }
 
@@ -102,7 +91,7 @@ impl ShadowContext {
             ),
         ];
 
-        if shadow_edge_height == 350.0 {
+        if (shadow_edge_height - 350.0).abs() < f32::EPSILON {
             let mut height_to_render = rect.h - 300;
             while height_to_render > 0 {
                 elements.push((
@@ -117,7 +106,7 @@ impl ShadowContext {
             }
         }
 
-        if shadow_edge_width == 350.0 {
+        if (shadow_edge_width - 350.0).abs() < f32::EPSILON {
             let mut width_to_render = rect.w - 300;
             while width_to_render > 0 {
                 elements.push((

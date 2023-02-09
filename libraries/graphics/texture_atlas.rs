@@ -48,7 +48,9 @@ impl<KeyType: Eq + Hash + Clone> TextureAtlas<KeyType> {
             );
             main_surface
                 .draw(x, 0, surface, Color::new(255, 255, 255, 255))
-                .unwrap();
+                .unwrap_or_else(|e| {
+                    println!("Failed to draw surface to main surface (unreachable) {e}");
+                });
             x += surface.get_width() as i32;
         }
 

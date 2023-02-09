@@ -15,20 +15,20 @@ pub fn sdl_event_to_gfx_event(sdl_event: &sdl2::event::Event) -> Option<Event> {
             keycode: Some(keycode),
             repeat,
             ..
-        } => sdl_key_to_gfx_key(keycode).map(|key| Event::KeyPress(key, *repeat)),
+        } => sdl_key_to_gfx_key(*keycode).map(|key| Event::KeyPress(key, *repeat)),
 
         sdl2::event::Event::KeyUp {
             keycode: Some(keycode),
             repeat,
             ..
-        } => sdl_key_to_gfx_key(keycode).map(|key| Event::KeyRelease(key, *repeat)),
+        } => sdl_key_to_gfx_key(*keycode).map(|key| Event::KeyRelease(key, *repeat)),
 
         sdl2::event::Event::MouseWheel { y, .. } => Some(Event::MouseScroll(*y as f32)),
         sdl2::event::Event::MouseButtonDown { mouse_btn, .. } => {
-            sdl_mouse_button_to_gfx_key(mouse_btn).map(|key| Event::KeyPress(key, false))
+            sdl_mouse_button_to_gfx_key(*mouse_btn).map(|key| Event::KeyPress(key, false))
         }
         sdl2::event::Event::MouseButtonUp { mouse_btn, .. } => {
-            sdl_mouse_button_to_gfx_key(mouse_btn).map(|key| Event::KeyRelease(key, false))
+            sdl_mouse_button_to_gfx_key(*mouse_btn).map(|key| Event::KeyRelease(key, false))
         }
         sdl2::event::Event::TextInput { text, .. } => Some(Event::TextInput(text.clone())),
 
@@ -102,7 +102,7 @@ pub enum Key {
 }
 
 /// This function converts a sdl key to a graphics key
-const fn sdl_key_to_gfx_key(key: &sdl2::keyboard::Keycode) -> Option<Key> {
+const fn sdl_key_to_gfx_key(key: sdl2::keyboard::Keycode) -> Option<Key> {
     match key {
         sdl2::keyboard::Keycode::Space => Some(Key::Space),
         sdl2::keyboard::Keycode::A => Some(Key::A),
@@ -166,7 +166,7 @@ const fn sdl_key_to_gfx_key(key: &sdl2::keyboard::Keycode) -> Option<Key> {
 }
 
 /// This function converts a sdl mouse button to a graphics key
-pub fn sdl_mouse_button_to_gfx_key(button: &sdl2::mouse::MouseButton) -> Option<Key> {
+pub const fn sdl_mouse_button_to_gfx_key(button: sdl2::mouse::MouseButton) -> Option<Key> {
     match button {
         sdl2::mouse::MouseButton::Left => Some(Key::MouseLeft),
         sdl2::mouse::MouseButton::Right => Some(Key::MouseRight),

@@ -77,7 +77,8 @@ use anyhow::Result;
 
 /// Initializes the graphics context.
 /// # Errors
-/// If the renderer fails to initialize.
+/// - If the renderer fails to initialize.
+/// - If the font fails to initialize.
 pub fn init(
     window_width: u32,
     window_height: u32,
@@ -86,6 +87,6 @@ pub fn init(
 ) -> Result<GraphicsContext> {
     Ok(GraphicsContext {
         renderer: Renderer::new(window_width, window_height, window_title)?,
-        font: Font::new(default_font_data),
+        font: Font::new(default_font_data)?,
     })
 }

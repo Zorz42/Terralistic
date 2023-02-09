@@ -5,7 +5,7 @@ use serde_derive::{Deserialize, Serialize};
 /// Surface is an image stored in ram.
 #[derive(Serialize, Deserialize, Clone)]
 pub struct Surface {
-    pub(super) pixels: Vec<u8>,
+    pub(super) pixels: Vec<Color>,
     width: u32,
     height: u32,
 }
@@ -15,7 +15,7 @@ impl Surface {
     #[must_use]
     pub fn new(width: u32, height: u32) -> Self {
         Self {
-            pixels: std::vec![0; (width * height * 4) as usize],
+            pixels: std::vec![Color::new(0, 0, 0, 0); (width * height) as usize],
             width,
             height,
         }
@@ -47,50 +47,27 @@ impl Surface {
             bail!("Pixel out of bounds");
         }
 
-        Ok((y * self.width as i32 + x) as usize * 4)
+        Ok((y * self.width as i32 + x) as usize)
     }
 
     /// Retrieves the pixel color on a specified location.
     /// # Errors
     /// Returns an error if the pixel is out of bounds.
-    pub fn get_pixel(&self, x: i32, y: i32) -> Result<Color> {
+    pub fn get_pixel(&self, x: i32, y: i32) -> Result<&Color> {
         let index = self.get_index(x, y)?;
-        let mut result = Color::new(0, 0, 0, 0);
-        for (i, channel) in [&mut result.r, &mut result.g, &mut result.b, &mut result.a]
-            .iter_mut()
-            .enumerate()
-        {
-            **channel = *self
-                .pixels
-                .get(index + i)
-                .ok_or_else(|| anyhow!("Pixel out of bounds"))?;
-        }
-
-        Ok(result)
+        self.pixels
+            .get(index)
+            .ok_or_else(|| anyhow!("Pixel array malformed"))
     }
 
-    /// Sets the pixel color on a specified location.
+    /// Retrieves the pixel color on a specified location.
     /// # Errors
     /// Returns an error if the pixel is out of bounds.
-    pub fn set_pixel(&mut self, x: i32, y: i32, color: Color) -> Result<()> {
+    pub fn get_pixel_mut(&mut self, x: i32, y: i32) -> Result<&mut Color> {
         let index = self.get_index(x, y)?;
-        *self
-            .pixels
+        self.pixels
             .get_mut(index)
-            .ok_or_else(|| anyhow!("Pixel out of bounds"))? = color.r;
-        *self
-            .pixels
-            .get_mut(index + 1)
-            .ok_or_else(|| anyhow!("Pixel out of bounds"))? = color.g;
-        *self
-            .pixels
-            .get_mut(index + 2)
-            .ok_or_else(|| anyhow!("Pixel out of bounds"))? = color.b;
-        *self
-            .pixels
-            .get_mut(index + 3)
-            .ok_or_else(|| anyhow!("Pixel out of bounds"))? = color.a;
-        Ok(())
+            .ok_or_else(|| anyhow!("Pixel array malformed"))
     }
 
     #[must_use]
@@ -107,21 +84,115 @@ impl Surface {
     /// # Errors
     /// Returns an error if the surface is out of bounds.
     pub fn draw(&mut self, x: i32, y: i32, surface: &Self, color: Color) -> Result<()> {
-        for xpos in 0..surface.get_width() {
-            for ypos in 0..surface.get_height() {
-                let surface_color = surface.get_pixel(xpos as i32, ypos as i32)?;
-                self.set_pixel(
-                    xpos as i32 + x,
-                    ypos as i32 + y,
-                    Color {
-                        r: (surface_color.r as f32 * (color.r as f32 / 255.0)) as u8,
-                        g: (surface_color.g as f32 * (color.g as f32 / 255.0)) as u8,
-                        b: (surface_color.b as f32 * (color.b as f32 / 255.0)) as u8,
-                        a: (surface_color.a as f32 * (color.a as f32 / 255.0)) as u8,
-                    },
-                )?;
-            }
+        for (xpos, ypos, surface_color) in surface.iter() {
+            *self.get_pixel_mut(xpos + x, ypos + y)? = Color {
+                r: (surface_color.r as f32 * (color.r as f32 / 255.0)) as u8,
+                g: (surface_color.g as f32 * (color.g as f32 / 255.0)) as u8,
+                b: (surface_color.b as f32 * (color.b as f32 / 255.0)) as u8,
+                a: (surface_color.a as f32 * (color.a as f32 / 255.0)) as u8,
+            };
         }
+
         Ok(())
+    }
+
+    /// Returns a surface iterator.
+    #[must_use]
+    pub const fn iter(&self) -> SurfaceIterator {
+        SurfaceIterator::new(self)
+    }
+
+    /// Returns a surface iterator.
+    #[must_use]
+    pub fn iter_mut(&mut self) -> MutSurfaceIterator {
+        MutSurfaceIterator::new(self)
+    }
+}
+
+/// Surface iterator iterates through all pixels in a surface row by row.
+pub struct SurfaceIterator<'surface_lifetime> {
+    surface: &'surface_lifetime Surface,
+    x: i32,
+    y: i32,
+}
+
+impl<'surface_lifetime> SurfaceIterator<'surface_lifetime> {
+    pub const fn new(surface: &'surface_lifetime Surface) -> Self {
+        Self {
+            surface,
+            x: 0,
+            y: 0,
+        }
+    }
+}
+
+impl<'surface_lifetime> Iterator for SurfaceIterator<'surface_lifetime> {
+    type Item = (i32, i32, &'surface_lifetime Color);
+
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.x >= self.surface.get_width() as i32 {
+            self.x = 0;
+            self.y += 1;
+        }
+
+        if self.y >= self.surface.get_height() as i32 {
+            return None;
+        }
+
+        let result = self.surface.get_pixel(self.x, self.y).ok();
+        self.x += 1;
+        if let Some(result) = result {
+            Some((self.x - 1, self.y, result))
+        } else {
+            None
+        }
+    }
+}
+
+/// Surface iterator iterates through all pixels in a surface row by row.
+pub struct MutSurfaceIterator<'surface_lifetime> {
+    surface: &'surface_lifetime mut Surface,
+    x: i32,
+    y: i32,
+}
+
+impl<'surface_lifetime> MutSurfaceIterator<'surface_lifetime> {
+    pub fn new(surface: &'surface_lifetime mut Surface) -> Self {
+        Self {
+            surface,
+            x: 0,
+            y: 0,
+        }
+    }
+}
+
+impl<'surface_lifetime> Iterator for MutSurfaceIterator<'surface_lifetime> {
+    type Item = (i32, i32, &'surface_lifetime mut Color);
+
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.x >= self.surface.get_width() as i32 {
+            self.x = 0;
+            self.y += 1;
+        }
+
+        if self.y >= self.surface.get_height() as i32 {
+            return None;
+        }
+
+        let result = self.surface.get_pixel_mut(self.x, self.y).ok();
+        self.x += 1;
+        if let Some(result) = result {
+            // Safety: We know that the result is a valid mutable reference and 'surface_lifetime
+            // outlives the iterator. Apparently mutable iterators are not possible without unsafe code.
+            unsafe {
+                Some((
+                    self.x - 1,
+                    self.y,
+                    &mut *(result as *mut Color as *mut Color),
+                ))
+            }
+        } else {
+            None
+        }
     }
 }

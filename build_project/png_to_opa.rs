@@ -21,7 +21,7 @@ pub fn png_file_to_opa_bytes(png_path: PathBuf) -> Vec<u8> {
                 b: bytes[index + 2],
                 a: bytes[index + 3],
             };
-            surface.set_pixel(x as i32, y as i32, color).unwrap();
+            *surface.get_pixel_mut(x as i32, y as i32).unwrap() = color;
         }
     }
     // serialize surface and write to file
