@@ -101,9 +101,10 @@ impl Walls {
         self.walls_data.walls = vec![WallId::new(); (width * height) as usize];
     }
 
-    pub fn init(&mut self, mods: &mut ModManager) {
-        mods.add_global_function("new_wall_type", move |_lua, _: ()| Ok(Wall::new()))
-            .unwrap();
+    /// # Errors
+    /// Returns an error if the functions couldn't be added to the lua state.
+    pub fn init(&mut self, mods: &mut ModManager) -> Result<()> {
+        mods.add_global_function("new_wall_type", move |_lua, _: ()| Ok(Wall::new()))?;
 
         let mut wall_types = self.wall_types.clone();
         mods.add_global_function("register_wall_type", move |_lua, wall_type: Wall| {
@@ -114,8 +115,7 @@ impl Walls {
                 wall_type,
             );
             Ok(result)
-        })
-        .unwrap();
+        })?;
 
         wall_types = self.wall_types.clone();
         mods.add_global_function("get_wall_id_by_name", move |_lua, name: String| {
@@ -129,8 +129,8 @@ impl Walls {
                 }
             }
             Err(rlua::Error::RuntimeError("Wall type not found".to_owned()))
-        })
-        .unwrap();
+        })?;
+        Ok(())
     }
 
     /// Returns the wall id at the given position.

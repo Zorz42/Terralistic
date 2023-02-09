@@ -10,7 +10,7 @@ pub struct WorldMap {
 }
 
 impl WorldMap {
-    pub fn new(width: u32, height: u32) -> Self {
+    pub const fn new(width: u32, height: u32) -> Self {
         Self { width, height }
     }
 
