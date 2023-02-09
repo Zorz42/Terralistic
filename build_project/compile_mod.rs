@@ -6,10 +6,8 @@ use darklua_core::Parser;
 use std::collections::HashMap;
 use std::path::PathBuf;
 
-/**
-This function compiles a game mod from a directory.
-It takes the path to the directory as input.
- */
+/// This function compiles a game mod from a directory.
+/// It takes the path to the directory as input.
 pub fn compile_mod(mod_path: PathBuf) {
     // make sure that cargo reruns this script if the input mod changes (or any of its files)
     println!("cargo:rerun-if-changed={}", mod_path.to_str().unwrap());
@@ -54,10 +52,8 @@ pub fn compile_mod(mod_path: PathBuf) {
     .unwrap();
 }
 
-/**
-This function takes the resources folder, goes through all of the recursively,
-changes the file paths to use : instead of / and adds the files to a map.
- */
+/// This function takes the resources folder, goes through all of the recursively,
+/// changes the file paths to use : instead of / and adds the files to a map.
 fn generate_resources(resources_path: PathBuf, prefix: String) -> HashMap<String, Vec<u8>> {
     println!(
         "Generating resource pack... {}",
@@ -83,12 +79,9 @@ fn generate_resources(resources_path: PathBuf, prefix: String) -> HashMap<String
     resources
 }
 
-/**
-This function processes a file in the resources folder.
-It takes the path to the file as input. It returns the
-new file name and the file contents.
- */
-
+/// This function processes a file in the resources folder.
+/// It takes the path to the file as input. It returns the
+/// new file name and the file contents.
 fn process_file(file_path: PathBuf) -> (String, Vec<u8>) {
     let mut file_name = file_path.file_name().unwrap().to_str().unwrap().to_string();
     // if file name has .png extension, change it to .opa extension
