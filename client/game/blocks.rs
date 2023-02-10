@@ -2,7 +2,7 @@ use super::camera::Camera;
 use super::networking::WelcomePacketEvent;
 use crate::libraries::events::{Event, EventManager};
 use crate::libraries::graphics as gfx;
-use crate::libraries::graphics::GraphicsContext;
+use crate::libraries::graphics::{FloatPos, FloatSize, GraphicsContext};
 use crate::shared::blocks::{
     BlockBreakStartPacket, BlockBreakStopPacket, BlockChangeEvent, BlockChangePacket, BlockId,
 };
@@ -72,15 +72,16 @@ impl RenderBlockChunk {
                             }
                         }
 
-                        curr_block_rect.w = BLOCK_WIDTH;
-                        curr_block_rect.h = BLOCK_WIDTH;
-                        curr_block_rect.y += BLOCK_WIDTH * block_state;
+                        curr_block_rect.size.0 = BLOCK_WIDTH as f32;
+                        curr_block_rect.size.1 = BLOCK_WIDTH as f32;
+                        curr_block_rect.pos.1 += (BLOCK_WIDTH * block_state) as f32;
                         self.rect_array.add_rect(
                             &gfx::Rect::new(
-                                x * RENDER_BLOCK_WIDTH,
-                                y * RENDER_BLOCK_WIDTH,
-                                RENDER_BLOCK_WIDTH,
-                                RENDER_BLOCK_WIDTH,
+                                FloatPos(
+                                    (x * RENDER_BLOCK_WIDTH) as f32,
+                                    (y * RENDER_BLOCK_WIDTH) as f32,
+                                ),
+                                FloatSize(RENDER_BLOCK_WIDTH as f32, RENDER_BLOCK_WIDTH as f32),
                             ),
                             &[
                                 gfx::Color::new(255, 255, 255, 255),
@@ -101,8 +102,11 @@ impl RenderBlockChunk {
             world_x * RENDER_BLOCK_WIDTH - (camera.get_top_left(graphics).0 * RENDER_SCALE) as i32;
         let screen_y =
             world_y * RENDER_BLOCK_WIDTH - (camera.get_top_left(graphics).1 * RENDER_SCALE) as i32;
-        self.rect_array
-            .render(graphics, Some(atlas.get_texture()), screen_x, screen_y);
+        self.rect_array.render(
+            graphics,
+            Some(atlas.get_texture()),
+            FloatPos(screen_x as f32, screen_y as f32),
+        );
     }
 }
 
@@ -179,7 +183,7 @@ impl ClientBlocks {
     }
 
     pub fn init(&mut self, mods: &mut ModManager) {
-        self.blocks.init(mods);
+        self.blocks.init(mods).unwrap();
     }
 
     pub fn load_resources(&mut self, mods: &mut ModManager) {
@@ -269,8 +273,11 @@ impl ClientBlocks {
             self.breaking_texture.render(
                 &graphics.renderer,
                 RENDER_SCALE,
-                (x, y),
-                Some(gfx::Rect::new(0, break_stage * 8, 8, 8)),
+                FloatPos(x as f32, y as f32),
+                Some(gfx::Rect::new(
+                    FloatPos(0.0, break_stage as f32 * 8.0),
+                    FloatSize(8.0, 8.0),
+                )),
                 false,
                 None,
             );

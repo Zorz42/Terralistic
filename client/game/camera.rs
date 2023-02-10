@@ -1,5 +1,5 @@
 use crate::libraries::graphics as gfx;
-use crate::libraries::graphics::GraphicsContext;
+use crate::libraries::graphics::{FloatPos, GraphicsContext};
 
 /**
 Camera is a struct that handles the camera position.
@@ -27,8 +27,8 @@ impl Camera {
         self.target_position_y = y;
     }
 
-    pub fn get_position(&self) -> (f32, f32) {
-        (self.position_x, self.position_y)
+    pub fn get_position(&self) -> FloatPos {
+        FloatPos(self.position_x, self.position_y)
     }
 
     pub fn update_ms(&mut self, graphics: &mut GraphicsContext) {
@@ -56,8 +56,8 @@ impl Camera {
     This function gets the position of the top left corner of the screen in world coordinates.
      */
     pub fn get_top_left(&self, graphics: &mut GraphicsContext) -> (f32, f32) {
-        let width = graphics.renderer.get_window_width();
-        let height = graphics.renderer.get_window_height();
+        let width = graphics.renderer.get_window_size().0;
+        let height = graphics.renderer.get_window_size().1;
         (
             self.position_x - width as f32 / 2.0,
             self.position_y - height as f32 / 2.0,
@@ -68,8 +68,8 @@ impl Camera {
     This function gets the position of the bottom right corner of the screen in world coordinates.
      */
     pub fn get_bottom_right(&self, graphics: &mut GraphicsContext) -> (f32, f32) {
-        let width = graphics.renderer.get_window_width();
-        let height = graphics.renderer.get_window_height();
+        let width = graphics.renderer.get_window_size().0;
+        let height = graphics.renderer.get_window_size().1;
         (
             self.position_x + width as f32 / 2.0,
             self.position_y + height as f32 / 2.0,

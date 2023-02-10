@@ -2,12 +2,12 @@ use super::renderer::Renderer;
 use super::transformation::Transformation;
 use super::vertex_buffer::DrawMode;
 use super::{Color, Rect, Surface};
+use super::{FloatPos, FloatSize};
 
 /// Texture is an image stored in gpu
 pub struct Texture {
     pub(super) texture_handle: u32,
-    width: u32,
-    height: u32,
+    size: FloatSize,
 }
 
 impl Default for Texture {
@@ -21,8 +21,7 @@ impl Texture {
     pub const fn new() -> Self {
         Self {
             texture_handle: u32::MAX,
-            width: 0,
-            height: 0,
+            size: FloatSize(0.0, 0.0),
         }
     }
 
@@ -30,8 +29,7 @@ impl Texture {
     #[must_use]
     pub fn load_from_surface(surface: &Surface) -> Self {
         let mut result = Self::new();
-        result.width = surface.get_width();
-        result.height = surface.get_height();
+        result.size = FloatSize::from(surface.get_size());
 
         // Safety: We are using OpenGL functions correctly.
         unsafe {
@@ -47,8 +45,8 @@ impl Texture {
                 gl::TEXTURE_2D,
                 0,
                 gl::RGBA as i32,
-                result.width as i32,
-                result.height as i32,
+                result.size.0 as i32,
+                result.size.1 as i32,
                 0,
                 gl::RGBA,
                 gl::UNSIGNED_BYTE,
@@ -68,25 +66,19 @@ impl Texture {
                 gl::DeleteTextures(1, &self.texture_handle);
             }
             self.texture_handle = u32::MAX;
-            self.width = 0;
-            self.height = 0;
+            self.size = FloatSize(0.0, 0.0);
         }
     }
 
     #[must_use]
-    pub const fn get_texture_width(&self) -> u32 {
-        self.width
-    }
-
-    #[must_use]
-    pub const fn get_texture_height(&self) -> u32 {
-        self.height
+    pub const fn get_texture_size(&self) -> FloatSize {
+        self.size
     }
 
     pub(super) fn get_normalization_transform(&self) -> Transformation {
         let mut result = Transformation::new();
-        result.translate(-1.0, 1.0);
-        result.stretch(1.0 / self.width as f32, 1.0 / self.height as f32);
+        result.translate(FloatPos(-1.0, 1.0));
+        result.stretch((1.0 / self.size.0 as f32, 1.0 / self.size.1 as f32));
         result
     }
 
@@ -94,19 +86,13 @@ impl Texture {
         &self,
         renderer: &Renderer,
         scale: f32,
-        pos: (i32, i32),
+        pos: FloatPos,
         src_rect: Option<Rect>,
         flipped: bool,
         color: Option<Color>,
     ) {
-        let src_rect = src_rect.unwrap_or_else(|| {
-            Rect::new(
-                0,
-                0,
-                self.get_texture_width() as i32,
-                self.get_texture_height() as i32,
-            )
-        });
+        let src_rect =
+            src_rect.unwrap_or_else(|| Rect::new(FloatPos(0.0, 0.0), self.get_texture_size()));
 
         let color = color.unwrap_or(Color {
             r: 255,
@@ -115,18 +101,18 @@ impl Texture {
             a: 255,
         });
 
+        let mut transform = renderer.normalization_transform.clone();
+
+        if flipped {
+            transform.translate(FloatPos(src_rect.size.0 * scale + pos.0 * 2.0, 0.0));
+            transform.stretch((-1.0, 1.0));
+        }
+
+        transform.translate(pos);
+        transform.stretch((src_rect.size.0 * scale, src_rect.size.1 * scale));
+
         // Safety: We are using OpenGL functions correctly.
         unsafe {
-            let mut transform = renderer.normalization_transform.clone();
-
-            if flipped {
-                transform.translate(src_rect.w as f32 * scale + pos.0 as f32 * 2.0, 0.0);
-                transform.stretch(-1.0, 1.0);
-            }
-
-            transform.translate(pos.0 as f32, pos.1 as f32);
-            transform.stretch(src_rect.w as f32 * scale, src_rect.h as f32 * scale);
-
             gl::UniformMatrix3fv(
                 renderer.passthrough_shader.transform_matrix,
                 1,
@@ -135,8 +121,8 @@ impl Texture {
             );
 
             transform = self.get_normalization_transform();
-            transform.translate(src_rect.x as f32, src_rect.y as f32);
-            transform.stretch(src_rect.w as f32, src_rect.h as f32);
+            transform.translate(src_rect.pos);
+            transform.stretch((src_rect.size.0, src_rect.size.1));
 
             gl::UniformMatrix3fv(
                 renderer.passthrough_shader.texture_transform_matrix,

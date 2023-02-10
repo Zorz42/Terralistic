@@ -41,21 +41,21 @@ pub fn run_main_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn Ba
     debug_title.color = gfx::GREY;
     debug_title.orientation = gfx::TOP;
     debug_title.scale = 2.0;
-    debug_title.y = SPACING / 4;
+    debug_title.pos.1 = SPACING / 4.0;
 
     let mut title = gfx::Sprite::new();
     title.texture =
         gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Terralistic"));
     title.scale = 4.0;
     title.orientation = gfx::TOP;
-    title.y = debug_title.y + debug_title.get_height() + SPACING / 2;
+    title.pos.1 = debug_title.pos.1 + debug_title.get_size().1 + SPACING / 2.0;
 
     let mut version = gfx::Sprite::new();
     version.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface(VERSION));
     version.color = gfx::GREY;
     version.orientation = gfx::BOTTOM;
     version.scale = 2.0;
-    version.y = -5;
+    version.pos.1 = -5.0;
 
     {
         let buttons = vec![
@@ -69,14 +69,14 @@ pub fn run_main_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn Ba
         // buttons are on top of another on the center of the screen
         // their combined height is centered on the screen
 
-        let mut total_height = 0;
+        let mut total_height = 0.0;
         for button in &buttons {
-            total_height += button.get_height();
+            total_height += button.get_size().1;
         }
-        let mut current_y = -total_height / 2 + buttons[0].get_height();
+        let mut current_y = -total_height / 2.0 + buttons[0].get_size().1;
         for button in buttons {
-            button.y = current_y;
-            current_y += button.get_height();
+            button.pos.1 = current_y;
+            current_y += button.get_size().1;
         }
     }
 
@@ -119,13 +119,13 @@ pub fn run_main_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn Ba
             &mut exit_button,
         ];
         // get maximum width of all buttons and set background width to that
-        let mut max_width = 0;
+        let mut max_width = 0.0;
         for button in &buttons {
-            if button.get_width() > max_width {
-                max_width = button.get_width();
+            if button.get_size().0 > max_width {
+                max_width = button.get_size().0;
             }
         }
-        menu_back.set_back_rect_width(max_width + 100);
+        menu_back.set_back_rect_width(max_width + 100.0);
 
         menu_back.render_back(graphics);
 

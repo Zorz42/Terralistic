@@ -1,6 +1,6 @@
 use super::BackgroundRect;
 use crate::libraries::graphics as gfx;
-use crate::libraries::graphics::GraphicsContext;
+use crate::libraries::graphics::{FloatPos, FloatSize, GraphicsContext};
 
 pub fn run_choice_menu(
     menu_title: &str,
@@ -17,11 +17,18 @@ pub fn run_choice_menu(
         sprite.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface(line));
         sprite.scale = 3.0;
         sprite.orientation = gfx::TOP;
-        sprite.y = gfx::SPACING + title_lines.len() as i32 * (sprite.get_height() + gfx::SPACING);
+        sprite.pos.0 =
+            gfx::SPACING + title_lines.len() as f32 * (sprite.get_size().1 + gfx::SPACING);
         title_lines.push(sprite);
     }
 
-    let mut buttons_container = gfx::Container::new(0, 0, 0, 0, gfx::BOTTOM);
+    let mut buttons_container = gfx::Container::new(
+        graphics,
+        FloatPos(0.0, 0.0),
+        FloatSize(0.0, 0.0),
+        gfx::BOTTOM,
+        None,
+    );
 
     let back_str = back_name_override.unwrap_or("Back");
     let mut back_button = gfx::Button::new();
@@ -34,11 +41,12 @@ pub fn run_choice_menu(
     confirm_button.scale = 3.0;
     confirm_button.texture =
         gfx::Texture::load_from_surface(&graphics.font.create_text_surface(confirm_str));
-    confirm_button.x = back_button.get_width() + gfx::SPACING;
+    confirm_button.pos.0 = back_button.get_size().0 + gfx::SPACING;
 
-    buttons_container.rect.w = back_button.get_width() + confirm_button.get_width() + gfx::SPACING;
-    buttons_container.rect.h = back_button.get_height();
-    buttons_container.rect.y = -gfx::SPACING;
+    buttons_container.rect.size.0 =
+        back_button.get_size().0 + confirm_button.get_size().0 + gfx::SPACING;
+    buttons_container.rect.size.1 = back_button.get_size().1;
+    buttons_container.rect.pos.1 = -gfx::SPACING;
 
     //this is where the menu is drawn
     while graphics.renderer.is_window_open() {
@@ -64,7 +72,7 @@ pub fn run_choice_menu(
                 }
             }
         }
-        menu_back.set_back_rect_width(700);
+        menu_back.set_back_rect_width(700.0);
 
         menu_back.render_back(graphics);
 

@@ -1,21 +1,20 @@
 use super::color::Color;
 use super::vertex_buffer::DrawMode;
 use super::GraphicsContext;
+use crate::libraries::graphics::{FloatPos, FloatSize};
 
 /// This is a rectangle shape.
 #[derive(Clone, Copy)]
 pub struct Rect {
-    pub x: i32,
-    pub y: i32,
-    pub w: i32,
-    pub h: i32,
+    pub pos: FloatPos,
+    pub size: FloatSize,
 }
 
 impl Rect {
     /// Creates a new rectangle.
     #[must_use]
-    pub const fn new(x: i32, y: i32, w: i32, h: i32) -> Self {
-        Self { x, y, w, h }
+    pub const fn new(pos: FloatPos, size: FloatSize) -> Self {
+        Self { pos, size }
     }
 
     /// Renders the rectangle on the screen.
@@ -25,8 +24,8 @@ impl Rect {
         }
 
         let mut transform = graphics.renderer.normalization_transform.clone();
-        transform.translate(self.x as f32, self.y as f32);
-        transform.stretch(self.w as f32, self.h as f32);
+        transform.translate(self.pos);
+        transform.stretch((self.size.0, self.size.1));
 
         // Safety: We are using a valid shader.
         unsafe {
@@ -60,8 +59,8 @@ impl Rect {
         }
 
         let mut transform = graphics.renderer.normalization_transform.clone();
-        transform.translate(self.x as f32, self.y as f32);
-        transform.stretch(self.w as f32, self.h as f32);
+        transform.translate(self.pos);
+        transform.stretch((self.size.0, self.size.1));
 
         // Safety: We are using a valid shader.
         unsafe {

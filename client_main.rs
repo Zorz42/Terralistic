@@ -100,16 +100,13 @@ fn main() {
 
     if graphics
         .renderer
-        .set_min_window_size(
-            graphics.renderer.get_window_width(),
-            graphics.renderer.get_window_height(),
-        )
+        .set_min_window_size(graphics.renderer.get_window_size())
         .is_err()
     {
         println!("Failed to set minimum window size");
     }
 
-    let mut menu_back = MenuBack::new();
+    let mut menu_back = MenuBack::new(&mut graphics);
 
     run_main_menu(&mut graphics, &mut menu_back);
 }

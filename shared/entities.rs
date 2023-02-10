@@ -1,12 +1,6 @@
-use crate::shared::blocks::{Blocks, BLOCK_WIDTH};
+use core::sync::atomic::{AtomicU32, Ordering};
 use once_cell::sync::Lazy;
-use std::sync::Mutex;
 
-#[derive(PartialEq, Eq)]
-pub enum EntityType {
-    ITEM,
-    PLAYER,
-} //TODO: remove this since they're now in separate objects?
 #[derive(PartialEq, Eq, Copy, Clone)]
 pub enum Direction {
     LEFT,
@@ -14,42 +8,8 @@ pub enum Direction {
     UP,
     DOWN,
 }
-static CURR_ENTITY_ID: Lazy<Mutex<u32>> = Lazy::new(|| Mutex::new(0));
 
-pub trait EntityObject {
-    /**return the width of the entity*/
-    fn get_width(&self) -> i32;
-    /**return the height of the entity*/
-    fn get_height(&self) -> i32;
-    /**returns whether or not the entity is colliding*/
-    fn is_colliding(
-        &self,
-        blocks: &Blocks,
-        direction: Direction,
-        colliding_x: f32,
-        colliding_y: f32,
-    ) -> bool;
-    /**returns whether or not the entity is colliding with a block*/
-    fn is_colliding_with_block(
-        &self,
-        blocks: &Blocks,
-        direction: Direction,
-        colliding_x: f32,
-        colliding_y: f32,
-    ) -> bool;
-    /**updates the entity*/
-    fn update_entity(&mut self, blocks: &Blocks);
-    /** returns whether or not the entity is touching ground*/
-    fn is_touching_ground(&self, blocks: &Blocks) -> bool;
-    /**returns the entity's x position*/
-    fn get_x(&self) -> f32;
-    /**returns the entity's y position*/
-    fn get_y(&self) -> f32;
-    /**returns the entity's x velocity*/
-    fn get_velocity_x(&self) -> f32;
-    /**returns the entity's y velocity*/
-    fn get_velocity_y(&self) -> f32;
-}
+static CURR_ENTITY_ID: Lazy<AtomicU32> = Lazy::new(|| AtomicU32::new(0));
 
 pub struct Entity {
     pub x: f32,
@@ -59,14 +19,12 @@ pub struct Entity {
     pub gravity: bool,
     pub friction: bool,
     pub has_moved_x: bool,
-    pub ignore_server_updates: bool,
     pub has_moved: bool,
     pub id: u32,
-    pub entity_type: EntityType,
 }
 
 impl Entity {
-    pub fn new(entity_type: EntityType, x: i32, y: i32, id: u32) -> Self {
+    pub fn new(x: i32, y: i32, id: u32) -> Self {
         let mut entity = Self {
             x: x as f32,
             y: y as f32,
@@ -75,20 +33,18 @@ impl Entity {
             gravity: true,
             friction: true,
             has_moved_x: false,
-            ignore_server_updates: false,
             has_moved: false,
             id,
-            entity_type,
         };
         if entity.id == 0 {
-            entity.id = *CURR_ENTITY_ID.lock().unwrap();
-            *CURR_ENTITY_ID.lock().unwrap() += 1;
+            entity.id = CURR_ENTITY_ID.load(Ordering::Relaxed);
+            CURR_ENTITY_ID.fetch_add(1, Ordering::Relaxed);
         }
         entity
     }
 }
 
-impl EntityObject for Entity {
+/*impl EntityObject for Entity {
     fn get_width(&self) -> i32 {
         0
     }
@@ -104,6 +60,7 @@ impl EntityObject for Entity {
     ) -> bool {
         self.is_colliding_with_block(blocks, direction, colliding_x, colliding_y)
     }
+
     fn is_colliding_with_block(
         &self,
         blocks: &Blocks,
@@ -223,11 +180,12 @@ impl EntityObject for Entity {
     fn get_velocity_y(&self) -> f32 {
         self.velocity_y
     }
-}
+}*/
 
 pub struct EntityVelocityChangeEvent {
     pub entity_id: u32,
 }
+
 impl EntityVelocityChangeEvent {
     #[must_use]
     pub fn new(entity_id: u32) -> Self {
@@ -240,6 +198,7 @@ pub struct EntityAbsoluteVelocityChangeEvent {
     pub old_vel_x: f32,
     pub old_vel_y: f32,
 }
+
 impl EntityAbsoluteVelocityChangeEvent {
     #[must_use]
     pub fn new(entity_id: u32, old_vel_x: f32, old_vel_y: f32) -> Self {
@@ -250,53 +209,11 @@ impl EntityAbsoluteVelocityChangeEvent {
         }
     }
 }
+
 pub struct EntityPositionChangeEvent {
     pub entity_id: u32,
 }
-impl EntityPositionChangeEvent {
-    #[must_use]
-    pub fn new(entity_id: u32) -> Self {
-        Self { entity_id }
-    }
-}
+
 pub struct EntityDeletionEvent {
     pub entity_id: u32,
-}
-impl EntityDeletionEvent {
-    #[must_use]
-    pub fn new(entity_id: u32) -> Self {
-        Self { entity_id }
-    }
-}
-
-//impl Event for EntityVelocityChangeEvent {}
-//impl Event for EntityAbsoluteVelocityChangeEvent {}
-//impl Event for EntityPositionChangeEvent {}
-//impl Event for EntityDeletionEvent {}
-
-pub trait EntityStructTrait<EntityType: EntityObject> {
-    /**updates all entities in that struct*/
-    fn update_all_entities(&mut self, blocks: &Blocks);
-    /**registers a new entity in that struct*/
-    fn register_entity(&mut self, entity: EntityType);
-    /**removes an entity in that struct*/
-    fn remove_entity(&mut self, entity_id: u32);
-    /**returns entity from that struct by id*/
-    fn get_entity_by_id(&self, entity_id: u32) -> Option<&EntityType>;
-    /**returns mutable entity from that struct by id*/
-    fn get_entity_by_id_mut(&self, entity_id: u32) -> Option<&EntityType>;
-    /**returns entity vector from that struct*/
-    fn get_entities(&self) -> &Vec<EntityType>;
-    /**sets the x velocity of an entity from that struct*/
-    fn set_velocity_x(&mut self, entity: &mut EntityType, velocity_x: f32);
-    /**sets the y velocity of an entity from that struct*/
-    fn set_velocity_y(&mut self, entity: &mut EntityType, velocity_y: f32);
-    /**adds to the x velocity of an entity from that struct*/
-    fn add_velocity_x(&mut self, entity: &mut EntityType, velocity_x: f32);
-    /**adds to the y velocity of an entity from that struct*/
-    fn add_velocity_y(&mut self, entity: &mut EntityType, velocity_y: f32);
-    /**sets the x position of an entity from that struct*/
-    fn set_x(&mut self, entity: &mut EntityType, x: f32, send_to_everyone: bool);
-    /**sets the y position of an entity from that struct*/
-    fn set_y(&mut self, entity: &mut EntityType, y: f32, send_to_everyone: bool);
 }

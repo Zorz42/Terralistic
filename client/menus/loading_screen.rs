@@ -1,6 +1,7 @@
 use std::sync::Mutex;
 
 use crate::libraries::graphics as gfx;
+use crate::libraries::graphics::{FloatPos, FloatSize};
 
 use super::background_rect::BackgroundRect;
 
@@ -24,13 +25,19 @@ pub fn run_loading_screen(
 
     let mut curr_text = String::new();
 
-    let mut loading_back_bar = gfx::RenderRect::new(0.0, PROGRESS_BAR_Y_OFFSET as f32, 0.0, 0.0);
+    let mut loading_back_bar = gfx::RenderRect::new(
+        FloatPos(0.0, PROGRESS_BAR_Y_OFFSET as f32),
+        FloatSize(0.0, 0.0),
+    );
     loading_back_bar.orientation = gfx::CENTER;
     loading_back_bar.fill_color = gfx::BLACK;
     loading_back_bar.fill_color.a = gfx::TRANSPARENCY;
     loading_back_bar.smooth_factor = 60.0;
 
-    let mut loading_bar = gfx::RenderRect::new(0.0, PROGRESS_BAR_Y_OFFSET as f32, 0.0, 0.0);
+    let mut loading_bar = gfx::RenderRect::new(
+        FloatPos(0.0, PROGRESS_BAR_Y_OFFSET as f32),
+        FloatSize(0.0, 0.0),
+    );
     loading_bar.orientation = gfx::LEFT;
     loading_bar.fill_color = gfx::LIGHT_GREY;
     loading_bar.smooth_factor = 60.0;
@@ -38,7 +45,7 @@ pub fn run_loading_screen(
     while graphics.renderer.is_window_open() && !loading_text.lock().unwrap().is_empty() {
         while graphics.renderer.get_event().is_some() {}
 
-        menu_back.set_back_rect_width(PROGRESS_BAR_WIDTH + 2 * gfx::SPACING);
+        menu_back.set_back_rect_width(PROGRESS_BAR_WIDTH as f32 + 2.0 * gfx::SPACING);
 
         menu_back.render_back(graphics);
 
@@ -68,18 +75,18 @@ pub fn run_loading_screen(
                 }
 
                 if progress_bar_progress == -1.0_f32 {
-                    loading_back_bar.w = 0.0;
-                    loading_back_bar.h = 0.0;
-                    loading_bar.w = 0.0;
-                    loading_bar.h = 0.0;
-                    loading_bar.x = graphics.renderer.get_window_width() as f32 / 2.0;
+                    loading_back_bar.size.0 = 0.0;
+                    loading_back_bar.size.1 = 0.0;
+                    loading_bar.size.0 = 0.0;
+                    loading_bar.size.1 = 0.0;
+                    loading_bar.pos.0 = graphics.renderer.get_window_size().0 as f32 / 2.0;
                 } else {
-                    loading_back_bar.w = PROGRESS_BAR_WIDTH as f32;
-                    loading_back_bar.h = PROGRESS_BAR_HEIGHT as f32;
-                    loading_bar.w = (PROGRESS_BAR_WIDTH as f32) * progress_bar_progress;
-                    loading_bar.h = PROGRESS_BAR_HEIGHT as f32;
-                    loading_bar.x = menu_back.get_back_rect_width(graphics, None) as f32 / 2.0
-                        - loading_back_bar.w / 2.0;
+                    loading_back_bar.size.0 = PROGRESS_BAR_WIDTH as f32;
+                    loading_back_bar.size.1 = PROGRESS_BAR_HEIGHT as f32;
+                    loading_bar.size.0 = (PROGRESS_BAR_WIDTH as f32) * progress_bar_progress;
+                    loading_bar.size.1 = PROGRESS_BAR_HEIGHT as f32;
+                    loading_bar.pos.0 = menu_back.get_back_rect_width(graphics, None) as f32 / 2.0
+                        - loading_back_bar.size.0 / 2.0;
                 }
 
                 loading_text_sprite.texture =

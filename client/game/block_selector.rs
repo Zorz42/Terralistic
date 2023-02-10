@@ -2,6 +2,7 @@ use super::camera::Camera;
 use super::networking::ClientNetworking;
 use crate::libraries::events::Event;
 use crate::libraries::graphics as gfx;
+use crate::libraries::graphics::{FloatPos, FloatSize};
 use crate::shared::blocks::{
     BlockBreakStartPacket, BlockBreakStopPacket, RENDER_BLOCK_WIDTH, RENDER_SCALE,
 };
@@ -33,8 +34,8 @@ impl BlockSelector {
         graphics: &mut gfx::GraphicsContext,
         camera: &Camera,
     ) -> (i32, i32) {
-        let mouse_x = graphics.renderer.get_mouse_x();
-        let mouse_y = graphics.renderer.get_mouse_y();
+        let mouse_x = graphics.renderer.get_mouse_pos().0;
+        let mouse_y = graphics.renderer.get_mouse_pos().1;
 
         let mouse_x = mouse_x + camera.get_top_left(graphics).0 * RENDER_SCALE;
         let mouse_y = mouse_y + camera.get_top_left(graphics).1 * RENDER_SCALE;
@@ -61,8 +62,11 @@ impl BlockSelector {
         let y = selected_block.1 * RENDER_BLOCK_WIDTH
             - (camera.get_top_left(graphics).1 * RENDER_SCALE) as i32;
 
-        gfx::Rect::new(x, y, RENDER_BLOCK_WIDTH, RENDER_BLOCK_WIDTH)
-            .render_outline(graphics, gfx::Color::new(255, 0, 0, 255));
+        gfx::Rect::new(
+            FloatPos(x as f32, y as f32),
+            FloatSize(RENDER_BLOCK_WIDTH as f32, RENDER_BLOCK_WIDTH as f32),
+        )
+        .render_outline(graphics, gfx::Color::new(255, 0, 0, 255));
 
         if self.prev_selected != selected_block {
             if self.breaking {

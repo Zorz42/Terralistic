@@ -25,7 +25,7 @@ impl ServerBlocks {
     }
 
     pub fn init(&mut self, mods: &mut ModManager) {
-        self.blocks.init(mods);
+        self.blocks.init(mods).unwrap();
     }
 
     pub fn on_event(

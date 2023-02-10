@@ -1,4 +1,4 @@
-use super::{
+/*use super::{
     entities::{EntityObject, EntityStructTrait},
     items::{ItemStack, ItemType, Items},
     player::{Player, Players},
@@ -6,8 +6,6 @@ use super::{
 use crate::shared::blocks::Block;
 use crate::shared::blocks::{Blocks, BLOCK_WIDTH};
 use std::{collections::hash_map::HashMap, rc::Rc};
-
-//TODO: iKramp do debug assertions for all panics
 
 const CRAFTING_BLOCK_RANGE: i32 = 3;
 const INVENTORY_SIZE: usize = 10;
@@ -417,4 +415,4 @@ impl Inventory {
     pub fn set_player(&mut self, player: &mut Player) {
         self.player_id = player.get_id();
     }
-}
+}*/

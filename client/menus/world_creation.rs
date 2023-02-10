@@ -2,7 +2,7 @@ use super::singleplayer_selector::World;
 use crate::client::game::private_world::run_private_world;
 use crate::client::menus::background_rect::BackgroundRect;
 use crate::libraries::graphics as gfx;
-use crate::libraries::graphics::GraphicsContext;
+use crate::libraries::graphics::{FloatPos, FloatSize, GraphicsContext};
 use directories::BaseDirs;
 
 fn world_name_exists(worlds_list: &Vec<World>, name: &str) -> bool {
@@ -24,10 +24,16 @@ pub fn run_world_creation(
     title.scale = 3.0;
     title.texture =
         gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Create a new world:"));
-    title.y = gfx::SPACING;
+    title.pos.1 = gfx::SPACING;
     title.orientation = gfx::TOP;
 
-    let mut buttons_container = gfx::Container::new(0, 0, 0, 0, gfx::BOTTOM);
+    let mut buttons_container = gfx::Container::new(
+        graphics,
+        FloatPos(0.0, 0.0),
+        FloatSize(0.0, 0.0),
+        gfx::BOTTOM,
+        None,
+    );
 
     let mut back_button = gfx::Button::new();
     back_button.scale = 3.0;
@@ -39,24 +45,25 @@ pub fn run_world_creation(
     create_button.darken_on_disabled = true;
     create_button.texture =
         gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Create world"));
-    create_button.x = back_button.get_width() + gfx::SPACING;
+    create_button.pos.0 = back_button.get_size().0 + gfx::SPACING;
 
-    buttons_container.rect.w = back_button.get_width() + create_button.get_width() + gfx::SPACING;
-    buttons_container.rect.h = back_button.get_height();
-    buttons_container.rect.y = -gfx::SPACING;
+    buttons_container.rect.size.0 =
+        back_button.get_size().0 + create_button.get_size().0 + gfx::SPACING;
+    buttons_container.rect.size.1 = back_button.get_size().1;
+    buttons_container.rect.pos.1 = -gfx::SPACING;
 
     let mut world_name_input = gfx::TextInput::new(graphics);
     world_name_input.scale = 3.0;
     world_name_input.set_hint(graphics, "World name");
     world_name_input.orientation = gfx::CENTER;
     world_name_input.selected = true;
-    world_name_input.y = -(world_name_input.get_height() + gfx::SPACING) / 2;
+    world_name_input.pos.1 = -(world_name_input.get_size().1 + gfx::SPACING) / 2.0;
 
     let mut world_seed_input = gfx::TextInput::new(graphics);
     world_seed_input.scale = 3.0;
     world_seed_input.set_hint(graphics, "World seed");
     world_seed_input.orientation = gfx::CENTER;
-    world_seed_input.y = (world_seed_input.get_height() + gfx::SPACING) / 2;
+    world_seed_input.pos.1 = (world_seed_input.get_size().1 + gfx::SPACING) / 2.0;
 
     world_name_input.text_processing = Some(Box::new(|text: char| {
         // this closure only accepts letters, numbers and _ symbol
@@ -123,7 +130,7 @@ pub fn run_world_creation(
                 }
             }
         }
-        menu_back.set_back_rect_width(700);
+        menu_back.set_back_rect_width(700.0);
 
         menu_back.render_back(graphics);
 

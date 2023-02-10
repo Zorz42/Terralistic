@@ -1,6 +1,6 @@
 use super::background_rect::BackgroundRect;
 use crate::libraries::graphics as gfx;
-use crate::libraries::graphics::GraphicsContext;
+use crate::libraries::graphics::{FloatPos, FloatSize, GraphicsContext};
 
 use super::multiplayer_selector::ServerCard;
 use crate::server::server_impl::MULTIPLAYER_PORT;
@@ -71,10 +71,16 @@ pub fn run_add_server_menu(
     title.scale = 3.0;
     title.texture =
         gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Add a new server:"));
-    title.y = gfx::SPACING;
+    title.pos.1 = gfx::SPACING;
     title.orientation = gfx::TOP;
 
-    let mut buttons_container = gfx::Container::new(0, 0, 0, 0, gfx::BOTTOM);
+    let mut buttons_container = gfx::Container::new(
+        graphics,
+        FloatPos(0.0, 0.0),
+        FloatSize(0.0, 0.0),
+        gfx::BOTTOM,
+        None,
+    );
 
     let mut back_button = gfx::Button::new();
     back_button.scale = 3.0;
@@ -86,24 +92,25 @@ pub fn run_add_server_menu(
     add_button.darken_on_disabled = true;
     add_button.texture =
         gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Add server"));
-    add_button.x = back_button.get_width() + gfx::SPACING;
+    add_button.pos.0 = back_button.get_size().0 + gfx::SPACING;
 
-    buttons_container.rect.w = back_button.get_width() + add_button.get_width() + gfx::SPACING;
-    buttons_container.rect.h = back_button.get_height();
-    buttons_container.rect.y = -gfx::SPACING;
+    buttons_container.rect.size.0 =
+        back_button.get_size().0 + add_button.get_size().0 + gfx::SPACING;
+    buttons_container.rect.size.1 = back_button.get_size().1;
+    buttons_container.rect.pos.1 = -gfx::SPACING;
 
     let mut server_name_input = gfx::TextInput::new(graphics);
     server_name_input.scale = 3.0;
     server_name_input.set_hint(graphics, "server name");
     server_name_input.orientation = gfx::CENTER;
     server_name_input.selected = true;
-    server_name_input.y = -(server_name_input.get_height() + gfx::SPACING) / 2;
+    server_name_input.pos.1 = -(server_name_input.get_size().1 + gfx::SPACING) / 2.0;
 
     let mut server_ip_input = gfx::TextInput::new(graphics);
     server_ip_input.scale = 3.0;
     server_ip_input.set_hint(graphics, "ip");
     server_ip_input.orientation = gfx::CENTER;
-    server_ip_input.y = (server_ip_input.get_height() + gfx::SPACING) / 2;
+    server_ip_input.pos.1 = (server_ip_input.get_size().1 + gfx::SPACING) / 2.0;
 
     server_name_input.text_processing = Some(Box::new(|text: char| {
         // this closure only accepts letters, numbers and _ symbol
@@ -161,7 +168,7 @@ pub fn run_add_server_menu(
                 }
             }
         }
-        menu_back.set_back_rect_width(700);
+        menu_back.set_back_rect_width(700.0);
 
         menu_back.render_back(graphics);
 

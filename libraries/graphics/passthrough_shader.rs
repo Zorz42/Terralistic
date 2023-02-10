@@ -1,6 +1,7 @@
 use super::shaders::compile_shader;
 use super::vertex_buffer::{Vertex, VertexBuffer};
 use super::Color;
+use crate::libraries::graphics::FloatPos;
 use anyhow::Result;
 
 const VERTEX_SHADER_CODE: &str = r#"
@@ -61,50 +62,46 @@ impl PassthroughShader {
         let mut rect_vertex_buffer = VertexBuffer::new();
         let mut rect_outline_vertex_buffer = VertexBuffer::new();
 
-        for (x, y) in [
-            (0.0, 0.0),
-            (1.0, 0.0),
-            (0.0, 1.0),
-            (1.0, 1.0),
-            (1.0, 0.0),
-            (0.0, 1.0),
+        for pos in [
+            FloatPos(0.0, 0.0),
+            FloatPos(1.0, 0.0),
+            FloatPos(0.0, 1.0),
+            FloatPos(1.0, 1.0),
+            FloatPos(1.0, 0.0),
+            FloatPos(0.0, 1.0),
         ] {
             rect_vertex_buffer.add_vertex(&Vertex {
-                x,
-                y,
+                pos,
                 color: Color {
                     r: 255,
                     g: 255,
                     b: 255,
                     a: 255,
                 },
-                tex_x: x,
-                tex_y: y,
+                tex_pos: pos,
             });
         }
         rect_vertex_buffer.upload();
 
-        for (x, y) in [
-            (0.0, 0.0),
-            (1.0, 0.0),
-            (1.0, 0.0),
-            (1.0, 1.0),
-            (1.0, 1.0),
-            (0.0, 1.0),
-            (0.0, 1.0),
-            (0.0, 0.0),
+        for pos in [
+            FloatPos(0.0, 0.0),
+            FloatPos(1.0, 0.0),
+            FloatPos(1.0, 0.0),
+            FloatPos(1.0, 1.0),
+            FloatPos(1.0, 1.0),
+            FloatPos(0.0, 1.0),
+            FloatPos(0.0, 1.0),
+            FloatPos(0.0, 0.0),
         ] {
             rect_outline_vertex_buffer.add_vertex(&Vertex {
-                x,
-                y,
+                pos,
                 color: Color {
                     r: 255,
                     g: 255,
                     b: 255,
                     a: 255,
                 },
-                tex_x: x,
-                tex_y: y,
+                tex_pos: pos,
             });
         }
         rect_outline_vertex_buffer.upload();

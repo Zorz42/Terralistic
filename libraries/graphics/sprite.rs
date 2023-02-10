@@ -1,12 +1,12 @@
 use super::{Color, Container, GraphicsContext, Orientation, Texture, TOP_LEFT};
+use crate::libraries::graphics::{FloatPos, FloatSize};
 
 /// Sprite is a struct that represents a texture that can be rendered to the screen.
 /// It has a position, a scale, and an orientation. It can also be flipped and has
 /// a color.
 pub struct Sprite {
     pub texture: Texture,
-    pub x: i32,
-    pub y: i32,
+    pub pos: FloatPos,
     pub scale: f32,
     pub orientation: Orientation,
     pub flip: bool,
@@ -25,8 +25,7 @@ impl Sprite {
     pub const fn new() -> Self {
         Self {
             texture: Texture::new(),
-            x: 0,
-            y: 0,
+            pos: FloatPos(0.0, 0.0),
             scale: 1.0,
             orientation: TOP_LEFT,
             flip: false,
@@ -34,16 +33,12 @@ impl Sprite {
         }
     }
 
-    /// Returns width of the sprite.
     #[must_use]
-    pub fn get_width(&self) -> i32 {
-        (self.texture.get_texture_width() as f32 * self.scale) as i32
-    }
-
-    /// Returns height of the sprite.
-    #[must_use]
-    pub fn get_height(&self) -> i32 {
-        (self.texture.get_texture_height() as f32 * self.scale) as i32
+    pub fn get_size(&self) -> FloatSize {
+        FloatSize(
+            self.texture.get_texture_size().0 * self.scale,
+            self.texture.get_texture_size().1 * self.scale,
+        )
     }
 
     /// Generates containers for the sprite.
@@ -53,13 +48,12 @@ impl Sprite {
         parent: Option<&Container>,
     ) -> Container {
         let mut container = Container::new(
-            self.x,
-            self.y,
-            self.get_width(),
-            self.get_height(),
+            graphics,
+            self.pos,
+            self.get_size(),
             self.orientation,
+            parent,
         );
-        container.update(graphics, parent);
         container
     }
 
@@ -69,10 +63,7 @@ impl Sprite {
         self.texture.render(
             &graphics.renderer,
             self.scale,
-            (
-                container.get_absolute_rect().x,
-                container.get_absolute_rect().y,
-            ),
+            container.get_absolute_rect().pos,
             None,
             self.flip,
             Some(self.color),

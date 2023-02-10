@@ -1,4 +1,5 @@
 use super::{Color, GraphicsContext, Rect, Surface, Texture};
+use crate::libraries::graphics::{FloatPos, FloatSize, IntSize};
 
 /// `ShadowContext` is a struct that contains the information needed to draw a shadow.
 pub struct ShadowContext {
@@ -17,9 +18,9 @@ impl ShadowContext {
 
     /// Creates a new `ShadowContext`.
     pub fn new() -> Self {
-        let mut surface = Surface::new(700, 700);
+        let mut surface = Surface::new(IntSize(700, 700));
         // fill surface with black color
-        for (_, _, pixel) in surface.iter_mut() {
+        for (_, pixel) in surface.iter_mut() {
             *pixel = Color::new(0, 0, 0, 255);
         }
 
@@ -27,25 +28,21 @@ impl ShadowContext {
         // size 300, 300 and offset 200, 200. The blur around the rectangle is a gaussian
         // curve.
 
-        for (x, y, pixel) in surface.iter_mut() {
-            if y < 200 {
-                let h = 200 - y;
-                Self::set_gaussian_pixel(h, pixel);
+        for (pos, pixel) in surface.iter_mut() {
+            if pos.1 < 200 {
+                Self::set_gaussian_pixel(200 - pos.1, pixel);
             }
 
-            if x < 200 {
-                let h = 200 - x;
-                Self::set_gaussian_pixel(h, pixel);
+            if pos.0 < 200 {
+                Self::set_gaussian_pixel(200 - pos.0, pixel);
             }
 
-            if y > 500 {
-                let h = y - 500;
-                Self::set_gaussian_pixel(h, pixel);
+            if pos.1 > 500 {
+                Self::set_gaussian_pixel(pos.1 - 500, pixel);
             }
 
-            if x > 500 {
-                let h = x - 500;
-                Self::set_gaussian_pixel(h, pixel);
+            if pos.0 > 500 {
+                Self::set_gaussian_pixel(pos.0 - 500, pixel);
             }
         }
 
@@ -58,66 +55,88 @@ impl ShadowContext {
     pub fn render(&self, graphics: &GraphicsContext, rect: &Rect, shadow_intensity: f32) {
         let shadow_color = Color::new(0, 0, 0, (80.0 * shadow_intensity) as u8);
 
-        let shadow_edge_width = f32::min(200.0 + rect.w as f32 / 2.0, 350.0);
-        let shadow_edge_height = f32::min(200.0 + rect.h as f32 / 2.0, 350.0);
+        let shadow_edge_width = f32::min(200.0 + rect.size.0 / 2.0, 350.0);
+        let shadow_edge_height = f32::min(200.0 + rect.size.1 / 2.0, 350.0);
 
-        let wc = shadow_edge_width.ceil() as i32;
-        let wf = shadow_edge_width.floor() as i32;
-        let hc = shadow_edge_height.ceil() as i32;
-        let hf = shadow_edge_height.floor() as i32;
+        let wc = shadow_edge_width.ceil();
+        let wf = shadow_edge_width.floor();
+        let hc = shadow_edge_height.ceil();
+        let hf = shadow_edge_height.floor();
+
         let mut elements = vec![
-            ((rect.x - 200, rect.y - 200), Rect::new(0, 0, wf, 200)),
-            ((rect.x - 200, rect.y), Rect::new(0, 200, 200, hc - 200)),
             (
-                (rect.x + rect.w - wc + 200, rect.y - 200),
-                Rect::new(700 - wc, 0, wc, 200),
+                rect.pos - FloatPos(200.0, 200.0),
+                Rect::new(FloatPos(0.0, 0.0), FloatSize(wf, 200.0)),
             ),
             (
-                (rect.x + rect.w, rect.y),
-                Rect::new(500, 200, 200, hc - 200),
+                rect.pos - FloatPos(200.0, 0.0),
+                Rect::new(FloatPos(0.0, 200.0), FloatSize(200.0, hc - 200.0)),
             ),
             (
-                (rect.x - 200, rect.y + rect.h - hf + 200),
-                Rect::new(0, 700 - hf, 200, hf - 200),
-            ),
-            ((rect.x - 200, rect.y + rect.h), Rect::new(0, 500, wf, 200)),
-            (
-                (rect.x + rect.w, rect.y + rect.h - hf + 200),
-                Rect::new(500, 700 - hf, 200, hf - 200),
+                rect.pos + FloatPos(rect.size.0 - wc + 200.0, -200.0),
+                Rect::new(FloatPos(700.0 - wc, 0.0), FloatSize(wc, 200.0)),
             ),
             (
-                (rect.x + rect.w - wc + 200, rect.y + rect.h),
-                Rect::new(700 - wc, 500, wc, 200),
+                rect.pos + FloatPos(rect.size.0, 0.0),
+                Rect::new(FloatPos(500.0, 200.0), FloatSize(200.0, hc - 200.0)),
+            ),
+            (
+                rect.pos + FloatPos(-200.0, rect.size.1 - hf + 200.0),
+                Rect::new(FloatPos(0.0, 700.0 - hf), FloatSize(200.0, hf - 200.0)),
+            ),
+            (
+                rect.pos + FloatPos(-200.0, rect.size.1),
+                Rect::new(FloatPos(0.0, 500.0), FloatSize(wf, 200.0)),
+            ),
+            (
+                rect.pos + FloatPos(rect.size.0, rect.size.1 - hf + 200.0),
+                Rect::new(FloatPos(500.0, 700.0 - hf), FloatSize(200.0, hf - 200.0)),
+            ),
+            (
+                rect.pos + FloatPos(rect.size.0 - wc + 200.0, rect.size.1),
+                Rect::new(FloatPos(700.0 - wc, 500.0), FloatSize(wc, 200.0)),
             ),
         ];
 
         if (shadow_edge_height - 350.0).abs() < f32::EPSILON {
-            let mut height_to_render = rect.h - 300;
-            while height_to_render > 0 {
+            let mut height_to_render = rect.size.1 - 300.0;
+            while height_to_render > 0.0 {
                 elements.push((
-                    (rect.x - 200, rect.y + rect.h - 150 - height_to_render),
-                    Rect::new(0, 300, 200, i32::min(100, height_to_render)),
+                    rect.pos + FloatPos(-200.0, rect.size.1 - 150.0 - height_to_render),
+                    Rect::new(
+                        FloatPos(0.0, 300.0),
+                        FloatSize(200.0, f32::min(100.0, height_to_render)),
+                    ),
                 ));
                 elements.push((
-                    (rect.x + rect.w, rect.y + rect.h - 150 - height_to_render),
-                    Rect::new(500, 300, 200, i32::min(100, height_to_render)),
+                    rect.pos + FloatPos(rect.size.0, rect.size.1 - 150.0 - height_to_render),
+                    Rect::new(
+                        FloatPos(500.0, 300.0),
+                        FloatSize(200.0, f32::min(100.0, height_to_render)),
+                    ),
                 ));
-                height_to_render -= 100;
+                height_to_render -= 100.0;
             }
         }
 
         if (shadow_edge_width - 350.0).abs() < f32::EPSILON {
-            let mut width_to_render = rect.w - 300;
-            while width_to_render > 0 {
+            let mut width_to_render = rect.size.0 - 300.0;
+            while width_to_render > 0.0 {
                 elements.push((
-                    (rect.x + rect.w - 150 - width_to_render, rect.y - 200),
-                    Rect::new(300, 0, i32::min(100, width_to_render), 200),
+                    rect.pos + FloatPos(rect.size.0 - 150.0 - width_to_render, -200.0),
+                    Rect::new(
+                        FloatPos(300.0, 0.0),
+                        FloatSize(f32::min(100.0, width_to_render), 200.0),
+                    ),
                 ));
                 elements.push((
-                    (rect.x + rect.w - 150 - width_to_render, rect.y + rect.h),
-                    Rect::new(300, 500, i32::min(100, width_to_render), 200),
+                    rect.pos + FloatPos(rect.size.0 - 150.0 - width_to_render, rect.size.1),
+                    Rect::new(
+                        FloatPos(300.0, 500.0),
+                        FloatSize(f32::min(100.0, width_to_render), 200.0),
+                    ),
                 ));
-                width_to_render -= 100;
+                width_to_render -= 100.0;
             }
         }
 

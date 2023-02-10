@@ -1,4 +1,5 @@
 use super::{Color, Rect, Surface, Texture};
+use crate::libraries::graphics::{FloatPos, FloatSize, IntPos, IntSize};
 use core::hash::Hash;
 use std::collections::HashMap;
 
@@ -21,37 +22,32 @@ impl<KeyType: Eq + Hash + Clone> TextureAtlas<KeyType> {
 
         let mut total_width = 0;
         for surface in surfaces.values() {
-            total_width += surface.get_width();
+            total_width += surface.get_size().1;
         }
 
         let mut max_height = 0;
         for surface in surfaces.values() {
-            total_width += surface.get_width();
-            if surface.get_height() > max_height {
-                max_height = surface.get_height();
+            total_width += surface.get_size().0;
+            if surface.get_size().1 > max_height {
+                max_height = surface.get_size().1;
             }
         }
 
-        let mut main_surface = Surface::new(total_width, max_height);
+        let mut main_surface = Surface::new(IntSize(total_width, max_height));
         let mut rects = HashMap::new();
 
         let mut x = 0;
         for (key, surface) in surfaces {
             rects.insert(
                 key.clone(),
-                Rect::new(
-                    x,
-                    0,
-                    surface.get_width() as i32,
-                    surface.get_height() as i32,
-                ),
+                Rect::new(FloatPos(x as f32, 0.0), FloatSize::from(surface.get_size())),
             );
             main_surface
-                .draw(x, 0, surface, Color::new(255, 255, 255, 255))
+                .draw(IntPos(x, 0), surface, Color::new(255, 255, 255, 255))
                 .unwrap_or_else(|e| {
                     println!("Failed to draw surface to main surface (unreachable) {e}");
                 });
-            x += surface.get_width() as i32;
+            x += surface.get_size().0 as i32;
         }
 
         Self {

@@ -1,5 +1,6 @@
 use super::background_rect::{Background, BackgroundRect};
 use crate::libraries::graphics as gfx;
+use crate::libraries::graphics::{FloatPos, FloatSize};
 
 /**
 `MenuBack` is a struct that contains the background rectangle for
@@ -19,8 +20,8 @@ impl MenuBack {
     Creates a new MenuBack.
      */
     #[must_use]
-    pub fn new() -> Self {
-        let mut back_rect = gfx::RenderRect::new(0.0, 0.0, 0.0, 0.0);
+    pub fn new(graphics: &mut gfx::GraphicsContext) -> Self {
+        let mut back_rect = gfx::RenderRect::new(FloatPos(0.0, 0.0), FloatSize(0.0, 0.0));
         back_rect.border_color = gfx::BORDER_COLOR;
         back_rect.fill_color.a = gfx::TRANSPARENCY;
         back_rect.orientation = gfx::CENTER;
@@ -37,7 +38,13 @@ impl MenuBack {
             ),
             background_timer: std::time::Instant::now(),
             back_rect,
-            back_container: gfx::Container::new(0, 0, 0, 0, gfx::TOP_LEFT),
+            back_container: gfx::Container::new(
+                graphics,
+                FloatPos(0.0, 0.0),
+                FloatSize(0.0, 0.0),
+                gfx::TOP_LEFT,
+                None,
+            ),
         }
     }
 }
@@ -49,28 +56,27 @@ impl Background for MenuBack {
     fn render_back(&mut self, graphics: &mut gfx::GraphicsContext) {
         self.back_container = self.back_rect.get_container(graphics, None);
 
-        let scale = graphics.renderer.get_window_height() as f32
-            / self.background.get_texture_height() as f32;
-        let texture_width_scaled = self.background.get_texture_width() as f32 * scale;
+        let scale = graphics.renderer.get_window_size().1 / self.background.get_texture_size().1;
+        let texture_width_scaled = self.background.get_texture_size().0 as f32 * scale;
         let pos = ((self.background_timer.elapsed().as_millis() as f32 * scale / 150.0) as u64
-            % texture_width_scaled as u64) as i32;
+            % texture_width_scaled as u64) as f32;
 
-        for i in -1..graphics.renderer.get_window_width() as i32
-            / (self.background.get_texture_width() as f32 * scale) as i32
+        for i in -1..graphics.renderer.get_window_size().0 as i32
+            / (self.background.get_texture_size().0 * scale) as i32
             + 2
         {
             self.background.render(
                 &graphics.renderer,
                 scale,
-                (pos + (i as f32 * texture_width_scaled) as i32, 0),
+                FloatPos(pos + i as f32 * texture_width_scaled, 0.0),
                 None,
                 false,
                 None,
             );
         }
 
-        if self.back_rect.h != graphics.renderer.get_window_height() as f32 {
-            self.back_rect.h = graphics.renderer.get_window_height() as f32;
+        if self.back_rect.size.1 != graphics.renderer.get_window_size().1 as f32 {
+            self.back_rect.size.1 = graphics.renderer.get_window_size().1 as f32;
             self.back_rect.jump_to_target();
         }
         self.back_rect.render(graphics, None);
@@ -81,8 +87,8 @@ impl BackgroundRect for MenuBack {
     /**
     Sets the width of the background rectangle.
      */
-    fn set_back_rect_width(&mut self, width: i32) {
-        self.back_rect.w = width as f32;
+    fn set_back_rect_width(&mut self, width: f32) {
+        self.back_rect.size.0 = width;
     }
 
     /**
@@ -92,11 +98,12 @@ impl BackgroundRect for MenuBack {
         &self,
         graphics: &gfx::GraphicsContext,
         parent_container: Option<&gfx::Container>,
-    ) -> i32 {
+    ) -> f32 {
         self.back_rect
             .get_container(graphics, parent_container)
             .rect
-            .w
+            .size
+            .0
     }
 
     /**

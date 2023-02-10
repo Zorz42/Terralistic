@@ -2,7 +2,7 @@ use super::camera::Camera;
 use super::networking::WelcomePacketEvent;
 use crate::libraries::events::{Event, EventManager};
 use crate::libraries::graphics as gfx;
-use crate::libraries::graphics::GraphicsContext;
+use crate::libraries::graphics::{FloatPos, FloatSize, GraphicsContext};
 use crate::shared::blocks::{Blocks, BLOCK_WIDTH, CHUNK_SIZE, RENDER_BLOCK_WIDTH, RENDER_SCALE};
 use crate::shared::mod_manager::ModManager;
 use crate::shared::walls::{WallId, Walls, WallsWelcomePacket};
@@ -48,36 +48,40 @@ impl RenderWallChunk {
                     if let Some(curr_wall_rect) = atlas.get_rect(&curr_wall.get_id()) {
                         let mut curr_wall_rect = *curr_wall_rect;
                         let mut dest_rect = gfx::Rect::new(
-                            (x - 1) * RENDER_BLOCK_WIDTH,
-                            (y - 1) * RENDER_BLOCK_WIDTH,
-                            3 * RENDER_BLOCK_WIDTH,
-                            3 * RENDER_BLOCK_WIDTH,
+                            FloatPos(
+                                ((x - 1) * RENDER_BLOCK_WIDTH) as f32,
+                                ((y - 1) * RENDER_BLOCK_WIDTH) as f32,
+                            ),
+                            FloatSize(
+                                (3 * RENDER_BLOCK_WIDTH) as f32,
+                                (3 * RENDER_BLOCK_WIDTH) as f32,
+                            ),
                         );
 
                         let curr_x = world_x + x;
                         let curr_y = world_y + y;
                         if Self::can_connect_to(curr_x - 1, curr_y, walls) {
-                            dest_rect.x += RENDER_BLOCK_WIDTH;
-                            dest_rect.w -= RENDER_BLOCK_WIDTH;
-                            curr_wall_rect.x += BLOCK_WIDTH;
-                            curr_wall_rect.w -= BLOCK_WIDTH;
+                            dest_rect.pos.0 += RENDER_BLOCK_WIDTH as f32;
+                            dest_rect.size.0 -= RENDER_BLOCK_WIDTH as f32;
+                            curr_wall_rect.pos.0 += BLOCK_WIDTH as f32;
+                            curr_wall_rect.size.0 -= BLOCK_WIDTH as f32;
                         }
 
                         if Self::can_connect_to(curr_x + 1, curr_y, walls) {
-                            dest_rect.w -= RENDER_BLOCK_WIDTH;
-                            curr_wall_rect.w -= BLOCK_WIDTH;
+                            dest_rect.size.0 -= RENDER_BLOCK_WIDTH as f32;
+                            curr_wall_rect.size.0 -= BLOCK_WIDTH as f32;
                         }
 
                         if Self::can_connect_to(curr_x, curr_y - 1, walls) {
-                            dest_rect.y += RENDER_BLOCK_WIDTH;
-                            dest_rect.h -= RENDER_BLOCK_WIDTH;
-                            curr_wall_rect.y += BLOCK_WIDTH;
-                            curr_wall_rect.h -= BLOCK_WIDTH;
+                            dest_rect.pos.1 += RENDER_BLOCK_WIDTH as f32;
+                            dest_rect.size.1 -= RENDER_BLOCK_WIDTH as f32;
+                            curr_wall_rect.pos.1 += BLOCK_WIDTH as f32;
+                            curr_wall_rect.size.1 -= BLOCK_WIDTH as f32;
                         }
 
                         if Self::can_connect_to(curr_x, curr_y + 1, walls) {
-                            dest_rect.h -= RENDER_BLOCK_WIDTH;
-                            curr_wall_rect.h -= BLOCK_WIDTH;
+                            dest_rect.size.1 -= RENDER_BLOCK_WIDTH as f32;
+                            curr_wall_rect.size.1 -= BLOCK_WIDTH as f32;
                         }
 
                         self.rect_array.add_rect(
@@ -97,12 +101,15 @@ impl RenderWallChunk {
             self.rect_array.update();
         }
 
-        let screen_x =
-            world_x * RENDER_BLOCK_WIDTH - (camera.get_top_left(graphics).0 * RENDER_SCALE) as i32;
-        let screen_y =
-            world_y * RENDER_BLOCK_WIDTH - (camera.get_top_left(graphics).1 * RENDER_SCALE) as i32;
-        self.rect_array
-            .render(graphics, Some(atlas.get_texture()), screen_x, screen_y);
+        let screen_x = world_x as f32 * RENDER_BLOCK_WIDTH as f32
+            - camera.get_top_left(graphics).0 * RENDER_SCALE;
+        let screen_y = world_y as f32 * RENDER_BLOCK_WIDTH as f32
+            - camera.get_top_left(graphics).1 * RENDER_SCALE;
+        self.rect_array.render(
+            graphics,
+            Some(atlas.get_texture()),
+            FloatPos(screen_x, screen_y),
+        );
     }
 }
 
@@ -151,7 +158,7 @@ impl ClientWalls {
     }
 
     pub fn init(&mut self, mods: &mut ModManager) {
-        self.walls.init(mods);
+        self.walls.init(mods).unwrap();
     }
 
     pub fn load_resources(&mut self, mods: &mut ModManager) {
@@ -242,8 +249,11 @@ impl ClientWalls {
             self.breaking_texture.render(
                 &graphics.renderer,
                 RENDER_SCALE,
-                (x, y),
-                Some(gfx::Rect::new(0, break_stage * 8, 8, 8)),
+                FloatPos(x as f32, y as f32),
+                Some(gfx::Rect::new(
+                    FloatPos(0.0, break_stage as f32 * 8.0),
+                    FloatSize(8.0, 8.0),
+                )),
                 false,
                 None,
             );

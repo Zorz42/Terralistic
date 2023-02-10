@@ -8,17 +8,17 @@ use super::{
     Color, Container, Event, GraphicsContext, Key, Orientation, Rect, RenderRect, Texture, GREY,
     TOP_LEFT, WHITE,
 };
+use crate::libraries::graphics::{FloatPos, FloatSize};
 use copypasta::ClipboardProvider;
 
 const SPACE_CHARACTERS: [char; 3] = [' ', '-', '_'];
 
 pub struct TextInput {
-    pub x: i32,
-    pub y: i32,
+    pub pos: FloatPos,
     pub orientation: Orientation,
-    pub width: i32,
+    pub width: f32,
     hint_texture: Texture,
-    pub padding: i32,
+    pub padding: f32,
     pub scale: f32,
     pub color: Color,
     pub border_color: Color,
@@ -42,13 +42,12 @@ pub struct TextInput {
 
 impl TextInput {
     pub fn new(graphics: &mut GraphicsContext) -> Self {
-        let mut cursor_rect = RenderRect::new(0.0, 0.0, 1.0, 1.0);
+        let mut cursor_rect = RenderRect::new(FloatPos(0.0, 0.0), FloatSize(1.0, 1.0));
         cursor_rect.smooth_factor = 30.0;
         cursor_rect.fill_color = WHITE;
 
         Self {
-            x: 0,
-            y: 0,
+            pos: FloatPos(0.0, 0.0),
             orientation: TOP_LEFT,
             width: GFX_DEFAULT_TEXT_INPUT_WIDTH,
             hint_texture: Texture::new(),
@@ -74,17 +73,12 @@ impl TextInput {
         }
     }
 
-    /// Calculates the width.
     #[must_use]
-    pub fn get_width(&self) -> i32 {
-        ((self.width + self.padding * 2) as f32 * self.scale) as i32
-    }
-
-    /// Calculates the height.
-    #[must_use]
-    pub fn get_height(&self) -> i32 {
-        ((self.text_texture.get_texture_height() as i32 + self.padding * 2) as f32 * self.scale)
-            as i32
+    pub fn get_size(&self) -> FloatSize {
+        FloatSize(
+            (self.width + self.padding * 2.0) * self.scale,
+            (self.text_texture.get_texture_size().1 + self.padding * 2.0) * self.scale,
+        )
     }
 
     /// Generates the container for the text input. It it private, since a text input should never contain other elements.
@@ -94,13 +88,12 @@ impl TextInput {
         parent_container: Option<&Container>,
     ) -> Container {
         let mut container = Container::new(
-            self.x,
-            self.y,
-            self.get_width(),
-            self.get_height(),
+            graphics,
+            self.pos,
+            self.get_size(),
             self.orientation,
+            parent_container,
         );
-        container.update(graphics, parent_container);
         container
     }
 
@@ -113,12 +106,11 @@ impl TextInput {
     ) -> bool {
         let container = self.get_container(graphics, parent_container);
         let rect = container.get_absolute_rect();
-        let mouse_x = graphics.renderer.get_mouse_x() as i32;
-        let mouse_y = graphics.renderer.get_mouse_y() as i32;
-        mouse_x >= rect.x
-            && mouse_x <= rect.x + rect.w
-            && mouse_y >= rect.y
-            && mouse_y <= rect.y + rect.h
+        let mouse_pos = graphics.renderer.get_mouse_pos();
+        mouse_pos.0 >= rect.pos.0
+            && mouse_pos.0 <= rect.pos.0 + rect.size.0
+            && mouse_pos.1 >= rect.pos.1
+            && mouse_pos.1 <= rect.pos.1 + rect.size.1
     }
 
     /// returns the text in the input box
@@ -248,26 +240,20 @@ impl TextInput {
             self.shadow_intensity as f32 / 255.0,
         );
 
-        let mut src_rect = Rect::new(
-            0,
-            0,
-            self.text_texture.get_texture_width() as i32,
-            self.text_texture.get_texture_height() as i32,
-        );
-        src_rect.w = i32::min(src_rect.w, self.width);
+        let mut src_rect = Rect::new(FloatPos(0.0, 0.0), self.text_texture.get_texture_size());
+        src_rect.size.0 = f32::min(src_rect.size.0, self.width);
         if self.text.is_empty() {
-            src_rect.w = 0;
+            src_rect.size.0 = 0.0;
         }
-        src_rect.x = self.text_texture.get_texture_width() as i32 - src_rect.w;
+        src_rect.pos.0 = self.text_texture.get_texture_size().0 - src_rect.size.0;
 
         self.hint_texture.render(
             &graphics.renderer,
             self.scale,
-            (
-                (rect.x as f32 + rect.w as f32 / 2.0
-                    - self.hint_texture.get_texture_width() as f32 / 2.0 * self.scale)
-                    as i32,
-                rect.y + (self.padding as f32 * self.scale) as i32,
+            FloatPos(
+                rect.pos.0 + rect.size.0 / 2.0
+                    - self.hint_texture.get_texture_size().0 / 2.0 * self.scale,
+                rect.pos.1 + self.padding as f32 * self.scale,
             ),
             None,
             false,
@@ -278,10 +264,10 @@ impl TextInput {
             self.text_texture.render(
                 &graphics.renderer,
                 self.scale,
-                (
-                    rect.x + (self.padding as f32 * self.scale) as i32,
-                    rect.y + rect.h / 2
-                        - (self.text_texture.get_texture_height() as f32 * self.scale / 2.0) as i32,
+                FloatPos(
+                    rect.pos.0 + self.padding * self.scale,
+                    rect.pos.1 + rect.size.1 / 2.0
+                        - self.text_texture.get_texture_size().1 * self.scale / 2.0,
                 ),
                 Some(src_rect),
                 false,
@@ -291,14 +277,14 @@ impl TextInput {
 
         if self.text_changed || self.selected {
             let texture_width = if self.text.is_empty() {
-                0
+                0.0
             } else {
-                (self.text_texture.get_texture_width() as f32 * self.scale) as i32
+                self.text_texture.get_texture_size().0 * self.scale
             };
 
-            let text_begin_x = i32::min(
-                rect.x + (self.padding as f32 * self.scale) as i32,
-                rect.x + (self.padding as f32 * self.scale) as i32 + rect.w - texture_width,
+            let text_begin_x = f32::min(
+                rect.pos.0 + self.padding * self.scale,
+                rect.pos.0 + self.padding * self.scale + rect.size.0 - texture_width,
             );
 
             // w1 is the width of the text before the cursor.0
@@ -308,7 +294,8 @@ impl TextInput {
                 graphics
                     .font
                     .create_text_surface(self.text.get(..self.get_cursor().0).unwrap_or(""))
-                    .get_width() as f32
+                    .get_size()
+                    .0 as f32
                     * self.scale
             };
 
@@ -319,20 +306,21 @@ impl TextInput {
                 graphics
                     .font
                     .create_text_surface(self.text.get(..self.get_cursor().1).unwrap_or(""))
-                    .get_width() as f32
+                    .get_size()
+                    .0 as f32
                     * self.scale
             };
 
-            let x1 = text_begin_x as f32 + w1 - 3.0;
-            let x2 = text_begin_x as f32 + w2 + 1.0;
+            let x1 = text_begin_x + w1 - 3.0;
+            let x2 = text_begin_x + w2 + 1.0;
 
-            self.cursor_rect.x = x1;
-            self.cursor_rect.y = rect.y as f32 + self.padding as f32 * self.scale;
-            self.cursor_rect.h = rect.h as f32 - self.padding as f32 * self.scale * 2.0;
-            self.cursor_rect.w = x2 - x1;
+            self.cursor_rect.pos.0 = x1;
+            self.cursor_rect.pos.1 = rect.pos.1 + self.padding * self.scale;
+            self.cursor_rect.size.0 = x2 - x1;
+            self.cursor_rect.size.1 = rect.size.1 - self.padding * self.scale * 2.0;
 
-            if self.cursor_rect.get_container(graphics, None).rect.x == 0
-                && self.cursor_rect.get_container(graphics, None).rect.y == 0
+            if self.cursor_rect.get_container(graphics, None).rect.pos.0 == 0.0
+                && self.cursor_rect.get_container(graphics, None).rect.pos.1 == 0.0
             {
                 self.cursor_rect.jump_to_target();
             }

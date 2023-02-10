@@ -1,6 +1,6 @@
 use std::sync::{Arc, Mutex};
 
-use crate::libraries::graphics::GraphicsContext;
+use crate::libraries::graphics::{FloatPos, FloatSize, GraphicsContext};
 use crate::libraries::{events, graphics as gfx};
 use crate::shared::blocks::BLOCK_WIDTH;
 
@@ -103,28 +103,28 @@ impl Game {
         resume_button.texture =
             gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Resume"));
         resume_button.scale = 3.0;
-        resume_button.y = gfx::SPACING;
-        resume_button.x = -gfx::SPACING;
+        resume_button.pos.0 = -gfx::SPACING;
+        resume_button.pos.1 = gfx::SPACING;
         resume_button.orientation = gfx::TOP_RIGHT;
 
         let mut quit_button = gfx::Button::new();
         quit_button.texture =
             gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Quit"));
         quit_button.scale = 3.0;
-        quit_button.y = 2 * gfx::SPACING + resume_button.get_height();
-        quit_button.x = -gfx::SPACING;
+        quit_button.pos.0 = -gfx::SPACING;
+        quit_button.pos.1 = 2.0 * gfx::SPACING + resume_button.get_size().1;
         quit_button.orientation = gfx::TOP_RIGHT;
 
         let pause_rect_width =
-            i32::max(resume_button.get_width(), quit_button.get_width()) + 2 * gfx::SPACING;
-        let mut pause_rect = gfx::RenderRect::new(0.0, 0.0, 0.0, 0.0);
+            f32::max(resume_button.get_size().0, quit_button.get_size().0) + 2.0 * gfx::SPACING;
+        let mut pause_rect = gfx::RenderRect::new(FloatPos(0.0, 0.0), FloatSize(0.0, 0.0));
         pause_rect.fill_color = gfx::BLACK;
         pause_rect.fill_color.a = gfx::TRANSPARENCY;
         pause_rect.border_color = gfx::BORDER_COLOR;
         pause_rect.blur_radius = gfx::BLUR;
         pause_rect.shadow_intensity = gfx::SHADOW_INTENSITY;
         pause_rect.smooth_factor = 60.0;
-        pause_rect.w = pause_rect_width as f32;
+        pause_rect.size.0 = pause_rect_width as f32;
 
         let ms_timer = std::time::Instant::now();
         let mut ms_counter = 0;
@@ -141,7 +141,7 @@ impl Game {
 
         let mut debug_menu_open = false;
 
-        let mut debug_menu_rect = gfx::RenderRect::new(0.0, 0.0, 0.0, 0.0);
+        let mut debug_menu_rect = gfx::RenderRect::new(FloatPos(0.0, 0.0), FloatSize(0.0, 0.0));
         debug_menu_rect.fill_color = gfx::BLACK;
         debug_menu_rect.fill_color.a = gfx::TRANSPARENCY;
         debug_menu_rect.border_color = gfx::BORDER_COLOR;
@@ -149,9 +149,9 @@ impl Game {
         debug_menu_rect.shadow_intensity = gfx::SHADOW_INTENSITY;
         debug_menu_rect.smooth_factor = 60.0;
         debug_menu_rect.orientation = gfx::BOTTOM_RIGHT;
-        debug_menu_rect.y = -gfx::SPACING as f32;
-        debug_menu_rect.w = 300.0;
-        debug_menu_rect.h = 200.0;
+        debug_menu_rect.pos.1 = -gfx::SPACING as f32;
+        debug_menu_rect.size.0 = 300.0;
+        debug_menu_rect.size.1 = 200.0;
 
         'main_loop: while graphics.renderer.is_window_open() {
             let delta_time = prev_time.elapsed().as_secs_f32() * 1000.0;
@@ -214,11 +214,15 @@ impl Game {
             self.block_selector
                 .render(graphics, &mut self.networking, &self.camera);
 
-            pause_rect.x = if paused { 0.0 } else { -pause_rect.w - 100.0 };
+            pause_rect.pos.0 = if paused {
+                0.0
+            } else {
+                -pause_rect.size.0 - 100.0
+            };
             pause_rect.render(graphics, None);
 
-            if graphics.renderer.get_window_height() != pause_rect.h as u32 {
-                pause_rect.h = graphics.renderer.get_window_height() as f32;
+            if graphics.renderer.get_window_size().1 as u32 != pause_rect.size.1 as u32 {
+                pause_rect.size.1 = graphics.renderer.get_window_size().1 as f32;
                 pause_rect.jump_to_target();
             }
 
@@ -233,15 +237,15 @@ impl Game {
                     .on_event(graphics, &mut self.networking, &self.camera, &event);
             }
 
-            debug_menu_rect.x = if debug_menu_open {
+            debug_menu_rect.pos.0 = if debug_menu_open {
                 -gfx::SPACING as f32
             } else {
-                debug_menu_rect.w + 100.0
+                debug_menu_rect.size.0 + 100.0
             };
             debug_menu_rect.render(graphics, None);
 
-            if debug_menu_rect.get_container(graphics, None).rect.x
-                < graphics.renderer.get_window_width() as i32
+            if (debug_menu_rect.get_container(graphics, None).rect.pos.0 as i32)
+                < graphics.renderer.get_window_size().0 as i32
             {
                 let mut texts = Vec::new();
                 texts.push(format!("FPS: {fps_stat}"));
@@ -257,15 +261,15 @@ impl Game {
 
                 let scale = 3.0;
 
-                let mut width = 0;
-                let mut height = 0;
+                let mut width = 0.0;
+                let mut height = 0.0;
                 for texture in &text_textures {
-                    width = i32::max(width, (texture.get_texture_width() as f32 * scale) as i32);
-                    height += (texture.get_texture_height() as f32 * scale) as i32;
+                    width = f32::max(width, texture.get_texture_size().0 * scale);
+                    height += texture.get_texture_size().1 * scale;
                 }
 
-                debug_menu_rect.w = width as f32 + 2.0 * gfx::SPACING as f32;
-                debug_menu_rect.h = height as f32 + 2.0 * gfx::SPACING as f32;
+                debug_menu_rect.size.0 = width as f32 + 2.0 * gfx::SPACING as f32;
+                debug_menu_rect.size.1 = height as f32 + 2.0 * gfx::SPACING as f32;
 
                 let mut y = gfx::SPACING;
                 let debug_menu_rect_container = debug_menu_rect.get_container(graphics, None);
@@ -274,15 +278,15 @@ impl Game {
                     texture.render(
                         &graphics.renderer,
                         scale,
-                        (
-                            debug_menu_rect_container.x + gfx::SPACING,
-                            debug_menu_rect_container.y + y,
+                        FloatPos(
+                            debug_menu_rect_container.pos.0 + gfx::SPACING,
+                            debug_menu_rect_container.pos.1 + y,
                         ),
                         None,
                         false,
                         None,
                     );
-                    y += (texture.get_texture_height() as f32 * scale) as i32;
+                    y += texture.get_texture_size().1 * scale;
                 }
             }
 

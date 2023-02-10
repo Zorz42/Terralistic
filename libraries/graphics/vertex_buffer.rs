@@ -1,3 +1,4 @@
+use crate::libraries::graphics::FloatPos;
 use super::color;
 
 #[derive(Debug, Clone, Copy)]
@@ -7,11 +8,9 @@ pub enum DrawMode {
 }
 
 pub struct Vertex {
-    pub(super) x: f32,
-    pub(super) y: f32,
+    pub(super) pos: FloatPos,
     pub(super) color: color::Color,
-    pub(super) tex_x: f32,
-    pub(super) tex_y: f32,
+    pub(super) tex_pos: FloatPos,
 }
 
 pub struct VertexBuffer {
@@ -52,14 +51,14 @@ impl VertexBuffer {
     }
 
     pub fn add_vertex(&mut self, vertex: &Vertex) {
-        self.vertices.push(vertex.x);
-        self.vertices.push(vertex.y);
+        self.vertices.push(vertex.pos.0);
+        self.vertices.push(vertex.pos.1);
         self.vertices.push(vertex.color.r as f32 / 255.0);
         self.vertices.push(vertex.color.g as f32 / 255.0);
         self.vertices.push(vertex.color.b as f32 / 255.0);
         self.vertices.push(vertex.color.a as f32 / 255.0);
-        self.vertices.push(vertex.tex_x);
-        self.vertices.push(vertex.tex_y);
+        self.vertices.push(vertex.tex_pos.0);
+        self.vertices.push(vertex.tex_pos.1);
 
         self.indices.push(self.indices.len() as u32);
     }

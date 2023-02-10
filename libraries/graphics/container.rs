@@ -1,5 +1,5 @@
 use super::Rect;
-use crate::libraries::graphics::GraphicsContext;
+use crate::libraries::graphics::{FloatPos, FloatSize, GraphicsContext};
 
 #[derive(Clone, Copy)]
 pub struct Orientation {
@@ -29,12 +29,20 @@ pub struct Container {
 impl Container {
     /// Creates a new container.
     #[must_use]
-    pub const fn new(x: i32, y: i32, w: i32, h: i32, orientation: Orientation) -> Self {
-        Self {
-            rect: Rect::new(x, y, w, h),
-            abs_rect: Rect::new(x, y, w, h),
+    pub fn new(
+        graphics: &GraphicsContext,
+        pos: FloatPos,
+        size: FloatSize,
+        orientation: Orientation,
+        parent_container: Option<&Self>,
+    ) -> Self {
+        let mut result = Self {
+            rect: Rect::new(pos, size),
+            abs_rect: Rect::new(FloatPos(0.0, 0.0), FloatSize(0.0, 0.0)),
             orientation,
-        }
+        };
+        result.update(graphics, parent_container);
+        result
     }
 
     /// Returns the absolute rectangle of the container. Orientation
@@ -49,23 +57,20 @@ impl Container {
     /// This function gets parent container and updates the absolute values
     pub fn update(&mut self, graphics: &GraphicsContext, parent_container: Option<&Self>) {
         let parent_rect = parent_container.map_or_else(
-            || {
-                Rect::new(
-                    0,
-                    0,
-                    graphics.renderer.get_window_width() as i32,
-                    graphics.renderer.get_window_height() as i32,
-                )
-            },
+            || Rect::new(FloatPos(0.0, 0.0), graphics.renderer.get_window_size()),
             |parent| *parent.get_absolute_rect(),
         );
 
-        self.abs_rect = self.rect;
-        self.abs_rect.x =
-            parent_rect.x + self.rect.x + (parent_rect.w as f32 * self.orientation.x) as i32
-                - (self.rect.w as f32 * self.orientation.x) as i32;
-        self.abs_rect.y =
-            parent_rect.y + self.rect.y + (parent_rect.h as f32 * self.orientation.y) as i32
-                - (self.rect.h as f32 * self.orientation.y) as i32;
+        self.abs_rect.pos = parent_rect.pos
+            + self.rect.pos
+            + FloatPos(
+                parent_rect.size.0 * self.orientation.x,
+                parent_rect.size.1 * self.orientation.y,
+            )
+            - FloatPos(
+                self.rect.size.0 * self.orientation.x,
+                self.rect.size.1 * self.orientation.y,
+            );
+        self.abs_rect.size = self.rect.size;
     }
 }

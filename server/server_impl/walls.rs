@@ -17,7 +17,7 @@ impl ServerWalls {
     }
 
     pub fn init(&mut self, mods: &mut ModManager) {
-        self.walls.init(mods);
+        self.walls.init(mods).unwrap();
     }
 
     pub fn on_event(&mut self, event: &Event, networking: &mut ServerNetworking) {

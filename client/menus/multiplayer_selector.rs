@@ -3,7 +3,7 @@ use super::{run_add_server_menu, run_choice_menu};
 use crate::client::game::core::Game;
 
 use crate::libraries::graphics as gfx;
-use crate::libraries::graphics::GraphicsContext;
+use crate::libraries::graphics::{FloatPos, FloatSize, GraphicsContext};
 use directories::BaseDirs;
 use serde_derive::{Deserialize, Serialize};
 
@@ -33,8 +33,8 @@ struct MultiplayerSelectorElements {
     back_button: gfx::Button,
     new_world_button: gfx::Button,
     server_list: ServerList,
-    top_height: i32,
-    bottom_height: i32,
+    top_height: f32,
+    bottom_height: f32,
 }
 
 /**
@@ -52,7 +52,10 @@ pub struct ServerCard {
 
 impl ServerCard {
     pub fn new(graphics: &GraphicsContext, name: String, ip: String, port: u16) -> Self {
-        let mut rect = gfx::RenderRect::new(0.0, 0.0, (MENU_WIDTH - 2 * gfx::SPACING) as f32, 0.0);
+        let mut rect = gfx::RenderRect::new(
+            FloatPos(0.0, 0.0),
+            FloatSize((MENU_WIDTH as f32 - 2.0 * gfx::SPACING) as f32, 0.0),
+        );
         rect.orientation = gfx::TOP;
         rect.fill_color.a = 100;
         rect.smooth_factor = 60.0;
@@ -64,14 +67,14 @@ impl ServerCard {
             ))
             .unwrap(),
         );
-        rect.h = icon.get_height() as f32 + 2.0 * gfx::SPACING as f32;
-        icon.x = gfx::SPACING;
+        rect.size.1 = icon.get_size().1 + 2.0 * gfx::SPACING;
+        icon.pos.0 = gfx::SPACING;
         icon.orientation = gfx::LEFT;
 
         let mut title = gfx::Sprite::new();
         title.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface(&name));
-        title.x = icon.x + icon.get_width() + gfx::SPACING;
-        title.y = gfx::SPACING;
+        title.pos.0 = icon.pos.0 + icon.get_size().1 + gfx::SPACING;
+        title.pos.1 = gfx::SPACING;
         title.scale = 3.0;
 
         let mut play_button = gfx::Button::new();
@@ -82,9 +85,9 @@ impl ServerCard {
             .unwrap(),
         );
         play_button.scale = 3.0;
-        play_button.margin = 5;
-        play_button.x = icon.x + icon.get_width() + gfx::SPACING;
-        play_button.y = -gfx::SPACING;
+        play_button.padding = 5.0;
+        play_button.pos.0 = icon.pos.0 + icon.get_size().0 + gfx::SPACING;
+        play_button.pos.1 = -gfx::SPACING;
         play_button.orientation = gfx::BOTTOM_LEFT;
 
         let mut delete_button = gfx::Button::new();
@@ -95,9 +98,9 @@ impl ServerCard {
             .unwrap(),
         );
         delete_button.scale = 3.0;
-        delete_button.margin = 5;
-        delete_button.x = play_button.x + play_button.get_width() + gfx::SPACING;
-        delete_button.y = -gfx::SPACING;
+        delete_button.padding = 5.0;
+        delete_button.pos.0 = play_button.pos.0 + play_button.get_size().0 + gfx::SPACING;
+        delete_button.pos.1 = -gfx::SPACING;
         delete_button.orientation = gfx::BOTTOM_LEFT;
 
         Self {
@@ -116,12 +119,10 @@ impl ServerCard {
     pub fn render(
         &mut self,
         graphics: &mut GraphicsContext,
-        x: i32,
-        y: i32,
+        pos: FloatPos,
         parent_container: Option<&gfx::Container>,
     ) {
-        self.rect.x = x as f32;
-        self.rect.y = y as f32;
+        self.rect.pos = pos;
         self.rect.render(graphics, parent_container);
 
         let rect_container = self.rect.get_container(graphics, parent_container);
@@ -134,8 +135,8 @@ impl ServerCard {
     /**
     This function returns height of the world card.
      */
-    pub const fn get_height(&self) -> i32 {
-        self.rect.h as i32
+    pub const fn get_height(&self) -> f32 {
+        self.rect.size.1
     }
 
     /**
@@ -243,31 +244,32 @@ pub fn run_multiplayer_selector(
             .font
             .create_text_surface("Select a server to play!"),
     );
-    title.y = gfx::SPACING;
+    title.pos.1 = gfx::SPACING;
     title.orientation = gfx::TOP;
 
     let mut back_button = gfx::Button::new();
     back_button.scale = 3.0;
     back_button.texture =
         gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Back"));
-    back_button.y = -gfx::SPACING;
+    back_button.pos.1 = -gfx::SPACING;
     back_button.orientation = gfx::BOTTOM;
 
     let mut new_world_button = gfx::Button::new();
     new_world_button.scale = 3.0;
     new_world_button.texture =
         gfx::Texture::load_from_surface(&graphics.font.create_text_surface("New"));
-    new_world_button.y = -gfx::SPACING;
-    new_world_button.x = -gfx::SPACING;
+    new_world_button.pos.1 = -gfx::SPACING;
+    new_world_button.pos.0 = -gfx::SPACING;
     new_world_button.orientation = gfx::BOTTOM_RIGHT;
 
-    let top_height = title.get_height() + 2 * gfx::SPACING;
-    let bottom_height = back_button.get_height() + 2 * gfx::SPACING;
+    let top_height = title.get_size().1 + 2.0 * gfx::SPACING;
+    let bottom_height = back_button.get_size().1 + 2.0 * gfx::SPACING;
 
-    let mut top_rect = gfx::RenderRect::new(0.0, 0.0, 0.0, top_height as f32);
+    let mut top_rect = gfx::RenderRect::new(FloatPos(0.0, 0.0), FloatSize(0.0, top_height as f32));
     top_rect.orientation = gfx::TOP;
 
-    let mut bottom_rect = gfx::RenderRect::new(0.0, 0.0, 0.0, bottom_height as f32);
+    let mut bottom_rect =
+        gfx::RenderRect::new(FloatPos(0.0, 0.0), FloatSize(0.0, bottom_height as f32));
     bottom_rect.fill_color.a = gfx::TRANSPARENCY / 2;
     bottom_rect.shadow_intensity = gfx::SHADOW_INTENSITY;
     bottom_rect.blur_radius = gfx::BLUR;
@@ -387,13 +389,13 @@ fn render_elements(
 ) {
     let mut top_rect_visibility = 1.0;
 
-    menu_back.set_back_rect_width(MENU_WIDTH);
+    menu_back.set_back_rect_width(MENU_WIDTH as f32);
 
     menu_back.render_back(graphics);
 
-    let hoverable = graphics.renderer.get_mouse_y() as i32 > elements.top_height
-        && (graphics.renderer.get_mouse_y() as i32)
-            < graphics.renderer.get_window_height() as i32 - elements.bottom_height;
+    let hoverable = graphics.renderer.get_mouse_pos().1 > elements.top_height
+        && graphics.renderer.get_mouse_pos().1
+            < graphics.renderer.get_window_size().1 - elements.bottom_height;
 
     for server in &mut elements.server_list.servers {
         server.set_enabled(hoverable);
@@ -403,14 +405,16 @@ fn render_elements(
     for server in &mut elements.server_list.servers {
         server.render(
             graphics,
-            0,
-            current_y + elements.top_height + elements.position as i32,
+            FloatPos(
+                0.0,
+                current_y + elements.top_height + elements.position as f32,
+            ),
             Some(menu_back.get_back_rect_container()),
         );
         current_y += server.get_height() + gfx::SPACING;
     }
 
-    elements.top_rect.w = menu_back.get_back_rect_width(graphics, None) as f32;
+    elements.top_rect.size.0 = menu_back.get_back_rect_width(graphics, None) as f32;
     top_rect_visibility +=
         ((if elements.position < -5.0 { 1.0 } else { 0.0 }) - top_rect_visibility) / 20.0;
 
@@ -432,15 +436,15 @@ fn render_elements(
             .render(graphics, Some(menu_back.get_back_rect_container()));
     }
 
-    elements.bottom_rect.w = menu_back.get_back_rect_width(graphics, None) as f32;
-    let mut scroll_limit = current_y - graphics.renderer.get_window_height() as i32
+    elements.bottom_rect.size.0 = menu_back.get_back_rect_width(graphics, None) as f32;
+    let mut scroll_limit = current_y - graphics.renderer.get_window_size().1
         + elements.top_height
         + elements.bottom_height;
-    if scroll_limit < 0 {
-        scroll_limit = 0;
+    if scroll_limit < 0.0 {
+        scroll_limit = 0.0;
     }
 
-    if scroll_limit > 0 {
+    if scroll_limit > 0.0 {
         elements
             .bottom_rect
             .render(graphics, Some(menu_back.get_back_rect_container()));

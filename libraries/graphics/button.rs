@@ -3,15 +3,15 @@ use super::theme::{
     GFX_DEFAULT_HOVERED_BUTTON_BORDER_COLOR, GFX_DEFAULT_HOVERED_BUTTON_COLOR,
 };
 use super::{Color, Container, GraphicsContext, Key, Orientation, Rect, Texture, TOP_LEFT};
+use crate::libraries::graphics::{FloatPos, FloatSize};
 
 /// A Button is a rectangle with an image in it.
 /// It can be clicked and has a hover animation.
 pub struct Button {
-    pub x: i32,
-    pub y: i32,
+    pub pos: FloatPos,
     pub orientation: Orientation,
     pub texture: Texture,
-    pub margin: i32,
+    pub padding: f32,
     pub scale: f32,
     pub color: Color,
     pub border_color: Color,
@@ -35,11 +35,10 @@ impl Button {
     #[must_use]
     pub fn new() -> Self {
         Self {
-            x: 0,
-            y: 0,
+            pos: FloatPos(0.0, 0.0),
             orientation: TOP_LEFT,
             texture: Texture::new(),
-            margin: GFX_DEFAULT_BUTTON_PADDING,
+            padding: GFX_DEFAULT_BUTTON_PADDING,
             scale: 1.0,
             color: GFX_DEFAULT_BUTTON_COLOR,
             border_color: GFX_DEFAULT_BUTTON_BORDER_COLOR,
@@ -53,16 +52,13 @@ impl Button {
         }
     }
 
-    /// Calculates the width based on the image width and the margin.
+    /// Calculates the size based on the image height and the margin.
     #[must_use]
-    pub fn get_width(&self) -> i32 {
-        ((self.texture.get_texture_width() as f32 + self.margin as f32 * 2.0) * self.scale) as i32
-    }
-
-    /// Calculates the height based on the image height and the margin.
-    #[must_use]
-    pub fn get_height(&self) -> i32 {
-        ((self.texture.get_texture_height() as f32 + self.margin as f32 * 2.0) * self.scale) as i32
+    pub fn get_size(&self) -> FloatSize {
+        FloatSize(
+            (self.texture.get_texture_size().0 + self.padding * 2.0) * self.scale,
+            (self.texture.get_texture_size().1 + self.padding * 2.0) * self.scale,
+        )
     }
 
     /// Generates the container for the button.
@@ -73,13 +69,12 @@ impl Button {
         parent_container: Option<&Container>,
     ) -> Container {
         let mut container = Container::new(
-            self.x,
-            self.y,
-            self.get_width(),
-            self.get_height(),
+            graphics,
+            self.pos,
+            self.get_size(),
             self.orientation,
+            parent_container,
         );
-        container.update(graphics, parent_container);
         container
     }
 
@@ -96,12 +91,11 @@ impl Button {
 
         let container = self.get_container(graphics, parent_container);
         let rect = container.get_absolute_rect();
-        let mouse_x = graphics.renderer.get_mouse_x() as i32;
-        let mouse_y = graphics.renderer.get_mouse_y() as i32;
-        mouse_x >= rect.x
-            && mouse_x <= rect.x + rect.w
-            && mouse_y >= rect.y
-            && mouse_y <= rect.y + rect.h
+        let mouse_pos = graphics.renderer.get_mouse_pos();
+        mouse_pos.0 >= rect.pos.0
+            && mouse_pos.0 <= rect.pos.0 + rect.size.0
+            && mouse_pos.1 >= rect.pos.1
+            && mouse_pos.1 <= rect.pos.1 + rect.size.1
     }
 
     /// Renders the button.
@@ -151,10 +145,11 @@ impl Button {
 
         let padding = (1.0 - self.hover_progress) * 30.0;
         let hover_rect = Rect::new(
-            rect.x + padding as i32,
-            rect.y + padding as i32,
-            core::cmp::max(0, rect.w - 2 * padding as i32),
-            core::cmp::max(0, rect.h - 2 * padding as i32),
+            rect.pos + FloatPos(padding, padding),
+            FloatSize(
+                f32::max(0.0, rect.size.0 - 2.0 * padding),
+                f32::max(0.0, rect.size.1 - 2.0 * padding),
+            ),
         );
         rect.render(graphics, self.color);
         rect.render_outline(graphics, self.border_color);
@@ -162,12 +157,18 @@ impl Button {
         hover_rect.render_outline(graphics, button_border_color);
 
         let texture_scale = self.scale + self.hover_progress * 0.4;
-        let x = rect.x + rect.w / 2
-            - (self.texture.get_texture_width() as f32 * texture_scale / 2.0) as i32;
-        let y = rect.y + rect.h / 2
-            - (self.texture.get_texture_height() as f32 * texture_scale / 2.0) as i32;
-        self.texture
-            .render(&graphics.renderer, texture_scale, (x, y), None, false, None);
+        let x = rect.pos.0 + rect.size.0 / 2.0
+            - self.texture.get_texture_size().0 * texture_scale / 2.0;
+        let y = rect.pos.1 + rect.size.1 / 2.0
+            - self.texture.get_texture_size().1 * texture_scale / 2.0;
+        self.texture.render(
+            &graphics.renderer,
+            texture_scale,
+            FloatPos(x, y),
+            None,
+            false,
+            None,
+        );
         if self.disabled && self.darken_on_disabled {
             rect.render(graphics, Color::new(0, 0, 0, 100));
         }

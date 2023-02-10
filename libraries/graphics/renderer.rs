@@ -7,6 +7,7 @@ use super::{set_blend_mode, BlendMode, Event, Key, Rect};
 use copypasta::ClipboardContext;
 use std::collections::HashMap;
 extern crate alloc;
+use crate::libraries::graphics::{FloatPos, FloatSize};
 use alloc::collections::VecDeque;
 use anyhow::{anyhow, Result};
 
@@ -117,15 +118,15 @@ impl Renderer {
 
     /// Is called every time the window is resized.
     pub fn handle_window_resize(&mut self) {
-        let (width, height) = self.sdl_window.size();
-        let width = width as i32;
-        let height = height as i32;
-
         self.normalization_transform = Transformation::new();
-        self.normalization_transform
-            .stretch(2.0 / width as f32, -2.0 / height as f32);
-        self.normalization_transform
-            .translate(-width as f32 / 2.0, -height as f32 / 2.0);
+        self.normalization_transform.stretch((
+            2.0 / self.get_window_size().0,
+            -2.0 / self.get_window_size().1,
+        ));
+        self.normalization_transform.translate(FloatPos(
+            -self.get_window_size().0 / 2.0,
+            -self.get_window_size().1 / 2.0,
+        ));
 
         // Safety: We are calling OpenGL functions safely.
         unsafe {
@@ -134,8 +135,8 @@ impl Renderer {
                 gl::TEXTURE_2D,
                 0,
                 gl::RGBA as gl::types::GLint,
-                self.get_window_width() as i32,
-                self.get_window_height() as i32,
+                self.get_window_size().0 as i32,
+                self.get_window_size().1 as i32,
                 0,
                 gl::BGRA as gl::types::GLenum,
                 gl::UNSIGNED_BYTE,
@@ -158,8 +159,8 @@ impl Renderer {
                 gl::TEXTURE_2D,
                 0,
                 gl::RGBA as gl::types::GLint,
-                self.get_window_width() as i32,
-                self.get_window_height() as i32,
+                self.get_window_size().0 as i32,
+                self.get_window_size().1 as i32,
                 0,
                 gl::BGRA,
                 gl::UNSIGNED_BYTE,
@@ -180,8 +181,8 @@ impl Renderer {
             gl::Viewport(
                 0,
                 0,
-                self.get_window_width() as i32,
-                self.get_window_height() as i32,
+                self.get_window_size().0 as i32,
+                self.get_window_size().1 as i32,
             );
         }
     }
@@ -267,12 +268,12 @@ impl Renderer {
                 gl::BlitFramebuffer(
                     0,
                     0,
-                    self.get_window_width() as i32 * 2,
-                    self.get_window_height() as i32 * 2,
+                    self.get_window_size().0 as i32 * 2,
+                    self.get_window_size().1 as i32 * 2,
                     0,
                     0,
-                    self.get_window_width() as i32 * 2,
-                    self.get_window_height() as i32 * 2,
+                    self.get_window_size().0 as i32 * 2,
+                    self.get_window_size().1 as i32 * 2,
                     gl::COLOR_BUFFER_BIT,
                     gl::NEAREST,
                 );
@@ -282,12 +283,12 @@ impl Renderer {
                 gl::BlitFramebuffer(
                     0,
                     0,
-                    (self.get_window_width() as f32 * 2.0) as i32,
-                    (self.get_window_height() as f32 * 2.0) as i32,
+                    (self.get_window_size().0 as f32 * 2.0) as i32,
+                    (self.get_window_size().1 as f32 * 2.0) as i32,
                     0,
                     0,
-                    self.get_window_width() as i32 * 2,
-                    self.get_window_height() as i32 * 2,
+                    self.get_window_size().0 as i32 * 2,
+                    self.get_window_size().1 as i32 * 2,
                     gl::COLOR_BUFFER_BIT,
                     gl::NEAREST,
                 );
@@ -297,12 +298,12 @@ impl Renderer {
                 gl::BlitFramebuffer(
                     0,
                     0,
-                    (self.get_window_width() as f32 * 2.0) as i32,
-                    (self.get_window_height() as f32 * 2.0) as i32,
+                    (self.get_window_size().0 as f32 * 2.0) as i32,
+                    (self.get_window_size().1 as f32 * 2.0) as i32,
                     0,
                     0,
-                    self.get_window_width() as i32 * 2,
-                    self.get_window_height() as i32 * 2,
+                    self.get_window_size().0 as i32 * 2,
+                    self.get_window_size().1 as i32 * 2,
                     gl::COLOR_BUFFER_BIT,
                     gl::NEAREST,
                 );
@@ -318,30 +319,26 @@ impl Renderer {
     }
 
     /// Sets the minimum window size
-    pub fn set_min_window_size(&mut self, width: u32, height: u32) -> Result<()> {
+    pub fn set_min_window_size(&mut self, size: FloatSize) -> Result<()> {
         self.sdl_window
-            .set_minimum_size(width, height)
+            .set_minimum_size(size.0 as u32, size.1 as u32)
             .map_err(|e| anyhow!(e))
     }
 
-    /// Get the current window width
-    pub fn get_window_width(&self) -> u32 {
-        self.sdl_window.size().0
+    /// Get the current window size
+    pub fn get_window_size(&self) -> FloatSize {
+        FloatSize(
+            self.sdl_window.size().0 as f32,
+            self.sdl_window.size().1 as f32,
+        )
     }
 
-    /// Get the current window height
-    pub fn get_window_height(&self) -> u32 {
-        self.sdl_window.size().1
-    }
-
-    /// Gets mouse x position
-    pub fn get_mouse_x(&self) -> f32 {
-        self.sdl_event_pump.mouse_state().x() as f32
-    }
-
-    /// Gets mouse y position
-    pub fn get_mouse_y(&self) -> f32 {
-        self.sdl_event_pump.mouse_state().y() as f32
+    /// Gets mouse position
+    pub fn get_mouse_pos(&self) -> FloatPos {
+        FloatPos(
+            self.sdl_event_pump.mouse_state().x() as f32,
+            self.sdl_event_pump.mouse_state().y() as f32,
+        )
     }
 
     /// Gets key state
@@ -361,7 +358,7 @@ impl Renderer {
         radius: i32,
         gl_texture: u32,
         back_texture: u32,
-        size: (f32, f32),
+        size: FloatSize,
         texture_transform: &Transformation,
     ) {
         self.blur_context.blur_region(
@@ -385,10 +382,7 @@ impl Renderer {
             radius,
             self.window_texture,
             self.window_texture_back,
-            (
-                self.get_window_width() as f32,
-                self.get_window_height() as f32,
-            ),
+            self.get_window_size(),
             &self.normalization_transform,
         );
     }

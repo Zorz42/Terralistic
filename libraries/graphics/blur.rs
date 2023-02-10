@@ -1,6 +1,7 @@
 use super::shaders::compile_shader;
 use super::transformation::Transformation;
 use super::Rect;
+use crate::libraries::graphics::{FloatPos, FloatSize};
 use anyhow::Result;
 
 const BLUR_VERTEX_SHADER_CODE: &str = r#"
@@ -107,12 +108,12 @@ impl BlurContext {
     }
 
     /// Only applies blur shader pass to the given texture.
-    fn blur_rect(&self, offset_x: f32, offset_y: f32, gl_texture1: u32, gl_texture2: u32) {
+    fn blur_rect(&self, offset: FloatPos, gl_texture1: u32, gl_texture2: u32) {
         // Safety: use of opengl functions is safe
         unsafe {
             gl::BindTexture(gl::TEXTURE_2D, gl_texture1);
             gl::FramebufferTexture(gl::FRAMEBUFFER, gl::COLOR_ATTACHMENT0, gl_texture2, 0);
-            gl::Uniform2f(self.blur_offset_uniform, offset_x, offset_y);
+            gl::Uniform2f(self.blur_offset_uniform, offset.0, offset.1);
             gl::DrawArrays(gl::TRIANGLES, 0, 6);
         }
     }
@@ -124,7 +125,7 @@ impl BlurContext {
         radius: i32,
         gl_texture: u32,
         back_texture: u32,
-        size: (f32, f32),
+        size: FloatSize,
         texture_transform: &Transformation,
     ) {
         if !self.blur_enabled {
@@ -137,22 +138,20 @@ impl BlurContext {
                 gl::Finish();
             }
 
-            let mut begin_x = rect.x;
-            let mut begin_y = rect.y;
-            let mut end_x = rect.x + rect.w;
-            let mut end_y = rect.y + rect.h;
+            let mut begin_x = rect.pos.0;
+            let mut begin_y = rect.pos.1;
+            let mut end_x = rect.pos.0 + rect.size.0;
+            let mut end_y = rect.pos.1 + rect.size.1;
 
-            begin_x = begin_x.max(0);
-            begin_y = begin_y.max(0);
-            end_x = end_x.min(size.0 as i32);
-            end_y = end_y.min(size.1 as i32);
+            begin_x = begin_x.max(0.0);
+            begin_y = begin_y.max(0.0);
+            end_x = end_x.min(size.0);
+            end_y = end_y.min(size.1);
 
-            rect.x = begin_x;
-            rect.y = begin_y;
-            rect.w = end_x - begin_x;
-            rect.h = end_y - begin_y;
+            rect.pos = FloatPos(begin_x, begin_y);
+            rect.size = FloatSize(end_x - begin_x, end_y - begin_y);
 
-            if rect.w <= 0 || rect.h <= 0 {
+            if rect.size.0 <= 0.0 || rect.size.1 <= 0.0 {
                 return;
             }
 
@@ -160,17 +159,17 @@ impl BlurContext {
 
             gl::EnableVertexAttribArray(0);
 
-            let x1 = (rect.x as f32 + 1.0) / size.0;
-            let y1 = (rect.y as f32 + 1.0) / size.1;
-            let x2 = (rect.x as f32 + rect.w as f32 - 1.0) / size.0;
-            let y2 = (rect.y as f32 + rect.h as f32 - 1.0) / size.1;
+            let x1 = (rect.pos.0 as f32 + 1.0) / size.0;
+            let y1 = (rect.pos.1 as f32 + 1.0) / size.1;
+            let x2 = (rect.pos.0 as f32 + rect.size.0 as f32 - 1.0) / size.0;
+            let y2 = (rect.pos.1 as f32 + rect.size.1 as f32 - 1.0) / size.1;
 
             gl::Uniform4f(self.limit_uniform, x2, -y1, x1, -y2);
             gl::Uniform1i(self.texture_sampler_uniform, 0);
 
             let mut transform = texture_transform.clone();
-            transform.translate(rect.x as f32, rect.y as f32);
-            transform.stretch(rect.w as f32, rect.h as f32);
+            transform.translate(rect.pos);
+            transform.stretch((rect.size.0, rect.size.1));
 
             gl::UniformMatrix3fv(
                 self.transform_matrix_uniform,
@@ -180,9 +179,9 @@ impl BlurContext {
             );
 
             transform = Transformation::new();
-            transform.stretch(1.0 / size.0, -1.0 / size.1);
-            transform.translate(rect.x as f32, rect.y as f32);
-            transform.stretch(rect.w as f32, rect.h as f32);
+            transform.stretch((1.0 / size.0, -1.0 / size.1));
+            transform.translate(rect.pos);
+            transform.stretch((rect.size.0, rect.size.1));
 
             gl::UniformMatrix3fv(
                 self.texture_transform_matrix_uniform,
@@ -195,8 +194,16 @@ impl BlurContext {
 
             let mut radius = radius;
             while radius > 10 {
-                self.blur_rect(0.0, radius as f32 / size.1 / 10.0, gl_texture, back_texture);
-                self.blur_rect(radius as f32 / size.0 / 10.0, 0.0, back_texture, gl_texture);
+                self.blur_rect(
+                    FloatPos(0.0, radius as f32 / size.1 / 10.0),
+                    gl_texture,
+                    back_texture,
+                );
+                self.blur_rect(
+                    FloatPos(radius as f32 / size.0 / 10.0, 0.0),
+                    back_texture,
+                    gl_texture,
+                );
                 radius = (radius as f32 * BLUR_QUALITY).sqrt() as i32;
             }
 

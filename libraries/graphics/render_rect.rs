@@ -1,6 +1,7 @@
 use super::Container;
 use super::Orientation;
 use super::{Color, GraphicsContext, TOP_LEFT};
+use crate::libraries::graphics::{FloatPos, FloatSize};
 
 /// The struct `RenderRect` contains a container and
 /// moves smoothly visually to the saved position
@@ -8,14 +9,10 @@ use super::{Color, GraphicsContext, TOP_LEFT};
 /// of the container is changed by the distance to the
 /// target position divided by the `smooth_factor`. It is 1 by default.
 pub struct RenderRect {
-    pub x: f32,
-    pub y: f32,
-    pub w: f32,
-    pub h: f32,
-    render_x: f32,
-    render_y: f32,
-    render_w: f32,
-    render_h: f32,
+    pub pos: FloatPos,
+    pub size: FloatSize,
+    pub render_pos: FloatPos,
+    pub render_size: FloatSize,
     pub fill_color: Color,
     pub border_color: Color,
     pub smooth_factor: f32,
@@ -28,16 +25,12 @@ pub struct RenderRect {
 
 impl RenderRect {
     #[must_use]
-    pub fn new(x: f32, y: f32, w: f32, h: f32) -> Self {
+    pub fn new(pos: FloatPos, size: FloatSize) -> Self {
         Self {
-            x,
-            y,
-            w,
-            h,
-            render_x: x,
-            render_y: y,
-            render_w: w,
-            render_h: h,
+            pos,
+            size,
+            render_pos: pos,
+            render_size: size,
             fill_color: Color::new(0, 0, 0, 255),
             border_color: Color::new(0, 0, 0, 0),
             smooth_factor: 1.0,
@@ -62,10 +55,12 @@ impl RenderRect {
     pub fn render(&mut self, graphics: &GraphicsContext, parent_container: Option<&Container>) {
         while self.ms_counter < self.approach_timer.elapsed().as_millis() as u32 {
             self.ms_counter += 1;
-            self.render_x = Self::approach(self.render_x, self.x, self.smooth_factor);
-            self.render_y = Self::approach(self.render_y, self.y, self.smooth_factor);
-            self.render_w = Self::approach(self.render_w, self.w, self.smooth_factor);
-            self.render_h = Self::approach(self.render_h, self.h, self.smooth_factor);
+            self.render_pos.0 = Self::approach(self.render_pos.0, self.pos.0, self.smooth_factor);
+            self.render_pos.1 = Self::approach(self.render_pos.1, self.pos.1, self.smooth_factor);
+            self.render_size.0 =
+                Self::approach(self.render_size.0, self.size.0, self.smooth_factor);
+            self.render_size.1 =
+                Self::approach(self.render_size.1, self.size.1, self.smooth_factor);
         }
 
         let container = self.get_container(graphics, parent_container);
@@ -89,21 +84,18 @@ impl RenderRect {
         parent_container: Option<&Container>,
     ) -> Container {
         let mut container = Container::new(
-            self.render_x as i32,
-            self.render_y as i32,
-            self.render_w as i32,
-            self.render_h as i32,
+            graphics,
+            self.render_pos,
+            self.render_size,
             self.orientation,
+            parent_container,
         );
-        container.update(graphics, parent_container);
         container
     }
 
     /// This function jumps the rectangle to the target position.
     pub fn jump_to_target(&mut self) {
-        self.render_x = self.x;
-        self.render_y = self.y;
-        self.render_w = self.w;
-        self.render_h = self.h;
+        self.render_pos = self.pos;
+        self.render_size = self.size;
     }
 }
