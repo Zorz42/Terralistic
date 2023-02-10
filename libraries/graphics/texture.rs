@@ -78,7 +78,7 @@ impl Texture {
     pub(super) fn get_normalization_transform(&self) -> Transformation {
         let mut result = Transformation::new();
         result.translate(FloatPos(-1.0, 1.0));
-        result.stretch((1.0 / self.size.0 as f32, 1.0 / self.size.1 as f32));
+        result.stretch((1.0 / self.size.0, 1.0 / self.size.1));
         result
     }
 

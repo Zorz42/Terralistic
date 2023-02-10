@@ -1,5 +1,5 @@
 mod position;
-pub use position::{FloatPos, IntPos, FloatSize, IntSize};
+pub use position::{FloatPos, FloatSize, IntPos, IntSize};
 
 mod color;
 pub use color::Color;

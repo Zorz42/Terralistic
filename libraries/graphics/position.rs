@@ -1,9 +1,9 @@
 use serde_derive::{Deserialize, Serialize};
 use std::ops::{Add, Sub};
 
-#[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub struct IntPos(pub i32, pub i32);
-#[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub struct IntSize(pub u32, pub u32);
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
 pub struct FloatPos(pub f32, pub f32);

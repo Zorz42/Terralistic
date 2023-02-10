@@ -87,14 +87,13 @@ impl TextInput {
         graphics: &GraphicsContext,
         parent_container: Option<&Container>,
     ) -> Container {
-        let mut container = Container::new(
+        Container::new(
             graphics,
             self.pos,
             self.get_size(),
             self.orientation,
             parent_container,
-        );
-        container
+        )
     }
 
     /// Checks if the button is hovered with a mouse
@@ -253,7 +252,7 @@ impl TextInput {
             FloatPos(
                 rect.pos.0 + rect.size.0 / 2.0
                     - self.hint_texture.get_texture_size().0 / 2.0 * self.scale,
-                rect.pos.1 + self.padding as f32 * self.scale,
+                rect.pos.1 + self.padding * self.scale,
             ),
             None,
             false,

@@ -403,10 +403,10 @@ fn render_elements(
             FloatPos(0.0, current_y + elements.top_height + elements.position),
             Some(menu_back.get_back_rect_container()),
         );
-        current_y += world.get_height() as f32 + gfx::SPACING;
+        current_y += world.get_height() + gfx::SPACING;
     }
 
-    elements.top_rect.size.0 = menu_back.get_back_rect_width(graphics, None) as f32;
+    elements.top_rect.size.0 = menu_back.get_back_rect_width(graphics, None);
     *top_rect_visibility +=
         ((if elements.position < -5.0 { 1.0 } else { 0.0 }) - *top_rect_visibility) / 20.0;
 
@@ -428,7 +428,7 @@ fn render_elements(
             .render(graphics, Some(menu_back.get_back_rect_container()));
     }
 
-    elements.bottom_rect.size.0 = menu_back.get_back_rect_width(graphics, None) as f32;
+    elements.bottom_rect.size.0 = menu_back.get_back_rect_width(graphics, None);
     let mut scroll_limit = current_y - graphics.renderer.get_window_size().1
         + elements.top_height
         + elements.bottom_height;
@@ -446,8 +446,8 @@ fn render_elements(
         elements.position -= elements.position / 20.0;
     }
 
-    if elements.position < -scroll_limit as f32 {
-        elements.position -= (elements.position + scroll_limit as f32) / 20.0;
+    if elements.position < -scroll_limit {
+        elements.position -= (elements.position + scroll_limit) / 20.0;
     }
 
     elements

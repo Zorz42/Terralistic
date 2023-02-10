@@ -54,7 +54,7 @@ impl ServerCard {
     pub fn new(graphics: &GraphicsContext, name: String, ip: String, port: u16) -> Self {
         let mut rect = gfx::RenderRect::new(
             FloatPos(0.0, 0.0),
-            FloatSize((MENU_WIDTH as f32 - 2.0 * gfx::SPACING) as f32, 0.0),
+            FloatSize(MENU_WIDTH as f32 - 2.0 * gfx::SPACING, 0.0),
         );
         rect.orientation = gfx::TOP;
         rect.fill_color.a = 100;
@@ -265,11 +265,10 @@ pub fn run_multiplayer_selector(
     let top_height = title.get_size().1 + 2.0 * gfx::SPACING;
     let bottom_height = back_button.get_size().1 + 2.0 * gfx::SPACING;
 
-    let mut top_rect = gfx::RenderRect::new(FloatPos(0.0, 0.0), FloatSize(0.0, top_height as f32));
+    let mut top_rect = gfx::RenderRect::new(FloatPos(0.0, 0.0), FloatSize(0.0, top_height));
     top_rect.orientation = gfx::TOP;
 
-    let mut bottom_rect =
-        gfx::RenderRect::new(FloatPos(0.0, 0.0), FloatSize(0.0, bottom_height as f32));
+    let mut bottom_rect = gfx::RenderRect::new(FloatPos(0.0, 0.0), FloatSize(0.0, bottom_height));
     bottom_rect.fill_color.a = gfx::TRANSPARENCY / 2;
     bottom_rect.shadow_intensity = gfx::SHADOW_INTENSITY;
     bottom_rect.blur_radius = gfx::BLUR;
@@ -405,16 +404,13 @@ fn render_elements(
     for server in &mut elements.server_list.servers {
         server.render(
             graphics,
-            FloatPos(
-                0.0,
-                current_y + elements.top_height + elements.position as f32,
-            ),
+            FloatPos(0.0, current_y + elements.top_height + elements.position),
             Some(menu_back.get_back_rect_container()),
         );
         current_y += server.get_height() + gfx::SPACING;
     }
 
-    elements.top_rect.size.0 = menu_back.get_back_rect_width(graphics, None) as f32;
+    elements.top_rect.size.0 = menu_back.get_back_rect_width(graphics, None);
     top_rect_visibility +=
         ((if elements.position < -5.0 { 1.0 } else { 0.0 }) - top_rect_visibility) / 20.0;
 
@@ -436,7 +432,7 @@ fn render_elements(
             .render(graphics, Some(menu_back.get_back_rect_container()));
     }
 
-    elements.bottom_rect.size.0 = menu_back.get_back_rect_width(graphics, None) as f32;
+    elements.bottom_rect.size.0 = menu_back.get_back_rect_width(graphics, None);
     let mut scroll_limit = current_y - graphics.renderer.get_window_size().1
         + elements.top_height
         + elements.bottom_height;
@@ -454,8 +450,8 @@ fn render_elements(
         elements.position -= elements.position / 20.0;
     }
 
-    if elements.position < -scroll_limit as f32 {
-        elements.position -= (elements.position + scroll_limit as f32) / 20.0;
+    if elements.position < -scroll_limit {
+        elements.position -= (elements.position + scroll_limit) / 20.0;
     }
 
     elements

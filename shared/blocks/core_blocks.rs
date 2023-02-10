@@ -116,7 +116,7 @@ impl Blocks {
     pub const fn get_height(&self) -> u32 {
         self.block_data.map.get_height()
     }
-    
+
     /// # Errors
     /// Returns an error if global functions couldn't be added
     pub fn init(&mut self, mods: &mut ModManager) -> Result<()> {

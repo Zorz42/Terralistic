@@ -79,13 +79,13 @@ pub fn run_loading_screen(
                     loading_back_bar.size.1 = 0.0;
                     loading_bar.size.0 = 0.0;
                     loading_bar.size.1 = 0.0;
-                    loading_bar.pos.0 = graphics.renderer.get_window_size().0 as f32 / 2.0;
+                    loading_bar.pos.0 = graphics.renderer.get_window_size().0 / 2.0;
                 } else {
                     loading_back_bar.size.0 = PROGRESS_BAR_WIDTH as f32;
                     loading_back_bar.size.1 = PROGRESS_BAR_HEIGHT as f32;
                     loading_bar.size.0 = (PROGRESS_BAR_WIDTH as f32) * progress_bar_progress;
                     loading_bar.size.1 = PROGRESS_BAR_HEIGHT as f32;
-                    loading_bar.pos.0 = menu_back.get_back_rect_width(graphics, None) as f32 / 2.0
+                    loading_bar.pos.0 = menu_back.get_back_rect_width(graphics, None) / 2.0
                         - loading_back_bar.size.0 / 2.0;
                 }
 

@@ -57,7 +57,7 @@ impl Background for MenuBack {
         self.back_container = self.back_rect.get_container(graphics, None);
 
         let scale = graphics.renderer.get_window_size().1 / self.background.get_texture_size().1;
-        let texture_width_scaled = self.background.get_texture_size().0 as f32 * scale;
+        let texture_width_scaled = self.background.get_texture_size().0 * scale;
         let pos = ((self.background_timer.elapsed().as_millis() as f32 * scale / 150.0) as u64
             % texture_width_scaled as u64) as f32;
 
@@ -75,8 +75,8 @@ impl Background for MenuBack {
             );
         }
 
-        if self.back_rect.size.1 != graphics.renderer.get_window_size().1 as f32 {
-            self.back_rect.size.1 = graphics.renderer.get_window_size().1 as f32;
+        if self.back_rect.size.1 != graphics.renderer.get_window_size().1 {
+            self.back_rect.size.1 = graphics.renderer.get_window_size().1;
             self.back_rect.jump_to_target();
         }
         self.back_rect.render(graphics, None);

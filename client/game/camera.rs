@@ -59,8 +59,8 @@ impl Camera {
         let width = graphics.renderer.get_window_size().0;
         let height = graphics.renderer.get_window_size().1;
         (
-            self.position_x - width as f32 / 2.0,
-            self.position_y - height as f32 / 2.0,
+            self.position_x - width / 2.0,
+            self.position_y - height / 2.0,
         )
     }
 
@@ -71,8 +71,8 @@ impl Camera {
         let width = graphics.renderer.get_window_size().0;
         let height = graphics.renderer.get_window_size().1;
         (
-            self.position_x + width as f32 / 2.0,
-            self.position_y + height as f32 / 2.0,
+            self.position_x + width / 2.0,
+            self.position_y + height / 2.0,
         )
     }
 }

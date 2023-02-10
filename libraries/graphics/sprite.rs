@@ -47,14 +47,13 @@ impl Sprite {
         graphics: &mut GraphicsContext,
         parent: Option<&Container>,
     ) -> Container {
-        let mut container = Container::new(
+        Container::new(
             graphics,
             self.pos,
             self.get_size(),
             self.orientation,
             parent,
-        );
-        container
+        )
     }
 
     /// Renders the sprite.

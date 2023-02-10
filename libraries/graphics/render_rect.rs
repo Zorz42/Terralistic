@@ -83,14 +83,13 @@ impl RenderRect {
         graphics: &GraphicsContext,
         parent_container: Option<&Container>,
     ) -> Container {
-        let mut container = Container::new(
+        Container::new(
             graphics,
             self.render_pos,
             self.render_size,
             self.orientation,
             parent_container,
-        );
-        container
+        )
     }
 
     /// This function jumps the rectangle to the target position.

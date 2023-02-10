@@ -159,10 +159,10 @@ impl BlurContext {
 
             gl::EnableVertexAttribArray(0);
 
-            let x1 = (rect.pos.0 as f32 + 1.0) / size.0;
-            let y1 = (rect.pos.1 as f32 + 1.0) / size.1;
-            let x2 = (rect.pos.0 as f32 + rect.size.0 as f32 - 1.0) / size.0;
-            let y2 = (rect.pos.1 as f32 + rect.size.1 as f32 - 1.0) / size.1;
+            let x1 = (rect.pos.0 + 1.0) / size.0;
+            let y1 = (rect.pos.1 + 1.0) / size.1;
+            let x2 = (rect.pos.0 + rect.size.0 - 1.0) / size.0;
+            let y2 = (rect.pos.1 + rect.size.1 - 1.0) / size.1;
 
             gl::Uniform4f(self.limit_uniform, x2, -y1, x1, -y2);
             gl::Uniform1i(self.texture_sampler_uniform, 0);

@@ -1,5 +1,5 @@
-use crate::libraries::graphics::FloatPos;
 use super::color;
+use crate::libraries::graphics::FloatPos;
 
 #[derive(Debug, Clone, Copy)]
 pub enum DrawMode {

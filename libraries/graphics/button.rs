@@ -68,14 +68,13 @@ impl Button {
         graphics: &GraphicsContext,
         parent_container: Option<&Container>,
     ) -> Container {
-        let mut container = Container::new(
+        Container::new(
             graphics,
             self.pos,
             self.get_size(),
             self.orientation,
             parent_container,
-        );
-        container
+        )
     }
 
     /// Checks if the button is hovered with a mouse.

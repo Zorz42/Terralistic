@@ -283,8 +283,8 @@ impl Renderer {
                 gl::BlitFramebuffer(
                     0,
                     0,
-                    (self.get_window_size().0 as f32 * 2.0) as i32,
-                    (self.get_window_size().1 as f32 * 2.0) as i32,
+                    (self.get_window_size().0 * 2.0) as i32,
+                    (self.get_window_size().1 * 2.0) as i32,
                     0,
                     0,
                     self.get_window_size().0 as i32 * 2,

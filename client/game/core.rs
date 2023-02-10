@@ -124,7 +124,7 @@ impl Game {
         pause_rect.blur_radius = gfx::BLUR;
         pause_rect.shadow_intensity = gfx::SHADOW_INTENSITY;
         pause_rect.smooth_factor = 60.0;
-        pause_rect.size.0 = pause_rect_width as f32;
+        pause_rect.size.0 = pause_rect_width;
 
         let ms_timer = std::time::Instant::now();
         let mut ms_counter = 0;
@@ -149,7 +149,7 @@ impl Game {
         debug_menu_rect.shadow_intensity = gfx::SHADOW_INTENSITY;
         debug_menu_rect.smooth_factor = 60.0;
         debug_menu_rect.orientation = gfx::BOTTOM_RIGHT;
-        debug_menu_rect.pos.1 = -gfx::SPACING as f32;
+        debug_menu_rect.pos.1 = -gfx::SPACING;
         debug_menu_rect.size.0 = 300.0;
         debug_menu_rect.size.1 = 200.0;
 
@@ -222,7 +222,7 @@ impl Game {
             pause_rect.render(graphics, None);
 
             if graphics.renderer.get_window_size().1 as u32 != pause_rect.size.1 as u32 {
-                pause_rect.size.1 = graphics.renderer.get_window_size().1 as f32;
+                pause_rect.size.1 = graphics.renderer.get_window_size().1;
                 pause_rect.jump_to_target();
             }
 
@@ -238,7 +238,7 @@ impl Game {
             }
 
             debug_menu_rect.pos.0 = if debug_menu_open {
-                -gfx::SPACING as f32
+                -gfx::SPACING
             } else {
                 debug_menu_rect.size.0 + 100.0
             };
@@ -268,8 +268,8 @@ impl Game {
                     height += texture.get_texture_size().1 * scale;
                 }
 
-                debug_menu_rect.size.0 = width as f32 + 2.0 * gfx::SPACING as f32;
-                debug_menu_rect.size.1 = height as f32 + 2.0 * gfx::SPACING as f32;
+                debug_menu_rect.size.0 = width + 2.0 * gfx::SPACING;
+                debug_menu_rect.size.1 = height + 2.0 * gfx::SPACING;
 
                 let mut y = gfx::SPACING;
                 let debug_menu_rect_container = debug_menu_rect.get_container(graphics, None);
