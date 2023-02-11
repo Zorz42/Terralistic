@@ -283,7 +283,7 @@ impl Walls {
 
     /// Returns all breaking walls
     #[must_use]
-    pub fn get_breaking_walls(&self) -> &Vec<BreakingWall> {
+    pub const fn get_breaking_walls(&self) -> &Vec<BreakingWall> {
         &self.breaking_walls
     }
 }

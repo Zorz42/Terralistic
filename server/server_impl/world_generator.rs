@@ -1,12 +1,15 @@
 use crate::shared::blocks::{BlockId, Blocks};
 use crate::shared::mod_manager::{get_mod_id, ModManager};
 use crate::shared::walls::{WallId, Walls};
+extern crate alloc;
+use alloc::sync::Arc;
+use anyhow::{anyhow, bail, Result};
 use noise::{NoiseFn, Perlin};
 use rand::{RngCore, SeedableRng};
 use rlua::prelude::LuaUserData;
 use rlua::UserDataMethods;
 use std::collections::HashMap;
-use std::sync::{Arc, Mutex};
+use std::sync::{Mutex, PoisonError};
 
 fn turbulence(noise: &Perlin, x: f32, y: f32) -> f32 {
     let mut value = 0.0;
@@ -27,8 +30,12 @@ fn convolve(array: &Vec<f32>, size: i32) -> Vec<f32> {
         let mut sum = 0.0;
         let left_index = i32::max(i as i32 - size / 2, 0);
         let right_index = i32::min(i as i32 + size / 2, array.len() as i32 - 1);
-        for j in left_index..right_index {
-            sum += array[j as usize];
+        for j in array
+            .iter()
+            .skip(left_index as usize)
+            .take((right_index - left_index) as usize)
+        {
+            sum += j;
         }
         result.push(sum / (right_index - left_index) as f32);
     }
@@ -47,38 +54,53 @@ impl WorldGenerator {
         }
     }
 
-    pub fn init(&mut self, mods: &mut ModManager) {
+    pub fn init(&mut self, mods: &mut ModManager) -> Result<()> {
         mods.add_global_function("new_biome", move |lua_ctx, _: ()| {
-            let mod_id = get_mod_id(lua_ctx).unwrap();
+            let mod_id = get_mod_id(lua_ctx)?;
             Ok(Biome::new(mod_id))
-        })
-        .unwrap();
+        })?;
 
-        let biomes = self.biomes.clone();
+        let mut biomes = self.biomes.clone();
         mods.add_global_function("register_biome", move |_, biome: Biome| {
-            biomes.lock().unwrap().push(biome);
-            Ok(biomes.lock().unwrap().len() - 1)
-        })
-        .unwrap();
+            biomes
+                .lock()
+                .unwrap_or_else(PoisonError::into_inner)
+                .push(biome);
+            Ok(biomes.lock().unwrap_or_else(PoisonError::into_inner).len() - 1)
+        })?;
 
         // lua function connect_biomes(biome1, biome2, weight) takes two biome ids and a weight and connects them
         // the weight is how likely it is to go from biome1 to biome2 (and vice versa)
-        let biomes = self.biomes.clone();
+        biomes = self.biomes.clone();
         mods.add_global_function(
             "connect_biomes",
             move |_, (biome1, biome2, weight): (i32, i32, i32)| {
-                biomes.lock().unwrap()[biome1 as usize]
+                biomes
+                    .lock()
+                    .unwrap_or_else(PoisonError::into_inner)
+                    .get_mut(biome1 as usize)
+                    .ok_or_else(|| {
+                        rlua::Error::RuntimeError(format!("Biome {biome1} does not exist!"))
+                    })?
                     .adjacent_biomes
                     .push((weight, biome2));
-                biomes.lock().unwrap()[biome2 as usize]
+                biomes
+                    .lock()
+                    .unwrap_or_else(PoisonError::into_inner)
+                    .get_mut(biome2 as usize)
+                    .ok_or_else(|| {
+                        rlua::Error::RuntimeError(format!("Biome {biome2} does not exist!"))
+                    })?
                     .adjacent_biomes
                     .push((weight, biome1));
                 Ok(())
             },
-        )
-        .unwrap();
+        )?;
+        Ok(())
     }
 
+    #[allow(clippy::too_many_lines)] // TODO: split this function up
+    #[allow(clippy::cognitive_complexity)] // TODO: split this function up
     pub fn generate(
         &mut self,
         world: (&mut Blocks, &mut Walls),
@@ -87,16 +109,20 @@ impl WorldGenerator {
         height: u32,
         seed: u64,
         status_text: &Mutex<String>,
-    ) {
+    ) -> Result<()> {
         let blocks = world.0;
         let walls = world.1;
         // create a random number generator with seed
         let mut rng = rand::rngs::StdRng::seed_from_u64(seed);
 
-        assert!(
-            self.biomes.lock().unwrap().len() != 0,
-            "No biomes were added! Cannot generate world!"
-        );
+        if self
+            .biomes
+            .lock()
+            .unwrap_or_else(PoisonError::into_inner)
+            .is_empty()
+        {
+            bail!("No biomes were added! Cannot generate world!")
+        }
 
         let mut min_heights = Vec::new();
         let mut max_heights = Vec::new();
@@ -106,11 +132,19 @@ impl WorldGenerator {
 
         // walk on the graph of biomes
         // initial biome is random
-        let mut curr_biome = rand::random::<i32>().abs() % self.biomes.lock().unwrap().len() as i32;
+        let mut curr_biome = rand::random::<i32>().abs()
+            % self
+                .biomes
+                .lock()
+                .unwrap_or_else(PoisonError::into_inner)
+                .len() as i32;
         while width < min_width {
             // determine the width of the current biome
             // the width is a random number between the min and max width
-            let biome = &self.biomes.lock().unwrap()[curr_biome as usize];
+            let biomes = self.biomes.lock().unwrap_or_else(PoisonError::into_inner);
+            let biome = biomes
+                .get(curr_biome as usize)
+                .ok_or_else(|| anyhow!("Biome with id {} does not exist!", curr_biome))?;
             let biome_width =
                 rand::random::<u32>() % (biome.max_width - biome.min_width) + biome.min_width;
             for _ in 0..biome_width {
@@ -143,7 +177,7 @@ impl WorldGenerator {
 
         let mut next_task = || {
             current_task += 1;
-            *status_text.lock().unwrap() = format!(
+            *status_text.lock().unwrap_or_else(PoisonError::into_inner) = format!(
                 "Generating world {}%",
                 (current_task as f32 / total_tasks as f32 * 100.0) as i32
             );
@@ -151,7 +185,7 @@ impl WorldGenerator {
 
         let start_time = std::time::Instant::now();
 
-        *status_text.lock().unwrap() = "Generating world".to_string();
+        *status_text.lock().unwrap_or_else(PoisonError::into_inner) = "Generating world".to_owned();
         blocks.create(width, height);
 
         let mut block_terrain = vec![vec![BlockId::new(); height as usize]; width as usize];
@@ -169,10 +203,26 @@ impl WorldGenerator {
         }
 
         for x in 0..width {
-            let biome = &self.biomes.lock().unwrap()[biome_ids[x as usize] as usize];
+            let biomes = self.biomes.lock().unwrap_or_else(PoisonError::into_inner);
+            let biome = biomes
+                .get(
+                    *biome_ids
+                        .get(x as usize)
+                        .ok_or_else(|| anyhow!("invalid x coordinate"))?
+                        as usize,
+                )
+                .ok_or_else(|| anyhow!("invalid biome id"))?;
             for ore in &biome.ores {
-                ores_start_noises.get_mut(&ore.block).unwrap()[x as usize] = ore.start_noise;
-                ores_end_noises.get_mut(&ore.block).unwrap()[x as usize] = ore.end_noise;
+                *ores_start_noises
+                    .get_mut(&ore.block)
+                    .ok_or_else(|| anyhow!("invalid block"))?
+                    .get_mut(x as usize)
+                    .ok_or_else(|| anyhow!("invalid coordinate"))? = ore.start_noise;
+                *ores_end_noises
+                    .get_mut(&ore.block)
+                    .ok_or_else(|| anyhow!("invalid block"))?
+                    .get_mut(x as usize)
+                    .ok_or_else(|| anyhow!("invalid coordinate"))? = ore.end_noise;
             }
         }
 
@@ -188,11 +238,21 @@ impl WorldGenerator {
             for _ in 0..5 {
                 ores_start_noises.insert(
                     block_id,
-                    convolve(&ores_start_noises[&block_id], convolution_size),
+                    convolve(
+                        ores_start_noises
+                            .get(&block_id)
+                            .ok_or_else(|| anyhow!("invalid block id"))?,
+                        convolution_size,
+                    ),
                 );
                 ores_end_noises.insert(
                     block_id,
-                    convolve(&ores_end_noises[&block_id], convolution_size),
+                    convolve(
+                        ores_end_noises
+                            .get(&block_id)
+                            .ok_or_else(|| anyhow!("invalid block id"))?,
+                        convolution_size,
+                    ),
                 );
             }
         }
@@ -211,9 +271,16 @@ impl WorldGenerator {
             let mut heights = Vec::new();
             for x in 0..width {
                 let terrain_noise_val = ((turbulence(&terrain_noise, x as f32 / 150.0, 0.0) + 1.0)
-                    * (max_heights[x as usize] - min_heights[x as usize]))
+                    * (max_heights
+                        .get(x as usize)
+                        .ok_or_else(|| anyhow!("invalid x coordinate"))?
+                        - min_heights
+                            .get(x as usize)
+                            .ok_or_else(|| anyhow!("invalid block id"))?))
                     as u32
-                    + min_heights[x as usize] as u32
+                    + *min_heights
+                        .get(x as usize)
+                        .ok_or_else(|| anyhow!("invalid block id"))? as u32
                     + height * 2 / 3;
                 heights.push(terrain_noise_val);
             }
@@ -223,14 +290,18 @@ impl WorldGenerator {
         for x in 0..width {
             curr_terrain.push(vec![BlockId::new(); height as usize]);
 
-            let terrain_noise_val = heights[x as usize];
-            let mut walls_height = heights[x as usize];
-            if let Some(height) = heights.get(x as usize + 1) {
-                walls_height = u32::min(walls_height, *height);
+            let terrain_noise_val = *heights
+                .get(x as usize)
+                .ok_or_else(|| anyhow!("invalid x coordinate"))?;
+            let mut walls_height = *heights
+                .get(x as usize)
+                .ok_or_else(|| anyhow!("invalid x coordinate"))?;
+            if let Some(height2) = heights.get(x as usize + 1) {
+                walls_height = u32::min(walls_height, *height2);
             }
             if x > 0 {
-                if let Some(height) = heights.get(x as usize - 1) {
-                    walls_height = u32::min(walls_height, *height);
+                if let Some(height2) = heights.get(x as usize - 1) {
+                    walls_height = u32::min(walls_height, *height2);
                 }
             }
 
@@ -241,57 +312,103 @@ impl WorldGenerator {
                 let cave_noise_val =
                     f32::abs(turbulence(&cave_noise, x as f32 / 80.0, y as f32 / 80.0));
                 let cave_threshold = y as f32 / height as f32
-                    * (max_cave_thresholds[x as usize] - min_cave_thresholds[x as usize])
-                    + min_cave_thresholds[x as usize];
+                    * (max_cave_thresholds
+                        .get(x as usize)
+                        .ok_or_else(|| anyhow!("invalid x coordinate"))?
+                        - min_cave_thresholds
+                            .get(x as usize)
+                            .ok_or_else(|| anyhow!("invalid x coordinate"))?)
+                    + min_cave_thresholds
+                        .get(x as usize)
+                        .ok_or_else(|| anyhow!("invalid x coordinate"))?;
 
-                let mut curr_block =
-                    self.biomes.lock().unwrap()[biome_ids[x as usize] as usize].base_block;
+                let curr_block =
+                    if terrain_height > terrain_noise_val || cave_threshold > cave_noise_val {
+                        blocks.air
+                    } else {
+                        self.biomes
+                            .lock()
+                            .unwrap_or_else(PoisonError::into_inner)
+                            .get(
+                                *biome_ids
+                                    .get(x as usize)
+                                    .ok_or_else(|| anyhow!("invalid x coordinate"))?
+                                    as usize,
+                            )
+                            .ok_or_else(|| anyhow!("invalid biome id"))?
+                            .base_block
+                    };
 
-                if terrain_height > terrain_noise_val || cave_threshold > cave_noise_val {
-                    curr_block = blocks.air;
-                } else {
-                    for block in blocks.get_all_block_ids() {
-                        let start_noise = ores_start_noises[&block][x as usize];
-                        let end_noise = ores_end_noises[&block][x as usize];
-                        if (start_noise, end_noise) != (-1.0, -1.0) {
-                            let ore_noise = turbulence(
-                                ore_noises.get(&block).unwrap(),
-                                x as f32 / 15.0,
-                                y as f32 / 15.0,
-                            );
-                            let ore_threshold =
-                                y as f32 / height as f32 * (end_noise - start_noise) + start_noise;
-                            if ore_threshold > ore_noise {
-                                curr_block = block;
-                            }
-                        }
-                    }
-                }
-
-                curr_terrain[(x - prev_x) as usize][y as usize] = curr_block;
+                *curr_terrain
+                    .get_mut((x - prev_x) as usize)
+                    .ok_or_else(|| anyhow!("invalid x coordinate"))?
+                    .get_mut(y as usize)
+                    .ok_or_else(|| anyhow!("invalid y coordinate"))? = curr_block;
 
                 if terrain_height < walls_height {
-                    wall_terrain[x as usize][y as usize] =
-                        self.biomes.lock().unwrap()[biome_ids[x as usize] as usize].base_wall;
+                    *wall_terrain
+                        .get_mut(x as usize)
+                        .ok_or_else(|| anyhow!("invalid x coordinate"))?
+                        .get_mut(y as usize)
+                        .ok_or_else(|| anyhow!("invalid y coordinate"))? = self
+                        .biomes
+                        .lock()
+                        .unwrap_or_else(PoisonError::into_inner)
+                        .get(
+                            *biome_ids
+                                .get(x as usize)
+                                .ok_or_else(|| anyhow!("invalid x coordinate"))?
+                                as usize,
+                        )
+                        .ok_or_else(|| anyhow!("invalid biome id"))?
+                        .base_wall;
                 } else {
-                    wall_terrain[x as usize][y as usize] = walls.clear;
+                    *wall_terrain
+                        .get_mut(x as usize)
+                        .ok_or_else(|| anyhow!("invalid x coordinate"))?
+                        .get_mut(y as usize)
+                        .ok_or_else(|| anyhow!("invalid y coordinate"))? = walls.clear;
                 }
             }
 
-            if x == width - 1 || biome_ids[x as usize] != biome_ids[(x + 1) as usize] {
-                let curr_biome = &self.biomes.lock().unwrap()[biome_ids[x as usize] as usize];
-                if let Some(generator_function) = &curr_biome.generator_function {
+            if x == width - 1
+                || biome_ids
+                    .get(x as usize)
+                    .ok_or_else(|| anyhow!("invalid x coordinate"))?
+                    != biome_ids
+                        .get((x + 1) as usize)
+                        .ok_or_else(|| anyhow!("invalid x coordinate"))?
+            {
+                let biomes = self.biomes.lock().unwrap_or_else(PoisonError::into_inner);
+                let curr_biome2 = biomes
+                    .get(
+                        *biome_ids
+                            .get(x as usize)
+                            .ok_or_else(|| anyhow!("invalid x coordinate"))?
+                            as usize,
+                    )
+                    .ok_or_else(|| anyhow!("invalid biome id"))?;
+                if let Some(generator_function) = &curr_biome2.generator_function {
                     curr_terrain = mods
-                        .get_mod(curr_biome.mod_id)
-                        .unwrap()
-                        .call_function(generator_function, (curr_terrain, x - prev_x + 1, height))
-                        .unwrap();
+                        .get_mod(curr_biome2.mod_id)
+                        .ok_or_else(|| anyhow!("invalid mod id"))?
+                        .call_function(
+                            generator_function,
+                            (curr_terrain, x - prev_x + 1, height),
+                        )?;
                 }
 
-                for y in 0..height {
-                    for x in prev_x..=x {
-                        block_terrain[x as usize][y as usize] =
-                            curr_terrain[(x - prev_x) as usize][y as usize];
+                for y2 in 0..height {
+                    for x2 in prev_x..=x {
+                        *block_terrain
+                            .get_mut(x2 as usize)
+                            .ok_or_else(|| anyhow!("invalid x coordinate"))?
+                            .get_mut(y2 as usize)
+                            .ok_or_else(|| anyhow!("invalid y coordinate"))? = *curr_terrain
+                            .get((x2 - prev_x) as usize)
+                            .ok_or_else(|| anyhow!("invalid x coordinate"))?
+                            .get(y2 as usize)
+                            .ok_or_else(|| anyhow!("invalid y coordinate"))?;
                     }
                 }
                 curr_terrain.clear();
@@ -299,15 +416,16 @@ impl WorldGenerator {
             }
         }
 
-        blocks.create_from_block_ids(&block_terrain).unwrap();
-        walls.create_from_wall_ids(&wall_terrain).unwrap();
+        blocks.create_from_block_ids(&block_terrain)?;
+        walls.create_from_wall_ids(&wall_terrain)?;
 
         println!("World generated in {}ms", start_time.elapsed().as_millis());
 
-        assert!(
-            current_task == total_tasks,
-            "Not all tasks were completed! {current_task} != {total_tasks}"
-        );
+        if current_task != total_tasks {
+            println!("Not all tasks were completed! {current_task} != {total_tasks}");
+        }
+
+        Ok(())
     }
 }
 
@@ -334,7 +452,7 @@ struct Biome {
 }
 
 impl Biome {
-    fn new(mod_id: i32) -> Self {
+    const fn new(mod_id: i32) -> Self {
         Self {
             min_width: 0,
             max_width: 0,
@@ -358,106 +476,59 @@ impl LuaUserData for Biome {
         methods.add_meta_method_mut(
             rlua::MetaMethod::NewIndex,
             |_lua_ctx, this, (key, value): (String, rlua::Value)| {
-                match key.as_str() {
-                    "min_width" => {
-                        match value {
-                            rlua::Value::Integer(b) => this.min_width = b as u32,
-                            _ => {
+                match value {
+                    rlua::Value::Integer(b) => match key.as_str() {
+                        "min_width" => this.min_width = b as u32,
+                        "max_width" => this.max_width = b as u32,
+                        "min_terrain_height" => this.min_terrain_height = b as u32,
+                        "max_terrain_height" => this.max_terrain_height = b as u32,
+                        _ => {
+                            return Err(rlua::Error::RuntimeError(format!(
+                                "{key} is not a valid field of Biome"
+                            )))
+                        }
+                    },
+                    rlua::Value::UserData(b) => match key.as_str() {
+                        "base_block" => match b.borrow::<BlockId>() {
+                            Ok(b) => this.base_block = *b,
+                            Err(_) => {
                                 return Err(rlua::Error::RuntimeError(
-                                    "value is not a valid value for min_width".to_string(),
+                                    "value is not a valid value for base_block".to_owned(),
                                 ))
                             }
-                        }
-                        Ok(())
-                    }
-                    "max_width" => {
-                        match value {
-                            rlua::Value::Integer(b) => this.max_width = b as u32,
-                            _ => {
+                        },
+                        "base_wall" => match b.borrow::<WallId>() {
+                            Ok(b) => this.base_wall = *b,
+                            Err(_) => {
                                 return Err(rlua::Error::RuntimeError(
-                                    "value is not a valid value for max_width".to_string(),
+                                    "value is not a valid value for base_wall".to_owned(),
                                 ))
                             }
+                        },
+                        _ => {
+                            return Err(rlua::Error::RuntimeError(format!(
+                                "{key} is not a valid field of Biome"
+                            )))
                         }
-                        Ok(())
-                    }
-                    "min_terrain_height" => {
-                        match value {
-                            rlua::Value::Integer(b) => this.min_terrain_height = b as u32,
-                            _ => {
-                                return Err(rlua::Error::RuntimeError(
-                                    "value is not a valid value for min_terrain_height".to_string(),
-                                ))
-                            }
+                    },
+                    rlua::Value::String(b) => match key.as_str() {
+                        "generator_function" => {
+                            this.generator_function =
+                                Some(b.to_str().unwrap_or("__undefined").to_owned());
                         }
-                        Ok(())
-                    }
-                    "max_terrain_height" => {
-                        match value {
-                            rlua::Value::Integer(b) => this.max_terrain_height = b as u32,
-                            _ => {
-                                return Err(rlua::Error::RuntimeError(
-                                    "value is not a valid value for max_terrain_height".to_string(),
-                                ))
-                            }
+                        _ => {
+                            return Err(rlua::Error::RuntimeError(format!(
+                                "{key} is not a valid field of Biome"
+                            )))
                         }
-                        Ok(())
+                    },
+                    _ => {
+                        return Err(rlua::Error::RuntimeError(format!(
+                            "{key} is not a valid field of Biome"
+                        )))
                     }
-                    "base_block" => {
-                        // base_block is a BlockId, so we need to convert the value to a BlockId
-                        match value {
-                            rlua::Value::UserData(b) => match b.borrow::<BlockId>() {
-                                Ok(b) => this.base_block = *b,
-                                Err(_) => {
-                                    return Err(rlua::Error::RuntimeError(
-                                        "value is not a valid value for base_block".to_string(),
-                                    ))
-                                }
-                            },
-                            _ => {
-                                return Err(rlua::Error::RuntimeError(
-                                    "value is not a valid value for base_block".to_string(),
-                                ))
-                            }
-                        }
-                        Ok(())
-                    }
-                    "base_wall" => {
-                        // base_wall is a WallId, so we need to convert the value to a WallId
-                        match value {
-                            rlua::Value::UserData(b) => match b.borrow::<WallId>() {
-                                Ok(b) => this.base_wall = *b,
-                                Err(_) => {
-                                    return Err(rlua::Error::RuntimeError(
-                                        "value is not a valid value for base_wall".to_string(),
-                                    ))
-                                }
-                            },
-                            _ => {
-                                return Err(rlua::Error::RuntimeError(
-                                    "value is not a valid value for base_wall".to_string(),
-                                ))
-                            }
-                        }
-                        Ok(())
-                    }
-                    "generator_function" => {
-                        match value {
-                            rlua::Value::String(b) => {
-                                this.generator_function = Some(b.to_str().unwrap().to_string())
-                            }
-                            _ => {
-                                return Err(rlua::Error::RuntimeError(
-                                    "value is not a valid value for generator_function".to_string(),
-                                ))
-                            }
-                        }
-                        Ok(())
-                    }
-                    _ => Err(rlua::Error::RuntimeError(format!(
-                        "{key} is not a valid field of Biome"
-                    ))),
                 }
+                Ok(())
             },
         );
 

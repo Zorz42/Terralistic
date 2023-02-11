@@ -62,6 +62,7 @@
 
 use crate::server::server_impl::Server;
 use crate::server::server_impl::MULTIPLAYER_PORT;
+use std::sync::atomic::AtomicBool;
 use std::sync::{Arc, Mutex};
 
 pub mod libraries {
@@ -81,9 +82,9 @@ pub mod client {
 }
 
 fn main() {
-    let server_running = Arc::new(Mutex::new(true));
+    let server_running = Arc::new(AtomicBool::new(true));
 
-    let loading_text = Arc::new(Mutex::new("Loading".to_string()));
+    let loading_text = Arc::new(Mutex::new("Loading".to_owned()));
 
     let path = std::env::current_dir().unwrap().join("server_data");
 

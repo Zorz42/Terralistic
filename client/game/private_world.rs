@@ -4,6 +4,7 @@ use crate::libraries::graphics::GraphicsContext;
 use crate::server::server_impl::Server;
 use crate::server::server_impl::SINGLEPLAYER_PORT;
 use std::path::Path;
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex};
 
 pub fn run_private_world(
@@ -11,7 +12,7 @@ pub fn run_private_world(
     menu_back: &mut dyn BackgroundRect,
     world_path: &Path,
 ) {
-    let server_running = Arc::new(Mutex::new(true));
+    let server_running = Arc::new(AtomicBool::new(true));
     let server_running2 = server_running.clone();
 
     let mut game = Game::new(SINGLEPLAYER_PORT, String::from("127.0.0.1"));
@@ -36,7 +37,7 @@ pub fn run_private_world(
     game.run(graphics, menu_back);
 
     // stop server
-    *server_running.lock().unwrap() = false;
+    server_running.store(false, Ordering::Relaxed);
 
     *loading_text.lock().unwrap() = "Waiting for server".to_string();
     run_loading_screen(graphics, menu_back, &loading_text);

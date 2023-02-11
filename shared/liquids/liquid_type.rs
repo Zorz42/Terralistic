@@ -1,4 +1,4 @@
-use rlua::{ToLua, UserDataMethods};
+/*use rlua::{ToLua, UserDataMethods};
 
 /**struct with information about a liquid type*/
 pub struct LiquidType {
@@ -89,4 +89,4 @@ impl PartialEq for LiquidType {
     fn eq(&self, other: &Self) -> bool {
         self.id == other.id
     }
-}
+}*/

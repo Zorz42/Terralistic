@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 extern crate alloc;
 use alloc::sync::Arc;
-use std::sync::Mutex;
+use std::sync::{Mutex, PoisonError};
 
 use serde_derive::{Deserialize, Serialize};
 use snap;
@@ -100,7 +100,7 @@ impl Blocks {
             &mut result
                 .block_types
                 .lock()
-                .unwrap_or_else(std::sync::PoisonError::into_inner),
+                .unwrap_or_else(PoisonError::into_inner),
             air,
         );
 
@@ -125,9 +125,7 @@ impl Blocks {
         let mut block_types = self.block_types.clone();
         mods.add_global_function("register_block_type", move |_lua, block_type: Block| {
             let result = Self::register_new_block_type(
-                &mut block_types
-                    .lock()
-                    .unwrap_or_else(std::sync::PoisonError::into_inner),
+                &mut block_types.lock().unwrap_or_else(PoisonError::into_inner),
                 block_type,
             );
             Ok(result)
@@ -135,9 +133,7 @@ impl Blocks {
 
         block_types = self.block_types.clone();
         mods.add_global_function("get_block_id_by_name", move |_lua, name: String| {
-            let block_types = block_types
-                .lock()
-                .unwrap_or_else(std::sync::PoisonError::into_inner);
+            let block_types = block_types.lock().unwrap_or_else(PoisonError::into_inner);
             let iter = block_types.iter();
             for block_type in iter {
                 if block_type.name == name {
@@ -152,9 +148,7 @@ impl Blocks {
         mods.add_global_function(
             "connect_blocks",
             move |_lua, (block_id1, block_id2): (BlockId, BlockId)| {
-                let mut block_types = block_types
-                    .lock()
-                    .unwrap_or_else(std::sync::PoisonError::into_inner);
+                let mut block_types = block_types.lock().unwrap_or_else(PoisonError::into_inner);
                 block_types
                     .get_mut(block_id1.id as usize)
                     .ok_or(rlua::Error::RuntimeError(
@@ -350,7 +344,7 @@ impl Blocks {
         let block_types = self
             .block_types
             .lock()
-            .unwrap_or_else(std::sync::PoisonError::into_inner);
+            .unwrap_or_else(PoisonError::into_inner);
         let iter = block_types.iter();
         for block_type in iter {
             if block_type.name == name {
@@ -366,7 +360,7 @@ impl Blocks {
         let block_types = self
             .block_types
             .lock()
-            .unwrap_or_else(std::sync::PoisonError::into_inner);
+            .unwrap_or_else(PoisonError::into_inner);
         let iter = block_types.iter();
         for block_type in iter {
             result.push(block_type.id);
@@ -381,7 +375,7 @@ impl Blocks {
         let blocks = self
             .block_types
             .lock()
-            .unwrap_or_else(std::sync::PoisonError::into_inner);
+            .unwrap_or_else(PoisonError::into_inner);
         Ok(blocks
             .get(id.id as usize)
             .ok_or_else(|| anyhow!("Block type not found"))?

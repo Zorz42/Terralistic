@@ -4,9 +4,11 @@ use super::networking::ServerNetworking;
 use super::walls::ServerWalls;
 use super::world_generator::WorldGenerator;
 use crate::libraries::events::EventManager;
+use anyhow::{anyhow, Result};
+use core::sync::atomic::{AtomicBool, Ordering};
 use std::collections::HashMap;
 use std::path::Path;
-use std::sync::Mutex;
+use std::sync::{Mutex, PoisonError};
 
 pub const SINGLEPLAYER_PORT: u16 = 49152;
 pub const MULTIPLAYER_PORT: u16 = 49153;
@@ -35,40 +37,45 @@ impl Server {
         }
     }
 
+    /// Starts the server
+    /// # Errors
+    /// A lot of server crashes are caused by mods and other stuff, so this function returns a Result
     pub fn start(
         &mut self,
-        is_running: &Mutex<bool>,
+        is_running: &AtomicBool,
         status_text: &Mutex<String>,
         mods_serialized: Vec<Vec<u8>>,
         world_path: &Path,
-    ) {
+    ) -> Result<()> {
         println!("Starting server...");
         let timer = std::time::Instant::now();
-        *status_text.lock().unwrap() = "Starting server".to_string();
+        *status_text.lock().unwrap_or_else(PoisonError::into_inner) = "Starting server".to_owned();
 
         let mut mods = Vec::new();
         for game_mod in mods_serialized {
             // decompress mod with snap
-            let game_mod = snap::raw::Decoder::new().decompress_vec(&game_mod).unwrap();
-            mods.push(bincode::deserialize(&game_mod).unwrap());
+            let game_mod = snap::raw::Decoder::new().decompress_vec(&game_mod)?;
+            mods.push(bincode::deserialize(&game_mod)?);
         }
 
         self.mods = ServerModManager::new(mods);
 
         // init modules
-        self.networking.init();
-        self.blocks.init(&mut self.mods.mod_manager);
-        self.walls.init(&mut self.mods.mod_manager);
+        self.networking.init()?;
+        self.blocks.init(&mut self.mods.mod_manager)?;
+        self.walls.init(&mut self.mods.mod_manager)?;
 
         let mut generator = WorldGenerator::new();
-        generator.init(&mut self.mods.mod_manager);
+        generator.init(&mut self.mods.mod_manager)?;
 
-        *status_text.lock().unwrap() = "Initializing mods".to_string();
-        self.mods.init();
+        *status_text.lock().unwrap_or_else(PoisonError::into_inner) =
+            "Initializing mods".to_owned();
+        self.mods.init()?;
 
         if world_path.exists() {
-            *status_text.lock().unwrap() = "Loading world".to_string();
-            self.load_world(world_path);
+            *status_text.lock().unwrap_or_else(PoisonError::into_inner) =
+                "Loading world".to_owned();
+            self.load_world(world_path)?;
         } else {
             generator.generate(
                 (&mut self.blocks.blocks, &mut self.walls.walls),
@@ -77,33 +84,36 @@ impl Server {
                 1200,
                 423_657,
                 status_text,
-            );
+            )?;
         }
 
         // start server loop
         println!("server started in {}ms", timer.elapsed().as_millis());
-        status_text.lock().unwrap().clear();
+        status_text
+            .lock()
+            .unwrap_or_else(PoisonError::into_inner)
+            .clear();
         let mut last_time = std::time::Instant::now();
         loop {
             let delta_time = last_time.elapsed().as_secs_f32() * 1000.0;
             last_time = std::time::Instant::now();
 
             // update modules
-            self.networking.update(&mut self.events);
-            self.mods.update();
-            self.blocks.update(&mut self.events, delta_time);
-            self.walls.update(delta_time, &mut self.events);
+            self.networking.update(&mut self.events)?;
+            self.mods.update()?;
+            self.blocks.update(&mut self.events, delta_time)?;
+            self.walls.update(delta_time, &mut self.events)?;
 
             // handle events
             while let Some(event) = self.events.pop_event() {
-                self.mods.on_event(&event, &mut self.networking);
+                self.mods.on_event(&event, &mut self.networking)?;
                 self.blocks
-                    .on_event(&event, &mut self.events, &mut self.networking);
-                self.walls.on_event(&event, &mut self.networking);
-                self.networking.on_event(&event);
+                    .on_event(&event, &mut self.events, &mut self.networking)?;
+                self.walls.on_event(&event, &mut self.networking)?;
+                self.networking.on_event(&event)?;
             }
 
-            if !*is_running.lock().unwrap() {
+            if !is_running.load(Ordering::Relaxed) {
                 break;
             }
 
@@ -114,46 +124,51 @@ impl Server {
             }
         }
 
-        *status_text.lock().unwrap() = "Saving world".to_string();
-        self.save_world(world_path);
+        *status_text.lock().unwrap_or_else(PoisonError::into_inner) = "Saving world".to_owned();
+        self.save_world(world_path)?;
 
-        *status_text.lock().unwrap() = "Stopping server".to_string();
+        *status_text.lock().unwrap_or_else(PoisonError::into_inner) = "Stopping server".to_owned();
         // stop modules
-        self.networking.stop();
-        self.mods.stop();
+        self.networking.stop()?;
+        self.mods.stop()?;
 
-        status_text.lock().unwrap().clear();
+        status_text
+            .lock()
+            .unwrap_or_else(PoisonError::into_inner)
+            .clear();
         println!("server stopped.");
+        Ok(())
     }
 
-    fn load_world(&mut self, world_path: &Path) {
+    fn load_world(&mut self, world_path: &Path) -> Result<()> {
         // load world file into Vec<u8>
-        let world_file = std::fs::read(world_path).unwrap();
+        let world_file = std::fs::read(world_path)?;
         // decode world file as HashMap<String, Vec<u8>>
-        let world: HashMap<String, Vec<u8>> = bincode::deserialize(&world_file).unwrap();
+        let world: HashMap<String, Vec<u8>> = bincode::deserialize(&world_file)?;
 
         self.blocks
             .blocks
-            .deserialize(world.get("blocks").unwrap())
-            .unwrap();
+            .deserialize(world.get("blocks").unwrap_or(&Vec::new()))?;
         self.walls
             .walls
-            .deserialize(world.get("walls").unwrap())
-            .unwrap();
+            .deserialize(world.get("walls").unwrap_or(&Vec::new()))?;
+        Ok(())
     }
 
-    fn save_world(&self, world_path: &Path) {
+    fn save_world(&self, world_path: &Path) -> Result<()> {
         let mut world = HashMap::new();
-        world.insert(
-            "blocks".to_string(),
-            self.blocks.blocks.serialize().unwrap(),
-        );
-        world.insert("walls".to_string(), self.walls.walls.serialize().unwrap());
+        world.insert("blocks".to_owned(), self.blocks.blocks.serialize()?);
+        world.insert("walls".to_owned(), self.walls.walls.serialize()?);
 
-        let world_file = bincode::serialize(&world).unwrap();
+        let world_file = bincode::serialize(&world)?;
         if !world_path.exists() {
-            std::fs::create_dir_all(world_path.parent().unwrap()).unwrap();
+            std::fs::create_dir_all(
+                world_path
+                    .parent()
+                    .ok_or_else(|| anyhow!("could not get parent folder"))?,
+            )?;
         }
-        std::fs::write(world_path, world_file).unwrap();
+        std::fs::write(world_path, world_file)?;
+        Ok(())
     }
 }

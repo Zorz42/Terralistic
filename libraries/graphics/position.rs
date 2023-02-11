@@ -1,5 +1,5 @@
+use core::ops::{Add, Sub};
 use serde_derive::{Deserialize, Serialize};
-use std::ops::{Add, Sub};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub struct IntPos(pub i32, pub i32);

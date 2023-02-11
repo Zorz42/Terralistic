@@ -108,7 +108,7 @@ impl rlua::UserData for Block {
 impl Block {
     /// Creates a new block type with default values
     #[must_use]
-    pub fn new() -> Self {
+    pub const fn new() -> Self {
         Self {
             effective_tool: None,
             required_tool_power: 0,

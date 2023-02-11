@@ -1,4 +1,4 @@
-use crate::shared::blocks::Blocks;
+/*use crate::shared::blocks::Blocks;
 use std::cmp::max;
 
 pub const MAX_LIGHT: i32 = 100;
@@ -271,3 +271,4 @@ impl Lights {
         self.schedule_light_update(event.x, event.y);
     }
 }*/
+*/
