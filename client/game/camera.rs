@@ -13,7 +13,7 @@ pub struct Camera {
 }
 
 impl Camera {
-    pub fn new() -> Self {
+    pub const fn new() -> Self {
         Self {
             target_position_x: 0.0,
             target_position_y: 0.0,
@@ -27,7 +27,7 @@ impl Camera {
         self.target_position_y = y;
     }
 
-    pub fn get_position(&self) -> FloatPos {
+    pub const fn get_position(&self) -> FloatPos {
         FloatPos(self.position_x, self.position_y)
     }
 

@@ -2,6 +2,7 @@ use crate::libraries::events;
 use crate::libraries::events::EventManager;
 use crate::shared::enet_global::ENET_GLOBAL;
 use crate::shared::packet::{Packet, WelcomeCompletePacket};
+use anyhow::{anyhow, bail, Result};
 use enet::{Address, BandwidthLimit, ChannelLimit, Event, Host, PacketMode};
 
 /**
@@ -22,7 +23,7 @@ pub struct ClientNetworking {
 }
 
 impl ClientNetworking {
-    pub fn new(server_port: u16, server_address: String) -> Self {
+    pub const fn new(server_port: u16, server_address: String) -> Self {
         Self {
             server_port,
             server_address,
@@ -30,57 +31,62 @@ impl ClientNetworking {
         }
     }
 
-    pub fn init(&mut self, events: &mut EventManager) {
+    pub fn init(&mut self, events: &mut EventManager) -> Result<()> {
         // connect to the server
-        self.net_client = Some(
-            ENET_GLOBAL
-                .create_host::<()>(
-                    None,
-                    10,
-                    ChannelLimit::Maximum,
-                    BandwidthLimit::Unlimited,
-                    BandwidthLimit::Unlimited,
-                )
-                .unwrap(),
-        );
+        self.net_client = Some(ENET_GLOBAL.create_host::<()>(
+            None,
+            10,
+            ChannelLimit::Maximum,
+            BandwidthLimit::Unlimited,
+            BandwidthLimit::Unlimited,
+        )?);
 
         self.net_client
             .as_mut()
-            .unwrap()
+            .ok_or_else(|| anyhow!("client enet not constructed yet"))?
             .connect(
-                &Address::new(self.server_address.parse().unwrap(), self.server_port),
+                &Address::new(self.server_address.parse()?, self.server_port),
                 10,
                 0,
-            )
-            .unwrap();
+            )?;
 
         loop {
-            if let Some(event) = self.net_client.as_mut().unwrap().service(0).unwrap() {
+            if let Some(event) = self
+                .net_client
+                .as_mut()
+                .ok_or_else(|| anyhow!("client enet not constructed yet"))?
+                .service(0)?
+            {
                 match event {
                     Event::Connect(ref _peer) => {
                         break;
                     }
                     Event::Disconnect { .. } => {
-                        panic!("disconnected from server");
+                        bail!("disconnected from server");
                     }
                     Event::Receive { .. } => {
-                        panic!("unexpected receive");
+                        bail!("unexpected receive");
                     }
                 };
             }
         }
 
         'welcome_loop: loop {
-            if let Some(event) = self.net_client.as_mut().unwrap().service(0).unwrap() {
+            if let Some(event) = self
+                .net_client
+                .as_mut()
+                .ok_or_else(|| anyhow!("client enet not constructed yet"))?
+                .service(0)?
+            {
                 match event {
                     Event::Connect(_) => {
-                        panic!("unexpected connect");
+                        bail!("unexpected connect");
                     }
                     Event::Disconnect { .. } => {
-                        panic!("disconnected from server");
+                        bail!("disconnected from server");
                     }
                     Event::Receive { ref packet, .. } => {
-                        let packet = bincode::deserialize::<Packet>(packet.data()).unwrap();
+                        let packet = bincode::deserialize::<Packet>(packet.data())?;
 
                         if packet.try_deserialize::<WelcomeCompletePacket>().is_some() {
                             break 'welcome_loop;
@@ -92,44 +98,66 @@ impl ClientNetworking {
                 };
             }
         }
+
+        Ok(())
     }
 
-    pub fn update(&mut self, events: &mut EventManager) {
-        self.net_client.as_mut().unwrap().flush();
+    pub fn update(&mut self, events: &mut EventManager) -> Result<()> {
+        self.net_client
+            .as_mut()
+            .ok_or_else(|| anyhow!("client enet not constructed yet"))?
+            .flush();
 
-        while let Some(event) = self.net_client.as_mut().unwrap().service(0).unwrap() {
+        while let Some(event) = self
+            .net_client
+            .as_mut()
+            .ok_or_else(|| anyhow!("client enet not constructed yet"))?
+            .service(0)?
+        {
             match event {
                 Event::Connect(_) => {
-                    panic!("connected to server at incorrect time");
+                    bail!("connected to server at incorrect time");
                 }
                 Event::Disconnect { .. } => {
-                    panic!("disconnected from server");
+                    bail!("disconnected from server");
                 }
                 Event::Receive { ref packet, .. } => {
-                    let packet = bincode::deserialize::<Packet>(packet.data()).unwrap();
+                    let packet = bincode::deserialize::<Packet>(packet.data())?;
 
                     // send welcome packet event
                     events.push_event(events::Event::new(packet));
                 }
             };
         }
+        Ok(())
     }
 
-    pub fn send_packet(&mut self, packet: &Packet) {
-        let packet_data = bincode::serialize(packet).unwrap();
-        let mut server = self.net_client.as_mut().unwrap().peers().next().unwrap();
-        server
-            .send_packet(
-                enet::Packet::new(&packet_data, PacketMode::ReliableSequenced).unwrap(),
-                0,
-            )
-            .unwrap();
+    pub fn send_packet(&mut self, packet: &Packet) -> Result<()> {
+        let packet_data = bincode::serialize(packet)?;
+        let mut server = self
+            .net_client
+            .as_mut()
+            .ok_or_else(|| anyhow!("client enet not constructed yet"))?
+            .peers()
+            .next()
+            .ok_or_else(|| anyhow!("no server peer"))?;
+        server.send_packet(
+            enet::Packet::new(&packet_data, PacketMode::ReliableSequenced)?,
+            0,
+        )?;
+        Ok(())
     }
 
-    pub fn stop(&mut self) {
+    pub fn stop(&mut self) -> Result<()> {
         // disconnect the socket
-        for ref mut server in self.net_client.as_mut().unwrap().peers() {
+        for ref mut server in self
+            .net_client
+            .as_mut()
+            .ok_or_else(|| anyhow!("client enet not constructed yet"))?
+            .peers()
+        {
             server.disconnect(0);
         }
+        Ok(())
     }
 }

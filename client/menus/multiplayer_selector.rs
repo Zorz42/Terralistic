@@ -3,7 +3,7 @@ use super::{run_add_server_menu, run_choice_menu};
 use crate::client::game::core::Game;
 
 use crate::libraries::graphics as gfx;
-use crate::libraries::graphics::{FloatPos, FloatSize, GraphicsContext};
+use crate::libraries::graphics::{FloatPos, FloatSize, GraphicsContext, IntSize};
 use directories::BaseDirs;
 use serde_derive::{Deserialize, Serialize};
 
@@ -65,7 +65,7 @@ impl ServerCard {
             &gfx::Surface::deserialize_from_bytes(include_bytes!(
                 "../../Build/Resources/world_icon.opa"
             ))
-            .unwrap(),
+            .unwrap_or_else(|_| gfx::Surface::new(IntSize(1, 1))),
         );
         rect.size.1 = icon.get_size().1 + 2.0 * gfx::SPACING;
         icon.pos.0 = gfx::SPACING;
@@ -82,7 +82,7 @@ impl ServerCard {
             &gfx::Surface::deserialize_from_bytes(include_bytes!(
                 "../../Build/Resources/join_button.opa"
             ))
-            .unwrap(),
+            .unwrap_or_else(|_| gfx::Surface::new(IntSize(1, 1))),
         );
         play_button.scale = 3.0;
         play_button.padding = 5.0;
@@ -95,7 +95,7 @@ impl ServerCard {
             &gfx::Surface::deserialize_from_bytes(include_bytes!(
                 "../../Build/Resources/remove_button.opa"
             ))
-            .unwrap(),
+            .unwrap_or_else(|_| gfx::Surface::new(IntSize(1, 1))),
         );
         delete_button.scale = 3.0;
         delete_button.padding = 5.0;
@@ -338,7 +338,10 @@ fn update_elements(
                         ) {
                             let mut game =
                                 Game::new(server.server_info.port, server.server_info.ip.clone());
-                            game.run(graphics, menu_back);
+                            let game_result = game.run(graphics, menu_back);
+                            if let Err(error) = game_result {
+                                println!("Game error: {error}");
+                            }
                         } else if server.delete_button.is_hovered(
                             graphics,
                             Some(&server.get_container(

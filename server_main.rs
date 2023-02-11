@@ -62,8 +62,10 @@
 
 use crate::server::server_impl::Server;
 use crate::server::server_impl::MULTIPLAYER_PORT;
-use std::sync::atomic::AtomicBool;
-use std::sync::{Arc, Mutex};
+use core::sync::atomic::AtomicBool;
+use std::sync::Mutex;
+extern crate alloc;
+use alloc::sync::Arc;
 
 pub mod libraries {
     pub mod events;
@@ -86,13 +88,26 @@ fn main() {
 
     let loading_text = Arc::new(Mutex::new("Loading".to_owned()));
 
-    let path = std::env::current_dir().unwrap().join("server_data");
+    let curr_dir = std::env::current_dir();
+    let curr_dir = match curr_dir {
+        Ok(path) => path,
+        Err(e) => {
+            println!("Couldn't get current directory: {e}");
+            return;
+        }
+    };
+
+    let path = curr_dir.join("server_data");
 
     let mut server = Server::new(MULTIPLAYER_PORT);
-    server.start(
+    let result = server.start(
         &server_running,
         &loading_text,
         vec![include_bytes!("base_game/base_game.mod").to_vec()],
         &path.join("server.world"),
     );
+
+    if let Err(e) = result {
+        println!("Server stopped with an error: {e}");
+    }
 }

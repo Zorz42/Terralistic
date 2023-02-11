@@ -1,6 +1,6 @@
 use super::background_rect::{Background, BackgroundRect};
 use crate::libraries::graphics as gfx;
-use crate::libraries::graphics::{FloatPos, FloatSize};
+use crate::libraries::graphics::{FloatPos, FloatSize, IntSize};
 
 /**
 `MenuBack` is a struct that contains the background rectangle for
@@ -34,7 +34,7 @@ impl MenuBack {
                 &gfx::Surface::deserialize_from_bytes(include_bytes!(
                     "../../Build/Resources/background.opa"
                 ))
-                .unwrap(),
+                .unwrap_or_else(|_| gfx::Surface::new(IntSize(1, 1))),
             ),
             background_timer: std::time::Instant::now(),
             back_rect,
@@ -75,7 +75,7 @@ impl Background for MenuBack {
             );
         }
 
-        if self.back_rect.size.1 != graphics.renderer.get_window_size().1 {
+        if (self.back_rect.size.1 - graphics.renderer.get_window_size().1).abs() > f32::EPSILON {
             self.back_rect.size.1 = graphics.renderer.get_window_size().1;
             self.back_rect.jump_to_target();
         }

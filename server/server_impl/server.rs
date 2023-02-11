@@ -6,9 +6,11 @@ use super::world_generator::WorldGenerator;
 use crate::libraries::events::EventManager;
 use anyhow::{anyhow, Result};
 use core::sync::atomic::{AtomicBool, Ordering};
+use core::time::Duration;
 use std::collections::HashMap;
 use std::path::Path;
 use std::sync::{Mutex, PoisonError};
+use std::thread::sleep;
 
 pub const SINGLEPLAYER_PORT: u16 = 49152;
 pub const MULTIPLAYER_PORT: u16 = 49153;
@@ -120,7 +122,7 @@ impl Server {
             // sleep
             let sleep_time = 1000.0 / self.tps_limit - last_time.elapsed().as_secs_f32() * 1000.0;
             if sleep_time > 0.0 {
-                std::thread::sleep(std::time::Duration::from_secs_f32(sleep_time / 1000.0));
+                sleep(Duration::from_secs_f32(sleep_time / 1000.0));
             }
         }
 

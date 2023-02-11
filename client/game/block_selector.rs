@@ -7,6 +7,7 @@ use crate::shared::blocks::{
     BlockBreakStartPacket, BlockBreakStopPacket, RENDER_BLOCK_WIDTH, RENDER_SCALE,
 };
 use crate::shared::packet::Packet;
+use anyhow::Result;
 
 /**
 Block selector is used to select a block.
@@ -19,7 +20,7 @@ pub struct BlockSelector {
 }
 
 impl BlockSelector {
-    pub fn new() -> Self {
+    pub const fn new() -> Self {
         Self {
             prev_selected: (0, 0),
             breaking: false,
@@ -29,11 +30,7 @@ impl BlockSelector {
     /**
     This function gets the current block that is selected.
      */
-    pub fn get_selected_block(
-        &self,
-        graphics: &mut gfx::GraphicsContext,
-        camera: &Camera,
-    ) -> (i32, i32) {
+    pub fn get_selected_block(graphics: &mut gfx::GraphicsContext, camera: &Camera) -> (i32, i32) {
         let mouse_x = graphics.renderer.get_mouse_pos().0;
         let mouse_y = graphics.renderer.get_mouse_pos().1;
 
@@ -54,8 +51,8 @@ impl BlockSelector {
         graphics: &mut gfx::GraphicsContext,
         networking: &mut ClientNetworking,
         camera: &Camera,
-    ) {
-        let selected_block = self.get_selected_block(graphics, camera);
+    ) -> Result<()> {
+        let selected_block = Self::get_selected_block(graphics, camera);
 
         let x = selected_block.0 * RENDER_BLOCK_WIDTH
             - (camera.get_top_left(graphics).0 * RENDER_SCALE) as i32;
@@ -70,29 +67,29 @@ impl BlockSelector {
 
         if self.prev_selected != selected_block {
             if self.breaking {
-                self.start_breaking(networking, selected_block);
+                self.start_breaking(networking, selected_block)?;
             }
             self.prev_selected = selected_block;
         }
+        Ok(())
     }
 
-    fn start_breaking(&mut self, networking: &mut ClientNetworking, pos: (i32, i32)) {
+    fn start_breaking(&mut self, networking: &mut ClientNetworking, pos: (i32, i32)) -> Result<()> {
         self.breaking = true;
 
-        networking.send_packet(&Packet::new(BlockBreakStartPacket { x: pos.0, y: pos.1 }).unwrap())
+        networking.send_packet(&Packet::new(BlockBreakStartPacket { x: pos.0, y: pos.1 })?)?;
+        Ok(())
     }
 
-    fn stop_breaking(&mut self, networking: &mut ClientNetworking, pos: (i32, i32)) {
+    fn stop_breaking(&mut self, networking: &mut ClientNetworking, pos: (i32, i32)) -> Result<()> {
         self.breaking = false;
 
-        networking.send_packet(
-            &Packet::new(BlockBreakStopPacket {
-                x: pos.0,
-                y: pos.1,
-                break_time: 0, // server ignores this
-            })
-            .unwrap(),
-        );
+        networking.send_packet(&Packet::new(BlockBreakStopPacket {
+            x: pos.0,
+            y: pos.1,
+            break_time: 0, // server ignores this
+        })?)?;
+        Ok(())
     }
 
     /**
@@ -104,18 +101,18 @@ impl BlockSelector {
         networking: &mut ClientNetworking,
         camera: &Camera,
         event: &Event,
-    ) {
+    ) -> Result<()> {
         if let Some(event) = event.downcast::<gfx::Event>() {
             match event {
                 gfx::Event::KeyPress(gfx::Key::MouseLeft, ..) => {
-                    self.start_breaking(networking, self.get_selected_block(graphics, camera));
+                    self.start_breaking(networking, Self::get_selected_block(graphics, camera))?;
                 }
                 gfx::Event::KeyRelease(gfx::Key::MouseLeft, ..) => {
-                    self.stop_breaking(networking, self.get_selected_block(graphics, camera));
+                    self.stop_breaking(networking, Self::get_selected_block(graphics, camera))?;
                 }
-                gfx::Event::KeyPress(gfx::Key::MouseRight, ..) => {}
                 _ => {}
             }
         }
+        Ok(())
     }
 }

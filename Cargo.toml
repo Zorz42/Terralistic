@@ -4,6 +4,10 @@ version = "0.1.0"
 edition = "2021"
 description = "Terralistic"
 build = "build_main.rs"
+license-file = "LICENSE"
+repository = "https:://github.com/Zorz42/Terralistic"
+keywords = ["game", "terralistic"]
+categories = ["game"]
 
 [[bin]]
 name = "terralistic"

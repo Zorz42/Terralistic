@@ -1,6 +1,7 @@
 use super::camera::Camera;
 use crate::libraries::graphics as gfx;
 use crate::libraries::graphics::FloatPos;
+use anyhow::Result;
 
 /**
 Background is a struct that holds the background image and renders it.
@@ -10,19 +11,17 @@ pub struct Background {
 }
 
 impl Background {
-    pub fn new() -> Self {
+    pub const fn new() -> Self {
         Self {
             image: gfx::Texture::new(),
         }
     }
 
-    pub fn init(&mut self) {
-        self.image = gfx::Texture::load_from_surface(
-            &gfx::Surface::deserialize_from_bytes(include_bytes!(
-                "../../Build/Resources/background.opa"
-            ))
-            .unwrap(),
-        );
+    pub fn init(&mut self) -> Result<()> {
+        self.image = gfx::Texture::load_from_surface(&gfx::Surface::deserialize_from_bytes(
+            include_bytes!("../../Build/Resources/background.opa"),
+        )?);
+        Ok(())
     }
 
     pub fn render(&self, graphics: &mut gfx::GraphicsContext, camera: &Camera) {

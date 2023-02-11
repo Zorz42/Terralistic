@@ -44,7 +44,7 @@ impl ServerModManager {
                 mods.push(bincode::serialize(game_mod)?);
             }
             let welcome_packet = Packet::new(ModsWelcomePacket { mods })?;
-            networking.send_packet(&welcome_packet, &event.conn);
+            networking.send_packet(&welcome_packet, &event.conn)?;
         }
         Ok(())
     }

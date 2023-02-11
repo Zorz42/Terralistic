@@ -4,6 +4,7 @@ use crate::libraries::graphics as gfx;
 use crate::libraries::graphics::SPACING;
 use crate::shared::versions::VERSION;
 
+#[allow(clippy::too_many_lines)] // TODO: split this function up
 pub fn run_main_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn BackgroundRect) {
     let mut singleplayer_button = gfx::Button::new();
     singleplayer_button.scale = 3.0;
@@ -58,7 +59,7 @@ pub fn run_main_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn Ba
     version.pos.1 = -5.0;
 
     {
-        let buttons = vec![
+        let buttons = [
             &mut singleplayer_button,
             &mut multiplayer_button,
             &mut settings_button,

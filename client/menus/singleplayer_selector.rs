@@ -4,7 +4,7 @@ use super::world_creation::run_world_creation;
 use crate::client::game::private_world::run_private_world;
 
 use crate::libraries::graphics as gfx;
-use crate::libraries::graphics::{FloatPos, FloatSize, GraphicsContext};
+use crate::libraries::graphics::{FloatPos, FloatSize, GraphicsContext, IntSize};
 use directories::BaseDirs;
 use std::fs;
 use std::path::PathBuf;
@@ -82,7 +82,7 @@ impl World {
             &gfx::Surface::deserialize_from_bytes(include_bytes!(
                 "../../Build/Resources/world_icon.opa"
             ))
-            .unwrap(),
+            .unwrap_or_else(|_| gfx::Surface::new(IntSize(1, 1))),
         );
         rect.size.1 = icon.get_size().1 + 2.0 * gfx::SPACING;
         icon.pos.0 = gfx::SPACING;
@@ -99,7 +99,7 @@ impl World {
             &gfx::Surface::deserialize_from_bytes(include_bytes!(
                 "../../Build/Resources/play_button.opa"
             ))
-            .unwrap(),
+            .unwrap_or_else(|_| gfx::Surface::new(IntSize(1, 1))),
         );
         play_button.scale = 3.0;
         play_button.padding = 5.0;
@@ -112,7 +112,7 @@ impl World {
             &gfx::Surface::deserialize_from_bytes(include_bytes!(
                 "../../Build/Resources/delete_button.opa"
             ))
-            .unwrap(),
+            .unwrap_or_else(|_| gfx::Surface::new(IntSize(1, 1))),
         );
         delete_button.scale = 3.0;
         delete_button.padding = 5.0;
@@ -334,7 +334,11 @@ fn update_elements(
                                 Some(menu_back.get_back_rect_container()),
                             )),
                         ) {
-                            run_private_world(graphics, menu_back, world.get_file_path());
+                            let game_result =
+                                run_private_world(graphics, menu_back, world.get_file_path());
+                            if let Err(error) = game_result {
+                                println!("Game error: {error}");
+                            }
                         } else if world.delete_button.is_hovered(
                             graphics,
                             Some(&world.get_container(

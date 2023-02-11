@@ -14,7 +14,8 @@ fn world_name_exists(worlds_list: &Vec<World>, name: &str) -> bool {
     false
 }
 
-/**this function runs the world creation menu.*/
+/// this function runs the world creation menu.
+#[allow(clippy::too_many_lines)] // TODO: reduce the number of lines in this function
 pub fn run_world_creation(
     graphics: &mut GraphicsContext,
     menu_back: &mut dyn BackgroundRect,
@@ -108,7 +109,10 @@ pub fn run_world_creation(
                             break 'render_loop;
                         }
                         if create_button.is_hovered(graphics, Some(&buttons_container)) {
-                            run_private_world(graphics, menu_back, &world_path);
+                            let game_result = run_private_world(graphics, menu_back, &world_path);
+                            if let Err(error) = game_result {
+                                println!("Game error: {error}");
+                            }
                             break 'render_loop;
                         }
                     }
@@ -122,7 +126,10 @@ pub fn run_world_creation(
                     }
                     gfx::Key::Enter => {
                         if !create_button.disabled {
-                            run_private_world(graphics, menu_back, &world_path);
+                            let game_result = run_private_world(graphics, menu_back, &world_path);
+                            if let Err(error) = game_result {
+                                println!("Game error: {error}");
+                            }
                             break 'render_loop;
                         }
                     }

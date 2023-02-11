@@ -6,6 +6,7 @@ use crate::libraries::graphics::{FloatPos, FloatSize, GraphicsContext};
 use crate::shared::blocks::{Blocks, BLOCK_WIDTH, CHUNK_SIZE, RENDER_BLOCK_WIDTH, RENDER_SCALE};
 use crate::shared::mod_manager::ModManager;
 use crate::shared::walls::{WallId, Walls, WallsWelcomePacket};
+use anyhow::{anyhow, bail, Result};
 use std::collections::HashMap;
 
 pub struct RenderWallChunk {
@@ -22,11 +23,8 @@ impl RenderWallChunk {
     }
 
     fn can_connect_to(x: i32, y: i32, walls: &Walls) -> bool {
-        if x < 0 || y < 0 || x >= walls.get_width() as i32 || y >= walls.get_height() as i32 {
-            return true;
-        }
-        let wall = walls.get_wall_type_at(x, y).unwrap();
-        wall.get_id() != walls.clear
+        let wall = walls.get_wall_type_at(x, y);
+        wall.map_or(true, |wall2| wall2.get_id() != walls.clear)
     }
 
     pub fn render(
@@ -37,14 +35,14 @@ impl RenderWallChunk {
         world_y: i32,
         walls: &Walls,
         camera: &Camera,
-    ) {
+    ) -> Result<()> {
         if self.needs_update {
             self.needs_update = false;
 
             self.rect_array = gfx::RectArray::new();
             for x in 0..CHUNK_SIZE {
                 for y in 0..CHUNK_SIZE {
-                    let curr_wall = walls.get_wall_type_at(world_x + x, world_y + y).unwrap();
+                    let curr_wall = walls.get_wall_type_at(world_x + x, world_y + y)?;
                     if let Some(curr_wall_rect) = atlas.get_rect(&curr_wall.get_id()) {
                         let mut curr_wall_rect = *curr_wall_rect;
                         let mut dest_rect = gfx::Rect::new(
@@ -110,6 +108,8 @@ impl RenderWallChunk {
             Some(atlas.get_texture()),
             FloatPos(screen_x, screen_y),
         );
+
+        Ok(())
     }
 }
 
@@ -136,32 +136,33 @@ impl ClientWalls {
     /**
     This function returns the chunk index at a given world position
      */
-    fn get_chunk_index(&self, x: i32, y: i32) -> usize {
+    fn get_chunk_index(&self, x: i32, y: i32) -> Result<usize> {
         // check if x and y are in bounds
         if x < 0
             || y < 0
             || x >= self.walls.get_width() as i32 / CHUNK_SIZE
             || y >= self.walls.get_height() as i32 / CHUNK_SIZE
         {
-            panic!("Tried to get chunk at {x}, {y} but it is out of bounds");
+            bail!("Tried to get chunk at {x}, {y} but it is out of bounds");
         }
 
-        (x + y * (self.walls.get_width() as i32 / CHUNK_SIZE)) as usize
+        Ok((x + y * (self.walls.get_width() as i32 / CHUNK_SIZE)) as usize)
     }
 
-    pub fn on_event(&mut self, event: &Event) {
+    pub fn on_event(&mut self, event: &Event) -> Result<()> {
         if let Some(event) = event.downcast::<WelcomePacketEvent>() {
             if let Some(packet) = event.packet.try_deserialize::<WallsWelcomePacket>() {
-                self.walls.deserialize(&packet.data).unwrap();
+                self.walls.deserialize(&packet.data)?;
             }
         }
+        Ok(())
     }
 
-    pub fn init(&mut self, mods: &mut ModManager) {
-        self.walls.init(mods).unwrap();
+    pub fn init(&mut self, mods: &mut ModManager) -> Result<()> {
+        self.walls.init(mods)
     }
 
-    pub fn load_resources(&mut self, mods: &mut ModManager) {
+    pub fn load_resources(&mut self, mods: &mut ModManager) -> Result<()> {
         for _ in 0..self.walls.get_width() as i32 / CHUNK_SIZE * self.walls.get_height() as i32
             / CHUNK_SIZE
         {
@@ -171,24 +172,27 @@ impl ClientWalls {
         // go through all the block types get their images and load them
         let mut surfaces = HashMap::new();
         for id in self.walls.get_all_wall_ids() {
-            let wall_type = self.walls.get_wall_type(id).unwrap();
+            let wall_type = self.walls.get_wall_type(id)?;
             let image_resource =
                 mods.get_resource(format!("walls:{}.opa", wall_type.name).as_str());
             if let Some(image_resource) = image_resource {
-                let image = gfx::Surface::deserialize_from_bytes(&image_resource.clone()).unwrap();
+                let image = gfx::Surface::deserialize_from_bytes(&image_resource.clone())?;
                 surfaces.insert(id, image);
             }
         }
 
         self.atlas = gfx::TextureAtlas::new(&surfaces);
 
-        self.breaking_texture = gfx::Texture::load_from_surface(
-            &gfx::Surface::deserialize_from_bytes(mods.get_resource("misc:breaking.opa").unwrap())
-                .unwrap(),
-        );
+        self.breaking_texture =
+            gfx::Texture::load_from_surface(&gfx::Surface::deserialize_from_bytes(
+                mods.get_resource("misc:breaking.opa")
+                    .ok_or_else(|| anyhow!("could not get misc:breaking.opa resource"))?,
+            )?);
+
+        Ok(())
     }
 
-    pub fn render(&mut self, graphics: &mut GraphicsContext, camera: &Camera) {
+    pub fn render(&mut self, graphics: &mut GraphicsContext, camera: &Camera) -> Result<()> {
         let (top_left_x, top_left_y) = camera.get_top_left(graphics);
         let (bottom_right_x, bottom_right_y) = camera.get_bottom_right(graphics);
         let (top_left_x, top_left_y) = (
@@ -212,8 +216,11 @@ impl ClientWalls {
                     && x < self.walls.get_width() as i32 / CHUNK_SIZE
                     && y < self.walls.get_height() as i32 / CHUNK_SIZE
                 {
-                    let chunk_index = self.get_chunk_index(x, y);
-                    let chunk = &mut self.chunks[chunk_index];
+                    let chunk_index = self.get_chunk_index(x, y)?;
+                    let chunk = self
+                        .chunks
+                        .get_mut(chunk_index)
+                        .ok_or_else(|| anyhow!("chunks array malformed"))?;
 
                     chunk.render(
                         graphics,
@@ -222,7 +229,7 @@ impl ClientWalls {
                         y * CHUNK_SIZE,
                         &self.walls,
                         camera,
-                    );
+                    )?;
                 }
             }
         }
@@ -244,8 +251,7 @@ impl ClientWalls {
             );
             let break_stage = self
                 .walls
-                .get_break_stage(breaking_wall.coord.0, breaking_wall.coord.1)
-                .unwrap();
+                .get_break_stage(breaking_wall.coord.0, breaking_wall.coord.1)?;
             self.breaking_texture.render(
                 &graphics.renderer,
                 RENDER_SCALE,
@@ -258,11 +264,10 @@ impl ClientWalls {
                 None,
             );
         }
+        Ok(())
     }
 
-    pub fn update(&mut self, frame_length: f32, events: &mut EventManager) {
-        self.walls
-            .update_breaking_walls(frame_length, events)
-            .unwrap();
+    pub fn update(&mut self, frame_length: f32, events: &mut EventManager) -> Result<()> {
+        self.walls.update_breaking_walls(frame_length, events)
     }
 }

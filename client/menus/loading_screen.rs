@@ -1,4 +1,4 @@
-use std::sync::Mutex;
+use std::sync::{Mutex, PoisonError};
 
 use crate::libraries::graphics as gfx;
 use crate::libraries::graphics::{FloatPos, FloatSize};
@@ -42,22 +42,30 @@ pub fn run_loading_screen(
     loading_bar.fill_color = gfx::LIGHT_GREY;
     loading_bar.smooth_factor = 60.0;
 
-    while graphics.renderer.is_window_open() && !loading_text.lock().unwrap().is_empty() {
+    while graphics.renderer.is_window_open()
+        && !loading_text
+            .lock()
+            .unwrap_or_else(PoisonError::into_inner)
+            .is_empty()
+    {
         while graphics.renderer.get_event().is_some() {}
 
         menu_back.set_back_rect_width(PROGRESS_BAR_WIDTH as f32 + 2.0 * gfx::SPACING);
 
         menu_back.render_back(graphics);
 
-        if curr_text != *loading_text.lock().unwrap() {
-            curr_text = loading_text.lock().unwrap().clone();
+        if curr_text != *loading_text.lock().unwrap_or_else(PoisonError::into_inner) {
+            curr_text = loading_text
+                .lock()
+                .unwrap_or_else(PoisonError::into_inner)
+                .clone();
             if !curr_text.is_empty() {
                 let mut progress_bar_progress = -1.0;
                 // let ending of the text be the back of the text until the space symbol
                 let mut ending = String::new();
                 let mut i = curr_text.len() - 1;
-                while i > 0 && curr_text.chars().nth(i).unwrap() != ' ' {
-                    ending.insert(0, curr_text.chars().nth(i).unwrap());
+                while i > 0 && curr_text.chars().nth(i).unwrap_or(' ') != ' ' {
+                    ending.insert(0, curr_text.chars().nth(i).unwrap_or(' '));
                     i -= 1;
                 }
                 // if the ending is in the format {some number}%, then remove it from the text and display it as a progress bar
@@ -74,7 +82,7 @@ pub fn run_loading_screen(
                     }
                 }
 
-                if progress_bar_progress == -1.0_f32 {
+                if (progress_bar_progress - -1.0_f32).abs() < f32::EPSILON {
                     loading_back_bar.size.0 = 0.0;
                     loading_back_bar.size.1 = 0.0;
                     loading_bar.size.0 = 0.0;

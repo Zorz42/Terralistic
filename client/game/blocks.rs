@@ -11,6 +11,7 @@ use crate::shared::blocks::{
 };
 use crate::shared::mod_manager::ModManager;
 use crate::shared::packet::Packet;
+use anyhow::{anyhow, bail, Result};
 use std::collections::HashMap;
 
 pub struct RenderBlockChunk {
@@ -27,11 +28,10 @@ impl RenderBlockChunk {
     }
 
     fn can_connect_to(block_type: BlockId, x: i32, y: i32, blocks: &Blocks) -> bool {
-        if x < 0 || y < 0 || x >= blocks.get_width() as i32 || y >= blocks.get_height() as i32 {
-            return true;
-        }
-        let block = blocks.get_block_type_at(x, y).unwrap();
-        let block_type = blocks.get_block_type(block_type).unwrap();
+        let block = blocks.get_block_type_at(x, y);
+        let Ok(block) = block else { return true };
+        let block_type = blocks.get_block_type(block_type);
+        let Ok(block_type) = block_type else { return true };
         block_type.connects_to.contains(&block.get_id()) || block.get_id() == block_type.get_id()
     }
 
@@ -43,19 +43,18 @@ impl RenderBlockChunk {
         world_y: i32,
         blocks: &Blocks,
         camera: &Camera,
-    ) {
+    ) -> Result<()> {
         if self.needs_update {
             self.needs_update = false;
 
             self.rect_array = gfx::RectArray::new();
             for x in 0..CHUNK_SIZE {
                 for y in 0..CHUNK_SIZE {
-                    let curr_block = blocks.get_block_type_at(world_x + x, world_y + y).unwrap();
+                    let curr_block = blocks.get_block_type_at(world_x + x, world_y + y)?;
                     if let Some(curr_block_rect) = atlas.get_rect(&curr_block.get_id()) {
                         let mut curr_block_rect = *curr_block_rect;
                         let mut block_state = 0;
-                        let block_type =
-                            blocks.get_block_type_at(world_x + x, world_y + y).unwrap();
+                        let block_type = blocks.get_block_type_at(world_x + x, world_y + y)?;
 
                         if block_type.can_update_states {
                             let coordinates = [(0, -1), (1, 0), (0, 1), (-1, 0)];
@@ -107,6 +106,7 @@ impl RenderBlockChunk {
             Some(atlas.get_texture()),
             FloatPos(screen_x as f32, screen_y as f32),
         );
+        Ok(())
     }
 }
 
@@ -133,40 +133,36 @@ impl ClientBlocks {
     /**
     This function returns the chunk index at a given world position
      */
-    fn get_chunk_index(&self, x: i32, y: i32) -> usize {
+    fn get_chunk_index(&self, x: i32, y: i32) -> Result<usize> {
         // check if x and y are in bounds
         if x < 0
             || y < 0
             || x >= self.blocks.get_width() as i32 / CHUNK_SIZE
             || y >= self.blocks.get_height() as i32 / CHUNK_SIZE
         {
-            panic!("Tried to get chunk at {x}, {y} but it is out of bounds");
+            bail!("Tried to get chunk at {x}, {y} but it is out of bounds");
         }
 
-        (x + y * (self.blocks.get_width() as i32 / CHUNK_SIZE)) as usize
+        Ok((x + y * (self.blocks.get_width() as i32 / CHUNK_SIZE)) as usize)
     }
 
-    pub fn on_event(&mut self, event: &Event, events: &mut EventManager) {
+    pub fn on_event(&mut self, event: &Event, events: &mut EventManager) -> Result<()> {
         if let Some(event) = event.downcast::<WelcomePacketEvent>() {
             if let Some(packet) = event.packet.try_deserialize::<BlocksWelcomePacket>() {
-                self.blocks.deserialize(&packet.data).unwrap();
+                self.blocks.deserialize(&packet.data)?;
             }
         } else if let Some(event) = event.downcast::<Packet>() {
             if let Some(packet) = event.try_deserialize::<BlockBreakStartPacket>() {
                 self.blocks
-                    .start_breaking_block(events, packet.x, packet.y)
-                    .unwrap();
+                    .start_breaking_block(events, packet.x, packet.y)?;
             } else if let Some(packet) = event.try_deserialize::<BlockBreakStopPacket>() {
                 self.blocks
-                    .stop_breaking_block(events, packet.x, packet.y)
-                    .unwrap();
+                    .stop_breaking_block(events, packet.x, packet.y)?;
                 self.blocks
-                    .set_break_progress(packet.x, packet.y, packet.break_time)
-                    .unwrap();
+                    .set_break_progress(packet.x, packet.y, packet.break_time)?;
             } else if let Some(packet) = event.try_deserialize::<BlockChangePacket>() {
                 self.blocks
-                    .set_block(events, packet.x, packet.y, packet.block)
-                    .unwrap();
+                    .set_block(events, packet.x, packet.y, packet.block)?;
             }
         } else if let Some(event) = event.downcast::<BlockChangeEvent>() {
             for (x, y) in [
@@ -176,17 +172,21 @@ impl ClientBlocks {
                 (event.x, event.y - 1),
                 (event.x, event.y + 1),
             ] {
-                let chunk_index = self.get_chunk_index(x / CHUNK_SIZE, y / CHUNK_SIZE);
-                self.chunks.get_mut(chunk_index).unwrap().needs_update = true;
+                let chunk_index = self.get_chunk_index(x / CHUNK_SIZE, y / CHUNK_SIZE)?;
+                self.chunks
+                    .get_mut(chunk_index)
+                    .ok_or_else(|| anyhow!("Chunk array malformed"))?
+                    .needs_update = true;
             }
         }
+        Ok(())
     }
 
-    pub fn init(&mut self, mods: &mut ModManager) {
-        self.blocks.init(mods).unwrap();
+    pub fn init(&mut self, mods: &mut ModManager) -> Result<()> {
+        self.blocks.init(mods)
     }
 
-    pub fn load_resources(&mut self, mods: &mut ModManager) {
+    pub fn load_resources(&mut self, mods: &mut ModManager) -> Result<()> {
         for _ in 0..self.blocks.get_width() as i32 / CHUNK_SIZE * self.blocks.get_height() as i32
             / CHUNK_SIZE
         {
@@ -196,23 +196,25 @@ impl ClientBlocks {
         // go through all the block types get their images and load them
         let mut surfaces = HashMap::new();
         for id in self.blocks.get_all_block_ids() {
-            let block_type = self.blocks.get_block_type(id).unwrap();
+            let block_type = self.blocks.get_block_type(id)?;
             let image_resource = mods.get_resource(&format!("blocks:{}.opa", block_type.name));
             if let Some(image_resource) = image_resource {
-                let image = gfx::Surface::deserialize_from_bytes(&image_resource.clone()).unwrap();
+                let image = gfx::Surface::deserialize_from_bytes(&image_resource.clone())?;
                 surfaces.insert(id, image);
             }
         }
 
         self.atlas = gfx::TextureAtlas::new(&surfaces);
 
-        self.breaking_texture = gfx::Texture::load_from_surface(
-            &gfx::Surface::deserialize_from_bytes(mods.get_resource("misc:breaking.opa").unwrap())
-                .unwrap(),
-        );
+        self.breaking_texture =
+            gfx::Texture::load_from_surface(&gfx::Surface::deserialize_from_bytes(
+                mods.get_resource("misc:breaking.opa")
+                    .ok_or_else(|| anyhow!("Could not find misc:breaking.opa"))?,
+            )?);
+        Ok(())
     }
 
-    pub fn render(&mut self, graphics: &mut GraphicsContext, camera: &Camera) {
+    pub fn render(&mut self, graphics: &mut GraphicsContext, camera: &Camera) -> Result<()> {
         let (top_left_x, top_left_y) = camera.get_top_left(graphics);
         let (bottom_right_x, bottom_right_y) = camera.get_bottom_right(graphics);
         let (top_left_x, top_left_y) = (
@@ -236,8 +238,11 @@ impl ClientBlocks {
                     && x < self.blocks.get_width() as i32 / CHUNK_SIZE
                     && y < self.blocks.get_height() as i32 / CHUNK_SIZE
                 {
-                    let chunk_index = self.get_chunk_index(x, y);
-                    let chunk = &mut self.chunks[chunk_index];
+                    let chunk_index = self.get_chunk_index(x, y)?;
+                    let chunk = self
+                        .chunks
+                        .get_mut(chunk_index)
+                        .ok_or_else(|| anyhow!("Chunk array malformed"))?;
 
                     chunk.render(
                         graphics,
@@ -246,7 +251,7 @@ impl ClientBlocks {
                         y * CHUNK_SIZE,
                         &self.blocks,
                         camera,
-                    );
+                    )?;
                 }
             }
         }
@@ -268,8 +273,7 @@ impl ClientBlocks {
             );
             let break_stage = self
                 .blocks
-                .get_break_stage(breaking_block.coord.0, breaking_block.coord.1)
-                .unwrap();
+                .get_break_stage(breaking_block.coord.0, breaking_block.coord.1)?;
             self.breaking_texture.render(
                 &graphics.renderer,
                 RENDER_SCALE,
@@ -282,11 +286,11 @@ impl ClientBlocks {
                 None,
             );
         }
+
+        Ok(())
     }
 
-    pub fn update(&mut self, frame_length: f32, events: &mut EventManager) {
-        self.blocks
-            .update_breaking_blocks(events, frame_length)
-            .unwrap();
+    pub fn update(&mut self, frame_length: f32, events: &mut EventManager) -> Result<()> {
+        self.blocks.update_breaking_blocks(events, frame_length)
     }
 }
