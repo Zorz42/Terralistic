@@ -13,9 +13,3 @@ To build and run in release mode:
 ```bash
 cargo run --release
 ```
-
-For building you will need to have the following installed:
-- Rust
-- Cargo
-- glfw3
-- OpenGL
