@@ -60,8 +60,8 @@
 #![allow(clippy::similar_names)]
 #![allow(clippy::ptr_as_ptr)]
 
-use crate::server::server_impl::Server;
-use crate::server::server_impl::MULTIPLAYER_PORT;
+use crate::server::server_core::Server;
+use crate::server::server_core::MULTIPLAYER_PORT;
 use core::sync::atomic::AtomicBool;
 use std::sync::Mutex;
 extern crate alloc;
@@ -75,7 +75,7 @@ pub mod libraries {
 pub mod shared;
 
 pub mod server {
-    pub mod server_impl;
+    pub mod server_core;
 }
 
 pub mod client {

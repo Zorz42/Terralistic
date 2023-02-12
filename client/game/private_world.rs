@@ -1,8 +1,8 @@
-use super::core::Game;
+use super::core_client::Game;
 use crate::client::menus::{run_loading_screen, BackgroundRect};
 use crate::libraries::graphics::GraphicsContext;
-use crate::server::server_impl::Server;
-use crate::server::server_impl::SINGLEPLAYER_PORT;
+use crate::server::server_core::Server;
+use crate::server::server_core::SINGLEPLAYER_PORT;
 use anyhow::Result;
 use core::sync::atomic::{AtomicBool, Ordering};
 use std::path::Path;
@@ -37,6 +37,10 @@ pub fn run_private_world(
         );
 
         if result.is_err() {
+            loading_text2
+                .lock()
+                .unwrap_or_else(PoisonError::into_inner)
+                .clear();
             server_running2.store(false, Ordering::Relaxed);
         }
 
@@ -45,13 +49,16 @@ pub fn run_private_world(
 
     run_loading_screen(graphics, menu_back, &loading_text);
 
-    game.run(graphics, menu_back)?;
+    if server_running.load(Ordering::Relaxed) {
+        game.run(graphics, menu_back)?;
 
-    // stop server
-    server_running.store(false, Ordering::Relaxed);
+        // stop server
+        server_running.store(false, Ordering::Relaxed);
 
-    *loading_text.lock().unwrap_or_else(PoisonError::into_inner) = "Waiting for server".to_owned();
-    run_loading_screen(graphics, menu_back, &loading_text);
+        *loading_text.lock().unwrap_or_else(PoisonError::into_inner) =
+            "Waiting for server".to_owned();
+        run_loading_screen(graphics, menu_back, &loading_text);
+    }
 
     let thread_result = server_thread.join();
     thread_result.unwrap_or_else(|_| Err(anyhow::anyhow!("Server thread panicked")))?;

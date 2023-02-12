@@ -40,6 +40,9 @@ plains = 0
 hills = 0
 mountains = 0
 
+-- global variables for item IDs
+dirt_item = 0
+
 -- This function is called when the mod is loaded.
 function init()
     -- register blocks
@@ -79,6 +82,11 @@ function init()
     wall_type = terralistic_new_wall_type()
     wall_type["name"] = "dirt"
     dirt_wall = terralistic_register_wall_type(wall_type)
+
+    -- register items
+    item_type = terralistic_new_item_type()
+    item_type["name"] = "dirt"
+    dirt_iter = terralistic_register_item_type(item_type)
 
     terralistic_print("base_game mod loaded.")
 end

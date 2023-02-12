@@ -1,6 +1,6 @@
 use super::background_rect::BackgroundRect;
 use super::{run_add_server_menu, run_choice_menu};
-use crate::client::game::core::Game;
+use crate::client::game::core_client::Game;
 
 use crate::libraries::graphics as gfx;
 use crate::libraries::graphics::{FloatPos, FloatSize, GraphicsContext, IntSize};

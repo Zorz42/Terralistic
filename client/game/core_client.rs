@@ -15,6 +15,7 @@ use super::camera::Camera;
 use super::mod_manager::ClientModManager;
 use super::networking::ClientNetworking;
 use super::walls::ClientWalls;
+use crate::client::game::items::ClientItems;
 use crate::client::menus::{run_loading_screen, BackgroundRect};
 use anyhow::{bail, Result};
 
@@ -27,6 +28,7 @@ pub struct Game {
     block_selector: BlockSelector,
     blocks: ClientBlocks,
     walls: ClientWalls,
+    items: ClientItems,
 }
 
 impl Game {
@@ -44,6 +46,7 @@ impl Game {
             block_selector: BlockSelector::new(),
             blocks,
             walls,
+            items: ClientItems::new(),
         }
     }
 
@@ -65,30 +68,38 @@ impl Game {
         let loading_text2 = loading_text.clone();
 
         let init_thread = std::thread::spawn(move || {
-            *loading_text2.lock().unwrap_or_else(PoisonError::into_inner) =
-                "Loading mods".to_owned();
-            let mut mods = ClientModManager::new();
-            let mut blocks = ClientBlocks::new();
-            let mut walls = ClientWalls::new(&mut blocks.blocks);
+            let mut temp_fn =
+                || -> Result<(ClientModManager, ClientBlocks, ClientWalls, ClientItems)> {
+                    *loading_text2.lock().unwrap_or_else(PoisonError::into_inner) =
+                        "Loading mods".to_owned();
+                    let mut mods = ClientModManager::new();
+                    let mut blocks = ClientBlocks::new();
+                    let mut walls = ClientWalls::new(&mut blocks.blocks);
+                    let mut items = ClientItems::new();
 
-            while let Some(event) = events.pop_event() {
-                mods.on_event(&event)?;
-                blocks.on_event(&event, &mut events)?;
-                walls.on_event(&event)?;
-            }
+                    while let Some(event) = events.pop_event() {
+                        mods.on_event(&event)?;
+                        blocks.on_event(&event, &mut events)?;
+                        walls.on_event(&event)?;
+                    }
 
-            blocks.init(&mut mods.mod_manager)?;
-            walls.init(&mut mods.mod_manager)?;
+                    blocks.init(&mut mods.mod_manager)?;
+                    walls.init(&mut mods.mod_manager)?;
+                    items.init(&mut mods.mod_manager)?;
 
-            *loading_text2.lock().unwrap_or_else(PoisonError::into_inner) =
-                "Initializing mods".to_owned();
-            mods.init()?;
+                    *loading_text2.lock().unwrap_or_else(PoisonError::into_inner) =
+                        "Initializing mods".to_owned();
+                    mods.init()?;
 
+                    anyhow::Ok((mods, blocks, walls, items))
+                };
+            // if the init fails, we clear the loading text so the error can be displayed
+            let result = temp_fn();
             loading_text2
                 .lock()
                 .unwrap_or_else(PoisonError::into_inner)
                 .clear();
-            anyhow::Ok((mods, blocks, walls))
+            result
         });
 
         run_loading_screen(graphics, menu_back, &loading_text);
@@ -99,6 +110,7 @@ impl Game {
         self.mods = result.0;
         self.blocks = result.1;
         self.walls = result.2;
+        self.items = result.3;
 
         self.camera.set_position(
             self.blocks.blocks.get_width() as f32 / 2.0 * BLOCK_WIDTH as f32,

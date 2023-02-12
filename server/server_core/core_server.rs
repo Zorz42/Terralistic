@@ -4,6 +4,7 @@ use super::networking::ServerNetworking;
 use super::walls::ServerWalls;
 use super::world_generator::WorldGenerator;
 use crate::libraries::events::EventManager;
+use crate::server::server_core::items::ServerItems;
 use anyhow::{anyhow, Result};
 use core::sync::atomic::{AtomicBool, Ordering};
 use core::time::Duration;
@@ -22,6 +23,7 @@ pub struct Server {
     mods: ServerModManager,
     blocks: ServerBlocks,
     walls: ServerWalls,
+    items: ServerItems,
 }
 
 impl Server {
@@ -36,6 +38,7 @@ impl Server {
             mods: ServerModManager::new(Vec::new()),
             blocks,
             walls,
+            items: ServerItems::new(),
         }
     }
 
@@ -66,6 +69,7 @@ impl Server {
         self.networking.init()?;
         self.blocks.init(&mut self.mods.mod_manager)?;
         self.walls.init(&mut self.mods.mod_manager)?;
+        self.items.init(&mut self.mods.mod_manager)?;
 
         let mut generator = WorldGenerator::new();
         generator.init(&mut self.mods.mod_manager)?;

@@ -3,7 +3,7 @@ use crate::libraries::graphics as gfx;
 use crate::libraries::graphics::{FloatPos, FloatSize, GraphicsContext};
 
 use super::multiplayer_selector::ServerCard;
-use crate::server::server_impl::MULTIPLAYER_PORT;
+use crate::server::server_core::MULTIPLAYER_PORT;
 
 use super::multiplayer_selector::ServerInfo;
 use std::net::{IpAddr, Ipv4Addr};

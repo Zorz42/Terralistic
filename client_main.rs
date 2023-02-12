@@ -72,7 +72,7 @@ pub mod libraries {
 pub mod shared;
 
 pub mod server {
-    pub mod server_impl;
+    pub mod server_core;
 }
 
 pub mod client {
