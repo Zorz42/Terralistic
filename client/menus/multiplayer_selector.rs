@@ -350,7 +350,7 @@ fn update_elements(
                             )),
                         ) && run_choice_menu(
                             format!(
-                                "The world \"{}\" will be deleted.\nDo you want to proceed?",
+                                "The server \"{}\" will be deleted.\nDo you want to proceed?",
                                 server.server_info.name
                             )
                             .as_str(),
