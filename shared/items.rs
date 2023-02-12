@@ -15,7 +15,6 @@ use std::rc::Rc;
 
 const ITEM_WIDTH: i32 = 8;
 
-//TODO: write comments and tests
 pub struct ItemType {
     pub name: String,
     pub display_name: String,
