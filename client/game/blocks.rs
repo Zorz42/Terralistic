@@ -98,13 +98,13 @@ impl RenderBlockChunk {
         }
 
         let screen_x =
-            world_x * RENDER_BLOCK_WIDTH - (camera.get_top_left(graphics).0 * RENDER_SCALE) as i32;
+            (world_x * RENDER_BLOCK_WIDTH) as f32 - camera.get_top_left(graphics).0 * RENDER_SCALE;
         let screen_y =
-            world_y * RENDER_BLOCK_WIDTH - (camera.get_top_left(graphics).1 * RENDER_SCALE) as i32;
+            (world_y * RENDER_BLOCK_WIDTH) as f32 - camera.get_top_left(graphics).1 * RENDER_SCALE;
         self.rect_array.render(
             graphics,
             Some(atlas.get_texture()),
-            FloatPos(screen_x as f32, screen_y as f32),
+            FloatPos(screen_x.round(), screen_y.round()),
         );
         Ok(())
     }

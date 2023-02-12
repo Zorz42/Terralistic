@@ -228,6 +228,8 @@ impl Blocks {
         from_main: (i32, i32),
     ) -> Result<()> {
         if block_id != self.get_block(x, y)? || from_main != self.get_block_from_main(x, y)? {
+            let prev_block = self.get_block(x, y)?;
+
             self.set_block_data(x, y, vec![])?;
             *self
                 .block_data
@@ -238,7 +240,7 @@ impl Blocks {
             self.breaking_blocks.retain(|b| b.get_coord() != (x, y));
 
             self.set_block_from_main(x, y, from_main)?;
-            let event = BlockChangeEvent { x, y };
+            let event = BlockChangeEvent { x, y, prev_block };
             events.push_event(Event::new(event));
         }
         Ok(())
@@ -394,6 +396,7 @@ impl Blocks {
 pub struct BlockChangeEvent {
     pub x: i32,
     pub y: i32,
+    pub prev_block: BlockId,
 }
 
 /// Event that is fired when a random tick is fired for a block

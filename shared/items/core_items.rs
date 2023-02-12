@@ -58,22 +58,23 @@ pub struct ItemCreationEvent {
     pub item_id: u32,
 }
 
+#[derive(Clone)]
 pub struct TileDrop {
-    pub drop: ItemId,
+    pub item: ItemId,
     pub chance: f32,
 }
 
 impl TileDrop {
     #[must_use]
     pub const fn new(drop: ItemId, chance: f32) -> Self {
-        Self { drop, chance }
+        Self { item: drop, chance }
     }
 }
 
 pub struct Items {
     map_items: Vec<MapItem>,
     item_types: Arc<Mutex<Vec<Item>>>,
-    block_drops: HashMap<BlockId, TileDrop>,
+    block_drops: Arc<Mutex<HashMap<BlockId, TileDrop>>>,
     wall_drops: HashMap<WallId, TileDrop>,
 }
 
@@ -89,7 +90,7 @@ impl Items {
         Self {
             map_items: Vec::new(),
             item_types: Arc::new(Mutex::new(Vec::new())),
-            block_drops: HashMap::new(),
+            block_drops: Arc::new(Mutex::new(HashMap::new())),
             wall_drops: HashMap::new(),
         }
     }
@@ -121,6 +122,18 @@ impl Items {
             }
             Err(rlua::Error::RuntimeError("Item type not found".to_owned()))
         })?;
+
+        let block_drops = self.block_drops.clone();
+        mods.add_global_function(
+            "set_block_drop",
+            move |_lua, (block_id, item_id, chance): (BlockId, ItemId, f32)| {
+                block_drops
+                    .lock()
+                    .unwrap_or_else(PoisonError::into_inner)
+                    .insert(block_id, TileDrop::new(item_id, chance));
+                Ok(())
+            },
+        )?;
         Ok(())
     }
 
@@ -184,16 +197,23 @@ impl Items {
 
     /// this function sets the block drop for the given block type
     pub fn set_block_drop(&mut self, block_type: BlockId, drop: TileDrop) {
-        self.block_drops.insert(block_type, drop);
+        self.block_drops
+            .lock()
+            .unwrap_or_else(PoisonError::into_inner)
+            .insert(block_type, drop);
     }
 
     /// this function returns the block drop for the given block type
     /// # Errors
     /// if the block drop is not found
-    pub fn get_block_drop(&self, block_type: BlockId) -> Result<&TileDrop> {
-        self.block_drops
+    pub fn get_block_drop(&self, block_type: BlockId) -> Result<TileDrop> {
+        Ok(self
+            .block_drops
+            .lock()
+            .unwrap_or_else(PoisonError::into_inner)
             .get(&block_type)
-            .ok_or_else(|| anyhow!("block drop not found"))
+            .ok_or_else(|| anyhow!("block drop not found"))?
+            .clone())
     }
 
     /// this function sets the wall drop for the given wall type
@@ -240,6 +260,24 @@ impl Items {
 
     #[must_use]
     pub const fn get_entities(&self) -> &Vec<MapItem> {
+        &self.map_items
+    }
+
+    pub fn get_all_item_type_ids(&self) -> Vec<ItemId> {
+        let mut ids = Vec::new();
+        let item_types = self
+            .item_types
+            .lock()
+            .unwrap_or_else(PoisonError::into_inner);
+        let iter = item_types.iter();
+        for item in iter {
+            ids.push(item.id);
+        }
+        ids
+    }
+
+    #[must_use]
+    pub const fn get_all_map_items(&self) -> &Vec<MapItem> {
         &self.map_items
     }
 }

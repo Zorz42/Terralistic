@@ -86,7 +86,10 @@ function init()
     -- register items
     item_type = terralistic_new_item_type()
     item_type["name"] = "dirt"
-    dirt_iter = terralistic_register_item_type(item_type)
+    item_type["display_name"] = "Dirt Block"
+    dirt_item = terralistic_register_item_type(item_type)
+
+    terralistic_set_block_drop(dirt_block, dirt_item, 1)
 
     terralistic_print("base_game mod loaded.")
 end

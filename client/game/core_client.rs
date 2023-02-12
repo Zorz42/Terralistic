@@ -81,6 +81,7 @@ impl Game {
                         mods.on_event(&event)?;
                         blocks.on_event(&event, &mut events)?;
                         walls.on_event(&event)?;
+                        items.on_event(&event)?;
                     }
 
                     blocks.init(&mut mods.mod_manager)?;
@@ -121,6 +122,7 @@ impl Game {
 
         self.blocks.load_resources(&mut self.mods.mod_manager)?;
         self.walls.load_resources(&mut self.mods.mod_manager)?;
+        self.items.load_resources(&mut self.mods.mod_manager)?;
 
         // print the time it took to initialize
         println!("Game joined in {}ms", timer.elapsed().as_millis());
@@ -239,6 +241,7 @@ impl Game {
             self.background.render(graphics, &self.camera);
             self.walls.render(graphics, &self.camera)?;
             self.blocks.render(graphics, &self.camera)?;
+            self.items.render(graphics, &self.camera)?;
             self.block_selector
                 .render(graphics, &mut self.networking, &self.camera)?;
 
@@ -261,6 +264,7 @@ impl Game {
                 self.mods.on_event(&event)?;
                 self.blocks.on_event(&event, &mut self.events)?;
                 self.walls.on_event(&event)?;
+                self.items.on_event(&event)?;
                 self.block_selector.on_event(
                     graphics,
                     &mut self.networking,

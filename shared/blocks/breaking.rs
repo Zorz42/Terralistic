@@ -156,8 +156,11 @@ impl Blocks {
             let transformed_x = x - self.get_block_from_main(x, y)?.0;
             let transformed_y = y - self.get_block_from_main(x, y)?.1;
 
-            //let _event = BlockBreakEvent::new(transformed_x, transformed_y);
-            //self.block_break_event.send(event);
+            let event = BlockBreakEvent {
+                x: transformed_x,
+                y: transformed_y,
+            };
+            events.push_event(Event::new(event));
 
             self.set_block(events, transformed_x, transformed_y, self.air)?;
 
