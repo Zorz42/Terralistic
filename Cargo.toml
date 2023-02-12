@@ -1,6 +1,6 @@
 [package]
 name = "Terralistic"
-version = "0.1.0"
+version = "0.5.0-alpha"
 edition = "2021"
 description = "Terralistic"
 build = "build_main.rs"
@@ -11,11 +11,7 @@ categories = ["game"]
 
 [[bin]]
 name = "terralistic"
-path = "client_main.rs"
-
-[[bin]]
-name = "terralistic_server"
-path = "server_main.rs"
+path = "main.rs"
 
 [dependencies]
 directories = "4.0"
@@ -87,29 +83,10 @@ sdl2-sys = { version = "=0.35.1", features = ["use-pkgconfig", "static-link"] }
 sdl2 = { version = "=0.35.1", features = ["bundled", "static-link"] }
 sdl2-sys = { version = "=0.35.1", features = ["bundled", "static-link"] }
 
-[package.metadata.bundle.bin.Terralistic]
+[package.metadata.bundle.bin.terralistic]
 name = "Terralistic"
 identifier = "com.Zorz42.Terralistic"
 icon = ["Build/Resources/icon.icns"]
-version = "1.0.0"
-copyright = "Copyright (c) Zorz42 2022. All rights reserved."
-category = "Game"
-short_description = "Terralistic is a game."
-long_description = """
-Terralistic is a Terraria fan game.
-It has some technical stuff that I miss in Terraria,
-like: native mod support, good performance,
-custom programming language for mods, online accounts,
-good ui and so on...
-"""
-deb_depends = []
-osx_frameworks = []
-
-[package.metadata.bundle.bin.TerralisticServer]
-name = "TerralisticServer"
-identifier = "com.Zorz42.TerralisticServer"
-icon = ["Build/Resources/icon.icns"]
-version = "1.0.0"
 copyright = "Copyright (c) Zorz42 2022. All rights reserved."
 category = "Game"
 short_description = "Terralistic is a game."

@@ -7,9 +7,11 @@ use anyhow::{anyhow, bail, Result};
 use std::collections::HashMap;
 use std::sync::{Mutex, PoisonError};
 extern crate alloc;
+use crate::libraries::events::{Event, EventManager};
 use alloc::sync::Arc;
+use serde_derive::{Deserialize, Serialize};
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct ItemId {
     id: i32,
 }
@@ -138,10 +140,20 @@ impl Items {
     }
 
     /// this function spawns an item into the world
-    pub fn spawn_item(&mut self, item_type: &Item, x: f32, y: f32, id: Option<u32>) -> u32 {
+    pub fn spawn_item(
+        &mut self,
+        events: &mut EventManager,
+        item_type: &Item,
+        x: f32,
+        y: f32,
+        id: Option<u32>,
+    ) -> u32 {
         let item = MapItem::new(item_type, x, y, id);
         let item_id = item.entity.id;
         self.map_items.push(item);
+
+        let event = ItemSpawnEvent { id: item_id };
+        events.push_event(Event::new(event));
 
         item_id
     }
@@ -280,4 +292,16 @@ impl Items {
     pub const fn get_all_map_items(&self) -> &Vec<MapItem> {
         &self.map_items
     }
+}
+
+pub struct ItemSpawnEvent {
+    pub id: u32,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct ItemSpawnPacket {
+    pub item_type: ItemId,
+    pub x: f32,
+    pub y: f32,
+    pub id: u32,
 }

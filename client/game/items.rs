@@ -1,10 +1,11 @@
 use crate::client::game::camera::Camera;
-use crate::libraries::events::Event;
+use crate::libraries::events::{Event, EventManager};
 use crate::libraries::graphics as gfx;
 use crate::libraries::graphics::{FloatPos, FloatSize};
-use crate::shared::blocks::{BlockChangeEvent, BLOCK_WIDTH, RENDER_SCALE};
-use crate::shared::items::{ItemId, Items};
+use crate::shared::blocks::RENDER_SCALE;
+use crate::shared::items::{ItemId, ItemSpawnPacket, Items};
 use crate::shared::mod_manager::ModManager;
+use crate::shared::packet::Packet;
 use anyhow::{anyhow, Result};
 use std::collections::HashMap;
 
@@ -42,23 +43,16 @@ impl ClientItems {
         Ok(())
     }
 
-    pub fn on_event(&mut self, event: &Event) -> Result<()> {
-        if let Some(event) = event.downcast::<BlockChangeEvent>() {
-            println!("Block broken at {}, {}", event.x, event.y);
-            let broken_block = event.prev_block;
-            let drop = self.items.get_block_drop(broken_block);
-            if let Ok(drop) = drop {
-                println!("Dropping item");
-                // spawn item at random chance. drop.chance is a float between 0 and 1
-                if rand::random::<f32>() < drop.chance {
-                    println!("Dropping item by chance");
-                    self.items.spawn_item(
-                        &self.items.get_item_type(drop.item)?,
-                        (event.x * BLOCK_WIDTH) as f32,
-                        (event.y * BLOCK_WIDTH) as f32,
-                        None,
-                    );
-                }
+    pub fn on_event(&mut self, event: &Event, events: &mut EventManager) -> Result<()> {
+        if let Some(packet) = event.downcast::<Packet>() {
+            if let Some(packet) = packet.try_deserialize::<ItemSpawnPacket>() {
+                self.items.spawn_item(
+                    events,
+                    &self.items.get_item_type(packet.item_type)?,
+                    packet.x,
+                    packet.y,
+                    Some(packet.id),
+                );
             }
         }
         Ok(())

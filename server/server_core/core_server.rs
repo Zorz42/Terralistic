@@ -116,6 +116,8 @@ impl Server {
                 self.blocks
                     .on_event(&event, &mut self.events, &mut self.networking)?;
                 self.walls.on_event(&event, &mut self.networking)?;
+                self.items
+                    .on_event(&event, &mut self.events, &mut self.networking)?;
                 self.networking.on_event(&event)?;
             }
 

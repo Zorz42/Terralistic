@@ -60,12 +60,14 @@
 #![allow(clippy::similar_names)]
 #![allow(clippy::ptr_as_ptr)]
 
-use crate::server::server_core::Server;
-use crate::server::server_core::MULTIPLAYER_PORT;
+use crate::libraries::graphics as gfx;
 use core::sync::atomic::AtomicBool;
 use std::sync::Mutex;
 extern crate alloc;
 use alloc::sync::Arc;
+
+use crate::client::menus::{run_main_menu, MenuBack};
+use crate::server::server_core::{Server, MULTIPLAYER_PORT};
 
 pub mod libraries {
     pub mod events;
@@ -84,6 +86,25 @@ pub mod client {
 }
 
 fn main() {
+    let args: Vec<String> = std::env::args().collect();
+
+    args.get(1).map_or_else(
+        || {
+            client_main();
+        },
+        |arg| {
+            if arg == "server" {
+                server_main();
+            } else if arg == "client" {
+                client_main();
+            } else {
+                println!("Invalid argument: {arg}");
+            }
+        },
+    );
+}
+
+fn server_main() {
     let server_running = Arc::new(AtomicBool::new(true));
 
     let loading_text = Arc::new(Mutex::new("Loading".to_owned()));
@@ -110,4 +131,35 @@ fn main() {
     if let Err(e) = result {
         println!("Server stopped with an error: {e}");
     }
+}
+
+fn client_main() {
+    let graphics_result = gfx::init(
+        1130,
+        700,
+        "Terralistic",
+        include_bytes!("Build/Resources/font.opa"),
+    );
+
+    let mut graphics;
+
+    match graphics_result {
+        Ok(g) => graphics = g,
+        Err(e) => {
+            println!("Failed to initialize graphics: {e}");
+            return;
+        }
+    }
+
+    if graphics
+        .renderer
+        .set_min_window_size(graphics.renderer.get_window_size())
+        .is_err()
+    {
+        println!("Failed to set minimum window size");
+    }
+
+    let mut menu_back = MenuBack::new(&mut graphics);
+
+    run_main_menu(&mut graphics, &mut menu_back);
 }

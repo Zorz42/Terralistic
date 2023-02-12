@@ -1,5 +1,6 @@
 use super::Blocks;
 use crate::libraries::events::{Event, EventManager};
+use crate::shared::blocks::BlockId;
 use anyhow::{anyhow, Result};
 
 /// Breaking block struct represents a block that is currently being broken.
@@ -156,9 +157,12 @@ impl Blocks {
             let transformed_x = x - self.get_block_from_main(x, y)?.0;
             let transformed_y = y - self.get_block_from_main(x, y)?.1;
 
+            let prev_block_id = self.get_block_type_at(transformed_x, transformed_y)?.id;
+
             let event = BlockBreakEvent {
                 x: transformed_x,
                 y: transformed_y,
+                prev_block_id,
             };
             events.push_event(Event::new(event));
 
@@ -180,6 +184,7 @@ impl Blocks {
 
 /// Event that is fired when a block is broken
 pub struct BlockBreakEvent {
+    pub prev_block_id: BlockId,
     pub x: i32,
     pub y: i32,
 }
