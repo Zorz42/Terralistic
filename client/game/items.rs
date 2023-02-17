@@ -3,7 +3,8 @@ use crate::libraries::events::{Event, EventManager};
 use crate::libraries::graphics as gfx;
 use crate::libraries::graphics::{FloatPos, FloatSize};
 use crate::shared::blocks::RENDER_SCALE;
-use crate::shared::items::{ItemId, ItemSpawnPacket, Items};
+use crate::shared::entities::{Entities, PositionComponent};
+use crate::shared::items::{ItemComponent, ItemId, ItemSpawnPacket, Items};
 use crate::shared::mod_manager::ModManager;
 use crate::shared::packet::Packet;
 use anyhow::{anyhow, Result};
@@ -43,11 +44,17 @@ impl ClientItems {
         Ok(())
     }
 
-    pub fn on_event(&mut self, event: &Event, events: &mut EventManager) -> Result<()> {
+    pub fn on_event(
+        &mut self,
+        event: &Event,
+        entities: &mut Entities,
+        events: &mut EventManager,
+    ) -> Result<()> {
         if let Some(packet) = event.downcast::<Packet>() {
             if let Some(packet) = packet.try_deserialize::<ItemSpawnPacket>() {
                 self.items.spawn_item(
                     events,
+                    entities,
                     &self.items.get_item_type(packet.item_type)?,
                     packet.x,
                     packet.y,
@@ -58,11 +65,19 @@ impl ClientItems {
         Ok(())
     }
 
-    pub fn render(&self, graphics: &mut gfx::GraphicsContext, camera: &Camera) -> Result<()> {
-        for item in self.items.get_all_map_items() {
+    pub fn render(
+        &self,
+        graphics: &mut gfx::GraphicsContext,
+        camera: &Camera,
+        entities: &mut Entities,
+    ) -> Result<()> {
+        for (entity, (position, item)) in entities
+            .ecs
+            .query_mut::<(&PositionComponent, &ItemComponent)>()
+        {
             let mut src_rect = *self
                 .atlas
-                .get_rect(&item.item_id)
+                .get_rect(&item.item_type)
                 .ok_or_else(|| anyhow!("Item not found in atlas"))?;
             src_rect.pos.0 += 1.0;
             src_rect.pos.1 += 2.0;
@@ -73,8 +88,8 @@ impl ClientItems {
                 &graphics.renderer,
                 RENDER_SCALE,
                 FloatPos(
-                    (item.entity.x - top_left.0) * RENDER_SCALE,
-                    (item.entity.y - top_left.1) * RENDER_SCALE,
+                    (position.x - top_left.0) * RENDER_SCALE,
+                    (position.y - top_left.1) * RENDER_SCALE,
                 ),
                 Some(src_rect),
                 false,

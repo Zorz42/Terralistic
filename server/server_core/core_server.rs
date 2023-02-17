@@ -5,6 +5,7 @@ use super::walls::ServerWalls;
 use super::world_generator::WorldGenerator;
 use crate::libraries::events::EventManager;
 use crate::server::server_core::items::ServerItems;
+use crate::shared::entities::Entities;
 use anyhow::{anyhow, Result};
 use core::sync::atomic::{AtomicBool, Ordering};
 use core::time::Duration;
@@ -23,6 +24,7 @@ pub struct Server {
     mods: ServerModManager,
     blocks: ServerBlocks,
     walls: ServerWalls,
+    entities: Entities,
     items: ServerItems,
 }
 
@@ -38,6 +40,7 @@ impl Server {
             mods: ServerModManager::new(Vec::new()),
             blocks,
             walls,
+            entities: Entities::new(),
             items: ServerItems::new(),
         }
     }
@@ -116,8 +119,12 @@ impl Server {
                 self.blocks
                     .on_event(&event, &mut self.events, &mut self.networking)?;
                 self.walls.on_event(&event, &mut self.networking)?;
-                self.items
-                    .on_event(&event, &mut self.events, &mut self.networking)?;
+                self.items.on_event(
+                    &event,
+                    &mut self.entities,
+                    &mut self.events,
+                    &mut self.networking,
+                )?;
                 self.networking.on_event(&event)?;
             }
 

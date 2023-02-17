@@ -1,5 +1,5 @@
 use crate::shared::blocks::{BlockId, Blocks};
-use crate::shared::entities::Entity;
+use crate::shared::entities::{Entities, IdComponent, PositionComponent};
 use crate::shared::items::Item;
 use crate::shared::mod_manager::ModManager;
 use crate::shared::walls::WallId;
@@ -9,6 +9,7 @@ use std::sync::{Mutex, PoisonError};
 extern crate alloc;
 use crate::libraries::events::{Event, EventManager};
 use alloc::sync::Arc;
+use hecs::Entity;
 use serde_derive::{Deserialize, Serialize};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -25,23 +26,6 @@ impl ItemId {
         Self { id: -1 }
     }
 }
-
-pub struct MapItem {
-    pub item_id: ItemId,
-    pub entity: Entity,
-}
-
-impl MapItem {
-    #[must_use]
-    pub fn new(item_type: &Item, x: f32, y: f32, id: Option<u32>) -> Self {
-        Self {
-            item_id: item_type.id,
-            entity: Entity::new(x, y, item_type.width, item_type.height, id),
-        }
-    }
-}
-
-impl MapItem {}
 
 #[derive(Clone)]
 pub struct ItemStack {
@@ -73,8 +57,11 @@ impl TileDrop {
     }
 }
 
+pub struct ItemComponent {
+    pub item_type: ItemId,
+}
+
 pub struct Items {
-    map_items: Vec<MapItem>,
     item_types: Arc<Mutex<Vec<Item>>>,
     block_drops: Arc<Mutex<HashMap<BlockId, TileDrop>>>,
     wall_drops: HashMap<WallId, TileDrop>,
@@ -90,7 +77,6 @@ impl Items {
     #[must_use]
     pub fn new() -> Self {
         Self {
-            map_items: Vec::new(),
             item_types: Arc::new(Mutex::new(Vec::new())),
             block_drops: Arc::new(Mutex::new(HashMap::new())),
             wall_drops: HashMap::new(),
@@ -143,19 +129,26 @@ impl Items {
     pub fn spawn_item(
         &mut self,
         events: &mut EventManager,
+        entities: &mut Entities,
         item_type: &Item,
         x: f32,
         y: f32,
         id: Option<u32>,
-    ) -> u32 {
-        let item = MapItem::new(item_type, x, y, id);
-        let item_id = item.entity.id;
-        self.map_items.push(item);
+    ) -> Entity {
+        let id = entities.unwrap_id(id);
 
-        let event = ItemSpawnEvent { id: item_id };
+        let entity = entities.ecs.spawn((
+            IdComponent { id },
+            PositionComponent { x, y },
+            ItemComponent {
+                item_type: item_type.get_id(),
+            },
+        ));
+
+        let event = ItemSpawnEvent { entity };
         events.push_event(Event::new(event));
 
-        item_id
+        entity
     }
 
     /// this function registers an item type
@@ -242,38 +235,7 @@ impl Items {
             .ok_or_else(|| anyhow!("wall drop not found"))
     }
 
-    pub fn update_all_items(&mut self, blocks: &Blocks) {
-        for item in &mut self.map_items {
-            item.entity.update(blocks);
-        }
-    }
-
-    /// # Errors
-    /// if the item is not found
-    pub fn remove_item(&mut self, entity_id: u32) -> Result<()> {
-        let pos = self
-            .map_items
-            .iter()
-            .position(|entity| entity.entity.id == entity_id)
-            .ok_or_else(|| anyhow!("entity not found"));
-
-        self.map_items.remove(pos?);
-        Ok(())
-    }
-
-    /// # Errors
-    /// if the item is not found
-    pub fn get_item_by_id(&self, entity_id: u32) -> Result<&MapItem> {
-        self.map_items
-            .iter()
-            .find(|entity| entity.entity.id == entity_id)
-            .ok_or_else(|| anyhow!("entity not found"))
-    }
-
-    #[must_use]
-    pub const fn get_entities(&self) -> &Vec<MapItem> {
-        &self.map_items
-    }
+    pub fn update_all_items(&mut self, blocks: &Blocks) {}
 
     pub fn get_all_item_type_ids(&self) -> Vec<ItemId> {
         let mut ids = Vec::new();
@@ -287,15 +249,10 @@ impl Items {
         }
         ids
     }
-
-    #[must_use]
-    pub const fn get_all_map_items(&self) -> &Vec<MapItem> {
-        &self.map_items
-    }
 }
 
 pub struct ItemSpawnEvent {
-    pub id: u32,
+    pub entity: Entity,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]

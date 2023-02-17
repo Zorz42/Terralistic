@@ -17,6 +17,7 @@ use super::networking::ClientNetworking;
 use super::walls::ClientWalls;
 use crate::client::game::items::ClientItems;
 use crate::client::menus::{run_loading_screen, BackgroundRect};
+use crate::shared::entities::Entities;
 use anyhow::{bail, Result};
 
 pub struct Game {
@@ -28,6 +29,7 @@ pub struct Game {
     block_selector: BlockSelector,
     blocks: ClientBlocks,
     walls: ClientWalls,
+    entities: Entities,
     items: ClientItems,
 }
 
@@ -46,6 +48,7 @@ impl Game {
             block_selector: BlockSelector::new(),
             blocks,
             walls,
+            entities: Entities::new(),
             items: ClientItems::new(),
         }
     }
@@ -69,19 +72,20 @@ impl Game {
 
         let init_thread = std::thread::spawn(move || {
             let mut temp_fn =
-                || -> Result<(ClientModManager, ClientBlocks, ClientWalls, ClientItems)> {
+                || -> Result<(ClientModManager, ClientBlocks, ClientWalls, Entities, ClientItems)> {
                     *loading_text2.lock().unwrap_or_else(PoisonError::into_inner) =
                         "Loading mods".to_owned();
                     let mut mods = ClientModManager::new();
                     let mut blocks = ClientBlocks::new();
                     let mut walls = ClientWalls::new(&mut blocks.blocks);
+                    let mut entities = Entities::new();
                     let mut items = ClientItems::new();
 
                     while let Some(event) = events.pop_event() {
                         mods.on_event(&event)?;
                         blocks.on_event(&event, &mut events)?;
                         walls.on_event(&event)?;
-                        items.on_event(&event, &mut events)?;
+                        items.on_event(&event, &mut entities, &mut events)?;
                     }
 
                     blocks.init(&mut mods.mod_manager)?;
@@ -92,7 +96,7 @@ impl Game {
                         "Initializing mods".to_owned();
                     mods.init()?;
 
-                    anyhow::Ok((mods, blocks, walls, items))
+                    anyhow::Ok((mods, blocks, walls, entities, items))
                 };
             // if the init fails, we clear the loading text so the error can be displayed
             let result = temp_fn();
@@ -111,7 +115,8 @@ impl Game {
         self.mods = result.0;
         self.blocks = result.1;
         self.walls = result.2;
-        self.items = result.3;
+        self.entities = result.3;
+        self.items = result.4;
 
         self.camera.set_position(
             self.blocks.blocks.get_width() as f32 / 2.0 * BLOCK_WIDTH as f32,
@@ -241,7 +246,8 @@ impl Game {
             self.background.render(graphics, &self.camera);
             self.walls.render(graphics, &self.camera)?;
             self.blocks.render(graphics, &self.camera)?;
-            self.items.render(graphics, &self.camera)?;
+            self.items
+                .render(graphics, &self.camera, &mut self.entities)?;
             self.block_selector
                 .render(graphics, &mut self.networking, &self.camera)?;
 
@@ -264,7 +270,8 @@ impl Game {
                 self.mods.on_event(&event)?;
                 self.blocks.on_event(&event, &mut self.events)?;
                 self.walls.on_event(&event)?;
-                self.items.on_event(&event, &mut self.events)?;
+                self.items
+                    .on_event(&event, &mut self.entities, &mut self.events)?;
                 self.block_selector.on_event(
                     graphics,
                     &mut self.networking,
