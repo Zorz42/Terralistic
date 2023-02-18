@@ -1,5 +1,7 @@
 use crate::shared::blocks::Blocks;
 
+pub const DEFAULT_GRAVITY: f32 = 9.8 * 2.0;
+
 pub struct IdComponent {
     pub id: u32,
 }
@@ -14,6 +16,10 @@ pub struct VelocityCollisionComponent {
     pub y: f32,
     pub collision_width: f32,
     pub collision_height: f32,
+}
+
+pub struct GravityComponent {
+    pub gravity: f32,
 }
 
 #[must_use]
@@ -65,7 +71,7 @@ impl Entities {
     pub fn update_entities_ms(&mut self, blocks: &Blocks) {
         for (_entity, (position, velocity)) in self
             .ecs
-            .query_mut::<(&mut PositionComponent, &VelocityCollisionComponent)>()
+            .query_mut::<(&mut PositionComponent, &mut VelocityCollisionComponent)>()
         {
             let target_x = position.x + velocity.x / 1000.0;
             let target_y = position.y + velocity.y / 1000.0;
@@ -84,6 +90,7 @@ impl Entities {
 
                 if collides_with_blocks(position, velocity, blocks) {
                     position.x -= direction_x;
+                    velocity.x = 0.0;
                     break;
                 }
             }
@@ -101,9 +108,17 @@ impl Entities {
 
                 if collides_with_blocks(position, velocity, blocks) {
                     position.y -= direction_y;
+                    velocity.y = 0.0;
                     break;
                 }
             }
+        }
+
+        for (_entity, (velocity, gravity)) in self
+            .ecs
+            .query_mut::<(&mut VelocityCollisionComponent, &GravityComponent)>()
+        {
+            velocity.y += gravity.gravity / 1000.0;
         }
     }
 

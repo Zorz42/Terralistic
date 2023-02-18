@@ -1,6 +1,7 @@
 use crate::shared::blocks::BlockId;
 use crate::shared::entities::{
-    Entities, IdComponent, PositionComponent, VelocityCollisionComponent,
+    Entities, GravityComponent, IdComponent, PositionComponent, VelocityCollisionComponent,
+    DEFAULT_GRAVITY,
 };
 use crate::shared::items::Item;
 use crate::shared::mod_manager::ModManager;
@@ -143,13 +144,16 @@ impl Items {
             IdComponent { id },
             PositionComponent { x, y },
             VelocityCollisionComponent {
-                x: 2.0,
-                y: 1.0,
+                x: 0.0,
+                y: 0.0,
                 collision_width: 1.0,
                 collision_height: 1.0,
             },
             ItemComponent {
                 item_type: item_type.get_id(),
+            },
+            GravityComponent {
+                gravity: DEFAULT_GRAVITY,
             },
         ));
 
