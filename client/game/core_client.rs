@@ -240,6 +240,7 @@ impl Game {
 
             while ms_counter < ms_timer.elapsed().as_millis() as i32 {
                 self.camera.update_ms(graphics);
+                self.entities.update_entities_ms(&self.blocks.blocks);
                 ms_counter += 1;
             }
 

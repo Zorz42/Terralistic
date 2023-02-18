@@ -71,7 +71,7 @@ impl ClientItems {
         camera: &Camera,
         entities: &mut Entities,
     ) -> Result<()> {
-        for (entity, (position, item)) in entities
+        for (_entity, (position, item)) in entities
             .ecs
             .query_mut::<(&PositionComponent, &ItemComponent)>()
         {

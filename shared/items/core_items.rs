@@ -1,5 +1,7 @@
-use crate::shared::blocks::{BlockId, Blocks};
-use crate::shared::entities::{Entities, IdComponent, PositionComponent};
+use crate::shared::blocks::BlockId;
+use crate::shared::entities::{
+    Entities, IdComponent, PositionComponent, VelocityCollisionComponent,
+};
 use crate::shared::items::Item;
 use crate::shared::mod_manager::ModManager;
 use crate::shared::walls::WallId;
@@ -140,6 +142,12 @@ impl Items {
         let entity = entities.ecs.spawn((
             IdComponent { id },
             PositionComponent { x, y },
+            VelocityCollisionComponent {
+                x: 20.0,
+                y: 10.0,
+                collision_width: 8.0,
+                collision_height: 8.0,
+            },
             ItemComponent {
                 item_type: item_type.get_id(),
             },
@@ -234,8 +242,6 @@ impl Items {
             .get(&wall_type)
             .ok_or_else(|| anyhow!("wall drop not found"))
     }
-
-    pub fn update_all_items(&mut self, blocks: &Blocks) {}
 
     pub fn get_all_item_type_ids(&self) -> Vec<ItemId> {
         let mut ids = Vec::new();
