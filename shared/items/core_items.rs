@@ -143,10 +143,10 @@ impl Items {
             IdComponent { id },
             PositionComponent { x, y },
             VelocityCollisionComponent {
-                x: 20.0,
-                y: 10.0,
-                collision_width: 8.0,
-                collision_height: 8.0,
+                x: 2.0,
+                y: 1.0,
+                collision_width: 1.0,
+                collision_height: 1.0,
             },
             ItemComponent {
                 item_type: item_type.get_id(),

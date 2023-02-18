@@ -2,7 +2,7 @@ use crate::client::game::camera::Camera;
 use crate::libraries::events::{Event, EventManager};
 use crate::libraries::graphics as gfx;
 use crate::libraries::graphics::{FloatPos, FloatSize};
-use crate::shared::blocks::RENDER_SCALE;
+use crate::shared::blocks::{RENDER_BLOCK_WIDTH, RENDER_SCALE};
 use crate::shared::entities::{Entities, PositionComponent};
 use crate::shared::items::{ItemComponent, ItemId, ItemSpawnPacket, Items};
 use crate::shared::mod_manager::ModManager;
@@ -88,8 +88,8 @@ impl ClientItems {
                 &graphics.renderer,
                 RENDER_SCALE,
                 FloatPos(
-                    (position.x - top_left.0) * RENDER_SCALE,
-                    (position.y - top_left.1) * RENDER_SCALE,
+                    position.x * RENDER_BLOCK_WIDTH - top_left.0 * RENDER_SCALE,
+                    position.y * RENDER_BLOCK_WIDTH - top_left.1 * RENDER_SCALE,
                 ),
                 Some(src_rect),
                 false,

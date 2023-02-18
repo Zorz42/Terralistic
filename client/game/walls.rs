@@ -47,39 +47,36 @@ impl RenderWallChunk {
                         let mut curr_wall_rect = *curr_wall_rect;
                         let mut dest_rect = gfx::Rect::new(
                             FloatPos(
-                                ((x - 1) * RENDER_BLOCK_WIDTH) as f32,
-                                ((y - 1) * RENDER_BLOCK_WIDTH) as f32,
+                                (x - 1) as f32 * RENDER_BLOCK_WIDTH,
+                                (y - 1) as f32 * RENDER_BLOCK_WIDTH,
                             ),
-                            FloatSize(
-                                (3 * RENDER_BLOCK_WIDTH) as f32,
-                                (3 * RENDER_BLOCK_WIDTH) as f32,
-                            ),
+                            FloatSize(3.0 * RENDER_BLOCK_WIDTH, 3.0 * RENDER_BLOCK_WIDTH),
                         );
 
                         let curr_x = world_x + x;
                         let curr_y = world_y + y;
                         if Self::can_connect_to(curr_x - 1, curr_y, walls) {
-                            dest_rect.pos.0 += RENDER_BLOCK_WIDTH as f32;
-                            dest_rect.size.0 -= RENDER_BLOCK_WIDTH as f32;
-                            curr_wall_rect.pos.0 += BLOCK_WIDTH as f32;
-                            curr_wall_rect.size.0 -= BLOCK_WIDTH as f32;
+                            dest_rect.pos.0 += RENDER_BLOCK_WIDTH;
+                            dest_rect.size.0 -= RENDER_BLOCK_WIDTH;
+                            curr_wall_rect.pos.0 += BLOCK_WIDTH;
+                            curr_wall_rect.size.0 -= BLOCK_WIDTH;
                         }
 
                         if Self::can_connect_to(curr_x + 1, curr_y, walls) {
-                            dest_rect.size.0 -= RENDER_BLOCK_WIDTH as f32;
-                            curr_wall_rect.size.0 -= BLOCK_WIDTH as f32;
+                            dest_rect.size.0 -= RENDER_BLOCK_WIDTH;
+                            curr_wall_rect.size.0 -= BLOCK_WIDTH;
                         }
 
                         if Self::can_connect_to(curr_x, curr_y - 1, walls) {
-                            dest_rect.pos.1 += RENDER_BLOCK_WIDTH as f32;
-                            dest_rect.size.1 -= RENDER_BLOCK_WIDTH as f32;
-                            curr_wall_rect.pos.1 += BLOCK_WIDTH as f32;
-                            curr_wall_rect.size.1 -= BLOCK_WIDTH as f32;
+                            dest_rect.pos.1 += RENDER_BLOCK_WIDTH;
+                            dest_rect.size.1 -= RENDER_BLOCK_WIDTH;
+                            curr_wall_rect.pos.1 += BLOCK_WIDTH;
+                            curr_wall_rect.size.1 -= BLOCK_WIDTH;
                         }
 
                         if Self::can_connect_to(curr_x, curr_y + 1, walls) {
-                            dest_rect.size.1 -= RENDER_BLOCK_WIDTH as f32;
-                            curr_wall_rect.size.1 -= BLOCK_WIDTH as f32;
+                            dest_rect.size.1 -= RENDER_BLOCK_WIDTH;
+                            curr_wall_rect.size.1 -= BLOCK_WIDTH;
                         }
 
                         self.rect_array.add_rect(
@@ -99,10 +96,10 @@ impl RenderWallChunk {
             self.rect_array.update();
         }
 
-        let screen_x = world_x as f32 * RENDER_BLOCK_WIDTH as f32
-            - camera.get_top_left(graphics).0 * RENDER_SCALE;
-        let screen_y = world_y as f32 * RENDER_BLOCK_WIDTH as f32
-            - camera.get_top_left(graphics).1 * RENDER_SCALE;
+        let screen_x =
+            world_x as f32 * RENDER_BLOCK_WIDTH - camera.get_top_left(graphics).0 * RENDER_SCALE;
+        let screen_y =
+            world_y as f32 * RENDER_BLOCK_WIDTH - camera.get_top_left(graphics).1 * RENDER_SCALE;
         self.rect_array.render(
             graphics,
             Some(atlas.get_texture()),
@@ -195,19 +192,16 @@ impl ClientWalls {
     pub fn render(&mut self, graphics: &mut GraphicsContext, camera: &Camera) -> Result<()> {
         let (top_left_x, top_left_y) = camera.get_top_left(graphics);
         let (bottom_right_x, bottom_right_y) = camera.get_bottom_right(graphics);
-        let (top_left_x, top_left_y) = (
-            top_left_x as i32 / BLOCK_WIDTH,
-            top_left_y as i32 / BLOCK_WIDTH,
+        let (top_left_x, top_left_y) = (top_left_x / BLOCK_WIDTH, top_left_y / BLOCK_WIDTH);
+        let (bottom_right_x, bottom_right_y) =
+            (bottom_right_x / BLOCK_WIDTH, bottom_right_y / BLOCK_WIDTH);
+        let (top_left_chunk_x, top_left_chunk_y) = (
+            top_left_x as i32 / CHUNK_SIZE,
+            top_left_y as i32 / CHUNK_SIZE,
         );
-        let (bottom_right_x, bottom_right_y) = (
-            bottom_right_x as i32 / BLOCK_WIDTH,
-            bottom_right_y as i32 / BLOCK_WIDTH,
-        );
-        let (top_left_chunk_x, top_left_chunk_y) =
-            (top_left_x / CHUNK_SIZE, top_left_y / CHUNK_SIZE);
         let (bottom_right_chunk_x, bottom_right_chunk_y) = (
-            bottom_right_x / CHUNK_SIZE + 1,
-            bottom_right_y / CHUNK_SIZE + 1,
+            bottom_right_x as i32 / CHUNK_SIZE + 1,
+            bottom_right_y as i32 / CHUNK_SIZE + 1,
         );
         for x in top_left_chunk_x..bottom_right_chunk_x {
             for y in top_left_chunk_y..bottom_right_chunk_y {
@@ -235,19 +229,19 @@ impl ClientWalls {
         }
 
         for breaking_wall in self.walls.get_breaking_walls() {
-            if breaking_wall.coord.0 < top_left_x
-                || breaking_wall.coord.0 > bottom_right_x
-                || breaking_wall.coord.1 < top_left_y
-                || breaking_wall.coord.1 > bottom_right_y
+            if breaking_wall.coord.0 < top_left_x as i32
+                || breaking_wall.coord.0 > bottom_right_x as i32
+                || breaking_wall.coord.1 < top_left_y as i32
+                || breaking_wall.coord.1 > bottom_right_y as i32
             {
                 continue;
             }
 
             let (x, y) = (
-                breaking_wall.coord.0 * RENDER_BLOCK_WIDTH
-                    - (camera.get_top_left(graphics).0 * RENDER_SCALE) as i32,
-                breaking_wall.coord.1 * RENDER_BLOCK_WIDTH
-                    - (camera.get_top_left(graphics).1 * RENDER_SCALE) as i32,
+                breaking_wall.coord.0 as f32 * RENDER_BLOCK_WIDTH
+                    - camera.get_top_left(graphics).0 * RENDER_SCALE,
+                breaking_wall.coord.1 as f32 * RENDER_BLOCK_WIDTH
+                    - camera.get_top_left(graphics).1 * RENDER_SCALE,
             );
             let break_stage = self
                 .walls
@@ -255,7 +249,7 @@ impl ClientWalls {
             self.breaking_texture.render(
                 &graphics.renderer,
                 RENDER_SCALE,
-                FloatPos(x as f32, y as f32),
+                FloatPos(x, y),
                 Some(gfx::Rect::new(
                     FloatPos(0.0, break_stage as f32 * 8.0),
                     FloatSize(8.0, 8.0),

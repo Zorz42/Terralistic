@@ -13,9 +13,9 @@ use crate::shared::mod_manager::ModManager;
 use crate::shared::world_map::WorldMap;
 use anyhow::{anyhow, bail, Result};
 
-pub const BLOCK_WIDTH: i32 = 8;
+pub const BLOCK_WIDTH: f32 = 8.0;
 pub const RENDER_SCALE: f32 = 2.0;
-pub const RENDER_BLOCK_WIDTH: i32 = (BLOCK_WIDTH as f32 * RENDER_SCALE) as i32;
+pub const RENDER_BLOCK_WIDTH: f32 = BLOCK_WIDTH * RENDER_SCALE;
 pub const UNBREAKABLE: i32 = -1;
 pub const CHUNK_SIZE: i32 = 16;
 pub const RANDOM_TICK_SPEED: i32 = 10;

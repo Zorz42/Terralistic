@@ -71,16 +71,16 @@ impl RenderBlockChunk {
                             }
                         }
 
-                        curr_block_rect.size.0 = BLOCK_WIDTH as f32;
-                        curr_block_rect.size.1 = BLOCK_WIDTH as f32;
-                        curr_block_rect.pos.1 += (BLOCK_WIDTH * block_state) as f32;
+                        curr_block_rect.size.0 = BLOCK_WIDTH;
+                        curr_block_rect.size.1 = BLOCK_WIDTH;
+                        curr_block_rect.pos.1 += BLOCK_WIDTH * block_state as f32;
                         self.rect_array.add_rect(
                             &gfx::Rect::new(
                                 FloatPos(
-                                    (x * RENDER_BLOCK_WIDTH) as f32,
-                                    (y * RENDER_BLOCK_WIDTH) as f32,
+                                    x as f32 * RENDER_BLOCK_WIDTH,
+                                    y as f32 * RENDER_BLOCK_WIDTH,
                                 ),
-                                FloatSize(RENDER_BLOCK_WIDTH as f32, RENDER_BLOCK_WIDTH as f32),
+                                FloatSize(RENDER_BLOCK_WIDTH, RENDER_BLOCK_WIDTH),
                             ),
                             &[
                                 gfx::Color::new(255, 255, 255, 255),
@@ -98,9 +98,9 @@ impl RenderBlockChunk {
         }
 
         let screen_x =
-            (world_x * RENDER_BLOCK_WIDTH) as f32 - camera.get_top_left(graphics).0 * RENDER_SCALE;
+            world_x as f32 * RENDER_BLOCK_WIDTH - camera.get_top_left(graphics).0 * RENDER_SCALE;
         let screen_y =
-            (world_y * RENDER_BLOCK_WIDTH) as f32 - camera.get_top_left(graphics).1 * RENDER_SCALE;
+            world_y as f32 * RENDER_BLOCK_WIDTH - camera.get_top_left(graphics).1 * RENDER_SCALE;
         self.rect_array.render(
             graphics,
             Some(atlas.get_texture()),
@@ -217,19 +217,16 @@ impl ClientBlocks {
     pub fn render(&mut self, graphics: &mut GraphicsContext, camera: &Camera) -> Result<()> {
         let (top_left_x, top_left_y) = camera.get_top_left(graphics);
         let (bottom_right_x, bottom_right_y) = camera.get_bottom_right(graphics);
-        let (top_left_x, top_left_y) = (
-            top_left_x as i32 / BLOCK_WIDTH,
-            top_left_y as i32 / BLOCK_WIDTH,
+        let (top_left_x, top_left_y) = (top_left_x / BLOCK_WIDTH, top_left_y / BLOCK_WIDTH);
+        let (bottom_right_x, bottom_right_y) =
+            (bottom_right_x / BLOCK_WIDTH, bottom_right_y / BLOCK_WIDTH);
+        let (top_left_chunk_x, top_left_chunk_y) = (
+            top_left_x as i32 / CHUNK_SIZE,
+            top_left_y as i32 / CHUNK_SIZE,
         );
-        let (bottom_right_x, bottom_right_y) = (
-            bottom_right_x as i32 / BLOCK_WIDTH,
-            bottom_right_y as i32 / BLOCK_WIDTH,
-        );
-        let (top_left_chunk_x, top_left_chunk_y) =
-            (top_left_x / CHUNK_SIZE, top_left_y / CHUNK_SIZE);
         let (bottom_right_chunk_x, bottom_right_chunk_y) = (
-            bottom_right_x / CHUNK_SIZE + 1,
-            bottom_right_y / CHUNK_SIZE + 1,
+            bottom_right_x as i32 / CHUNK_SIZE + 1,
+            bottom_right_y as i32 / CHUNK_SIZE + 1,
         );
         for x in top_left_chunk_x..bottom_right_chunk_x {
             for y in top_left_chunk_y..bottom_right_chunk_y {
@@ -257,19 +254,19 @@ impl ClientBlocks {
         }
 
         for breaking_block in self.blocks.get_breaking_blocks() {
-            if breaking_block.coord.0 < top_left_x
-                || breaking_block.coord.0 > bottom_right_x
-                || breaking_block.coord.1 < top_left_y
-                || breaking_block.coord.1 > bottom_right_y
+            if breaking_block.coord.0 < top_left_x as i32
+                || breaking_block.coord.0 > bottom_right_x as i32
+                || breaking_block.coord.1 < top_left_y as i32
+                || breaking_block.coord.1 > bottom_right_y as i32
             {
                 continue;
             }
 
             let (x, y) = (
-                breaking_block.coord.0 * RENDER_BLOCK_WIDTH
-                    - (camera.get_top_left(graphics).0 * RENDER_SCALE) as i32,
-                breaking_block.coord.1 * RENDER_BLOCK_WIDTH
-                    - (camera.get_top_left(graphics).1 * RENDER_SCALE) as i32,
+                breaking_block.coord.0 as f32 * RENDER_BLOCK_WIDTH
+                    - camera.get_top_left(graphics).0 * RENDER_SCALE,
+                breaking_block.coord.1 as f32 * RENDER_BLOCK_WIDTH
+                    - camera.get_top_left(graphics).1 * RENDER_SCALE,
             );
             let break_stage = self
                 .blocks
@@ -277,7 +274,7 @@ impl ClientBlocks {
             self.breaking_texture.render(
                 &graphics.renderer,
                 RENDER_SCALE,
-                FloatPos(x as f32, y as f32),
+                FloatPos(x, y),
                 Some(gfx::Rect::new(
                     FloatPos(0.0, break_stage as f32 * 8.0),
                     FloatSize(8.0, 8.0),

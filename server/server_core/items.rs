@@ -1,6 +1,6 @@
 use crate::libraries::events::{Event, EventManager};
 use crate::server::server_core::networking::ServerNetworking;
-use crate::shared::blocks::{BlockBreakEvent, BLOCK_WIDTH};
+use crate::shared::blocks::BlockBreakEvent;
 use crate::shared::entities::{Entities, IdComponent, PositionComponent};
 use crate::shared::items::{ItemComponent, ItemSpawnEvent, ItemSpawnPacket, Items};
 use crate::shared::mod_manager::ModManager;
@@ -39,8 +39,8 @@ impl ServerItems {
                         events,
                         entities,
                         &self.items.get_item_type(drop.item)?,
-                        (event.x * BLOCK_WIDTH) as f32,
-                        (event.y * BLOCK_WIDTH) as f32,
+                        event.x as f32,
+                        event.y as f32,
                         None,
                     );
                 }

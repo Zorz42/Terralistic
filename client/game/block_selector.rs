@@ -37,10 +37,10 @@ impl BlockSelector {
         let mouse_x = mouse_x + camera.get_top_left(graphics).0 * RENDER_SCALE;
         let mouse_y = mouse_y + camera.get_top_left(graphics).1 * RENDER_SCALE;
 
-        let block_x = mouse_x as i32 / RENDER_BLOCK_WIDTH;
-        let block_y = mouse_y as i32 / RENDER_BLOCK_WIDTH;
+        let block_x = mouse_x / RENDER_BLOCK_WIDTH;
+        let block_y = mouse_y / RENDER_BLOCK_WIDTH;
 
-        (block_x, block_y)
+        (block_x as i32, block_y as i32)
     }
 
     /**
@@ -54,14 +54,14 @@ impl BlockSelector {
     ) -> Result<()> {
         let selected_block = Self::get_selected_block(graphics, camera);
 
-        let x = selected_block.0 * RENDER_BLOCK_WIDTH
-            - (camera.get_top_left(graphics).0 * RENDER_SCALE) as i32;
-        let y = selected_block.1 * RENDER_BLOCK_WIDTH
-            - (camera.get_top_left(graphics).1 * RENDER_SCALE) as i32;
+        let x = selected_block.0 as f32 * RENDER_BLOCK_WIDTH
+            - camera.get_top_left(graphics).0 * RENDER_SCALE;
+        let y = selected_block.1 as f32 * RENDER_BLOCK_WIDTH
+            - camera.get_top_left(graphics).1 * RENDER_SCALE;
 
         gfx::Rect::new(
-            FloatPos(x as f32, y as f32),
-            FloatSize(RENDER_BLOCK_WIDTH as f32, RENDER_BLOCK_WIDTH as f32),
+            FloatPos(x, y),
+            FloatSize(RENDER_BLOCK_WIDTH, RENDER_BLOCK_WIDTH),
         )
         .render_outline(graphics, gfx::Color::new(255, 0, 0, 255));
 

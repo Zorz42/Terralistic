@@ -119,8 +119,8 @@ impl Game {
         self.items = result.4;
 
         self.camera.set_position(
-            self.blocks.blocks.get_width() as f32 / 2.0 * BLOCK_WIDTH as f32,
-            self.blocks.blocks.get_height() as f32 / 3.0 * BLOCK_WIDTH as f32,
+            self.blocks.blocks.get_width() as f32 / 2.0 * BLOCK_WIDTH,
+            self.blocks.blocks.get_height() as f32 / 3.0 * BLOCK_WIDTH,
         );
 
         self.background.init()?;
