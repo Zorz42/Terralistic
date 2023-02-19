@@ -103,7 +103,7 @@ impl RenderWallChunk {
         self.rect_array.render(
             graphics,
             Some(atlas.get_texture()),
-            FloatPos(screen_x, screen_y),
+            FloatPos(screen_x.round(), screen_y.round()),
         );
 
         Ok(())

@@ -60,7 +60,7 @@ impl BlockSelector {
             - camera.get_top_left(graphics).1 * RENDER_SCALE;
 
         gfx::Rect::new(
-            FloatPos(x, y),
+            FloatPos(x.round(), y.round()),
             FloatSize(RENDER_BLOCK_WIDTH, RENDER_BLOCK_WIDTH),
         )
         .render_outline(graphics, gfx::Color::new(255, 0, 0, 255));

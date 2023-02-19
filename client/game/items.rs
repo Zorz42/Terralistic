@@ -77,7 +77,7 @@ impl ClientItems {
         {
             let mut src_rect = *self
                 .atlas
-                .get_rect(&item.item_type)
+                .get_rect(&item.get_item_type())
                 .ok_or_else(|| anyhow!("Item not found in atlas"))?;
             src_rect.pos.0 += 1.0;
             src_rect.pos.1 += 2.0;
@@ -88,8 +88,8 @@ impl ClientItems {
                 &graphics.renderer,
                 RENDER_SCALE,
                 FloatPos(
-                    position.x * RENDER_BLOCK_WIDTH - top_left.0 * RENDER_SCALE,
-                    position.y * RENDER_BLOCK_WIDTH - top_left.1 * RENDER_SCALE,
+                    position.x() * RENDER_BLOCK_WIDTH - top_left.0 * RENDER_SCALE,
+                    position.y() * RENDER_BLOCK_WIDTH - top_left.1 * RENDER_SCALE,
                 ),
                 Some(src_rect),
                 false,

@@ -21,9 +21,9 @@ impl ServerEntities {
             .query_mut::<(&IdComponent, &PositionComponent)>()
         {
             networking.send_packet_to_all(&Packet::new(EntityPositionPacket {
-                id: id.id,
-                x: position.x,
-                y: position.y,
+                id: id.id(),
+                x: position.x(),
+                y: position.y(),
             })?)?;
         }
         Ok(())

@@ -21,9 +21,9 @@ impl ClientEntities {
                     .ecs
                     .query_mut::<(&mut IdComponent, &mut PositionComponent)>()
                 {
-                    if id.id == packet.id {
-                        position.x = packet.x;
-                        position.y = packet.y;
+                    if id.id() == packet.id {
+                        position.set_x(packet.x);
+                        position.set_y(packet.y);
                     }
                 }
             }

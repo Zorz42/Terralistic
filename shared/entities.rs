@@ -3,26 +3,6 @@ use serde_derive::{Deserialize, Serialize};
 
 pub const DEFAULT_GRAVITY: f32 = 9.8 * 2.0;
 
-pub struct IdComponent {
-    pub id: u32,
-}
-
-pub struct PositionComponent {
-    pub x: f32,
-    pub y: f32,
-}
-
-pub struct VelocityCollisionComponent {
-    pub x: f32,
-    pub y: f32,
-    pub collision_width: f32,
-    pub collision_height: f32,
-}
-
-pub struct GravityComponent {
-    pub gravity: f32,
-}
-
 #[must_use]
 pub fn collides_with_blocks(
     position: &PositionComponent,
@@ -138,4 +118,116 @@ pub struct EntityPositionPacket {
     pub id: u32,
     pub x: f32,
     pub y: f32,
+}
+
+pub struct IdComponent {
+    id: u32,
+}
+
+impl IdComponent {
+    #[must_use]
+    pub const fn new(id: u32) -> Self {
+        Self { id }
+    }
+
+    #[must_use]
+    pub const fn id(&self) -> u32 {
+        self.id
+    }
+}
+
+pub struct PositionComponent {
+    x: f32,
+    y: f32,
+}
+
+impl PositionComponent {
+    #[must_use]
+    pub const fn new(x: f32, y: f32) -> Self {
+        Self { x, y }
+    }
+
+    #[must_use]
+    pub const fn x(&self) -> f32 {
+        self.x
+    }
+
+    #[must_use]
+    pub const fn y(&self) -> f32 {
+        self.y
+    }
+
+    pub fn set_x(&mut self, x: f32) {
+        self.x = x;
+    }
+
+    pub fn set_y(&mut self, y: f32) {
+        self.y = y;
+    }
+}
+
+pub struct VelocityCollisionComponent {
+    x: f32,
+    y: f32,
+    collision_width: f32,
+    collision_height: f32,
+}
+
+impl VelocityCollisionComponent {
+    #[must_use]
+    pub const fn new(collision_width: f32, collision_height: f32) -> Self {
+        Self {
+            x: 0.0,
+            y: 0.0,
+            collision_width,
+            collision_height,
+        }
+    }
+
+    #[must_use]
+    pub const fn x(&self) -> f32 {
+        self.x
+    }
+
+    #[must_use]
+    pub const fn y(&self) -> f32 {
+        self.y
+    }
+
+    pub fn increase_x(&mut self, x: f32) {
+        self.x += x;
+    }
+
+    pub fn increase_y(&mut self, y: f32) {
+        self.y += y;
+    }
+
+    #[must_use]
+    pub const fn collision_width(&self) -> f32 {
+        self.collision_width
+    }
+
+    #[must_use]
+    pub const fn collision_height(&self) -> f32 {
+        self.collision_height
+    }
+}
+
+pub struct GravityComponent {
+    pub gravity: f32,
+}
+
+impl GravityComponent {
+    #[must_use]
+    pub const fn new() -> Self {
+        Self {
+            gravity: DEFAULT_GRAVITY,
+        }
+    }
+}
+
+impl Default for GravityComponent {
+    fn default() -> Self {
+        Self::new()
+    }
 }

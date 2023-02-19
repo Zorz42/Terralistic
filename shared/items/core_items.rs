@@ -1,7 +1,6 @@
 use crate::shared::blocks::BlockId;
 use crate::shared::entities::{
     Entities, GravityComponent, IdComponent, PositionComponent, VelocityCollisionComponent,
-    DEFAULT_GRAVITY,
 };
 use crate::shared::items::Item;
 use crate::shared::mod_manager::ModManager;
@@ -58,10 +57,6 @@ impl TileDrop {
     pub const fn new(drop: ItemId, chance: f32) -> Self {
         Self { item: drop, chance }
     }
-}
-
-pub struct ItemComponent {
-    pub item_type: ItemId,
 }
 
 pub struct Items {
@@ -141,20 +136,11 @@ impl Items {
         let id = entities.unwrap_id(id);
 
         let entity = entities.ecs.spawn((
-            IdComponent { id },
-            PositionComponent { x, y },
-            VelocityCollisionComponent {
-                x: 0.0,
-                y: 0.0,
-                collision_width: 1.0,
-                collision_height: 1.0,
-            },
-            ItemComponent {
-                item_type: item_type.get_id(),
-            },
-            GravityComponent {
-                gravity: DEFAULT_GRAVITY,
-            },
+            IdComponent::new(id),
+            PositionComponent::new(x, y),
+            VelocityCollisionComponent::new(1.0, 1.0),
+            ItemComponent::new(item_type.get_id()),
+            GravityComponent::new(),
         ));
 
         let event = ItemSpawnEvent { entity };
@@ -271,4 +257,20 @@ pub struct ItemSpawnPacket {
     pub x: f32,
     pub y: f32,
     pub id: u32,
+}
+
+pub struct ItemComponent {
+    item_type: ItemId,
+}
+
+impl ItemComponent {
+    #[must_use]
+    pub const fn new(item_type: ItemId) -> Self {
+        Self { item_type }
+    }
+
+    #[must_use]
+    pub const fn get_item_type(&self) -> ItemId {
+        self.item_type
+    }
 }

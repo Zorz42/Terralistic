@@ -49,14 +49,14 @@ impl ServerItems {
         if let Some(event) = event.downcast::<ItemSpawnEvent>() {
             let entity = event.entity;
             let item = entities.ecs.get::<&ItemComponent>(entity)?;
-            let id = entities.ecs.get::<&IdComponent>(entity)?.id;
+            let id = entities.ecs.get::<&IdComponent>(entity)?.id();
             let position = entities.ecs.get::<&PositionComponent>(entity)?;
 
             let packet = ItemSpawnPacket {
-                item_type: item.item_type,
+                item_type: item.get_item_type(),
                 id,
-                x: position.x,
-                y: position.y,
+                x: position.x(),
+                y: position.y(),
             };
 
             networking.send_packet_to_all(&Packet::new(packet)?)?;
