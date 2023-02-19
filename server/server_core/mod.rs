@@ -1,8 +1,9 @@
 mod blocks;
+mod core_server;
+mod entities;
 mod items;
 mod mod_manager;
 mod networking;
-mod core_server;
 mod walls;
 mod world_generator;
 

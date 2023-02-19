@@ -1,4 +1,5 @@
 use crate::shared::blocks::Blocks;
+use serde_derive::{Deserialize, Serialize};
 
 pub const DEFAULT_GRAVITY: f32 = 9.8 * 2.0;
 
@@ -130,4 +131,11 @@ impl Entities {
             self.current_id
         }
     }
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct EntityPositionPacket {
+    pub id: u32,
+    pub x: f32,
+    pub y: f32,
 }

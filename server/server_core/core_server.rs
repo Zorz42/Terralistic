@@ -4,8 +4,8 @@ use super::networking::ServerNetworking;
 use super::walls::ServerWalls;
 use super::world_generator::WorldGenerator;
 use crate::libraries::events::EventManager;
+use crate::server::server_core::entities::ServerEntities;
 use crate::server::server_core::items::ServerItems;
-use crate::shared::entities::Entities;
 use anyhow::{anyhow, Result};
 use core::sync::atomic::{AtomicBool, Ordering};
 use core::time::Duration;
@@ -24,7 +24,7 @@ pub struct Server {
     mods: ServerModManager,
     blocks: ServerBlocks,
     walls: ServerWalls,
-    entities: Entities,
+    entities: ServerEntities,
     items: ServerItems,
 }
 
@@ -40,7 +40,7 @@ impl Server {
             mods: ServerModManager::new(Vec::new()),
             blocks,
             walls,
-            entities: Entities::new(),
+            entities: ServerEntities::new(),
             items: ServerItems::new(),
         }
     }
@@ -102,7 +102,10 @@ impl Server {
             .lock()
             .unwrap_or_else(PoisonError::into_inner)
             .clear();
+        let ms_timer = std::time::Instant::now();
+        let mut ms_counter = 0;
         let mut last_time = std::time::Instant::now();
+        let mut sec_counter = std::time::Instant::now();
         loop {
             let delta_time = last_time.elapsed().as_secs_f32() * 1000.0;
             last_time = std::time::Instant::now();
@@ -121,11 +124,23 @@ impl Server {
                 self.walls.on_event(&event, &mut self.networking)?;
                 self.items.on_event(
                     &event,
-                    &mut self.entities,
+                    &mut self.entities.entities,
                     &mut self.events,
                     &mut self.networking,
                 )?;
                 self.networking.on_event(&event)?;
+            }
+
+            while ms_counter < ms_timer.elapsed().as_millis() as i32 {
+                self.entities
+                    .entities
+                    .update_entities_ms(&self.blocks.blocks);
+                ms_counter += 1;
+            }
+
+            if sec_counter.elapsed().as_secs() >= 1 {
+                self.entities.sync_entities(&mut self.networking)?;
+                sec_counter = std::time::Instant::now();
             }
 
             if !is_running.load(Ordering::Relaxed) {

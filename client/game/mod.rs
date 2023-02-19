@@ -3,6 +3,7 @@ mod block_selector;
 mod blocks;
 mod camera;
 pub mod core_client;
+mod entities;
 mod items;
 mod mod_manager;
 mod networking;
