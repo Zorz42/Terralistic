@@ -88,8 +88,8 @@ impl ClientItems {
                 &graphics.renderer,
                 RENDER_SCALE,
                 FloatPos(
-                    position.x() * RENDER_BLOCK_WIDTH - top_left.0 * RENDER_SCALE,
-                    position.y() * RENDER_BLOCK_WIDTH - top_left.1 * RENDER_SCALE,
+                    position.x() * RENDER_BLOCK_WIDTH - top_left.0 * RENDER_BLOCK_WIDTH,
+                    position.y() * RENDER_BLOCK_WIDTH - top_left.1 * RENDER_BLOCK_WIDTH,
                 ),
                 Some(src_rect),
                 false,

@@ -4,7 +4,6 @@ use alloc::sync::Arc;
 
 use crate::libraries::graphics::{FloatPos, FloatSize, GraphicsContext};
 use crate::libraries::{events, graphics as gfx};
-use crate::shared::blocks::BLOCK_WIDTH;
 
 use crate::libraries::events::EventManager;
 
@@ -19,6 +18,7 @@ use crate::client::game::entities::ClientEntities;
 use crate::client::game::items::ClientItems;
 use crate::client::game::players::render_players;
 use crate::client::menus::{run_loading_screen, BackgroundRect};
+use crate::shared::entities::PositionComponent;
 use crate::shared::players::spawn_player;
 use anyhow::{bail, Result};
 
@@ -120,16 +120,12 @@ impl Game {
         self.entities = result.3;
         self.items = result.4;
 
-        self.camera.set_position(
-            self.blocks.blocks.get_width() as f32 / 2.0 * BLOCK_WIDTH,
-            self.blocks.blocks.get_height() as f32 / 3.0 * BLOCK_WIDTH,
-        );
-
         self.background.init()?;
 
         self.blocks.load_resources(&mut self.mods.mod_manager)?;
         self.walls.load_resources(&mut self.mods.mod_manager)?;
         self.items.load_resources(&mut self.mods.mod_manager)?;
+        self.camera.load_resources(graphics);
 
         // print the time it took to initialize
         println!("Game joined in {}ms", timer.elapsed().as_millis());
@@ -190,7 +186,7 @@ impl Game {
         debug_menu_rect.size.0 = 300.0;
         debug_menu_rect.size.1 = 200.0;
 
-        spawn_player(
+        let main_player_entity = spawn_player(
             &mut self.entities.entities,
             self.blocks.blocks.get_width() as f32 / 2.0,
             0.0,
@@ -247,6 +243,16 @@ impl Game {
             self.blocks.update(delta_time, &mut self.events)?;
             self.walls.update(delta_time, &mut self.events)?;
 
+            {
+                let player_pos = self
+                    .entities
+                    .entities
+                    .ecs
+                    .get::<&PositionComponent>(main_player_entity)?;
+
+                self.camera.set_position(player_pos.x(), player_pos.y());
+            }
+
             while ms_counter < ms_timer.elapsed().as_millis() as i32 {
                 self.camera.update_ms(graphics);
                 self.entities
@@ -258,11 +264,12 @@ impl Game {
             self.background.render(graphics, &self.camera);
             self.walls.render(graphics, &self.camera)?;
             self.blocks.render(graphics, &self.camera)?;
+            render_players(graphics, &mut self.entities.entities, &self.camera);
             self.items
                 .render(graphics, &self.camera, &mut self.entities.entities)?;
+            self.camera.render(graphics);
             self.block_selector
                 .render(graphics, &mut self.networking, &self.camera)?;
-            render_players(graphics, &mut self.entities.entities, &self.camera);
 
             pause_rect.pos.0 = if paused {
                 0.0
@@ -292,6 +299,7 @@ impl Game {
                     &self.camera,
                     &event,
                 )?;
+                self.camera.on_event(&event);
             }
 
             debug_menu_rect.pos.0 = if debug_menu_open {

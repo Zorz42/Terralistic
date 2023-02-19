@@ -1,5 +1,7 @@
+use crate::libraries::events::Event;
 use crate::libraries::graphics as gfx;
 use crate::libraries::graphics::{FloatPos, GraphicsContext};
+use crate::shared::blocks::RENDER_BLOCK_WIDTH;
 
 /**
 Camera is a struct that handles the camera position.
@@ -10,6 +12,8 @@ pub struct Camera {
     target_position_y: f32,
     position_x: f32,
     position_y: f32,
+    detached_camera: bool,
+    detached_camera_text: gfx::Sprite,
 }
 
 impl Camera {
@@ -19,12 +23,26 @@ impl Camera {
             target_position_y: 0.0,
             position_x: 0.0,
             position_y: 0.0,
+            detached_camera: false,
+            detached_camera_text: gfx::Sprite::new(),
         }
     }
 
+    pub fn load_resources(&mut self, graphics: &mut GraphicsContext) {
+        self.detached_camera_text.texture = gfx::Texture::load_from_surface(
+            &graphics.font.create_text_surface("Camera is detached"),
+        );
+        self.detached_camera_text.orientation = gfx::BOTTOM;
+        self.detached_camera_text.pos = FloatPos(0.0, -gfx::SPACING);
+        self.detached_camera_text.scale = 3.0;
+        self.detached_camera_text.color = gfx::Color::new(255, 0, 0, 255);
+    }
+
     pub fn set_position(&mut self, x: f32, y: f32) {
-        self.target_position_x = x;
-        self.target_position_y = y;
+        if !self.detached_camera {
+            self.target_position_x = x;
+            self.target_position_y = y;
+        }
     }
 
     pub const fn get_position(&self) -> FloatPos {
@@ -35,20 +53,28 @@ impl Camera {
         self.position_x += (self.target_position_x - self.position_x) * 0.005;
         self.position_y += (self.target_position_y - self.position_y) * 0.005;
 
-        if graphics.renderer.get_key_state(gfx::Key::W) {
-            self.target_position_y -= 2.0;
-        }
+        if self.detached_camera {
+            if graphics.renderer.get_key_state(gfx::Key::W) {
+                self.target_position_y -= 0.5;
+            }
 
-        if graphics.renderer.get_key_state(gfx::Key::S) {
-            self.target_position_y += 2.0;
-        }
+            if graphics.renderer.get_key_state(gfx::Key::S) {
+                self.target_position_y += 0.5;
+            }
 
-        if graphics.renderer.get_key_state(gfx::Key::A) {
-            self.target_position_x -= 2.0;
-        }
+            if graphics.renderer.get_key_state(gfx::Key::A) {
+                self.target_position_x -= 0.5;
+            }
 
-        if graphics.renderer.get_key_state(gfx::Key::D) {
-            self.target_position_x += 2.0;
+            if graphics.renderer.get_key_state(gfx::Key::D) {
+                self.target_position_x += 0.5;
+            }
+        }
+    }
+
+    pub fn render(&self, graphics: &mut GraphicsContext) {
+        if self.detached_camera {
+            self.detached_camera_text.render(graphics, None);
         }
     }
 
@@ -56,8 +82,8 @@ impl Camera {
     This function gets the position of the top left corner of the screen in world coordinates.
      */
     pub fn get_top_left(&self, graphics: &mut GraphicsContext) -> (f32, f32) {
-        let width = graphics.renderer.get_window_size().0;
-        let height = graphics.renderer.get_window_size().1;
+        let width = graphics.renderer.get_window_size().0 / RENDER_BLOCK_WIDTH;
+        let height = graphics.renderer.get_window_size().1 / RENDER_BLOCK_WIDTH;
         (
             self.position_x - width / 2.0,
             self.position_y - height / 2.0,
@@ -68,11 +94,19 @@ impl Camera {
     This function gets the position of the bottom right corner of the screen in world coordinates.
      */
     pub fn get_bottom_right(&self, graphics: &mut GraphicsContext) -> (f32, f32) {
-        let width = graphics.renderer.get_window_size().0;
-        let height = graphics.renderer.get_window_size().1;
+        let width = graphics.renderer.get_window_size().0 / RENDER_BLOCK_WIDTH;
+        let height = graphics.renderer.get_window_size().1 / RENDER_BLOCK_WIDTH;
         (
             self.position_x + width / 2.0,
             self.position_y + height / 2.0,
         )
+    }
+
+    pub fn on_event(&mut self, event: &Event) {
+        if let Some(event) = event.downcast::<gfx::Event>() {
+            if matches!(event, gfx::Event::KeyPress(gfx::Key::C, false)) {
+                self.detached_camera = !self.detached_camera;
+            }
+        }
     }
 }

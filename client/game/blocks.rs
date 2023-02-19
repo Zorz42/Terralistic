@@ -97,10 +97,10 @@ impl RenderBlockChunk {
             self.rect_array.update();
         }
 
-        let screen_x =
-            world_x as f32 * RENDER_BLOCK_WIDTH - camera.get_top_left(graphics).0 * RENDER_SCALE;
-        let screen_y =
-            world_y as f32 * RENDER_BLOCK_WIDTH - camera.get_top_left(graphics).1 * RENDER_SCALE;
+        let screen_x = world_x as f32 * RENDER_BLOCK_WIDTH
+            - camera.get_top_left(graphics).0 * RENDER_BLOCK_WIDTH;
+        let screen_y = world_y as f32 * RENDER_BLOCK_WIDTH
+            - camera.get_top_left(graphics).1 * RENDER_BLOCK_WIDTH;
         self.rect_array.render(
             graphics,
             Some(atlas.get_texture()),
@@ -217,9 +217,7 @@ impl ClientBlocks {
     pub fn render(&mut self, graphics: &mut GraphicsContext, camera: &Camera) -> Result<()> {
         let (top_left_x, top_left_y) = camera.get_top_left(graphics);
         let (bottom_right_x, bottom_right_y) = camera.get_bottom_right(graphics);
-        let (top_left_x, top_left_y) = (top_left_x / BLOCK_WIDTH, top_left_y / BLOCK_WIDTH);
-        let (bottom_right_x, bottom_right_y) =
-            (bottom_right_x / BLOCK_WIDTH, bottom_right_y / BLOCK_WIDTH);
+
         let (top_left_chunk_x, top_left_chunk_y) = (
             top_left_x as i32 / CHUNK_SIZE,
             top_left_y as i32 / CHUNK_SIZE,
@@ -264,9 +262,9 @@ impl ClientBlocks {
 
             let (x, y) = (
                 breaking_block.coord.0 as f32 * RENDER_BLOCK_WIDTH
-                    - camera.get_top_left(graphics).0 * RENDER_SCALE,
+                    - camera.get_top_left(graphics).0 * RENDER_BLOCK_WIDTH,
                 breaking_block.coord.1 as f32 * RENDER_BLOCK_WIDTH
-                    - camera.get_top_left(graphics).1 * RENDER_SCALE,
+                    - camera.get_top_left(graphics).1 * RENDER_BLOCK_WIDTH,
             );
             let break_stage = self
                 .blocks

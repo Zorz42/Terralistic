@@ -1,7 +1,7 @@
 use crate::client::game::camera::Camera;
 use crate::libraries::graphics as gfx;
 use crate::libraries::graphics::{FloatPos, FloatSize};
-use crate::shared::blocks::{RENDER_BLOCK_WIDTH, RENDER_SCALE};
+use crate::shared::blocks::RENDER_BLOCK_WIDTH;
 use crate::shared::entities::{Entities, PositionComponent};
 use crate::shared::players::{PlayerComponent, PLAYER_HEIGHT, PLAYER_WIDTH};
 
@@ -14,8 +14,10 @@ pub fn render_players(
         .ecs
         .query_mut::<(&PositionComponent, &PlayerComponent)>()
     {
-        let x = position.x() * RENDER_BLOCK_WIDTH - camera.get_top_left(graphics).0 * RENDER_SCALE;
-        let y = position.y() * RENDER_BLOCK_WIDTH - camera.get_top_left(graphics).1 * RENDER_SCALE;
+        let x = position.x() * RENDER_BLOCK_WIDTH
+            - camera.get_top_left(graphics).0 * RENDER_BLOCK_WIDTH;
+        let y = position.y() * RENDER_BLOCK_WIDTH
+            - camera.get_top_left(graphics).1 * RENDER_BLOCK_WIDTH;
 
         gfx::Rect::new(
             FloatPos(x.round(), y.round()),

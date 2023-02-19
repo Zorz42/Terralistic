@@ -3,9 +3,7 @@ use super::networking::ClientNetworking;
 use crate::libraries::events::Event;
 use crate::libraries::graphics as gfx;
 use crate::libraries::graphics::{FloatPos, FloatSize};
-use crate::shared::blocks::{
-    BlockBreakStartPacket, BlockBreakStopPacket, RENDER_BLOCK_WIDTH, RENDER_SCALE,
-};
+use crate::shared::blocks::{BlockBreakStartPacket, BlockBreakStopPacket, RENDER_BLOCK_WIDTH};
 use crate::shared::packet::Packet;
 use anyhow::Result;
 
@@ -34,8 +32,8 @@ impl BlockSelector {
         let mouse_x = graphics.renderer.get_mouse_pos().0;
         let mouse_y = graphics.renderer.get_mouse_pos().1;
 
-        let mouse_x = mouse_x + camera.get_top_left(graphics).0 * RENDER_SCALE;
-        let mouse_y = mouse_y + camera.get_top_left(graphics).1 * RENDER_SCALE;
+        let mouse_x = mouse_x + camera.get_top_left(graphics).0 * RENDER_BLOCK_WIDTH;
+        let mouse_y = mouse_y + camera.get_top_left(graphics).1 * RENDER_BLOCK_WIDTH;
 
         let block_x = mouse_x / RENDER_BLOCK_WIDTH;
         let block_y = mouse_y / RENDER_BLOCK_WIDTH;
@@ -55,9 +53,9 @@ impl BlockSelector {
         let selected_block = Self::get_selected_block(graphics, camera);
 
         let x = selected_block.0 as f32 * RENDER_BLOCK_WIDTH
-            - camera.get_top_left(graphics).0 * RENDER_SCALE;
+            - camera.get_top_left(graphics).0 * RENDER_BLOCK_WIDTH;
         let y = selected_block.1 as f32 * RENDER_BLOCK_WIDTH
-            - camera.get_top_left(graphics).1 * RENDER_SCALE;
+            - camera.get_top_left(graphics).1 * RENDER_BLOCK_WIDTH;
 
         gfx::Rect::new(
             FloatPos(x.round(), y.round()),
