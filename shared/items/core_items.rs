@@ -1,7 +1,5 @@
 use crate::shared::blocks::BlockId;
-use crate::shared::entities::{
-    Entities, GravityComponent, IdComponent, PositionComponent, VelocityCollisionComponent,
-};
+use crate::shared::entities::{Entities, IdComponent, PhysicsComponent, PositionComponent};
 use crate::shared::items::Item;
 use crate::shared::mod_manager::ModManager;
 use crate::shared::walls::WallId;
@@ -138,9 +136,8 @@ impl Items {
         let entity = entities.ecs.spawn((
             IdComponent::new(id),
             PositionComponent::new(x, y),
-            VelocityCollisionComponent::new(1.0, 1.0),
+            PhysicsComponent::new(1.0, 1.0),
             ItemComponent::new(item_type.get_id()),
-            GravityComponent::new(),
         ));
 
         let event = ItemSpawnEvent { entity };

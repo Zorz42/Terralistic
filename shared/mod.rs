@@ -9,7 +9,7 @@ pub mod lights;
 pub mod liquids;
 pub mod mod_manager;
 pub mod packet;
-pub mod player;
+pub mod players;
 pub mod versions;
 pub mod walls;
 mod world_map;

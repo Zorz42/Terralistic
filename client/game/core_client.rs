@@ -17,7 +17,9 @@ use super::networking::ClientNetworking;
 use super::walls::ClientWalls;
 use crate::client::game::entities::ClientEntities;
 use crate::client::game::items::ClientItems;
+use crate::client::game::players::render_players;
 use crate::client::menus::{run_loading_screen, BackgroundRect};
+use crate::shared::players::spawn_player;
 use anyhow::{bail, Result};
 
 pub struct Game {
@@ -188,6 +190,13 @@ impl Game {
         debug_menu_rect.size.0 = 300.0;
         debug_menu_rect.size.1 = 200.0;
 
+        spawn_player(
+            &mut self.entities.entities,
+            self.blocks.blocks.get_width() as f32 / 2.0,
+            0.0,
+            Some(100),
+        );
+
         'main_loop: while graphics.renderer.is_window_open() {
             let delta_time = prev_time.elapsed().as_secs_f32() * 1000.0;
             prev_time = std::time::Instant::now();
@@ -253,6 +262,7 @@ impl Game {
                 .render(graphics, &self.camera, &mut self.entities.entities)?;
             self.block_selector
                 .render(graphics, &mut self.networking, &self.camera)?;
+            render_players(graphics, &mut self.entities.entities, &self.camera);
 
             pause_rect.pos.0 = if paused {
                 0.0
