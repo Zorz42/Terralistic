@@ -16,7 +16,7 @@ use super::networking::ClientNetworking;
 use super::walls::ClientWalls;
 use crate::client::game::entities::ClientEntities;
 use crate::client::game::items::ClientItems;
-use crate::client::game::players::render_players;
+use crate::client::game::players::ClientPlayers;
 use crate::client::menus::{run_loading_screen, BackgroundRect};
 use crate::shared::entities::PositionComponent;
 use crate::shared::players::spawn_player;
@@ -33,6 +33,7 @@ pub struct Game {
     walls: ClientWalls,
     entities: ClientEntities,
     items: ClientItems,
+    players: ClientPlayers,
 }
 
 impl Game {
@@ -52,6 +53,7 @@ impl Game {
             walls,
             entities: ClientEntities::new(),
             items: ClientItems::new(),
+            players: ClientPlayers::new(),
         }
     }
 
@@ -121,6 +123,8 @@ impl Game {
         self.items = result.4;
 
         self.background.init()?;
+        self.players
+            .init(&mut self.entities.entities, &self.blocks.blocks);
 
         self.blocks.load_resources(&mut self.mods.mod_manager)?;
         self.walls.load_resources(&mut self.mods.mod_manager)?;
@@ -186,13 +190,6 @@ impl Game {
         debug_menu_rect.size.0 = 300.0;
         debug_menu_rect.size.1 = 200.0;
 
-        let main_player_entity = spawn_player(
-            &mut self.entities.entities,
-            self.blocks.blocks.get_width() as f32 / 2.0,
-            0.0,
-            Some(100),
-        );
-
         'main_loop: while graphics.renderer.is_window_open() {
             let delta_time = prev_time.elapsed().as_secs_f32() * 1000.0;
             prev_time = std::time::Instant::now();
@@ -243,12 +240,12 @@ impl Game {
             self.blocks.update(delta_time, &mut self.events)?;
             self.walls.update(delta_time, &mut self.events)?;
 
-            {
+            if let Some(main_player) = self.players.get_main_player() {
                 let player_pos = self
                     .entities
                     .entities
                     .ecs
-                    .get::<&PositionComponent>(main_player_entity)?;
+                    .get::<&PositionComponent>(main_player)?;
 
                 self.camera.set_position(player_pos.x(), player_pos.y());
             }
@@ -264,7 +261,8 @@ impl Game {
             self.background.render(graphics, &self.camera);
             self.walls.render(graphics, &self.camera)?;
             self.blocks.render(graphics, &self.camera)?;
-            render_players(graphics, &mut self.entities.entities, &self.camera);
+            self.players
+                .render(graphics, &mut self.entities.entities, &self.camera);
             self.items
                 .render(graphics, &self.camera, &mut self.entities.entities)?;
             self.camera.render(graphics);
