@@ -1,6 +1,6 @@
-use std::sync::{Mutex, PoisonError};
 extern crate alloc;
 use alloc::sync::Arc;
+use std::sync::{Mutex, PoisonError};
 
 use crate::libraries::graphics::{FloatPos, FloatSize, GraphicsContext};
 use crate::libraries::{events, graphics as gfx};

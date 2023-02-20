@@ -26,6 +26,6 @@ pub fn render_players(
                 PLAYER_HEIGHT * RENDER_BLOCK_WIDTH,
             ),
         )
-        .render(graphics, gfx::Color::new(0, 0, 255, 255));
+        .render(graphics, gfx::Color::new(100, 100, 200, 255));
     }
 }
