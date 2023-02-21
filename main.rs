@@ -59,6 +59,7 @@
 #![allow(clippy::struct_excessive_bools)]
 #![allow(clippy::similar_names)]
 #![allow(clippy::ptr_as_ptr)]
+#![allow(clippy::shadow_unrelated)]
 
 use crate::libraries::graphics as gfx;
 use core::sync::atomic::AtomicBool;

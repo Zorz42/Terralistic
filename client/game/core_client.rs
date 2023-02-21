@@ -19,7 +19,6 @@ use crate::client::game::items::ClientItems;
 use crate::client::game::players::ClientPlayers;
 use crate::client::menus::{run_loading_screen, BackgroundRect};
 use crate::shared::entities::PositionComponent;
-use crate::shared::players::spawn_player;
 use anyhow::{bail, Result};
 
 pub struct Game {
@@ -298,6 +297,7 @@ impl Game {
                     &event,
                 )?;
                 self.camera.on_event(&event);
+                self.players.on_event(&event, &mut self.entities.entities);
             }
 
             debug_menu_rect.pos.0 = if debug_menu_open {

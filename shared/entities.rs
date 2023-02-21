@@ -1,7 +1,8 @@
 use crate::shared::blocks::Blocks;
 use serde_derive::{Deserialize, Serialize};
 
-pub const DEFAULT_GRAVITY: f32 = 9.8 * 2.0;
+pub const DEFAULT_GRAVITY: f32 = 50.0;
+pub const FRICTION_COEFFICIENT: f32 = 0.005;
 
 #[must_use]
 pub fn collides_with_blocks(
@@ -95,6 +96,29 @@ impl Entities {
                     physics.velocity_y = 0.0;
                     break;
                 }
+            }
+
+            // friction: check x acceleration and if the entity collides in that direction, reduce y velocity and vice versa
+            let direction_x = if physics.acceleration_x > 0.0 {
+                1.0
+            } else {
+                -1.0
+            } * direction_size
+                * 2.0;
+            let new_position = PositionComponent::new(position.x + direction_x, position.y);
+            if collides_with_blocks(&new_position, physics, blocks) {
+                physics.velocity_y *= 1.0 - FRICTION_COEFFICIENT;
+            }
+
+            let direction_y = if physics.acceleration_y > 0.0 {
+                1.0
+            } else {
+                -1.0
+            } * direction_size
+                * 2.0;
+            let new_position = PositionComponent::new(position.x, position.y + direction_y);
+            if collides_with_blocks(&new_position, physics, blocks) {
+                physics.velocity_x *= 1.0 - FRICTION_COEFFICIENT;
             }
         }
     }

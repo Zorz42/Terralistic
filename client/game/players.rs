@@ -1,9 +1,13 @@
 use crate::client::game::camera::Camera;
+use crate::libraries::events::Event;
 use crate::libraries::graphics as gfx;
 use crate::libraries::graphics::{FloatPos, FloatSize};
 use crate::shared::blocks::{Blocks, RENDER_BLOCK_WIDTH};
-use crate::shared::entities::{Entities, PositionComponent};
-use crate::shared::players::{spawn_player, PlayerComponent, PLAYER_HEIGHT, PLAYER_WIDTH};
+use crate::shared::entities::{Entities, PhysicsComponent, PositionComponent};
+use crate::shared::players::{
+    spawn_player, PlayerComponent, PLAYER_ACCELERATION, PLAYER_HEIGHT, PLAYER_INITIAL_SPEED,
+    PLAYER_JUMP_SPEED, PLAYER_WIDTH,
+};
 use hecs::Entity;
 
 pub struct ClientPlayers {
@@ -58,6 +62,41 @@ impl ClientPlayers {
                 ),
             )
             .render(graphics, color);
+        }
+    }
+
+    pub fn on_event(&mut self, event: &Event, entities: &mut Entities) {
+        if let Some(main_player) = self.main_player {
+            if let Ok(mut physics) = entities.ecs.get::<&mut PhysicsComponent>(main_player) {
+                if let Some(event) = event.downcast::<gfx::Event>() {
+                    match event {
+                        gfx::Event::KeyPress(key, false) => match key {
+                            gfx::Key::A => {
+                                physics.increase_acceleration_x(-PLAYER_ACCELERATION);
+                                physics.increase_velocity_x(-PLAYER_INITIAL_SPEED);
+                            }
+                            gfx::Key::D => {
+                                physics.increase_acceleration_x(PLAYER_ACCELERATION);
+                                physics.increase_velocity_x(PLAYER_INITIAL_SPEED);
+                            }
+                            gfx::Key::Space => physics.increase_velocity_y(-PLAYER_JUMP_SPEED),
+                            _ => {}
+                        },
+                        gfx::Event::KeyRelease(key, false) => match key {
+                            gfx::Key::A => {
+                                physics.increase_acceleration_x(PLAYER_ACCELERATION);
+                                physics.increase_velocity_x(PLAYER_INITIAL_SPEED);
+                            }
+                            gfx::Key::D => {
+                                physics.increase_acceleration_x(-PLAYER_ACCELERATION);
+                                physics.increase_velocity_x(-PLAYER_INITIAL_SPEED);
+                            }
+                            _ => {}
+                        },
+                        _ => {}
+                    }
+                }
+            }
         }
     }
 

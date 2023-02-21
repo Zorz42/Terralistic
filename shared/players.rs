@@ -5,6 +5,9 @@ use serde_derive::{Deserialize, Serialize};
 pub const PLAYER_HEIGHT: f32 = 3.0;
 pub const PLAYER_WIDTH: f32 = 2.0;
 pub const PLAYER_MAX_HEALTH: i32 = 80;
+pub const PLAYER_ACCELERATION: f32 = 30.0;
+pub const PLAYER_INITIAL_SPEED: f32 = 5.0;
+pub const PLAYER_JUMP_SPEED: f32 = 30.0;
 
 #[derive(PartialEq, Eq, Copy, Clone, Serialize, Deserialize)]
 pub enum MovingType {
