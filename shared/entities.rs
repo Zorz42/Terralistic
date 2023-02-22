@@ -1,8 +1,10 @@
 use crate::shared::blocks::Blocks;
 use serde_derive::{Deserialize, Serialize};
 
-pub const DEFAULT_GRAVITY: f32 = 50.0;
-pub const FRICTION_COEFFICIENT: f32 = 0.005;
+pub const DEFAULT_GRAVITY: f32 = 80.0;
+pub const FRICTION_COEFFICIENT: f32 = 0.2;
+pub const AIR_RESISTANCE_COEFFICIENT: f32 = 0.001;
+const DIRECTION_SIZE: f32 = 0.01;
 
 #[must_use]
 pub fn collides_with_blocks(
@@ -13,8 +15,8 @@ pub fn collides_with_blocks(
     let block_x = position.x as i32;
     let block_y = position.y as i32;
 
-    let block_x2 = (position.x + physics.collision_width).ceil() as i32;
-    let block_y2 = (position.y + physics.collision_height).ceil() as i32;
+    let block_x2 = (position.x + physics.collision_width - 2.0 * DIRECTION_SIZE).ceil() as i32;
+    let block_y2 = (position.y + physics.collision_height - 2.0 * DIRECTION_SIZE).ceil() as i32;
 
     for x in block_x..block_x2 {
         for y in block_y..block_y2 {
@@ -41,6 +43,22 @@ impl Default for Entities {
     }
 }
 
+/// Reduce a by b, but never go below 0. if a is negative, increase it by b but never go above 0.
+pub fn reduce_by(a: &mut f32, b: f32) {
+    let b = b.abs();
+    if *a > 0.0 {
+        *a -= b;
+        if *a < 0.0 {
+            *a = 0.0;
+        }
+    } else {
+        *a += b;
+        if *a > 0.0 {
+            *a = 0.0;
+        }
+    }
+}
+
 impl Entities {
     #[must_use]
     pub fn new() -> Self {
@@ -60,9 +78,8 @@ impl Entities {
 
             let target_x = position.x + physics.velocity_x / 1000.0;
             let target_y = position.y + physics.velocity_y / 1000.0;
-            let direction_size = 0.01;
 
-            let direction_x = if physics.velocity_x > 0.0 { 1.0 } else { -1.0 } * direction_size;
+            let direction_x = if physics.velocity_x > 0.0 { 1.0 } else { -1.0 } * DIRECTION_SIZE;
             loop {
                 if (direction_x > 0.0 && position.x > target_x + direction_x)
                     || (direction_x < 0.0 && position.x < target_x + direction_x)
@@ -75,12 +92,16 @@ impl Entities {
 
                 if collides_with_blocks(position, physics, blocks) {
                     position.x -= direction_x;
+                    reduce_by(
+                        &mut physics.velocity_y,
+                        physics.velocity_x * FRICTION_COEFFICIENT,
+                    );
                     physics.velocity_x = 0.0;
                     break;
                 }
             }
 
-            let direction_y = if physics.velocity_y > 0.0 { 1.0 } else { -1.0 } * direction_size;
+            let direction_y = if physics.velocity_y > 0.0 { 1.0 } else { -1.0 } * DIRECTION_SIZE;
             loop {
                 if (direction_y > 0.0 && position.y > target_y + direction_y)
                     || (direction_y < 0.0 && position.y < target_y + direction_y)
@@ -93,33 +114,17 @@ impl Entities {
 
                 if collides_with_blocks(position, physics, blocks) {
                     position.y -= direction_y;
+                    reduce_by(
+                        &mut physics.velocity_x,
+                        physics.velocity_y * FRICTION_COEFFICIENT,
+                    );
                     physics.velocity_y = 0.0;
                     break;
                 }
             }
 
-            // friction: check x acceleration and if the entity collides in that direction, reduce y velocity and vice versa
-            let direction_x = if physics.acceleration_x > 0.0 {
-                1.0
-            } else {
-                -1.0
-            } * direction_size
-                * 2.0;
-            let new_position = PositionComponent::new(position.x + direction_x, position.y);
-            if collides_with_blocks(&new_position, physics, blocks) {
-                physics.velocity_y *= 1.0 - FRICTION_COEFFICIENT;
-            }
-
-            let direction_y = if physics.acceleration_y > 0.0 {
-                1.0
-            } else {
-                -1.0
-            } * direction_size
-                * 2.0;
-            let new_position = PositionComponent::new(position.x, position.y + direction_y);
-            if collides_with_blocks(&new_position, physics, blocks) {
-                physics.velocity_x *= 1.0 - FRICTION_COEFFICIENT;
-            }
+            physics.velocity_x *= 1.0 - AIR_RESISTANCE_COEFFICIENT;
+            physics.velocity_y *= 1.0 - AIR_RESISTANCE_COEFFICIENT;
         }
     }
 
