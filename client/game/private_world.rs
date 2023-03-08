@@ -20,7 +20,7 @@ pub fn run_private_world(
     let server_running = Arc::new(AtomicBool::new(true));
     let server_running2 = server_running.clone();
 
-    let mut game = Game::new(SINGLEPLAYER_PORT, String::from("127.0.0.1"));
+    let mut game = Game::new(SINGLEPLAYER_PORT, String::from("127.0.0.1"), "_");
 
     let loading_text = Arc::new(Mutex::new("Loading".to_owned()));
     let loading_text2 = loading_text.clone();

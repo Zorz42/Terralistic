@@ -1,25 +1,30 @@
+use anyhow::Result;
 use hecs::Entity;
 
 use crate::client::game::camera::Camera;
+use crate::client::game::networking::ClientNetworking;
 use crate::libraries::graphics as gfx;
 use crate::libraries::graphics::{FloatPos, FloatSize};
 use crate::shared::blocks::{Blocks, RENDER_BLOCK_WIDTH};
 use crate::shared::entities::{Entities, PhysicsComponent, PositionComponent};
+use crate::shared::packet::Packet;
 use crate::shared::players::{
-    spawn_player, update_player, MovingType, PlayerComponent, PlayerMovingComponent, PLAYER_HEIGHT,
-    PLAYER_WIDTH,
+    spawn_player, update_player, MovingType, PlayerComponent, PlayerMovingComponent,
+    PlayerMovingPacket, PLAYER_HEIGHT, PLAYER_WIDTH,
 };
 
 pub struct ClientPlayers {
     main_player: Option<Entity>,
     main_player_moving: PlayerMovingComponent,
+    main_player_name: String,
 }
 
 impl ClientPlayers {
-    pub const fn new() -> Self {
+    pub fn new(player_name: &str) -> Self {
         Self {
             main_player: None,
             main_player_moving: PlayerMovingComponent::new(),
+            main_player_name: player_name.to_owned(),
         }
     }
 
@@ -32,13 +37,52 @@ impl ClientPlayers {
         ));
     }
 
+    fn send_moving_state(&self, networking: &mut ClientNetworking) -> Result<()> {
+        let packet = Packet::new(PlayerMovingPacket {
+            moving_type: self.main_player_moving.get_moving_type(),
+            jumping: self.main_player_moving.jumping,
+        })?;
+
+        networking.send_packet(&packet)?;
+        Ok(())
+    }
+
+    fn set_jumping(&mut self, networking: &mut ClientNetworking, jumping: bool) -> Result<()> {
+        if jumping == self.main_player_moving.jumping {
+            return Ok(());
+        }
+
+        self.main_player_moving.jumping = jumping;
+        self.send_moving_state(networking)?;
+
+        Ok(())
+    }
+
+    fn set_moving_type(
+        &mut self,
+        networking: &mut ClientNetworking,
+        moving_type: MovingType,
+        physics: &mut PhysicsComponent,
+    ) -> Result<()> {
+        if moving_type == self.main_player_moving.get_moving_type() {
+            return Ok(());
+        }
+
+        self.main_player_moving
+            .set_moving_type(moving_type, physics);
+        self.send_moving_state(networking)?;
+
+        Ok(())
+    }
+
     pub fn update(
         &mut self,
         graphics: &mut gfx::GraphicsContext,
         entities: &mut Entities,
+        networking: &mut ClientNetworking,
         blocks: &Blocks,
-    ) {
-        self.main_player_moving.jumping = graphics.renderer.get_key_state(gfx::Key::Space);
+    ) -> Result<()> {
+        self.set_jumping(networking, graphics.renderer.get_key_state(gfx::Key::Space))?;
         if let Some(main_player) = self.main_player {
             if let Ok((position, physics)) = entities
                 .ecs
@@ -55,10 +99,11 @@ impl ClientPlayers {
                     _ => MovingType::Standing,
                 };
 
-                self.main_player_moving
-                    .set_moving_type(moving_type, physics);
+                self.set_moving_type(networking, moving_type, physics)?;
             }
         }
+
+        Ok(())
     }
 
     pub fn render(

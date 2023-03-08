@@ -1,11 +1,18 @@
 extern crate alloc;
+
 use alloc::sync::Arc;
 use std::sync::{Mutex, PoisonError};
 
+use anyhow::{bail, Result};
+
+use crate::client::game::entities::ClientEntities;
+use crate::client::game::items::ClientItems;
+use crate::client::game::players::ClientPlayers;
+use crate::client::menus::{run_loading_screen, BackgroundRect};
+use crate::libraries::events::EventManager;
 use crate::libraries::graphics::{FloatPos, FloatSize, GraphicsContext};
 use crate::libraries::{events, graphics as gfx};
-
-use crate::libraries::events::EventManager;
+use crate::shared::entities::PositionComponent;
 
 use super::background::Background;
 use super::block_selector::BlockSelector;
@@ -14,12 +21,6 @@ use super::camera::Camera;
 use super::mod_manager::ClientModManager;
 use super::networking::ClientNetworking;
 use super::walls::ClientWalls;
-use crate::client::game::entities::ClientEntities;
-use crate::client::game::items::ClientItems;
-use crate::client::game::players::ClientPlayers;
-use crate::client::menus::{run_loading_screen, BackgroundRect};
-use crate::shared::entities::PositionComponent;
-use anyhow::{bail, Result};
 
 pub struct Game {
     events: EventManager,
@@ -37,7 +38,7 @@ pub struct Game {
 
 impl Game {
     #[must_use]
-    pub fn new(server_port: u16, server_address: String) -> Self {
+    pub fn new(server_port: u16, server_address: String, player_name: &str) -> Self {
         let mut blocks = ClientBlocks::new();
         let walls = ClientWalls::new(&mut blocks.blocks);
 
@@ -52,7 +53,7 @@ impl Game {
             walls,
             entities: ClientEntities::new(),
             items: ClientItems::new(),
-            players: ClientPlayers::new(),
+            players: ClientPlayers::new(player_name),
         }
     }
 
@@ -74,33 +75,30 @@ impl Game {
         let loading_text2 = loading_text.clone();
 
         let init_thread = std::thread::spawn(move || {
-            let mut temp_fn =
-                || -> Result<(ClientModManager, ClientBlocks, ClientWalls, ClientEntities, ClientItems)> {
-                    *loading_text2.lock().unwrap_or_else(PoisonError::into_inner) =
-                        "Loading mods".to_owned();
-                    let mut mods = ClientModManager::new();
-                    let mut blocks = ClientBlocks::new();
-                    let mut walls = ClientWalls::new(&mut blocks.blocks);
-                    let mut entities = ClientEntities::new();
-                    let mut items = ClientItems::new();
+            let mut temp_fn = || -> Result<(ClientModManager, ClientBlocks, ClientWalls, ClientEntities, ClientItems)> {
+                *loading_text2.lock().unwrap_or_else(PoisonError::into_inner) = "Loading mods".to_owned();
+                let mut mods = ClientModManager::new();
+                let mut blocks = ClientBlocks::new();
+                let mut walls = ClientWalls::new(&mut blocks.blocks);
+                let mut entities = ClientEntities::new();
+                let mut items = ClientItems::new();
 
-                    while let Some(event) = events.pop_event() {
-                        mods.on_event(&event)?;
-                        blocks.on_event(&event, &mut events)?;
-                        walls.on_event(&event)?;
-                        items.on_event(&event, &mut entities.entities, &mut events)?;
-                    }
+                while let Some(event) = events.pop_event() {
+                    mods.on_event(&event)?;
+                    blocks.on_event(&event, &mut events)?;
+                    walls.on_event(&event)?;
+                    items.on_event(&event, &mut entities.entities, &mut events)?;
+                }
 
-                    blocks.init(&mut mods.mod_manager)?;
-                    walls.init(&mut mods.mod_manager)?;
-                    items.init(&mut mods.mod_manager)?;
+                blocks.init(&mut mods.mod_manager)?;
+                walls.init(&mut mods.mod_manager)?;
+                items.init(&mut mods.mod_manager)?;
 
-                    *loading_text2.lock().unwrap_or_else(PoisonError::into_inner) =
-                        "Initializing mods".to_owned();
-                    mods.init()?;
+                *loading_text2.lock().unwrap_or_else(PoisonError::into_inner) = "Initializing mods".to_owned();
+                mods.init()?;
 
-                    anyhow::Ok((mods, blocks, walls, entities, items))
-                };
+                anyhow::Ok((mods, blocks, walls, entities, items))
+            };
             // if the init fails, we clear the loading text so the error can be displayed
             let result = temp_fn();
             loading_text2
@@ -113,7 +111,7 @@ impl Game {
         run_loading_screen(graphics, menu_back, &loading_text);
 
         let result = init_thread.join();
-        let Ok(result) = result else {bail!("Failed to join init thread");};
+        let Ok(result) = result else { bail!("Failed to join init thread"); };
         let result = result?;
         self.mods = result.0;
         self.blocks = result.1;
@@ -238,8 +236,12 @@ impl Game {
             self.mods.update()?;
             self.blocks.update(delta_time, &mut self.events)?;
             self.walls.update(delta_time, &mut self.events)?;
-            self.players
-                .update(graphics, &mut self.entities.entities, &self.blocks.blocks);
+            self.players.update(
+                graphics,
+                &mut self.entities.entities,
+                &mut self.networking,
+                &self.blocks.blocks,
+            );
 
             if let Some(main_player) = self.players.get_main_player() {
                 let player_pos = self

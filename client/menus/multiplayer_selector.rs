@@ -336,8 +336,11 @@ fn update_elements(
                                 Some(menu_back.get_back_rect_container()),
                             )),
                         ) {
-                            let mut game =
-                                Game::new(server.server_info.port, server.server_info.ip.clone());
+                            let mut game = Game::new(
+                                server.server_info.port,
+                                server.server_info.ip.clone(),
+                                "dude",
+                            );
                             let game_result = game.run(graphics, menu_back);
                             if let Err(error) = game_result {
                                 println!("Game error: {error}");
