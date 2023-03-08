@@ -238,6 +238,8 @@ impl Game {
             self.mods.update()?;
             self.blocks.update(delta_time, &mut self.events)?;
             self.walls.update(delta_time, &mut self.events)?;
+            self.players
+                .update(graphics, &mut self.entities.entities, &self.blocks.blocks);
 
             if let Some(main_player) = self.players.get_main_player() {
                 let player_pos = self
@@ -261,7 +263,7 @@ impl Game {
             self.walls.render(graphics, &self.camera)?;
             self.blocks.render(graphics, &self.camera)?;
             self.players
-                .render(graphics, &mut self.entities.entities, &self.camera, &self.blocks.blocks);
+                .render(graphics, &mut self.entities.entities, &self.camera);
             self.items
                 .render(graphics, &self.camera, &mut self.entities.entities)?;
             self.camera.render(graphics);
@@ -297,7 +299,6 @@ impl Game {
                     &event,
                 )?;
                 self.camera.on_event(&event);
-                self.players.on_event(&event, &mut self.entities.entities);
             }
 
             debug_menu_rect.pos.0 = if debug_menu_open {
