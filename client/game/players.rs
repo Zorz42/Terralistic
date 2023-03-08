@@ -3,7 +3,7 @@ use crate::libraries::events::Event;
 use crate::libraries::graphics as gfx;
 use crate::libraries::graphics::{FloatPos, FloatSize};
 use crate::shared::blocks::{Blocks, RENDER_BLOCK_WIDTH};
-use crate::shared::entities::{reduce_by, Entities, PhysicsComponent, PositionComponent};
+use crate::shared::entities::{reduce_by, Entities, PhysicsComponent, PositionComponent, is_touching_ground};
 use crate::shared::players::{
     spawn_player, PlayerComponent, PLAYER_ACCELERATION, PLAYER_HEIGHT, PLAYER_INITIAL_SPEED,
     PLAYER_JUMP_SPEED, PLAYER_WIDTH,
@@ -33,7 +33,16 @@ impl ClientPlayers {
         graphics: &mut gfx::GraphicsContext,
         entities: &mut Entities,
         camera: &Camera,
+        blocks: &Blocks,
     ) {
+        if let Some(main_player) = self.main_player {
+            if let Ok((position, physics)) = entities.ecs.query_one_mut::<(&mut PositionComponent, &mut PhysicsComponent)>(main_player) {
+                if graphics.renderer.get_key_state(gfx::Key::Space) && is_touching_ground(position, physics, blocks) {
+                    physics.increase_velocity_y(-PLAYER_JUMP_SPEED);
+                }
+            }
+        }
+
         for (entity, (position, _player_component)) in entities
             .ecs
             .query_mut::<(&PositionComponent, &PlayerComponent)>()
@@ -79,7 +88,6 @@ impl ClientPlayers {
                                 physics.increase_acceleration_x(PLAYER_ACCELERATION);
                                 physics.increase_velocity_x(PLAYER_INITIAL_SPEED);
                             }
-                            gfx::Key::Space => physics.increase_velocity_y(-PLAYER_JUMP_SPEED),
                             _ => {}
                         },
                         gfx::Event::KeyRelease(key, false) => match key {

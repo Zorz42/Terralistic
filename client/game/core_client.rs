@@ -261,7 +261,7 @@ impl Game {
             self.walls.render(graphics, &self.camera)?;
             self.blocks.render(graphics, &self.camera)?;
             self.players
-                .render(graphics, &mut self.entities.entities, &self.camera);
+                .render(graphics, &mut self.entities.entities, &self.camera, &self.blocks.blocks);
             self.items
                 .render(graphics, &self.camera, &mut self.entities.entities)?;
             self.camera.render(graphics);

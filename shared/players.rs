@@ -12,10 +12,8 @@ pub const PLAYER_JUMP_SPEED: f32 = 30.0;
 #[derive(PartialEq, Eq, Copy, Clone, Serialize, Deserialize)]
 pub enum MovingType {
     Standing,
-    Walking,
-    Sneaking,
-    SneakWalking,
-    Running,
+    MovingLeft,
+    MovingRight,
 }
 
 pub fn spawn_player(entities: &mut Entities, x: f32, y: f32, id: Option<u32>) -> Entity {
@@ -28,11 +26,17 @@ pub fn spawn_player(entities: &mut Entities, x: f32, y: f32, id: Option<u32>) ->
     ))
 }
 
-pub struct PlayerComponent;
+pub struct PlayerComponent {
+    pub moving_type: MovingType,
+    pub jumping: bool,
+}
 
 impl PlayerComponent {
     #[must_use]
     pub const fn new() -> Self {
-        Self {}
+        Self {
+            moving_type: MovingType::Standing,
+            jumping: false,
+        }
     }
 }

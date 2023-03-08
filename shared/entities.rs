@@ -32,6 +32,22 @@ pub fn collides_with_blocks(
     false
 }
 
+#[must_use]
+pub fn is_touching_ground(
+    position: &PositionComponent,
+    physics: &PhysicsComponent,
+    blocks: &Blocks,
+) -> bool {
+    collides_with_blocks(
+        &PositionComponent {
+            x: position.x,
+            y: position.y + DIRECTION_SIZE * 2.0,
+        },
+        physics,
+        blocks,
+    )
+}
+
 pub struct Entities {
     pub ecs: hecs::World,
     current_id: u32,
