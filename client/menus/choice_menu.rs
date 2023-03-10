@@ -17,7 +17,7 @@ pub fn run_choice_menu(
         sprite.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface(line));
         sprite.scale = 3.0;
         sprite.orientation = gfx::TOP;
-        sprite.pos.0 =
+        sprite.pos.1 =
             gfx::SPACING + title_lines.len() as f32 * (sprite.get_size().1 + gfx::SPACING);
         title_lines.push(sprite);
     }
