@@ -111,8 +111,10 @@ impl PlayerMovingComponent {
 pub struct PlayerMovingPacket {
     pub moving_type: MovingType,
     pub jumping: bool,
+    pub player_id: u32,
 }
 
+#[derive(Serialize, Deserialize)]
 pub struct PlayerSpawnPacket {
     pub id: u32,
     pub x: f32,

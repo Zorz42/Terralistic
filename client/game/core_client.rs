@@ -241,7 +241,7 @@ impl Game {
                 &mut self.entities.entities,
                 &mut self.networking,
                 &self.blocks.blocks,
-            );
+            )?;
 
             if let Some(main_player) = self.players.get_main_player() {
                 let player_pos = self
@@ -300,6 +300,7 @@ impl Game {
                     &self.camera,
                     &event,
                 )?;
+                self.players.on_event(&event, &mut self.entities.entities);
                 self.camera.on_event(&event);
             }
 

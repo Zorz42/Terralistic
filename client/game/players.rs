@@ -3,6 +3,7 @@ use hecs::Entity;
 
 use crate::client::game::camera::Camera;
 use crate::client::game::networking::ClientNetworking;
+use crate::libraries::events::Event;
 use crate::libraries::graphics as gfx;
 use crate::libraries::graphics::{FloatPos, FloatSize};
 use crate::shared::blocks::{Blocks, RENDER_BLOCK_WIDTH};
@@ -10,7 +11,7 @@ use crate::shared::entities::{Entities, PhysicsComponent, PositionComponent};
 use crate::shared::packet::Packet;
 use crate::shared::players::{
     spawn_player, update_player, MovingType, PlayerComponent, PlayerMovingComponent,
-    PlayerMovingPacket, PLAYER_HEIGHT, PLAYER_WIDTH,
+    PlayerMovingPacket, PlayerSpawnPacket, PLAYER_HEIGHT, PLAYER_WIDTH,
 };
 
 pub struct ClientPlayers {
@@ -41,6 +42,7 @@ impl ClientPlayers {
         let packet = Packet::new(PlayerMovingPacket {
             moving_type: self.main_player_moving.get_moving_type(),
             jumping: self.main_player_moving.jumping,
+            player_id: 0,
         })?;
 
         networking.send_packet(&packet)?;
@@ -140,6 +142,14 @@ impl ClientPlayers {
                 ),
             )
             .render(graphics, color);
+        }
+    }
+
+    pub fn on_event(&mut self, event: &Event, entities: &mut Entities) {
+        if let Some(packet_event) = event.downcast::<Packet>() {
+            if let Some(packet) = packet_event.try_deserialize::<PlayerSpawnPacket>() {
+                spawn_player(entities, packet.x, packet.y, Some(packet.id));
+            }
         }
     }
 

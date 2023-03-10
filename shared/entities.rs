@@ -1,4 +1,5 @@
 use crate::shared::blocks::Blocks;
+use anyhow::{bail, Result};
 use serde_derive::{Deserialize, Serialize};
 
 pub const DEFAULT_GRAVITY: f32 = 80.0;
@@ -152,6 +153,27 @@ impl Entities {
             self.current_id
         }
     }
+
+    /// # Errors
+    /// If the entity could not be despawned
+    pub fn despawn_entity(&mut self, id: u32) -> Result<()> {
+        let mut entity_to_despawn = None;
+
+        for (entity, id_component) in self.ecs.query::<&IdComponent>().iter() {
+            if id_component.id() == id {
+                entity_to_despawn = Some(entity);
+                break;
+            }
+        }
+
+        if let Some(entity) = entity_to_despawn {
+            self.ecs.despawn(entity)?;
+        } else {
+            bail!("Could not find entity with id");
+        }
+
+        Ok(())
+    }
 }
 
 #[derive(Serialize, Deserialize)]
@@ -159,6 +181,11 @@ pub struct EntityPositionPacket {
     pub id: u32,
     pub x: f32,
     pub y: f32,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct EntityDespawnPacket {
+    pub id: u32,
 }
 
 pub struct IdComponent {

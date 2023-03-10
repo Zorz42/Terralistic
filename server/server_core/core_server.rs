@@ -6,6 +6,7 @@ use super::world_generator::WorldGenerator;
 use crate::libraries::events::EventManager;
 use crate::server::server_core::entities::ServerEntities;
 use crate::server::server_core::items::ServerItems;
+use crate::server::server_core::players::ServerPlayers;
 use anyhow::{anyhow, Result};
 use core::sync::atomic::{AtomicBool, Ordering};
 use core::time::Duration;
@@ -26,6 +27,7 @@ pub struct Server {
     walls: ServerWalls,
     entities: ServerEntities,
     items: ServerItems,
+    players: ServerPlayers,
 }
 
 impl Server {
@@ -42,6 +44,7 @@ impl Server {
             walls,
             entities: ServerEntities::new(),
             items: ServerItems::new(),
+            players: ServerPlayers::new(),
         }
     }
 
@@ -126,6 +129,12 @@ impl Server {
                     &event,
                     &mut self.entities.entities,
                     &mut self.events,
+                    &mut self.networking,
+                )?;
+                self.players.on_event(
+                    &event,
+                    &mut self.entities.entities,
+                    &self.blocks.blocks,
                     &mut self.networking,
                 )?;
                 self.networking.on_event(&event)?;
