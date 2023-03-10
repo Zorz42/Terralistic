@@ -10,7 +10,7 @@ use crate::shared::blocks::{Blocks, RENDER_BLOCK_WIDTH};
 use crate::shared::entities::{Entities, PhysicsComponent, PositionComponent};
 use crate::shared::packet::Packet;
 use crate::shared::players::{
-    spawn_player, update_player, update_players, MovingType, PlayerComponent, PlayerMovingPacket,
+    spawn_player, update_players, MovingType, PlayerComponent, PlayerMovingPacket,
     PlayerSpawnPacket, PLAYER_HEIGHT, PLAYER_WIDTH,
 };
 
@@ -28,7 +28,6 @@ impl ClientPlayers {
     }
 
     fn send_moving_state(
-        &self,
         networking: &mut ClientNetworking,
         player_component: &PlayerComponent,
     ) -> Result<()> {
@@ -43,7 +42,6 @@ impl ClientPlayers {
     }
 
     fn set_jumping(
-        &mut self,
         networking: &mut ClientNetworking,
         player_component: &mut PlayerComponent,
         jumping: bool,
@@ -54,13 +52,12 @@ impl ClientPlayers {
 
         player_component.jumping = jumping;
 
-        self.send_moving_state(networking, player_component)?;
+        Self::send_moving_state(networking, player_component)?;
 
         Ok(())
     }
 
     fn set_moving_type(
-        &mut self,
         networking: &mut ClientNetworking,
         moving_type: MovingType,
         player_component: &mut PlayerComponent,
@@ -71,7 +68,7 @@ impl ClientPlayers {
         }
 
         player_component.set_moving_type(moving_type, physics);
-        self.send_moving_state(networking, player_component)?;
+        Self::send_moving_state(networking, player_component)?;
 
         Ok(())
     }
@@ -84,14 +81,11 @@ impl ClientPlayers {
         blocks: &Blocks,
     ) -> Result<()> {
         if let Some(main_player) = self.main_player {
-            if let Ok((position, physics, player_component)) =
-                entities.ecs.query_one_mut::<(
-                    &mut PositionComponent,
-                    &mut PhysicsComponent,
-                    &mut PlayerComponent,
-                )>(main_player)
+            if let Ok((physics, player_component)) = entities
+                .ecs
+                .query_one_mut::<(&mut PhysicsComponent, &mut PlayerComponent)>(main_player)
             {
-                self.set_jumping(
+                Self::set_jumping(
                     networking,
                     player_component,
                     graphics.renderer.get_key_state(gfx::Key::Space),
@@ -106,7 +100,7 @@ impl ClientPlayers {
                     _ => MovingType::Standing,
                 };
 
-                self.set_moving_type(networking, moving_type, player_component, physics)?;
+                Self::set_moving_type(networking, moving_type, player_component, physics)?;
             }
         }
 

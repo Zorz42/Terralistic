@@ -50,10 +50,7 @@ impl ServerNetworking {
 
     pub fn get_connection_name(&self, conn: &Connection) -> String {
         let unknown = "Unknown".to_owned();
-        self.connection_names
-            .get(conn)
-            .unwrap_or_else(|| &unknown)
-            .clone()
+        self.connection_names.get(conn).unwrap_or(&unknown).clone()
     }
 
     pub fn init(&mut self) -> Result<()> {

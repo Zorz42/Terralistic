@@ -115,6 +115,7 @@ impl PlayerComponent {
         self.moving_type = moving_type;
     }
 
+    #[must_use]
     pub fn get_name(&self) -> &str {
         &self.name
     }

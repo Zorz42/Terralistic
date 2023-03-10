@@ -8,7 +8,7 @@ use crate::shared::packet::Packet;
 use crate::shared::players::{
     spawn_player, update_players, PlayerComponent, PlayerMovingPacket, PlayerSpawnPacket,
 };
-use anyhow::Result;
+use anyhow::{anyhow, Result};
 use hecs::Entity;
 use std::collections::HashMap;
 
@@ -34,12 +34,18 @@ impl ServerPlayers {
     ) -> Result<()> {
         if let Some(packet_event) = event.downcast::<PacketFromClientEvent>() {
             if let Some(packet) = packet_event.packet.try_deserialize::<PlayerMovingPacket>() {
-                let player_entity = self.conns_to_players[&packet_event.conn];
+                let player_entity =
+                    *self
+                        .conns_to_players
+                        .get(&packet_event.conn)
+                        .ok_or_else(|| {
+                            anyhow!("Received PlayerMovingPacket from unknown connection")
+                        })?;
                 let mut player_component =
                     entities.ecs.get::<&mut PlayerComponent>(player_entity)?;
                 let mut physics_component =
                     entities.ecs.get::<&mut PhysicsComponent>(player_entity)?;
-                player_component.set_moving_type(packet.moving_type, &mut *physics_component);
+                player_component.set_moving_type(packet.moving_type, &mut physics_component);
                 player_component.jumping = packet.jumping;
             }
         }
@@ -59,7 +65,7 @@ impl ServerPlayers {
                 id: entities.ecs.get::<&IdComponent>(player_entity)?.id(),
                 x: spawn_x,
                 y: spawn_y,
-                name: name.to_owned(),
+                name: name.clone(),
             })?;
 
             networking.send_packet_to_all(&player_spawn_packet)?;
