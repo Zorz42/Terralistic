@@ -1,9 +1,11 @@
 use core::hash::{Hash, Hasher};
+use std::collections::HashMap;
 use std::net::Ipv4Addr;
 
 use crate::libraries::events::{Event, EventManager};
 use crate::shared::enet_global::ENET_GLOBAL;
 use crate::shared::packet::{Packet, WelcomeCompletePacket};
+use crate::shared::players::NamePacket;
 use anyhow::{anyhow, Result};
 use enet::{Address, BandwidthLimit, ChannelLimit, Host, PacketMode};
 
@@ -33,15 +35,25 @@ pub struct ServerNetworking {
     server_port: u16,
     net_server: Option<Host<()>>,
     connections: Vec<Connection>,
+    connection_names: HashMap<Connection, String>,
 }
 
 impl ServerNetworking {
-    pub const fn new(server_port: u16) -> Self {
+    pub fn new(server_port: u16) -> Self {
         Self {
             server_port,
             net_server: None,
             connections: Vec::new(),
+            connection_names: HashMap::new(),
         }
+    }
+
+    pub fn get_connection_name(&self, conn: &Connection) -> String {
+        let unknown = "Unknown".to_owned();
+        self.connection_names
+            .get(conn)
+            .unwrap_or_else(|| &unknown)
+            .clone()
     }
 
     pub fn init(&mut self) -> Result<()> {
@@ -81,11 +93,6 @@ impl ServerNetworking {
             match event {
                 enet::Event::Connect(ref peer) => {
                     println!("[{:?}] connected", peer.address());
-                    events.push_event(Event::new(NewConnectionEvent {
-                        conn: Connection {
-                            address: peer.address(),
-                        },
-                    }));
                 }
                 enet::Event::Disconnect(ref peer, ..) => {
                     println!("[{:?}] disconnected", peer.address());
@@ -97,12 +104,27 @@ impl ServerNetworking {
                     ..
                 } => {
                     let packet: Packet = bincode::deserialize(packet.data())?;
-                    events.push_event(Event::new(PacketFromClientEvent {
-                        packet,
-                        conn: Connection {
-                            address: sender.address(),
-                        },
-                    }));
+                    if let Some(packet) = packet.try_deserialize::<NamePacket>() {
+                        println!("[{:?}] joined", packet.name);
+                        self.connection_names.insert(
+                            Connection {
+                                address: sender.address(),
+                            },
+                            packet.name,
+                        );
+                        events.push_event(Event::new(NewConnectionEvent {
+                            conn: Connection {
+                                address: sender.address(),
+                            },
+                        }));
+                    } else {
+                        events.push_event(Event::new(PacketFromClientEvent {
+                            packet,
+                            conn: Connection {
+                                address: sender.address(),
+                            },
+                        }));
+                    }
                 }
             }
         }

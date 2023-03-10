@@ -19,20 +19,26 @@ pub enum MovingType {
     MovingRight,
 }
 
-pub fn spawn_player(entities: &mut Entities, x: f32, y: f32, id: Option<u32>) -> Entity {
+pub fn spawn_player(
+    entities: &mut Entities,
+    x: f32,
+    y: f32,
+    name: &str,
+    id: Option<u32>,
+) -> Entity {
     let id = entities.unwrap_id(id);
     entities.ecs.spawn((
         IdComponent::new(id),
         PositionComponent::new(x, y),
         PhysicsComponent::new(PLAYER_WIDTH, PLAYER_HEIGHT),
-        PlayerComponent::new(),
+        PlayerComponent::new(name),
     ))
 }
 
 pub fn update_player(
     position: &PositionComponent,
     physics: &mut PhysicsComponent,
-    player: &PlayerMovingComponent,
+    player: &PlayerComponent,
     blocks: &Blocks,
 ) {
     if player.jumping && is_touching_ground(position, physics, blocks) {
@@ -40,26 +46,29 @@ pub fn update_player(
     }
 }
 
-pub struct PlayerComponent;
+pub fn update_players(entities: &mut Entities, blocks: &Blocks) {
+    for (_, (position, physics, player)) in
+        entities
+            .ecs
+            .query_mut::<(&PositionComponent, &mut PhysicsComponent, &PlayerComponent)>()
+    {
+        update_player(position, physics, player, blocks);
+    }
+}
 
-pub struct PlayerMovingComponent {
+pub struct PlayerComponent {
     moving_type: MovingType,
     pub jumping: bool,
+    name: String,
 }
 
 impl PlayerComponent {
     #[must_use]
-    pub const fn new() -> Self {
-        Self {}
-    }
-}
-
-impl PlayerMovingComponent {
-    #[must_use]
-    pub const fn new() -> Self {
+    pub fn new(name: &str) -> Self {
         Self {
             moving_type: MovingType::Standing,
             jumping: false,
+            name: name.to_owned(),
         }
     }
 
@@ -105,6 +114,10 @@ impl PlayerMovingComponent {
 
         self.moving_type = moving_type;
     }
+
+    pub fn get_name(&self) -> &str {
+        &self.name
+    }
 }
 
 #[derive(Serialize, Deserialize)]
@@ -119,4 +132,10 @@ pub struct PlayerSpawnPacket {
     pub id: u32,
     pub x: f32,
     pub y: f32,
+    pub name: String,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct NamePacket {
+    pub name: String,
 }

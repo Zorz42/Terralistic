@@ -118,6 +118,7 @@ impl Server {
             self.mods.update()?;
             self.blocks.update(&mut self.events, delta_time)?;
             self.walls.update(delta_time, &mut self.events)?;
+            ServerPlayers::update(&mut self.entities.entities, &self.blocks.blocks);
 
             // handle events
             while let Some(event) = self.events.pop_event() {

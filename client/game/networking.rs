@@ -2,6 +2,7 @@ use crate::libraries::events;
 use crate::libraries::events::EventManager;
 use crate::shared::enet_global::ENET_GLOBAL;
 use crate::shared::packet::{Packet, WelcomeCompletePacket};
+use crate::shared::players::NamePacket;
 use anyhow::{anyhow, bail, Result};
 use enet::{Address, BandwidthLimit, ChannelLimit, Event, Host, PacketMode};
 
@@ -31,7 +32,7 @@ impl ClientNetworking {
         }
     }
 
-    pub fn init(&mut self, events: &mut EventManager) -> Result<()> {
+    pub fn init(&mut self, events: &mut EventManager, name: &str) -> Result<()> {
         // connect to the server
         self.net_client = Some(ENET_GLOBAL.create_host::<()>(
             None,
@@ -70,6 +71,10 @@ impl ClientNetworking {
                 };
             }
         }
+
+        self.send_packet(&Packet::new(NamePacket {
+            name: name.to_owned(),
+        })?)?;
 
         'welcome_loop: loop {
             if let Some(event) = self

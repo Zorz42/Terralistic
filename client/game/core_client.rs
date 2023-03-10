@@ -34,6 +34,7 @@ pub struct Game {
     entities: ClientEntities,
     items: ClientItems,
     players: ClientPlayers,
+    player_name: String,
 }
 
 impl Game {
@@ -54,6 +55,7 @@ impl Game {
             entities: ClientEntities::new(),
             items: ClientItems::new(),
             players: ClientPlayers::new(player_name),
+            player_name: player_name.to_owned(),
         }
     }
 
@@ -67,7 +69,7 @@ impl Game {
     ) -> Result<()> {
         // load base game mod
         let mut events = EventManager::new();
-        self.networking.init(&mut events)?;
+        self.networking.init(&mut events, &self.player_name)?;
 
         let timer = std::time::Instant::now();
 
@@ -120,8 +122,6 @@ impl Game {
         self.items = result.4;
 
         self.background.init()?;
-        self.players
-            .init(&mut self.entities.entities, &self.blocks.blocks);
 
         self.blocks.load_resources(&mut self.mods.mod_manager)?;
         self.walls.load_resources(&mut self.mods.mod_manager)?;
