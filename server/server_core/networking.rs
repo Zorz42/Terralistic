@@ -59,11 +59,14 @@ impl ServerNetworking {
         Ok(())
     }
 
-    pub fn on_event(&mut self, event: &Event) -> Result<()> {
+    pub fn on_event(&mut self, event: &Event, events: &mut EventManager) -> Result<()> {
         // handle new connection event
         if let Some(event) = event.downcast::<NewConnectionEvent>() {
             self.send_packet(&Packet::new(WelcomeCompletePacket {})?, &event.conn)?;
             self.connections.push(event.conn.clone());
+            events.push_event(Event::new(NewConnectionWelcomedEvent {
+                conn: event.conn.clone(),
+            }));
         }
         Ok(())
     }
@@ -160,5 +163,9 @@ pub struct PacketFromClientEvent {
 }
 
 pub struct NewConnectionEvent {
+    pub conn: Connection,
+}
+
+pub struct NewConnectionWelcomedEvent {
     pub conn: Connection,
 }

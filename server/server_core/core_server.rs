@@ -137,7 +137,7 @@ impl Server {
                     &self.blocks.blocks,
                     &mut self.networking,
                 )?;
-                self.networking.on_event(&event)?;
+                self.networking.on_event(&event, &mut self.events)?;
             }
 
             while ms_counter < ms_timer.elapsed().as_millis() as i32 {

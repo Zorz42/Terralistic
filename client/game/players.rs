@@ -145,7 +145,7 @@ impl ClientPlayers {
         }
     }
 
-    pub fn on_event(&mut self, event: &Event, entities: &mut Entities) {
+    pub fn on_event(&self, event: &Event, entities: &mut Entities) {
         if let Some(packet_event) = event.downcast::<Packet>() {
             if let Some(packet) = packet_event.try_deserialize::<PlayerSpawnPacket>() {
                 spawn_player(entities, packet.x, packet.y, Some(packet.id));
