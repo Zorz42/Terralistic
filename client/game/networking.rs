@@ -163,7 +163,7 @@ impl ClientNetworking {
         }
 
         while is_running.load(Ordering::Relaxed) {
-            while let Ok(packet) = packet_receiver.try_recv() {
+            if let Ok(packet) = packet_receiver.try_recv() {
                 Self::send_packet_internal(&mut net_client, &packet)?;
             }
 

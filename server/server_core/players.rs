@@ -1,6 +1,6 @@
 use crate::libraries::events::Event;
 use crate::server::server_core::networking::{
-    Connection, NewConnectionWelcomedEvent, PacketFromClientEvent, ServerNetworking,
+    Connection, NewConnectionWelcomedEvent, PacketFromClientEvent, SendTarget, ServerNetworking,
 };
 use crate::shared::blocks::Blocks;
 use crate::shared::entities::{Entities, IdComponent, PhysicsComponent};
@@ -68,7 +68,7 @@ impl ServerPlayers {
                 name: name.clone(),
             })?;
 
-            networking.send_packet_to_all(&player_spawn_packet)?;
+            networking.send_packet(&player_spawn_packet, SendTarget::All)?;
         }
 
         Ok(())

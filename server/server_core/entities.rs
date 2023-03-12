@@ -1,4 +1,4 @@
-use crate::server::server_core::networking::ServerNetworking;
+use crate::server::server_core::networking::{SendTarget, ServerNetworking};
 use crate::shared::entities::{Entities, EntityPositionPacket, IdComponent, PositionComponent};
 use crate::shared::packet::Packet;
 use anyhow::Result;
@@ -20,11 +20,14 @@ impl ServerEntities {
             .ecs
             .query_mut::<(&IdComponent, &PositionComponent)>()
         {
-            networking.send_packet_to_all(&Packet::new(EntityPositionPacket {
-                id: id.id(),
-                x: position.x(),
-                y: position.y(),
-            })?)?;
+            networking.send_packet(
+                &Packet::new(EntityPositionPacket {
+                    id: id.id(),
+                    x: position.x(),
+                    y: position.y(),
+                })?,
+                SendTarget::All,
+            )?;
         }
         Ok(())
     }

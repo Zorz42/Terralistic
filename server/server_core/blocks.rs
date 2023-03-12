@@ -1,5 +1,6 @@
 use super::networking::{Connection, NewConnectionEvent, PacketFromClientEvent, ServerNetworking};
 use crate::libraries::events::{Event, EventManager};
+use crate::server::server_core::networking::SendTarget;
 use crate::shared::blocks::{
     BlockBreakStartPacket, BlockBreakStopPacket, BlockChangeEvent, BlockChangePacket,
     BlockStartedBreakingEvent, BlockStoppedBreakingEvent, Blocks, BlocksWelcomePacket,
@@ -37,7 +38,7 @@ impl ServerBlocks {
             let welcome_packet = Packet::new(BlocksWelcomePacket {
                 data: self.blocks.serialize()?,
             })?;
-            networking.send_packet(&welcome_packet, &event.conn)?;
+            networking.send_packet(&welcome_packet, SendTarget::Connection(event.conn.clone()))?;
         } else if let Some(event) = event.downcast::<PacketFromClientEvent>() {
             if let Some(packet) = event.packet.try_deserialize::<BlockBreakStartPacket>() {
                 if let Some(pos) = self.conns_breaking.get(&event.conn) {
@@ -60,21 +61,21 @@ impl ServerBlocks {
                 x: event.x,
                 y: event.y,
             })?;
-            networking.send_packet_to_all(&packet)?;
+            networking.send_packet(&packet, SendTarget::All)?;
         } else if let Some(event) = event.downcast::<BlockStoppedBreakingEvent>() {
             let packet = Packet::new(BlockBreakStopPacket {
                 x: event.x,
                 y: event.y,
                 break_time: self.blocks.get_break_progress(event.x, event.y)?,
             })?;
-            networking.send_packet_to_all(&packet)?;
+            networking.send_packet(&packet, SendTarget::All)?;
         } else if let Some(event) = event.downcast::<BlockChangeEvent>() {
             let packet = Packet::new(BlockChangePacket {
                 x: event.x,
                 y: event.y,
                 block: self.blocks.get_block(event.x, event.y)?,
             })?;
-            networking.send_packet_to_all(&packet)?;
+            networking.send_packet(&packet, SendTarget::All)?;
         }
         Ok(())
     }

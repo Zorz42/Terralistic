@@ -1,19 +1,22 @@
-use super::blocks::ServerBlocks;
-use super::mod_manager::ServerModManager;
-use super::networking::ServerNetworking;
-use super::walls::ServerWalls;
-use super::world_generator::WorldGenerator;
-use crate::libraries::events::EventManager;
-use crate::server::server_core::entities::ServerEntities;
-use crate::server::server_core::items::ServerItems;
-use crate::server::server_core::players::ServerPlayers;
-use anyhow::{anyhow, Result};
 use core::sync::atomic::{AtomicBool, Ordering};
 use core::time::Duration;
 use std::collections::HashMap;
 use std::path::Path;
 use std::sync::{Mutex, PoisonError};
 use std::thread::sleep;
+
+use anyhow::{anyhow, Result};
+
+use crate::libraries::events::EventManager;
+use crate::server::server_core::entities::ServerEntities;
+use crate::server::server_core::items::ServerItems;
+use crate::server::server_core::players::ServerPlayers;
+
+use super::blocks::ServerBlocks;
+use super::mod_manager::ServerModManager;
+use super::networking::ServerNetworking;
+use super::walls::ServerWalls;
+use super::world_generator::WorldGenerator;
 
 pub const SINGLEPLAYER_PORT: u16 = 49152;
 pub const MULTIPLAYER_PORT: u16 = 49153;
@@ -72,7 +75,7 @@ impl Server {
         self.mods = ServerModManager::new(mods);
 
         // init modules
-        self.networking.init()?;
+        self.networking.init();
         self.blocks.init(&mut self.mods.mod_manager)?;
         self.walls.init(&mut self.mods.mod_manager)?;
         self.items.init(&mut self.mods.mod_manager)?;

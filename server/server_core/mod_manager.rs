@@ -1,8 +1,11 @@
-use super::networking::{NewConnectionEvent, ServerNetworking};
+use anyhow::Result;
+
 use crate::libraries::events::Event;
+use crate::server::server_core::networking::SendTarget;
 use crate::shared::mod_manager::{GameMod, ModManager, ModsWelcomePacket};
 use crate::shared::packet::Packet;
-use anyhow::Result;
+
+use super::networking::{NewConnectionEvent, ServerNetworking};
 
 /// server mod manager that manages all the mods for the server.
 /// It is used to initialize, update and stop all the mods.
@@ -44,7 +47,7 @@ impl ServerModManager {
                 mods.push(bincode::serialize(game_mod)?);
             }
             let welcome_packet = Packet::new(ModsWelcomePacket { mods })?;
-            networking.send_packet(&welcome_packet, &event.conn)?;
+            networking.send_packet(&welcome_packet, SendTarget::Connection(event.conn.clone()))?;
         }
         Ok(())
     }

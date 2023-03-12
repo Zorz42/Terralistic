@@ -1,5 +1,5 @@
 use crate::libraries::events::{Event, EventManager};
-use crate::server::server_core::networking::ServerNetworking;
+use crate::server::server_core::networking::{SendTarget, ServerNetworking};
 use crate::shared::blocks::BlockBreakEvent;
 use crate::shared::entities::{Entities, IdComponent, PositionComponent};
 use crate::shared::items::{ItemComponent, ItemSpawnEvent, ItemSpawnPacket, Items};
@@ -59,7 +59,7 @@ impl ServerItems {
                 y: position.y(),
             };
 
-            networking.send_packet_to_all(&Packet::new(packet)?)?;
+            networking.send_packet(&Packet::new(packet)?, SendTarget::All)?;
         }
         Ok(())
     }

@@ -1,5 +1,6 @@
 use super::networking::{NewConnectionEvent, ServerNetworking};
 use crate::libraries::events::{Event, EventManager};
+use crate::server::server_core::networking::SendTarget;
 use crate::shared::blocks::Blocks;
 use crate::shared::mod_manager::ModManager;
 use crate::shared::packet::Packet;
@@ -26,7 +27,7 @@ impl ServerWalls {
             let welcome_packet = Packet::new(WallsWelcomePacket {
                 data: self.walls.serialize()?,
             })?;
-            networking.send_packet(&welcome_packet, &event.conn)?;
+            networking.send_packet(&welcome_packet, SendTarget::Connection(event.conn.clone()))?;
         }
         Ok(())
     }
