@@ -37,7 +37,7 @@ impl ClientPlayers {
             player_id: 0,
         })?;
 
-        networking.send_packet(&packet)?;
+        networking.send_packet(packet)?;
         Ok(())
     }
 

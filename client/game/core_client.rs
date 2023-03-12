@@ -69,7 +69,13 @@ impl Game {
     ) -> Result<()> {
         // load base game mod
         let mut events = EventManager::new();
-        self.networking.init(&mut events, &self.player_name)?;
+        self.networking.init(self.player_name.clone())?;
+        while self.networking.is_welcoming() {
+            // wait 1 ms
+            std::thread::sleep(core::time::Duration::from_millis(1));
+        }
+        self.networking.update(&mut events)?;
+        self.networking.start_receiving();
 
         let timer = std::time::Instant::now();
 
