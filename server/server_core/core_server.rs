@@ -148,7 +148,7 @@ impl Server {
                 self.entities
                     .entities
                     .update_entities_ms(&self.blocks.blocks);
-                ms_counter += 1;
+                ms_counter += 5;
             }
 
             if sec_counter.elapsed().as_secs() >= 1 {

@@ -50,8 +50,8 @@ impl Camera {
     }
 
     pub fn update_ms(&mut self, graphics: &mut GraphicsContext) {
-        self.position_x += (self.target_position_x - self.position_x) * 0.005;
-        self.position_y += (self.target_position_y - self.position_y) * 0.005;
+        self.position_x += (self.target_position_x - self.position_x) * 0.03;
+        self.position_y += (self.target_position_y - self.position_y) * 0.03;
 
         if self.detached_camera {
             if graphics.renderer.get_key_state(gfx::Key::W) {

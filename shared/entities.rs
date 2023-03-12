@@ -4,7 +4,7 @@ use serde_derive::{Deserialize, Serialize};
 
 pub const DEFAULT_GRAVITY: f32 = 80.0;
 pub const FRICTION_COEFFICIENT: f32 = 0.2;
-pub const AIR_RESISTANCE_COEFFICIENT: f32 = 0.001;
+pub const AIR_RESISTANCE_COEFFICIENT: f32 = 0.005;
 const DIRECTION_SIZE: f32 = 0.01;
 
 #[must_use]
@@ -46,7 +46,7 @@ pub fn is_touching_ground(
         },
         physics,
         blocks,
-    )
+    ) && physics.get_velocity_y() <= 0.01
 }
 
 pub struct Entities {
@@ -90,11 +90,11 @@ impl Entities {
             .ecs
             .query_mut::<(&mut PositionComponent, &mut PhysicsComponent)>()
         {
-            physics.velocity_x += physics.acceleration_x / 1000.0;
-            physics.velocity_y += physics.acceleration_y / 1000.0;
+            physics.velocity_x += physics.acceleration_x / 200.0;
+            physics.velocity_y += physics.acceleration_y / 200.0;
 
-            let target_x = position.x + physics.velocity_x / 1000.0;
-            let target_y = position.y + physics.velocity_y / 1000.0;
+            let target_x = position.x + physics.velocity_x / 200.0;
+            let target_y = position.y + physics.velocity_y / 200.0;
 
             let direction_x = if physics.velocity_x > 0.0 { 1.0 } else { -1.0 } * DIRECTION_SIZE;
             loop {

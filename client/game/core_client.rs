@@ -264,7 +264,7 @@ impl Game {
                 self.entities
                     .entities
                     .update_entities_ms(&self.blocks.blocks);
-                ms_counter += 1;
+                ms_counter += 5;
             }
 
             self.background.render(graphics, &self.camera);
