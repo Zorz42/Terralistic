@@ -102,11 +102,11 @@ impl ServerNetworking {
         )?;
 
         while is_running.load(Ordering::Relaxed) {
-            if let Ok((packet_data, conn)) = packet_receiver.try_recv() {
+            while let Ok((packet_data, conn)) = packet_receiver.try_recv() {
                 Self::send_packet_internal(&mut net_server, &packet_data, &conn)?;
             }
 
-            if let Some(event) = net_server.service(0)? {
+            while let Some(event) = net_server.service(0)? {
                 match event {
                     enet::Event::Connect(ref peer) => {
                         println!("[{:?}] connected", peer.address());
@@ -159,6 +159,8 @@ impl ServerNetworking {
                     }
                 }
             }
+
+            std::thread::sleep(std::time::Duration::from_millis(1));
         }
 
         for conn in net_server.peers() {

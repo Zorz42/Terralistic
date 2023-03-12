@@ -163,11 +163,11 @@ impl ClientNetworking {
         }
 
         while is_running.load(Ordering::Relaxed) {
-            if let Ok(packet) = packet_receiver.try_recv() {
+            while let Ok(packet) = packet_receiver.try_recv() {
                 Self::send_packet_internal(&mut net_client, &packet)?;
             }
 
-            if let Some(event) = net_client.service(0)? {
+            while let Some(event) = net_client.service(0)? {
                 match event {
                     Event::Connect(_) => {
                         bail!("unexpected connect");
@@ -187,6 +187,9 @@ impl ClientNetworking {
                     }
                 };
             }
+
+            // wait 1 ms
+            std::thread::sleep(core::time::Duration::from_millis(1));
         }
 
         for ref mut server in net_client.peers() {
