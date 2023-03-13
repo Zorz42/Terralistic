@@ -133,6 +133,7 @@ impl Game {
         self.walls.load_resources(&mut self.mods.mod_manager)?;
         self.items.load_resources(&mut self.mods.mod_manager)?;
         self.camera.load_resources(graphics);
+        self.players.load_resources(&mut self.mods.mod_manager)?;
 
         // print the time it took to initialize
         println!("Game joined in {}ms", timer.elapsed().as_millis());

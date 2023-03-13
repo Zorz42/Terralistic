@@ -160,7 +160,7 @@ impl ServerNetworking {
                 }
             }
 
-            std::thread::sleep(std::time::Duration::from_millis(1));
+            std::thread::sleep(core::time::Duration::from_millis(1));
         }
 
         for conn in net_server.peers() {

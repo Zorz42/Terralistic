@@ -5,9 +5,10 @@ use crate::client::game::camera::Camera;
 use crate::client::game::networking::ClientNetworking;
 use crate::libraries::events::Event;
 use crate::libraries::graphics as gfx;
-use crate::libraries::graphics::{FloatPos, FloatSize};
+use crate::libraries::graphics::{FloatPos, FloatSize, IntPos};
 use crate::shared::blocks::{Blocks, RENDER_BLOCK_WIDTH};
 use crate::shared::entities::{Entities, PhysicsComponent, PositionComponent};
+use crate::shared::mod_manager::ModManager;
 use crate::shared::packet::Packet;
 use crate::shared::players::{
     spawn_player, update_players, MovingType, PlayerComponent, PlayerMovingPacket,
@@ -17,6 +18,7 @@ use crate::shared::players::{
 pub struct ClientPlayers {
     main_player: Option<Entity>,
     main_player_name: String,
+    player_texture: gfx::Texture,
 }
 
 impl ClientPlayers {
@@ -24,7 +26,32 @@ impl ClientPlayers {
         Self {
             main_player: None,
             main_player_name: player_name.to_owned(),
+            player_texture: gfx::Texture::new(),
         }
+    }
+
+    pub fn load_resources(&mut self, mods: &mut ModManager) -> Result<()> {
+        let mut template_surface = gfx::Surface::deserialize_from_bytes(
+            mods.get_resource("misc:skin_template.opa").ok_or_else(|| {
+                anyhow::anyhow!("Failed to load misc:skin_template.opa from mod manager")
+            })?,
+        )?;
+
+        let player_surface = gfx::Surface::deserialize_from_bytes(
+            mods.get_resource("misc:skin.opa")
+                .ok_or_else(|| anyhow::anyhow!("Failed to load misc:skin.opa from mod manager"))?,
+        )?;
+
+        for (_, color) in template_surface.iter_mut() {
+            let x = color.r as i32 / 8;
+            let y = color.g as i32 / 8;
+
+            *color = *player_surface.get_pixel(IntPos(x, y))?;
+        }
+
+        self.player_texture = gfx::Texture::load_from_surface(&template_surface);
+
+        Ok(())
     }
 
     fn send_moving_state(
@@ -115,6 +142,15 @@ impl ClientPlayers {
         entities: &mut Entities,
         camera: &Camera,
     ) {
+        self.player_texture.render(
+            &graphics.renderer,
+            2.0,
+            FloatPos(5.0, 5.0),
+            None,
+            false,
+            None,
+        );
+
         for (entity, (position, _player_component)) in entities
             .ecs
             .query_mut::<(&PositionComponent, &PlayerComponent)>()
