@@ -242,12 +242,6 @@ impl Game {
             self.mods.update()?;
             self.blocks.update(delta_time, &mut self.events)?;
             self.walls.update(delta_time, &mut self.events)?;
-            self.players.update(
-                graphics,
-                &mut self.entities.entities,
-                &mut self.networking,
-                &self.blocks.blocks,
-            )?;
 
             if let Some(main_player) = self.players.get_main_player() {
                 let player_pos = self
@@ -261,6 +255,12 @@ impl Game {
 
             while ms_counter < ms_timer.elapsed().as_millis() as i32 {
                 self.camera.update_ms(graphics);
+                self.players.update(
+                    graphics,
+                    &mut self.entities.entities,
+                    &mut self.networking,
+                    &self.blocks.blocks,
+                )?;
                 self.entities
                     .entities
                     .update_entities_ms(&self.blocks.blocks);

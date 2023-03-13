@@ -1,5 +1,7 @@
 use crate::libraries::events::Event;
-use crate::shared::entities::{Entities, EntityPositionPacket, IdComponent, PositionComponent};
+use crate::shared::entities::{
+    Entities, EntityPositionVelocityPacket, IdComponent, PhysicsComponent, PositionComponent,
+};
 use crate::shared::packet::Packet;
 
 pub struct ClientEntities {
@@ -15,15 +17,17 @@ impl ClientEntities {
 
     pub fn on_event(&mut self, event: &Event) {
         if let Some(packet) = event.downcast::<Packet>() {
-            if let Some(packet) = packet.try_deserialize::<EntityPositionPacket>() {
-                for (_entity, (id, position)) in self
-                    .entities
-                    .ecs
-                    .query_mut::<(&mut IdComponent, &mut PositionComponent)>()
-                {
+            if let Some(packet) = packet.try_deserialize::<EntityPositionVelocityPacket>() {
+                for (_entity, (id, position, physics)) in self.entities.ecs.query_mut::<(
+                    &mut IdComponent,
+                    &mut PositionComponent,
+                    &mut PhysicsComponent,
+                )>() {
                     if id.id() == packet.id {
                         position.set_x(packet.x);
                         position.set_y(packet.y);
+                        physics.set_velocity_x(packet.velocity_x);
+                        physics.set_velocity_y(packet.velocity_y);
                     }
                 }
             }

@@ -177,10 +177,12 @@ impl Entities {
 }
 
 #[derive(Serialize, Deserialize)]
-pub struct EntityPositionPacket {
+pub struct EntityPositionVelocityPacket {
     pub id: u32,
     pub x: f32,
     pub y: f32,
+    pub velocity_x: f32,
+    pub velocity_y: f32,
 }
 
 #[derive(Serialize, Deserialize)]

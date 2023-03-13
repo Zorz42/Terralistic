@@ -1,5 +1,7 @@
 use crate::server::server_core::networking::{SendTarget, ServerNetworking};
-use crate::shared::entities::{Entities, EntityPositionPacket, IdComponent, PositionComponent};
+use crate::shared::entities::{
+    Entities, EntityPositionVelocityPacket, IdComponent, PhysicsComponent, PositionComponent,
+};
 use crate::shared::packet::Packet;
 use anyhow::Result;
 
@@ -15,16 +17,18 @@ impl ServerEntities {
     }
 
     pub fn sync_entities(&mut self, networking: &mut ServerNetworking) -> Result<()> {
-        for (_entity, (id, position)) in self
-            .entities
-            .ecs
-            .query_mut::<(&IdComponent, &PositionComponent)>()
+        for (_entity, (id, position, physics)) in
+            self.entities
+                .ecs
+                .query_mut::<(&IdComponent, &PositionComponent, &PhysicsComponent)>()
         {
             networking.send_packet(
-                &Packet::new(EntityPositionPacket {
+                &Packet::new(EntityPositionVelocityPacket {
                     id: id.id(),
                     x: position.x(),
                     y: position.y(),
+                    velocity_x: physics.get_velocity_x(),
+                    velocity_y: physics.get_velocity_y(),
                 })?,
                 SendTarget::All,
             )?;
