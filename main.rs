@@ -66,6 +66,8 @@ use core::sync::atomic::AtomicBool;
 use std::sync::Mutex;
 extern crate alloc;
 use alloc::sync::Arc;
+use std::thread::sleep;
+use core::time::Duration;
 
 use crate::client::menus::{run_main_menu, MenuBack};
 use crate::server::server_core::{Server, MULTIPLAYER_PORT};
@@ -95,7 +97,7 @@ fn main() {
         },
         |arg| {
             if arg == "server" {
-                server_main();
+                server_main(args.as_slice());
             } else if arg == "client" {
                 client_main();
             } else {
@@ -105,8 +107,41 @@ fn main() {
     );
 }
 
-fn server_main() {
+fn server_main(args: &[String]) {
+    let server_graphics_context = if args.contains(&"nogui".to_owned()) {
+        None
+    } else {
+        let graphics_result = gfx::init(
+            1130,
+            700,
+            "Terralistic Server",
+            include_bytes!("Build/Resources/font.opa"),
+        );
+
+        let mut graphics;
+
+        match graphics_result {
+            Ok(g) => graphics = g,
+            Err(e) => {
+                println!("Failed to initialize graphics: {e}");
+                return;
+            }
+        }
+
+        if graphics
+            .renderer
+            .set_min_window_size(graphics.renderer.get_window_size())
+            .is_err()
+        {
+            println!("Failed to set minimum window size");
+        }
+        Some(graphics)
+    };
+
+
+
     let server_running = Arc::new(AtomicBool::new(true));
+    let server_running_clone = server_running.clone();
 
     let loading_text = Arc::new(Mutex::new("Loading".to_owned()));
 
@@ -121,17 +156,43 @@ fn server_main() {
 
     let path = curr_dir.join("server_data");
 
-    let mut server = Server::new(MULTIPLAYER_PORT);
-    let result = server.start(
-        &server_running,
-        &loading_text,
-        vec![include_bytes!("base_game/base_game.mod").to_vec()],
-        &path.join("server.world"),
-    );
 
-    if let Err(e) = result {
-        println!("Server stopped with an error: {e}");
+    let server_thread = std::thread::spawn(move || {
+        let mut server = Server::new(MULTIPLAYER_PORT);
+        let result = server.start(
+            &server_running_clone,
+            &loading_text,
+            vec![include_bytes!("base_game/base_game.mod").to_vec()],
+            &path.join("server.world"),
+        );
+
+        if let Err(e) = result {
+            println!("Server stopped with an error: {e}");
+        }
+    });
+
+    if let Some(mut graphics) = server_graphics_context {//TODO: move all of this into a server UI struct
+        loop {
+            //break if the window is closed
+            graphics.renderer.get_event();//idk this somehow updates the window
+            graphics.renderer.update_window();
+            if !graphics.renderer.is_window_open() {//window closing doesn't work yet lol
+                server_running.store(false, core::sync::atomic::Ordering::Relaxed);
+            }
+            if server_thread.is_finished() {//will be replaced with server state once i can access the server from a separate thread
+                break;
+            }
+        }
+    } else {
+        loop {
+            if server_thread.is_finished() {
+                break;
+            }
+            sleep(Duration::from_millis(50));
+        }
     }
+
+    let _thread_result = server_thread.join();
 }
 
 fn client_main() {
