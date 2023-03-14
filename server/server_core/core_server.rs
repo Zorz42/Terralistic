@@ -21,8 +21,11 @@ use super::world_generator::WorldGenerator;
 pub const SINGLEPLAYER_PORT: u16 = 49152;
 pub const MULTIPLAYER_PORT: u16 = 49153;
 
+enum ServerState { Nothing, Starting, InitMods, LoadingWorld, Running, Stopping, Stopped }
+
 pub struct Server {
     tps_limit: f32,
+    state: ServerState,
     events: EventManager,
     networking: ServerNetworking,
     mods: ServerModManager,
@@ -40,6 +43,7 @@ impl Server {
         let walls = ServerWalls::new(&mut blocks.blocks);
         Self {
             tps_limit: 20.0,
+            state:  ServerState::Nothing,
             events: EventManager::new(),
             networking: ServerNetworking::new(port),
             mods: ServerModManager::new(Vec::new()),
@@ -64,6 +68,7 @@ impl Server {
         println!("Starting server...");
         let timer = std::time::Instant::now();
         *status_text.lock().unwrap_or_else(PoisonError::into_inner) = "Starting server".to_owned();
+        self.state = ServerState::Starting;
 
         let mut mods = Vec::new();
         for game_mod in mods_serialized {
@@ -71,7 +76,6 @@ impl Server {
             let game_mod = snap::raw::Decoder::new().decompress_vec(&game_mod)?;
             mods.push(bincode::deserialize(&game_mod)?);
         }
-
         self.mods = ServerModManager::new(mods);
 
         // init modules
@@ -83,10 +87,12 @@ impl Server {
         let mut generator = WorldGenerator::new();
         generator.init(&mut self.mods.mod_manager)?;
 
+        self.state = ServerState::InitMods;
         *status_text.lock().unwrap_or_else(PoisonError::into_inner) =
             "Initializing mods".to_owned();
         self.mods.init()?;
 
+        self.state = ServerState::LoadingWorld;
         if world_path.exists() {
             *status_text.lock().unwrap_or_else(PoisonError::into_inner) =
                 "Loading world".to_owned();
@@ -102,6 +108,7 @@ impl Server {
             )?;
         }
 
+        self.state = ServerState::Running;
         // start server loop
         println!("server started in {}ms", timer.elapsed().as_millis());
         status_text
@@ -155,11 +162,9 @@ impl Server {
                 self.entities.sync_entities(&mut self.networking)?;
                 sec_counter = std::time::Instant::now();
             }
-
             if !is_running.load(Ordering::Relaxed) {
                 break;
             }
-
             // sleep
             let sleep_time = 1000.0 / self.tps_limit - last_time.elapsed().as_secs_f32() * 1000.0;
             if sleep_time > 0.0 {
@@ -167,6 +172,7 @@ impl Server {
             }
         }
 
+        self.state = ServerState::Stopping;
         *status_text.lock().unwrap_or_else(PoisonError::into_inner) = "Saving world".to_owned();
         self.save_world(world_path)?;
 
@@ -175,6 +181,7 @@ impl Server {
         self.networking.stop()?;
         self.mods.stop()?;
 
+        self.state = ServerState::Stopped;
         status_text
             .lock()
             .unwrap_or_else(PoisonError::into_inner)

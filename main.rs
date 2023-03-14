@@ -66,6 +66,8 @@ use core::sync::atomic::AtomicBool;
 use std::sync::Mutex;
 extern crate alloc;
 use alloc::sync::Arc;
+use std::thread::sleep;
+use core::time::Duration;
 
 use crate::client::menus::{run_main_menu, MenuBack};
 use crate::server::server_core::{Server, MULTIPLAYER_PORT};
@@ -95,7 +97,7 @@ fn main() {
         },
         |arg| {
             if arg == "server" {
-                server_main(args.clone());
+                server_main(args.as_slice());
             } else if arg == "client" {
                 client_main();
             } else {
@@ -105,8 +107,10 @@ fn main() {
     );
 }
 
-fn server_main(args: Vec<String>) {
-    let mut server_ui = if !args.contains(&"nogui".to_owned()) {
+fn server_main(args: &[String]) {
+    let server_graphics_context = if args.contains(&"nogui".to_owned()) {
+        None
+    } else {
         let graphics_result = gfx::init(
             1130,
             700,
@@ -132,8 +136,6 @@ fn server_main(args: Vec<String>) {
             println!("Failed to set minimum window size");
         }
         Some(graphics)
-    } else {
-        None
     };
 
 
@@ -169,26 +171,28 @@ fn server_main(args: Vec<String>) {
         }
     });
 
-    if let Some(mut graphics) = server_ui {//TODO: move this into a server UI struct
+    if let Some(mut graphics) = server_graphics_context {//TODO: move all of this into a server UI struct
         loop {
             //break if the window is closed
+            graphics.renderer.get_event();//idk this somehow updates the window
             graphics.renderer.update_window();
             if !graphics.renderer.is_window_open() {//window closing doesn't work yet lol
-                break;
+                server_running.store(false, core::sync::atomic::Ordering::Relaxed);
             }
-            if !server_running.load(std::sync::atomic::Ordering::Relaxed) {
+            if server_thread.is_finished() {//will be replaced with server state once i can access the server from a separate thread
                 break;
             }
         }
     } else {
         loop {
-            if !server_running.load(std::sync::atomic::Ordering::Relaxed) {
+            if server_thread.is_finished() {
                 break;
             }
+            sleep(Duration::from_millis(50));
         }
     }
 
-    let thread_result = server_thread.join();
+    let _thread_result = server_thread.join();
 }
 
 fn client_main() {
