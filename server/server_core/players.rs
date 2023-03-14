@@ -6,7 +6,7 @@ use crate::shared::blocks::Blocks;
 use crate::shared::entities::{Entities, IdComponent, PhysicsComponent};
 use crate::shared::packet::Packet;
 use crate::shared::players::{
-    spawn_player, update_players, PlayerComponent, PlayerMovingPacket, PlayerSpawnPacket,
+    spawn_player, update_players_ms, PlayerComponent, PlayerMovingPacket, PlayerSpawnPacket,
 };
 use anyhow::{anyhow, Result};
 use hecs::Entity;
@@ -75,6 +75,6 @@ impl ServerPlayers {
     }
 
     pub fn update(entities: &mut Entities, blocks: &Blocks) {
-        update_players(entities, blocks);
+        update_players_ms(entities, blocks);
     }
 }

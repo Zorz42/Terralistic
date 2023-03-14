@@ -1,12 +1,12 @@
-use crate::shared::blocks::Blocks;
+use crate::shared::blocks::{Blocks, BLOCK_WIDTH};
 use crate::shared::entities::{
     is_touching_ground, reduce_by, Entities, IdComponent, PhysicsComponent, PositionComponent,
 };
 use hecs::Entity;
 use serde_derive::{Deserialize, Serialize};
 
-pub const PLAYER_HEIGHT: f32 = 3.0;
-pub const PLAYER_WIDTH: f32 = 2.0;
+pub const PLAYER_HEIGHT: f32 = 28.0 / BLOCK_WIDTH;
+pub const PLAYER_WIDTH: f32 = 18.0 / BLOCK_WIDTH;
 pub const PLAYER_MAX_HEALTH: i32 = 80;
 pub const PLAYER_ACCELERATION: f32 = 30.0;
 pub const PLAYER_INITIAL_SPEED: f32 = 5.0;
@@ -35,30 +35,79 @@ pub fn spawn_player(
     ))
 }
 
-pub fn update_player(
+fn update_player_ms(
     position: &PositionComponent,
     physics: &mut PhysicsComponent,
-    player: &PlayerComponent,
+    player: &mut PlayerComponent,
     blocks: &Blocks,
 ) {
     if player.jumping && is_touching_ground(position, physics, blocks) {
         physics.increase_velocity_y(-PLAYER_JUMP_SPEED);
     }
+
+    // animation frame for being in air is 0
+    // animation frames from 1 to 9 inclusive are for walking
+    // animation frame 1 is for standing
+    // animation frame changes every n calls to this function
+    let n = 15;
+
+    match player.moving_type {
+        MovingType::Standing => {
+            player.animation_frame = 1;
+        }
+        MovingType::MovingRight | MovingType::MovingLeft => {
+            if player.moving_type == MovingType::MovingRight {
+                player.direction = Direction::Right;
+            } else {
+                player.direction = Direction::Left;
+            }
+
+            player.frame_progress += 1;
+            if player.frame_progress >= n {
+                player.frame_progress = 0;
+                player.animation_frame += 1;
+            }
+
+            if player.animation_frame < 1 || player.animation_frame > 9 {
+                player.animation_frame = 1;
+                player.frame_progress = 0;
+            }
+        }
+    }
+
+    if !is_touching_ground(position, physics, blocks) {
+        player.animation_frame = 0;
+    }
+
+    if physics.get_velocity_x().abs() < 0.01
+        && (player.moving_type == MovingType::MovingRight
+            || player.moving_type == MovingType::MovingLeft)
+    {
+        player.animation_frame = 1;
+    }
 }
 
-pub fn update_players(entities: &mut Entities, blocks: &Blocks) {
-    for (_, (position, physics, player)) in
-        entities
-            .ecs
-            .query_mut::<(&PositionComponent, &mut PhysicsComponent, &PlayerComponent)>()
-    {
-        update_player(position, physics, player, blocks);
+pub fn update_players_ms(entities: &mut Entities, blocks: &Blocks) {
+    for (_, (position, physics, player)) in entities.ecs.query_mut::<(
+        &PositionComponent,
+        &mut PhysicsComponent,
+        &mut PlayerComponent,
+    )>() {
+        update_player_ms(position, physics, player, blocks);
     }
+}
+
+pub enum Direction {
+    Left,
+    Right,
 }
 
 pub struct PlayerComponent {
     moving_type: MovingType,
     pub jumping: bool,
+    pub animation_frame: i32,
+    pub frame_progress: i32,
+    pub direction: Direction,
     name: String,
 }
 
@@ -68,6 +117,9 @@ impl PlayerComponent {
         Self {
             moving_type: MovingType::Standing,
             jumping: false,
+            animation_frame: 0,
+            frame_progress: 0,
+            direction: Direction::Right,
             name: name.to_owned(),
         }
     }

@@ -6,12 +6,12 @@ use crate::client::game::networking::ClientNetworking;
 use crate::libraries::events::Event;
 use crate::libraries::graphics as gfx;
 use crate::libraries::graphics::{FloatPos, FloatSize, IntPos};
-use crate::shared::blocks::{Blocks, RENDER_BLOCK_WIDTH};
+use crate::shared::blocks::{Blocks, BLOCK_WIDTH, RENDER_BLOCK_WIDTH, RENDER_SCALE};
 use crate::shared::entities::{Entities, PhysicsComponent, PositionComponent};
 use crate::shared::mod_manager::ModManager;
 use crate::shared::packet::Packet;
 use crate::shared::players::{
-    spawn_player, update_players, MovingType, PlayerComponent, PlayerMovingPacket,
+    spawn_player, update_players_ms, Direction, MovingType, PlayerComponent, PlayerMovingPacket,
     PlayerSpawnPacket, PLAYER_HEIGHT, PLAYER_WIDTH,
 };
 
@@ -131,7 +131,7 @@ impl ClientPlayers {
             }
         }
 
-        update_players(entities, blocks);
+        update_players_ms(entities, blocks);
 
         Ok(())
     }
@@ -142,16 +142,7 @@ impl ClientPlayers {
         entities: &mut Entities,
         camera: &Camera,
     ) {
-        self.player_texture.render(
-            &graphics.renderer,
-            2.0,
-            FloatPos(5.0, 5.0),
-            None,
-            false,
-            None,
-        );
-
-        for (entity, (position, _player_component)) in entities
+        for (_, (position, player_component)) in entities
             .ecs
             .query_mut::<(&PositionComponent, &PlayerComponent)>()
         {
@@ -160,25 +151,27 @@ impl ClientPlayers {
             let y = position.y() * RENDER_BLOCK_WIDTH
                 - camera.get_top_left(graphics).1 * RENDER_BLOCK_WIDTH;
 
-            let color = self.main_player.map_or_else(
-                || gfx::Color::new(100, 200, 100, 255),
-                |player| {
-                    if entity == player {
-                        gfx::Color::new(100, 100, 200, 255)
-                    } else {
-                        gfx::Color::new(200, 100, 100, 255)
-                    }
-                },
+            let src_rect = gfx::Rect::new(
+                FloatPos(
+                    player_component.animation_frame as f32 * PLAYER_WIDTH * BLOCK_WIDTH,
+                    0.0,
+                ),
+                FloatSize(PLAYER_WIDTH * BLOCK_WIDTH, PLAYER_HEIGHT * BLOCK_WIDTH),
             );
 
-            gfx::Rect::new(
+            let flipped = match player_component.direction {
+                Direction::Left => true,
+                Direction::Right => false,
+            };
+
+            self.player_texture.render(
+                &graphics.renderer,
+                RENDER_SCALE,
                 FloatPos(x.round(), y.round()),
-                FloatSize(
-                    PLAYER_WIDTH * RENDER_BLOCK_WIDTH,
-                    PLAYER_HEIGHT * RENDER_BLOCK_WIDTH,
-                ),
-            )
-            .render(graphics, color);
+                Some(src_rect),
+                flipped,
+                None,
+            );
         }
     }
 
