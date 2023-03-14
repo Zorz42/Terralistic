@@ -1,6 +1,7 @@
-use crate::shared::blocks::Blocks;
 use anyhow::{bail, Result};
 use serde_derive::{Deserialize, Serialize};
+
+use crate::shared::blocks::Blocks;
 
 pub const DEFAULT_GRAVITY: f32 = 80.0;
 pub const FRICTION_COEFFICIENT: f32 = 0.2;
@@ -46,7 +47,7 @@ pub fn is_touching_ground(
         },
         physics,
         blocks,
-    ) && physics.get_velocity_y() <= 0.01
+    ) && physics.velocity_y.abs() <= 0.01
 }
 
 pub struct Entities {
@@ -237,12 +238,12 @@ impl PositionComponent {
 }
 
 pub struct PhysicsComponent {
-    velocity_x: f32,
-    velocity_y: f32,
-    acceleration_x: f32,
-    acceleration_y: f32,
-    collision_width: f32,
-    collision_height: f32,
+    pub velocity_x: f32,
+    pub velocity_y: f32,
+    pub acceleration_x: f32,
+    pub acceleration_y: f32,
+    pub collision_width: f32,
+    pub collision_height: f32,
 }
 
 impl PhysicsComponent {
@@ -256,67 +257,5 @@ impl PhysicsComponent {
             collision_width,
             collision_height,
         }
-    }
-
-    #[must_use]
-    pub const fn get_velocity_x(&self) -> f32 {
-        self.velocity_x
-    }
-
-    #[must_use]
-    pub const fn get_velocity_y(&self) -> f32 {
-        self.velocity_y
-    }
-
-    #[must_use]
-    pub const fn get_acceleration_x(&self) -> f32 {
-        self.acceleration_x
-    }
-
-    #[must_use]
-    pub const fn get_acceleration_y(&self) -> f32 {
-        self.acceleration_y
-    }
-
-    pub fn set_velocity_x(&mut self, x: f32) {
-        self.velocity_x = x;
-    }
-
-    pub fn increase_velocity_x(&mut self, x: f32) {
-        self.set_velocity_x(self.get_velocity_x() + x);
-    }
-
-    pub fn set_velocity_y(&mut self, y: f32) {
-        self.velocity_y = y;
-    }
-
-    pub fn increase_velocity_y(&mut self, y: f32) {
-        self.set_velocity_y(self.get_velocity_y() + y);
-    }
-
-    pub fn set_acceleration_x(&mut self, x: f32) {
-        self.acceleration_x = x;
-    }
-
-    pub fn increase_acceleration_x(&mut self, x: f32) {
-        self.set_acceleration_x(self.get_acceleration_x() + x);
-    }
-
-    pub fn set_acceleration_y(&mut self, y: f32) {
-        self.acceleration_y = y;
-    }
-
-    pub fn increase_acceleration_y(&mut self, y: f32) {
-        self.set_acceleration_y(self.get_acceleration_y() + y);
-    }
-
-    #[must_use]
-    pub const fn get_collision_width(&self) -> f32 {
-        self.collision_width
-    }
-
-    #[must_use]
-    pub const fn get_collision_height(&self) -> f32 {
-        self.collision_height
     }
 }

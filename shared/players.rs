@@ -42,7 +42,7 @@ fn update_player_ms(
     blocks: &Blocks,
 ) {
     if player.jumping && is_touching_ground(position, physics, blocks) {
-        physics.increase_velocity_y(-PLAYER_JUMP_SPEED);
+        physics.velocity_y += -PLAYER_JUMP_SPEED;
     }
 
     // animation frame for being in air is 0
@@ -79,7 +79,7 @@ fn update_player_ms(
         player.animation_frame = 0;
     }
 
-    if physics.get_velocity_x().abs() < 0.01
+    if physics.velocity_x.abs() < 0.01
         && (player.moving_type == MovingType::MovingRight
             || player.moving_type == MovingType::MovingLeft)
     {
@@ -138,16 +138,12 @@ impl PlayerComponent {
         match self.moving_type {
             MovingType::Standing => {}
             MovingType::MovingLeft => {
-                physics.increase_acceleration_x(PLAYER_ACCELERATION);
-                let mut velocity = physics.get_velocity_x();
-                reduce_by(&mut velocity, PLAYER_INITIAL_SPEED);
-                physics.set_velocity_x(velocity);
+                physics.acceleration_x += PLAYER_ACCELERATION;
+                reduce_by(&mut physics.velocity_x, PLAYER_INITIAL_SPEED);
             }
             MovingType::MovingRight => {
-                physics.increase_acceleration_x(-PLAYER_ACCELERATION);
-                let mut velocity = physics.get_velocity_x();
-                reduce_by(&mut velocity, PLAYER_INITIAL_SPEED);
-                physics.set_velocity_x(velocity);
+                physics.acceleration_x -= PLAYER_ACCELERATION;
+                reduce_by(&mut physics.velocity_x, PLAYER_INITIAL_SPEED);
             }
         }
 
@@ -155,12 +151,12 @@ impl PlayerComponent {
         match moving_type {
             MovingType::Standing => {}
             MovingType::MovingLeft => {
-                physics.increase_acceleration_x(-PLAYER_ACCELERATION);
-                physics.increase_velocity_x(-PLAYER_INITIAL_SPEED);
+                physics.acceleration_x -= PLAYER_ACCELERATION;
+                physics.velocity_x -= PLAYER_INITIAL_SPEED;
             }
             MovingType::MovingRight => {
-                physics.increase_acceleration_x(PLAYER_ACCELERATION);
-                physics.increase_velocity_x(PLAYER_INITIAL_SPEED);
+                physics.acceleration_x += PLAYER_ACCELERATION;
+                physics.velocity_x += PLAYER_INITIAL_SPEED;
             }
         }
 
