@@ -21,7 +21,15 @@ use super::world_generator::WorldGenerator;
 pub const SINGLEPLAYER_PORT: u16 = 49152;
 pub const MULTIPLAYER_PORT: u16 = 49153;
 
-enum ServerState { Nothing, Starting, InitMods, LoadingWorld, Running, Stopping, Stopped }
+enum ServerState {
+    Nothing,
+    Starting,
+    InitMods,
+    LoadingWorld,
+    Running,
+    Stopping,
+    Stopped,
+}
 
 pub struct Server {
     tps_limit: f32,
@@ -43,7 +51,7 @@ impl Server {
         let walls = ServerWalls::new(&mut blocks.blocks);
         Self {
             tps_limit: 20.0,
-            state:  ServerState::Nothing,
+            state: ServerState::Nothing,
             events: EventManager::new(),
             networking: ServerNetworking::new(port),
             mods: ServerModManager::new(Vec::new()),
@@ -58,6 +66,7 @@ impl Server {
     /// Starts the server
     /// # Errors
     /// A lot of server crashes are caused by mods and other stuff, so this function returns a Result
+    #[allow(clippy::too_many_lines)]
     pub fn start(
         &mut self,
         is_running: &AtomicBool,

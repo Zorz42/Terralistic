@@ -66,8 +66,8 @@ use core::sync::atomic::AtomicBool;
 use std::sync::Mutex;
 extern crate alloc;
 use alloc::sync::Arc;
-use std::thread::sleep;
 use core::time::Duration;
+use std::thread::sleep;
 
 use crate::client::menus::{run_main_menu, MenuBack};
 use crate::server::server_core::{Server, MULTIPLAYER_PORT};
@@ -138,8 +138,6 @@ fn server_main(args: &[String]) {
         Some(graphics)
     };
 
-
-
     let server_running = Arc::new(AtomicBool::new(true));
     let server_running_clone = server_running.clone();
 
@@ -156,7 +154,6 @@ fn server_main(args: &[String]) {
 
     let path = curr_dir.join("server_data");
 
-
     let server_thread = std::thread::spawn(move || {
         let mut server = Server::new(MULTIPLAYER_PORT);
         let result = server.start(
@@ -171,15 +168,18 @@ fn server_main(args: &[String]) {
         }
     });
 
-    if let Some(mut graphics) = server_graphics_context {//TODO: move all of this into a server UI struct
+    if let Some(mut graphics) = server_graphics_context {
+        //TODO: move all of this into a server UI struct
         loop {
             //break if the window is closed
-            graphics.renderer.get_event();//idk this somehow updates the window
+            graphics.renderer.get_event(); //idk this somehow updates the window
             graphics.renderer.update_window();
-            if !graphics.renderer.is_window_open() {//window closing doesn't work yet lol
+            if !graphics.renderer.is_window_open() {
+                //window closing doesn't work yet lol
                 server_running.store(false, core::sync::atomic::Ordering::Relaxed);
             }
-            if server_thread.is_finished() {//will be replaced with server state once i can access the server from a separate thread
+            if server_thread.is_finished() {
+                //will be replaced with server state once i can access the server from a separate thread
                 break;
             }
         }
