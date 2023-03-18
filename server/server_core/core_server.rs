@@ -24,7 +24,14 @@ pub const SINGLEPLAYER_PORT: u16 = 49152;
 pub const MULTIPLAYER_PORT: u16 = 49153;
 
 #[derive(Copy, Clone, serde_derive::Serialize, serde_derive::Deserialize, Debug, PartialEq)]
-pub enum ServerState { Nothing, Starting, InitMods, LoadingWorld, Running, Stopping, Stopped }
+pub enum ServerState {
+    Nothing,
+    Starting,
+    InitMods,
+    LoadingWorld,
+    Running,
+    Stopping,
+    Stopped }
 
 impl std::fmt::Display for ServerState {//this only stays for now since i debug things with it. remove later
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
@@ -53,7 +60,7 @@ impl Server {
         let walls = ServerWalls::new(&mut blocks.blocks);
         Self {
             tps_limit: 20.0,
-            state:  ServerState::Nothing,
+            state: ServerState::Nothing,
             events: EventManager::new(),
             networking: ServerNetworking::new(port),
             mods: ServerModManager::new(Vec::new()),
@@ -69,6 +76,7 @@ impl Server {
     /// Starts the server
     /// # Errors
     /// A lot of server crashes are caused by mods and other stuff, so this function returns a Result
+    #[allow(clippy::too_many_lines)]
     pub fn start(
         &mut self,
         is_running: &AtomicBool,

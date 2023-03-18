@@ -27,8 +27,8 @@ impl ServerEntities {
                     id: id.id(),
                     x: position.x(),
                     y: position.y(),
-                    velocity_x: physics.get_velocity_x(),
-                    velocity_y: physics.get_velocity_y(),
+                    velocity_x: physics.velocity_x,
+                    velocity_y: physics.velocity_y,
                 })?,
                 SendTarget::All,
             )?;

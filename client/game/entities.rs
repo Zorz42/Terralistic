@@ -26,8 +26,8 @@ impl ClientEntities {
                     if id.id() == packet.id {
                         position.set_x(packet.x);
                         position.set_y(packet.y);
-                        physics.set_velocity_x(packet.velocity_x);
-                        physics.set_velocity_y(packet.velocity_y);
+                        physics.velocity_x = packet.velocity_x;
+                        physics.velocity_y = packet.velocity_y;
                     }
                 }
             }

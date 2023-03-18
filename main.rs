@@ -66,8 +66,8 @@ use core::sync::atomic::AtomicBool;
 use std::sync::Mutex;
 extern crate alloc;
 use alloc::sync::Arc;
-use std::thread::sleep;
 use core::time::Duration;
+use std::thread::sleep;
 
 use crate::client::menus::{run_main_menu, MenuBack};
 use crate::server::server_core::{Server, MULTIPLAYER_PORT};
