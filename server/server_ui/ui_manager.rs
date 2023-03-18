@@ -9,7 +9,7 @@ use crate::server::server_core::ServerState;
 pub struct UiManager {
     graphics_context: gfx::GraphicsContext,
     server_message_receiver: Receiver<Vec<u8>>,
-
+    modules: Vec<Box<dyn ModuleTrait>>,
 }
 
 impl UiManager {
@@ -17,10 +17,19 @@ impl UiManager {
         Self {
             graphics_context,
             server_message_receiver: event_receiver,
+            modules: Vec::new(),
         }
     }
 
     pub fn run(&mut self, server_thread: JoinHandle<()>, server_running: &Arc<AtomicBool>) {
+        self.modules.append(&mut vec![
+            Box::new(Module {
+                transform: (0, 0, 0, 0),
+            }),
+            Box::new(Module2 {
+                transform: (0, 0, 0, 0),
+            }),
+        ]);
         loop {
             let mut server_state = ServerState::Nothing;
             self.graphics_context.renderer.get_event();//idk this somehow updates the window
@@ -46,4 +55,11 @@ impl UiManager {
         }
         let _thread_result = server_thread.join();
     }
+}
+
+trait ModuleTrait {
+    //updates the module
+    fn update(&mut self, delta_time: f32);
+    //renders the module
+    fn render(&mut self, graphics_context: &mut gfx::GraphicsContext);
 }
