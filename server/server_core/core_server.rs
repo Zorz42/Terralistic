@@ -8,7 +8,6 @@ use std::sync::{Mutex, PoisonError};
 use std::thread::sleep;
 
 use anyhow::{anyhow, Result};
-use bincode::serialize;
 use crate::libraries::events::EventManager;
 use crate::server::server_core::entities::ServerEntities;
 use crate::server::server_core::items::ServerItems;
@@ -23,7 +22,7 @@ use super::world_generator::WorldGenerator;
 pub const SINGLEPLAYER_PORT: u16 = 49152;
 pub const MULTIPLAYER_PORT: u16 = 49153;
 
-#[derive(Copy, Clone, serde_derive::Serialize, serde_derive::Deserialize, Debug, PartialEq)]
+#[derive(Copy, Clone, serde_derive::Serialize, serde_derive::Deserialize, Debug, PartialEq, Eq)]
 pub enum ServerState {
     Nothing,
     Starting,
@@ -33,9 +32,9 @@ pub enum ServerState {
     Stopping,
     Stopped }
 
-impl std::fmt::Display for ServerState {//this only stays for now since i debug things with it. remove later
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        write!(f, "{:?}", self)
+impl core::fmt::Display for ServerState {//this only stays for now since i debug things with it. remove later
+    fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
+        write!(f, "{self:?}")
     }
 }
 

@@ -1,6 +1,5 @@
 use std::sync::{mpsc::{Receiver, Sender}};
 use alloc::sync::Arc;
-use core::fmt::Debug;
 use core::sync::atomic::AtomicBool;
 use std::thread::JoinHandle;
 use crate::libraries::graphics as gfx;
@@ -32,13 +31,13 @@ impl UiManager {
 
             while let Ok(data) = self.server_message_receiver.try_recv() {
                 let data = snap::raw::Decoder::new().decompress_vec(&data).unwrap_or_default();
-                let state = deserialize::<ServerState>(&*data);
-                if let Ok(state) = state {
+                let state = deserialize::<ServerState>(&data);
+                state.map_or_else(|_| {
+                    println!("got a UI message that isn't a server state");
+                }, |state| {
                     println!("state: {state}");
                     server_state = state;
-                } else {
-                    println!("got a UI message that isn't a server state");
-                }
+                });
             }
 
             if server_state == ServerState::Stopped {
