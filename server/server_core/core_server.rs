@@ -1,12 +1,14 @@
 use core::sync::atomic::{AtomicBool, Ordering};
+use std::sync::mpsc::{Receiver, Sender};
 use core::time::Duration;
+use core::any::Any;
 use std::collections::HashMap;
 use std::path::Path;
 use std::sync::{Mutex, PoisonError};
 use std::thread::sleep;
 
 use anyhow::{anyhow, Result};
-
+use bincode::serialize;
 use crate::libraries::events::EventManager;
 use crate::server::server_core::entities::ServerEntities;
 use crate::server::server_core::items::ServerItems;
@@ -21,7 +23,14 @@ use super::world_generator::WorldGenerator;
 pub const SINGLEPLAYER_PORT: u16 = 49152;
 pub const MULTIPLAYER_PORT: u16 = 49153;
 
-enum ServerState { Nothing, Starting, InitMods, LoadingWorld, Running, Stopping, Stopped }
+#[derive(Copy, Clone, serde_derive::Serialize, serde_derive::Deserialize, Debug, PartialEq)]
+pub enum ServerState { Nothing, Starting, InitMods, LoadingWorld, Running, Stopping, Stopped }
+
+impl std::fmt::Display for ServerState {//this only stays for now since i debug things with it. remove later
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(f, "{:?}", self)
+    }
+}
 
 pub struct Server {
     tps_limit: f32,
@@ -34,11 +43,12 @@ pub struct Server {
     entities: ServerEntities,
     items: ServerItems,
     players: ServerPlayers,
+    ui_event_sender: Option<Sender<Vec<u8>>>,
 }
 
 impl Server {
     #[must_use]
-    pub fn new(port: u16) -> Self {
+    pub fn new(port: u16, ui_event_sender: Option<Sender<Vec<u8>>>) -> Self {
         let mut blocks = ServerBlocks::new();
         let walls = ServerWalls::new(&mut blocks.blocks);
         Self {
@@ -52,6 +62,7 @@ impl Server {
             entities: ServerEntities::new(),
             items: ServerItems::new(),
             players: ServerPlayers::new(),
+            ui_event_sender,
         }
     }
 
@@ -69,6 +80,7 @@ impl Server {
         let timer = std::time::Instant::now();
         *status_text.lock().unwrap_or_else(PoisonError::into_inner) = "Starting server".to_owned();
         self.state = ServerState::Starting;
+        self.send_to_ui(&self.state);
 
         let mut mods = Vec::new();
         for game_mod in mods_serialized {
@@ -88,11 +100,13 @@ impl Server {
         generator.init(&mut self.mods.mod_manager)?;
 
         self.state = ServerState::InitMods;
+        self.send_to_ui(&self.state);
         *status_text.lock().unwrap_or_else(PoisonError::into_inner) =
             "Initializing mods".to_owned();
         self.mods.init()?;
 
         self.state = ServerState::LoadingWorld;
+        self.send_to_ui(&self.state);
         if world_path.exists() {
             *status_text.lock().unwrap_or_else(PoisonError::into_inner) =
                 "Loading world".to_owned();
@@ -109,6 +123,7 @@ impl Server {
         }
 
         self.state = ServerState::Running;
+        self.send_to_ui(&self.state);
         // start server loop
         println!("server started in {}ms", timer.elapsed().as_millis());
         status_text
@@ -173,6 +188,7 @@ impl Server {
         }
 
         self.state = ServerState::Stopping;
+        self.send_to_ui(&self.state);
         *status_text.lock().unwrap_or_else(PoisonError::into_inner) = "Saving world".to_owned();
         self.save_world(world_path)?;
 
@@ -182,6 +198,7 @@ impl Server {
         self.mods.stop()?;
 
         self.state = ServerState::Stopped;
+        self.send_to_ui(&self.state);
         status_text
             .lock()
             .unwrap_or_else(PoisonError::into_inner)
@@ -220,5 +237,17 @@ impl Server {
         }
         std::fs::write(world_path, world_file)?;
         Ok(())
+    }
+
+    fn send_to_ui<T: Any + Send + serde::Serialize>(&self, data: &T) {
+        if let Some(sender) = &self.ui_event_sender {
+            let data = &bincode::serialize(&data).unwrap_or_default();
+            let data = snap::raw::Encoder::new().compress_vec(data).unwrap_or_default();
+            let result = sender.send(data);
+
+            if let Err(_e) = result {
+                println!("could not send to server ui");
+            }
+        }
     }
 }

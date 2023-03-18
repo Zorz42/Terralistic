@@ -71,6 +71,7 @@ use core::time::Duration;
 
 use crate::client::menus::{run_main_menu, MenuBack};
 use crate::server::server_core::{Server, MULTIPLAYER_PORT};
+use crate::server::server_ui::UiManager;
 
 pub mod libraries {
     pub mod events;
@@ -81,6 +82,7 @@ pub mod shared;
 
 pub mod server {
     pub mod server_core;
+    pub mod server_ui;
 }
 
 pub mod client {
@@ -156,9 +158,15 @@ fn server_main(args: &[String]) {
 
     let path = curr_dir.join("server_data");
 
+    let (event_sender, event_receiver) = std::sync::mpsc::channel();
+    let gfx_is_some = server_graphics_context.is_some();
 
     let server_thread = std::thread::spawn(move || {
-        let mut server = Server::new(MULTIPLAYER_PORT);
+        let mut server = if gfx_is_some {
+            Server::new(MULTIPLAYER_PORT, Some(event_sender))
+        } else {
+            Server::new(MULTIPLAYER_PORT, None)
+        };
         let result = server.start(
             &server_running_clone,
             &loading_text,
@@ -171,18 +179,9 @@ fn server_main(args: &[String]) {
         }
     });
 
-    if let Some(mut graphics) = server_graphics_context {//TODO: move all of this into a server UI struct
-        loop {
-            //break if the window is closed
-            graphics.renderer.get_event();//idk this somehow updates the window
-            graphics.renderer.update_window();
-            if !graphics.renderer.is_window_open() {//window closing doesn't work yet lol
-                server_running.store(false, core::sync::atomic::Ordering::Relaxed);
-            }
-            if server_thread.is_finished() {//will be replaced with server state once i can access the server from a separate thread
-                break;
-            }
-        }
+    if let Some(graphics) = server_graphics_context {
+        let mut manager = UiManager::new(graphics, event_receiver);
+        manager.run(server_thread, &server_running);
     } else {
         loop {
             if server_thread.is_finished() {
@@ -190,9 +189,8 @@ fn server_main(args: &[String]) {
             }
             sleep(Duration::from_millis(50));
         }
+        let _thread_result = server_thread.join();
     }
-
-    let _thread_result = server_thread.join();
 }
 
 fn client_main() {
