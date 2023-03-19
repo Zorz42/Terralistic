@@ -22,6 +22,12 @@ use super::world_generator::WorldGenerator;
 pub const SINGLEPLAYER_PORT: u16 = 49152;
 pub const MULTIPLAYER_PORT: u16 = 49153;
 
+#[derive(serde_derive::Serialize, serde_derive::Deserialize, PartialEq, Eq)]
+pub enum UiMessageType {
+    ServerState(ServerState),
+    ConsoleMessage(String),
+}
+
 #[derive(Copy, Clone, serde_derive::Serialize, serde_derive::Deserialize, Debug, PartialEq, Eq)]
 pub enum ServerState {
     Nothing,
@@ -30,7 +36,8 @@ pub enum ServerState {
     LoadingWorld,
     Running,
     Stopping,
-    Stopped }
+    Stopped
+}
 
 impl core::fmt::Display for ServerState {//this only stays for now since i debug things with it. remove later
     fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
@@ -83,11 +90,11 @@ impl Server {
         mods_serialized: Vec<Vec<u8>>,
         world_path: &Path,
     ) -> Result<()> {
-        println!("Starting server...");
+        self.print_to_console("Starting server...");
         let timer = std::time::Instant::now();
         *status_text.lock().unwrap_or_else(PoisonError::into_inner) = "Starting server".to_owned();
         self.state = ServerState::Starting;
-        self.send_to_ui(&self.state);
+        self.send_to_ui(&UiMessageType::ServerState(self.state));
 
         let mut mods = Vec::new();
         for game_mod in mods_serialized {
@@ -107,13 +114,13 @@ impl Server {
         generator.init(&mut self.mods.mod_manager)?;
 
         self.state = ServerState::InitMods;
-        self.send_to_ui(&self.state);
+        self.send_to_ui(&UiMessageType::ServerState(self.state));
         *status_text.lock().unwrap_or_else(PoisonError::into_inner) =
             "Initializing mods".to_owned();
         self.mods.init()?;
 
         self.state = ServerState::LoadingWorld;
-        self.send_to_ui(&self.state);
+        self.send_to_ui(&UiMessageType::ServerState(self.state));
         if world_path.exists() {
             *status_text.lock().unwrap_or_else(PoisonError::into_inner) =
                 "Loading world".to_owned();
@@ -130,9 +137,9 @@ impl Server {
         }
 
         self.state = ServerState::Running;
-        self.send_to_ui(&self.state);
+        self.send_to_ui(&UiMessageType::ServerState(self.state));
         // start server loop
-        println!("server started in {}ms", timer.elapsed().as_millis());
+        self.print_to_console(&format!("server started in {}ms", timer.elapsed().as_millis()));
         status_text
             .lock()
             .unwrap_or_else(PoisonError::into_inner)
@@ -195,7 +202,7 @@ impl Server {
         }
 
         self.state = ServerState::Stopping;
-        self.send_to_ui(&self.state);
+        self.send_to_ui(&UiMessageType::ServerState(self.state));
         *status_text.lock().unwrap_or_else(PoisonError::into_inner) = "Saving world".to_owned();
         self.save_world(world_path)?;
 
@@ -205,12 +212,12 @@ impl Server {
         self.mods.stop()?;
 
         self.state = ServerState::Stopped;
-        self.send_to_ui(&self.state);
+        self.send_to_ui(&UiMessageType::ServerState(self.state));
         status_text
             .lock()
             .unwrap_or_else(PoisonError::into_inner)
             .clear();
-        println!("server stopped.");
+        self.print_to_console("server stopped.");
         Ok(())
     }
 
@@ -246,15 +253,22 @@ impl Server {
         Ok(())
     }
 
-    fn send_to_ui<T: Any + Send + serde::Serialize>(&self, data: &T) {
+    //sends any data to the ui if the server was started without nogui flag
+    fn send_to_ui(&self, data: &UiMessageType) {
         if let Some(sender) = &self.ui_event_sender {
             let data = &bincode::serialize(&data).unwrap_or_default();
             let data = snap::raw::Encoder::new().compress_vec(data).unwrap_or_default();
             let result = sender.send(data);
 
             if let Err(_e) = result {
-                println!("could not send to server ui");
+                println!("error sending data to ui");
             }
         }
+    }
+
+    //prints to the terminal the server was started in and sends it to the ui
+    fn print_to_console(&self, text: &str) {
+        println!("{text}");
+        self.send_to_ui(&UiMessageType::ConsoleMessage(text.to_owned()));
     }
 }

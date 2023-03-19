@@ -4,7 +4,7 @@ use core::sync::atomic::AtomicBool;
 use std::thread::JoinHandle;
 use crate::libraries::graphics as gfx;
 use bincode::deserialize;
-use crate::server::server_core::ServerState;
+use crate::server::server_core::{ServerState, UiMessageType};
 
 pub struct UiManager {
     graphics_context: gfx::GraphicsContext,
@@ -21,15 +21,7 @@ impl UiManager {
         }
     }
 
-    pub fn run(&mut self, server_thread: JoinHandle<()>, server_running: &Arc<AtomicBool>) {
-        self.modules.append(&mut vec![
-            Box::new(Module {
-                transform: (0, 0, 0, 0),
-            }),
-            Box::new(Module2 {
-                transform: (0, 0, 0, 0),
-            }),
-        ]);
+    pub fn run(&mut self, server_running: &Arc<AtomicBool>) {
         loop {
             let mut server_state = ServerState::Nothing;
             self.graphics_context.renderer.get_event();//idk this somehow updates the window
@@ -38,22 +30,24 @@ impl UiManager {
                 server_running.store(false, core::sync::atomic::Ordering::Relaxed);
             }
 
+            //goes through the messages received from the server
             while let Ok(data) = self.server_message_receiver.try_recv() {
                 let data = snap::raw::Decoder::new().decompress_vec(&data).unwrap_or_default();
-                let state = deserialize::<ServerState>(&data);
-                state.map_or_else(|_| {
-                    println!("got a UI message that isn't a server state");
-                }, |state| {
-                    println!("state: {state}");
-                    server_state = state;
-                });
+                let message = deserialize::<UiMessageType>(&data);
+                if let Ok(message) = message {
+                    match message {
+                        UiMessageType::ServerState(state) => {
+                            server_state = state;
+                        }
+                        _ => {}
+                    }
+                }
             }
 
             if server_state == ServerState::Stopped {
                 break;
             }
         }
-        let _thread_result = server_thread.join();
     }
 }
 

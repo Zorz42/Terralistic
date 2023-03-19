@@ -181,7 +181,7 @@ fn server_main(args: &[String]) {
 
     if let Some(graphics) = server_graphics_context {
         let mut manager = UiManager::new(graphics, event_receiver);
-        manager.run(server_thread, &server_running);
+        manager.run(&server_running);
     } else {
         loop {
             if server_thread.is_finished() {
@@ -189,8 +189,8 @@ fn server_main(args: &[String]) {
             }
             sleep(Duration::from_millis(50));
         }
-        let _thread_result = server_thread.join();
     }
+    let _thread_result = server_thread.join();
 }
 
 fn client_main() {
