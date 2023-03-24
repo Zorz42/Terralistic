@@ -14,21 +14,21 @@ pub struct UiManager {
 
 impl UiManager {
     #[must_use]
-    pub fn new(mut graphics_context: gfx::GraphicsContext, event_receiver: Receiver<Vec<u8>>) -> Self{
+    pub fn new(graphics_context: gfx::GraphicsContext, event_receiver: Receiver<Vec<u8>>) -> Self {
         let mut temp = Self {
             graphics_context,
             server_message_receiver: event_receiver,
             modules: Vec::new(),
         };
-        temp.modules = vec![
-            Box::new(server_info::ServerInfo::new(&mut temp.graphics_context))
-        ];
+        temp.modules = vec![Box::new(server_info::ServerInfo::new(
+            &mut temp.graphics_context,
+        ))];
         temp
     }
 
     pub fn run(&mut self, server_running: &Arc<AtomicBool>) {
         //init the modules
-        for mut module in &mut self.modules{
+        for module in &mut self.modules {
             module.init(&mut self.graphics_context);
         }
 
@@ -46,13 +46,10 @@ impl UiManager {
                     .unwrap_or_default();
                 let message = deserialize::<UiMessageType>(&data);
                 if let Ok(message) = message {
-                    match message {
-                        UiMessageType::ServerState(state) => {
-                            server_state = state;
-                        }
-                        _ => {}
+                    if let UiMessageType::ServerState(state) = message {
+                        server_state = state;
                     }
-                    for mut module in &mut self.modules{
+                    for module in &mut self.modules {
                         module.on_server_message(&message);
                     }
                 }
@@ -64,7 +61,7 @@ impl UiManager {
             }*/
 
             //renders the modules
-            for mut module in &mut self.modules{
+            for module in &mut self.modules {
                 module.render(&mut self.graphics_context);
             }
             self.graphics_context.renderer.update_window();

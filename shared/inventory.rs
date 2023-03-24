@@ -1,5 +1,7 @@
+use crate::libraries::events::{Event, EventManager};
 use crate::shared::items::{ItemId, ItemStack};
 use anyhow::{anyhow, bail, Result};
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 pub struct Recipe {
@@ -31,6 +33,7 @@ impl Recipes {
 
 pub struct Inventory {
     items: Vec<Option<ItemStack>>,
+    events: EventManager,
 }
 
 impl Inventory {
@@ -38,26 +41,34 @@ impl Inventory {
     pub fn new(size: usize) -> Self {
         Self {
             items: vec![None; size],
+            events: EventManager::new(),
         }
     }
 
     /// # Errors
     /// if the index is out of bounds
-    pub fn get_item(&self, index: usize) -> Result<Option<&ItemStack>> {
+    pub fn get_item(&self, index: usize) -> Result<Option<ItemStack>> {
         Ok(self
             .items
             .get(index)
             .ok_or_else(|| anyhow!("no item at index"))?
-            .as_ref())
+            .clone())
     }
 
     /// # Errors
     /// if the index is out of bounds
     pub fn set_item(&mut self, index: usize, item: Option<ItemStack>) -> Result<()> {
-        *self
-            .items
-            .get_mut(index)
-            .ok_or_else(|| anyhow!("Out of bounds"))? = item;
+        if self.get_item(index)? != item {
+            self.events.push_event(Event::new(InventoryChangeEvent {
+                index,
+                prev_item: self.get_item(index)?,
+                item: item.clone(),
+            }));
+            *self
+                .items
+                .get_mut(index)
+                .ok_or_else(|| anyhow!("Out of bounds"))? = item;
+        }
         Ok(())
     }
 
@@ -117,4 +128,32 @@ impl Inventory {
         });
         Ok(())
     }
+}
+
+impl Serialize for Inventory {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        self.items.serialize(serializer)
+    }
+}
+
+impl<'de> Deserialize<'de> for Inventory {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        let items = Vec::deserialize(deserializer)?;
+        Ok(Self {
+            items,
+            events: EventManager::new(),
+        })
+    }
+}
+
+pub struct InventoryChangeEvent {
+    pub index: usize,
+    pub prev_item: Option<ItemStack>,
+    pub item: Option<ItemStack>,
 }
