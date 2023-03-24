@@ -5,6 +5,7 @@ use std::thread::JoinHandle;
 use crate::libraries::graphics as gfx;
 use bincode::deserialize;
 use crate::server::server_core::{ServerState, UiMessageType};
+use crate::server::server_ui::server_info;
 
 pub struct UiManager {
     graphics_context: gfx::GraphicsContext,
@@ -13,19 +14,27 @@ pub struct UiManager {
 }
 
 impl UiManager {
-    pub fn new(graphics_context: gfx::GraphicsContext, event_receiver: Receiver<Vec<u8>>) -> Self{
-        Self {
+    pub fn new(mut graphics_context: gfx::GraphicsContext, event_receiver: Receiver<Vec<u8>>) -> Self{
+        let mut temp = Self {
             graphics_context,
             server_message_receiver: event_receiver,
             modules: Vec::new(),
-        }
+        };
+        temp.modules = vec![
+            Box::new(server_info::ServerInfo::new(&mut temp.graphics_context))
+        ];
+        temp
     }
 
     pub fn run(&mut self, server_running: &Arc<AtomicBool>) {
+        //init the modules
+        for mut module in &mut self.modules{
+            module.init(&mut self.graphics_context);
+        }
+
         loop {
             let mut server_state = ServerState::Nothing;
             self.graphics_context.renderer.get_event();//idk this somehow updates the window
-            self.graphics_context.renderer.update_window();
             if !self.graphics_context.renderer.is_window_open() {
                 server_running.store(false, core::sync::atomic::Ordering::Relaxed);
             }
@@ -41,8 +50,22 @@ impl UiManager {
                         }
                         _ => {}
                     }
+                    for mut module in &mut self.modules{
+                        module.on_server_message(&message);
+                    }
                 }
             }
+
+            //updates the modules
+            /*for mut module in &mut self.modules{
+                module.update(0.0);
+            }*/
+
+            //renders the modules
+            for mut module in &mut self.modules{
+                module.render(&mut self.graphics_context);
+            }
+            self.graphics_context.renderer.update_window();
 
             if server_state == ServerState::Stopped {
                 break;
@@ -51,9 +74,13 @@ impl UiManager {
     }
 }
 
-trait ModuleTrait {
+pub trait ModuleTrait {
+    //initializes the module
+    fn init(&mut self, graphics_context: &mut gfx::GraphicsContext);
     //updates the module
     fn update(&mut self, delta_time: f32);
     //renders the module
     fn render(&mut self, graphics_context: &mut gfx::GraphicsContext);
+    //relay messages from the server to the module
+    fn on_server_message(&mut self, message: &UiMessageType);
 }
