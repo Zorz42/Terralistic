@@ -129,7 +129,7 @@ impl Items {
         &mut self,
         events: &mut EventManager,
         entities: &mut Entities,
-        item_type: &Item,
+        item_id: ItemId,
         x: f32,
         y: f32,
         id: Option<u32>,
@@ -140,7 +140,7 @@ impl Items {
             IdComponent::new(id),
             PositionComponent::new(x, y),
             PhysicsComponent::new(1.0, 1.0),
-            ItemComponent::new(item_type.get_id()),
+            ItemComponent::new(item_id),
         ));
 
         let event = ItemSpawnEvent { entity };

@@ -1,5 +1,6 @@
-use crate::libraries::events::{Event, EventManager};
-use crate::shared::items::{ItemId, ItemStack};
+use crate::libraries::events::EventManager;
+use crate::shared::entities::Entities;
+use crate::shared::items::{ItemId, ItemStack, Items};
 use anyhow::{anyhow, bail, Result};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -33,7 +34,7 @@ impl Recipes {
 
 pub struct Inventory {
     items: Vec<Option<ItemStack>>,
-    events: EventManager,
+    pub has_changed: bool,
 }
 
 impl Inventory {
@@ -41,7 +42,7 @@ impl Inventory {
     pub fn new(size: usize) -> Self {
         Self {
             items: vec![None; size],
-            events: EventManager::new(),
+            has_changed: false,
         }
     }
 
@@ -59,11 +60,7 @@ impl Inventory {
     /// if the index is out of bounds
     pub fn set_item(&mut self, index: usize, item: Option<ItemStack>) -> Result<()> {
         if self.get_item(index)? != item {
-            self.events.push_event(Event::new(InventoryChangeEvent {
-                index,
-                prev_item: self.get_item(index)?,
-                item: item.clone(),
-            }));
+            self.has_changed = true;
             *self
                 .items
                 .get_mut(index)
@@ -128,6 +125,58 @@ impl Inventory {
         });
         Ok(())
     }
+
+    /// This function adds an item to the
+    /// inventory. If the item can't be added
+    /// it is dropped in the world.
+    /// # Errors
+    /// item stack is invalid
+    pub fn give_item(
+        &mut self,
+        item: &ItemStack,
+        drop_pos: (f32, f32),
+        items: &mut Items,
+        entities: &mut Entities,
+        events: &mut EventManager,
+    ) -> Result<()> {
+        let mut item = item.clone();
+        for slot in self.items.iter_mut().flatten() {
+            if slot.item == item.item {
+                let max = items.get_item_type(slot.item)?.max_stack;
+                if slot.count < max {
+                    let count = core::cmp::min(max - slot.count, item.count);
+                    slot.count += count;
+                    item.count -= count;
+                    if item.count == 0 {
+                        return Ok(());
+                    }
+                }
+            }
+        }
+
+        for slot in &mut self.items {
+            if slot.is_none() {
+                let max = items.get_item_type(item.item)?.max_stack;
+                if item.count > max {
+                    *slot = Some(ItemStack {
+                        item: item.item,
+                        count: max,
+                    });
+                    item.count -= max;
+                } else {
+                    *slot = Some(item);
+                    return Ok(());
+                }
+            }
+        }
+
+        // drop item
+        for _ in 0..item.count {
+            items.spawn_item(events, entities, item.item, drop_pos.0, drop_pos.1, None);
+        }
+
+        Ok(())
+    }
 }
 
 impl Serialize for Inventory {
@@ -147,13 +196,7 @@ impl<'de> Deserialize<'de> for Inventory {
         let items = Vec::deserialize(deserializer)?;
         Ok(Self {
             items,
-            events: EventManager::new(),
+            has_changed: false,
         })
     }
-}
-
-pub struct InventoryChangeEvent {
-    pub index: usize,
-    pub prev_item: Option<ItemStack>,
-    pub item: Option<ItemStack>,
 }

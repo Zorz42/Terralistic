@@ -7,6 +7,7 @@ use crate::shared::blocks::{Blocks, BLOCK_WIDTH};
 use crate::shared::entities::{
     is_touching_ground, reduce_by, Entities, IdComponent, PhysicsComponent, PositionComponent,
 };
+use crate::shared::inventory::Inventory;
 use crate::shared::items::ItemComponent;
 
 pub const PLAYER_HEIGHT: f32 = 28.0 / BLOCK_WIDTH;
@@ -38,6 +39,7 @@ pub fn spawn_player(
         IdComponent::new(id),
         PositionComponent::new(x, y),
         PhysicsComponent::new(PLAYER_WIDTH, PLAYER_HEIGHT),
+        Inventory::new(21), // 1 is for the mouse, 20 is for the inventory
         PlayerComponent::new(name),
     ))
 }

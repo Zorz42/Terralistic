@@ -67,7 +67,7 @@ impl Blocks {
         Ok(
             (self.get_break_progress(x, y)? as f32
                 / self.get_block_type_at(x, y)?.break_time as f32
-                * 9.0) as i32,
+                * 8.0) as i32,
         )
     }
 

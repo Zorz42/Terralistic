@@ -95,7 +95,7 @@ impl Game {
                     mods.on_event(&event)?;
                     blocks.on_event(&event, &mut events)?;
                     walls.on_event(&event)?;
-                    items.on_event(&event, &mut entities.entities, &mut events)?;
+                    items.on_event(&event, &mut entities.entities, &mut events);
                 }
 
                 blocks.init(&mut mods.mod_manager)?;
@@ -300,7 +300,7 @@ impl Game {
                 self.walls.on_event(&event)?;
                 self.entities.on_event(&event)?;
                 self.items
-                    .on_event(&event, &mut self.entities.entities, &mut self.events)?;
+                    .on_event(&event, &mut self.entities.entities, &mut self.events);
                 self.block_selector.on_event(
                     graphics,
                     &mut self.networking,

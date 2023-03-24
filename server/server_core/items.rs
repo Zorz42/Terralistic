@@ -38,7 +38,7 @@ impl ServerItems {
                     self.items.spawn_item(
                         events,
                         entities,
-                        &self.items.get_item_type(drop.item)?,
+                        drop.item,
                         event.x as f32,
                         event.y as f32,
                         None,
