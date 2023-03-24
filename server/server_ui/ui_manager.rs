@@ -1,11 +1,10 @@
-use std::sync::{mpsc::{Receiver, Sender}};
-use alloc::sync::Arc;
-use core::sync::atomic::AtomicBool;
-use std::thread::JoinHandle;
 use crate::libraries::graphics as gfx;
-use bincode::deserialize;
 use crate::server::server_core::{ServerState, UiMessageType};
 use crate::server::server_ui::server_info;
+use alloc::sync::Arc;
+use bincode::deserialize;
+use core::sync::atomic::AtomicBool;
+use std::sync::mpsc::Receiver;
 
 pub struct UiManager {
     graphics_context: gfx::GraphicsContext,
@@ -14,6 +13,7 @@ pub struct UiManager {
 }
 
 impl UiManager {
+    #[must_use]
     pub fn new(mut graphics_context: gfx::GraphicsContext, event_receiver: Receiver<Vec<u8>>) -> Self{
         let mut temp = Self {
             graphics_context,
@@ -34,14 +34,16 @@ impl UiManager {
 
         loop {
             let mut server_state = ServerState::Nothing;
-            self.graphics_context.renderer.get_event();//idk this somehow updates the window
+            self.graphics_context.renderer.get_event(); //idk this somehow updates the window
             if !self.graphics_context.renderer.is_window_open() {
                 server_running.store(false, core::sync::atomic::Ordering::Relaxed);
             }
 
             //goes through the messages received from the server
             while let Ok(data) = self.server_message_receiver.try_recv() {
-                let data = snap::raw::Decoder::new().decompress_vec(&data).unwrap_or_default();
+                let data = snap::raw::Decoder::new()
+                    .decompress_vec(&data)
+                    .unwrap_or_default();
                 let message = deserialize::<UiMessageType>(&data);
                 if let Ok(message) = message {
                     match message {

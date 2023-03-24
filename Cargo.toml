@@ -53,6 +53,18 @@ lto = true
 codegen-units = 1
 opt-level = 3
 
+[profile.test]
+strip = false
+lto = false
+codegen-units = 16
+opt-level = 1
+
+[profile.dev]
+strip = false
+lto = false
+codegen-units = 16
+opt-level = 1
+
 [build-dependencies]
 bincode = "1.3"
 rlua = "0.19"

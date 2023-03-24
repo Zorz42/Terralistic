@@ -1,17 +1,16 @@
 use core::sync::atomic::{AtomicBool, Ordering};
-use std::sync::mpsc::{Receiver, Sender};
 use core::time::Duration;
-use core::any::Any;
 use std::collections::HashMap;
 use std::path::Path;
+use std::sync::mpsc::Sender;
 use std::sync::{Mutex, PoisonError};
 use std::thread::sleep;
 
-use anyhow::{anyhow, Result};
 use crate::libraries::events::EventManager;
 use crate::server::server_core::entities::ServerEntities;
 use crate::server::server_core::items::ServerItems;
 use crate::server::server_core::players::ServerPlayers;
+use anyhow::{anyhow, Result};
 
 use super::blocks::ServerBlocks;
 use super::mod_manager::ServerModManager;
@@ -36,10 +35,11 @@ pub enum ServerState {
     LoadingWorld,
     Running,
     Stopping,
-    Stopped
+    Stopped,
 }
 
-impl core::fmt::Display for ServerState {//this only stays for now since i debug things with it. remove later
+impl core::fmt::Display for ServerState {
+    //this only stays for now since i debug things with it. remove later
     fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
         write!(f, "{self:?}")
     }
@@ -139,7 +139,10 @@ impl Server {
         self.state = ServerState::Running;
         self.send_to_ui(&UiMessageType::ServerState(self.state));
         // start server loop
-        self.print_to_console(&format!("server started in {}ms", timer.elapsed().as_millis()));
+        self.print_to_console(&format!(
+            "server started in {}ms",
+            timer.elapsed().as_millis()
+        ));
         status_text
             .lock()
             .unwrap_or_else(PoisonError::into_inner)
@@ -176,11 +179,16 @@ impl Server {
                     &self.blocks.blocks,
                     &mut self.networking,
                 )?;
+                ServerEntities::on_event(&event, &mut self.networking)?;
                 self.networking.on_event(&event, &mut self.events)?;
             }
 
             while ms_counter < ms_timer.elapsed().as_millis() as i32 {
-                ServerPlayers::update(&mut self.entities.entities, &self.blocks.blocks);
+                ServerPlayers::update(
+                    &mut self.entities.entities,
+                    &self.blocks.blocks,
+                    &mut self.events,
+                )?;
                 self.entities
                     .entities
                     .update_entities_ms(&self.blocks.blocks);
@@ -257,7 +265,9 @@ impl Server {
     fn send_to_ui(&self, data: &UiMessageType) {
         if let Some(sender) = &self.ui_event_sender {
             let data = &bincode::serialize(&data).unwrap_or_default();
-            let data = snap::raw::Encoder::new().compress_vec(data).unwrap_or_default();
+            let data = snap::raw::Encoder::new()
+                .compress_vec(data)
+                .unwrap_or_default();
             let result = sender.send(data);
 
             if let Err(_e) = result {

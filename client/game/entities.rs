@@ -1,8 +1,10 @@
 use crate::libraries::events::Event;
 use crate::shared::entities::{
-    Entities, EntityPositionVelocityPacket, IdComponent, PhysicsComponent, PositionComponent,
+    Entities, EntityDespawnPacket, EntityPositionVelocityPacket, IdComponent, PhysicsComponent,
+    PositionComponent,
 };
 use crate::shared::packet::Packet;
+use anyhow::Result;
 
 pub struct ClientEntities {
     pub entities: Entities,
@@ -15,7 +17,7 @@ impl ClientEntities {
         }
     }
 
-    pub fn on_event(&mut self, event: &Event) {
+    pub fn on_event(&mut self, event: &Event) -> Result<()> {
         if let Some(packet) = event.downcast::<Packet>() {
             if let Some(packet) = packet.try_deserialize::<EntityPositionVelocityPacket>() {
                 for (_entity, (id, position, physics)) in self.entities.ecs.query_mut::<(
@@ -31,6 +33,19 @@ impl ClientEntities {
                     }
                 }
             }
+            if let Some(packet) = packet.try_deserialize::<EntityDespawnPacket>() {
+                let mut entity_to_despawn = None;
+                for (entity, id) in self.entities.ecs.query::<&IdComponent>().iter() {
+                    if id.id() == packet.id {
+                        entity_to_despawn = Some(entity);
+                    }
+                }
+
+                if let Some(entity) = entity_to_despawn {
+                    self.entities.ecs.despawn(entity)?;
+                }
+            }
         }
+        Ok(())
     }
 }

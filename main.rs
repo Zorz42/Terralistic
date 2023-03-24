@@ -61,15 +61,16 @@
 #![allow(clippy::ptr_as_ptr)]
 #![allow(clippy::shadow_unrelated)]
 
-use crate::libraries::graphics as gfx;
-use core::sync::atomic::AtomicBool;
-use std::sync::Mutex;
 extern crate alloc;
+
 use alloc::sync::Arc;
+use core::sync::atomic::AtomicBool;
 use core::time::Duration;
+use std::sync::Mutex;
 use std::thread::sleep;
 
 use crate::client::menus::{run_main_menu, MenuBack};
+use crate::libraries::graphics as gfx;
 use crate::server::server_core::{Server, MULTIPLAYER_PORT};
 use crate::server::server_ui::UiManager;
 
@@ -140,8 +141,6 @@ fn server_main(args: &[String]) {
         Some(graphics)
     };
 
-
-
     let server_running = Arc::new(AtomicBool::new(true));
     let server_running_clone = server_running.clone();
 
@@ -179,17 +178,18 @@ fn server_main(args: &[String]) {
         }
     });
 
-    if let Some(graphics) = server_graphics_context {
-        let mut manager = UiManager::new(graphics, event_receiver);
-        manager.run(&server_running);
-    } else {
-        loop {
+    server_graphics_context.map_or_else(
+        || loop {
             if server_thread.is_finished() {
                 break;
             }
             sleep(Duration::from_millis(50));
-        }
-    }
+        },
+        |graphics| {
+            let mut manager = UiManager::new(graphics, event_receiver);
+            manager.run(&server_running);
+        },
+    );
     let _thread_result = server_thread.join();
 }
 
