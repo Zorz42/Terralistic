@@ -1,3 +1,5 @@
+mod tests;
+
 extern crate alloc;
 use alloc::collections::VecDeque;
 use core::any::Any;
