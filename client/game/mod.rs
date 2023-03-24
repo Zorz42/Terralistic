@@ -4,6 +4,7 @@ mod blocks;
 mod camera;
 pub mod core_client;
 mod entities;
+mod inventory;
 mod items;
 mod mod_manager;
 mod networking;

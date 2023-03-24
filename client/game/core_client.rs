@@ -6,6 +6,7 @@ use std::sync::{Mutex, PoisonError};
 use anyhow::{bail, Result};
 
 use crate::client::game::entities::ClientEntities;
+use crate::client::game::inventory::ClientInventory;
 use crate::client::game::items::ClientItems;
 use crate::client::game::players::ClientPlayers;
 use crate::client::menus::{run_loading_screen, BackgroundRect};
@@ -35,6 +36,7 @@ pub struct Game {
     items: ClientItems,
     players: ClientPlayers,
     player_name: String,
+    inventory: ClientInventory,
 }
 
 impl Game {
@@ -56,6 +58,7 @@ impl Game {
             items: ClientItems::new(),
             players: ClientPlayers::new(player_name),
             player_name: player_name.to_owned(),
+            inventory: ClientInventory::new(),
         }
     }
 
@@ -128,6 +131,7 @@ impl Game {
         self.items = result.4;
 
         self.background.init()?;
+        self.inventory.init();
 
         self.blocks.load_resources(&mut self.mods.mod_manager)?;
         self.walls.load_resources(&mut self.mods.mod_manager)?;
@@ -278,6 +282,7 @@ impl Game {
             self.camera.render(graphics);
             self.block_selector
                 .render(graphics, &mut self.networking, &self.camera)?;
+            self.inventory.render(graphics);
 
             pause_rect.pos.0 = if paused {
                 0.0
