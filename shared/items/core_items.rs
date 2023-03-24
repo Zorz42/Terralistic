@@ -29,14 +29,17 @@ impl ItemId {
 
 #[derive(Clone)]
 pub struct ItemStack {
-    pub item_type: ItemId,
-    pub stack: i32,
+    pub item: ItemId,
+    pub count: i32,
 }
 
 impl ItemStack {
     #[must_use]
     pub const fn new(item_type: ItemId, stack: i32) -> Self {
-        Self { item_type, stack }
+        Self {
+            item: item_type,
+            count: stack,
+        }
     }
 }
 
