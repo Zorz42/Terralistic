@@ -1,6 +1,8 @@
 // Tests for the events library.
 // It tests the event manager and the event struct.
 
+#[allow(unused_imports)]
+// these two imports are not needed, but the ide complains if they are not here
 use crate::libraries::events::{Event, EventManager};
 
 #[test]

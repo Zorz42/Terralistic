@@ -1,3 +1,5 @@
+use crate::libraries::events::EventManager;
+use anyhow::Result;
 use hecs::Entity;
 use serde_derive::{Deserialize, Serialize};
 
@@ -113,8 +115,7 @@ pub fn update_players_ms(entities: &mut Entities, blocks: &Blocks) {
         // the speed change is applied to the item's velocity
         // in the direction of the player
 
-        let mut items_to_remove = Vec::new();
-        for (entity, (item_position, item_physics, _item)) in
+        for (_, (item_position, item_physics, _item)) in
             entities
                 .ecs
                 .query_mut::<(&PositionComponent, &mut PhysicsComponent, &ItemComponent)>()
@@ -132,19 +133,46 @@ pub fn update_players_ms(entities: &mut Entities, blocks: &Blocks) {
                 item_physics.velocity_x += speed_change_x;
                 item_physics.velocity_y += speed_change_y;
             }
-            if d2 < 0.1 {
-                items_to_remove.push(entity);
-            }
-        }
-        for entity in items_to_remove {
-            match entities.ecs.despawn(entity) {
-                Ok(_) => {}
-                Err(e) => {
-                    println!("Error despawning entity: {e}");
-                }
-            }
         }
     }
+}
+
+/// # Errors
+/// Returns an error if the item could not be removed
+pub fn remove_all_picked_items(entities: &mut Entities, events: &mut EventManager) -> Result<()> {
+    let mut positions = Vec::new();
+    for (_, (position, _player)) in entities
+        .ecs
+        .query_mut::<(&PositionComponent, &PlayerComponent)>()
+    {
+        positions.push((
+            position.x() + PLAYER_WIDTH / 2.0,
+            position.y() + PLAYER_HEIGHT / 2.0,
+        ));
+    }
+
+    for player_position in positions {
+        let mut items_to_remove = Vec::new();
+        for (_, (item_position, _item, entity_id)) in
+            entities
+                .ecs
+                .query_mut::<(&PositionComponent, &ItemComponent, &IdComponent)>()
+        {
+            let dx = player_position.0 - item_position.x();
+            let dy = player_position.1 - item_position.y();
+            let d2 = dx * dx + dy * dy;
+
+            if d2 < 0.1 {
+                items_to_remove.push(entity_id.id());
+            }
+        }
+
+        for entity in items_to_remove {
+            entities.despawn_entity(entity, events)?;
+        }
+    }
+
+    Ok(())
 }
 
 pub enum Direction {

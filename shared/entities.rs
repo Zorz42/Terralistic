@@ -1,3 +1,4 @@
+use crate::libraries::events::{Event, EventManager};
 use anyhow::{bail, Result};
 use serde_derive::{Deserialize, Serialize};
 
@@ -157,7 +158,7 @@ impl Entities {
 
     /// # Errors
     /// If the entity could not be despawned
-    pub fn despawn_entity(&mut self, id: u32) -> Result<()> {
+    pub fn despawn_entity(&mut self, id: u32, events: &mut EventManager) -> Result<()> {
         let mut entity_to_despawn = None;
 
         for (entity, id_component) in self.ecs.query::<&IdComponent>().iter() {
@@ -172,6 +173,8 @@ impl Entities {
         } else {
             bail!("Could not find entity with id");
         }
+
+        events.push_event(Event::new(EntityDespawnEvent { id }));
 
         Ok(())
     }
@@ -193,6 +196,11 @@ pub struct EntityDespawnPacket {
 
 pub struct IdComponent {
     id: u32,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct EntityDespawnEvent {
+    pub id: u32,
 }
 
 impl IdComponent {

@@ -298,7 +298,7 @@ impl Game {
                 self.mods.on_event(&event)?;
                 self.blocks.on_event(&event, &mut self.events)?;
                 self.walls.on_event(&event)?;
-                self.entities.on_event(&event);
+                self.entities.on_event(&event)?;
                 self.items
                     .on_event(&event, &mut self.entities.entities, &mut self.events)?;
                 self.block_selector.on_event(

@@ -1,4 +1,4 @@
-use crate::libraries::events::Event;
+use crate::libraries::events::{Event, EventManager};
 use crate::server::server_core::networking::{
     Connection, NewConnectionWelcomedEvent, PacketFromClientEvent, SendTarget, ServerNetworking,
 };
@@ -6,7 +6,8 @@ use crate::shared::blocks::Blocks;
 use crate::shared::entities::{Entities, IdComponent, PhysicsComponent};
 use crate::shared::packet::Packet;
 use crate::shared::players::{
-    spawn_player, update_players_ms, PlayerComponent, PlayerMovingPacket, PlayerSpawnPacket,
+    remove_all_picked_items, spawn_player, update_players_ms, PlayerComponent, PlayerMovingPacket,
+    PlayerSpawnPacket,
 };
 use anyhow::{anyhow, Result};
 use hecs::Entity;
@@ -74,7 +75,12 @@ impl ServerPlayers {
         Ok(())
     }
 
-    pub fn update(entities: &mut Entities, blocks: &Blocks) {
+    pub fn update(
+        entities: &mut Entities,
+        blocks: &Blocks,
+        events: &mut EventManager,
+    ) -> Result<()> {
         update_players_ms(entities, blocks);
+        remove_all_picked_items(entities, events)
     }
 }
