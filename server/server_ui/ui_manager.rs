@@ -1,10 +1,13 @@
+use alloc::sync::Arc;
+use core::sync::atomic::AtomicBool;
+use std::sync::mpsc::Receiver;
+
+use crate::client::menus::{run_choice_menu, MenuBack};
+use bincode::deserialize;
+
 use crate::libraries::graphics as gfx;
 use crate::server::server_core::{ServerState, UiMessageType};
 use crate::server::server_ui::server_info;
-use alloc::sync::Arc;
-use bincode::deserialize;
-use core::sync::atomic::AtomicBool;
-use std::sync::mpsc::Receiver;
 
 pub struct UiManager {
     graphics_context: gfx::GraphicsContext,
@@ -32,9 +35,20 @@ impl UiManager {
             module.init(&mut self.graphics_context);
         }
 
+        let mut menu_back = MenuBack::new(&mut self.graphics_context);
+        run_choice_menu(
+            "deez nuts",
+            &mut self.graphics_context,
+            &mut menu_back,
+            None,
+            None,
+        );
+
         loop {
             let mut server_state = ServerState::Nothing;
-            self.graphics_context.renderer.get_event(); //idk this somehow updates the window
+
+            while let Some(_event) = self.graphics_context.renderer.get_event() {}
+
             if !self.graphics_context.renderer.is_window_open() {
                 server_running.store(false, core::sync::atomic::Ordering::Relaxed);
             }
@@ -56,7 +70,7 @@ impl UiManager {
             }
 
             //updates the modules
-            /*for mut module in &mut self.modules{
+            /*for module in &mut self.modules {
                 module.update(0.0);
             }*/
 
@@ -64,6 +78,7 @@ impl UiManager {
             for module in &mut self.modules {
                 module.render(&mut self.graphics_context);
             }
+
             self.graphics_context.renderer.update_window();
 
             if server_state == ServerState::Stopped {
