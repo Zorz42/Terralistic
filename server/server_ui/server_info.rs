@@ -65,6 +65,8 @@ impl ui_manager::ModuleTrait for ServerInfo {
         a.render(graphics_context, gfx::WHITE);
     }
 
+    #[allow(clippy::single_match)]
+    #[allow(clippy::match_wildcard_for_single_variants)]
     fn on_server_message(&mut self, message: &UiMessageType) {
         match message {
             UiMessageType::ServerState(state) => {
