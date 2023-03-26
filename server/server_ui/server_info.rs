@@ -66,8 +66,11 @@ impl ui_manager::ModuleTrait for ServerInfo {
     }
 
     fn on_server_message(&mut self, message: &UiMessageType) {
-        if let UiMessageType::ServerState(state) = message {
-            self.server_state_enum = *state;
+        match message {
+            UiMessageType::ServerState(state) => {
+                self.server_state_enum = *state;
+            }
+            _ => {}
         }
     }
 }
