@@ -24,3 +24,6 @@ pub use multiplayer_selector::run_multiplayer_selector;
 
 mod add_server_menu;
 pub use add_server_menu::run_add_server_menu;
+
+mod text_input_menu;
+pub use text_input_menu::run_text_input_menu;

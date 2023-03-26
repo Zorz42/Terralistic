@@ -93,16 +93,13 @@ pub fn run_main_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn Ba
                     } else if multiplayer_button
                         .is_hovered(graphics, Some(menu_back.get_back_rect_container()))
                     {
-                        println!("Multiplayer clicked");
                         run_multiplayer_selector(graphics, menu_back);
                     } else if settings_button
                         .is_hovered(graphics, Some(menu_back.get_back_rect_container()))
                     {
-                        println!("Settings clicked");
                     } else if mods_button
                         .is_hovered(graphics, Some(menu_back.get_back_rect_container()))
                     {
-                        println!("Mods clicked");
                     } else if exit_button
                         .is_hovered(graphics, Some(menu_back.get_back_rect_container()))
                     {
