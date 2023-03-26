@@ -7,7 +7,7 @@ use crate::libraries::events::Event;
 use crate::libraries::graphics as gfx;
 use crate::libraries::graphics::{FloatPos, FloatSize, IntPos};
 use crate::shared::blocks::{Blocks, BLOCK_WIDTH, RENDER_BLOCK_WIDTH, RENDER_SCALE};
-use crate::shared::entities::{Entities, PhysicsComponent, PositionComponent};
+use crate::shared::entities::{Entities, IdComponent, PhysicsComponent, PositionComponent};
 use crate::shared::mod_manager::ModManager;
 use crate::shared::packet::Packet;
 use crate::shared::players::{
@@ -182,6 +182,18 @@ impl ClientPlayers {
                     spawn_player(entities, packet.x, packet.y, &packet.name, Some(packet.id));
                 if packet.name == self.main_player_name {
                     self.main_player = Some(player);
+                }
+            }
+            if let Some(packet) = packet_event.try_deserialize::<PlayerMovingPacket>() {
+                for (_, (player_component, id, physics)) in
+                    entities
+                        .ecs
+                        .query_mut::<(&mut PlayerComponent, &IdComponent, &mut PhysicsComponent)>()
+                {
+                    if id.id() == packet.player_id {
+                        player_component.set_moving_type(packet.moving_type, physics);
+                        player_component.jumping = packet.jumping;
+                    }
                 }
             }
         }

@@ -37,6 +37,7 @@ impl PartialEq for Connection {
 pub enum SendTarget {
     All,
     Connection(Connection),
+    AllExcept(Connection),
 }
 
 /// This handles all the networking for the server.
@@ -242,6 +243,16 @@ impl ServerNetworking {
                     .as_mut()
                     .ok_or_else(|| anyhow!("packet sender not constructed yet"))?
                     .send((packet_data, conn))?;
+            }
+            SendTarget::AllExcept(conn) => {
+                for c in &self.connections {
+                    if c != &conn {
+                        self.packet_sender
+                            .as_mut()
+                            .ok_or_else(|| anyhow!("packet sender not constructed yet"))?
+                            .send((packet_data.clone(), c.clone()))?;
+                    }
+                }
             }
         }
         Ok(())
