@@ -25,6 +25,7 @@ pub const MULTIPLAYER_PORT: u16 = 49153;
 pub enum UiMessageType {
     ServerState(ServerState),
     ConsoleMessage(String),
+    MsptUpdate(u64),
 }
 
 #[derive(Copy, Clone, serde_derive::Serialize, serde_derive::Deserialize, Debug, PartialEq, Eq)]
@@ -202,6 +203,9 @@ impl Server {
             if !is_running.load(Ordering::Relaxed) {
                 break;
             }
+            self.send_to_ui(&UiMessageType::MsptUpdate(
+                last_time.elapsed().as_micros() as u64,
+            ));
             // sleep
             let sleep_time = 1000.0 / self.tps_limit - last_time.elapsed().as_secs_f32() * 1000.0;
             if sleep_time > 0.0 {
