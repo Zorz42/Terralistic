@@ -32,6 +32,7 @@ impl Recipes {
     }
 }
 
+#[derive(Clone)]
 pub struct Inventory {
     items: Vec<Option<ItemStack>>,
     pub has_changed: bool,
