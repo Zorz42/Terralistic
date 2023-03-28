@@ -64,7 +64,7 @@ impl UiManager {
                         server_state = state;
                     }
                     for module in &mut self.modules {
-                        module.on_server_message(&message);
+                        module.on_server_message(&message, &mut self.graphics_context);
                     }
                 }
             }
@@ -96,5 +96,5 @@ pub trait ModuleTrait {
     //renders the module
     fn render(&mut self, graphics_context: &mut gfx::GraphicsContext);
     //relay messages from the server to the module
-    fn on_server_message(&mut self, message: &UiMessageType);
+    fn on_server_message(&mut self, message: &UiMessageType, graphics_context: &mut gfx::GraphicsContext);
 }
