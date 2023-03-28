@@ -189,6 +189,7 @@ impl Server {
                     &mut self.entities.entities,
                     &self.blocks.blocks,
                     &mut self.events,
+                    &mut self.items.items,
                 )?;
                 self.entities
                     .entities

@@ -1,14 +1,14 @@
-use crate::libraries::events::EventManager;
 use anyhow::Result;
 use hecs::Entity;
 use serde_derive::{Deserialize, Serialize};
 
+use crate::libraries::events::EventManager;
 use crate::shared::blocks::{Blocks, BLOCK_WIDTH};
 use crate::shared::entities::{
     is_touching_ground, reduce_by, Entities, IdComponent, PhysicsComponent, PositionComponent,
 };
 use crate::shared::inventory::Inventory;
-use crate::shared::items::ItemComponent;
+use crate::shared::items::{ItemComponent, ItemStack, Items};
 
 pub const PLAYER_HEIGHT: f32 = 28.0 / BLOCK_WIDTH;
 pub const PLAYER_WIDTH: f32 = 18.0 / BLOCK_WIDTH;
@@ -141,36 +141,54 @@ pub fn update_players_ms(entities: &mut Entities, blocks: &Blocks) {
 
 /// # Errors
 /// Returns an error if the item could not be removed
-pub fn remove_all_picked_items(entities: &mut Entities, events: &mut EventManager) -> Result<()> {
+pub fn remove_all_picked_items(
+    entities: &mut Entities,
+    events: &mut EventManager,
+    items: &mut Items,
+) -> Result<()> {
     let mut positions = Vec::new();
-    for (_, (position, _player)) in entities
+    for (entity, (position, _player)) in entities
         .ecs
         .query_mut::<(&PositionComponent, &PlayerComponent)>()
     {
         positions.push((
-            position.x() + PLAYER_WIDTH / 2.0,
-            position.y() + PLAYER_HEIGHT / 2.0,
+            (
+                position.x() + PLAYER_WIDTH / 2.0,
+                position.y() + PLAYER_HEIGHT / 2.0,
+            ),
+            entity,
         ));
     }
 
-    for player_position in positions {
+    for (player_position, player_entity) in positions {
         let mut items_to_remove = Vec::new();
-        for (_, (item_position, _item, entity_id)) in
-            entities
-                .ecs
-                .query_mut::<(&PositionComponent, &ItemComponent, &IdComponent)>()
+        for (entity, (item_position, _item)) in entities
+            .ecs
+            .query_mut::<(&PositionComponent, &ItemComponent)>()
         {
             let dx = player_position.0 - item_position.x();
             let dy = player_position.1 - item_position.y();
             let d2 = dx * dx + dy * dy;
 
             if d2 < 0.1 {
-                items_to_remove.push(entity_id.id());
+                items_to_remove.push(entity);
             }
         }
 
         for entity in items_to_remove {
-            entities.despawn_entity(entity, events)?;
+            let item_id = entities.ecs.get::<&IdComponent>(entity)?.id();
+            entities.despawn_entity(item_id, events)?;
+
+            let item_type = entities.ecs.get::<&ItemComponent>(entity)?.get_item_type();
+            let mut inventory = (*entities.ecs.get::<&Inventory>(player_entity)?).clone();
+            inventory.give_item(
+                &ItemStack::new(item_type, 1),
+                player_position,
+                items,
+                entities,
+                events,
+            )?;
+            *entities.ecs.get::<&mut Inventory>(player_entity)? = inventory;
         }
     }
 
