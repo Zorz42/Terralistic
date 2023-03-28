@@ -110,6 +110,7 @@ impl Inventory {
                             *count -= item.count;
                             *slot = None;
                         }
+                        self.has_changed = true;
                     }
                 }
             }
@@ -148,6 +149,7 @@ impl Inventory {
                     let count = core::cmp::min(max - slot.count, item.count);
                     slot.count += count;
                     item.count -= count;
+                    self.has_changed = true;
                     if item.count == 0 {
                         return Ok(());
                     }
@@ -168,6 +170,7 @@ impl Inventory {
                     *slot = Some(item);
                     return Ok(());
                 }
+                self.has_changed = true;
             }
         }
 

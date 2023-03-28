@@ -8,11 +8,12 @@ use crate::libraries::graphics as gfx;
 use crate::libraries::graphics::{FloatPos, FloatSize, IntPos};
 use crate::shared::blocks::{Blocks, BLOCK_WIDTH, RENDER_BLOCK_WIDTH, RENDER_SCALE};
 use crate::shared::entities::{Entities, IdComponent, PhysicsComponent, PositionComponent};
+use crate::shared::inventory::Inventory;
 use crate::shared::mod_manager::ModManager;
 use crate::shared::packet::Packet;
 use crate::shared::players::{
-    spawn_player, update_players_ms, Direction, MovingType, PlayerComponent, PlayerMovingPacket,
-    PlayerSpawnPacket, PLAYER_HEIGHT, PLAYER_WIDTH,
+    spawn_player, update_players_ms, Direction, InventoryPacket, MovingType, PlayerComponent,
+    PlayerMovingPacket, PlayerSpawnPacket, PLAYER_HEIGHT, PLAYER_WIDTH,
 };
 
 pub struct ClientPlayers {
@@ -175,7 +176,7 @@ impl ClientPlayers {
         }
     }
 
-    pub fn on_event(&mut self, event: &Event, entities: &mut Entities) {
+    pub fn on_event(&mut self, event: &Event, entities: &mut Entities) -> Result<()> {
         if let Some(packet_event) = event.downcast::<Packet>() {
             if let Some(packet) = packet_event.try_deserialize::<PlayerSpawnPacket>() {
                 let player =
@@ -196,7 +197,15 @@ impl ClientPlayers {
                     }
                 }
             }
+            if let Some(packet) = packet_event.try_deserialize::<InventoryPacket>() {
+                if let Some(main_player) = self.main_player {
+                    let inventory = entities.ecs.query_one_mut::<&mut Inventory>(main_player)?;
+
+                    *inventory = packet.inventory;
+                }
+            }
         }
+        Ok(())
     }
 
     pub const fn get_main_player(&self) -> Option<Entity> {

@@ -313,7 +313,7 @@ impl Game {
                     &self.camera,
                     &event,
                 )?;
-                self.players.on_event(&event, &mut self.entities.entities);
+                self.players.on_event(&event, &mut self.entities.entities)?;
                 self.camera.on_event(&event);
             }
 

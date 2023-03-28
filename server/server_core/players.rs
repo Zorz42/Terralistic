@@ -4,6 +4,7 @@ use crate::server::server_core::networking::{
 };
 use crate::shared::blocks::Blocks;
 use crate::shared::entities::{Entities, IdComponent, PhysicsComponent, PositionComponent};
+use crate::shared::inventory::Inventory;
 use crate::shared::items::Items;
 use crate::shared::packet::Packet;
 use crate::shared::players::{
@@ -103,12 +104,25 @@ impl ServerPlayers {
     }
 
     pub fn update(
+        &mut self,
         entities: &mut Entities,
         blocks: &Blocks,
         events: &mut EventManager,
         items: &mut Items,
+        networking: &mut ServerNetworking,
     ) -> Result<()> {
         update_players_ms(entities, blocks);
-        remove_all_picked_items(entities, events, items)
+        remove_all_picked_items(entities, events, items)?;
+        for (conn, player) in &self.conns_to_players {
+            let mut inventory = entities.ecs.get::<&mut Inventory>(*player)?;
+            if inventory.has_changed {
+                inventory.has_changed = false;
+                networking.send_packet(
+                    &Packet::new(inventory.clone())?,
+                    SendTarget::Connection(conn.clone()),
+                )?;
+            }
+        }
+        Ok(())
     }
 }

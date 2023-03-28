@@ -176,9 +176,6 @@ pub fn remove_all_picked_items(
         }
 
         for entity in items_to_remove {
-            let item_id = entities.ecs.get::<&IdComponent>(entity)?.id();
-            entities.despawn_entity(item_id, events)?;
-
             let item_type = entities.ecs.get::<&ItemComponent>(entity)?.get_item_type();
             let mut inventory = (*entities.ecs.get::<&Inventory>(player_entity)?).clone();
             inventory.give_item(
@@ -189,6 +186,9 @@ pub fn remove_all_picked_items(
                 events,
             )?;
             *entities.ecs.get::<&mut Inventory>(player_entity)? = inventory;
+
+            let item_id = entities.ecs.get::<&IdComponent>(entity)?.id();
+            entities.despawn_entity(item_id, events)?;
         }
     }
 
@@ -285,4 +285,9 @@ pub struct PlayerSpawnPacket {
 #[derive(Serialize, Deserialize)]
 pub struct NamePacket {
     pub name: String,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct InventoryPacket {
+    pub inventory: Inventory,
 }

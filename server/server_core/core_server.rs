@@ -185,11 +185,12 @@ impl Server {
             }
 
             while ms_counter < ms_timer.elapsed().as_millis() as i32 {
-                ServerPlayers::update(
+                self.players.update(
                     &mut self.entities.entities,
                     &self.blocks.blocks,
                     &mut self.events,
                     &mut self.items.items,
+                    &mut self.networking,
                 )?;
                 self.entities
                     .entities
@@ -205,7 +206,7 @@ impl Server {
                 break;
             }
             self.send_to_ui(&UiMessageType::MsptUpdate(
-                last_time.elapsed().as_micros() as u64,
+                last_time.elapsed().as_micros() as u64
             ));
             // sleep
             let sleep_time = 1000.0 / self.tps_limit - last_time.elapsed().as_secs_f32() * 1000.0;
