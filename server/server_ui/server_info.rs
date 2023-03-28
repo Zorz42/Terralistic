@@ -1,4 +1,3 @@
-use chrono::Timelike;
 use crate::libraries::graphics as gfx;
 use crate::server::server_core::ServerState;
 use crate::server::server_core::UiMessageType;
@@ -66,26 +65,29 @@ impl ui_manager::ModuleTrait for ServerInfo {
             clock_str.pop();
         }
         clock_str.pop();
-        self.clock.texture = gfx::Texture::load_from_surface(
-            &graphics_context.font.create_text_surface(&clock_str)
-        );
+        self.clock.texture =
+            gfx::Texture::load_from_surface(&graphics_context.font.create_text_surface(&clock_str));
     }
 
-    fn render(&mut self, mut graphics_context: &mut gfx::GraphicsContext) {
+    fn render(&mut self, graphics_context: &mut gfx::GraphicsContext) {
         gfx::Rect::new(
             gfx::FloatPos(0.0, 0.0),
             graphics_context.renderer.get_window_size(),
-        ).render(graphics_context, gfx::GREY);
+        )
+        .render(graphics_context, gfx::GREY);
 
-
-
-        self.clock.render(&mut graphics_context, Some(&self.container));
-        self.server_state_sprite.render(&mut graphics_context, Some(&self.container));
+        self.clock.render(graphics_context, Some(&self.container));
+        self.server_state_sprite
+            .render(graphics_context, Some(&self.container));
     }
 
     #[allow(clippy::single_match)]
     #[allow(clippy::match_wildcard_for_single_variants)]
-    fn on_server_message(&mut self, message: &UiMessageType, mut graphics_context: &mut gfx::GraphicsContext) {
+    fn on_server_message(
+        &mut self,
+        message: &UiMessageType,
+        graphics_context: &mut gfx::GraphicsContext,
+    ) {
         match message {
             UiMessageType::ServerState(state) => {
                 self.server_state_enum = *state;
@@ -97,8 +99,8 @@ impl ui_manager::ModuleTrait for ServerInfo {
 }
 
 impl ServerInfo {
-    fn update_state_sprite(&mut self, mut graphics_context: &mut gfx::GraphicsContext) {
-        let mut state_str = match self.server_state_enum {
+    fn update_state_sprite(&mut self, graphics_context: &mut gfx::GraphicsContext) {
+        let state_str = match self.server_state_enum {
             ServerState::Nothing => "Nothing",
             ServerState::Starting => "Starting",
             ServerState::InitMods => "InitMods",
@@ -106,10 +108,9 @@ impl ServerInfo {
             ServerState::Running => "Running",
             ServerState::Stopping => "Stopping",
             ServerState::Stopped => "Stopped",
-            _ => "Unknown",
-        }.to_string();
-        self.server_state_sprite.texture = gfx::Texture::load_from_surface(
-            &graphics_context.font.create_text_surface(&state_str)
-        );
+        }
+        .to_owned();
+        self.server_state_sprite.texture =
+            gfx::Texture::load_from_surface(&graphics_context.font.create_text_surface(&state_str));
     }
 }
