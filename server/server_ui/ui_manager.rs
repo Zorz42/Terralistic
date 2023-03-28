@@ -70,9 +70,9 @@ impl UiManager {
             }
 
             //updates the modules
-            /*for module in &mut self.modules {
-                module.update(0.0);
-            }*/
+            for module in &mut self.modules {
+                module.update(0.0, &mut self.graphics_context);
+            }
 
             //renders the modules
             for module in &mut self.modules {
@@ -92,7 +92,7 @@ pub trait ModuleTrait {
     //initializes the module
     fn init(&mut self, graphics_context: &mut gfx::GraphicsContext);
     //updates the module
-    fn update(&mut self, delta_time: f32);
+    fn update(&mut self, delta_time: f32, graphics_context: &mut gfx::GraphicsContext);
     //renders the module
     fn render(&mut self, graphics_context: &mut gfx::GraphicsContext);
     //relay messages from the server to the module

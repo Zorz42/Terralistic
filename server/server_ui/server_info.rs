@@ -1,3 +1,4 @@
+use chrono::Timelike;
 use crate::libraries::graphics as gfx;
 use crate::server::server_core::ServerState;
 use crate::server::server_core::UiMessageType;
@@ -13,8 +14,8 @@ pub struct ServerInfo {
     //format: state, if running then running:mspt
     server_state_sprite: gfx::Sprite,
     _mspt: gfx::Sprite,
-    _clock: gfx::Sprite,
-    _container: gfx::Container,
+    clock: gfx::Sprite,
+    container: gfx::Container,
 }
 
 impl ServerInfo {
@@ -27,9 +28,9 @@ impl ServerInfo {
             server_state_enum: ServerState::Nothing,
             server_state_sprite: Default::default(),
             _mspt: Default::default(),
-            _clock: Default::default(),
+            clock: Default::default(),
             //container math will be redone
-            _container: gfx::Container::new(
+            container: gfx::Container::new(
                 graphics_context,
                 gfx::FloatPos(0.0, 0.0),
                 graphics_context.renderer.get_window_size(),
@@ -45,24 +46,34 @@ impl ui_manager::ModuleTrait for ServerInfo {
         self.server_state_sprite.texture =
             gfx::Texture::load_from_surface(&graphics_context.font.create_text_surface("test"));
         self.server_state_sprite.color = gfx::WHITE;
-        self.server_state_sprite.scale = 2.0;
+        self.server_state_sprite.scale = 3.0;
         self.server_state_sprite.orientation = gfx::CENTER;
         self.server_state_sprite.pos = gfx::FloatPos(0.0, 0.0);
+
+        self.clock.color = gfx::WHITE;
+        self.clock.scale = 2.0;
+        self.clock.orientation = gfx::TOP_RIGHT;
+        self.clock.pos = gfx::FloatPos(-gfx::SPACING, gfx::SPACING);
     }
 
-    #[allow(clippy::todo)]
-    fn update(&mut self, _delta_time: f32) {
-        todo!()
+    fn update(&mut self, _delta_time: f32, graphics_context: &mut gfx::GraphicsContext) {
+        //update clock sprite
+        let mut clock_str = chrono::Local::now().to_string();
+        while !clock_str.ends_with('.') {
+            clock_str.pop();
+        }
+        clock_str.pop();
+        self.clock.texture = gfx::Texture::load_from_surface(
+            &graphics_context.font.create_text_surface(&clock_str)
+        );
     }
 
-    fn render(&mut self, graphics_context: &mut gfx::GraphicsContext) {
-        //self.server_state_sprite.render(graphics_context, Some(&self.container));
-        //rectangle for easier debugging
-        let a = gfx::Rect::new(
+    fn render(&mut self, mut graphics_context: &mut gfx::GraphicsContext) {
+        gfx::Rect::new(
             gfx::FloatPos(0.0, 0.0),
             graphics_context.renderer.get_window_size(),
-        );
-        a.render(graphics_context, gfx::WHITE);
+        ).render(graphics_context, gfx::GREY);
+        self.clock.render(&mut graphics_context, Some(&self.container));
     }
 
     #[allow(clippy::single_match)]
