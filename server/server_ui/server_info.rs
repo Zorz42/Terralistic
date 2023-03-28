@@ -69,9 +69,8 @@ impl ui_manager::ModuleTrait for ServerInfo {
             clock_str.pop();
         }
         clock_str.pop();
-        self.clock.texture = gfx::Texture::load_from_surface(
-            &graphics_context.font.create_text_surface(&clock_str)
-        );
+        self.clock.texture =
+            gfx::Texture::load_from_surface(&graphics_context.font.create_text_surface(&clock_str));
 
         let combined_size = self.server_state_sprite.texture.get_texture_size().0
             + self.mspt.texture.get_texture_size().0;
@@ -79,31 +78,32 @@ impl ui_manager::ModuleTrait for ServerInfo {
         if self.server_state_enum == ServerState::Running {
             //move server state sprite to the left
             self.server_state_sprite.pos = gfx::FloatPos(
-                (self.server_state_sprite.texture.get_texture_size().0 / 2.0 * SCALE) - (combined_size / 2.0 * SCALE),
-                gfx::SPACING
+                (self.server_state_sprite.texture.get_texture_size().0 / 2.0 * SCALE)
+                    - (combined_size / 2.0 * SCALE),
+                gfx::SPACING,
             );
         } else {
             self.server_state_sprite.pos = gfx::FloatPos(0.0, gfx::SPACING);
         }
         self.mspt.pos = gfx::FloatPos(
             (combined_size / 2.0 * SCALE) - (self.mspt.texture.get_texture_size().0 / 2.0 * SCALE),
-            gfx::SPACING
+            gfx::SPACING,
         );
     }
 
-    fn render(&mut self, mut graphics_context: &mut gfx::GraphicsContext) {
+    fn render(&mut self, graphics_context: &mut gfx::GraphicsContext) {
         gfx::Rect::new(
             gfx::FloatPos(0.0, 0.0),
             graphics_context.renderer.get_window_size(),
         )
         .render(graphics_context, gfx::GREY);
 
+        self.clock.render(graphics_context, Some(&self.container));
 
-        self.clock.render(&mut graphics_context, Some(&self.container));
-
-        self.server_state_sprite.render(&mut graphics_context, Some(&self.container));
+        self.server_state_sprite
+            .render(graphics_context, Some(&self.container));
         if self.server_state_enum == ServerState::Running {
-            self.mspt.render(&mut graphics_context, Some(&self.container));
+            self.mspt.render(graphics_context, Some(&self.container));
         }
     }
 
@@ -120,11 +120,10 @@ impl ui_manager::ModuleTrait for ServerInfo {
                 self.update_state_sprite(graphics_context);
             }
             UiMessageType::MsptUpdate(mspt) => {
-                self.mspt.texture = gfx::Texture::load_from_surface(
-                    &graphics_context.font.create_text_surface(
-                        format!(" ({}ms)", (*mspt as f64 / 1000.0).to_string()).as_str()
-                    )
-                );
+                self.mspt.texture =
+                    gfx::Texture::load_from_surface(&graphics_context.font.create_text_surface(
+                        format!(" ({}ms)", (*mspt as f64 / 1000.0).to_owned()).as_str(),
+                    ));
             }
             _ => {}
         }
