@@ -15,9 +15,9 @@ end
 
 -- This function returns the mod's description.
 function mod_description()
-    return "The base game. It contains the basic"..
-    "game mechanics and the classic Terralistic"..
-    "experience."
+    return "The base game. It contains the basic" ..
+            "game mechanics and the classic Terralistic" ..
+            "experience."
 end
 
 -- This function returns the mod's version.
@@ -87,6 +87,7 @@ function init()
     item_type = terralistic_new_item_type()
     item_type["name"] = "dirt"
     item_type["display_name"] = "Dirt Block"
+    item_type["max_stack"] = 99
     dirt_item = terralistic_register_item_type(item_type)
 
     terralistic_set_block_drop(dirt_block, dirt_item, 1)

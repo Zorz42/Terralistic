@@ -39,7 +39,7 @@ pub fn spawn_player(
         IdComponent::new(id),
         PositionComponent::new(x, y),
         PhysicsComponent::new(PLAYER_WIDTH, PLAYER_HEIGHT),
-        Inventory::new(21), // 1 is for the mouse, 20 is for the inventory
+        Inventory::new(20),
         PlayerComponent::new(name),
     ))
 }
@@ -122,8 +122,8 @@ pub fn update_players_ms(entities: &mut Entities, blocks: &Blocks) {
                 .ecs
                 .query_mut::<(&PositionComponent, &mut PhysicsComponent, &ItemComponent)>()
         {
-            let dx = player_position.0 - item_position.x();
-            let dy = player_position.1 - item_position.y();
+            let dx = player_position.0 - item_position.x() - 0.5;
+            let dy = player_position.1 - item_position.y() - 0.5;
             let d2 = dx * dx + dy * dy;
             let r2 = PLAYER_PICKUP_RADIUS * PLAYER_PICKUP_RADIUS;
             let c = PLAYER_PICKUP_COEFFICIENT;
@@ -166,11 +166,11 @@ pub fn remove_all_picked_items(
             .ecs
             .query_mut::<(&PositionComponent, &ItemComponent)>()
         {
-            let dx = player_position.0 - item_position.x();
-            let dy = player_position.1 - item_position.y();
+            let dx = player_position.0 - item_position.x() - 0.5;
+            let dy = player_position.1 - item_position.y() - 0.5;
             let d2 = dx * dx + dy * dy;
 
-            if d2 < 0.1 {
+            if d2 < 0.3 {
                 items_to_remove.push(entity);
             }
         }
@@ -179,7 +179,7 @@ pub fn remove_all_picked_items(
             let item_type = entities.ecs.get::<&ItemComponent>(entity)?.get_item_type();
             let mut inventory = (*entities.ecs.get::<&Inventory>(player_entity)?).clone();
             inventory.give_item(
-                &ItemStack::new(item_type, 1),
+                ItemStack::new(item_type, 1),
                 player_position,
                 items,
                 entities,

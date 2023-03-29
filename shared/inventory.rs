@@ -135,13 +135,12 @@ impl Inventory {
     /// item stack is invalid
     pub fn give_item(
         &mut self,
-        item: &ItemStack,
+        mut item: ItemStack,
         drop_pos: (f32, f32),
         items: &mut Items,
         entities: &mut Entities,
         events: &mut EventManager,
     ) -> Result<()> {
-        let mut item = item.clone();
         for slot in self.items.iter_mut().flatten() {
             if slot.item == item.item {
                 let max = items.get_item_type(slot.item)?.max_stack;
@@ -167,8 +166,8 @@ impl Inventory {
                     });
                     item.count -= max;
                 } else {
-                    *slot = Some(item);
-                    return Ok(());
+                    *slot = Some(item.clone());
+                    item.count = 0;
                 }
                 self.has_changed = true;
             }
