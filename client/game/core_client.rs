@@ -282,7 +282,7 @@ impl Game {
             self.camera.render(graphics);
             self.block_selector
                 .render(graphics, &mut self.networking, &self.camera)?;
-            self.inventory.render(graphics);
+            self.inventory.render(graphics, &self.items);
 
             pause_rect.pos.0 = if paused {
                 0.0
@@ -313,7 +313,7 @@ impl Game {
                     &self.camera,
                     &event,
                 )?;
-                self.players.on_event(&event, &mut self.entities.entities)?;
+                self.players.on_event(&event, &mut self.entities.entities);
                 self.camera.on_event(&event);
             }
 

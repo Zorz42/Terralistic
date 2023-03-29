@@ -93,4 +93,9 @@ impl ClientItems {
 
         Ok(())
     }
+
+    #[must_use]
+    pub const fn get_atlas(&self) -> &gfx::TextureAtlas<ItemId> {
+        &self.atlas
+    }
 }

@@ -157,6 +157,10 @@ impl Inventory {
         }
 
         for slot in &mut self.items {
+            if item.count == 0 {
+                break;
+            }
+
             if slot.is_none() {
                 let max = items.get_item_type(item.item)?.max_stack;
                 if item.count > max {
@@ -179,6 +183,10 @@ impl Inventory {
         }
 
         Ok(())
+    }
+
+    pub fn iter(&self) -> impl Iterator<Item = &Option<ItemStack>> {
+        self.items.iter()
     }
 }
 

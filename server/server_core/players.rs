@@ -8,8 +8,8 @@ use crate::shared::inventory::Inventory;
 use crate::shared::items::Items;
 use crate::shared::packet::Packet;
 use crate::shared::players::{
-    remove_all_picked_items, spawn_player, update_players_ms, PlayerComponent, PlayerMovingPacket,
-    PlayerSpawnPacket,
+    remove_all_picked_items, spawn_player, update_players_ms, InventoryPacket, PlayerComponent,
+    PlayerMovingPacket, PlayerSpawnPacket,
 };
 use anyhow::{anyhow, Result};
 use hecs::Entity;
@@ -113,12 +113,15 @@ impl ServerPlayers {
     ) -> Result<()> {
         update_players_ms(entities, blocks);
         remove_all_picked_items(entities, events, items)?;
+
         for (conn, player) in &self.conns_to_players {
             let mut inventory = entities.ecs.get::<&mut Inventory>(*player)?;
             if inventory.has_changed {
                 inventory.has_changed = false;
                 networking.send_packet(
-                    &Packet::new(inventory.clone())?,
+                    &Packet::new(InventoryPacket {
+                        inventory: inventory.clone(),
+                    })?,
                     SendTarget::Connection(conn.clone()),
                 )?;
             }
