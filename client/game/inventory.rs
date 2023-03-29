@@ -11,6 +11,7 @@ pub struct ClientInventory {
     is_open: bool,
     back_rect: gfx::RenderRect,
     inventory: Inventory,
+    open_progress: f32,
 }
 
 const INVENTORY_SLOT_SIZE: f32 = 50.0;
@@ -32,7 +33,9 @@ fn render_inventory_slot(
         let src_rect = items.get_atlas().get_rect(&item.item);
         if let Some(src_rect) = src_rect {
             let mut src_rect = *src_rect;
-            src_rect.size.0 = src_rect.size.1;
+            src_rect.pos.0 += 1.0;
+            src_rect.pos.1 += 2.0;
+            src_rect.size = FloatSize(8.0, 8.0);
 
             let scale = 4.0;
             let texture = items.get_atlas().get_texture();
@@ -59,6 +62,7 @@ impl ClientInventory {
             is_open: false,
             back_rect: gfx::RenderRect::new(FloatPos(0.0, 0.0), FloatSize(0.0, 0.0)),
             inventory: Inventory::new(20),
+            open_progress: 0.0,
         }
     }
 
@@ -77,6 +81,9 @@ impl ClientInventory {
     }
 
     pub fn render(&mut self, graphics: &mut GraphicsContext, items: &ClientItems) {
+        let open_target = if self.is_open { 1.0 } else { 0.0 };
+        self.open_progress += (open_target - self.open_progress) / 10.0;
+
         self.back_rect.size.1 = if self.is_open {
             3.0 * INVENTORY_SPACING + 2.0 * INVENTORY_SLOT_SIZE
         } else {
@@ -89,6 +96,28 @@ impl ClientInventory {
             .get_container(graphics, None)
             .get_absolute_rect();
         for (i, item) in self.inventory.iter().enumerate() {
+            if i >= 10 && self.is_open {
+                let animation_spacing = 5.0;
+
+                let pos_y = self.open_progress
+                    * (9.0 * animation_spacing + INVENTORY_SLOT_SIZE + INVENTORY_SPACING)
+                    - (i - 10) as f32 * animation_spacing;
+
+                render_inventory_slot(
+                    graphics,
+                    items,
+                    (
+                        rect.pos.0
+                            + (i - 10) as f32 * (INVENTORY_SLOT_SIZE + INVENTORY_SPACING)
+                            + INVENTORY_SPACING,
+                        rect.pos.1
+                            + INVENTORY_SPACING
+                            + pos_y.clamp(0.0, INVENTORY_SPACING + INVENTORY_SLOT_SIZE),
+                    ),
+                    item,
+                );
+            }
+
             if i < 10 {
                 render_inventory_slot(
                     graphics,
