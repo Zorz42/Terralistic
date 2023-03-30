@@ -95,9 +95,24 @@ impl ClientInventory {
             .back_rect
             .get_container(graphics, None)
             .get_absolute_rect();
-        for (i, item) in self.inventory.iter().enumerate() {
+        for (i, item) in self.inventory.reverse_iter().enumerate() {
+            let i = 19 - i;
+            if i < 10 {
+                render_inventory_slot(
+                    graphics,
+                    items,
+                    (
+                        rect.pos.0
+                            + i as f32 * (INVENTORY_SLOT_SIZE + INVENTORY_SPACING)
+                            + INVENTORY_SPACING,
+                        rect.pos.1 + INVENTORY_SPACING,
+                    ),
+                    item,
+                );
+            }
+
             if i >= 10 && self.is_open {
-                let animation_spacing = 5.0;
+                let animation_spacing = 1.0;
 
                 let pos_y = self.open_progress
                     * (9.0 * animation_spacing + INVENTORY_SLOT_SIZE + INVENTORY_SPACING)
@@ -113,20 +128,6 @@ impl ClientInventory {
                         rect.pos.1
                             + INVENTORY_SPACING
                             + pos_y.clamp(0.0, INVENTORY_SPACING + INVENTORY_SLOT_SIZE),
-                    ),
-                    item,
-                );
-            }
-
-            if i < 10 {
-                render_inventory_slot(
-                    graphics,
-                    items,
-                    (
-                        rect.pos.0
-                            + i as f32 * (INVENTORY_SLOT_SIZE + INVENTORY_SPACING)
-                            + INVENTORY_SPACING,
-                        rect.pos.1 + INVENTORY_SPACING,
                     ),
                     item,
                 );

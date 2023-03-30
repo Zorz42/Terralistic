@@ -188,6 +188,10 @@ impl Inventory {
     pub fn iter(&self) -> impl Iterator<Item = &Option<ItemStack>> {
         self.items.iter()
     }
+
+    pub fn reverse_iter(&self) -> impl Iterator<Item = &Option<ItemStack>> {
+        self.items.iter().rev()
+    }
 }
 
 impl Serialize for Inventory {
