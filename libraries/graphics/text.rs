@@ -1,11 +1,12 @@
 use super::color::Color;
 use super::surface::Surface;
-use crate::libraries::graphics::{IntPos, IntSize};
+use crate::libraries::graphics::{FloatPos, FloatSize, GraphicsContext, IntPos, IntSize, Texture};
 use anyhow::Result;
 use core::cmp::max;
 
 pub struct Font {
     font_surfaces: Vec<Surface>,
+    font_textures: Vec<Texture>,
 }
 
 const CHAR_SPACING: i32 = 1;
@@ -77,12 +78,20 @@ impl Font {
             }
         }
 
-        Ok(Self { font_surfaces })
+        let mut font_textures = Vec::new();
+        for surface in &font_surfaces {
+            font_textures.push(Texture::load_from_surface(surface));
+        }
+
+        Ok(Self {
+            font_surfaces,
+            font_textures,
+        })
     }
 
-    /// This function creates a surface with the text on it.
+    /// This function returns the size of the text.
     #[must_use]
-    pub fn create_text_surface(&self, text: &str) -> Surface {
+    pub fn get_text_size(&self, text: &str) -> IntSize {
         let mut width = 0;
         let height = 16;
         for c in text.chars() {
@@ -98,7 +107,22 @@ impl Font {
         // if width is 0, set it to 1
         width = max(width, 1);
 
-        let mut surface = Surface::new(IntSize(width as u32, height as u32));
+        IntSize(width as u32, height)
+    }
+
+    /// This function returns the size of the text scaled.
+    #[must_use]
+    pub fn get_text_size_scaled(&self, text: &str, scale: f32) -> FloatSize {
+        let size = self.get_text_size(text);
+        FloatSize(size.0 as f32 * scale, size.1 as f32 * scale)
+    }
+
+    /// This function creates a surface with the text on it.
+    #[must_use]
+    pub fn create_text_surface(&self, text: &str) -> Surface {
+        let text_size = self.get_text_size(text);
+
+        let mut surface = Surface::new(text_size);
         let mut x = 0;
         for c in text.chars() {
             if let Some(char_surface) = self.font_surfaces.get(c as usize) {
@@ -116,5 +140,26 @@ impl Font {
         }
 
         surface
+    }
+
+    /// This function renders text on the window.
+    pub fn render_text(
+        &self,
+        graphics: &GraphicsContext,
+        text: &str,
+        mut pos: FloatPos,
+        scale: f32,
+    ) {
+        for c in text.chars() {
+            if let Some(char_surface) = self.font_surfaces.get(c as usize) {
+                if let Some(char_texture) = self.font_textures.get(c as usize) {
+                    char_texture.render(&graphics.renderer, scale, pos, None, false, None);
+                    pos.0 += char_surface.get_size().0 as f32 * scale + CHAR_SPACING as f32;
+                    if c == ' ' {
+                        pos.0 += SPACE_WIDTH as f32 * scale;
+                    }
+                }
+            }
+        }
     }
 }

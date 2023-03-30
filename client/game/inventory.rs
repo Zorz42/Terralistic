@@ -51,6 +51,19 @@ fn render_inventory_slot(
                 false,
                 None,
             );
+
+            if item.count > 1 {
+                let text_scale = 1.0;
+                let text = format!("{}", item.count);
+                let text_size = graphics.font.get_text_size_scaled(&text, text_scale);
+                let text_pos = FloatPos(
+                    rect.pos.0 + rect.size.0 - text_size.0 - 2.0,
+                    rect.pos.1 + rect.size.1 - text_size.1 - 2.0,
+                );
+                graphics
+                    .font
+                    .render_text(graphics, &text, text_pos, text_scale);
+            }
         }
     }
 }
