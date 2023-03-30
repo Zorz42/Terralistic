@@ -87,6 +87,7 @@ impl Rect {
             .draw(false, DrawMode::Lines);
     }
 
+    #[must_use]
     pub fn contains(&self, pos: FloatPos) -> bool {
         pos.0 >= self.pos.0
             && pos.0 <= self.pos.0 + self.size.0

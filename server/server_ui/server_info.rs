@@ -5,12 +5,11 @@ use crate::server::server_core::UiMessageType;
 use super::ui_manager;
 const SCALE: f32 = 2.0;
 
-
 //this function makes the string have at least a certain length by padding it with zeroes
 fn pad_start(string: String, length: usize) -> String {
     let mut string = string;
     while string.len() < length {
-        string = format!("0{}", string);
+        string = format!("0{string}");
     }
     string
 }
@@ -92,13 +91,12 @@ impl ui_manager::ModuleTrait for ServerInfo {
         self.container.rect.size = graphics_context.renderer.get_window_size();
 
         //update clock sprite
-        let mut uptime_num = self.server_start.elapsed().as_secs();
-        self.uptime.texture =
-            gfx::Texture::load_from_surface(&graphics_context.font.create_text_surface(&format!(
-                "Uptime: {}",
-                format_seconds(uptime_num)
-            )));
-
+        let uptime_num = self.server_start.elapsed().as_secs();
+        self.uptime.texture = gfx::Texture::load_from_surface(
+            &graphics_context
+                .font
+                .create_text_surface(&format!("Uptime: {}", format_seconds(uptime_num))),
+        );
 
         //calculate state and mspt text positions
         let combined_size = self.server_state_sprite.texture.get_texture_size().0
