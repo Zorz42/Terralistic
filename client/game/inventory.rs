@@ -22,12 +22,20 @@ fn render_inventory_slot(
     items: &ClientItems,
     pos: (f32, f32),
     item: &Option<ItemStack>,
-) {
+) -> bool {
     let rect = gfx::Rect::new(
         FloatPos(pos.0, pos.1),
         FloatSize(INVENTORY_SLOT_SIZE, INVENTORY_SLOT_SIZE),
     );
-    rect.render(graphics, gfx::GREY);
+    let hovered = rect.contains(graphics.renderer.get_mouse_pos());
+    rect.render(
+        graphics,
+        if hovered {
+            gfx::Color::new(100, 100, 100, 255)
+        } else {
+            gfx::GREY
+        },
+    );
 
     if let Some(item) = item {
         let src_rect = items.get_atlas().get_rect(&item.item);
@@ -66,6 +74,8 @@ fn render_inventory_slot(
             }
         }
     }
+
+    hovered
 }
 
 impl ClientInventory {

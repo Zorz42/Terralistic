@@ -86,4 +86,11 @@ impl Rect {
             .rect_outline_vertex_buffer
             .draw(false, DrawMode::Lines);
     }
+
+    pub fn contains(&self, pos: FloatPos) -> bool {
+        pos.0 >= self.pos.0
+            && pos.0 <= self.pos.0 + self.size.0
+            && pos.1 >= self.pos.1
+            && pos.1 <= self.pos.1 + self.size.1
+    }
 }

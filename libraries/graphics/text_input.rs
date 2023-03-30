@@ -106,10 +106,7 @@ impl TextInput {
         let container = self.get_container(graphics, parent_container);
         let rect = container.get_absolute_rect();
         let mouse_pos = graphics.renderer.get_mouse_pos();
-        mouse_pos.0 >= rect.pos.0
-            && mouse_pos.0 <= rect.pos.0 + rect.size.0
-            && mouse_pos.1 >= rect.pos.1
-            && mouse_pos.1 <= rect.pos.1 + rect.size.1
+        rect.contains(mouse_pos)
     }
 
     /// returns the text in the input box
