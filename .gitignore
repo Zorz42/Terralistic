@@ -4,5 +4,5 @@ Build/
 Output/
 .idea/
 **/*.mod
-server.world
+server_data/
 target
