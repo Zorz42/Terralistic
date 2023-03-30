@@ -36,6 +36,7 @@ impl Recipes {
 pub struct Inventory {
     items: Vec<Option<ItemStack>>,
     pub has_changed: bool,
+    pub selected_slot: Option<usize>,
 }
 
 impl Inventory {
@@ -44,6 +45,7 @@ impl Inventory {
         Self {
             items: vec![None; size],
             has_changed: false,
+            selected_slot: None,
         }
     }
 
@@ -192,6 +194,12 @@ impl Inventory {
     pub fn reverse_iter(&self) -> impl Iterator<Item = &Option<ItemStack>> {
         self.items.iter().rev()
     }
+
+    #[must_use]
+    pub fn get_selected_item(&self) -> Option<ItemStack> {
+        self.selected_slot
+            .and_then(|slot| self.items.get(slot).and_then(Clone::clone))
+    }
 }
 
 impl Serialize for Inventory {
@@ -212,6 +220,7 @@ impl<'de> Deserialize<'de> for Inventory {
         Ok(Self {
             items,
             has_changed: false,
+            selected_slot: None,
         })
     }
 }
