@@ -5,6 +5,31 @@ use crate::server::server_core::UiMessageType;
 use super::ui_manager;
 const SCALE: f32 = 2.0;
 
+
+//this function makes the string have at least a certain length by padding it with zeroes
+fn pad_start(string: String, length: usize) -> String {
+    let mut string = string;
+    while string.len() < length {
+        string = format!("0{}", string);
+    }
+    string
+}
+
+//this function formats a number of seconds into a string of format HH:MM:SS
+fn format_seconds(seconds: u64) -> String {
+    let mut seconds = seconds;
+    let hours = seconds / 3600;
+    seconds -= hours * 3600;
+    let minutes = seconds / 60;
+    seconds -= minutes * 60;
+    format!(
+        "{}:{}:{}",
+        pad_start(hours.to_string(), 1),
+        pad_start(minutes.to_string(), 2),
+        pad_start(seconds.to_string(), 2)
+    )
+}
+
 pub struct ServerInfo {
     _world_name: gfx::Sprite,
     //is it really needed tho?
@@ -14,8 +39,9 @@ pub struct ServerInfo {
     //format: state, if running then running:mspt
     server_state_sprite: gfx::Sprite,
     mspt: gfx::Sprite,
-    clock: gfx::Sprite,
+    uptime: gfx::Sprite,
     container: gfx::Container,
+    server_start: std::time::Instant,
 }
 
 impl ServerInfo {
@@ -28,7 +54,7 @@ impl ServerInfo {
             server_state_enum: ServerState::Nothing,
             server_state_sprite: Default::default(),
             mspt: Default::default(),
-            clock: Default::default(),
+            uptime: Default::default(),
             //container math will be redone
             container: gfx::Container::new(
                 graphics_context,
@@ -37,6 +63,7 @@ impl ServerInfo {
                 gfx::TOP_LEFT,
                 None,
             ),
+            server_start: std::time::Instant::now(),
         }
     }
 }
@@ -49,10 +76,10 @@ impl ui_manager::ModuleTrait for ServerInfo {
         self.server_state_sprite.scale = SCALE;
         self.server_state_sprite.orientation = gfx::TOP;
 
-        self.clock.color = gfx::WHITE;
-        self.clock.scale = SCALE;
-        self.clock.orientation = gfx::TOP_RIGHT;
-        self.clock.pos = gfx::FloatPos(-gfx::SPACING, gfx::SPACING);
+        self.uptime.color = gfx::WHITE;
+        self.uptime.scale = SCALE;
+        self.uptime.orientation = gfx::TOP_RIGHT;
+        self.uptime.pos = gfx::FloatPos(-gfx::SPACING, gfx::SPACING);
 
         self.mspt.color = gfx::WHITE;
         self.mspt.scale = SCALE;
@@ -63,15 +90,17 @@ impl ui_manager::ModuleTrait for ServerInfo {
         //update the container
         self.container.rect.pos = gfx::FloatPos(0.0, 0.0);
         self.container.rect.size = graphics_context.renderer.get_window_size();
-        //update clock sprite
-        let mut clock_str = chrono::Local::now().to_string();
-        while !clock_str.ends_with('.') {
-            clock_str.pop();
-        }
-        clock_str.pop();
-        self.clock.texture =
-            gfx::Texture::load_from_surface(&graphics_context.font.create_text_surface(&clock_str));
 
+        //update clock sprite
+        let mut uptime_num = self.server_start.elapsed().as_secs();
+        self.uptime.texture =
+            gfx::Texture::load_from_surface(&graphics_context.font.create_text_surface(&format!(
+                "Uptime: {}",
+                format_seconds(uptime_num)
+            )));
+
+
+        //calculate state and mspt text positions
         let combined_size = self.server_state_sprite.texture.get_texture_size().0
             + self.mspt.texture.get_texture_size().0;
 
@@ -98,7 +127,7 @@ impl ui_manager::ModuleTrait for ServerInfo {
         )
         .render(graphics_context, gfx::GREY);
 
-        self.clock.render(graphics_context, Some(&self.container));
+        self.uptime.render(graphics_context, Some(&self.container));
 
         self.server_state_sprite
             .render(graphics_context, Some(&self.container));
