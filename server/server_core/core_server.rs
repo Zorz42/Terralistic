@@ -152,6 +152,8 @@ impl Server {
         let mut ms_counter = 0;
         let mut last_time = std::time::Instant::now();
         let mut sec_counter = std::time::Instant::now();
+        let mut ticks = 1;
+        let mut micros = 0;
         loop {
             let delta_time = last_time.elapsed().as_secs_f32() * 1000.0;
             last_time = std::time::Instant::now();
@@ -198,21 +200,27 @@ impl Server {
                 ms_counter += 5;
             }
 
+            micros += last_time.elapsed().as_micros() as u64;
             if sec_counter.elapsed().as_secs() >= 1 {
                 self.entities.sync_entities(&mut self.networking)?;
                 sec_counter = std::time::Instant::now();
+
+                self.send_to_ui(&UiMessageType::MsptUpdate(//send microseconds per tick each second
+                    micros / ticks
+                ));
+                ticks = 0;
+                micros = 0;
             }
+
             if !is_running.load(Ordering::Relaxed) {
                 break;
             }
-            self.send_to_ui(&UiMessageType::MsptUpdate(
-                last_time.elapsed().as_micros() as u64
-            ));
             // sleep
             let sleep_time = 1000.0 / self.tps_limit - last_time.elapsed().as_secs_f32() * 1000.0;
             if sleep_time > 0.0 {
                 sleep(Duration::from_secs_f32(sleep_time / 1000.0));
             }
+            ticks += 1;
         }
 
         self.state = ServerState::Stopping;
