@@ -52,49 +52,63 @@ impl ShadowContext {
     }
 
     /// Renders the shadow.
+    #[allow(clippy::too_many_lines)]
     pub fn render(&self, graphics: &GraphicsContext, rect: &Rect, shadow_intensity: f32) {
         let shadow_color = Color::new(0, 0, 0, (80.0 * shadow_intensity) as u8);
 
         let shadow_edge_width = f32::min(200.0 + rect.size.0 / 2.0, 350.0);
         let shadow_edge_height = f32::min(200.0 + rect.size.1 / 2.0, 350.0);
 
-        let wc = shadow_edge_width.ceil();
-        let wf = shadow_edge_width.floor();
-        let hc = shadow_edge_height.ceil();
-        let hf = shadow_edge_height.floor();
-
         let mut elements = vec![
             (
                 rect.pos - FloatPos(200.0, 200.0),
-                Rect::new(FloatPos(0.0, 0.0), FloatSize(wf, 200.0)),
+                Rect::new(FloatPos(0.0, 0.0), FloatSize(shadow_edge_width, 200.0)),
             ),
             (
                 rect.pos - FloatPos(200.0, 0.0),
-                Rect::new(FloatPos(0.0, 200.0), FloatSize(200.0, hc - 200.0)),
+                Rect::new(
+                    FloatPos(0.0, 200.0),
+                    FloatSize(200.0, shadow_edge_height - 200.0),
+                ),
             ),
             (
-                rect.pos + FloatPos(rect.size.0 - wc + 200.0, -200.0),
-                Rect::new(FloatPos(700.0 - wc, 0.0), FloatSize(wc, 200.0)),
+                rect.pos + FloatPos(rect.size.0 - shadow_edge_width + 200.0, -200.0),
+                Rect::new(
+                    FloatPos(700.0 - shadow_edge_width, 0.0),
+                    FloatSize(shadow_edge_width, 200.0),
+                ),
             ),
             (
                 rect.pos + FloatPos(rect.size.0, 0.0),
-                Rect::new(FloatPos(500.0, 200.0), FloatSize(200.0, hc - 200.0)),
+                Rect::new(
+                    FloatPos(500.0, 200.0),
+                    FloatSize(200.0, shadow_edge_height - 200.0),
+                ),
             ),
             (
-                rect.pos + FloatPos(-200.0, rect.size.1 - hf + 200.0),
-                Rect::new(FloatPos(0.0, 700.0 - hf), FloatSize(200.0, hf - 200.0)),
+                rect.pos + FloatPos(-200.0, rect.size.1 - shadow_edge_height + 200.0),
+                Rect::new(
+                    FloatPos(0.0, 700.0 - shadow_edge_height),
+                    FloatSize(200.0, shadow_edge_height - 200.0),
+                ),
             ),
             (
                 rect.pos + FloatPos(-200.0, rect.size.1),
-                Rect::new(FloatPos(0.0, 500.0), FloatSize(wf, 200.0)),
+                Rect::new(FloatPos(0.0, 500.0), FloatSize(shadow_edge_width, 200.0)),
             ),
             (
-                rect.pos + FloatPos(rect.size.0, rect.size.1 - hf + 200.0),
-                Rect::new(FloatPos(500.0, 700.0 - hf), FloatSize(200.0, hf - 200.0)),
+                rect.pos + FloatPos(rect.size.0, rect.size.1 - shadow_edge_height + 200.0),
+                Rect::new(
+                    FloatPos(500.0, 700.0 - shadow_edge_height),
+                    FloatSize(200.0, shadow_edge_height - 200.0),
+                ),
             ),
             (
-                rect.pos + FloatPos(rect.size.0 - wc + 200.0, rect.size.1),
-                Rect::new(FloatPos(700.0 - wc, 500.0), FloatSize(wc, 200.0)),
+                rect.pos + FloatPos(rect.size.0 - shadow_edge_width + 200.0, rect.size.1),
+                Rect::new(
+                    FloatPos(700.0 - shadow_edge_width, 500.0),
+                    FloatSize(shadow_edge_width, 200.0),
+                ),
             ),
         ];
 

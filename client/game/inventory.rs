@@ -31,14 +31,7 @@ fn render_inventory_slot(
         FloatSize(INVENTORY_SLOT_SIZE, INVENTORY_SLOT_SIZE),
     );
     let hovered = rect.contains(graphics.renderer.get_mouse_pos());
-    rect.render(
-        graphics,
-        if hovered {
-            gfx::Color::new(100, 100, 100, 255)
-        } else {
-            gfx::LIGHT_GREY
-        },
-    );
+    rect.render(graphics, if hovered { gfx::GREY } else { gfx::DARK_GREY });
 
     if let Some(item) = item {
         let src_rect = items.get_atlas().get_rect(&item.item);
@@ -111,7 +104,7 @@ impl ClientInventory {
             INVENTORY_SLOT_SIZE + 2.0 * INVENTORY_SPACING,
             INVENTORY_SLOT_SIZE + 2.0 * INVENTORY_SPACING,
         );
-        self.hovered_slot_rect.fill_color = gfx::LIGHT_GREY.set_a(gfx::TRANSPARENCY);
+        self.hovered_slot_rect.fill_color = gfx::BLACK.set_a(gfx::TRANSPARENCY);
         self.hovered_slot_rect.smooth_factor = 40.0;
     }
 
