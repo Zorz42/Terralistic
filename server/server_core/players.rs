@@ -4,12 +4,12 @@ use crate::server::server_core::networking::{
 };
 use crate::shared::blocks::Blocks;
 use crate::shared::entities::{Entities, IdComponent, PhysicsComponent, PositionComponent};
-use crate::shared::inventory::Inventory;
+use crate::shared::inventory::{Inventory, InventoryPacket};
 use crate::shared::items::Items;
 use crate::shared::packet::Packet;
 use crate::shared::players::{
-    remove_all_picked_items, spawn_player, update_players_ms, InventoryPacket, PlayerComponent,
-    PlayerMovingPacket, PlayerSpawnPacket,
+    remove_all_picked_items, spawn_player, update_players_ms, PlayerComponent, PlayerMovingPacket,
+    PlayerSpawnPacket,
 };
 use anyhow::{anyhow, Result};
 use hecs::Entity;

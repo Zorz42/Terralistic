@@ -282,7 +282,8 @@ impl Game {
             self.camera.render(graphics);
             self.block_selector
                 .render(graphics, &mut self.networking, &self.camera)?;
-            self.inventory.render(graphics, &self.items);
+            self.inventory
+                .render(graphics, &self.items, &mut self.networking)?;
 
             pause_rect.pos.0 = if paused {
                 0.0
@@ -300,7 +301,7 @@ impl Game {
             quit_button.render(graphics, Some(&pause_rect.get_container(graphics, None)));
 
             while let Some(event) = self.events.pop_event() {
-                self.inventory.on_event(&event);
+                self.inventory.on_event(&event, &mut self.networking)?;
                 self.mods.on_event(&event)?;
                 self.blocks.on_event(&event, &mut self.events)?;
                 self.walls.on_event(&event)?;

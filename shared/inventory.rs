@@ -3,6 +3,7 @@ use crate::shared::entities::Entities;
 use crate::shared::items::{ItemId, ItemStack, Items};
 use anyhow::{anyhow, bail, Result};
 use serde::{Deserialize, Serialize};
+use serde_derive;
 use std::collections::HashMap;
 
 pub struct Recipe {
@@ -223,4 +224,14 @@ impl<'de> Deserialize<'de> for Inventory {
             selected_slot: None,
         })
     }
+}
+
+#[derive(serde_derive::Serialize, serde_derive::Deserialize)]
+pub struct InventoryPacket {
+    pub inventory: Inventory,
+}
+
+#[derive(serde_derive::Serialize, serde_derive::Deserialize)]
+pub struct InventorySelectPacket {
+    pub slot: Option<usize>,
 }

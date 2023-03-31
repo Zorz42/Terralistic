@@ -88,6 +88,7 @@ function init()
     item_type["name"] = "dirt"
     item_type["display_name"] = "Dirt Block"
     item_type["max_stack"] = 99
+    item_type["places_block"] = dirt_block
     dirt_item = terralistic_register_item_type(item_type)
 
     terralistic_set_block_drop(dirt_block, dirt_item, 1)

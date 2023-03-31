@@ -1,11 +1,12 @@
 use crate::client::game::items::ClientItems;
+use crate::client::game::networking::ClientNetworking;
 use crate::libraries::events::Event;
 use crate::libraries::graphics as gfx;
 use crate::libraries::graphics::{FloatPos, FloatSize, GraphicsContext};
-use crate::shared::inventory::Inventory;
+use crate::shared::inventory::{Inventory, InventoryPacket, InventorySelectPacket};
 use crate::shared::items::ItemStack;
 use crate::shared::packet::Packet;
-use crate::shared::players::InventoryPacket;
+use anyhow::Result;
 
 pub struct ClientInventory {
     is_open: bool,
@@ -114,18 +115,23 @@ impl ClientInventory {
         self.hovered_slot_rect.smooth_factor = 40.0;
     }
 
-    pub fn render(&mut self, graphics: &mut GraphicsContext, items: &ClientItems) {
+    pub fn render(
+        &mut self,
+        graphics: &mut GraphicsContext,
+        items: &ClientItems,
+        networking: &mut ClientNetworking,
+    ) -> Result<()> {
         let open_target = if self.is_open { 1.0 } else { 0.0 };
         self.open_progress += (open_target - self.open_progress) / 10.0;
 
         if !self.is_open {
             if self.inventory.selected_slot.is_none() {
-                self.select_slot(Some(0));
+                self.select_slot(Some(0), networking)?;
             }
 
             if let Some(slot) = self.inventory.selected_slot {
                 if slot >= 10 {
-                    self.select_slot(Some(slot - 10));
+                    self.select_slot(Some(slot - 10), networking)?;
                 }
             }
         }
@@ -203,30 +209,37 @@ impl ClientInventory {
                 }
             }
         }
+        Ok(())
     }
 
-    fn select_slot(&mut self, slot: Option<usize>) {
+    fn select_slot(
+        &mut self,
+        slot: Option<usize>,
+        networking: &mut ClientNetworking,
+    ) -> Result<()> {
         self.inventory.selected_slot = slot;
+        let packet = InventorySelectPacket { slot };
+        networking.send_packet(Packet::new(packet)?)
     }
 
-    pub fn on_event(&mut self, event: &Event) {
+    pub fn on_event(&mut self, event: &Event, networking: &mut ClientNetworking) -> Result<()> {
         if let Some(gfx::Event::KeyPress { 0: key, .. }) = event.downcast::<gfx::Event>() {
             match *key {
-                gfx::Key::Num1 => self.select_slot(Some(0)),
-                gfx::Key::Num2 => self.select_slot(Some(1)),
-                gfx::Key::Num3 => self.select_slot(Some(2)),
-                gfx::Key::Num4 => self.select_slot(Some(3)),
-                gfx::Key::Num5 => self.select_slot(Some(4)),
-                gfx::Key::Num6 => self.select_slot(Some(5)),
-                gfx::Key::Num7 => self.select_slot(Some(6)),
-                gfx::Key::Num8 => self.select_slot(Some(7)),
-                gfx::Key::Num9 => self.select_slot(Some(8)),
-                gfx::Key::Num0 => self.select_slot(Some(9)),
+                gfx::Key::Num1 => self.select_slot(Some(0), networking)?,
+                gfx::Key::Num2 => self.select_slot(Some(1), networking)?,
+                gfx::Key::Num3 => self.select_slot(Some(2), networking)?,
+                gfx::Key::Num4 => self.select_slot(Some(3), networking)?,
+                gfx::Key::Num5 => self.select_slot(Some(4), networking)?,
+                gfx::Key::Num6 => self.select_slot(Some(5), networking)?,
+                gfx::Key::Num7 => self.select_slot(Some(6), networking)?,
+                gfx::Key::Num8 => self.select_slot(Some(7), networking)?,
+                gfx::Key::Num9 => self.select_slot(Some(8), networking)?,
+                gfx::Key::Num0 => self.select_slot(Some(9), networking)?,
                 gfx::Key::MouseLeft => {
                     if self.inventory.selected_slot == self.hovered_slot {
-                        self.select_slot(None);
+                        self.select_slot(None, networking)?;
                     } else {
-                        self.select_slot(self.hovered_slot);
+                        self.select_slot(self.hovered_slot, networking)?;
                     }
                 }
                 gfx::Key::E => {
@@ -241,5 +254,7 @@ impl ClientInventory {
                 self.inventory = packet.inventory;
             }
         }
+
+        Ok(())
     }
 }

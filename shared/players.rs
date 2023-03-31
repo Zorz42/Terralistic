@@ -286,8 +286,3 @@ pub struct PlayerSpawnPacket {
 pub struct NamePacket {
     pub name: String,
 }
-
-#[derive(Serialize, Deserialize)]
-pub struct InventoryPacket {
-    pub inventory: Inventory,
-}
