@@ -33,7 +33,15 @@ impl LightChunk {
             self.rect_array = gfx::RectArray::new();
             for x in 0..CHUNK_SIZE {
                 for y in 0..CHUNK_SIZE {
-                    let curr_light = lights.get_light_color(world_x + x, world_y + y)?;
+                    let light_1 = lights.get_light_color(
+                        i32::max(world_x + x - 1, 0),
+                        i32::max(world_y + y - 1, 0),
+                    )?;
+                    let light_2 =
+                        lights.get_light_color(world_x + x, i32::max(world_y + y - 1, 0))?;
+                    let light_3 =
+                        lights.get_light_color(i32::max(world_x + x - 1, 0), world_y + y)?;
+                    let light_4 = lights.get_light_color(world_x + x, world_y + y)?;
 
                     self.rect_array.add_rect(
                         &gfx::Rect::new(
@@ -41,10 +49,10 @@ impl LightChunk {
                             FloatSize(RENDER_BLOCK_WIDTH, RENDER_BLOCK_WIDTH),
                         ),
                         &[
-                            gfx::Color::new(curr_light.r, curr_light.g, curr_light.b, 255),
-                            gfx::Color::new(curr_light.r, curr_light.g, curr_light.b, 255),
-                            gfx::Color::new(curr_light.r, curr_light.g, curr_light.b, 255),
-                            gfx::Color::new(curr_light.r, curr_light.g, curr_light.b, 255),
+                            gfx::Color::new(light_1.r, light_1.g, light_1.b, 255),
+                            gfx::Color::new(light_2.r, light_2.g, light_2.b, 255),
+                            gfx::Color::new(light_3.r, light_3.g, light_3.b, 255),
+                            gfx::Color::new(light_4.r, light_4.g, light_4.b, 255),
                         ],
                         &gfx::Rect::new(FloatPos(0.0, 0.0), FloatSize(0.0, 0.0)),
                     );
@@ -182,13 +190,22 @@ impl ClientLights {
         self.lights.on_event(event, blocks)?;
 
         if let Some(event) = event.downcast::<LightColorChangeEvent>() {
-            let chunk_index = self.get_chunk_index(event.x / CHUNK_SIZE, event.y / CHUNK_SIZE)?;
-            let chunk = self
-                .chunks
-                .get_mut(chunk_index)
-                .ok_or_else(|| anyhow!("Chunk array malformed"))?;
+            let pos = [
+                (event.x / CHUNK_SIZE, event.y / CHUNK_SIZE),
+                ((event.x + 1) / CHUNK_SIZE, event.y / CHUNK_SIZE),
+                (event.x / CHUNK_SIZE, (event.y + 1) / CHUNK_SIZE),
+                ((event.x + 1) / CHUNK_SIZE, (event.y + 1) / CHUNK_SIZE),
+            ];
 
-            chunk.needs_update = true;
+            for (x, y) in pos {
+                let chunk_index = self.get_chunk_index(x, y)?;
+                let chunk = self
+                    .chunks
+                    .get_mut(chunk_index)
+                    .ok_or_else(|| anyhow!("Chunk array malformed"))?;
+
+                chunk.needs_update = true;
+            }
         }
         Ok(())
     }
