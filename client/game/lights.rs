@@ -116,8 +116,8 @@ impl ClientLights {
     ) -> Result<()> {
         let start_x = camera.get_top_left(graphics).0 as i32;
         let start_y = camera.get_top_left(graphics).1 as i32;
-        let end_x = camera.get_bottom_right(graphics).0 as i32 + 1;
-        let end_y = camera.get_bottom_right(graphics).1 as i32 + 1;
+        let end_x = camera.get_bottom_right(graphics).0 as i32;
+        let end_y = camera.get_bottom_right(graphics).1 as i32;
 
         let extended_view_distance = 10;
         let extended_start_x = start_x - extended_view_distance;
@@ -125,20 +125,27 @@ impl ClientLights {
         let extended_end_x = end_x + extended_view_distance;
         let extended_end_y = end_y + extended_view_distance;
 
-        for x in extended_start_x..extended_end_x {
-            for y in extended_start_y..extended_end_y {
-                if y < 0
-                    || y >= self.lights.get_height() as i32
-                    || x < 0
-                    || x >= self.lights.get_width() as i32
-                {
-                    continue;
-                }
+        loop {
+            let mut updated = false;
+            for x in extended_start_x..extended_end_x {
+                for y in extended_start_y..extended_end_y {
+                    if y < 0
+                        || y >= self.lights.get_height() as i32
+                        || x < 0
+                        || x >= self.lights.get_width() as i32
+                    {
+                        continue;
+                    }
 
-                self.lights.update_light_emitter(x, y, blocks)?;
-                if self.lights.has_scheduled_light_update(x, y)? {
-                    self.lights.update_light(x, y, blocks, events)?;
+                    self.lights.update_light_emitter(x, y, blocks)?;
+                    if self.lights.has_scheduled_light_update(x, y)? {
+                        self.lights.update_light(x, y, blocks, events)?;
+                        updated = true;
+                    }
                 }
+            }
+            if !updated {
+                break;
             }
         }
 

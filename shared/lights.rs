@@ -100,18 +100,10 @@ impl Lights {
             self.get_light_mut(x, y)?.color = color;
             events.push_event(Event::new(LightColorChangeEvent { x, y }));
 
-            if x < self.map.get_width() as i32 - 1 {
-                self.get_light_mut(x + 1, y)?.update_light = true;
-            }
-            if x > 0 {
-                self.get_light_mut(x - 1, y)?.update_light = true;
-            }
-            if y < self.map.get_height() as i32 - 1 {
-                self.get_light_mut(x, y + 1)?.update_light = true;
-            }
-            if y > 0 {
-                self.get_light_mut(x, y - 1)?.update_light = true;
-            }
+            self.schedule_light_update(x + 1, y).ok();
+            self.schedule_light_update(x - 1, y).ok();
+            self.schedule_light_update(x, y + 1).ok();
+            self.schedule_light_update(x, y - 1).ok();
         }
         Ok(())
     }
@@ -266,7 +258,6 @@ impl Lights {
     /// returns an error if the coordinates are out of bounds
     pub fn schedule_light_update(&mut self, x: i32, y: i32) -> Result<()> {
         self.get_light_mut(x, y)?.update_light = true;
-        //self.light_update_schedule_event.send(LightUpdateScheduleEvent::new(x, y));
         Ok(())
     }
 
@@ -348,12 +339,6 @@ impl Lights {
 
 /// event that fires when the light color is changed
 pub struct LightColorChangeEvent {
-    pub x: i32,
-    pub y: i32,
-}
-
-/// event that fires when the light is scheduled to be updated
-pub struct LightUpdateScheduleEvent {
     pub x: i32,
     pub y: i32,
 }
