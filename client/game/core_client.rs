@@ -325,7 +325,7 @@ impl Game {
                     &event,
                 )?;
                 self.players.on_event(&event, &mut self.entities.entities);
-                self.lights.lights.on_event(&event, &self.blocks.blocks)?;
+                self.lights.on_event(&event, &self.blocks.blocks)?;
                 self.camera.on_event(&event);
             }
 

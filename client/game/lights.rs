@@ -1,10 +1,10 @@
 use crate::client::game::camera::Camera;
-use crate::libraries::events::EventManager;
+use crate::libraries::events::{Event, EventManager};
 use crate::libraries::graphics as gfx;
 use crate::libraries::graphics::{FloatPos, FloatSize, GraphicsContext};
-use crate::shared::blocks::{Blocks, RENDER_BLOCK_WIDTH};
-use crate::shared::lights::Lights;
-use anyhow::Result;
+use crate::shared::blocks::{Blocks, CHUNK_SIZE, RENDER_BLOCK_WIDTH};
+use crate::shared::lights::{LightColorChangeEvent, Lights};
+use anyhow::{anyhow, bail, Result};
 
 pub struct LightChunk {
     pub rect_array: gfx::RectArray,
@@ -17,6 +17,52 @@ impl LightChunk {
             rect_array: gfx::RectArray::new(),
             needs_update: true,
         }
+    }
+
+    pub fn render(
+        &mut self,
+        graphics: &mut GraphicsContext,
+        world_x: i32,
+        world_y: i32,
+        lights: &Lights,
+        camera: &Camera,
+    ) -> Result<()> {
+        if self.needs_update {
+            self.needs_update = false;
+
+            self.rect_array = gfx::RectArray::new();
+            for x in 0..CHUNK_SIZE {
+                for y in 0..CHUNK_SIZE {
+                    let curr_light = lights.get_light_color(world_x + x, world_y + y)?;
+
+                    self.rect_array.add_rect(
+                        &gfx::Rect::new(
+                            FloatPos(x as f32 * RENDER_BLOCK_WIDTH, y as f32 * RENDER_BLOCK_WIDTH),
+                            FloatSize(RENDER_BLOCK_WIDTH, RENDER_BLOCK_WIDTH),
+                        ),
+                        &[
+                            gfx::Color::new(curr_light.r, curr_light.g, curr_light.b, 255),
+                            gfx::Color::new(curr_light.r, curr_light.g, curr_light.b, 255),
+                            gfx::Color::new(curr_light.r, curr_light.g, curr_light.b, 255),
+                            gfx::Color::new(curr_light.r, curr_light.g, curr_light.b, 255),
+                        ],
+                        &gfx::Rect::new(FloatPos(0.0, 0.0), FloatSize(0.0, 0.0)),
+                    );
+                }
+            }
+
+            self.rect_array.update();
+        }
+
+        let screen_x = world_x as f32 * RENDER_BLOCK_WIDTH
+            - camera.get_top_left(graphics).0 * RENDER_BLOCK_WIDTH;
+        let screen_y = world_y as f32 * RENDER_BLOCK_WIDTH
+            - camera.get_top_left(graphics).1 * RENDER_BLOCK_WIDTH;
+        gfx::set_blend_mode(gfx::BlendMode::Multiply);
+        self.rect_array
+            .render(graphics, None, FloatPos(screen_x.round(), screen_y.round()));
+        gfx::set_blend_mode(gfx::BlendMode::Alpha);
+        Ok(())
     }
 }
 
@@ -32,6 +78,19 @@ impl ClientLights {
             lights: Lights::new(),
             chunks: Vec::new(),
         }
+    }
+
+    fn get_chunk_index(&self, x: i32, y: i32) -> Result<usize> {
+        // check if x and y are in bounds
+        if x < 0
+            || y < 0
+            || x >= self.lights.get_width() as i32 / CHUNK_SIZE
+            || y >= self.lights.get_height() as i32 / CHUNK_SIZE
+        {
+            bail!("Tried to get chunk at {x}, {y} but it is out of bounds");
+        }
+
+        Ok((x + y * (self.lights.get_width() as i32 / CHUNK_SIZE)) as usize)
     }
 
     pub fn init(&mut self, blocks: &Blocks) -> Result<()> {
@@ -83,33 +142,47 @@ impl ClientLights {
             }
         }
 
-        for x in start_x..end_x {
-            for y in start_y..end_y {
+        for x in start_x / CHUNK_SIZE..=end_x / CHUNK_SIZE {
+            for y in start_y / CHUNK_SIZE..=end_y / CHUNK_SIZE {
                 if y < 0
-                    || y >= self.lights.get_height() as i32
+                    || y >= self.lights.get_height() as i32 / CHUNK_SIZE
                     || x < 0
-                    || x >= self.lights.get_width() as i32
+                    || x >= self.lights.get_width() as i32 / CHUNK_SIZE
                 {
                     continue;
                 }
 
-                let light = self.lights.get_light_color(x, y)?;
+                let chunk_index = self.get_chunk_index(x, y)?;
+                let chunk = self
+                    .chunks
+                    .get_mut(chunk_index)
+                    .ok_or_else(|| anyhow!("Chunk array malformed"))?;
 
-                let rect = gfx::Rect::new(
-                    FloatPos(
-                        (x as f32 - camera.get_top_left(graphics).0) * RENDER_BLOCK_WIDTH,
-                        (y as f32 - camera.get_top_left(graphics).1) * RENDER_BLOCK_WIDTH,
-                    ),
-                    FloatSize(RENDER_BLOCK_WIDTH, RENDER_BLOCK_WIDTH),
-                );
-
-                let color = gfx::Color::new(light.r, light.g, light.b, 255);
-                gfx::set_blend_mode(gfx::BlendMode::Multiply);
-                rect.render(graphics, color);
-                gfx::set_blend_mode(gfx::BlendMode::Alpha);
+                chunk.render(
+                    graphics,
+                    x * CHUNK_SIZE,
+                    y * CHUNK_SIZE,
+                    &self.lights,
+                    camera,
+                )?;
             }
         }
 
+        Ok(())
+    }
+
+    pub fn on_event(&mut self, event: &Event, blocks: &Blocks) -> Result<()> {
+        self.lights.on_event(event, blocks)?;
+
+        if let Some(event) = event.downcast::<LightColorChangeEvent>() {
+            let chunk_index = self.get_chunk_index(event.x / CHUNK_SIZE, event.y / CHUNK_SIZE)?;
+            let chunk = self
+                .chunks
+                .get_mut(chunk_index)
+                .ok_or_else(|| anyhow!("Chunk array malformed"))?;
+
+            chunk.needs_update = true;
+        }
         Ok(())
     }
 }
