@@ -34,10 +34,8 @@ impl UiManager {
             module.init(&mut self.graphics_context);
         }
 
-        gfx::RenderRect::new(
-            gfx::FloatPos(0.0, 0.0),
-            gfx::FloatSize(0.0, 0.0)
-        ).render(&self.graphics_context, None);
+        gfx::RenderRect::new(gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, 0.0))
+            .render(&self.graphics_context, None);
 
         loop {
             let mut server_state = ServerState::Nothing;
@@ -91,5 +89,9 @@ pub trait ModuleTrait {
     //renders the module
     fn render(&mut self, graphics_context: &mut gfx::GraphicsContext);
     //relay messages from the server to the module
-    fn on_server_message(&mut self, message: &UiMessageType, graphics_context: &mut gfx::GraphicsContext);
+    fn on_server_message(
+        &mut self,
+        message: &UiMessageType,
+        graphics_context: &mut gfx::GraphicsContext,
+    );
 }
