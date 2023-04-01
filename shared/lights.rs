@@ -1,4 +1,5 @@
-use crate::shared::blocks::Blocks;
+use crate::libraries::events::Event;
+use crate::shared::blocks::{BlockChangeEvent, Blocks};
 use crate::shared::world_map::WorldMap;
 use anyhow::{anyhow, Result};
 
@@ -48,6 +49,7 @@ impl Light {
 pub struct Lights {
     lights: Vec<Light>,
     map: WorldMap,
+    sky_heights: Vec<i32>,
 }
 
 impl Lights {
@@ -56,6 +58,7 @@ impl Lights {
         Self {
             lights: Vec::new(),
             map: WorldMap::new_empty(),
+            sky_heights: Vec::new(),
         }
     }
 
@@ -110,6 +113,26 @@ impl Lights {
     pub fn create(&mut self, width: u32, height: u32) {
         self.lights = vec![Light::new(); (width * height) as usize];
         self.map = WorldMap::new(width, height);
+        self.sky_heights = vec![-1; width as usize];
+    }
+
+    /// initializes sky heights
+    /// # Errors
+    /// returns an error if the block at the given coordinate is not found
+    pub fn init_sky_heights(&mut self, blocks: &Blocks) -> Result<()> {
+        for x in 0..self.map.get_width() {
+            for y in 0..self.map.get_height() {
+                if blocks.get_block_type_at(x as i32, y as i32)?.transparent {
+                    *self
+                        .sky_heights
+                        .get_mut(x as usize)
+                        .ok_or_else(|| anyhow!("sky_heights out of bounds"))? = y as i32;
+                } else {
+                    break;
+                }
+            }
+        }
+        Ok(())
     }
 
     /// updates the light at the given coordinate
@@ -146,9 +169,9 @@ impl Lights {
                     .get_block_type_at(neighbour[0], neighbour[1])?
                     .transparent
                 {
-                    3
+                    8
                 } else {
-                    15
+                    40
                 };
 
                 let r = if light_step > self.get_light_color(neighbour[0], neighbour[1])?.r {
@@ -256,36 +279,53 @@ impl Lights {
     /// returns an error if the coordinates are out of bounds
     pub fn update_light_emitter(&mut self, x: i32, y: i32, blocks: &Blocks) -> Result<()> {
         let block_type = blocks.get_block_type_at(x, y)?;
-        if block_type.get_id() != blocks.air {
-            self.set_light_source(
-                x,
-                y,
-                LightColor::new(
-                    block_type.light_emission_r,
-                    block_type.light_emission_g,
-                    block_type.light_emission_b,
-                ),
-            )?;
+        let mut light_emission_r = block_type.light_emission_r;
+        let mut light_emission_g = block_type.light_emission_g;
+        let mut light_emission_b = block_type.light_emission_b;
+
+        if y <= *self.sky_heights.get(x as usize).unwrap_or(&-1) {
+            light_emission_r = u8::max(light_emission_r, 255);
+            light_emission_g = u8::max(light_emission_g, 255);
+            light_emission_b = u8::max(light_emission_b, 255);
         }
+
+        self.set_light_source(
+            x,
+            y,
+            LightColor::new(light_emission_r, light_emission_g, light_emission_b),
+        )?;
         Ok(())
     }
 
-    /// updates the light emitter at the given column and adds natural light
-    /// # Errors
-    /// returns an error if the coordinates are out of bounds
-    pub fn update_column(&mut self, x: i32, blocks: &Blocks) -> Result<()> {
-        let mut y = 0;
-        let mut in_the_air = true;
-        while y < self.get_height() as i32 {
-            self.update_light_emitter(x, y, blocks)?;
-            if !blocks.get_block_type_at(x, y)?.transparent {
-                in_the_air = false;
-            }
+    pub fn on_event(&mut self, event: &Event, blocks: &Blocks) -> Result<()> {
+        if let Some(event) = event.downcast::<BlockChangeEvent>() {
+            let curr_block_transparent = blocks.get_block_type_at(event.x, event.y)?.transparent;
+            let prev_block_transparent = blocks.get_block_type(event.prev_block)?.transparent;
 
-            if in_the_air {
-                self.set_light_source(x, y, LightColor::new(255, 255, 255))?;
+            if curr_block_transparent
+                && !prev_block_transparent
+                && *self.sky_heights.get(event.x as usize).unwrap_or(&0) == event.y - 1
+            {
+                let mut sky_height = event.y;
+                while sky_height < self.get_height() as i32
+                    && blocks.get_block_type_at(event.x, sky_height)?.transparent
+                {
+                    sky_height += 1;
+                }
+
+                *self
+                    .sky_heights
+                    .get_mut(event.x as usize)
+                    .ok_or_else(|| anyhow!("sky_heights out of bounds"))? = sky_height - 1;
+            } else if !curr_block_transparent
+                && prev_block_transparent
+                && *self.sky_heights.get(event.x as usize).unwrap_or(&0) >= event.y
+            {
+                *self
+                    .sky_heights
+                    .get_mut(event.x as usize)
+                    .ok_or_else(|| anyhow!("sky_heights out of bounds"))? = event.y - 1;
             }
-            y += 1;
         }
         Ok(())
     }

@@ -139,6 +139,7 @@ impl Game {
             self.blocks.blocks.get_width(),
             self.blocks.blocks.get_height(),
         );
+        self.lights.lights.init_sky_heights(&self.blocks.blocks)?;
 
         self.blocks.load_resources(&mut self.mods.mod_manager)?;
         self.walls.load_resources(&mut self.mods.mod_manager)?;
@@ -324,6 +325,7 @@ impl Game {
                     &event,
                 )?;
                 self.players.on_event(&event, &mut self.entities.entities);
+                self.lights.lights.on_event(&event, &self.blocks.blocks)?;
                 self.camera.on_event(&event);
             }
 
