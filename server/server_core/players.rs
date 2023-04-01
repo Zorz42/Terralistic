@@ -4,12 +4,12 @@ use crate::server::server_core::networking::{
 };
 use crate::shared::blocks::Blocks;
 use crate::shared::entities::{Entities, IdComponent, PhysicsComponent, PositionComponent};
-use crate::shared::inventory::{Inventory, InventoryPacket};
+use crate::shared::inventory::{Inventory, InventoryPacket, InventorySelectPacket};
 use crate::shared::items::Items;
 use crate::shared::packet::Packet;
 use crate::shared::players::{
     remove_all_picked_items, spawn_player, update_players_ms, PlayerComponent, PlayerMovingPacket,
-    PlayerSpawnPacket,
+    PlayerSpawnPacket, PLAYER_HEIGHT, PLAYER_WIDTH,
 };
 use anyhow::{anyhow, Result};
 use hecs::Entity;
@@ -37,13 +37,7 @@ impl ServerPlayers {
     ) -> Result<()> {
         if let Some(packet_event) = event.downcast::<PacketFromClientEvent>() {
             if let Some(packet) = packet_event.packet.try_deserialize::<PlayerMovingPacket>() {
-                let player_entity =
-                    *self
-                        .conns_to_players
-                        .get(&packet_event.conn)
-                        .ok_or_else(|| {
-                            anyhow!("Received PlayerMovingPacket from unknown connection")
-                        })?;
+                let player_entity = self.get_player_from_connection(&packet_event.conn)?;
                 let mut player_component =
                     entities.ecs.get::<&mut PlayerComponent>(player_entity)?;
                 let mut physics_component =
@@ -59,12 +53,32 @@ impl ServerPlayers {
                 })?;
                 networking
                     .send_packet(&packet, SendTarget::AllExcept(packet_event.conn.clone()))?;
+            } else if let Some(packet) = packet_event
+                .packet
+                .try_deserialize::<InventorySelectPacket>()
+            {
+                let player_entity = self.get_player_from_connection(&packet_event.conn)?;
+                let mut inventory = entities.ecs.get::<&mut Inventory>(player_entity)?;
+                inventory.selected_slot = packet.slot;
             }
         }
 
         if let Some(new_connection_event) = event.downcast::<NewConnectionWelcomedEvent>() {
             let spawn_x = blocks.get_width() as f32 / 2.0;
-            let spawn_y = 0.0;
+            let mut spawn_y = 0.0;
+            // find a spawn point
+            // iterate from the top of the map to the bottom
+            for y in (0..blocks.get_height()).rev() {
+                for x in 0..(PLAYER_WIDTH.ceil() as i32) {
+                    if !blocks
+                        .get_block_type(blocks.get_block(spawn_x as i32 + x, y as i32)?)?
+                        .ghost
+                    {
+                        spawn_y = y as f32 - PLAYER_HEIGHT;
+                        break;
+                    }
+                }
+            }
 
             for (_entity, (player, position, id)) in entities
                 .ecs
@@ -127,5 +141,12 @@ impl ServerPlayers {
             }
         }
         Ok(())
+    }
+
+    pub fn get_player_from_connection(&self, conn: &Connection) -> Result<Entity> {
+        self.conns_to_players
+            .get(conn)
+            .ok_or_else(|| anyhow!("Received PlayerMovingPacket from unknown connection"))
+            .cloned()
     }
 }

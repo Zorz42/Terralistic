@@ -1,10 +1,15 @@
 use super::networking::{Connection, NewConnectionEvent, PacketFromClientEvent, ServerNetworking};
 use crate::libraries::events::{Event, EventManager};
 use crate::server::server_core::networking::SendTarget;
+use crate::server::server_core::players::ServerPlayers;
 use crate::shared::blocks::{
     BlockBreakStartPacket, BlockBreakStopPacket, BlockChangeEvent, BlockChangePacket,
-    BlockStartedBreakingEvent, BlockStoppedBreakingEvent, Blocks, BlocksWelcomePacket,
+    BlockRightClickPacket, BlockStartedBreakingEvent, BlockStoppedBreakingEvent, Blocks,
+    BlocksWelcomePacket,
 };
+use crate::shared::entities::Entities;
+use crate::shared::inventory::Inventory;
+use crate::shared::items::Items;
 use crate::shared::mod_manager::ModManager;
 use crate::shared::packet::Packet;
 use anyhow::Result;
@@ -33,6 +38,9 @@ impl ServerBlocks {
         event: &Event,
         events: &mut EventManager,
         networking: &mut ServerNetworking,
+        entities: &mut Entities,
+        players: &mut ServerPlayers,
+        items: &mut Items,
     ) -> Result<()> {
         if let Some(event) = event.downcast::<NewConnectionEvent>() {
             let welcome_packet = Packet::new(BlocksWelcomePacket {
@@ -55,6 +63,22 @@ impl ServerBlocks {
                 self.conns_breaking.remove(&event.conn);
                 self.blocks
                     .stop_breaking_block(events, packet.x, packet.y)?;
+            } else if let Some(packet) = event.packet.try_deserialize::<BlockRightClickPacket>() {
+                let block = self.blocks.get_block(packet.x, packet.y)?;
+                if block == self.blocks.air {
+                    let player = players.get_player_from_connection(&event.conn)?;
+                    let mut player_inventory = entities.ecs.get::<&mut Inventory>(player)?;
+                    let selected_item = player_inventory.get_selected_item();
+                    if let Some(mut selected_item) = selected_item {
+                        let item_info = items.get_item_type(selected_item.item)?;
+                        if let Some(block) = item_info.places_block {
+                            self.blocks.set_block(events, packet.x, packet.y, block)?;
+                            selected_item.count -= 1;
+                            let selected_slot = player_inventory.selected_slot.unwrap_or(0);
+                            player_inventory.set_item(selected_slot, Some(selected_item))?;
+                        }
+                    }
+                }
             }
         } else if let Some(event) = event.downcast::<BlockStartedBreakingEvent>() {
             let packet = Packet::new(BlockBreakStartPacket {

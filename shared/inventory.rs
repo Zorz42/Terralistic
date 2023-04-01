@@ -62,7 +62,13 @@ impl Inventory {
 
     /// # Errors
     /// if the index is out of bounds
-    pub fn set_item(&mut self, index: usize, item: Option<ItemStack>) -> Result<()> {
+    pub fn set_item(&mut self, index: usize, mut item: Option<ItemStack>) -> Result<()> {
+        if let Some(item_stack) = item.clone() {
+            if item_stack.count <= 0 {
+                item = None;
+            }
+        }
+
         if self.get_item(index)? != item {
             self.has_changed = true;
             *self

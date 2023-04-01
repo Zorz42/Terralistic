@@ -167,8 +167,14 @@ impl Server {
             // handle events
             while let Some(event) = self.events.pop_event() {
                 self.mods.on_event(&event, &mut self.networking)?;
-                self.blocks
-                    .on_event(&event, &mut self.events, &mut self.networking)?;
+                self.blocks.on_event(
+                    &event,
+                    &mut self.events,
+                    &mut self.networking,
+                    &mut self.entities.entities,
+                    &mut self.players,
+                    &mut self.items.items,
+                )?;
                 self.walls.on_event(&event, &mut self.networking)?;
                 self.items.on_event(
                     &event,
@@ -205,8 +211,9 @@ impl Server {
                 self.entities.sync_entities(&mut self.networking)?;
                 sec_counter = std::time::Instant::now();
 
-                self.send_to_ui(&UiMessageType::MsptUpdate(//send microseconds per tick each second
-                    micros / ticks
+                self.send_to_ui(&UiMessageType::MsptUpdate(
+                    //send microseconds per tick each second
+                    micros / ticks,
                 ));
                 ticks = 0;
                 micros = 0;

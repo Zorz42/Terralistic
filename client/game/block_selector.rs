@@ -3,7 +3,9 @@ use super::networking::ClientNetworking;
 use crate::libraries::events::Event;
 use crate::libraries::graphics as gfx;
 use crate::libraries::graphics::{FloatPos, FloatSize};
-use crate::shared::blocks::{BlockBreakStartPacket, BlockBreakStopPacket, RENDER_BLOCK_WIDTH};
+use crate::shared::blocks::{
+    BlockBreakStartPacket, BlockBreakStopPacket, BlockRightClickPacket, RENDER_BLOCK_WIDTH,
+};
 use crate::shared::packet::Packet;
 use anyhow::Result;
 
@@ -107,6 +109,14 @@ impl BlockSelector {
                 }
                 gfx::Event::KeyRelease(gfx::Key::MouseLeft, ..) => {
                     self.stop_breaking(networking, Self::get_selected_block(graphics, camera))?;
+                }
+                gfx::Event::KeyPress(gfx::Key::MouseRight, ..) => {
+                    let selected_block = Self::get_selected_block(graphics, camera);
+                    let packet = Packet::new(BlockRightClickPacket {
+                        x: selected_block.0,
+                        y: selected_block.1,
+                    })?;
+                    networking.send_packet(packet)?;
                 }
                 _ => {}
             }

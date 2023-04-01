@@ -443,3 +443,11 @@ pub struct BlockBreakStopPacket {
     pub y: i32,
     pub break_time: i32,
 }
+
+/// A packet that is sent to the server, when client
+/// right clicks a block.
+#[derive(Serialize, Deserialize)]
+pub struct BlockRightClickPacket {
+    pub x: i32,
+    pub y: i32,
+}
