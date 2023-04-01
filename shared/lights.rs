@@ -57,7 +57,7 @@ impl Lights {
     pub const fn new() -> Self {
         Self {
             lights: Vec::new(),
-            map: WorldMap::new(0, 0),
+            map: WorldMap::new_empty(),
         }
     }
 
@@ -102,9 +102,11 @@ impl Lights {
     }
 
     /// updates the light at the given coordinate
+    /// # Errors
+    /// returns an error if the light at the given coordinate is not found
     pub fn update_light(&mut self, x: i32, y: i32, blocks: &Blocks) -> Result<()> {
         self.get_light_mut(x, y)?.update_light = false;
-        self.update_light_emitter(x, y, blocks);
+        self.update_light_emitter(x, y, blocks)?;
 
         let mut neighbours = [[-1, 0], [-1, 0], [-1, 0], [-1, 0]];
         {
@@ -179,6 +181,8 @@ impl Lights {
         Ok(())
     }
     /// sets the coordinates x and y to be a light source
+    /// # Errors
+    /// returns an error if the coordinates are out of bounds
     pub fn set_light_source(&mut self, x: i32, y: i32, color: LightColor) -> Result<()> {
         self.get_light_mut(x, y)?.source = color != LightColor::new(0, 0, 0);
         if self.get_light(x, y)?.source_color != color {
@@ -188,18 +192,26 @@ impl Lights {
         Ok(())
     }
     /// returns whether the coordinates x and y are a light source
+    /// # Errors
+    /// returns an error if the coordinates are out of bounds
     pub fn is_light_source(&self, x: i32, y: i32) -> Result<bool> {
         Ok(self.get_light(x, y)?.source)
     }
     /// returns the light color at the given coordinate
+    /// # Errors
+    /// returns an error if the coordinates are out of bounds
     pub fn get_light_color(&self, x: i32, y: i32) -> Result<LightColor> {
         Ok(self.get_light(x, y)?.color)
     }
     /// returns the light source color at the given coordinate
+    /// # Errors
+    /// returns an error if the coordinates are out of bounds
     pub fn get_light_source_color(&self, x: i32, y: i32) -> Result<LightColor> {
         Ok(self.get_light(x, y)?.source_color)
     }
     /// schedules a light update for the given coordinate
+    /// # Errors
+    /// returns an error if the coordinates are out of bounds
     pub fn schedule_light_update(&mut self, x: i32, y: i32) -> Result<()> {
         self.get_light_mut(x, y)?.update_light = true;
         //self.light_update_schedule_event.send(LightUpdateScheduleEvent::new(x, y));
@@ -207,6 +219,8 @@ impl Lights {
     }
 
     /// returns whether the light at the given coordinate needs to be updated
+    /// # Errors
+    /// returns an error if the coordinates are out of bounds
     pub fn has_scheduled_light_update(&self, x: i32, y: i32) -> Result<bool> {
         Ok(self.get_light(x, y)?.update_light)
     }
@@ -222,8 +236,10 @@ impl Lights {
     }
 
     /// updates the light emitter at the given coordinate
+    /// # Errors
+    /// returns an error if the coordinates are out of bounds
     pub fn update_light_emitter(&mut self, x: i32, y: i32, blocks: &Blocks) -> Result<()> {
-        let block_type = blocks.get_block_type_at(x, y).unwrap();
+        let block_type = blocks.get_block_type_at(x, y)?;
         if block_type.get_id() != blocks.air {
             self.set_light_source(
                 x,

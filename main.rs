@@ -60,6 +60,7 @@
 #![allow(clippy::similar_names)]
 #![allow(clippy::ptr_as_ptr)]
 #![allow(clippy::shadow_unrelated)]
+#![allow(clippy::many_single_char_names)]
 
 extern crate alloc;
 
