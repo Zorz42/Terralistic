@@ -1,4 +1,4 @@
-use crate::libraries::events::Event;
+use crate::libraries::events::{Event, EventManager};
 use crate::shared::blocks::{BlockChangeEvent, Blocks};
 use crate::shared::world_map::WorldMap;
 use anyhow::{anyhow, Result};
@@ -89,10 +89,17 @@ impl Lights {
     }
 
     /// sets the light color at the given coordinate
-    fn set_light_color(&mut self, x: i32, y: i32, color: LightColor) -> Result<()> {
+    fn set_light_color(
+        &mut self,
+        x: i32,
+        y: i32,
+        color: LightColor,
+        events: &mut EventManager,
+    ) -> Result<()> {
         if self.get_light(x, y)?.color != color {
             self.get_light_mut(x, y)?.color = color;
-            //self.light_color_change_event.send(LightColorChangeEvent::new(x, y));
+            events.push_event(Event::new(LightColorChangeEvent { x, y }));
+
             if x < self.map.get_width() as i32 - 1 {
                 self.get_light_mut(x + 1, y)?.update_light = true;
             }
@@ -138,7 +145,13 @@ impl Lights {
     /// updates the light at the given coordinate
     /// # Errors
     /// returns an error if the light at the given coordinate is not found
-    pub fn update_light(&mut self, x: i32, y: i32, blocks: &Blocks) -> Result<()> {
+    pub fn update_light(
+        &mut self,
+        x: i32,
+        y: i32,
+        blocks: &Blocks,
+        events: &mut EventManager,
+    ) -> Result<()> {
         self.get_light_mut(x, y)?.update_light = false;
         self.update_light_emitter(x, y, blocks)?;
 
@@ -209,7 +222,7 @@ impl Lights {
         }
 
         if color_to_be != self.get_light_color(x, y)? {
-            self.set_light_color(x, y, color_to_be)?;
+            self.set_light_color(x, y, color_to_be, events)?;
             self.schedule_light_update(x, y)?;
         }
         Ok(())
@@ -297,6 +310,8 @@ impl Lights {
         Ok(())
     }
 
+    /// # Errors
+    /// returns an error if the coordinates are out of bounds in an event
     pub fn on_event(&mut self, event: &Event, blocks: &Blocks) -> Result<()> {
         if let Some(event) = event.downcast::<BlockChangeEvent>() {
             let curr_block_transparent = blocks.get_block_type_at(event.x, event.y)?.transparent;

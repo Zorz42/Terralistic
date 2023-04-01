@@ -135,11 +135,7 @@ impl Game {
 
         self.background.init()?;
         self.inventory.init();
-        self.lights.lights.create(
-            self.blocks.blocks.get_width(),
-            self.blocks.blocks.get_height(),
-        );
-        self.lights.lights.init_sky_heights(&self.blocks.blocks)?;
+        self.lights.init(&self.blocks.blocks)?;
 
         self.blocks.load_resources(&mut self.mods.mod_manager)?;
         self.walls.load_resources(&mut self.mods.mod_manager)?;
@@ -287,8 +283,12 @@ impl Game {
                 .render(graphics, &mut self.entities.entities, &self.camera);
             self.items
                 .render(graphics, &self.camera, &mut self.entities.entities)?;
-            self.lights
-                .render(graphics, &self.camera, &self.blocks.blocks)?;
+            self.lights.render(
+                graphics,
+                &self.camera,
+                &self.blocks.blocks,
+                &mut self.events,
+            )?;
             self.camera.render(graphics);
             self.block_selector
                 .render(graphics, &mut self.networking, &self.camera)?;
