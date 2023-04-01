@@ -180,6 +180,7 @@ impl Lights {
         }
         Ok(())
     }
+
     /// sets the coordinates x and y to be a light source
     /// # Errors
     /// returns an error if the coordinates are out of bounds
@@ -191,24 +192,28 @@ impl Lights {
         }
         Ok(())
     }
+
     /// returns whether the coordinates x and y are a light source
     /// # Errors
     /// returns an error if the coordinates are out of bounds
     pub fn is_light_source(&self, x: i32, y: i32) -> Result<bool> {
         Ok(self.get_light(x, y)?.source)
     }
+
     /// returns the light color at the given coordinate
     /// # Errors
     /// returns an error if the coordinates are out of bounds
     pub fn get_light_color(&self, x: i32, y: i32) -> Result<LightColor> {
         Ok(self.get_light(x, y)?.color)
     }
+
     /// returns the light source color at the given coordinate
     /// # Errors
     /// returns an error if the coordinates are out of bounds
     pub fn get_light_source_color(&self, x: i32, y: i32) -> Result<LightColor> {
         Ok(self.get_light(x, y)?.source_color)
     }
+
     /// schedules a light update for the given coordinate
     /// # Errors
     /// returns an error if the coordinates are out of bounds
