@@ -31,6 +31,7 @@ noise = "0.8"
 once_cell = "1.17"
 fnv = "1.0"
 hecs = "0.9"
+cmake = "0.1.49"
 
 # set custom dependency for windows
 [target.'cfg(windows)'.dependencies]
@@ -80,7 +81,7 @@ fnv = "1.0"
 darklua = "0.8"
 png = "0.17"
 hecs = "0.9"
-
+cmake = "0.1.49"
 
 # set custom dependency for windows
 [target.'cfg(windows)'.build-dependencies]
