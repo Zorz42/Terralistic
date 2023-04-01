@@ -8,6 +8,7 @@ use anyhow::{bail, Result};
 use crate::client::game::entities::ClientEntities;
 use crate::client::game::inventory::ClientInventory;
 use crate::client::game::items::ClientItems;
+use crate::client::game::lights::ClientLights;
 use crate::client::game::players::ClientPlayers;
 use crate::client::menus::{run_loading_screen, BackgroundRect};
 use crate::libraries::events::EventManager;
@@ -37,6 +38,7 @@ pub struct Game {
     players: ClientPlayers,
     player_name: String,
     inventory: ClientInventory,
+    lights: ClientLights,
 }
 
 impl Game {
@@ -59,6 +61,7 @@ impl Game {
             players: ClientPlayers::new(player_name),
             player_name: player_name.to_owned(),
             inventory: ClientInventory::new(),
+            lights: ClientLights::new(),
         }
     }
 
@@ -132,6 +135,10 @@ impl Game {
 
         self.background.init()?;
         self.inventory.init();
+        self.lights.lights.create(
+            self.blocks.blocks.get_width(),
+            self.blocks.blocks.get_height(),
+        );
 
         self.blocks.load_resources(&mut self.mods.mod_manager)?;
         self.walls.load_resources(&mut self.mods.mod_manager)?;
@@ -279,6 +286,8 @@ impl Game {
                 .render(graphics, &mut self.entities.entities, &self.camera);
             self.items
                 .render(graphics, &self.camera, &mut self.entities.entities)?;
+            self.lights
+                .render(graphics, &self.camera, &self.blocks.blocks)?;
             self.camera.render(graphics);
             self.block_selector
                 .render(graphics, &mut self.networking, &self.camera)?;

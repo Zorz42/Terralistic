@@ -6,6 +6,7 @@ pub mod core_client;
 mod entities;
 mod inventory;
 mod items;
+mod lights;
 mod mod_manager;
 mod networking;
 mod players;

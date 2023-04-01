@@ -2,8 +2,6 @@ use crate::shared::blocks::Blocks;
 use crate::shared::world_map::WorldMap;
 use anyhow::{anyhow, Result};
 
-pub const MAX_LIGHT: i32 = 100;
-
 /// struct that contains the light rgb values
 #[derive(PartialEq, Eq, Clone, Copy)]
 pub struct LightColor {
@@ -61,6 +59,18 @@ impl Lights {
         }
     }
 
+    /// returns the width of the light vector
+    #[must_use]
+    pub const fn get_width(&self) -> u32 {
+        self.map.get_width()
+    }
+
+    /// returns the height of the light vector
+    #[must_use]
+    pub const fn get_height(&self) -> u32 {
+        self.map.get_height()
+    }
+
     /// returns the light at the given coordinate
     fn get_light(&self, x: i32, y: i32) -> Result<&Light> {
         self.lights
@@ -99,6 +109,7 @@ impl Lights {
     /// creates an empty light vector
     pub fn create(&mut self, width: u32, height: u32) {
         self.lights = vec![Light::new(); (width * height) as usize];
+        self.map = WorldMap::new(width, height);
     }
 
     /// updates the light at the given coordinate
@@ -255,6 +266,26 @@ impl Lights {
                     block_type.light_emission_b,
                 ),
             )?;
+        }
+        Ok(())
+    }
+
+    /// updates the light emitter at the given column and adds natural light
+    /// # Errors
+    /// returns an error if the coordinates are out of bounds
+    pub fn update_column(&mut self, x: i32, blocks: &Blocks) -> Result<()> {
+        let mut y = 0;
+        let mut in_the_air = true;
+        while y < self.get_height() as i32 {
+            self.update_light_emitter(x, y, blocks)?;
+            if !blocks.get_block_type_at(x, y)?.transparent {
+                in_the_air = false;
+            }
+
+            if in_the_air {
+                self.set_light_source(x, y, LightColor::new(255, 255, 255))?;
+            }
+            y += 1;
         }
         Ok(())
     }
