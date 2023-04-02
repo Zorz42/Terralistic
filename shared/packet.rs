@@ -48,3 +48,60 @@ impl Packet {
 /// This packet is sent when all the welcome packets have been sent.
 #[derive(Serialize, Deserialize)]
 pub struct WelcomeCompletePacket;
+
+mod tests {
+    #[allow(unused_imports)]
+    use super::*;
+
+    #[test]
+    #[allow(clippy::unwrap_used)]
+    fn test_packet() {
+        let packet = Packet::new(WelcomeCompletePacket).unwrap();
+        assert_eq!(packet.id, get_type_id::<WelcomeCompletePacket>());
+        assert!(packet.try_deserialize::<WelcomeCompletePacket>().is_some());
+        assert!(packet.try_deserialize::<u32>().is_none());
+    }
+
+    #[test]
+    #[allow(clippy::unwrap_used)]
+    fn test_packet_deserialize() {
+        let packet = Packet::new(WelcomeCompletePacket).unwrap();
+        packet.try_deserialize::<WelcomeCompletePacket>().unwrap();
+        assert!(packet.try_deserialize::<u32>().is_none());
+    }
+
+    #[test]
+    #[allow(clippy::unwrap_used)]
+    fn test_packet_serialize() {
+        let packet = Packet::new(WelcomeCompletePacket).unwrap();
+        let packet = packet.try_deserialize::<WelcomeCompletePacket>().unwrap();
+        let packet = Packet::new(packet).unwrap();
+        assert_eq!(packet.id, get_type_id::<WelcomeCompletePacket>());
+        assert!(packet.try_deserialize::<WelcomeCompletePacket>().is_some());
+        assert!(packet.try_deserialize::<u32>().is_none());
+    }
+
+    #[test]
+    #[allow(clippy::unwrap_used)]
+    fn test_packet_serialize_deserialize() {
+        let packet = Packet::new(WelcomeCompletePacket).unwrap();
+        let packet = packet.try_deserialize::<WelcomeCompletePacket>().unwrap();
+        let packet = Packet::new(packet).unwrap();
+        let packet = packet.try_deserialize::<WelcomeCompletePacket>().unwrap();
+        let packet = Packet::new(packet).unwrap();
+        assert_eq!(packet.id, get_type_id::<WelcomeCompletePacket>());
+        assert!(packet.try_deserialize::<WelcomeCompletePacket>().is_some());
+        assert!(packet.try_deserialize::<u32>().is_none());
+    }
+
+    #[test]
+    #[allow(clippy::unwrap_used)]
+    fn test_packet_to_data_from_data() {
+        let packet = Packet::new(WelcomeCompletePacket).unwrap();
+        let packet_data = bincode::serialize(&packet).unwrap();
+        let packet = bincode::deserialize::<Packet>(&packet_data).unwrap();
+        assert_eq!(packet.id, get_type_id::<WelcomeCompletePacket>());
+        assert!(packet.try_deserialize::<WelcomeCompletePacket>().is_some());
+        assert!(packet.try_deserialize::<u32>().is_none());
+    }
+}

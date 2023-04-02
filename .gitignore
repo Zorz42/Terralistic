@@ -6,3 +6,4 @@ Output/
 **/*.mod
 server_data/
 target
+*.profraw
