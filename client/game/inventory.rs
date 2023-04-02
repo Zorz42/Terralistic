@@ -3,7 +3,9 @@ use crate::client::game::networking::ClientNetworking;
 use crate::libraries::events::Event;
 use crate::libraries::graphics as gfx;
 use crate::libraries::graphics::{FloatPos, FloatSize, GraphicsContext};
-use crate::shared::inventory::{Inventory, InventoryPacket, InventorySelectPacket};
+use crate::shared::inventory::{
+    Inventory, InventoryPacket, InventorySelectPacket, InventorySwapPacket,
+};
 use crate::shared::items::ItemStack;
 use crate::shared::packet::Packet;
 use anyhow::Result;
@@ -249,6 +251,16 @@ impl ClientInventory {
         networking.send_packet(Packet::new(packet)?)
     }
 
+    fn swap_slot_with_selected_slot(
+        &mut self,
+        slot: usize,
+        networking: &mut ClientNetworking,
+    ) -> Result<()> {
+        self.inventory.swap_with_selected_item(slot)?;
+        let packet = InventorySwapPacket { slot };
+        networking.send_packet(Packet::new(packet)?)
+    }
+
     pub fn on_event(&mut self, event: &Event, networking: &mut ClientNetworking) -> Result<()> {
         if let Some(gfx::Event::KeyPress { 0: key, .. }) = event.downcast::<gfx::Event>() {
             match *key {
@@ -265,8 +277,13 @@ impl ClientInventory {
                 gfx::Key::MouseLeft => {
                     if self.inventory.selected_slot == self.hovered_slot {
                         self.select_slot(None, networking)?;
-                    } else if self.hovered_slot.is_some() {
-                        self.select_slot(self.hovered_slot, networking)?;
+                    } else if let Some(hovered_slot) = self.hovered_slot {
+                        if self.inventory.get_selected_item().is_some() {
+                            self.swap_slot_with_selected_slot(hovered_slot, networking)?;
+                            self.select_slot(None, networking)?;
+                        } else {
+                            self.select_slot(self.hovered_slot, networking)?;
+                        }
                     }
                 }
                 gfx::Key::E => {
@@ -278,7 +295,7 @@ impl ClientInventory {
 
         if let Some(packet) = event.downcast::<Packet>() {
             if let Some(packet) = packet.try_deserialize::<InventoryPacket>() {
-                self.inventory = packet.inventory;
+                self.inventory.transfer_items_from(packet.inventory);
             }
         }
 

@@ -4,7 +4,9 @@ use crate::server::server_core::networking::{
 };
 use crate::shared::blocks::Blocks;
 use crate::shared::entities::{Entities, IdComponent, PhysicsComponent, PositionComponent};
-use crate::shared::inventory::{Inventory, InventoryPacket, InventorySelectPacket};
+use crate::shared::inventory::{
+    Inventory, InventoryPacket, InventorySelectPacket, InventorySwapPacket,
+};
 use crate::shared::items::Items;
 use crate::shared::packet::Packet;
 use crate::shared::players::{
@@ -60,6 +62,13 @@ impl ServerPlayers {
                 let player_entity = self.get_player_from_connection(&packet_event.conn)?;
                 let mut inventory = entities.ecs.get::<&mut Inventory>(player_entity)?;
                 inventory.selected_slot = packet.slot;
+            } else if let Some(packet) =
+                packet_event.packet.try_deserialize::<InventorySwapPacket>()
+            {
+                let player_entity = self.get_player_from_connection(&packet_event.conn)?;
+                let mut inventory = entities.ecs.get::<&mut Inventory>(player_entity)?;
+
+                inventory.swap_with_selected_item(packet.slot)?;
             }
         }
 

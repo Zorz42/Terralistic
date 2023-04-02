@@ -49,6 +49,10 @@ impl Inventory {
         }
     }
 
+    pub fn transfer_items_from(&mut self, other: Self) {
+        self.items = other.items;
+    }
+
     /// # Errors
     /// if the index is out of bounds
     pub fn get_item(&self, index: usize) -> Result<Option<ItemStack>> {
@@ -206,6 +210,17 @@ impl Inventory {
         self.selected_slot
             .and_then(|slot| self.items.get(slot).and_then(Clone::clone))
     }
+
+    pub fn swap_with_selected_item(&mut self, slot: usize) -> Result<()> {
+        let selected_item = self.get_selected_item();
+        let hovered_item = self.get_item(slot)?;
+
+        if let Some(selected_slot) = self.selected_slot {
+            self.set_item(selected_slot, hovered_item)?;
+            self.set_item(slot, selected_item)?;
+        }
+        Ok(())
+    }
 }
 
 #[derive(Serialize, Deserialize)]
@@ -216,4 +231,9 @@ pub struct InventoryPacket {
 #[derive(Serialize, Deserialize)]
 pub struct InventorySelectPacket {
     pub slot: Option<usize>,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct InventorySwapPacket {
+    pub slot: usize,
 }
