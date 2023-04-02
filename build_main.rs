@@ -15,6 +15,12 @@ pub mod libraries {
 pub mod shared;
 
 fn main() {
+    #[cfg(target_os = "macos")]
+    println!("cargo:rustc-link-arg=-Wl,-rpath,@loader_path");
+
+    #[cfg(target_os = "linux")]
+    println!("cargo:rustc-link-arg=-Wl,-rpath,$ORIGIN");
+
     // compile resource pack resources into Build/resources
     compile_resource_pack(
         std::path::PathBuf::from("resources"),
