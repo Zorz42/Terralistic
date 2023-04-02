@@ -211,6 +211,8 @@ impl Inventory {
             .and_then(|slot| self.items.get(slot).and_then(Clone::clone))
     }
 
+    /// # Errors
+    /// if the index is out of bounds
     pub fn swap_with_selected_item(&mut self, slot: usize) -> Result<()> {
         let selected_item = self.get_selected_item();
         let hovered_item = self.get_item(slot)?;
