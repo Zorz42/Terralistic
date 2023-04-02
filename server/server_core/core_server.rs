@@ -34,6 +34,7 @@ pub enum ServerState {
     Starting,
     InitMods,
     LoadingWorld,
+    GeneratingWorld,
     Running,
     Stopping,
     Stopped,
@@ -120,13 +121,15 @@ impl Server {
             "Initializing mods".to_owned();
         self.mods.init()?;
 
-        self.state = ServerState::LoadingWorld;
-        self.send_to_ui(&UiMessageType::ServerState(self.state));
         if world_path.exists() {
+            self.state = ServerState::LoadingWorld;
+            self.send_to_ui(&UiMessageType::ServerState(self.state));
             *status_text.lock().unwrap_or_else(PoisonError::into_inner) =
                 "Loading world".to_owned();
             self.load_world(world_path)?;
         } else {
+            self.state = ServerState::GeneratingWorld;
+            self.send_to_ui(&UiMessageType::ServerState(self.state));
             generator.generate(
                 (&mut self.blocks.blocks, &mut self.walls.walls),
                 &mut self.mods.mod_manager,

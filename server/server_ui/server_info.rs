@@ -164,6 +164,7 @@ impl ServerInfo {
             ServerState::Starting => "Starting",
             ServerState::InitMods => "InitMods",
             ServerState::LoadingWorld => "LoadingWorld",
+            ServerState::GeneratingWorld => "GeneratingWorld",
             ServerState::Running => "Running",
             ServerState::Stopping => "Stopping",
             ServerState::Stopped => "Stopped",
