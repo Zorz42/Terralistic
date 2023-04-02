@@ -20,19 +20,12 @@ pub struct ClientInventory {
 const INVENTORY_SLOT_SIZE: f32 = 50.0;
 const INVENTORY_SPACING: f32 = 10.0;
 
-fn render_inventory_slot(
+fn render_item_stack(
     graphics: &GraphicsContext,
     items: &ClientItems,
     pos: (f32, f32),
     item: &Option<ItemStack>,
-) -> bool {
-    let rect = gfx::Rect::new(
-        FloatPos(pos.0, pos.1),
-        FloatSize(INVENTORY_SLOT_SIZE, INVENTORY_SLOT_SIZE),
-    );
-    let hovered = rect.contains(graphics.renderer.get_mouse_pos());
-    rect.render(graphics, if hovered { gfx::GREY } else { gfx::DARK_GREY });
-
+) {
     if let Some(item) = item {
         let src_rect = items.get_atlas().get_rect(&item.item);
         if let Some(src_rect) = src_rect {
@@ -44,8 +37,8 @@ fn render_inventory_slot(
             let scale = 4.0;
             let texture = items.get_atlas().get_texture();
             let item_pos = FloatPos(
-                rect.pos.0 + rect.size.0 / 2.0 - src_rect.size.0 / 2.0 * scale,
-                rect.pos.1 + rect.size.1 / 2.0 - src_rect.size.1 / 2.0 * scale,
+                pos.0 + INVENTORY_SLOT_SIZE / 2.0 - src_rect.size.0 / 2.0 * scale,
+                pos.1 + INVENTORY_SLOT_SIZE / 2.0 - src_rect.size.1 / 2.0 * scale,
             );
             texture.render(
                 &graphics.renderer,
@@ -61,8 +54,8 @@ fn render_inventory_slot(
                 let text = format!("{}", item.count);
                 let text_size = graphics.font.get_text_size_scaled(&text, text_scale);
                 let text_pos = FloatPos(
-                    rect.pos.0 + rect.size.0 - text_size.0 - 2.0,
-                    rect.pos.1 + rect.size.1 - text_size.1 - 2.0,
+                    pos.0 + INVENTORY_SLOT_SIZE - text_size.0 - 2.0,
+                    pos.1 + INVENTORY_SLOT_SIZE - text_size.1 - 2.0,
                 );
                 graphics
                     .font
@@ -70,6 +63,22 @@ fn render_inventory_slot(
             }
         }
     }
+}
+
+fn render_inventory_slot(
+    graphics: &GraphicsContext,
+    items: &ClientItems,
+    pos: (f32, f32),
+    item: &Option<ItemStack>,
+) -> bool {
+    let rect = gfx::Rect::new(
+        FloatPos(pos.0, pos.1),
+        FloatSize(INVENTORY_SLOT_SIZE, INVENTORY_SLOT_SIZE),
+    );
+    let hovered = rect.contains(graphics.renderer.get_mouse_pos());
+    rect.render(graphics, if hovered { gfx::GREY } else { gfx::DARK_GREY });
+
+    render_item_stack(graphics, items, pos, item);
 
     hovered
 }
@@ -159,6 +168,12 @@ impl ClientInventory {
         for (i, item) in self.inventory.reverse_iter().enumerate() {
             let i = 19 - i;
             if i < 10 {
+                let item = if self.is_open && self.inventory.selected_slot == Some(i) {
+                    &None
+                } else {
+                    item
+                };
+
                 let result = render_inventory_slot(
                     graphics,
                     items,
@@ -183,6 +198,12 @@ impl ClientInventory {
                     * (9.0 * animation_spacing + INVENTORY_SLOT_SIZE + INVENTORY_SPACING)
                     - (i - 10) as f32 * animation_spacing;
 
+                let item = if self.is_open && self.inventory.selected_slot == Some(i) {
+                    &None
+                } else {
+                    item
+                };
+
                 let result = render_inventory_slot(
                     graphics,
                     items,
@@ -202,6 +223,19 @@ impl ClientInventory {
                 }
             }
         }
+
+        if self.is_open {
+            render_item_stack(
+                graphics,
+                items,
+                (
+                    graphics.renderer.get_mouse_pos().0,
+                    graphics.renderer.get_mouse_pos().1,
+                ),
+                &self.inventory.get_selected_item(),
+            );
+        }
+
         Ok(())
     }
 
@@ -231,7 +265,7 @@ impl ClientInventory {
                 gfx::Key::MouseLeft => {
                     if self.inventory.selected_slot == self.hovered_slot {
                         self.select_slot(None, networking)?;
-                    } else {
+                    } else if self.hovered_slot.is_some() {
                         self.select_slot(self.hovered_slot, networking)?;
                     }
                 }

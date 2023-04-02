@@ -2,8 +2,7 @@ use crate::libraries::events::EventManager;
 use crate::shared::entities::Entities;
 use crate::shared::items::{ItemId, ItemStack, Items};
 use anyhow::{anyhow, bail, Result};
-use serde::{Deserialize, Serialize};
-use serde_derive;
+use serde_derive::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 pub struct Recipe {
@@ -33,7 +32,7 @@ impl Recipes {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct Inventory {
     items: Vec<Option<ItemStack>>,
     pub has_changed: bool,
@@ -209,35 +208,12 @@ impl Inventory {
     }
 }
 
-impl Serialize for Inventory {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        self.items.serialize(serializer)
-    }
-}
-
-impl<'de> Deserialize<'de> for Inventory {
-    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-    where
-        D: serde::Deserializer<'de>,
-    {
-        let items = Vec::deserialize(deserializer)?;
-        Ok(Self {
-            items,
-            has_changed: false,
-            selected_slot: None,
-        })
-    }
-}
-
-#[derive(serde_derive::Serialize, serde_derive::Deserialize)]
+#[derive(Serialize, Deserialize)]
 pub struct InventoryPacket {
     pub inventory: Inventory,
 }
 
-#[derive(serde_derive::Serialize, serde_derive::Deserialize)]
+#[derive(Serialize, Deserialize)]
 pub struct InventorySelectPacket {
     pub slot: Option<usize>,
 }
