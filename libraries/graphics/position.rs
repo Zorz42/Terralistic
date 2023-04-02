@@ -1,13 +1,14 @@
 use core::ops::{Add, Sub};
 use serde_derive::{Deserialize, Serialize};
+use std::hash::{Hash, Hasher};
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Hash)]
 pub struct IntPos(pub i32, pub i32);
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Hash)]
 pub struct IntSize(pub u32, pub u32);
-#[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
 pub struct FloatPos(pub f32, pub f32);
-#[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
 pub struct FloatSize(pub f32, pub f32);
 
 // implement the add and sub traits for the position types
@@ -98,5 +99,35 @@ impl From<IntSize> for FloatSize {
 impl From<FloatSize> for IntSize {
     fn from(size: FloatSize) -> Self {
         Self(size.0 as u32, size.1 as u32)
+    }
+}
+
+impl PartialEq for FloatPos {
+    fn eq(&self, other: &Self) -> bool {
+        (self.0 - other.0).abs() < 0.0001 && (self.1 - other.1).abs() < 0.0001
+    }
+}
+
+impl Eq for FloatPos {}
+
+impl Hash for FloatPos {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        ((self.0 * 1000.0) as i32).hash(state);
+        ((self.1 * 1000.0) as i32).hash(state);
+    }
+}
+
+impl PartialEq for FloatSize {
+    fn eq(&self, other: &Self) -> bool {
+        (self.0 - other.0).abs() < 0.0001 && (self.1 - other.1).abs() < 0.0001
+    }
+}
+
+impl Eq for FloatSize {}
+
+impl Hash for FloatSize {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        ((self.0 * 1000.0) as i32).hash(state);
+        ((self.1 * 1000.0) as i32).hash(state);
     }
 }
