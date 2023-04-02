@@ -195,6 +195,7 @@ impl ClientNetworking {
         for ref mut server in net_client.peers() {
             server.disconnect(0);
         }
+
         Ok(())
     }
 

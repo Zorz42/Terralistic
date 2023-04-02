@@ -165,32 +165,7 @@ impl Server {
             self.walls.update(delta_time, &mut self.events)?;
 
             // handle events
-            while let Some(event) = self.events.pop_event() {
-                self.mods.on_event(&event, &mut self.networking)?;
-                self.blocks.on_event(
-                    &event,
-                    &mut self.events,
-                    &mut self.networking,
-                    &mut self.entities.entities,
-                    &mut self.players,
-                    &mut self.items.items,
-                )?;
-                self.walls.on_event(&event, &mut self.networking)?;
-                self.items.on_event(
-                    &event,
-                    &mut self.entities.entities,
-                    &mut self.events,
-                    &mut self.networking,
-                )?;
-                self.players.on_event(
-                    &event,
-                    &mut self.entities.entities,
-                    &self.blocks.blocks,
-                    &mut self.networking,
-                )?;
-                ServerEntities::on_event(&event, &mut self.networking)?;
-                self.networking.on_event(&event, &mut self.events)?;
-            }
+            self.handle_events()?;
 
             while ms_counter < ms_timer.elapsed().as_millis() as i32 {
                 self.players.update(
@@ -230,15 +205,18 @@ impl Server {
             ticks += 1;
         }
 
+        // stop modules
+        self.networking.stop(&mut self.events)?;
+        self.mods.stop()?;
+        self.handle_events()?;
+
         self.state = ServerState::Stopping;
         self.send_to_ui(&UiMessageType::ServerState(self.state));
         *status_text.lock().unwrap_or_else(PoisonError::into_inner) = "Saving world".to_owned();
+
         self.save_world(world_path)?;
 
         *status_text.lock().unwrap_or_else(PoisonError::into_inner) = "Stopping server".to_owned();
-        // stop modules
-        self.networking.stop()?;
-        self.mods.stop()?;
 
         self.state = ServerState::Stopped;
         self.send_to_ui(&UiMessageType::ServerState(self.state));
@@ -247,6 +225,38 @@ impl Server {
             .unwrap_or_else(PoisonError::into_inner)
             .clear();
         self.print_to_console("server stopped.");
+        Ok(())
+    }
+
+    fn handle_events(&mut self) -> Result<()> {
+        while let Some(event) = self.events.pop_event() {
+            self.mods.on_event(&event, &mut self.networking)?;
+            self.blocks.on_event(
+                &event,
+                &mut self.events,
+                &mut self.networking,
+                &mut self.entities.entities,
+                &mut self.players,
+                &mut self.items.items,
+            )?;
+            self.walls.on_event(&event, &mut self.networking)?;
+            self.items.on_event(
+                &event,
+                &mut self.entities.entities,
+                &mut self.events,
+                &mut self.networking,
+            )?;
+            self.players.on_event(
+                &event,
+                &mut self.entities.entities,
+                &self.blocks.blocks,
+                &mut self.networking,
+                &mut self.events,
+            )?;
+            ServerEntities::on_event(&event, &mut self.networking)?;
+            self.networking.on_event(&event, &mut self.events)?;
+        }
+
         Ok(())
     }
 
@@ -262,6 +272,8 @@ impl Server {
         self.walls
             .walls
             .deserialize(world.get("walls").unwrap_or(&Vec::new()))?;
+        self.players
+            .deserialize(world.get("players").unwrap_or(&Vec::new()))?;
         Ok(())
     }
 
@@ -269,6 +281,7 @@ impl Server {
         let mut world = HashMap::new();
         world.insert("blocks".to_owned(), self.blocks.blocks.serialize()?);
         world.insert("walls".to_owned(), self.walls.walls.serialize()?);
+        world.insert("players".to_owned(), self.players.serialize()?);
 
         let world_file = bincode::serialize(&world)?;
         if !world_path.exists() {

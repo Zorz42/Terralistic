@@ -1,6 +1,7 @@
 use crate::libraries::events::{Event, EventManager};
 use crate::server::server_core::networking::{
-    Connection, NewConnectionWelcomedEvent, PacketFromClientEvent, SendTarget, ServerNetworking,
+    Connection, DisconnectEvent, NewConnectionWelcomedEvent, PacketFromClientEvent, SendTarget,
+    ServerNetworking,
 };
 use crate::shared::blocks::Blocks;
 use crate::shared::entities::{Entities, IdComponent, PhysicsComponent, PositionComponent};
@@ -15,11 +16,19 @@ use crate::shared::players::{
 };
 use anyhow::{anyhow, Result};
 use hecs::Entity;
+use serde_derive::{Deserialize, Serialize};
 use std::collections::HashMap;
+
+#[derive(Serialize, Deserialize)]
+struct SavedPlayerData {
+    pub inventory: Inventory,
+    pub position: PositionComponent,
+}
 
 pub struct ServerPlayers {
     conns_to_players: HashMap<Connection, Entity>,
     players_to_conns: HashMap<Entity, Connection>,
+    saved_players: HashMap<String, SavedPlayerData>,
 }
 
 impl ServerPlayers {
@@ -27,7 +36,36 @@ impl ServerPlayers {
         Self {
             conns_to_players: HashMap::new(),
             players_to_conns: HashMap::new(),
+            saved_players: HashMap::new(),
         }
+    }
+
+    fn get_spawn_coords(blocks: &Blocks) -> (f32, f32) {
+        let spawn_x = blocks.get_width() as f32 / 2.0;
+        let mut spawn_y = 0.0;
+        // find a spawn point
+        // iterate from the top of the map to the bottom
+        for y in (0..blocks.get_height()).rev() {
+            for x in 0..(PLAYER_WIDTH.ceil() as i32) {
+                let block_type = blocks.get_block_type(
+                    blocks
+                        .get_block(spawn_x as i32 + x, y as i32)
+                        .unwrap_or(blocks.air),
+                );
+
+                let is_ghost = match block_type.ok() {
+                    Some(block_type) => block_type.ghost,
+                    None => false,
+                };
+
+                if !is_ghost {
+                    spawn_y = y as f32 - PLAYER_HEIGHT;
+                    break;
+                }
+            }
+        }
+
+        (spawn_x, spawn_y)
     }
 
     pub fn on_event(
@@ -36,6 +74,7 @@ impl ServerPlayers {
         entities: &mut Entities,
         blocks: &Blocks,
         networking: &mut ServerNetworking,
+        events: &mut EventManager,
     ) -> Result<()> {
         if let Some(packet_event) = event.downcast::<PacketFromClientEvent>() {
             if let Some(packet) = packet_event.packet.try_deserialize::<PlayerMovingPacket>() {
@@ -73,21 +112,13 @@ impl ServerPlayers {
         }
 
         if let Some(new_connection_event) = event.downcast::<NewConnectionWelcomedEvent>() {
-            let spawn_x = blocks.get_width() as f32 / 2.0;
-            let mut spawn_y = 0.0;
-            // find a spawn point
-            // iterate from the top of the map to the bottom
-            for y in (0..blocks.get_height()).rev() {
-                for x in 0..(PLAYER_WIDTH.ceil() as i32) {
-                    if !blocks
-                        .get_block_type(blocks.get_block(spawn_x as i32 + x, y as i32)?)?
-                        .ghost
-                    {
-                        spawn_y = y as f32 - PLAYER_HEIGHT;
-                        break;
-                    }
-                }
-            }
+            let name = networking.get_connection_name(&new_connection_event.conn);
+            let player_data = self.saved_players.get(&name);
+
+            let (spawn_x, spawn_y) = player_data.map_or_else(
+                || Self::get_spawn_coords(blocks),
+                |player_data| (player_data.position.x(), player_data.position.y()),
+            );
 
             for (_entity, (player, position, id)) in entities
                 .ecs
@@ -106,7 +137,6 @@ impl ServerPlayers {
                 )?;
             }
 
-            let name = networking.get_connection_name(&new_connection_event.conn);
             let player_entity = spawn_player(entities, spawn_x, spawn_y, &name, None);
             self.conns_to_players
                 .insert(new_connection_event.conn.clone(), player_entity);
@@ -120,7 +150,30 @@ impl ServerPlayers {
                 name: name.clone(),
             })?;
 
+            if let Some(player_data) = player_data {
+                let mut inventory = entities.ecs.get::<&mut Inventory>(player_entity)?;
+                *inventory = player_data.inventory.clone();
+                inventory.has_changed = true;
+            }
+
             networking.send_packet(&player_spawn_packet, SendTarget::All)?;
+        }
+
+        if let Some(disconnect_event) = event.downcast::<DisconnectEvent>() {
+            if let Ok(player_entity) = self.get_player_from_connection(&disconnect_event.conn) {
+                self.saved_players.insert(
+                    networking.get_connection_name(&disconnect_event.conn),
+                    SavedPlayerData {
+                        position: (*entities.ecs.get::<&PositionComponent>(player_entity)?).clone(),
+                        inventory: (*entities.ecs.get::<&Inventory>(player_entity)?).clone(),
+                    },
+                );
+
+                self.conns_to_players.remove(&disconnect_event.conn);
+                self.players_to_conns.remove(&player_entity);
+                let player_id = entities.ecs.get::<&IdComponent>(player_entity)?.id();
+                entities.despawn_entity(player_id, events)?;
+            }
         }
 
         Ok(())
@@ -157,5 +210,14 @@ impl ServerPlayers {
             .get(conn)
             .ok_or_else(|| anyhow!("Received PlayerMovingPacket from unknown connection"))
             .cloned()
+    }
+
+    pub fn serialize(&self) -> Result<Vec<u8>> {
+        Ok(bincode::serialize(&self.saved_players)?)
+    }
+
+    pub fn deserialize(&mut self, data: &[u8]) -> Result<()> {
+        self.saved_players = bincode::deserialize(data)?;
+        Ok(())
     }
 }

@@ -215,6 +215,7 @@ impl IdComponent {
     }
 }
 
+#[derive(Clone, Serialize, Deserialize)]
 pub struct PositionComponent {
     x: f32,
     y: f32,

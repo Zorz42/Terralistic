@@ -258,7 +258,7 @@ impl ServerNetworking {
         Ok(())
     }
 
-    pub fn stop(&mut self) -> Result<()> {
+    pub fn stop(&mut self, events: &mut EventManager) -> Result<()> {
         // close all connections
 
         self.is_running.store(false, Ordering::Relaxed);
@@ -269,6 +269,10 @@ impl ServerNetworking {
                     bail!("Failed to join net loop thread");
                 }
             }
+        }
+
+        for conn in &self.connections {
+            events.push_event(Event::new(DisconnectEvent { conn: conn.clone() }));
         }
 
         Ok(())
