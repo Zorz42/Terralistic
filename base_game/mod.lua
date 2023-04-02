@@ -151,15 +151,10 @@ function update()
 
 end
 
-function generate_plains(terrain, width, height)
+function generate_plains(terrain, heights, width, height)
     for x = 1, width do
-        y = 1
-        while y < height and terrain[x][y] == air do
-            y = y + 1
-        end
-
-        if y < height then
-            terrain[x][y] = grass_block
+        if terrain[x][height - heights[x] + 1] == dirt_block then
+            terrain[x][height - heights[x] + 1] = grass_block
         end
     end
     return terrain

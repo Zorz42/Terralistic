@@ -265,6 +265,7 @@ impl WorldGenerator {
         }
 
         let mut curr_terrain = Vec::new();
+        let mut curr_heights = Vec::new();
         let mut prev_x = 0;
 
         let heights = {
@@ -289,6 +290,7 @@ impl WorldGenerator {
 
         for x in 0..width {
             curr_terrain.push(vec![BlockId::new(); height as usize]);
+            curr_heights.push(heights[x as usize]);
 
             let terrain_noise_val = *heights
                 .get(x as usize)
@@ -394,7 +396,7 @@ impl WorldGenerator {
                         .ok_or_else(|| anyhow!("invalid mod id"))?
                         .call_function(
                             generator_function,
-                            (curr_terrain, x - prev_x + 1, height),
+                            (curr_terrain, curr_heights.clone(), x - prev_x + 1, height),
                         )?;
                 }
 
@@ -412,6 +414,7 @@ impl WorldGenerator {
                     }
                 }
                 curr_terrain.clear();
+                curr_heights.clear();
                 prev_x = x + 1;
             }
         }

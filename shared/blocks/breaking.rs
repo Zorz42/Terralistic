@@ -53,6 +53,7 @@ impl Blocks {
                 return Ok(());
             }
         }
+
         let mut breaking_block = BreakingBlock::new((x, y));
         breaking_block.break_progress = progress;
         breaking_block.is_breaking = false;
