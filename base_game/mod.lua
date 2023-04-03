@@ -29,8 +29,9 @@ end
 air = 0
 dirt_block = 0
 stone_block = 0
-copper_ore = 0
+copper_ore_block = 0
 grass_block = 0
+wood_block = 0
 
 -- global variables for wall IDs
 dirt_wall = 0
@@ -67,7 +68,7 @@ function init()
     block_type["name"] = "copper_ore"
     block_type["can_update_states"] = true
     block_type["break_time"] = 1000
-    copper_ore = terralistic_register_block_type(block_type)
+    copper_ore_block = terralistic_register_block_type(block_type)
 
     -- GRASS BLOCK
     block_type = terralistic_new_block_type()
@@ -75,6 +76,15 @@ function init()
     block_type["can_update_states"] = true
     block_type["break_time"] = 1000
     grass_block = terralistic_register_block_type(block_type)
+
+    -- WOOD
+    block_type = terralistic_new_block_type()
+    block_type["name"] = "wood"
+    block_type["can_update_states"] = true
+    block_type["break_time"] = 1000
+    block_type["ghost"] = true
+    block_type["transparent"] = true
+    wood_block = terralistic_register_block_type(block_type)
 
     terralistic_connect_blocks(dirt_block, grass_block);
 
@@ -110,7 +120,7 @@ function init_server()
     biome["base_wall"] = dirt_wall
     biome["generator_function"] = "generate_plains"
     biome:add_ore(stone_block, -2.0, 3.0);
-    biome:add_ore(copper_ore, -0.9, -0.4);
+    biome:add_ore(copper_ore_block, -0.9, -0.4);
     plains = terralistic_register_biome(biome)
 
     -- HILLS
@@ -123,7 +133,7 @@ function init_server()
     biome["base_wall"] = dirt_wall
     biome["generator_function"] = "generate_plains"
     biome:add_ore(stone_block, -2.0, 3.0);
-    biome:add_ore(copper_ore, -0.9, -0.4);
+    biome:add_ore(copper_ore_block, -0.9, -0.4);
     hills = terralistic_register_biome(biome)
     terralistic_connect_biomes(plains, hills, 100)
 
@@ -136,7 +146,7 @@ function init_server()
     biome["base_block"] = dirt_block
     biome["base_wall"] = dirt_wall
     biome:add_ore(stone_block, 1.0, 1.0);
-    biome:add_ore(copper_ore, -0.42, -0.38);
+    biome:add_ore(copper_ore_block, -0.42, -0.38);
     mountains = terralistic_register_biome(biome)
     terralistic_connect_biomes(hills, mountains, 100)
 end
@@ -157,5 +167,35 @@ function generate_plains(terrain, heights, width, height)
             terrain[x][height - heights[x] + 1] = grass_block
         end
     end
+
+    -- every 5 - 20 block there is a tree with a height of 7 - 20 blocks
+    -- the tree is made of wood blocks, if there is the same height
+    -- on the left or right, there is a 50% chance for each to spawn additional
+    -- wood block on the left or right
+
+    x = 2
+    while x < width - 1 do
+        tree_height = math.random(7, 20)
+        tree_y = height - heights[x]
+        if terrain[x][tree_y + 1] == grass_block then
+            for y = tree_y - tree_height, tree_y do
+                if y > 0 and y < height then
+                    terrain[x][y] = wood_block
+                end
+            end
+
+            if heights[x] == heights[x + 1] and terrain[x + 1][tree_y + 1] == grass_block and math.random(0, 1) == 0 then
+                terrain[x + 1][tree_y] = wood_block
+            end
+
+            if heights[x] == heights[x - 1] and terrain[x - 1][tree_y + 1] == grass_block and math.random(0, 1) == 0 then
+                terrain[x - 1][tree_y] = wood_block
+            end
+        end
+
+        x = x + math.random(5, 20)
+    end
+
+
     return terrain
 end
