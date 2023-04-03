@@ -32,6 +32,8 @@ stone_block = 0
 copper_ore_block = 0
 grass_block = 0
 wood_block = 0
+branch_block = 0
+leaves_block = 0
 
 -- global variables for wall IDs
 dirt_wall = 0
@@ -77,6 +79,8 @@ function init()
     block_type["break_time"] = 1000
     grass_block = terralistic_register_block_type(block_type)
 
+    terralistic_connect_blocks(dirt_block, grass_block);
+
     -- WOOD
     block_type = terralistic_new_block_type()
     block_type["name"] = "wood"
@@ -86,7 +90,23 @@ function init()
     block_type["transparent"] = true
     wood_block = terralistic_register_block_type(block_type)
 
-    terralistic_connect_blocks(dirt_block, grass_block);
+    -- BRANCH
+    block_type = terralistic_new_block_type()
+    block_type["name"] = "branch"
+    block_type["break_time"] = 1000
+    block_type["ghost"] = true
+    block_type["transparent"] = true
+    branch_block = terralistic_register_block_type(block_type)
+
+    -- LEAVES
+    block_type = terralistic_new_block_type()
+    block_type["name"] = "leaves"
+    block_type["break_time"] = 1000
+    block_type["ghost"] = true
+    block_type["transparent"] = true
+    leaves_block = terralistic_register_block_type(block_type)
+
+    terralistic_connect_blocks(leaves_block, wood_block);
 
     -- register walls
     wall_type = terralistic_new_wall_type()
@@ -173,8 +193,8 @@ function generate_plains(terrain, heights, width, height)
     -- on the left or right, there is a 50% chance for each to spawn additional
     -- wood block on the left or right
 
-    x = 2
-    while x < width - 1 do
+    x = 3
+    while x < width - 2 do
         tree_height = math.random(7, 20)
         tree_y = height - heights[x]
         if terrain[x][tree_y + 1] == grass_block then
@@ -191,9 +211,27 @@ function generate_plains(terrain, heights, width, height)
             if heights[x] == heights[x - 1] and terrain[x - 1][tree_y + 1] == grass_block and math.random(0, 1) == 0 then
                 terrain[x - 1][tree_y] = wood_block
             end
+
+            leave_y = tree_y - tree_height + math.random(3, 7)
+            while leave_y < tree_y do
+                if terrain[x - 1][leave_y] == air and terrain[x - 2][leave_y] == air then
+                    terrain[x - 1][leave_y] = branch_block
+                    terrain[x - 2][leave_y] = leaves_block
+                end
+                leave_y = leave_y + math.random(3, 10);
+            end
+
+            leave_y = tree_y - tree_height + math.random(3, 7)
+            while leave_y < tree_y do
+                if terrain[x + 1][leave_y] == air and terrain[x + 2][leave_y] == air then
+                    terrain[x + 1][leave_y] = branch_block
+                    terrain[x + 2][leave_y] = leaves_block
+                end
+                leave_y = leave_y + math.random(3, 10);
+            end
         end
 
-        x = x + math.random(5, 20)
+        x = x + math.random(6, 15)
     end
 
 
