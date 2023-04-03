@@ -74,6 +74,13 @@ impl RenderBlockChunk {
                         curr_block_rect.size.0 = BLOCK_WIDTH;
                         curr_block_rect.size.1 = BLOCK_WIDTH;
                         curr_block_rect.pos.1 += BLOCK_WIDTH * block_state as f32;
+
+                        if block_type.width != 0 && block_type.height != 0 {
+                            let from_main = blocks.get_block_from_main(world_x + x, world_y + y)?;
+                            curr_block_rect.pos.0 += BLOCK_WIDTH * from_main.0 as f32;
+                            curr_block_rect.pos.1 += BLOCK_WIDTH * from_main.1 as f32;
+                        }
+
                         self.rect_array.add_rect(
                             &gfx::Rect::new(
                                 FloatPos(
@@ -161,8 +168,13 @@ impl ClientBlocks {
                 self.blocks
                     .set_break_progress(packet.x, packet.y, packet.break_time)?;
             } else if let Some(packet) = event.try_deserialize::<BlockChangePacket>() {
-                self.blocks
-                    .set_block(events, packet.x, packet.y, packet.block)?;
+                self.blocks.set_big_block(
+                    events,
+                    packet.x,
+                    packet.y,
+                    packet.block,
+                    (packet.from_main_x, packet.from_main_y),
+                )?;
             }
         } else if let Some(event) = event.downcast::<BlockChangeEvent>() {
             for (x, y) in [

@@ -94,12 +94,33 @@ impl ServerBlocks {
             })?;
             networking.send_packet(&packet, SendTarget::All)?;
         } else if let Some(event) = event.downcast::<BlockChangeEvent>() {
+            let from_main = self.blocks.get_block_from_main(event.x, event.y)?;
             let packet = Packet::new(BlockChangePacket {
                 x: event.x,
                 y: event.y,
+                from_main_x: from_main.0,
+                from_main_y: from_main.1,
                 block: self.blocks.get_block(event.x, event.y)?,
             })?;
             networking.send_packet(&packet, SendTarget::All)?;
+
+            let neighbors = [
+                (event.x, event.y),
+                (event.x - 1, event.y),
+                (event.x + 1, event.y),
+                (event.x, event.y - 1),
+                (event.x, event.y + 1),
+            ];
+
+            for (x, y) in neighbors {
+                if x >= 0
+                    && y >= 0
+                    && x < self.blocks.get_width() as i32
+                    && y < self.blocks.get_height() as i32
+                {
+                    self.blocks.update_block(x, y, events)?;
+                }
+            }
         }
         Ok(())
     }

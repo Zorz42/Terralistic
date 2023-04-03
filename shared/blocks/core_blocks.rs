@@ -58,9 +58,7 @@ impl rlua::UserData for BlockId {
     }
 }
 
-/**
-A world is a 2d array of blocks.
- */
+/// A world is a 2d array of blocks.
 pub struct Blocks {
     pub(super) block_data: BlocksData,
     pub(super) breaking_blocks: Vec<BreakingBlock>,
@@ -281,7 +279,7 @@ impl Blocks {
     /// This function gets the block from main for a block. If the value is not found, it returns 0, 0.
     /// # Errors
     /// Returns an error if the position is out of bounds
-    pub(super) fn get_block_from_main(&self, x: i32, y: i32) -> Result<(i32, i32)> {
+    pub fn get_block_from_main(&self, x: i32, y: i32) -> Result<(i32, i32)> {
         Ok(*self
             .block_data
             .block_from_main
@@ -384,6 +382,48 @@ impl Blocks {
             .clone())
     }
 
+    /// Updates the block at the specified coordinates.
+    /// # Errors
+    /// Returns an error if the coordinates are out of bounds
+    pub fn update_block(&mut self, x: i32, y: i32, events: &mut EventManager) -> Result<()> {
+        let block = self.get_block_type_at(x, y)?;
+        if block.width != 0 || block.height != 0 {
+            let from_main = self.get_block_from_main(x, y)?;
+
+            if from_main.0 > 0 && self.get_block_type_at(x - 1, y)?.get_id() != block.get_id() {
+                self.set_block(events, x - 1, y, self.air)?;
+                return Ok(());
+            }
+
+            if from_main.1 > 0 && self.get_block_type_at(x, y - 1)?.get_id() != block.get_id() {
+                self.set_block(events, x, y - 1, self.air)?;
+                return Ok(());
+            }
+
+            if from_main.0 + 1 < block.width {
+                self.set_big_block(
+                    events,
+                    x + 1,
+                    y,
+                    block.get_id(),
+                    (from_main.0 + 1, from_main.1),
+                )?;
+            }
+
+            if from_main.1 + 1 < block.height {
+                self.set_big_block(
+                    events,
+                    x,
+                    y + 1,
+                    block.get_id(),
+                    (from_main.0, from_main.1 + 1),
+                )?;
+            }
+        }
+
+        Ok(())
+    }
+
     /// Returns the block type at specified coordinates.
     /// # Errors
     /// Returns an error if the block type is not found
@@ -422,6 +462,8 @@ pub struct BlocksWelcomePacket {
 pub struct BlockChangePacket {
     pub x: i32,
     pub y: i32,
+    pub from_main_x: i32,
+    pub from_main_y: i32,
     pub block: BlockId,
 }
 

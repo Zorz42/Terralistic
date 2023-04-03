@@ -2,6 +2,7 @@ use crate::shared::blocks::{BlockId, Blocks};
 use crate::shared::mod_manager::{get_mod_id, ModManager};
 use crate::shared::walls::{WallId, Walls};
 extern crate alloc;
+use crate::libraries::events::EventManager;
 use alloc::sync::Arc;
 use anyhow::{anyhow, bail, Result};
 use noise::{NoiseFn, Perlin};
@@ -290,7 +291,11 @@ impl WorldGenerator {
 
         for x in 0..width {
             curr_terrain.push(vec![BlockId::new(); height as usize]);
-            curr_heights.push(heights[x as usize]);
+            curr_heights.push(
+                *heights
+                    .get(x as usize)
+                    .ok_or_else(|| anyhow!("invalid x coordinate"))?,
+            );
 
             let terrain_noise_val = *heights
                 .get(x as usize)
@@ -421,6 +426,14 @@ impl WorldGenerator {
 
         blocks.create_from_block_ids(&block_terrain)?;
         walls.create_from_wall_ids(&wall_terrain)?;
+
+        // update all blocks
+        let mut dummy_events = EventManager::new();
+        for x in 0..width as i32 {
+            for y in 0..height as i32 {
+                blocks.update_block(x, y, &mut dummy_events)?;
+            }
+        }
 
         println!("World generated in {}ms", start_time.elapsed().as_millis());
 

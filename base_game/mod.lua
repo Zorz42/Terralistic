@@ -34,6 +34,7 @@ grass_block = 0
 wood_block = 0
 branch_block = 0
 leaves_block = 0
+canopy_block = 0
 
 -- global variables for wall IDs
 dirt_wall = 0
@@ -106,7 +107,17 @@ function init()
     block_type["transparent"] = true
     leaves_block = terralistic_register_block_type(block_type)
 
-    terralistic_connect_blocks(leaves_block, wood_block);
+    -- CANOPY
+    block_type = terralistic_new_block_type()
+    block_type["name"] = "canopy"
+    block_type["break_time"] = 1000
+    block_type["ghost"] = true
+    block_type["transparent"] = true
+    block_type["width"] = 5
+    block_type["height"] = 5
+    canopy_block = terralistic_register_block_type(block_type)
+
+    terralistic_connect_blocks(wood_block, canopy_block);
 
     -- register walls
     wall_type = terralistic_new_wall_type()
@@ -195,7 +206,7 @@ function generate_plains(terrain, heights, width, height)
 
     x = 3
     while x < width - 2 do
-        tree_height = math.random(7, 20)
+        tree_height = math.random(7, 15)
         tree_y = height - heights[x]
         if terrain[x][tree_y + 1] == grass_block then
             for y = tree_y - tree_height, tree_y do
@@ -212,23 +223,25 @@ function generate_plains(terrain, heights, width, height)
                 terrain[x - 1][tree_y] = wood_block
             end
 
-            leave_y = tree_y - tree_height + math.random(3, 7)
-            while leave_y < tree_y do
+            leave_y = tree_y - math.random(3, 7)
+            while leave_y > tree_y - tree_height do
                 if terrain[x - 1][leave_y] == air and terrain[x - 2][leave_y] == air then
                     terrain[x - 1][leave_y] = branch_block
                     terrain[x - 2][leave_y] = leaves_block
                 end
-                leave_y = leave_y + math.random(3, 10);
+                leave_y = leave_y - math.random(3, 10);
             end
 
-            leave_y = tree_y - tree_height + math.random(3, 7)
-            while leave_y < tree_y do
+            leave_y = tree_y + math.random(3, 7)
+            while leave_y > tree_y - tree_height do
                 if terrain[x + 1][leave_y] == air and terrain[x + 2][leave_y] == air then
                     terrain[x + 1][leave_y] = branch_block
                     terrain[x + 2][leave_y] = leaves_block
                 end
-                leave_y = leave_y + math.random(3, 10);
+                leave_y = leave_y - math.random(3, 10);
             end
+
+            terrain[x - 2][tree_y - tree_height - 5] = canopy_block
         end
 
         x = x + math.random(6, 15)
