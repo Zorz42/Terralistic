@@ -10,8 +10,9 @@ use crate::libraries::events::EventManager;
 use crate::server::server_core::entities::ServerEntities;
 use crate::server::server_core::items::ServerItems;
 use crate::server::server_core::players::ServerPlayers;
-use crate::server::server_ui::{UiMessageType, ServerState};
+use crate::server::server_ui::{UiMessageType, ServerState, PlayerEventType};
 use anyhow::{anyhow, Result};
+use crate::server::server_core::networking::DisconnectEvent;
 
 use super::blocks::ServerBlocks;
 use super::mod_manager::ServerModManager;
@@ -209,6 +210,12 @@ impl Server {
 
     fn handle_events(&mut self) -> Result<()> {
         while let Some(event) = self.events.pop_event() {
+            if let Some(_disconnect) = event.downcast::<DisconnectEvent>() {
+                send_to_ui(
+                    &UiMessageType::PlayerEvent(PlayerEventType::Leave(String::from(""))),//no name for now
+                    &self.ui_event_sender,
+                );
+            }
             self.mods.on_event(&event, &mut self.networking)?;
             self.blocks.on_event(
                 &event,
