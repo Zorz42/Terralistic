@@ -1,6 +1,5 @@
 use crate::libraries::graphics as gfx;
-use crate::server::server_core::ServerState;
-use crate::server::server_core::UiMessageType;
+use crate::server::server_ui::{ServerState, UiMessageType, PlayerEventType};
 
 use super::ui_manager;
 const SCALE: f32 = 2.0;
@@ -33,7 +32,8 @@ pub struct ServerInfo {
     _world_name: gfx::Sprite,
     //is it really needed tho?
     _world_seed: gfx::Sprite,
-    _players: gfx::Sprite,
+    players_sprite: gfx::Sprite,
+    players_count: u32,
     server_state_enum: ServerState,
     //format: state, if running then running:mspt
     server_state_sprite: gfx::Sprite,
@@ -49,7 +49,8 @@ impl ServerInfo {
         Self {
             _world_name: Default::default(),
             _world_seed: Default::default(),
-            _players: Default::default(),
+            players_sprite: Default::default(),
+            players_count: 0,
             server_state_enum: ServerState::Nothing,
             server_state_sprite: Default::default(),
             mspt: Default::default(),
@@ -83,6 +84,14 @@ impl ui_manager::ModuleTrait for ServerInfo {
         self.mspt.color = gfx::WHITE;
         self.mspt.scale = SCALE;
         self.mspt.orientation = gfx::TOP;
+
+        self.players_sprite.color = gfx::WHITE;
+        self.players_sprite.scale = SCALE;
+        self.players_sprite.orientation = gfx::TOP_LEFT;
+        self.players_sprite.pos = gfx::FloatPos(gfx::SPACING, gfx::SPACING);
+        self.players_sprite.texture = gfx::Texture::load_from_surface(
+            &graphics_context.font.create_text_surface("Players: 0"),
+        );
     }
 
     fn update(&mut self, _delta_time: f32, graphics_context: &mut gfx::GraphicsContext) {
@@ -132,6 +141,8 @@ impl ui_manager::ModuleTrait for ServerInfo {
         if self.server_state_enum == ServerState::Running {
             self.mspt.render(graphics_context, Some(&self.container));
         }
+
+        self.players_sprite.render(graphics_context, Some(&self.container));
     }
 
     #[allow(clippy::single_match)]
@@ -152,6 +163,26 @@ impl ui_manager::ModuleTrait for ServerInfo {
                         format!(" ({}ms)", (*mspt as f64 / 1000.0).to_owned()).as_str(),
                     ));
             }
+            UiMessageType::PlayerEvent(event) => match event {
+                PlayerEventType::Join(name) => {
+                    self.players_count += 1;
+                    self.players_sprite.texture = gfx::Texture::load_from_surface(
+                        &graphics_context.font.create_text_surface(&format!(
+                            "Players: {}",
+                            self.players_count
+                        )),
+                    );
+                }
+                PlayerEventType::Leave(name) => {
+                    self.players_count -= 1;
+                    self.players_sprite.texture = gfx::Texture::load_from_surface(
+                        &graphics_context.font.create_text_surface(&format!(
+                            "Players: {}",
+                            self.players_count
+                        )),
+                    );
+                }
+            },
             _ => {}
         }
     }

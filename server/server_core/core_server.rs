@@ -10,6 +10,7 @@ use crate::libraries::events::EventManager;
 use crate::server::server_core::entities::ServerEntities;
 use crate::server::server_core::items::ServerItems;
 use crate::server::server_core::players::ServerPlayers;
+use crate::server::server_ui::{UiMessageType, ServerState};
 use anyhow::{anyhow, Result};
 
 use super::blocks::ServerBlocks;
@@ -20,32 +21,6 @@ use super::world_generator::WorldGenerator;
 
 pub const SINGLEPLAYER_PORT: u16 = 49152;
 pub const MULTIPLAYER_PORT: u16 = 49153;
-
-#[derive(serde_derive::Serialize, serde_derive::Deserialize, PartialEq, Eq)]
-pub enum UiMessageType {
-    ServerState(ServerState),
-    ConsoleMessage(String),
-    MsptUpdate(u64),
-}
-
-#[derive(Copy, Clone, serde_derive::Serialize, serde_derive::Deserialize, Debug, PartialEq, Eq)]
-pub enum ServerState {
-    Nothing,
-    Starting,
-    InitMods,
-    LoadingWorld,
-    GeneratingWorld,
-    Running,
-    Stopping,
-    Stopped,
-}
-
-impl core::fmt::Display for ServerState {
-    //this only stays for now since i debug things with it. remove later
-    fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
-        write!(f, "{self:?}")
-    }
-}
 
 pub struct Server {
     tps_limit: f32,
@@ -177,6 +152,7 @@ impl Server {
                     &mut self.events,
                     &mut self.items.items,
                     &mut self.networking,
+                    &mut self.ui_event_sender,
                 )?;
                 self.entities
                     .entities
@@ -255,6 +231,7 @@ impl Server {
                 &self.blocks.blocks,
                 &mut self.networking,
                 &mut self.events,
+                &mut self.ui_event_sender,
             )?;
             ServerEntities::on_event(&event, &mut self.networking)?;
             self.networking.on_event(&event, &mut self.events)?;
@@ -298,24 +275,28 @@ impl Server {
         Ok(())
     }
 
-    //sends any data to the ui if the server was started without nogui flag
     fn send_to_ui(&self, data: &UiMessageType) {
-        if let Some(sender) = &self.ui_event_sender {
-            let data = &bincode::serialize(&data).unwrap_or_default();
-            let data = snap::raw::Encoder::new()
-                .compress_vec(data)
-                .unwrap_or_default();
-            let result = sender.send(data);
-
-            if let Err(_e) = result {
-                println!("error sending data to ui");
-            }
-        }
+        send_to_ui(data, &self.ui_event_sender);
     }
 
     //prints to the terminal the server was started in and sends it to the ui
     fn print_to_console(&self, text: &str) {
         println!("{text}");
-        self.send_to_ui(&UiMessageType::ConsoleMessage(text.to_owned()));
+        send_to_ui(&UiMessageType::ConsoleMessage(text.to_owned()), &self.ui_event_sender);
+    }
+}
+
+//sends any data to the ui if the server was started without nogui flag
+pub fn send_to_ui(data: &UiMessageType, ui_event_sender: &Option<Sender<Vec<u8>>>) {
+    if let Some(sender) = ui_event_sender {
+        let data = &bincode::serialize(&data).unwrap_or_default();
+        let data = snap::raw::Encoder::new()
+            .compress_vec(data)
+            .unwrap_or_default();
+        let result = sender.send(data);
+
+        if let Err(_e) = result {
+            println!("error sending data to ui");
+        }
     }
 }

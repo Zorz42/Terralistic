@@ -5,7 +5,7 @@ use std::sync::mpsc::Receiver;
 use bincode::deserialize;
 
 use crate::libraries::graphics as gfx;
-use crate::server::server_core::{ServerState, UiMessageType};
+use crate::server::server_ui::{ServerState, UiMessageType};
 use crate::server::server_ui::server_info;
 
 pub struct UiManager {

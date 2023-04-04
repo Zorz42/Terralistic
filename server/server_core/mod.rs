@@ -8,4 +8,4 @@ mod players;
 mod walls;
 mod world_generator;
 
-pub use core_server::{Server, ServerState, UiMessageType, MULTIPLAYER_PORT, SINGLEPLAYER_PORT};
+pub use core_server::{Server, MULTIPLAYER_PORT, SINGLEPLAYER_PORT, send_to_ui};
