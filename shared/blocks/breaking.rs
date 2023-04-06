@@ -4,6 +4,7 @@ use crate::shared::blocks::BlockId;
 use anyhow::{anyhow, Result};
 
 /// Breaking block struct represents a block that is currently being broken.
+#[derive(Clone)]
 pub struct BreakingBlock {
     pub break_progress: i32,
     pub is_breaking: bool,

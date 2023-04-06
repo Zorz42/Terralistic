@@ -1,9 +1,71 @@
-use crate::shared::blocks::Block;
+extern crate alloc;
+use crate::shared::blocks::{Block, BlockId, Blocks};
+use crate::shared::mod_manager::ModManager;
+use alloc::sync::Arc;
+use anyhow::Result;
 use rlua::UserDataMethods;
+use std::sync::{Mutex, PoisonError};
 
-/**
-make `BlockType` Lua compatible, implement getter and setter for every field except id
- */
+/// initialize the mod interface for the blocks module
+/// # Errors
+/// if the lua context is not available
+pub fn init_blocks_mod_interface(blocks: &Arc<Mutex<Blocks>>, mods: &mut ModManager) -> Result<()> {
+    mods.add_global_function("new_block_type", move |_lua, _: ()| Ok(Block::new()))?;
+
+    let mut blocks2 = blocks.clone();
+    mods.add_global_function("register_block_type", move |_lua, block_type: Block| {
+        let result = blocks2
+            .lock()
+            .unwrap_or_else(PoisonError::into_inner)
+            .register_new_block_type(block_type);
+
+        Ok(result)
+    })?;
+
+    blocks2 = blocks.clone();
+    mods.add_global_function("get_block_id_by_name", move |_lua, name: String| {
+        let block_types = blocks2.lock().unwrap_or_else(PoisonError::into_inner);
+
+        let iter = block_types.block_types.iter();
+        for block_type in iter {
+            if block_type.name == name {
+                return Ok(block_type.get_id());
+            }
+        }
+        Err(rlua::Error::RuntimeError("Block type not found".to_owned()))
+    })?;
+
+    // a method to connect two blocks
+    blocks2 = blocks.clone();
+    mods.add_global_function(
+        "connect_blocks",
+        move |_lua, (block_id1, block_id2): (BlockId, BlockId)| {
+            let block_types = &mut blocks2
+                .lock()
+                .unwrap_or_else(PoisonError::into_inner)
+                .block_types;
+            block_types
+                .get_mut(block_id1.id as usize)
+                .ok_or(rlua::Error::RuntimeError(
+                    "block type id is invalid".to_owned(),
+                ))?
+                .connects_to
+                .push(block_id2);
+            block_types
+                .get_mut(block_id2.id as usize)
+                .ok_or(rlua::Error::RuntimeError(
+                    "block type id is invalid".to_owned(),
+                ))?
+                .connects_to
+                .push(block_id1);
+            Ok(())
+        },
+    )?;
+
+    Ok(())
+}
+
+/// make `BlockType` Lua compatible, implement getter and setter for every field except id
 impl rlua::UserData for Block {
     fn add_methods<'lua, M: UserDataMethods<'lua, Self>>(methods: &mut M) {
         // add meta method to set fields, id and image are not accessible

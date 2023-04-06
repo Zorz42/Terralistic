@@ -44,8 +44,8 @@ pub struct Game {
 impl Game {
     #[must_use]
     pub fn new(server_port: u16, server_address: String, player_name: &str) -> Self {
-        let mut blocks = ClientBlocks::new();
-        let walls = ClientWalls::new(&mut blocks.blocks);
+        let blocks = ClientBlocks::new();
+        let walls = ClientWalls::new(&mut blocks.get_blocks());
 
         Self {
             events: EventManager::new(),
@@ -93,7 +93,7 @@ impl Game {
                 *loading_text2.lock().unwrap_or_else(PoisonError::into_inner) = "Loading mods".to_owned();
                 let mut mods = ClientModManager::new();
                 let mut blocks = ClientBlocks::new();
-                let mut walls = ClientWalls::new(&mut blocks.blocks);
+                let mut walls = ClientWalls::new(&mut blocks.get_blocks());
                 let mut entities = ClientEntities::new();
                 let mut items = ClientItems::new();
 
@@ -135,7 +135,7 @@ impl Game {
 
         self.background.init()?;
         self.inventory.init();
-        self.lights.init(&self.blocks.blocks)?;
+        self.lights.init(&self.blocks.get_blocks())?;
 
         self.blocks.load_resources(&mut self.mods.mod_manager)?;
         self.walls.load_resources(&mut self.mods.mod_manager)?;
@@ -268,11 +268,11 @@ impl Game {
                     graphics,
                     &mut self.entities.entities,
                     &mut self.networking,
-                    &self.blocks.blocks,
+                    &self.blocks.get_blocks(),
                 )?;
                 self.entities
                     .entities
-                    .update_entities_ms(&self.blocks.blocks);
+                    .update_entities_ms(&self.blocks.get_blocks());
                 ms_counter += 5;
             }
 
@@ -286,7 +286,7 @@ impl Game {
             self.lights.render(
                 graphics,
                 &self.camera,
-                &self.blocks.blocks,
+                &self.blocks.get_blocks(),
                 &mut self.events,
             )?;
             self.camera.render(graphics);
@@ -325,7 +325,7 @@ impl Game {
                     &event,
                 )?;
                 self.players.on_event(&event, &mut self.entities.entities);
-                self.lights.on_event(&event, &self.blocks.blocks)?;
+                self.lights.on_event(&event, &self.blocks.get_blocks())?;
                 self.camera.on_event(&event);
             }
 

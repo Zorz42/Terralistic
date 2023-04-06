@@ -6,13 +6,14 @@ use std::sync::mpsc::Sender;
 use std::sync::{Mutex, PoisonError};
 use std::thread::sleep;
 
+use anyhow::{anyhow, Result};
+
 use crate::libraries::events::EventManager;
 use crate::server::server_core::entities::ServerEntities;
 use crate::server::server_core::items::ServerItems;
 use crate::server::server_core::networking::DisconnectEvent;
 use crate::server::server_core::players::ServerPlayers;
 use crate::server::server_ui::{PlayerEventType, ServerState, UiMessageType};
-use anyhow::{anyhow, Result};
 
 use super::blocks::ServerBlocks;
 use super::mod_manager::ServerModManager;
@@ -40,8 +41,8 @@ pub struct Server {
 impl Server {
     #[must_use]
     pub fn new(port: u16, ui_event_sender: Option<Sender<Vec<u8>>>) -> Self {
-        let mut blocks = ServerBlocks::new();
-        let walls = ServerWalls::new(&mut blocks.blocks);
+        let blocks = ServerBlocks::new();
+        let walls = ServerWalls::new(&mut blocks.get_blocks());
         Self {
             tps_limit: 20.0,
             state: ServerState::Nothing,
@@ -107,7 +108,7 @@ impl Server {
             self.state = ServerState::GeneratingWorld;
             self.send_to_ui(&UiMessageType::ServerState(self.state));
             generator.generate(
-                (&mut self.blocks.blocks, &mut self.walls.walls),
+                (&mut *self.blocks.get_blocks(), &mut self.walls.walls),
                 &mut self.mods.mod_manager,
                 4400,
                 1200,
@@ -149,7 +150,7 @@ impl Server {
             while ms_counter < ms_timer.elapsed().as_millis() as i32 {
                 self.players.update(
                     &mut self.entities.entities,
-                    &self.blocks.blocks,
+                    &self.blocks.get_blocks(),
                     &mut self.events,
                     &mut self.items.items,
                     &mut self.networking,
@@ -157,7 +158,7 @@ impl Server {
                 )?;
                 self.entities
                     .entities
-                    .update_entities_ms(&self.blocks.blocks);
+                    .update_entities_ms(&self.blocks.get_blocks());
                 ms_counter += 5;
             }
 
@@ -235,7 +236,7 @@ impl Server {
             self.players.on_event(
                 &event,
                 &mut self.entities.entities,
-                &self.blocks.blocks,
+                &self.blocks.get_blocks(),
                 &mut self.networking,
                 &mut self.events,
                 &self.ui_event_sender,
@@ -254,7 +255,7 @@ impl Server {
         let world: HashMap<String, Vec<u8>> = bincode::deserialize(&world_file)?;
 
         self.blocks
-            .blocks
+            .get_blocks()
             .deserialize(world.get("blocks").unwrap_or(&Vec::new()))?;
         self.walls
             .walls
@@ -266,7 +267,7 @@ impl Server {
 
     fn save_world(&self, world_path: &Path) -> Result<()> {
         let mut world = HashMap::new();
-        world.insert("blocks".to_owned(), self.blocks.blocks.serialize()?);
+        world.insert("blocks".to_owned(), self.blocks.get_blocks().serialize()?);
         world.insert("walls".to_owned(), self.walls.walls.serialize()?);
         world.insert("players".to_owned(), self.players.serialize()?);
 

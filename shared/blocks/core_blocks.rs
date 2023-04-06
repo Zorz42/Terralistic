@@ -1,17 +1,12 @@
 use std::collections::HashMap;
 
-extern crate alloc;
-use alloc::sync::Arc;
-use std::sync::{Mutex, PoisonError};
-
+use anyhow::{anyhow, bail, Result};
 use serde_derive::{Deserialize, Serialize};
 use snap;
 
 use crate::libraries::events::{Event, EventManager};
 use crate::shared::blocks::{Block, BreakingBlock, Tool};
-use crate::shared::mod_manager::ModManager;
 use crate::shared::world_map::WorldMap;
-use anyhow::{anyhow, bail, Result};
 
 pub const BLOCK_WIDTH: f32 = 8.0;
 pub const RENDER_SCALE: f32 = 2.0;
@@ -62,7 +57,7 @@ impl rlua::UserData for BlockId {
 pub struct Blocks {
     pub(super) block_data: BlocksData,
     pub(super) breaking_blocks: Vec<BreakingBlock>,
-    pub(super) block_types: Arc<Mutex<Vec<Block>>>,
+    pub(super) block_types: Vec<Block>,
     pub(super) tool_types: Vec<Tool>,
     pub air: BlockId,
 }
@@ -84,7 +79,7 @@ impl Blocks {
                 map: WorldMap::new_empty(),
             },
             breaking_blocks: vec![],
-            block_types: Arc::new(Mutex::new(vec![])),
+            block_types: vec![],
             tool_types: vec![],
             air: BlockId::new(),
         };
@@ -94,13 +89,7 @@ impl Blocks {
         air.ghost = true;
         air.transparent = true;
         air.break_time = UNBREAKABLE;
-        result.air = Self::register_new_block_type(
-            &mut result
-                .block_types
-                .lock()
-                .unwrap_or_else(PoisonError::into_inner),
-            air,
-        );
+        result.air = result.register_new_block_type(air);
 
         result
     }
@@ -113,59 +102,6 @@ impl Blocks {
     #[must_use]
     pub const fn get_height(&self) -> u32 {
         self.block_data.map.get_height()
-    }
-
-    /// # Errors
-    /// Returns an error if global functions couldn't be added
-    pub fn init(&mut self, mods: &mut ModManager) -> Result<()> {
-        mods.add_global_function("new_block_type", move |_lua, _: ()| Ok(Block::new()))?;
-
-        let mut block_types = self.block_types.clone();
-        mods.add_global_function("register_block_type", move |_lua, block_type: Block| {
-            let result = Self::register_new_block_type(
-                &mut block_types.lock().unwrap_or_else(PoisonError::into_inner),
-                block_type,
-            );
-            Ok(result)
-        })?;
-
-        block_types = self.block_types.clone();
-        mods.add_global_function("get_block_id_by_name", move |_lua, name: String| {
-            let block_types = block_types.lock().unwrap_or_else(PoisonError::into_inner);
-            let iter = block_types.iter();
-            for block_type in iter {
-                if block_type.name == name {
-                    return Ok(block_type.get_id());
-                }
-            }
-            Err(rlua::Error::RuntimeError("Block type not found".to_owned()))
-        })?;
-
-        // a method to connect two blocks
-        block_types = self.block_types.clone();
-        mods.add_global_function(
-            "connect_blocks",
-            move |_lua, (block_id1, block_id2): (BlockId, BlockId)| {
-                let mut block_types = block_types.lock().unwrap_or_else(PoisonError::into_inner);
-                block_types
-                    .get_mut(block_id1.id as usize)
-                    .ok_or(rlua::Error::RuntimeError(
-                        "block type id is invalid".to_owned(),
-                    ))?
-                    .connects_to
-                    .push(block_id2);
-                block_types
-                    .get_mut(block_id2.id as usize)
-                    .ok_or(rlua::Error::RuntimeError(
-                        "block type id is invalid".to_owned(),
-                    ))?
-                    .connects_to
-                    .push(block_id1);
-                Ok(())
-            },
-        )?;
-
-        Ok(())
     }
 
     /// Creates an empty world with given width and height
@@ -327,12 +263,12 @@ impl Blocks {
         Ok(())
     }
 
-    /// This function adds a new block type, but is used internally by mods.
-    fn register_new_block_type(block_types: &mut Vec<Block>, mut block_type: Block) -> BlockId {
-        let id = block_types.len() as i8;
+    /// This function adds a new block type
+    pub fn register_new_block_type(&mut self, mut block_type: Block) -> BlockId {
+        let id = self.block_types.len() as i8;
         let result = BlockId { id };
         block_type.id = result;
-        block_types.push(block_type);
+        self.block_types.push(block_type);
         result
     }
 
@@ -341,12 +277,7 @@ impl Blocks {
     /// # Errors
     /// Returns an error if the block type is not found
     pub fn get_block_id_by_name(&mut self, name: &str) -> Result<BlockId> {
-        let block_types = self
-            .block_types
-            .lock()
-            .unwrap_or_else(PoisonError::into_inner);
-        let iter = block_types.iter();
-        for block_type in iter {
+        for block_type in &self.block_types {
             if block_type.name == name {
                 return Ok(block_type.id);
             }
@@ -357,12 +288,7 @@ impl Blocks {
     /// Returns all block ids.
     pub fn get_all_block_ids(&mut self) -> Vec<BlockId> {
         let mut result = Vec::new();
-        let block_types = self
-            .block_types
-            .lock()
-            .unwrap_or_else(PoisonError::into_inner);
-        let iter = block_types.iter();
-        for block_type in iter {
+        for block_type in &self.block_types {
             result.push(block_type.id);
         }
         result
@@ -372,11 +298,8 @@ impl Blocks {
     /// # Errors
     /// Returns an error if the block type is not found
     pub fn get_block_type(&self, id: BlockId) -> Result<Block> {
-        let blocks = self
+        Ok(self
             .block_types
-            .lock()
-            .unwrap_or_else(PoisonError::into_inner);
-        Ok(blocks
             .get(id.id as usize)
             .ok_or_else(|| anyhow!("Block type not found"))?
             .clone())

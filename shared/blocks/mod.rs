@@ -9,4 +9,5 @@ mod tool;
 pub use block_type::*;
 pub use breaking::*;
 pub use core_blocks::*;
+pub use mod_interface::*;
 pub use tool::*;
