@@ -9,10 +9,10 @@ use std::thread::sleep;
 use crate::libraries::events::EventManager;
 use crate::server::server_core::entities::ServerEntities;
 use crate::server::server_core::items::ServerItems;
-use crate::server::server_core::players::ServerPlayers;
-use crate::server::server_ui::{UiMessageType, ServerState, PlayerEventType};
-use anyhow::{anyhow, Result};
 use crate::server::server_core::networking::DisconnectEvent;
+use crate::server::server_core::players::ServerPlayers;
+use crate::server::server_ui::{PlayerEventType, ServerState, UiMessageType};
+use anyhow::{anyhow, Result};
 
 use super::blocks::ServerBlocks;
 use super::mod_manager::ServerModManager;
@@ -153,7 +153,7 @@ impl Server {
                     &mut self.events,
                     &mut self.items.items,
                     &mut self.networking,
-                    &mut self.ui_event_sender,
+                    &self.ui_event_sender,
                 )?;
                 self.entities
                     .entities
@@ -212,7 +212,7 @@ impl Server {
         while let Some(event) = self.events.pop_event() {
             if let Some(_disconnect) = event.downcast::<DisconnectEvent>() {
                 send_to_ui(
-                    &UiMessageType::PlayerEvent(PlayerEventType::Leave(String::from(""))),//no name for now
+                    &UiMessageType::PlayerEvent(PlayerEventType::Leave(String::new())), //no name for now
                     &self.ui_event_sender,
                 );
             }
@@ -238,7 +238,7 @@ impl Server {
                 &self.blocks.blocks,
                 &mut self.networking,
                 &mut self.events,
-                &mut self.ui_event_sender,
+                &self.ui_event_sender,
             )?;
             ServerEntities::on_event(&event, &mut self.networking)?;
             self.networking.on_event(&event, &mut self.events)?;
@@ -289,7 +289,10 @@ impl Server {
     //prints to the terminal the server was started in and sends it to the ui
     fn print_to_console(&self, text: &str) {
         println!("{text}");
-        send_to_ui(&UiMessageType::ConsoleMessage(text.to_owned()), &self.ui_event_sender);
+        send_to_ui(
+            &UiMessageType::ConsoleMessage(text.to_owned()),
+            &self.ui_event_sender,
+        );
     }
 }
 

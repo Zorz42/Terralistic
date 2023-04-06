@@ -1,5 +1,5 @@
 use crate::libraries::graphics as gfx;
-use crate::server::server_ui::{ServerState, UiMessageType, PlayerEventType};
+use crate::server::server_ui::{PlayerEventType, ServerState, UiMessageType};
 
 use super::ui_manager;
 const SCALE: f32 = 2.0;
@@ -140,7 +140,8 @@ impl ui_manager::ModuleTrait for ServerInfo {
             self.mspt.render(graphics_context, Some(&self.container));
         }
 
-        self.players_sprite.render(graphics_context, Some(&self.container));
+        self.players_sprite
+            .render(graphics_context, Some(&self.container));
     }
 
     #[allow(clippy::single_match)]
@@ -162,22 +163,20 @@ impl ui_manager::ModuleTrait for ServerInfo {
                     ));
             }
             UiMessageType::PlayerEvent(event) => match event {
-                PlayerEventType::Join(name) => {
+                PlayerEventType::Join(_name) => {
                     self.players_count += 1;
                     self.players_sprite.texture = gfx::Texture::load_from_surface(
-                        &graphics_context.font.create_text_surface(&format!(
-                            "Players: {}",
-                            self.players_count
-                        )),
+                        &graphics_context
+                            .font
+                            .create_text_surface(&format!("Players: {}", self.players_count)),
                     );
                 }
-                PlayerEventType::Leave(name) => {
+                PlayerEventType::Leave(_name) => {
                     self.players_count -= 1;
                     self.players_sprite.texture = gfx::Texture::load_from_surface(
-                        &graphics_context.font.create_text_surface(&format!(
-                            "Players: {}",
-                            self.players_count
-                        )),
+                        &graphics_context
+                            .font
+                            .create_text_surface(&format!("Players: {}", self.players_count)),
                     );
                 }
             },

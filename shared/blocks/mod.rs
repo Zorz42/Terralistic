@@ -1,6 +1,7 @@
 mod block_type;
 mod breaking;
 mod core_blocks;
+mod mod_interface;
 mod tests;
 mod tool;
 

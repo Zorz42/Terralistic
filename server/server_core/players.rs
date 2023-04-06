@@ -3,8 +3,8 @@ use crate::server::server_core::networking::{
     Connection, DisconnectEvent, NewConnectionWelcomedEvent, PacketFromClientEvent, SendTarget,
     ServerNetworking,
 };
-use crate::server::server_ui::{UiMessageType, PlayerEventType};
 use crate::server::server_core::send_to_ui;
+use crate::server::server_ui::{PlayerEventType, UiMessageType};
 use crate::shared::blocks::Blocks;
 use crate::shared::entities::{Entities, IdComponent, PhysicsComponent, PositionComponent};
 use crate::shared::inventory::{
@@ -161,7 +161,10 @@ impl ServerPlayers {
             }
 
             networking.send_packet(&player_spawn_packet, SendTarget::All)?;
-            send_to_ui(&UiMessageType::PlayerEvent(PlayerEventType::Join(name)), ui_event_sender);
+            send_to_ui(
+                &UiMessageType::PlayerEvent(PlayerEventType::Join(name)),
+                ui_event_sender,
+            );
         }
 
         if let Some(disconnect_event) = event.downcast::<DisconnectEvent>() {
@@ -191,7 +194,7 @@ impl ServerPlayers {
         events: &mut EventManager,
         items: &mut Items,
         networking: &mut ServerNetworking,
-        ui_event_sender: &Option<Sender<Vec<u8>>>,
+        _ui_event_sender: &Option<Sender<Vec<u8>>>,
     ) -> Result<()> {
         update_players_ms(entities, blocks);
         remove_all_picked_items(entities, events, items)?;
