@@ -155,7 +155,7 @@ impl ClientBlocks {
             || x >= self.get_blocks().get_width() as i32 / CHUNK_SIZE
             || y >= self.get_blocks().get_height() as i32 / CHUNK_SIZE
         {
-            bail!("Tried to get chunk at {x}, {y} but it is out of bounds");
+            bail!("Tried to get block chunk at {x}, {y} but it is out of bounds");
         }
 
         Ok((x + y * (self.get_blocks().get_width() as i32 / CHUNK_SIZE)) as usize)

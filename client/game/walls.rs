@@ -140,7 +140,7 @@ impl ClientWalls {
             || x >= self.walls.get_width() as i32 / CHUNK_SIZE
             || y >= self.walls.get_height() as i32 / CHUNK_SIZE
         {
-            bail!("Tried to get chunk at {x}, {y} but it is out of bounds");
+            bail!("Tried to get wall chunk at {x}, {y} but it is out of bounds");
         }
 
         Ok((x + y * (self.walls.get_width() as i32 / CHUNK_SIZE)) as usize)

@@ -95,7 +95,7 @@ impl ClientLights {
             || x >= self.lights.get_width() as i32 / CHUNK_SIZE
             || y >= self.lights.get_height() as i32 / CHUNK_SIZE
         {
-            bail!("Tried to get chunk at {x}, {y} but it is out of bounds");
+            bail!("Tried to get light chunk at {x}, {y} but it is out of bounds");
         }
 
         Ok((x + y * (self.lights.get_width() as i32 / CHUNK_SIZE)) as usize)
@@ -198,6 +198,14 @@ impl ClientLights {
             ];
 
             for (x, y) in pos {
+                if y < 0
+                    || y >= self.lights.get_height() as i32 / CHUNK_SIZE
+                    || x < 0
+                    || x >= self.lights.get_width() as i32 / CHUNK_SIZE
+                {
+                    continue;
+                }
+
                 let chunk_index = self.get_chunk_index(x, y)?;
                 let chunk = self
                     .chunks
