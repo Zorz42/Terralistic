@@ -162,7 +162,7 @@ impl ui_manager::ModuleTrait for ServerInfo {
                     ));
             }
             UiMessageType::PlayerEvent(event) => match event {
-                PlayerEventType::Join(name) => {
+                PlayerEventType::Join((name, addr)) => {
                     self.players_count += 1;
                     self.players_sprite.texture = gfx::Texture::load_from_surface(
                         &graphics_context.font.create_text_surface(&format!(
@@ -171,7 +171,7 @@ impl ui_manager::ModuleTrait for ServerInfo {
                         )),
                     );
                 }
-                PlayerEventType::Leave(name) => {
+                PlayerEventType::Leave(addr) => {
                     self.players_count -= 1;
                     self.players_sprite.texture = gfx::Texture::load_from_surface(
                         &graphics_context.font.create_text_surface(&format!(
