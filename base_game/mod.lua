@@ -232,7 +232,7 @@ function generate_plains(terrain, heights, width, height)
                 leave_y = leave_y - math.random(3, 10);
             end
 
-            leave_y = tree_y + math.random(3, 7)
+            leave_y = tree_y - math.random(3, 7)
             while leave_y > tree_y - tree_height do
                 if terrain[x + 1][leave_y] == air and terrain[x + 2][leave_y] == air then
                     terrain[x + 1][leave_y] = branch_block
@@ -246,7 +246,6 @@ function generate_plains(terrain, heights, width, height)
 
         x = x + math.random(6, 15)
     end
-
 
     return terrain
 end
