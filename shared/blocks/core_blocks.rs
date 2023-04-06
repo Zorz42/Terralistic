@@ -313,13 +313,10 @@ impl Blocks {
         if block.width != 0 || block.height != 0 {
             let from_main = self.get_block_from_main(x, y)?;
 
-            if from_main.0 > 0 && self.get_block_type_at(x - 1, y)?.get_id() != block.get_id() {
-                self.set_block(events, x - 1, y, self.air)?;
-                return Ok(());
-            }
-
-            if from_main.1 > 0 && self.get_block_type_at(x, y - 1)?.get_id() != block.get_id() {
-                self.set_block(events, x, y - 1, self.air)?;
+            if (from_main.0 > 0 && self.get_block_type_at(x - 1, y)?.get_id() != block.get_id())
+                || (from_main.1 > 0 && self.get_block_type_at(x, y - 1)?.get_id() != block.get_id())
+            {
+                self.set_block(events, x, y, self.air)?;
                 return Ok(());
             }
 
