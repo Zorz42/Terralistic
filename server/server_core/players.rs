@@ -3,8 +3,6 @@ use crate::server::server_core::networking::{
     Connection, DisconnectEvent, NewConnectionWelcomedEvent, PacketFromClientEvent, SendTarget,
     ServerNetworking,
 };
-use crate::server::server_core::send_to_ui;
-use crate::server::server_ui::{PlayerEventType, UiMessageType};
 use crate::shared::blocks::Blocks;
 use crate::shared::entities::{Entities, IdComponent, PhysicsComponent, PositionComponent};
 use crate::shared::inventory::{
@@ -20,7 +18,6 @@ use anyhow::{anyhow, Result};
 use hecs::Entity;
 use serde_derive::{Deserialize, Serialize};
 use std::collections::HashMap;
-use std::sync::mpsc::Sender;
 
 #[derive(Serialize, Deserialize)]
 struct SavedPlayerData {
@@ -78,7 +75,6 @@ impl ServerPlayers {
         blocks: &Blocks,
         networking: &mut ServerNetworking,
         events: &mut EventManager,
-        ui_event_sender: &Option<Sender<Vec<u8>>>,
     ) -> Result<()> {
         if let Some(packet_event) = event.downcast::<PacketFromClientEvent>() {
             if let Some(packet) = packet_event.packet.try_deserialize::<PlayerMovingPacket>() {
@@ -161,10 +157,6 @@ impl ServerPlayers {
             }
 
             networking.send_packet(&player_spawn_packet, SendTarget::All)?;
-            send_to_ui(
-                &UiMessageType::PlayerEvent(PlayerEventType::Join(name)),
-                ui_event_sender,
-            );
         }
 
         if let Some(disconnect_event) = event.downcast::<DisconnectEvent>() {
@@ -194,7 +186,6 @@ impl ServerPlayers {
         events: &mut EventManager,
         items: &mut Items,
         networking: &mut ServerNetworking,
-        _ui_event_sender: &Option<Sender<Vec<u8>>>,
     ) -> Result<()> {
         update_players_ms(entities, blocks);
         remove_all_picked_items(entities, events, items)?;

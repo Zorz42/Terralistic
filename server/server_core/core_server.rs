@@ -11,7 +11,7 @@ use anyhow::{anyhow, Result};
 use crate::libraries::events::EventManager;
 use crate::server::server_core::entities::ServerEntities;
 use crate::server::server_core::items::ServerItems;
-use crate::server::server_core::networking::DisconnectEvent;
+use crate::server::server_core::networking::{DisconnectEvent, NewConnectionEvent};
 use crate::server::server_core::players::ServerPlayers;
 use crate::server::server_ui::{PlayerEventType, ServerState, UiMessageType};
 
@@ -154,7 +154,6 @@ impl Server {
                     &mut self.events,
                     &mut self.items.items,
                     &mut self.networking,
-                    &self.ui_event_sender,
                 )?;
                 self.entities
                     .entities
@@ -211,9 +210,18 @@ impl Server {
 
     fn handle_events(&mut self) -> Result<()> {
         while let Some(event) = self.events.pop_event() {
-            if let Some(_disconnect) = event.downcast::<DisconnectEvent>() {
+            if let Some(disconnect) = event.downcast::<DisconnectEvent>() {
                 send_to_ui(
-                    &UiMessageType::PlayerEvent(PlayerEventType::Leave(String::new())), //no name for now
+                    &UiMessageType::PlayerEvent(PlayerEventType::Leave(*disconnect.conn.address.ip())),
+                    &self.ui_event_sender,
+                );
+            }
+            if let Some(connect) = event.downcast::<NewConnectionEvent>() {
+                send_to_ui(
+                    &UiMessageType::PlayerEvent(PlayerEventType::Join((
+                        connect.name.clone(),
+                        *connect.conn.address.ip()
+                    ))),
                     &self.ui_event_sender,
                 );
             }
@@ -239,7 +247,6 @@ impl Server {
                 &self.blocks.get_blocks(),
                 &mut self.networking,
                 &mut self.events,
-                &self.ui_event_sender,
             )?;
             ServerEntities::on_event(&event, &mut self.networking)?;
             self.networking.on_event(&event, &mut self.events)?;
