@@ -201,9 +201,22 @@ impl ServerNetworking {
             }
         }
 
+        let mut net_loop_finished = false;
         if let Some(thread_handle) = &self.net_loop_thread {
             if thread_handle.is_finished() {
-                bail!("Net loop thread has finished unexpectedly");
+                net_loop_finished = true;
+            }
+        }
+
+        if net_loop_finished {
+            if let Some(thread_handle) = self.net_loop_thread.take() {
+                let result = match thread_handle.join() {
+                    Ok(result) => result,
+                    Err(_e) => {
+                        bail!("Failed to join net loop thread");
+                    }
+                };
+                return result;
             }
         }
 

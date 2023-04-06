@@ -1,18 +1,26 @@
-use super::camera::Camera;
-use super::networking::WelcomePacketEvent;
+extern crate alloc;
+
+use alloc::sync::Arc;
+use std::collections::HashMap;
+use std::sync::{Mutex, MutexGuard, PoisonError};
+
+use anyhow::{anyhow, bail, Result};
+
 use crate::libraries::events::{Event, EventManager};
 use crate::libraries::graphics as gfx;
 use crate::libraries::graphics::{FloatPos, FloatSize, GraphicsContext};
 use crate::shared::blocks::{
-    BlockBreakStartPacket, BlockBreakStopPacket, BlockChangeEvent, BlockChangePacket, BlockId,
+    init_blocks_mod_interface, BlockBreakStartPacket, BlockBreakStopPacket, BlockChangeEvent,
+    BlockChangePacket, BlockId,
 };
 use crate::shared::blocks::{
     Blocks, BlocksWelcomePacket, BLOCK_WIDTH, CHUNK_SIZE, RENDER_BLOCK_WIDTH, RENDER_SCALE,
 };
 use crate::shared::mod_manager::ModManager;
 use crate::shared::packet::Packet;
-use anyhow::{anyhow, bail, Result};
-use std::collections::HashMap;
+
+use super::camera::Camera;
+use super::networking::WelcomePacketEvent;
 
 pub struct RenderBlockChunk {
     needs_update: bool,
@@ -29,9 +37,9 @@ impl RenderBlockChunk {
 
     fn can_connect_to(block_type: BlockId, x: i32, y: i32, blocks: &Blocks) -> bool {
         let block = blocks.get_block_type_at(x, y);
-        let Ok(block) = block else { return true };
+        let Ok(block) = block else { return true; };
         let block_type = blocks.get_block_type(block_type);
-        let Ok(block_type) = block_type else { return true };
+        let Ok(block_type) = block_type else { return true; };
         block_type.connects_to.contains(&block.get_id()) || block.get_id() == block_type.get_id()
     }
 
@@ -117,11 +125,9 @@ impl RenderBlockChunk {
     }
 }
 
-/**
-client blocks handles client side block stuff, such as rendering
- */
+/// client blocks handles client side block stuff, such as rendering
 pub struct ClientBlocks {
-    pub blocks: Blocks,
+    blocks: Arc<Mutex<Blocks>>,
     chunks: Vec<RenderBlockChunk>,
     atlas: gfx::TextureAtlas<BlockId>,
     breaking_texture: gfx::Texture,
@@ -130,45 +136,47 @@ pub struct ClientBlocks {
 impl ClientBlocks {
     pub fn new() -> Self {
         Self {
-            blocks: Blocks::new(),
+            blocks: Arc::new(Mutex::new(Blocks::new())),
             chunks: Vec::new(),
             atlas: gfx::TextureAtlas::new(&HashMap::new()),
             breaking_texture: gfx::Texture::new(),
         }
     }
 
-    /**
-    This function returns the chunk index at a given world position
-     */
+    pub fn get_blocks(&self) -> MutexGuard<Blocks> {
+        self.blocks.lock().unwrap_or_else(PoisonError::into_inner)
+    }
+
+    /// This function returns the chunk index at a given world position
     fn get_chunk_index(&self, x: i32, y: i32) -> Result<usize> {
         // check if x and y are in bounds
         if x < 0
             || y < 0
-            || x >= self.blocks.get_width() as i32 / CHUNK_SIZE
-            || y >= self.blocks.get_height() as i32 / CHUNK_SIZE
+            || x >= self.get_blocks().get_width() as i32 / CHUNK_SIZE
+            || y >= self.get_blocks().get_height() as i32 / CHUNK_SIZE
         {
             bail!("Tried to get chunk at {x}, {y} but it is out of bounds");
         }
 
-        Ok((x + y * (self.blocks.get_width() as i32 / CHUNK_SIZE)) as usize)
+        Ok((x + y * (self.get_blocks().get_width() as i32 / CHUNK_SIZE)) as usize)
     }
 
     pub fn on_event(&mut self, event: &Event, events: &mut EventManager) -> Result<()> {
         if let Some(event) = event.downcast::<WelcomePacketEvent>() {
             if let Some(packet) = event.packet.try_deserialize::<BlocksWelcomePacket>() {
-                self.blocks.deserialize(&packet.data)?;
+                self.get_blocks().deserialize(&packet.data)?;
             }
         } else if let Some(event) = event.downcast::<Packet>() {
             if let Some(packet) = event.try_deserialize::<BlockBreakStartPacket>() {
-                self.blocks
+                self.get_blocks()
                     .start_breaking_block(events, packet.x, packet.y)?;
             } else if let Some(packet) = event.try_deserialize::<BlockBreakStopPacket>() {
-                self.blocks
+                self.get_blocks()
                     .stop_breaking_block(events, packet.x, packet.y)?;
-                self.blocks
+                self.get_blocks()
                     .set_break_progress(packet.x, packet.y, packet.break_time)?;
             } else if let Some(packet) = event.try_deserialize::<BlockChangePacket>() {
-                self.blocks.set_big_block(
+                self.get_blocks().set_big_block(
                     events,
                     packet.x,
                     packet.y,
@@ -195,20 +203,21 @@ impl ClientBlocks {
     }
 
     pub fn init(&mut self, mods: &mut ModManager) -> Result<()> {
-        self.blocks.init(mods)
+        init_blocks_mod_interface(&self.blocks, mods)
     }
 
     pub fn load_resources(&mut self, mods: &mut ModManager) -> Result<()> {
-        for _ in 0..self.blocks.get_width() as i32 / CHUNK_SIZE * self.blocks.get_height() as i32
-            / CHUNK_SIZE
-        {
+        let width = self.get_blocks().get_width() as i32 / CHUNK_SIZE;
+        let height = self.get_blocks().get_height() as i32 / CHUNK_SIZE;
+        for _ in 0..width * height {
             self.chunks.push(RenderBlockChunk::new());
         }
 
         // go through all the block types get their images and load them
         let mut surfaces = HashMap::new();
-        for id in self.blocks.get_all_block_ids() {
-            let block_type = self.blocks.get_block_type(id)?;
+        let all_block_ids = self.get_blocks().get_all_block_ids();
+        for id in all_block_ids {
+            let block_type = self.get_blocks().get_block_type(id)?;
             let image_resource = mods.get_resource(&format!("blocks:{}.opa", block_type.name));
             if let Some(image_resource) = image_resource {
                 let image = gfx::Surface::deserialize_from_bytes(&image_resource.clone())?;
@@ -242,8 +251,8 @@ impl ClientBlocks {
             for y in top_left_chunk_y..bottom_right_chunk_y {
                 if x >= 0
                     && y >= 0
-                    && x < self.blocks.get_width() as i32 / CHUNK_SIZE
-                    && y < self.blocks.get_height() as i32 / CHUNK_SIZE
+                    && x < self.get_blocks().get_width() as i32 / CHUNK_SIZE
+                    && y < self.get_blocks().get_height() as i32 / CHUNK_SIZE
                 {
                     let chunk_index = self.get_chunk_index(x, y)?;
                     let chunk = self
@@ -251,19 +260,24 @@ impl ClientBlocks {
                         .get_mut(chunk_index)
                         .ok_or_else(|| anyhow!("Chunk array malformed"))?;
 
+                    let blocks = self.blocks.lock().unwrap_or_else(PoisonError::into_inner);
                     chunk.render(
                         graphics,
                         &self.atlas,
                         x * CHUNK_SIZE,
                         y * CHUNK_SIZE,
-                        &self.blocks,
+                        &blocks,
                         camera,
                     )?;
                 }
             }
         }
 
-        for breaking_block in self.blocks.get_breaking_blocks() {
+        let breaking_blocks = {
+            let temp = self.get_blocks();
+            temp.get_breaking_blocks().clone()
+        };
+        for breaking_block in breaking_blocks {
             if breaking_block.coord.0 < top_left_x as i32
                 || breaking_block.coord.0 > bottom_right_x as i32
                 || breaking_block.coord.1 < top_left_y as i32
@@ -279,7 +293,7 @@ impl ClientBlocks {
                     - camera.get_top_left(graphics).1 * RENDER_BLOCK_WIDTH,
             );
             let break_stage = self
-                .blocks
+                .get_blocks()
                 .get_break_stage(breaking_block.coord.0, breaking_block.coord.1)?;
             self.breaking_texture.render(
                 &graphics.renderer,
@@ -298,6 +312,7 @@ impl ClientBlocks {
     }
 
     pub fn update(&mut self, frame_length: f32, events: &mut EventManager) -> Result<()> {
-        self.blocks.update_breaking_blocks(events, frame_length)
+        self.get_blocks()
+            .update_breaking_blocks(events, frame_length)
     }
 }
