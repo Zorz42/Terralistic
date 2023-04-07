@@ -1,7 +1,6 @@
 use core::hash::{Hash, Hasher};
 use core::sync::atomic::AtomicBool;
 use std::collections::HashMap;
-use std::net::Ipv4Addr;
 use std::sync::mpsc;
 use std::sync::mpsc::{Receiver, Sender};
 extern crate alloc;
@@ -9,28 +8,29 @@ use alloc::sync::Arc;
 use core::sync::atomic::Ordering;
 
 use crate::libraries::events::{Event, EventManager};
-use crate::shared::enet_global::ENET_GLOBAL;
 use crate::shared::packet::{Packet, WelcomeCompletePacket};
 use crate::shared::players::NamePacket;
 use anyhow::{anyhow, bail, Result};
-use enet::{Address, BandwidthLimit, ChannelLimit, Host, PacketMode};
+use message_io::network::{Endpoint, NetEvent, SendStatus, Transport};
+
+use message_io::node;
+use message_io::node::{NodeEvent, NodeHandler};
 
 /// This struct holds the address of a connection.
 #[derive(Clone, Eq)]
 pub struct Connection {
-    pub(super) address: Address,
+    pub(super) address: Endpoint,
 }
 
 impl Hash for Connection {
     fn hash<H: Hasher>(&self, state: &mut H) {
-        self.address.ip().hash(state);
-        self.address.port().hash(state);
+        self.address.addr().hash(state);
     }
 }
 
 impl PartialEq for Connection {
     fn eq(&self, other: &Self) -> bool {
-        self.address.ip() == other.address.ip() && self.address.port() == other.address.port()
+        self.address.addr() == other.address.addr()
     }
 }
 
@@ -86,87 +86,79 @@ impl ServerNetworking {
         }));
     }
 
+    #[allow(clippy::unwrap_used)]
     fn net_receive_loop(
         event_sender: &Sender<Event>,
         packet_receiver: &Receiver<(Vec<u8>, Connection)>,
         is_running: &Arc<AtomicBool>,
         server_port: u16,
     ) -> Result<()> {
-        let local_addr = Address::new(Ipv4Addr::LOCALHOST, server_port);
+        let (mut handler, listener) = node::split::<()>();
 
-        let mut net_server = ENET_GLOBAL.create_host::<()>(
-            Some(&local_addr),
-            100,
-            ChannelLimit::Maximum,
-            BandwidthLimit::Unlimited,
-            BandwidthLimit::Unlimited,
-        )?;
+        let listen_addr = format!("127.0.0.1:{server_port}");
+        handler
+            .network()
+            .listen(Transport::FramedTcp, listen_addr)?;
 
-        while is_running.load(Ordering::Relaxed) {
-            while let Ok((packet_data, conn)) = packet_receiver.try_recv() {
-                Self::send_packet_internal(&mut net_server, &packet_data, &conn)?;
-            }
+        handler.signals().send(());
 
-            while let Some(event) = net_server.service(0)? {
-                match event {
-                    enet::Event::Connect(ref peer) => {
-                        println!("[{:?}] connected", peer.address());
+        listener.for_each(|event| match event {
+            NodeEvent::Network(net_event) => match net_event {
+                NetEvent::Connected(..) => {}
+                NetEvent::Accepted(peer, _) => {
+                    println!("[{peer}] connected");
+                }
+                NetEvent::Disconnected(peer) => {
+                    println!("[{peer}] disconnected");
+                    match event_sender.send(Event::new(DisconnectEvent {
+                        conn: Connection { address: peer },
+                    })) {
+                        Ok(_) => {}
+                        Err(e) => {
+                            println!("Failed to send disconnect event: {e}");
+                        }
                     }
-                    enet::Event::Disconnect(ref peer, ..) => {
-                        println!("[{:?}] disconnected", peer.address());
-                        match event_sender.send(Event::new(DisconnectEvent {
-                            conn: Connection {
-                                address: peer.address(),
-                            },
+                }
+                NetEvent::Message(peer, packet) => {
+                    let packet: Packet = bincode::deserialize(packet).unwrap();
+                    if let Some(packet) = packet.try_deserialize::<NamePacket>() {
+                        println!("[{:?}] joined", packet.name);
+                        match event_sender.send(Event::new(NewConnectionEvent {
+                            conn: Connection { address: peer },
+                            name: packet.name,
                         })) {
                             Ok(_) => {}
                             Err(e) => {
-                                bail!("Failed to send disconnect event: {}", e);
+                                println!("Failed to send new connection event: {e}");
                             }
                         }
-                    }
-                    enet::Event::Receive {
-                        ref packet,
-                        ref sender,
-                        ..
-                    } => {
-                        let packet: Packet = bincode::deserialize(packet.data())?;
-                        if let Some(packet) = packet.try_deserialize::<NamePacket>() {
-                            println!("[{:?}] joined", packet.name);
-                            match event_sender.send(Event::new(NewConnectionEvent {
-                                conn: Connection {
-                                    address: sender.address(),
-                                },
-                                name: packet.name,
-                            })) {
-                                Ok(_) => {}
-                                Err(e) => {
-                                    bail!("Failed to send new connection event: {}", e);
-                                }
-                            }
-                        } else {
-                            match event_sender.send(Event::new(PacketFromClientEvent {
-                                packet,
-                                conn: Connection {
-                                    address: sender.address(),
-                                },
-                            })) {
-                                Ok(_) => {}
-                                Err(e) => {
-                                    bail!("Failed to send packet from client event: {}", e);
-                                }
+                    } else {
+                        match event_sender.send(Event::new(PacketFromClientEvent {
+                            packet,
+                            conn: Connection { address: peer },
+                        })) {
+                            Ok(_) => {}
+                            Err(e) => {
+                                println!("Failed to send packet from client event: {e}");
                             }
                         }
                     }
                 }
+            },
+            NodeEvent::Signal(_) => {
+                if !is_running.load(Ordering::Relaxed) {
+                    handler.stop();
+                }
+
+                while let Ok((packet_data, conn)) = packet_receiver.try_recv() {
+                    Self::send_packet_internal(&mut handler, &packet_data, &conn).unwrap();
+                }
+
+                handler
+                    .signals()
+                    .send_with_timer((), core::time::Duration::from_millis(1));
             }
-
-            std::thread::sleep(core::time::Duration::from_millis(1));
-        }
-
-        for conn in net_server.peers() {
-            conn.disconnect_now(0);
-        }
+        });
 
         Ok(())
     }
@@ -224,18 +216,23 @@ impl ServerNetworking {
     }
 
     fn send_packet_internal(
-        net_server: &mut Host<()>,
+        net_server: &mut NodeHandler<()>,
         packet_data: &[u8],
         conn: &Connection,
     ) -> Result<()> {
-        let mut client = net_server
-            .peers()
-            .find(|x| x.address() == conn.address)
-            .ok_or_else(|| anyhow!("Client not found"))?;
-        client.send_packet(
-            enet::Packet::new(packet_data, PacketMode::ReliableSequenced)?,
-            0,
-        )?;
+        loop {
+            let status = net_server.network().send(conn.address, packet_data);
+            match status {
+                SendStatus::Sent => break,
+                SendStatus::MaxPacketSizeExceeded => bail!("Max packet size exceeded"),
+                SendStatus::ResourceNotFound => bail!("Resource not found"),
+                SendStatus::ResourceNotAvailable => {
+                    // wait a bit and try again
+                    std::thread::sleep(core::time::Duration::from_millis(1));
+                }
+            };
+        }
+
         Ok(())
     }
 

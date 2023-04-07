@@ -6,11 +6,12 @@ use alloc::sync::Arc;
 use std::thread::JoinHandle;
 
 use anyhow::{anyhow, bail, Result};
-use enet::{Address, BandwidthLimit, ChannelLimit, Event, Host, PacketMode};
+use message_io::network::{Endpoint, NetEvent, SendStatus, Transport};
+use message_io::node;
+use message_io::node::{NodeEvent, NodeHandler};
 
 use crate::libraries::events;
 use crate::libraries::events::EventManager;
-use crate::shared::enet_global::ENET_GLOBAL;
 use crate::shared::packet::{Packet, WelcomeCompletePacket};
 use crate::shared::players::NamePacket;
 
@@ -85,6 +86,8 @@ impl ClientNetworking {
     }
 
     #[allow(clippy::too_many_arguments)]
+    #[allow(clippy::unwrap_in_result)]
+    #[allow(clippy::unwrap_used)]
     fn net_receive_loop(
         event_sender: &Sender<events::Event>,
         packet_receiver: &Receiver<Packet>,
@@ -95,106 +98,80 @@ impl ClientNetworking {
         server_port: u16,
         player_name: &str,
     ) -> Result<()> {
-        let mut net_client = ENET_GLOBAL.create_host::<()>(
-            None,
-            10,
-            ChannelLimit::Maximum,
-            BandwidthLimit::Unlimited,
-            BandwidthLimit::Unlimited,
-        )?;
+        let (mut handler, listener) = node::split();
 
-        net_client.connect(&Address::new(server_address.parse()?, server_port), 10, 0)?;
-
-        loop {
-            if let Some(event) = net_client.service(0)? {
-                match event {
-                    Event::Connect(ref _peer) => {
-                        break;
-                    }
-                    Event::Disconnect { .. } => {
-                        bail!("disconnected from server");
-                    }
-                    Event::Receive { .. } => {
-                        bail!("unexpected receive");
-                    }
-                };
-            }
-        }
+        let server_addr = format!("{server_address}:{server_port}");
+        let (server_endpoint, _) = handler
+            .network()
+            .connect(Transport::FramedTcp, server_addr)
+            .unwrap();
 
         Self::send_packet_internal(
-            &mut net_client,
+            &mut handler,
             &Packet::new(NamePacket {
                 name: player_name.to_owned(),
             })?,
+            server_endpoint,
         )?;
 
-        'welcome_loop: loop {
-            if let Some(event) = net_client.service(0)? {
-                match event {
-                    Event::Connect(_) => {
-                        bail!("unexpected connect");
-                    }
-                    Event::Disconnect { .. } => {
-                        bail!("disconnected from server");
-                    }
-                    Event::Receive { ref packet, .. } => {
-                        let packet = bincode::deserialize::<Packet>(packet.data())?;
+        handler.signals().send(());
 
-                        if packet.try_deserialize::<WelcomeCompletePacket>().is_some() {
-                            break 'welcome_loop;
-                        }
+        listener.for_each(move |event| {
+            if is_welcoming.load(Ordering::Relaxed) {
+                // welcoming loop
+                if let NodeEvent::Network(event) = event {
+                    match event {
+                        NetEvent::Accepted(..)
+                        | NetEvent::Connected(..)
+                        | NetEvent::Disconnected(..) => {}
+                        NetEvent::Message(_peer, packet) => {
+                            let packet = bincode::deserialize::<Packet>(packet).unwrap();
 
-                        // send welcome packet event
-                        match event_sender.send(events::Event::new(WelcomePacketEvent { packet })) {
-                            Ok(_) => {}
-                            Err(_) => {
-                                bail!("event sender disconnected");
+                            if packet.try_deserialize::<WelcomeCompletePacket>().is_some() {
+                                is_welcoming.store(false, Ordering::Relaxed);
+                                while !should_start_receiving.load(Ordering::Relaxed) {
+                                    // wait 1 ms
+                                    std::thread::sleep(core::time::Duration::from_millis(1));
+                                }
                             }
+
+                            // send welcome packet event
+                            event_sender
+                                .send(events::Event::new(WelcomePacketEvent { packet }))
+                                .ok();
                         }
                     }
                 };
-            }
-        }
-        is_welcoming.store(false, Ordering::Relaxed);
-
-        while !should_start_receiving.load(Ordering::Relaxed) {
-            // wait 1 ms
-            std::thread::sleep(core::time::Duration::from_millis(1));
-        }
-
-        while is_running.load(Ordering::Relaxed) {
-            while let Ok(packet) = packet_receiver.try_recv() {
-                Self::send_packet_internal(&mut net_client, &packet)?;
-            }
-
-            while let Some(event) = net_client.service(0)? {
+            } else {
+                // normal loop
                 match event {
-                    Event::Connect(_) => {
-                        bail!("unexpected connect");
-                    }
-                    Event::Disconnect { .. } => {
-                        bail!("disconnected from server");
-                    }
-                    Event::Receive { ref packet, .. } => {
-                        let packet = bincode::deserialize::<Packet>(packet.data())?;
+                    NodeEvent::Network(event) => match event {
+                        NetEvent::Connected(..)
+                        | NetEvent::Accepted(..)
+                        | NetEvent::Disconnected(..) => {}
+                        NetEvent::Message(_peer, packet) => {
+                            let packet = bincode::deserialize::<Packet>(packet).unwrap();
 
-                        match event_sender.send(events::Event::new(packet)) {
-                            Ok(_) => {}
-                            Err(_) => {
-                                bail!("event sender disconnected");
-                            }
+                            event_sender.send(events::Event::new(packet)).ok();
                         }
+                    },
+                    NodeEvent::Signal(_) => {
+                        if !is_running.load(Ordering::Relaxed) {
+                            handler.stop();
+                        }
+
+                        while let Ok(packet) = packet_receiver.try_recv() {
+                            Self::send_packet_internal(&mut handler, &packet, server_endpoint)
+                                .unwrap();
+                        }
+
+                        handler
+                            .signals()
+                            .send_with_timer((), core::time::Duration::from_millis(1));
                     }
                 };
             }
-
-            // wait 1 ms
-            std::thread::sleep(core::time::Duration::from_millis(1));
-        }
-
-        for ref mut server in net_client.peers() {
-            server.disconnect(0);
-        }
+        });
 
         Ok(())
     }
@@ -213,16 +190,29 @@ impl ClientNetworking {
         Ok(())
     }
 
-    fn send_packet_internal(net_client: &mut Host<()>, packet: &Packet) -> Result<()> {
+    fn send_packet_internal(
+        net_client: &mut NodeHandler<()>,
+        packet: &Packet,
+        endpoint: Endpoint,
+    ) -> Result<()> {
         let packet_data = bincode::serialize(packet)?;
-        let mut server = net_client
-            .peers()
-            .next()
-            .ok_or_else(|| anyhow!("no server peer"))?;
-        server.send_packet(
-            enet::Packet::new(&packet_data, PacketMode::ReliableSequenced)?,
-            0,
-        )?;
+
+        loop {
+            let status = net_client.network().send(endpoint, &packet_data);
+            match status {
+                SendStatus::Sent => break,
+                SendStatus::MaxPacketSizeExceeded => {
+                    bail!("Max packet size exceeded");
+                }
+                SendStatus::ResourceNotFound => {
+                    bail!("Resource not found");
+                }
+                SendStatus::ResourceNotAvailable => {
+                    std::thread::sleep(core::time::Duration::from_millis(1));
+                    // just try again
+                }
+            };
+        }
         Ok(())
     }
 

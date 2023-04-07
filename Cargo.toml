@@ -18,7 +18,6 @@ directories = "5.0"
 chrono = "0.4"
 bincode = "1.3"
 rlua = "0.19"
-enet = "0.3"
 anyhow = "1.0"
 serde = "1.0"
 serde_derive = "1.0"
@@ -31,7 +30,7 @@ noise = "0.8"
 once_cell = "1.17"
 fnv = "1.0"
 hecs = "0.10"
-cmake = "0.1.49"
+message-io = "0.15"
 
 # set custom dependency for windows
 [target.'cfg(windows)'.dependencies]
@@ -69,7 +68,6 @@ opt-level = 1
 [build-dependencies]
 bincode = "1.3"
 rlua = "0.19"
-enet = "0.3"
 anyhow = "1.0"
 serde = "1.0"
 serde_derive = "1.0"
@@ -81,7 +79,7 @@ fnv = "1.0"
 darklua = "0.8"
 png = "0.17"
 hecs = "0.10"
-cmake = "0.1.49"
+message-io = "0.15.0"
 
 # set custom dependency for windows
 [target.'cfg(windows)'.build-dependencies]

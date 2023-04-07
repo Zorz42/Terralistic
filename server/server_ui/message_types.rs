@@ -20,7 +20,7 @@ pub enum ServerState {
 
 #[derive(Clone, serde_derive::Serialize, serde_derive::Deserialize, PartialEq, Eq)]
 pub enum PlayerEventType {
-    Join((String, std::net::Ipv4Addr)),
-    Leave(std::net::Ipv4Addr),
+    Join((String, std::net::IpAddr)),
+    Leave(std::net::IpAddr),
     //kick and ban will be added later
 }

@@ -1,7 +1,6 @@
 extern crate core;
 
 pub mod blocks;
-pub mod enet_global;
 pub mod entities;
 pub mod inventory;
 pub mod items;
