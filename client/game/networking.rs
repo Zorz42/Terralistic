@@ -114,8 +114,6 @@ impl ClientNetworking {
             server_endpoint,
         )?;
 
-        handler.signals().send(());
-
         listener.for_each(move |event| {
             if is_welcoming.load(Ordering::Relaxed) {
                 // welcoming loop
@@ -133,6 +131,7 @@ impl ClientNetworking {
                                     // wait 1 ms
                                     std::thread::sleep(core::time::Duration::from_millis(1));
                                 }
+                                handler.signals().send(());
                             }
 
                             // send welcome packet event
