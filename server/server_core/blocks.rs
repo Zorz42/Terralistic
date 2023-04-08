@@ -2,6 +2,7 @@ use std::collections::HashMap;
 use std::sync::{Mutex, MutexGuard, PoisonError};
 extern crate alloc;
 use alloc::sync::Arc;
+use std::sync::mpsc::Receiver;
 
 use anyhow::Result;
 
@@ -9,9 +10,9 @@ use crate::libraries::events::{Event, EventManager};
 use crate::server::server_core::networking::SendTarget;
 use crate::server::server_core::players::ServerPlayers;
 use crate::shared::blocks::{
-    init_blocks_mod_interface, BlockBreakStartPacket, BlockBreakStopPacket, BlockChangeEvent,
-    BlockChangePacket, BlockRightClickPacket, BlockStartedBreakingEvent, BlockStoppedBreakingEvent,
-    Blocks, BlocksWelcomePacket,
+    handle_event_for_blocks_interface, init_blocks_mod_interface, BlockBreakStartPacket,
+    BlockBreakStopPacket, BlockChangeEvent, BlockChangePacket, BlockRightClickPacket,
+    BlockStartedBreakingEvent, BlockStoppedBreakingEvent, Blocks, BlocksWelcomePacket,
 };
 use crate::shared::entities::Entities;
 use crate::shared::inventory::Inventory;
@@ -25,6 +26,7 @@ use super::networking::{Connection, NewConnectionEvent, PacketFromClientEvent, S
 pub struct ServerBlocks {
     blocks: Arc<Mutex<Blocks>>,
     conns_breaking: HashMap<Connection, (i32, i32)>,
+    event_receiver: Option<Receiver<Event>>,
 }
 
 impl ServerBlocks {
@@ -32,17 +34,21 @@ impl ServerBlocks {
         Self {
             blocks: Arc::new(Mutex::new(Blocks::new())),
             conns_breaking: HashMap::new(),
+            event_receiver: None,
         }
     }
 
     pub fn init(&mut self, mods: &mut ModManager) -> Result<()> {
-        init_blocks_mod_interface(&self.blocks, mods)
+        let receiver = init_blocks_mod_interface(&self.blocks, mods)?;
+        self.event_receiver = Some(receiver);
+        Ok(())
     }
 
     pub fn get_blocks(&self) -> MutexGuard<Blocks> {
         self.blocks.lock().unwrap_or_else(PoisonError::into_inner)
     }
 
+    #[allow(clippy::too_many_arguments)]
     pub fn on_event(
         &mut self,
         event: &Event,
@@ -51,7 +57,11 @@ impl ServerBlocks {
         entities: &mut Entities,
         players: &mut ServerPlayers,
         items: &mut Items,
+        mods: &mut ModManager,
     ) -> Result<()> {
+        self.flush_mods_events(events);
+        handle_event_for_blocks_interface(mods, event)?;
+
         if let Some(event) = event.downcast::<NewConnectionEvent>() {
             let welcome_packet = Packet::new(BlocksWelcomePacket {
                 data: self.get_blocks().serialize()?,
@@ -137,7 +147,17 @@ impl ServerBlocks {
         Ok(())
     }
 
+    fn flush_mods_events(&mut self, events: &mut EventManager) {
+        if let Some(receiver) = &self.event_receiver {
+            while let Ok(event) = receiver.try_recv() {
+                events.push_event(event);
+            }
+        }
+    }
+
     pub fn update(&mut self, events: &mut EventManager, frame_length: f32) -> Result<()> {
+        self.flush_mods_events(events);
+
         self.get_blocks()
             .update_breaking_blocks(events, frame_length)
     }

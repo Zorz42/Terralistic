@@ -155,24 +155,32 @@ impl Blocks {
         }
 
         for broken_block in &broken_blocks {
-            let (x, y) = *broken_block;
-            let transformed_x = x - self.get_block_from_main(x, y)?.0;
-            let transformed_y = y - self.get_block_from_main(x, y)?.1;
-
-            let prev_block_id = self.get_block_type_at(transformed_x, transformed_y)?.id;
-
-            let event = BlockBreakEvent {
-                x: transformed_x,
-                y: transformed_y,
-                prev_block_id,
-            };
-            events.push_event(Event::new(event));
-
-            self.set_block(events, transformed_x, transformed_y, self.air)?;
+            self.break_block(events, broken_block.0, broken_block.1)?;
 
             self.breaking_blocks
                 .retain(|breaking_block| breaking_block.get_coord() != *broken_block);
         }
+
+        Ok(())
+    }
+
+    /// breaks a block at the given coordinates
+    /// # Errors
+    /// Returns an error if the coordinates are out of bounds.
+    pub fn break_block(&mut self, events: &mut EventManager, x: i32, y: i32) -> Result<()> {
+        let transformed_x = x - self.get_block_from_main(x, y)?.0;
+        let transformed_y = y - self.get_block_from_main(x, y)?.1;
+
+        let prev_block_id = self.get_block_type_at(transformed_x, transformed_y)?.id;
+
+        let event = BlockBreakEvent {
+            x: transformed_x,
+            y: transformed_y,
+            prev_block_id,
+        };
+        events.push_event(Event::new(event));
+
+        self.set_block(events, transformed_x, transformed_y, self.air)?;
 
         Ok(())
     }

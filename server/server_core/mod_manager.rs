@@ -34,7 +34,7 @@ impl ServerModManager {
             })?;
 
         self.mod_manager.init()?;
-        for game_mod in self.mod_manager.mods_mut() {
+        for game_mod in self.mod_manager.mods_iter_mut() {
             game_mod.call_function::<(), ()>("init_server", ())?;
         }
         Ok(())
@@ -43,7 +43,7 @@ impl ServerModManager {
     pub fn on_event(&mut self, event: &Event, networking: &mut ServerNetworking) -> Result<()> {
         if let Some(event) = event.downcast::<NewConnectionEvent>() {
             let mut mods = Vec::new();
-            for game_mod in self.mod_manager.mods_mut() {
+            for game_mod in self.mod_manager.mods_iter_mut() {
                 mods.push(bincode::serialize(game_mod)?);
             }
             let welcome_packet = Packet::new(ModsWelcomePacket { mods })?;

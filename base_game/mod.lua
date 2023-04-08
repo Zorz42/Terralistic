@@ -192,6 +192,46 @@ function update()
 
 end
 
+function on_block_break(x, y, block_id)
+    if block_id == wood_block then
+        -- if the wood block is broken, the wood block above it is also broken
+        if terralistic_get_block(x, y - 1) == wood_block then
+            terralistic_break_block(x, y - 1)
+        end
+        -- also break left and right wood blocks
+        if terralistic_get_block(x - 1, y) == wood_block then
+            terralistic_break_block(x - 1, y)
+        end
+        if terralistic_get_block(x + 1, y) == wood_block then
+            terralistic_break_block(x + 1, y)
+        end
+
+        -- also break branch blocks on the left and right
+        if terralistic_get_block(x - 1, y) == branch_block then
+            terralistic_break_block(x - 1, y)
+        end
+        if terralistic_get_block(x + 1, y) == branch_block then
+            terralistic_break_block(x + 1, y)
+        end
+
+        -- also break canopy_block 1 block above
+        if terralistic_get_block(x, y - 1) == canopy_block then
+            terralistic_break_block(x, y - 1)
+        end
+    end
+
+    -- if branch_block is broken, break the leaves_block on the left and right
+    if block_id == branch_block then
+        if terralistic_get_block(x - 1, y) == leaves_block then
+            terralistic_break_block(x - 1, y)
+        end
+
+        if terralistic_get_block(x + 1, y) == leaves_block then
+            terralistic_break_block(x + 1, y)
+        end
+    end
+end
+
 function generate_plains(terrain, heights, width, height)
     for x = 1, width do
         if terrain[x][height - heights[x] + 1] == dirt_block then

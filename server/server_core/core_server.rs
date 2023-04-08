@@ -235,6 +235,7 @@ impl Server {
                 &mut self.entities.entities,
                 &mut self.players,
                 &mut self.items.items,
+                &mut self.mods.mod_manager,
             )?;
             self.walls.on_event(&event, &mut self.networking)?;
             self.items.on_event(

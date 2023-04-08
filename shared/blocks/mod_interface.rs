@@ -1,15 +1,22 @@
 extern crate alloc;
-use crate::shared::blocks::{Block, BlockId, Blocks};
+use crate::libraries::events::{Event, EventManager};
+use crate::shared::blocks::{Block, BlockBreakEvent, BlockId, Blocks};
 use crate::shared::mod_manager::ModManager;
 use alloc::sync::Arc;
 use anyhow::Result;
 use rlua::UserDataMethods;
+use std::sync::mpsc::Receiver;
 use std::sync::{Mutex, PoisonError};
 
 /// initialize the mod interface for the blocks module
 /// # Errors
 /// if the lua context is not available
-pub fn init_blocks_mod_interface(blocks: &Arc<Mutex<Blocks>>, mods: &mut ModManager) -> Result<()> {
+pub fn init_blocks_mod_interface(
+    blocks: &Arc<Mutex<Blocks>>,
+    mods: &mut ModManager,
+) -> Result<Receiver<Event>> {
+    let (sender, receiver) = std::sync::mpsc::channel();
+
     mods.add_global_function("new_block_type", move |_lua, _: ()| Ok(Block::new()))?;
 
     let mut blocks2 = blocks.clone();
@@ -62,6 +69,55 @@ pub fn init_blocks_mod_interface(blocks: &Arc<Mutex<Blocks>>, mods: &mut ModMana
         },
     )?;
 
+    // a method to break a block
+    blocks2 = blocks.clone();
+    let sender2 = sender;
+    mods.add_global_function("break_block", move |_lua, (x, y): (i32, i32)| {
+        let mut block_types = blocks2.lock().unwrap_or_else(PoisonError::into_inner);
+        let mut events = EventManager::new();
+        block_types
+            .break_block(&mut events, x, y)
+            .ok()
+            .ok_or(rlua::Error::RuntimeError(
+                "block type id is invalid".to_owned(),
+            ))?;
+
+        while let Some(event) = events.pop_event() {
+            sender2
+                .send(event)
+                .ok()
+                .ok_or(rlua::Error::RuntimeError("could not send event".to_owned()))?;
+        }
+        Ok(())
+    })?;
+
+    // a method to get block id by position
+    blocks2 = blocks.clone();
+    mods.add_global_function("get_block", move |_lua, (x, y): (i32, i32)| {
+        let block_types = blocks2.lock().unwrap_or_else(PoisonError::into_inner);
+        let block_id = block_types
+            .get_block(x, y)
+            .ok()
+            .ok_or(rlua::Error::RuntimeError(
+                "coordinates out of bounds".to_owned(),
+            ))?;
+        Ok(block_id)
+    })?;
+
+    Ok(receiver)
+}
+
+/// # Errors
+/// if the lua context is not available
+pub fn handle_event_for_blocks_interface(mods: &mut ModManager, event: &Event) -> Result<()> {
+    if let Some(event) = event.downcast::<BlockBreakEvent>() {
+        for game_mod in mods.mods_iter_mut() {
+            if game_mod.is_symbol_defined("on_block_break")? {
+                game_mod
+                    .call_function("on_block_break", (event.x, event.y, event.prev_block_id))?;
+            }
+        }
+    }
     Ok(())
 }
 

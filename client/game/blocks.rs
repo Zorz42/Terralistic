@@ -2,6 +2,7 @@ extern crate alloc;
 
 use alloc::sync::Arc;
 use std::collections::HashMap;
+use std::sync::mpsc::Receiver;
 use std::sync::{Mutex, MutexGuard, PoisonError};
 
 use anyhow::{anyhow, bail, Result};
@@ -10,8 +11,8 @@ use crate::libraries::events::{Event, EventManager};
 use crate::libraries::graphics as gfx;
 use crate::libraries::graphics::{FloatPos, FloatSize, GraphicsContext};
 use crate::shared::blocks::{
-    init_blocks_mod_interface, BlockBreakStartPacket, BlockBreakStopPacket, BlockChangeEvent,
-    BlockChangePacket, BlockId,
+    handle_event_for_blocks_interface, init_blocks_mod_interface, BlockBreakStartPacket,
+    BlockBreakStopPacket, BlockChangeEvent, BlockChangePacket, BlockId,
 };
 use crate::shared::blocks::{
     Blocks, BlocksWelcomePacket, BLOCK_WIDTH, CHUNK_SIZE, RENDER_BLOCK_WIDTH, RENDER_SCALE,
@@ -131,6 +132,7 @@ pub struct ClientBlocks {
     chunks: Vec<RenderBlockChunk>,
     atlas: gfx::TextureAtlas<BlockId>,
     breaking_texture: gfx::Texture,
+    event_receiver: Option<Receiver<Event>>,
 }
 
 impl ClientBlocks {
@@ -140,6 +142,7 @@ impl ClientBlocks {
             chunks: Vec::new(),
             atlas: gfx::TextureAtlas::new(&HashMap::new()),
             breaking_texture: gfx::Texture::new(),
+            event_receiver: None,
         }
     }
 
@@ -161,7 +164,15 @@ impl ClientBlocks {
         Ok((x + y * (self.get_blocks().get_width() as i32 / CHUNK_SIZE)) as usize)
     }
 
-    pub fn on_event(&mut self, event: &Event, events: &mut EventManager) -> Result<()> {
+    pub fn on_event(
+        &mut self,
+        event: &Event,
+        events: &mut EventManager,
+        mods: &mut ModManager,
+    ) -> Result<()> {
+        self.flush_mod_events(events);
+        handle_event_for_blocks_interface(mods, event)?;
+
         if let Some(event) = event.downcast::<WelcomePacketEvent>() {
             if let Some(packet) = event.packet.try_deserialize::<BlocksWelcomePacket>() {
                 self.get_blocks().deserialize(&packet.data)?;
@@ -203,7 +214,9 @@ impl ClientBlocks {
     }
 
     pub fn init(&mut self, mods: &mut ModManager) -> Result<()> {
-        init_blocks_mod_interface(&self.blocks, mods)
+        let receiver = init_blocks_mod_interface(&self.blocks, mods)?;
+        self.event_receiver = Some(receiver);
+        Ok(())
     }
 
     pub fn load_resources(&mut self, mods: &mut ModManager) -> Result<()> {
@@ -311,7 +324,17 @@ impl ClientBlocks {
         Ok(())
     }
 
+    fn flush_mod_events(&mut self, events: &mut EventManager) {
+        if let Some(receiver) = &self.event_receiver {
+            while let Ok(event) = receiver.try_recv() {
+                events.push_event(event);
+            }
+        }
+    }
+
     pub fn update(&mut self, frame_length: f32, events: &mut EventManager) -> Result<()> {
+        self.flush_mod_events(events);
+
         self.get_blocks()
             .update_breaking_blocks(events, frame_length)
     }

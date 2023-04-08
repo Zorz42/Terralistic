@@ -63,6 +63,7 @@
 #![allow(clippy::many_single_char_names)]
 
 extern crate alloc;
+extern crate core;
 
 use alloc::sync::Arc;
 use core::sync::atomic::AtomicBool;

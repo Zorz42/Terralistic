@@ -99,7 +99,7 @@ impl Game {
 
                 while let Some(event) = events.pop_event() {
                     mods.on_event(&event)?;
-                    blocks.on_event(&event, &mut events)?;
+                    blocks.on_event(&event, &mut events, &mut mods.mod_manager)?;
                     walls.on_event(&event)?;
                     items.on_event(&event, &mut entities.entities, &mut events);
                 }
@@ -313,7 +313,8 @@ impl Game {
             while let Some(event) = self.events.pop_event() {
                 self.inventory.on_event(&event, &mut self.networking)?;
                 self.mods.on_event(&event)?;
-                self.blocks.on_event(&event, &mut self.events)?;
+                self.blocks
+                    .on_event(&event, &mut self.events, &mut self.mods.mod_manager)?;
                 self.walls.on_event(&event)?;
                 self.entities.on_event(&event)?;
                 self.items

@@ -1,4 +1,5 @@
 use anyhow::Result;
+use core::slice::{Iter, IterMut};
 use rlua::prelude::LuaError;
 use rlua::{Context, FromLuaMulti, Lua, ToLuaMulti};
 use serde::{Deserialize, Serialize};
@@ -96,6 +97,16 @@ impl GameMod {
             let func = globals.get::<_, rlua::Function>(name)?;
             func.call(args)
         })
+    }
+
+    /// Checks if a symbol is defined in the game mod.
+    /// # Errors
+    /// Returns an error if the lua state is in an error state.
+    pub fn is_symbol_defined(&self, name: &str) -> Result<bool> {
+        Ok(self.lua.context(|lua| {
+            let globals = lua.globals();
+            globals.contains_key(name)
+        })?)
     }
 
     /// This function updates the game mod.
@@ -216,11 +227,6 @@ impl ModManager {
         Ok(())
     }
 
-    /// Get mutable mods iterator.
-    pub fn mods_mut(&mut self) -> core::slice::IterMut<GameMod> {
-        self.mods.iter_mut()
-    }
-
     /// This function gets the resource with the given path.
     #[must_use]
     pub fn get_resource(&self, path: &str) -> Option<&Vec<u8>> {
@@ -235,5 +241,15 @@ impl ModManager {
     /// This function gets the mod with the given id.
     pub fn get_mod(&mut self, id: i32) -> Option<&mut GameMod> {
         self.mods.get_mut(id as usize)
+    }
+
+    /// Get mods iterator.
+    pub fn mods_iter(&self) -> Iter<GameMod> {
+        self.mods.iter()
+    }
+
+    /// Get mutable mods iterator.
+    pub fn mods_iter_mut(&mut self) -> IterMut<GameMod> {
+        self.mods.iter_mut()
     }
 }
