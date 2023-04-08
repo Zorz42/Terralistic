@@ -34,6 +34,9 @@ impl UiManager {
             module.init(&mut self.graphics_context);
         }
 
+        //this saves the window size
+        let mut window_size = self.graphics_context.renderer.get_window_size();
+
         gfx::RenderRect::new(gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, 0.0))
             .render(&self.graphics_context, None);//rect that makes rendering work
 
@@ -64,11 +67,14 @@ impl UiManager {
             }
 
             //resize the modules if the window size has changed
+            if window_size != self.graphics_context.renderer.get_window_size() {
+                window_size = self.graphics_context.renderer.get_window_size();
+                self.resize_modules();
+            }
 
             //updates the modules
             for module in &mut self.modules {
                 module.update(0.0, &mut self.graphics_context);
-                module.get_container_mut().rect.size = self.graphics_context.renderer.get_window_size();
             }
 
             gfx::Rect::new(
@@ -86,6 +92,13 @@ impl UiManager {
             if server_state == ServerState::Stopped {
                 break;
             }
+        }
+    }
+
+    fn resize_modules(&mut self) {//will work like a tiling window manager (kinda) when finished
+        let window_size = self.graphics_context.renderer.get_window_size();
+        for module in &mut self.modules {
+            module.get_container_mut().rect.size = window_size;
         }
     }
 }
