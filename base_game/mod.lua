@@ -102,7 +102,6 @@ function init()
     -- LEAVES
     block_type = terralistic_new_block_type()
     block_type["name"] = "leaves"
-    block_type["break_time"] = 1000
     block_type["ghost"] = true
     block_type["transparent"] = true
     leaves_block = terralistic_register_block_type(block_type)
@@ -110,7 +109,6 @@ function init()
     -- CANOPY
     block_type = terralistic_new_block_type()
     block_type["name"] = "canopy"
-    block_type["break_time"] = 1000
     block_type["ghost"] = true
     block_type["transparent"] = true
     block_type["width"] = 5

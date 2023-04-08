@@ -7,7 +7,7 @@ Wall holds all information about a type of a wall.
 #[derive(Clone)]
 pub struct Wall {
     pub(super) id: WallId,
-    pub break_time: i32,
+    pub break_time: Option<i32>,
     pub name: String,
 }
 
@@ -22,7 +22,7 @@ impl Wall {
     pub const fn new() -> Self {
         Self {
             id: WallId::new(),
-            break_time: 0,
+            break_time: None,
             name: String::new(),
         }
     }
@@ -44,7 +44,7 @@ impl rlua::UserData for Wall {
             |_lua_ctx, this, (key, value): (String, rlua::Value)| match value {
                 rlua::Value::Integer(value) => {
                     match key.as_str() {
-                        "break_time" => this.break_time = value as i32,
+                        "break_time" => this.break_time = Some(value as i32),
                         _ => {
                             return Err(rlua::Error::RuntimeError(format!(
                                 "{key} is not a valid field of Wall for integer value"
