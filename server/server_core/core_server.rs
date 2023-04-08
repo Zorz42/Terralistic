@@ -87,7 +87,7 @@ impl Server {
         self.mods = ServerModManager::new(mods);
 
         // init modules
-        self.networking.init();
+        self.networking.init(self.ui_event_sender.clone());
         self.blocks.init(&mut self.mods.mod_manager)?;
         self.walls.init(&mut self.mods.mod_manager)?;
         self.items.init(&mut self.mods.mod_manager)?;
@@ -97,6 +97,7 @@ impl Server {
 
         self.state = ServerState::InitMods;
         self.send_to_ui(&UiMessageType::ServerState(self.state));
+        self.print_to_console("initializing mods");
         *status_text.lock().unwrap_or_else(PoisonError::into_inner) =
             "Initializing mods".to_owned();
         self.mods.init()?;
@@ -104,6 +105,7 @@ impl Server {
         if world_path.exists() {
             self.state = ServerState::LoadingWorld;
             self.send_to_ui(&UiMessageType::ServerState(self.state));
+            self.print_to_console("loading world");
             *status_text.lock().unwrap_or_else(PoisonError::into_inner) =
                 "Loading world".to_owned();
             self.load_world(world_path)?;
@@ -195,10 +197,12 @@ impl Server {
 
         self.state = ServerState::Stopping;
         self.send_to_ui(&UiMessageType::ServerState(self.state));
+        self.print_to_console("saving world");
         *status_text.lock().unwrap_or_else(PoisonError::into_inner) = "Saving world".to_owned();
 
         self.save_world(world_path)?;
 
+        self.print_to_console("stopping server");
         *status_text.lock().unwrap_or_else(PoisonError::into_inner) = "Stopping server".to_owned();
 
         self.state = ServerState::Stopped;

@@ -10,11 +10,13 @@ use core::sync::atomic::Ordering;
 use crate::libraries::events::{Event, EventManager};
 use crate::shared::packet::{Packet, WelcomeCompletePacket};
 use crate::shared::players::NamePacket;
+use crate::server::server_core::send_to_ui;
 use anyhow::{anyhow, bail, Result};
 use message_io::network::{Endpoint, NetEvent, SendStatus, Transport};
 
 use message_io::node;
 use message_io::node::{NodeEvent, NodeHandler};
+use crate::server::server_ui::UiMessageType;
 
 /// This struct holds the address of a connection.
 #[derive(Clone, Eq)]
@@ -71,7 +73,7 @@ impl ServerNetworking {
         self.connection_names.get(conn).unwrap_or(&unknown).clone()
     }
 
-    pub fn init(&mut self) {
+    pub fn init(&mut self, ui_event_sender: Option<Sender<Vec<u8>>>) {
         // start listening for connections
         let (event_sender, event_receiver) = mpsc::channel();
         let (packet_sender, packet_receiver) = mpsc::channel();
@@ -82,7 +84,7 @@ impl ServerNetworking {
         let server_port = self.server_port;
 
         self.net_loop_thread = Some(std::thread::spawn(move || {
-            Self::net_receive_loop(&event_sender, &packet_receiver, &is_running, server_port)
+            Self::net_receive_loop(&event_sender, &packet_receiver, &is_running, server_port, &ui_event_sender)
         }));
     }
 
@@ -92,6 +94,7 @@ impl ServerNetworking {
         packet_receiver: &Receiver<(Vec<u8>, Connection)>,
         is_running: &Arc<AtomicBool>,
         server_port: u16,
+        ui_event_sender: &Option<Sender<Vec<u8>>>,
     ) -> Result<()> {
         let (mut handler, listener) = node::split::<()>();
 
@@ -107,9 +110,17 @@ impl ServerNetworking {
                 NetEvent::Connected(..) => {}
                 NetEvent::Accepted(peer, _) => {
                     println!("[{peer}] connected");
+                    send_to_ui(
+                        &UiMessageType::ConsoleMessage(format!("[{peer}] connected")),
+                        ui_event_sender,
+                    );
                 }
                 NetEvent::Disconnected(peer) => {
                     println!("[{peer}] disconnected");
+                    send_to_ui(
+                        &UiMessageType::ConsoleMessage(format!("[{peer}] disconnected")),
+                        ui_event_sender,
+                    );
                     match event_sender.send(Event::new(DisconnectEvent {
                         conn: Connection { address: peer },
                     })) {
@@ -123,6 +134,10 @@ impl ServerNetworking {
                     let packet: Packet = bincode::deserialize(packet).unwrap();
                     if let Some(packet) = packet.try_deserialize::<NamePacket>() {
                         println!("[{:?}] joined", packet.name);
+                        send_to_ui(
+                            &UiMessageType::ConsoleMessage(format!("[{:?}] joined", packet.name)),
+                            ui_event_sender,
+                        );
                         match event_sender.send(Event::new(NewConnectionEvent {
                             conn: Connection { address: peer },
                             name: packet.name,
