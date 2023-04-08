@@ -1,4 +1,5 @@
 use std::net::IpAddr;
+use std::sync::mpsc::Sender;
 use crate::libraries::graphics as gfx;
 use crate::libraries::graphics::DARK_GREY;
 use crate::server::server_ui::{PlayerEventType, UiMessageType};
@@ -133,5 +134,9 @@ impl ui_manager::ModuleTrait for PlayerList {
 
     fn get_name(&self) -> &str {
         "PlayerList"
+    }
+
+    fn set_sender(&mut self, _sender: Sender<Vec<u8>>) {
+        //empty, nothing to do
     }
 }

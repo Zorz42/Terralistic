@@ -3,7 +3,7 @@ use core::sync::atomic::AtomicBool;
 use std::fs::File;
 use std::io::{BufReader, Write};
 use std::path::PathBuf;
-use std::sync::mpsc::Receiver;
+use std::sync::mpsc::{Receiver, Sender};
 
 use bincode::deserialize;
 
@@ -32,16 +32,18 @@ struct ModuleTreeNode {
 pub struct UiManager {
     graphics_context: gfx::GraphicsContext,
     server_message_receiver: Receiver<Vec<u8>>,
+    server_message_sender: Sender<Vec<u8>>,
     modules: Vec<Box<dyn ModuleTrait>>,
     save_path: PathBuf,
 }
 
 impl UiManager {
     #[must_use]
-    pub fn new(graphics_context: gfx::GraphicsContext, event_receiver: Receiver<Vec<u8>>, path: PathBuf) -> Self {
+    pub fn new(graphics_context: gfx::GraphicsContext, event_receiver: Receiver<Vec<u8>>, event_sender: Sender<Vec<u8>>, path: PathBuf) -> Self {
         let mut temp = Self {
             graphics_context,
             server_message_receiver: event_receiver,
+            server_message_sender: event_sender,
             modules: Vec::new(),
             save_path: path,
         };
@@ -53,6 +55,11 @@ impl UiManager {
     }
 
     pub fn run(&mut self, server_running: &Arc<AtomicBool>) {
+        //give sender to the modules
+        for module in &mut self.modules {
+            module.set_sender(self.server_message_sender.clone());
+        }
+
         //init the modules
         for module in &mut self.modules {
             module.init(&mut self.graphics_context);
@@ -239,4 +246,6 @@ pub trait ModuleTrait {
     fn get_container_mut(&mut self) -> &mut gfx::Container;
     //returns the name of the module
     fn get_name(&self) -> &str;
+    //gives the event sender to the module, so it can send data to the server
+    fn set_sender(&mut self, sender: Sender<Vec<u8>>);
 }

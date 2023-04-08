@@ -1,3 +1,4 @@
+use std::sync::mpsc::Sender;
 use crate::libraries::graphics as gfx;
 use crate::server::server_ui::{PlayerEventType, ServerState, UiMessageType};
 
@@ -63,6 +64,22 @@ impl ServerInfo {
             ),
             server_start: std::time::Instant::now(),
         }
+    }
+
+    fn update_state_sprite(&mut self, graphics_context: &mut gfx::GraphicsContext) {
+        let state_str = match self.server_state_enum {
+            ServerState::Nothing => "Nothing",
+            ServerState::Starting => "Starting",
+            ServerState::InitMods => "InitMods",
+            ServerState::LoadingWorld => "LoadingWorld",
+            ServerState::GeneratingWorld => "GeneratingWorld",
+            ServerState::Running => "Running",
+            ServerState::Stopping => "Stopping",
+            ServerState::Stopped => "Stopped",
+        }
+            .to_owned();
+        self.server_state_sprite.texture =
+            gfx::Texture::load_from_surface(&graphics_context.font.create_text_surface(&state_str));
     }
 }
 
@@ -180,22 +197,8 @@ impl ui_manager::ModuleTrait for ServerInfo {
     fn get_name(&self) -> &str {
         "ServerInfo"
     }
-}
 
-impl ServerInfo {
-    fn update_state_sprite(&mut self, graphics_context: &mut gfx::GraphicsContext) {
-        let state_str = match self.server_state_enum {
-            ServerState::Nothing => "Nothing",
-            ServerState::Starting => "Starting",
-            ServerState::InitMods => "InitMods",
-            ServerState::LoadingWorld => "LoadingWorld",
-            ServerState::GeneratingWorld => "GeneratingWorld",
-            ServerState::Running => "Running",
-            ServerState::Stopping => "Stopping",
-            ServerState::Stopped => "Stopped",
-        }
-        .to_owned();
-        self.server_state_sprite.texture =
-            gfx::Texture::load_from_surface(&graphics_context.font.create_text_surface(&state_str));
+    fn set_sender(&mut self, _sender: Sender<Vec<u8>>) {
+        //empty, no thing to do
     }
 }

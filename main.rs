@@ -160,14 +160,15 @@ fn server_main(args: &[String]) {
     let path = curr_dir.join("server_data");
     let path_clone = path.clone();
 
-    let (event_sender, event_receiver) = std::sync::mpsc::channel();
+    let (srv_to_ui_event_sender, srv_to_ui_event_receiver) = std::sync::mpsc::channel();
+    let (ui_to_srv_event_sender, ui_to_srv_event_receiver) = std::sync::mpsc::channel();
     let gfx_is_some = server_graphics_context.is_some();
 
     let server_thread = std::thread::spawn(move || {
         let mut server = if gfx_is_some {
-            Server::new(MULTIPLAYER_PORT, Some(event_sender))
+            Server::new(MULTIPLAYER_PORT, Some(srv_to_ui_event_sender), Some(ui_to_srv_event_receiver))
         } else {
-            Server::new(MULTIPLAYER_PORT, None)
+            Server::new(MULTIPLAYER_PORT, None, None)
         };
         let result = server.start(
             &server_running_clone,
@@ -189,7 +190,7 @@ fn server_main(args: &[String]) {
             sleep(Duration::from_millis(50));
         },
         |graphics| {
-            let mut manager = UiManager::new(graphics, event_receiver, path_clone);
+            let mut manager = UiManager::new(graphics, srv_to_ui_event_receiver, ui_to_srv_event_sender, path_clone);
             manager.run(&server_running);
         },
     );

@@ -28,7 +28,7 @@ pub fn run_private_world(
     // start server in async thread
     let world_path = world_path.to_path_buf();
     let server_thread = std::thread::spawn(move || {
-        let mut server = Server::new(SINGLEPLAYER_PORT, None);
+        let mut server = Server::new(SINGLEPLAYER_PORT, None, None);
         let result = server.start(
             &server_running2,
             &loading_text2,

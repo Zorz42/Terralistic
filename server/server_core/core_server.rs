@@ -2,7 +2,7 @@ use core::sync::atomic::{AtomicBool, Ordering};
 use core::time::Duration;
 use std::collections::HashMap;
 use std::path::Path;
-use std::sync::mpsc::Sender;
+use std::sync::mpsc::{Receiver, Sender};
 use std::sync::{Mutex, PoisonError};
 use std::thread::sleep;
 
@@ -36,11 +36,12 @@ pub struct Server {
     items: ServerItems,
     players: ServerPlayers,
     ui_event_sender: Option<Sender<Vec<u8>>>,
+    ui_event_receiver: Option<Receiver<Vec<u8>>>,
 }
 
 impl Server {
     #[must_use]
-    pub fn new(port: u16, ui_event_sender: Option<Sender<Vec<u8>>>) -> Self {
+    pub fn new(port: u16, ui_event_sender: Option<Sender<Vec<u8>>>, ui_event_receiver: Option<Receiver<Vec<u8>>>) -> Self {
         let blocks = ServerBlocks::new();
         let walls = ServerWalls::new(&mut blocks.get_blocks());
         Self {
@@ -55,6 +56,7 @@ impl Server {
             items: ServerItems::new(),
             players: ServerPlayers::new(),
             ui_event_sender,
+            ui_event_receiver,
         }
     }
 
