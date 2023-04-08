@@ -24,9 +24,7 @@ impl Event {
 // SAFETY: Event is Send because it is only a wrapper around a Box<dyn Any + Send>
 unsafe impl Send for Event {}
 
-/**
-Event manager can be used to push and pop events to and from a queue.
- */
+/// Event manager can be used to push and pop events to and from a queue.
 pub struct EventManager {
     event_queue: VecDeque<Event>,
 }
