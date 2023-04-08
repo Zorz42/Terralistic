@@ -39,7 +39,7 @@ impl Default for EventManager {
 
 impl EventManager {
     #[must_use]
-    pub const fn new() -> Self {
+    pub fn new() -> Self {
         Self {
             event_queue: VecDeque::new(),
         }
