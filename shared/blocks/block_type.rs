@@ -3,13 +3,10 @@ use super::BlockId;
 extern crate alloc;
 use alloc::sync::Arc;
 
-/**
-Includes properties for each block type
- */
+/// Includes properties for each block type
 #[derive(Clone)]
 pub struct Block {
     // tool that can break the block, none means it can be broken by hand or any tool
-    // TODO: implement for lua
     pub effective_tool: Option<Arc<Tool>>,
     // how powerful the tool needs to be
     pub required_tool_power: i32,
@@ -21,8 +18,8 @@ pub struct Block {
     pub name: String,
     // to which blocks it visually connects
     pub connects_to: Vec<BlockId>,
-    // how much time it takes to break the block
-    pub break_time: i32,
+    // how much time it takes to break the block, None means it can't be broken
+    pub break_time: Option<i32>,
     // what light color the block emits
     pub light_emission_r: u8,
     pub light_emission_g: u8,
@@ -56,7 +53,7 @@ impl Block {
             transparent: false,
             name: String::new(),
             connects_to: vec![],
-            break_time: 0,
+            break_time: None,
             light_emission_r: 0,
             light_emission_g: 0,
             light_emission_b: 0,

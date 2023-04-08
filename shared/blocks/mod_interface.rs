@@ -131,7 +131,7 @@ impl rlua::UserData for Block {
                 rlua::Value::Integer(value) => {
                     match key.as_str() {
                         "required_tool_power" => this.required_tool_power = value as i32,
-                        "break_time" => this.break_time = value as i32,
+                        "break_time" => this.break_time = Some(value as i32),
                         "light_emission_r" => this.light_emission_r = value as u8,
                         "light_emission_g" => this.light_emission_g = value as u8,
                         "light_emission_b" => this.light_emission_b = value as u8,

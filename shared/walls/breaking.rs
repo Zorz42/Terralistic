@@ -1,5 +1,4 @@
 use crate::libraries::events::EventManager;
-use crate::shared::blocks::UNBREAKABLE;
 use crate::shared::walls::Walls;
 use anyhow::{anyhow, Result};
 
@@ -51,7 +50,8 @@ impl Walls {
     /// # Errors
     /// Returns an error if the coordinates are out of bounds.
     pub fn get_break_stage(&self, x: i32, y: i32) -> Result<i32> {
-        Ok(self.get_break_progress(x, y)? * 9 / self.get_wall_type_at(x, y)?.break_time)
+        Ok(self.get_break_progress(x, y)? * 9
+            / self.get_wall_type_at(x, y)?.break_time.unwrap_or(1))
     }
 
     /// Includes the necessary steps to start breaking a wall, such as adding it to the
@@ -59,7 +59,7 @@ impl Walls {
     /// # Errors
     /// Returns an error if the coordinates are out of bounds.
     pub fn start_breaking_wall(&mut self, x: i32, y: i32) -> Result<()> {
-        if self.get_wall_type_at(x, y)?.break_time == UNBREAKABLE {
+        if self.get_wall_type_at(x, y)?.break_time.is_none() {
             return Ok(());
         }
 
@@ -125,6 +125,7 @@ impl Walls {
                 > self
                     .get_wall_type_at(breaking_wall.get_coord().0, breaking_wall.get_coord().1)?
                     .break_time
+                    .unwrap_or(1)
             {
                 broken_walls.push(breaking_wall.get_coord());
             }

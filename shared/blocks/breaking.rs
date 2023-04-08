@@ -66,11 +66,9 @@ impl Blocks {
     /// # Errors
     /// Returns an error if the coordinates are out of bounds.
     pub fn get_break_stage(&self, x: i32, y: i32) -> Result<i32> {
-        Ok(
-            (self.get_break_progress(x, y)? as f32
-                / self.get_block_type_at(x, y)?.break_time as f32
-                * 8.0) as i32,
-        )
+        Ok((self.get_break_progress(x, y)? as f32
+            / self.get_block_type_at(x, y)?.break_time.unwrap_or(0) as f32
+            * 8.0) as i32)
     }
 
     /// Adds a block to the breaking list, which means that the block is being broken.
@@ -82,7 +80,9 @@ impl Blocks {
         x: i32,
         y: i32,
     ) -> Result<()> {
-        self.block_data.map.translate_coords(x, y)?;
+        if self.get_block_type_at(x, y)?.break_time.is_none() {
+            return Ok(());
+        }
 
         let mut breaking_block: Option<&mut BreakingBlock> = None;
         for i in &mut self.breaking_blocks {
@@ -149,6 +149,7 @@ impl Blocks {
                 > self
                     .get_block_type_at(breaking_block.get_coord().0, breaking_block.get_coord().1)?
                     .break_time
+                    .unwrap_or(1)
             {
                 broken_blocks.push(breaking_block.get_coord());
             }
