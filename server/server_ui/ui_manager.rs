@@ -1,32 +1,39 @@
 use alloc::sync::Arc;
 use core::sync::atomic::AtomicBool;
 use std::fs::File;
-use std::io::{BufReader, Write};
+use std::io::Write;
 use std::path::PathBuf;
 use std::sync::mpsc::{Receiver, Sender};
 
 use bincode::deserialize;
 
 use crate::libraries::graphics as gfx;
-use crate::server::server_ui::{console, ServerState, UiMessageType};
-use crate::server::server_ui::server_info;
 use crate::server::server_ui::player_list;
+use crate::server::server_ui::server_info;
+use crate::server::server_ui::{console, ServerState, UiMessageType};
 
 pub const SCALE: f32 = 2.0;
 pub const EDGE_SPACING: f32 = 4.0;
 
 #[derive(serde_derive::Serialize, serde_derive::Deserialize)]
-enum ModuleTreeNodeType {Nothing, Node(Box<ModuleTreeNode>), Module(String)}
+enum ModuleTreeNodeType {
+    Nothing,
+    Node(Box<ModuleTreeNode>),
+    Module(String),
+}
 #[derive(serde_derive::Serialize, serde_derive::Deserialize)]
-enum SplitType {Vertical, Horizontal}
+enum SplitType {
+    Vertical,
+    Horizontal,
+}
 
 //this saves the module's positions on the screen in a binary tree like structure
 #[derive(serde_derive::Serialize, serde_derive::Deserialize)]
 struct ModuleTreeNode {
     orientation: SplitType,
-    split_pos: f32,//goes from 0.0 to 1.0
-    first: ModuleTreeNodeType,//Left or Top
-    second: ModuleTreeNodeType,//Right or Bottom
+    split_pos: f32,             //goes from 0.0 to 1.0
+    first: ModuleTreeNodeType,  //Left or Top
+    second: ModuleTreeNodeType, //Right or Bottom
 }
 
 pub struct UiManager {
@@ -39,7 +46,12 @@ pub struct UiManager {
 
 impl UiManager {
     #[must_use]
-    pub fn new(graphics_context: gfx::GraphicsContext, event_receiver: Receiver<Vec<u8>>, event_sender: Sender<Vec<u8>>, path: PathBuf) -> Self {
+    pub fn new(
+        graphics_context: gfx::GraphicsContext,
+        event_receiver: Receiver<Vec<u8>>,
+        event_sender: Sender<Vec<u8>>,
+        path: PathBuf,
+    ) -> Self {
         let mut temp = Self {
             graphics_context,
             server_message_receiver: event_receiver,
@@ -50,7 +62,7 @@ impl UiManager {
         temp.modules = vec![
             Box::new(server_info::ServerInfo::new(&mut temp.graphics_context)),
             Box::new(player_list::PlayerList::new(&mut temp.graphics_context)),
-            Box::new(console::    Console::   new(&mut temp.graphics_context)),
+            Box::new(console::Console::new(&mut temp.graphics_context)),
         ];
         temp
     }
@@ -73,7 +85,7 @@ impl UiManager {
         let mut window_size = gfx::FloatSize(0.0, 0.0);
 
         gfx::RenderRect::new(gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, 0.0))
-            .render(&self.graphics_context, None);//rect that makes rendering work
+            .render(&self.graphics_context, None); //rect that makes rendering work
 
         loop {
             let mut server_state = ServerState::Nothing;
@@ -107,7 +119,9 @@ impl UiManager {
                 self.tile_modules(gfx::FloatPos(0.0, 0.0), window_size, &module_tree);
                 //loop through the modules and update their containers
                 for module in &mut self.modules {
-                    module.get_container_mut().update(&self.graphics_context, None);
+                    module
+                        .get_container_mut()
+                        .update(&self.graphics_context, None);
                 }
             }
 
@@ -118,13 +132,17 @@ impl UiManager {
 
             gfx::Rect::new(
                 gfx::FloatPos(0.0, 0.0),
-                self.graphics_context.renderer.get_window_size()
-            ).render(&self.graphics_context, gfx::DARK_GREY);
+                self.graphics_context.renderer.get_window_size(),
+            )
+            .render(&self.graphics_context, gfx::DARK_GREY);
 
             //renders the modules
             for module in &mut self.modules {
                 //background
-                module.get_container_mut().rect.render(&self.graphics_context, gfx::GREY);
+                module
+                    .get_container_mut()
+                    .rect
+                    .render(&self.graphics_context, gfx::GREY);
 
                 module.render(&mut self.graphics_context);
             }
@@ -139,18 +157,22 @@ impl UiManager {
 
     fn tile_modules(&mut self, pos: gfx::FloatPos, size: gfx::FloatSize, node: &ModuleTreeNode) {
         //calculate pos and size for both sides of the split
-        let first_size; let second_size; let first_pos; let second_pos;
-        if matches!(node.orientation, SplitType::Vertical) {
-            first_size = gfx::FloatSize(size.0 * node.split_pos, size.1);
-            second_size = gfx::FloatSize(size.0 - first_size.0, size.1);
-            first_pos = gfx::FloatPos(pos.0, pos.1);
-            second_pos = gfx::FloatPos(pos.0 + first_size.0, pos.1);
-        } else {
-            first_size = gfx::FloatSize(size.0, size.1 * node.split_pos);
-            second_size = gfx::FloatSize(size.0, size.1 - first_size.1);
-            first_pos = gfx::FloatPos(pos.0, pos.1);
-            second_pos = gfx::FloatPos(pos.0, pos.1 + first_size.1);
-        }
+        let (first_size, second_size, first_pos, second_pos) =
+            if matches!(node.orientation, SplitType::Vertical) {
+                (
+                    gfx::FloatSize(size.0 * node.split_pos, size.1),
+                    gfx::FloatSize(size.0 - size.0 * node.split_pos, size.1),
+                    gfx::FloatPos(pos.0, pos.1),
+                    gfx::FloatPos(pos.0 + size.0 * node.split_pos, pos.1),
+                )
+            } else {
+                (
+                    gfx::FloatSize(size.0, size.1 * node.split_pos),
+                    gfx::FloatSize(size.0, size.1 - size.1 * node.split_pos),
+                    gfx::FloatPos(pos.0, pos.1),
+                    gfx::FloatPos(pos.0, pos.1 + size.1 * node.split_pos),
+                )
+            };
         match &node.first {
             ModuleTreeNodeType::Module(module) => {
                 self.transform_module(module, first_pos, first_size);
@@ -174,14 +196,16 @@ impl UiManager {
     fn transform_module(&mut self, name: &str, pos: gfx::FloatPos, size: gfx::FloatSize) {
         let module = self.get_module(name);
         if let Some(module) = module {
-            module.get_container_mut().rect.size = size - gfx::FloatSize(EDGE_SPACING * 2.0, EDGE_SPACING * 2.0);
+            module.get_container_mut().rect.size =
+                size - gfx::FloatSize(EDGE_SPACING * 2.0, EDGE_SPACING * 2.0);
             module.get_container_mut().rect.pos = pos + gfx::FloatPos(EDGE_SPACING, EDGE_SPACING);
         }
-
     }
 
     fn get_module(&mut self, name: &str) -> Option<&mut Box<dyn ModuleTrait>> {
-        self.modules.iter_mut().find(|module| module.get_name() == name)
+        self.modules
+            .iter_mut()
+            .find(|module| module.get_name() == name)
     }
 
     fn read_module_tree(&self) -> ModuleTreeNode {
@@ -212,29 +236,33 @@ impl UiManager {
             orientation: SplitType::Horizontal,
             split_pos: 0.1,
             first: ModuleTreeNodeType::Module("ServerInfo".to_owned()),
-            second: ModuleTreeNodeType::Node(
-                Box::from(ModuleTreeNode {
-                    orientation: SplitType::Vertical,
-                    split_pos: 0.5,
-                    first: ModuleTreeNodeType::Module("PlayerList".to_owned()),
-                    second: ModuleTreeNodeType::Module("Console".to_owned())
-                })
-            ),
+            second: ModuleTreeNodeType::Node(Box::from(ModuleTreeNode {
+                orientation: SplitType::Vertical,
+                split_pos: 0.5,
+                first: ModuleTreeNodeType::Module("PlayerList".to_owned()),
+                second: ModuleTreeNodeType::Module("Console".to_owned()),
+            })),
         };
         let file = File::create(self.save_path.join("ui_config.json"));
-        file.map_or_else(|_| {
-            println!("Failed to create ui_config.json");
-        }, |mut file| {
-            let json_str = serde_json::to_string_pretty(&split);
-            json_str.map_or_else(|_| {
-                println!("Failed to serialize ui_config.json");
-            }, |json_str| {
-                let res = file.write(json_str.as_bytes());
-                if let Err(err) = res {
-                    println!("Failed to write ui_config.json: {err}");
-                }
-            });
-        });
+        file.map_or_else(
+            |_| {
+                println!("Failed to create ui_config.json");
+            },
+            |mut file| {
+                let json_str = serde_json::to_string_pretty(&split);
+                json_str.map_or_else(
+                    |_| {
+                        println!("Failed to serialize ui_config.json");
+                    },
+                    |json_str| {
+                        let res = file.write(json_str.as_bytes());
+                        if let Err(err) = res {
+                            println!("Failed to write ui_config.json: {err}");
+                        }
+                    },
+                );
+            },
+        );
         split
     }
 }

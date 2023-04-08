@@ -1,10 +1,8 @@
-use std::sync::mpsc::Sender;
-use sdl2::mouse::SystemCursor::No;
 use crate::libraries::graphics as gfx;
-use crate::server::server_ui::{EDGE_SPACING, UiMessageType};
+use crate::server::server_ui::UiMessageType;
+use std::sync::mpsc::Sender;
 
 use super::ui_manager;
-use super::ui_manager::SCALE;
 
 pub struct ConsoleLine {
     text: String,
@@ -17,9 +15,8 @@ impl ConsoleLine {
             text,
             sprite: gfx::Sprite::new(),
         };
-        a.sprite.texture = gfx::Texture::load_from_surface(
-            &graphics_context.font.create_text_surface(&a.text)
-        );
+        a.sprite.texture =
+            gfx::Texture::load_from_surface(&graphics_context.font.create_text_surface(&a.text));
         a.sprite.scale = 1.4;
         a.sprite.orientation = gfx::BOTTOM_LEFT;
         a.sprite.color = gfx::WHITE;
@@ -27,11 +24,14 @@ impl ConsoleLine {
         a
     }
 
-    pub fn render(&mut self, graphics_context: &mut gfx::GraphicsContext, container: &gfx::Container) {
+    pub fn render(
+        &mut self,
+        graphics_context: &mut gfx::GraphicsContext,
+        container: &gfx::Container,
+    ) {
         self.sprite.render(graphics_context, Some(container));
     }
 }
-
 
 pub struct Console {
     text_lines: Vec<ConsoleLine>,
@@ -56,11 +56,11 @@ impl Console {
 }
 
 impl ui_manager::ModuleTrait for Console {
-    fn init(&mut self, graphics_context: &mut gfx::GraphicsContext) {
+    fn init(&mut self, _graphics_context: &mut gfx::GraphicsContext) {
         //empty, nothing to do
     }
 
-    fn update(&mut self, delta_time: f32, graphics_context: &mut gfx::GraphicsContext) {
+    fn update(&mut self, _delta_time: f32, _graphics_context: &mut gfx::GraphicsContext) {
         //TODO: add scroll
     }
 
@@ -70,13 +70,17 @@ impl ui_manager::ModuleTrait for Console {
         }
     }
 
-    fn on_server_message(&mut self, message: &UiMessageType, graphics_context: &mut gfx::GraphicsContext) {
+    fn on_server_message(
+        &mut self,
+        message: &UiMessageType,
+        graphics_context: &mut gfx::GraphicsContext,
+    ) {
         if let UiMessageType::ConsoleMessage(message) = message {
             //add a line
             let line = ConsoleLine::new(graphics_context, message.clone());
             //move all lines up
             for line in &mut self.text_lines {
-                line.sprite.pos.1 -= line.sprite.texture.get_texture_size().1 as f32 + gfx::SPACING / 2.0;
+                line.sprite.pos.1 -= line.sprite.texture.get_texture_size().1 + gfx::SPACING / 2.0;
             }
             self.text_lines.push(line);
         }
