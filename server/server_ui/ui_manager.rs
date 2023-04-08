@@ -11,6 +11,7 @@ use crate::server::server_ui::server_info;
 use crate::server::server_ui::player_list;
 
 pub const SCALE: f32 = 2.0;
+pub const EDGE_SPACING: f32 = 4.0;
 
 pub struct UiManager {
     graphics_context: gfx::GraphicsContext,
@@ -90,10 +91,8 @@ impl UiManager {
             //renders the modules
             for module in &mut self.modules {
                 //background
-                gfx::Rect::new(
-                    module.get_container_mut().rect.pos,
-                    module.get_container_mut().rect.size,
-                ).render(&self.graphics_context, gfx::GREY);
+                module.get_container_mut().rect.render(&self.graphics_context, gfx::GREY);
+
                 module.render(&mut self.graphics_context);
             }
 
@@ -108,7 +107,8 @@ impl UiManager {
     fn resize_modules(&mut self) {//will work like a tiling window manager (kinda) when finished
         let window_size = self.graphics_context.renderer.get_window_size();
         for module in &mut self.modules {
-            module.get_container_mut().rect.size = window_size;//when finished, add a 2-3 pixel border
+            module.get_container_mut().rect.size = window_size - gfx::FloatSize(EDGE_SPACING * 2.0, EDGE_SPACING * 2.0);
+            module.get_container_mut().rect.pos = gfx::FloatPos(EDGE_SPACING, EDGE_SPACING);
             module.get_container_mut().update(&self.graphics_context, None);
         }
     }
