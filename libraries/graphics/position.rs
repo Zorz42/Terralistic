@@ -44,6 +44,39 @@ impl Sub for FloatPos {
     }
 }
 
+//implement the add and sub traits for the size types
+impl Add for IntSize {
+    type Output = Self;
+
+    fn add(self, other: Self) -> Self {
+        Self(self.0 + other.0, self.1 + other.1)
+    }
+}
+
+impl Sub for IntSize {
+    type Output = Self;
+
+    fn sub(self, other: Self) -> Self {
+        Self(self.0 - other.0, self.1 - other.1)
+    }
+}
+
+impl Add for FloatSize {
+    type Output = Self;
+
+    fn add(self, other: Self) -> Self {
+        Self(self.0 + other.0, self.1 + other.1)
+    }
+}
+
+impl Sub for FloatSize {
+    type Output = Self;
+
+    fn sub(self, other: Self) -> Self {
+        Self(self.0 - other.0, self.1 - other.1)
+    }
+}
+
 // implement the add and sub traits for Pos + Size, because it makes sense to add a size to a position
 impl Add<IntSize> for IntPos {
     type Output = Self;

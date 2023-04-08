@@ -1,4 +1,5 @@
 use crate::libraries::graphics as gfx;
+use crate::libraries::graphics::Container;
 use crate::server::server_ui::{PlayerEventType, ServerState, UiMessageType};
 
 use super::ui_manager;
@@ -93,10 +94,6 @@ impl ui_manager::ModuleTrait for ServerInfo {
     }
 
     fn update(&mut self, _delta_time: f32, graphics_context: &mut gfx::GraphicsContext) {
-        //update the container
-        self.container.rect.pos = gfx::FloatPos(0.0, 0.0);
-        self.container.rect.size = graphics_context.renderer.get_window_size();
-
         //update clock sprite
         let uptime_num = self.server_start.elapsed().as_secs();
         self.uptime.texture = gfx::Texture::load_from_surface(
@@ -127,10 +124,11 @@ impl ui_manager::ModuleTrait for ServerInfo {
 
     fn render(&mut self, graphics_context: &mut gfx::GraphicsContext) {
         gfx::Rect::new(
-            gfx::FloatPos(0.0, 0.0),
-            graphics_context.renderer.get_window_size(),
+            gfx::FloatPos(2.0, 2.0),
+            self.container.rect.size - gfx::FloatSize(4.0, 4.0),
         )
         .render(graphics_context, gfx::GREY);
+        self.container.update(&graphics_context, None);
 
         self.uptime.render(graphics_context, Some(&self.container));
 
@@ -182,6 +180,9 @@ impl ui_manager::ModuleTrait for ServerInfo {
             },
             _ => {}
         }
+    }
+    fn get_container_mut(&mut self) -> &mut Container {
+        &mut self.container
     }
 }
 

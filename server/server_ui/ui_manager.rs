@@ -35,7 +35,7 @@ impl UiManager {
         }
 
         gfx::RenderRect::new(gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, 0.0))
-            .render(&self.graphics_context, None);
+            .render(&self.graphics_context, None);//rect that makes rendering work
 
         loop {
             let mut server_state = ServerState::Nothing;
@@ -45,6 +45,7 @@ impl UiManager {
             if !self.graphics_context.renderer.is_window_open() {
                 server_running.store(false, core::sync::atomic::Ordering::Relaxed);
             }
+            self.graphics_context.renderer.handle_window_resize();
 
             //goes through the messages received from the server
             while let Ok(data) = self.server_message_receiver.try_recv() {
@@ -62,10 +63,18 @@ impl UiManager {
                 }
             }
 
+            //resize the modules if the window size has changed
+
             //updates the modules
             for module in &mut self.modules {
                 module.update(0.0, &mut self.graphics_context);
+                module.get_container_mut().rect.size = self.graphics_context.renderer.get_window_size();
             }
+
+            gfx::Rect::new(
+                gfx::FloatPos(0.0, 0.0),
+                self.graphics_context.renderer.get_window_size()
+            ).render(&self.graphics_context, gfx::DARK_GREY);
 
             //renders the modules
             for module in &mut self.modules {
@@ -94,4 +103,6 @@ pub trait ModuleTrait {
         message: &UiMessageType,
         graphics_context: &mut gfx::GraphicsContext,
     );
+    //returns the mutable reference to the module's rect
+    fn get_container_mut(&mut self) -> &mut gfx::Container;
 }
