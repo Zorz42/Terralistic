@@ -122,12 +122,6 @@ impl ui_manager::ModuleTrait for ServerInfo {
     }
 
     fn render(&mut self, graphics_context: &mut gfx::GraphicsContext) {
-        gfx::Rect::new(
-            gfx::FloatPos(2.0, 2.0),
-            self.container.rect.size - gfx::FloatSize(4.0, 4.0),
-        )
-        .render(graphics_context, gfx::GREY);
-
         self.uptime.render(graphics_context, Some(&self.container));
 
         self.server_state_sprite

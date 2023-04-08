@@ -89,6 +89,11 @@ impl UiManager {
 
             //renders the modules
             for module in &mut self.modules {
+                //background
+                gfx::Rect::new(
+                    module.get_container_mut().rect.pos,
+                    module.get_container_mut().rect.size,
+                ).render(&self.graphics_context, gfx::GREY);
                 module.render(&mut self.graphics_context);
             }
 
@@ -103,7 +108,7 @@ impl UiManager {
     fn resize_modules(&mut self) {//will work like a tiling window manager (kinda) when finished
         let window_size = self.graphics_context.renderer.get_window_size();
         for module in &mut self.modules {
-            module.get_container_mut().rect.size = window_size;
+            module.get_container_mut().rect.size = window_size;//when finished, add a 2-3 pixel border
             module.get_container_mut().update(&self.graphics_context, None);
         }
     }
