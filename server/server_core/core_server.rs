@@ -36,6 +36,7 @@ pub struct Server {
     items: ServerItems,
     players: ServerPlayers,
     ui_event_sender: Option<Sender<Vec<u8>>>,
+    #[allow(dead_code)]//TODO: remove this after the console is implemented
     ui_event_receiver: Option<Receiver<Vec<u8>>>,
 }
 
