@@ -6,7 +6,11 @@ use bincode::deserialize;
 
 use crate::libraries::graphics as gfx;
 use crate::server::server_ui::{ServerState, UiMessageType};
+#[allow(unused_imports)]//only for testing
 use crate::server::server_ui::server_info;
+use crate::server::server_ui::player_list;
+
+pub const SCALE: f32 = 2.0;
 
 pub struct UiManager {
     graphics_context: gfx::GraphicsContext,
@@ -23,7 +27,8 @@ impl UiManager {
             modules: Vec::new(),
         };
         temp.modules = vec![
-            Box::new(server_info::ServerInfo::new(&mut temp.graphics_context)),
+            //Box::new(server_info::ServerInfo::new(&mut temp.graphics_context)),
+            Box::new(player_list::PlayerList::new(&mut temp.graphics_context)),
         ];
         temp
     }

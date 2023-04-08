@@ -1,9 +1,8 @@
 use crate::libraries::graphics as gfx;
-use crate::libraries::graphics::Container;
 use crate::server::server_ui::{PlayerEventType, ServerState, UiMessageType};
 
 use super::ui_manager;
-const SCALE: f32 = 2.0;
+use super::ui_manager::SCALE;
 
 //this function makes the string have at least a certain length by padding it with zeroes
 fn pad_start(string: String, length: usize) -> String {
@@ -180,7 +179,7 @@ impl ui_manager::ModuleTrait for ServerInfo {
             _ => {}
         }
     }
-    fn get_container_mut(&mut self) -> &mut Container {
+    fn get_container_mut(&mut self) -> &mut gfx::Container {
         &mut self.container
     }
 }
