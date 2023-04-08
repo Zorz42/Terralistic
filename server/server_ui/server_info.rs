@@ -128,7 +128,6 @@ impl ui_manager::ModuleTrait for ServerInfo {
             self.container.rect.size - gfx::FloatSize(4.0, 4.0),
         )
         .render(graphics_context, gfx::GREY);
-        self.container.update(&graphics_context, None);
 
         self.uptime.render(graphics_context, Some(&self.container));
 

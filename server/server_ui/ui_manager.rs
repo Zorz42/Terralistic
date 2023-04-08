@@ -22,9 +22,9 @@ impl UiManager {
             server_message_receiver: event_receiver,
             modules: Vec::new(),
         };
-        temp.modules = vec![Box::new(server_info::ServerInfo::new(
-            &mut temp.graphics_context,
-        ))];
+        temp.modules = vec![
+            Box::new(server_info::ServerInfo::new(&mut temp.graphics_context)),
+        ];
         temp
     }
 
@@ -35,7 +35,7 @@ impl UiManager {
         }
 
         //this saves the window size
-        let mut window_size = self.graphics_context.renderer.get_window_size();
+        let mut window_size = gfx::FloatSize(0.0, 0.0);
 
         gfx::RenderRect::new(gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, 0.0))
             .render(&self.graphics_context, None);//rect that makes rendering work
@@ -99,6 +99,7 @@ impl UiManager {
         let window_size = self.graphics_context.renderer.get_window_size();
         for module in &mut self.modules {
             module.get_container_mut().rect.size = window_size;
+            module.get_container_mut().update(&self.graphics_context, None);
         }
     }
 }
