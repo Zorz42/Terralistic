@@ -1,5 +1,4 @@
 use std::net::IpAddr;
-use sdl2::libc::arpreq;
 use crate::libraries::graphics as gfx;
 use crate::libraries::graphics::DARK_GREY;
 use crate::server::server_ui::{PlayerEventType, UiMessageType};
@@ -96,7 +95,7 @@ impl ui_manager::ModuleTrait for PlayerList {
         for card in &mut self.player_cards {
             card.container.rect.size = gfx::FloatSize(
                 self.container.rect.size.0 - EDGE_SPACING * 2.0,
-                card.name_sprite.texture.get_texture_size().1 as f32 * SCALE + 2.0 * gfx::SPACING,
+                card.name_sprite.texture.get_texture_size().1 * SCALE + 2.0 * gfx::SPACING,
             );
             card.container.rect.pos = gfx::FloatPos(EDGE_SPACING, y);
             card.container.update(graphics_context, Some(&self.container));
@@ -130,5 +129,9 @@ impl ui_manager::ModuleTrait for PlayerList {
 
     fn get_container_mut(&mut self) -> &mut gfx::Container {
         &mut self.container
+    }
+
+    fn get_name(&self) -> &str {
+        "PlayerList"
     }
 }

@@ -158,6 +158,7 @@ fn server_main(args: &[String]) {
     };
 
     let path = curr_dir.join("server_data");
+    let path_clone = path.clone();
 
     let (event_sender, event_receiver) = std::sync::mpsc::channel();
     let gfx_is_some = server_graphics_context.is_some();
@@ -188,7 +189,7 @@ fn server_main(args: &[String]) {
             sleep(Duration::from_millis(50));
         },
         |graphics| {
-            let mut manager = UiManager::new(graphics, event_receiver);
+            let mut manager = UiManager::new(graphics, event_receiver, path_clone);
             manager.run(&server_running);
         },
     );

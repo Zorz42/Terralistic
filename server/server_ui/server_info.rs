@@ -176,6 +176,10 @@ impl ui_manager::ModuleTrait for ServerInfo {
     fn get_container_mut(&mut self) -> &mut gfx::Container {
         &mut self.container
     }
+
+    fn get_name(&self) -> &str {
+        "ServerInfo"
+    }
 }
 
 impl ServerInfo {
