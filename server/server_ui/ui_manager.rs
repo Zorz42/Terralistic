@@ -8,7 +8,7 @@ use std::sync::mpsc::{Receiver, Sender};
 use bincode::deserialize;
 
 use crate::libraries::graphics as gfx;
-use crate::server::server_ui::{ServerState, UiMessageType};
+use crate::server::server_ui::{console, ServerState, UiMessageType};
 use crate::server::server_ui::server_info;
 use crate::server::server_ui::player_list;
 
@@ -50,6 +50,7 @@ impl UiManager {
         temp.modules = vec![
             Box::new(server_info::ServerInfo::new(&mut temp.graphics_context)),
             Box::new(player_list::PlayerList::new(&mut temp.graphics_context)),
+            Box::new(console::    Console::   new(&mut temp.graphics_context)),
         ];
         temp
     }
@@ -186,7 +187,9 @@ impl UiManager {
     fn read_module_tree(&self) -> ModuleTreeNode {
         //read the config file in server_data/ui_config.json
         //if the file doesn't exist or is not a valid format, use the default config
-        let config_file = self.save_path.join("ui_config.json");
+        self.write_default_module_tree()
+
+        /*let config_file = self.save_path.join("ui_config.json");//TODO: uncomment after the final ui config is decided
         if config_file.exists() {
             let file = File::open(config_file);
             file.map_or_else(
@@ -201,7 +204,7 @@ impl UiManager {
                 })
         } else {
             self.write_default_module_tree()
-        }
+        }*/
     }
 
     fn write_default_module_tree(&self) -> ModuleTreeNode {
@@ -209,7 +212,14 @@ impl UiManager {
             orientation: SplitType::Horizontal,
             split_pos: 0.1,
             first: ModuleTreeNodeType::Module("ServerInfo".to_owned()),
-            second: ModuleTreeNodeType::Module("PlayerList".to_owned()),
+            second: ModuleTreeNodeType::Node(
+                Box::from(ModuleTreeNode {
+                    orientation: SplitType::Vertical,
+                    split_pos: 0.5,
+                    first: ModuleTreeNodeType::Module("PlayerList".to_owned()),
+                    second: ModuleTreeNodeType::Module("Console".to_owned())
+                })
+            ),
         };
         let file = File::create(self.save_path.join("ui_config.json"));
         file.map_or_else(|_| {

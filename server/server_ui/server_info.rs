@@ -58,7 +58,7 @@ impl ServerInfo {
             container: gfx::Container::new(
                 graphics_context,
                 gfx::FloatPos(0.0, 0.0),
-                graphics_context.renderer.get_window_size(),
+                gfx::FloatSize(0.0, 0.0),
                 gfx::TOP_LEFT,
                 None,
             ),
