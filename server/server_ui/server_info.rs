@@ -197,8 +197,4 @@ impl ui_manager::ModuleTrait for ServerInfo {
     fn get_name(&self) -> &str {
         "ServerInfo"
     }
-
-    fn set_sender(&mut self, _sender: Sender<Vec<u8>>) {
-        //empty, no thing to do
-    }
 }

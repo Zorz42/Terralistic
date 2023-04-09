@@ -161,8 +161,4 @@ impl ui_manager::ModuleTrait for PlayerList {
     fn get_name(&self) -> &str {
         "PlayerList"
     }
-
-    fn set_sender(&mut self, _sender: Sender<Vec<u8>>) {
-        //empty, nothing to do
-    }
 }

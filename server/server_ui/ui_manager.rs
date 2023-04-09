@@ -290,5 +290,5 @@ pub trait ModuleTrait {
     //returns the name of the module
     fn get_name(&self) -> &str;
     //gives the event sender to the module, so it can send data to the server
-    fn set_sender(&mut self, sender: Sender<Vec<u8>>);
+    fn set_sender(&mut self, sender: Sender<Vec<u8>>) {}
 }
