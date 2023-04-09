@@ -1,5 +1,4 @@
 use std::net::SocketAddr;
-use std::sync::mpsc::Sender;
 use crate::libraries::graphics as gfx;
 use crate::libraries::graphics::{DARK_GREY, GREY};
 use crate::server::server_ui::{PlayerEventType, UiMessageType};

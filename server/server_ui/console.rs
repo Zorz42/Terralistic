@@ -64,11 +64,7 @@ impl ui_manager::ModuleTrait for Console {
         self.input.orientation = gfx::BOTTOM_LEFT;
 
         self.input.text_processing = Some(Box::new(|text: char| {
-            if text.is_ascii() {
-                Some(text)
-            } else {
-                None
-            }
+            text.is_ascii().then(|| text)
         }));
     }
 
