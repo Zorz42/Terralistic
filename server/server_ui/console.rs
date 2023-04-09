@@ -1,5 +1,5 @@
 use crate::libraries::graphics as gfx;
-use crate::server::server_ui::UiMessageType;
+use crate::server::server_ui::{EDGE_SPACING, UiMessageType};
 use std::sync::mpsc::Sender;
 
 use super::ui_manager;
@@ -37,6 +37,7 @@ pub struct Console {
     text_lines: Vec<ConsoleLine>,
     container: gfx::Container,
     sender: Option<Sender<Vec<u8>>>,
+    input: gfx::TextInput,
 }
 
 impl Console {
@@ -51,16 +52,28 @@ impl Console {
                 None,
             ),
             sender: None,
+            input: gfx::TextInput::new(graphics_context),
         }
     }
 }
 
 impl ui_manager::ModuleTrait for Console {
     fn init(&mut self, _graphics_context: &mut gfx::GraphicsContext) {
-        //empty, nothing to do
+        self.input.pos = gfx::FloatPos(EDGE_SPACING, -EDGE_SPACING);
+        self.input.scale = 2.0;
+        self.input.orientation = gfx::BOTTOM_LEFT;
+
+        self.input.text_processing = Some(Box::new(|text: char| {
+            if text.is_ascii() {
+                Some(text)
+            } else {
+                None
+            }
+        }));
     }
 
     fn update(&mut self, _delta_time: f32, _graphics_context: &mut gfx::GraphicsContext) {
+        self.input.width = self.container.rect.size.0 / 2.0 - EDGE_SPACING * 2.0;
         //TODO: add scroll
     }
 
@@ -68,6 +81,7 @@ impl ui_manager::ModuleTrait for Console {
         for line in &mut self.text_lines {
             line.render(graphics_context, &self.container);
         }
+        self.input.render(graphics_context, Some(&self.container));
     }
 
     fn on_server_message(
@@ -77,7 +91,9 @@ impl ui_manager::ModuleTrait for Console {
     ) {
         if let UiMessageType::ConsoleMessage(message) = message {
             //add a line
-            let line = ConsoleLine::new(graphics_context, message.clone());
+            let mut line = ConsoleLine::new(graphics_context, message.clone());
+            //move it above the text input
+            line.sprite.pos.1 = -self.input.pos.1 - self.input.get_size().1 - gfx::SPACING / 2.0;
             //move all lines up
             for line in &mut self.text_lines {
                 line.sprite.pos.1 -= line.sprite.texture.get_texture_size().1 + gfx::SPACING / 2.0;
