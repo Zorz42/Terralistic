@@ -1,4 +1,4 @@
-use std::net::IpAddr;
+use std::net::{IpAddr, SocketAddr};
 use std::sync::mpsc::Sender;
 use crate::libraries::graphics as gfx;
 use crate::libraries::graphics::DARK_GREY;
@@ -13,7 +13,7 @@ pub struct PlayerCard {
     name_sprite: gfx::Sprite,
     name_string: String,
     //the connection of the player
-    connection: IpAddr,
+    connection: SocketAddr,
     //the card container
     container: gfx::Container,
 }
@@ -22,7 +22,7 @@ impl PlayerCard {
     pub fn new(
         graphics_context: &mut gfx::GraphicsContext,
         name: String,
-        connection: IpAddr
+        connection: SocketAddr
     ) -> Self {
         let mut a = Self {
             name_sprite: gfx::Sprite::new(),

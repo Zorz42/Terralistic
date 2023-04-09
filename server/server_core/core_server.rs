@@ -220,7 +220,7 @@ impl Server {
             if let Some(disconnect) = event.downcast::<DisconnectEvent>() {
                 send_to_ui(
                     &UiMessageType::PlayerEvent(PlayerEventType::Leave(
-                        disconnect.conn.address.addr().ip(),
+                        disconnect.conn.address.addr(),
                     )),
                     &self.ui_event_sender,
                 );
@@ -229,7 +229,7 @@ impl Server {
                 send_to_ui(
                     &UiMessageType::PlayerEvent(PlayerEventType::Join((
                         connect.name.clone(),
-                        connect.conn.address.addr().ip(),
+                        connect.conn.address.addr(),
                     ))),
                     &self.ui_event_sender,
                 );
