@@ -4,6 +4,7 @@ use std::fs::File;
 use std::io::Write;
 use std::path::PathBuf;
 use std::sync::mpsc::{Receiver, Sender};
+use std::time;
 
 use bincode::deserialize;
 
@@ -87,6 +88,8 @@ impl UiManager {
         gfx::RenderRect::new(gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, 0.0))
             .render(&self.graphics_context, None); //rect that makes rendering work
 
+        let mut last_frame_time = time::Instant::now();
+
         loop {
             let mut server_state = ServerState::Nothing;
 
@@ -125,10 +128,12 @@ impl UiManager {
                 }
             }
 
+            let time = last_frame_time.elapsed().as_secs_f32();
             //updates the modules
             for module in &mut self.modules {
-                module.update(0.0, &mut self.graphics_context);
+                module.update(time, &mut self.graphics_context);
             }
+            last_frame_time = time::Instant::now();
 
             gfx::Rect::new(
                 gfx::FloatPos(0.0, 0.0),
@@ -271,7 +276,7 @@ pub trait ModuleTrait {
     //initializes the module
     fn init(&mut self, graphics_context: &mut gfx::GraphicsContext);
     //updates the module
-    fn update(&mut self, delta_time: f32, graphics_context: &mut gfx::GraphicsContext);
+    fn update(&mut self, delta_time_seconds: f32, graphics_context: &mut gfx::GraphicsContext);
     //renders the module
     fn render(&mut self, graphics_context: &mut gfx::GraphicsContext);
     //relay messages from the server to the module

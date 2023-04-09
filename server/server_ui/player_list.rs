@@ -1,7 +1,7 @@
-use std::net::{IpAddr, SocketAddr};
+use std::net::SocketAddr;
 use std::sync::mpsc::Sender;
 use crate::libraries::graphics as gfx;
-use crate::libraries::graphics::DARK_GREY;
+use crate::libraries::graphics::{DARK_GREY, GREY};
 use crate::server::server_ui::{PlayerEventType, UiMessageType};
 
 use super::ui_manager;
@@ -16,6 +16,8 @@ pub struct PlayerCard {
     connection: SocketAddr,
     //the card container
     container: gfx::Container,
+    target_y: f32,
+    timer: f32,
 }
 
 impl PlayerCard {
@@ -35,6 +37,8 @@ impl PlayerCard {
                 gfx::TOP_LEFT,
                 None,
             ),
+            target_y: 0.0,
+            timer: 0.0,
         };
         a.name_sprite.texture = gfx::Texture::load_from_surface(
             &graphics_context.font.create_text_surface(&a.name_string)
@@ -54,9 +58,19 @@ impl PlayerCard {
         );
         rect.fill_color = DARK_GREY;
         rect.render(graphics_context, Some(&self.container));
-        //self.container.rect.render(graphics_context, DARK_GREY);
 
         self.name_sprite.render(graphics_context, Some(&self.container));
+
+        if self.timer < 1.0 {
+            //fade in
+            let mut rect = gfx::RenderRect::new(
+                gfx::FloatPos(0.0, 0.0),
+                self.container.rect.size
+            );
+            rect.fill_color = GREY;
+            rect.fill_color.a = (255.0 - self.timer * 255.0) as u8;
+            rect.render(graphics_context, Some(&self.container));
+        }
     }
 }
 
@@ -88,7 +102,7 @@ impl ui_manager::ModuleTrait for PlayerList {
         //empty, nothing to do
     }
 
-    fn update(&mut self, _delta_time: f32, graphics_context: &mut gfx::GraphicsContext) {
+    fn update(&mut self, delta_time: f32, graphics_context: &mut gfx::GraphicsContext) {
         //ideally there should be a on_window_resize function
 
         //loop through all the player cards and resize them
@@ -98,9 +112,16 @@ impl ui_manager::ModuleTrait for PlayerList {
                 self.container.rect.size.0 - EDGE_SPACING * 2.0,
                 card.name_sprite.texture.get_texture_size().1 * SCALE + 2.0 * gfx::SPACING,
             );
-            card.container.rect.pos = gfx::FloatPos(EDGE_SPACING, y);
-            card.container.update(graphics_context, Some(&self.container));
+
+            card.target_y = y;
             y += card.container.rect.size.1 + 2.0 * EDGE_SPACING;
+
+            if (card.target_y - card.container.rect.pos.1).abs() > 0.001 || card.timer < 1.0 {
+                card.timer += delta_time;
+
+                card.container.rect.pos.1 = card.target_y * 0.1 + card.container.rect.pos.1 * 0.9;
+                card.container.update(graphics_context, Some(&self.container));
+            }
         }
     }
 
@@ -115,6 +136,11 @@ impl ui_manager::ModuleTrait for PlayerList {
             match event {
                 PlayerEventType::Join((name, connection)) => {
                     self.player_cards.push(PlayerCard::new(graphics_context, name.clone(), *connection));
+                    if let Some(card) = self.player_cards.last_mut() {
+                        card.target_y = self.container.rect.size.1;
+                        card.container.rect.pos.1 = card.target_y;
+                        card.container.update(graphics_context, Some(&self.container));
+                    }
                 },
                 PlayerEventType::Leave(connection) => {
                     for (i, card) in self.player_cards.iter().enumerate() {
