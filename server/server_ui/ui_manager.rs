@@ -7,6 +7,7 @@ use std::sync::mpsc::{Receiver, Sender};
 use std::time;
 
 use bincode::deserialize;
+use crate::libraries::graphics::Event;
 
 use crate::libraries::graphics as gfx;
 use crate::server::server_ui::player_list;
@@ -93,7 +94,11 @@ impl UiManager {
         loop {
             let mut server_state = ServerState::Nothing;
 
-            while let Some(_event) = self.graphics_context.renderer.get_event() {}
+            while let Some(event) = self.graphics_context.renderer.get_event() {
+                for module in &mut self.modules {
+                    module.on_event(&event, &mut self.graphics_context);
+                }
+            }
 
             if !self.graphics_context.renderer.is_window_open() {
                 server_running.store(false, core::sync::atomic::Ordering::Relaxed);
@@ -291,4 +296,6 @@ pub trait ModuleTrait {
     fn get_name(&self) -> &str;
     //gives the event sender to the module, so it can send data to the server
     fn set_sender(&mut self, _sender: Sender<Vec<u8>>) {}
+    //sends sdl2 events to the module
+    fn on_event(&mut self, _event: &Event, _graphics_context: &mut gfx::GraphicsContext) {}
 }

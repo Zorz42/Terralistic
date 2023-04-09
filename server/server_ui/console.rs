@@ -1,6 +1,7 @@
 use crate::libraries::graphics as gfx;
 use crate::server::server_ui::{EDGE_SPACING, UiMessageType};
 use std::sync::mpsc::Sender;
+use crate::libraries::graphics::{Event, GraphicsContext};
 
 use super::ui_manager;
 
@@ -55,6 +56,18 @@ impl Console {
             input: gfx::TextInput::new(graphics_context),
         }
     }
+
+    fn add_line(&mut self, message: String, graphics_context: &mut GraphicsContext) {
+        //add a line
+        let mut line = ConsoleLine::new(graphics_context, message);
+        //move it above the text input
+        line.sprite.pos.1 = -self.input.pos.1 - self.input.get_size().1 - gfx::SPACING / 2.0;
+        //move all lines up
+        for line in &mut self.text_lines {
+            line.sprite.pos.1 -= line.sprite.texture.get_texture_size().1 + gfx::SPACING / 2.0;
+        }
+        self.text_lines.push(line);
+    }
 }
 
 impl ui_manager::ModuleTrait for Console {
@@ -64,8 +77,10 @@ impl ui_manager::ModuleTrait for Console {
         self.input.orientation = gfx::BOTTOM_LEFT;
 
         self.input.text_processing = Some(Box::new(|text: char| {
-            text.is_ascii().then(|| text)
+            text.is_ascii().then_some(text)
         }));
+
+        self.input.shadow_intensity = 0;
     }
 
     fn update(&mut self, _delta_time: f32, _graphics_context: &mut gfx::GraphicsContext) {
@@ -86,15 +101,7 @@ impl ui_manager::ModuleTrait for Console {
         graphics_context: &mut gfx::GraphicsContext,
     ) {
         if let UiMessageType::ConsoleMessage(message) = message {
-            //add a line
-            let mut line = ConsoleLine::new(graphics_context, message.clone());
-            //move it above the text input
-            line.sprite.pos.1 = -self.input.pos.1 - self.input.get_size().1 - gfx::SPACING / 2.0;
-            //move all lines up
-            for line in &mut self.text_lines {
-                line.sprite.pos.1 -= line.sprite.texture.get_texture_size().1 + gfx::SPACING / 2.0;
-            }
-            self.text_lines.push(line);
+            self.add_line(message.clone(), graphics_context);
         }
     }
 
@@ -108,5 +115,34 @@ impl ui_manager::ModuleTrait for Console {
 
     fn set_sender(&mut self, sender: Sender<Vec<u8>>) {
         self.sender = Some(sender);
+    }
+
+    fn on_event(&mut self, event: &Event, graphics_context: &mut GraphicsContext) {
+        self.input.on_event(event, graphics_context, Some(&self.container));
+        if let Event::KeyPress(key, _repeat) = event {
+            if matches!(key, gfx::Key::Enter) && self.input.selected {
+                send_to_srv(
+                    &UiMessageType::ConsoleMessage(self.input.get_text().to_owned()),
+                    &self.sender
+                );
+                self.add_line(self.input.text.clone(), graphics_context);
+                self.input.set_text(String::new());
+            }
+        }
+    }
+}
+
+//sends any data to the server
+pub fn send_to_srv(data: &UiMessageType, ui_event_sender: &Option<Sender<Vec<u8>>>) {
+    if let Some(sender) = ui_event_sender {
+        let data = &bincode::serialize(&data).unwrap_or_default();
+        let data = snap::raw::Encoder::new()
+            .compress_vec(data)
+            .unwrap_or_default();
+        let result = sender.send(data);
+
+        if let Err(_e) = result {
+            println!("error sending data to srv");
+        }
     }
 }

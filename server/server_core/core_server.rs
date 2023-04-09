@@ -7,6 +7,7 @@ use std::sync::{Mutex, PoisonError};
 use std::thread::sleep;
 
 use anyhow::{anyhow, Result};
+use bincode::deserialize;
 
 use crate::libraries::events::EventManager;
 use crate::server::server_core::entities::ServerEntities;
@@ -216,6 +217,20 @@ impl Server {
     }
 
     fn handle_events(&mut self) -> Result<()> {
+
+        if let Some(receiver) = &self.ui_event_receiver {
+            //goes through the messages received from the server
+            while let Ok(data) = receiver.try_recv() {
+                let data = snap::raw::Decoder::new()
+                    .decompress_vec(&data)
+                    .unwrap_or_default();
+                let message = deserialize::<UiMessageType>(&data);
+                if let Ok(UiMessageType::ConsoleMessage(message)) = message {
+                    println!("{message}");
+                }
+            }
+        }
+
         while let Some(event) = self.events.pop_event() {
             if let Some(disconnect) = event.downcast::<DisconnectEvent>() {
                 send_to_ui(
