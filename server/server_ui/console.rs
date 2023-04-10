@@ -44,6 +44,7 @@ pub struct Console {
     container: gfx::Container,
     sender: Option<Sender<Vec<u8>>>,
     input: gfx::TextInput,
+    scroll: f32,
 }
 
 impl Console {
@@ -59,19 +60,23 @@ impl Console {
             ),
             sender: None,
             input: gfx::TextInput::new(graphics_context),
+            scroll: 0.0,
         }
     }
 
     fn add_line(&mut self, message: String, graphics_context: &mut gfx::GraphicsContext) {
         //add a line
-        let mut line = ConsoleLine::new(graphics_context, message);
-        //move it above the text input
-        line.sprite.pos.1 = -self.input.pos.1 - self.input.get_size().1 - gfx::SPACING / 2.0;
-        //move all lines up
-        for line in &mut self.text_lines {
-            line.sprite.pos.1 -= line.sprite.texture.get_texture_size().1 + gfx::SPACING / 2.0;
-        }
+        let line = ConsoleLine::new(graphics_context, message);
         self.text_lines.push(line);
+        self.position_lines();
+    }
+
+    fn position_lines(&mut self) {
+        let mut y = -self.input.pos.1 - self.input.get_size().1 - gfx::SPACING / 2.0;
+        for line in self.text_lines.iter_mut().rev() {
+            line.sprite.pos.1 = y + self.scroll;
+            y -= line.sprite.texture.get_texture_size().1 + gfx::SPACING / 2.0;
+        }
     }
 }
 
@@ -125,15 +130,23 @@ impl ui_manager::ModuleTrait for Console {
     fn on_event(&mut self, event: &gfx::Event, graphics_context: &mut gfx::GraphicsContext) {
         self.input
             .on_event(event, graphics_context, Some(&self.container));
-        if let gfx::Event::KeyPress(key, _repeat) = event {
-            if matches!(key, gfx::Key::Enter) && self.input.selected {
-                send_to_srv(
-                    &UiMessageType::ConsoleMessage(self.input.get_text().to_owned()),
-                    &self.sender,
-                );
-                self.add_line(self.input.text.clone(), graphics_context);
-                self.input.set_text(String::new());
+        match event {
+            gfx::Event::MouseScroll(scroll) => {
+                self.scroll += scroll * self.text_lines.first().map_or_else(|| 0.0, |line| line.sprite.texture.get_texture_size().1 + gfx::SPACING / 2.0);
+                self.scroll = self.scroll.max(0.0);
+                self.position_lines();
             }
+            gfx::Event::KeyPress(key, _repeat) => {
+                if matches!(key, gfx::Key::Enter) && self.input.selected {
+                    send_to_srv(
+                        &UiMessageType::ConsoleMessage(self.input.get_text().to_owned()),
+                        &self.sender,
+                    );
+                    self.add_line(self.input.text.clone(), graphics_context);
+                    self.input.set_text(String::new());
+                }
+            }
+            _ => {}
         }
     }
 }
