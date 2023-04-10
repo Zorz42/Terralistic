@@ -29,8 +29,6 @@ fn format_seconds(seconds: u64) -> String {
 }
 
 pub struct ServerInfo {
-    //is it really needed tho?
-    _world_seed: gfx::Sprite,
     players_sprite: gfx::Sprite,
     players_count: u32,
     server_state_enum: ServerState,
@@ -46,7 +44,6 @@ impl ServerInfo {
     #[allow(clippy::default_trait_access)]
     pub fn new(graphics_context: &mut gfx::GraphicsContext) -> Self {
         Self {
-            _world_seed: Default::default(),
             players_sprite: Default::default(),
             players_count: 0,
             server_state_enum: ServerState::Nothing,
