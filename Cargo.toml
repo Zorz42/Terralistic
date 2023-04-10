@@ -94,10 +94,10 @@ sdl2-sys = { version = "=0.35.2", features = ["use-pkgconfig", "static-link"] }
 sdl2 = { version = "=0.35.2", features = ["static-link"] }
 sdl2-sys = { version = "=0.35.2", features = ["static-link"] }
 
-[package.metadata.bundle.bin.terralistic]
+[package.metadata.bundle]
 name = "Terralistic"
 identifier = "com.Zorz42.Terralistic"
-icon = ["Build/Resources/icon.icns"]
+icon = ["resources/icon.icns"]
 copyright = "Copyright (c) Zorz42 2022. All rights reserved."
 category = "Game"
 short_description = "Terralistic is a game."
