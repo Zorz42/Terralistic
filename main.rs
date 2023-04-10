@@ -105,6 +105,8 @@ fn main() {
                 server_main(args.as_slice());
             } else if arg == "client" {
                 client_main();
+            } else if arg == "version" {
+                println!("{}", shared::versions::VERSION);
             } else {
                 println!("Invalid argument: {arg}");
             }
@@ -166,7 +168,11 @@ fn server_main(args: &[String]) {
 
     let server_thread = std::thread::spawn(move || {
         let mut server = if gfx_is_some {
-            Server::new(MULTIPLAYER_PORT, Some(srv_to_ui_event_sender), Some(ui_to_srv_event_receiver))
+            Server::new(
+                MULTIPLAYER_PORT,
+                Some(srv_to_ui_event_sender),
+                Some(ui_to_srv_event_receiver),
+            )
         } else {
             Server::new(MULTIPLAYER_PORT, None, None)
         };
@@ -190,7 +196,12 @@ fn server_main(args: &[String]) {
             sleep(Duration::from_millis(50));
         },
         |graphics| {
-            let mut manager = UiManager::new(graphics, srv_to_ui_event_receiver, ui_to_srv_event_sender, path_clone);
+            let mut manager = UiManager::new(
+                graphics,
+                srv_to_ui_event_receiver,
+                ui_to_srv_event_sender,
+                path_clone,
+            );
             manager.run(&server_running);
         },
     );
