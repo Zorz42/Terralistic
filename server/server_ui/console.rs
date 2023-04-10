@@ -1,5 +1,4 @@
 use crate::libraries::graphics as gfx;
-use crate::libraries::graphics::{Event, GraphicsContext};
 use crate::server::server_ui::{UiMessageType, EDGE_SPACING};
 use std::sync::mpsc::Sender;
 
@@ -57,7 +56,7 @@ impl Console {
         }
     }
 
-    fn add_line(&mut self, message: String, graphics_context: &mut GraphicsContext) {
+    fn add_line(&mut self, message: String, graphics_context: &mut gfx::GraphicsContext) {
         //add a line
         let mut line = ConsoleLine::new(graphics_context, message);
         //move it above the text input
@@ -115,10 +114,10 @@ impl ui_manager::ModuleTrait for Console {
         self.sender = Some(sender);
     }
 
-    fn on_event(&mut self, event: &Event, graphics_context: &mut GraphicsContext) {
+    fn on_event(&mut self, event: &gfx::Event, graphics_context: &mut gfx::GraphicsContext) {
         self.input
             .on_event(event, graphics_context, Some(&self.container));
-        if let Event::KeyPress(key, _repeat) = event {
+        if let gfx::Event::KeyPress(key, _repeat) = event {
             if matches!(key, gfx::Key::Enter) && self.input.selected {
                 send_to_srv(
                     &UiMessageType::ConsoleMessage(self.input.get_text().to_owned()),
