@@ -74,7 +74,7 @@ impl Console {
     fn position_lines(&mut self) {
         let max_y = -self.input.pos.1 - self.input.get_size().1 - gfx::SPACING / 2.0 + 1.0;
         let min_y = -self.container.rect.size.1 - max_y;
-        let offset = line.sprite.texture.get_texture_size().1 + gfx::SPACING / 2.0
+        let offset = line.sprite.texture.get_texture_size().1 + gfx::SPACING / 2.0;
         let mut y = -self.input.pos.1 - self.input.get_size().1 - gfx::SPACING / 2.0;
         for line in self.text_lines.iter_mut().rev() {
             line.sprite.pos.1 = y + self.scroll;
