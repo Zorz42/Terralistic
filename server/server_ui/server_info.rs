@@ -76,7 +76,7 @@ impl ServerInfo {
             ServerState::Stopping => "Stopping",
             ServerState::Stopped => "Stopped",
         }
-            .to_owned();
+        .to_owned();
         self.server_state_sprite.texture =
             gfx::Texture::load_from_surface(&graphics_context.font.create_text_surface(&state_str));
     }

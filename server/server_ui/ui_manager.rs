@@ -6,8 +6,8 @@ use std::path::PathBuf;
 use std::sync::mpsc::{Receiver, Sender};
 use std::time;
 
-use bincode::deserialize;
 use crate::libraries::graphics::Event;
+use bincode::deserialize;
 
 use crate::libraries::graphics as gfx;
 use crate::server::server_ui::player_list;

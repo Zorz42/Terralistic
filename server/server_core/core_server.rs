@@ -37,13 +37,17 @@ pub struct Server {
     items: ServerItems,
     players: ServerPlayers,
     ui_event_sender: Option<Sender<Vec<u8>>>,
-    #[allow(dead_code)]//TODO: remove this after the Console is fully implemented
+    #[allow(dead_code)] //TODO: remove this after the Console is fully implemented
     ui_event_receiver: Option<Receiver<Vec<u8>>>,
 }
 
 impl Server {
     #[must_use]
-    pub fn new(port: u16, ui_event_sender: Option<Sender<Vec<u8>>>, ui_event_receiver: Option<Receiver<Vec<u8>>>) -> Self {
+    pub fn new(
+        port: u16,
+        ui_event_sender: Option<Sender<Vec<u8>>>,
+        ui_event_receiver: Option<Receiver<Vec<u8>>>,
+    ) -> Self {
         let blocks = ServerBlocks::new();
         let walls = ServerWalls::new(&mut blocks.get_blocks());
         Self {
@@ -217,7 +221,6 @@ impl Server {
     }
 
     fn handle_events(&mut self) -> Result<()> {
-
         if let Some(receiver) = &self.ui_event_receiver {
             //goes through the messages received from the server
             while let Ok(data) = receiver.try_recv() {

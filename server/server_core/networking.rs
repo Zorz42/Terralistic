@@ -8,15 +8,15 @@ use alloc::sync::Arc;
 use core::sync::atomic::Ordering;
 
 use crate::libraries::events::{Event, EventManager};
+use crate::server::server_core::send_to_ui;
 use crate::shared::packet::{Packet, WelcomeCompletePacket};
 use crate::shared::players::NamePacket;
-use crate::server::server_core::send_to_ui;
 use anyhow::{anyhow, bail, Result};
 use message_io::network::{Endpoint, NetEvent, SendStatus, Transport};
 
+use crate::server::server_ui::UiMessageType;
 use message_io::node;
 use message_io::node::{NodeEvent, NodeHandler};
-use crate::server::server_ui::UiMessageType;
 
 /// This struct holds the address of a connection.
 #[derive(Clone, Eq)]
@@ -84,7 +84,13 @@ impl ServerNetworking {
         let server_port = self.server_port;
 
         self.net_loop_thread = Some(std::thread::spawn(move || {
-            Self::net_receive_loop(&event_sender, &packet_receiver, &is_running, server_port, &ui_event_sender)
+            Self::net_receive_loop(
+                &event_sender,
+                &packet_receiver,
+                &is_running,
+                server_port,
+                &ui_event_sender,
+            )
         }));
     }
 

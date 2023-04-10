@@ -1,10 +1,10 @@
-use std::net::SocketAddr;
 use crate::libraries::graphics as gfx;
 use crate::libraries::graphics::{DARK_GREY, GREY};
 use crate::server::server_ui::{PlayerEventType, UiMessageType};
+use std::net::SocketAddr;
 
 use super::ui_manager;
-use super::ui_manager::{SCALE, EDGE_SPACING};
+use super::ui_manager::{EDGE_SPACING, SCALE};
 
 //this struct is a player card, containing the name, connection and other data
 pub struct PlayerCard {
@@ -23,7 +23,7 @@ impl PlayerCard {
     pub fn new(
         graphics_context: &mut gfx::GraphicsContext,
         name: String,
-        connection: SocketAddr
+        connection: SocketAddr,
     ) -> Self {
         let mut a = Self {
             name_sprite: gfx::Sprite::new(),
@@ -40,7 +40,7 @@ impl PlayerCard {
             timer: 0.0,
         };
         a.name_sprite.texture = gfx::Texture::load_from_surface(
-            &graphics_context.font.create_text_surface(&a.name_string)
+            &graphics_context.font.create_text_surface(&a.name_string),
         );
         a.name_sprite.scale = SCALE;
         a.name_sprite.orientation = gfx::LEFT;
@@ -51,21 +51,16 @@ impl PlayerCard {
 
     pub fn render(&mut self, graphics_context: &mut gfx::GraphicsContext) {
         //background
-        let mut rect = gfx::RenderRect::new(
-            gfx::FloatPos(0.0, 0.0),
-            self.container.rect.size
-        );
+        let mut rect = gfx::RenderRect::new(gfx::FloatPos(0.0, 0.0), self.container.rect.size);
         rect.fill_color = DARK_GREY;
         rect.render(graphics_context, Some(&self.container));
 
-        self.name_sprite.render(graphics_context, Some(&self.container));
+        self.name_sprite
+            .render(graphics_context, Some(&self.container));
 
         if self.timer < 1.0 {
             //fade in
-            let mut rect = gfx::RenderRect::new(
-                gfx::FloatPos(0.0, 0.0),
-                self.container.rect.size
-            );
+            let mut rect = gfx::RenderRect::new(gfx::FloatPos(0.0, 0.0), self.container.rect.size);
             rect.fill_color = GREY;
             rect.fill_color.a = (255.0 - self.timer * 255.0) as u8;
             rect.render(graphics_context, Some(&self.container));
@@ -119,7 +114,8 @@ impl ui_manager::ModuleTrait for PlayerList {
                 card.timer += delta_time;
 
                 card.container.rect.pos.1 = card.target_y * 0.1 + card.container.rect.pos.1 * 0.9;
-                card.container.update(graphics_context, Some(&self.container));
+                card.container
+                    .update(graphics_context, Some(&self.container));
             }
         }
     }
@@ -130,17 +126,26 @@ impl ui_manager::ModuleTrait for PlayerList {
         }
     }
 
-    fn on_server_message(&mut self, message: &UiMessageType, graphics_context: &mut gfx::GraphicsContext) {
+    fn on_server_message(
+        &mut self,
+        message: &UiMessageType,
+        graphics_context: &mut gfx::GraphicsContext,
+    ) {
         if let UiMessageType::PlayerEvent(event) = message {
             match event {
                 PlayerEventType::Join((name, connection)) => {
-                    self.player_cards.push(PlayerCard::new(graphics_context, name.clone(), *connection));
+                    self.player_cards.push(PlayerCard::new(
+                        graphics_context,
+                        name.clone(),
+                        *connection,
+                    ));
                     if let Some(card) = self.player_cards.last_mut() {
                         card.target_y = self.container.rect.size.1;
                         card.container.rect.pos.1 = card.target_y;
-                        card.container.update(graphics_context, Some(&self.container));
+                        card.container
+                            .update(graphics_context, Some(&self.container));
                     }
-                },
+                }
                 PlayerEventType::Leave(connection) => {
                     for (i, card) in self.player_cards.iter().enumerate() {
                         if card.connection == *connection {
@@ -148,7 +153,7 @@ impl ui_manager::ModuleTrait for PlayerList {
                             break;
                         }
                     }
-                },
+                }
             }
         }
     }

@@ -1,7 +1,7 @@
 use crate::libraries::graphics as gfx;
-use crate::server::server_ui::{EDGE_SPACING, UiMessageType};
-use std::sync::mpsc::Sender;
 use crate::libraries::graphics::{Event, GraphicsContext};
+use crate::server::server_ui::{UiMessageType, EDGE_SPACING};
+use std::sync::mpsc::Sender;
 
 use super::ui_manager;
 
@@ -76,9 +76,7 @@ impl ui_manager::ModuleTrait for Console {
         self.input.scale = 2.0;
         self.input.orientation = gfx::BOTTOM_LEFT;
 
-        self.input.text_processing = Some(Box::new(|text: char| {
-            text.is_ascii().then_some(text)
-        }));
+        self.input.text_processing = Some(Box::new(|text: char| text.is_ascii().then_some(text)));
 
         self.input.shadow_intensity = 0;
     }
@@ -118,12 +116,13 @@ impl ui_manager::ModuleTrait for Console {
     }
 
     fn on_event(&mut self, event: &Event, graphics_context: &mut GraphicsContext) {
-        self.input.on_event(event, graphics_context, Some(&self.container));
+        self.input
+            .on_event(event, graphics_context, Some(&self.container));
         if let Event::KeyPress(key, _repeat) = event {
             if matches!(key, gfx::Key::Enter) && self.input.selected {
                 send_to_srv(
                     &UiMessageType::ConsoleMessage(self.input.get_text().to_owned()),
-                    &self.sender
+                    &self.sender,
                 );
                 self.add_line(self.input.text.clone(), graphics_context);
                 self.input.set_text(String::new());
