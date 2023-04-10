@@ -28,8 +28,14 @@ impl ConsoleLine {
         &mut self,
         graphics_context: &mut gfx::GraphicsContext,
         container: &gfx::Container,
+        max_y: f32,
+        min_y: f32,
     ) {
-        self.sprite.render(graphics_context, Some(container));
+        if self.sprite.pos.1 < max_y
+            && self.sprite.pos.1 + self.sprite.texture.get_texture_size().1 > min_y
+        {
+            self.sprite.render(graphics_context, Some(container));
+        }
     }
 }
 
@@ -86,8 +92,10 @@ impl ui_manager::ModuleTrait for Console {
     }
 
     fn render(&mut self, graphics_context: &mut gfx::GraphicsContext) {
+        let max_y = -self.input.pos.1 - self.input.get_size().1 - gfx::SPACING / 2.0 + 1.0;
+        let min_y = -self.container.rect.size.1 - max_y;
         for line in &mut self.text_lines {
-            line.render(graphics_context, &self.container);
+            line.render(graphics_context, &self.container, max_y, min_y);
         }
         self.input.render(graphics_context, Some(&self.container));
     }
