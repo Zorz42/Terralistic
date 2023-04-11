@@ -31,7 +31,7 @@ impl ConsoleLine {
         };
         a.sprite.texture =
             gfx::Texture::load_from_surface(&graphics_context.font.create_text_surface(&a.text));
-        a.sprite.scale = 1.4;
+        a.sprite.scale = 1.5;
         a.sprite.orientation = gfx::BOTTOM_LEFT;
         a.sprite.color = gfx::WHITE;
         a.sprite.pos = gfx::FloatPos(gfx::SPACING / 3.0, 0.0);
