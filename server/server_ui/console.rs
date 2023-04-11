@@ -1,5 +1,5 @@
 use crate::libraries::graphics as gfx;
-use crate::server::server_ui::{UiMessageType, EDGE_SPACING, ConsoleMessageType};
+use crate::server::server_ui::{ConsoleMessageType, UiMessageType, EDGE_SPACING};
 use std::sync::mpsc::Sender;
 
 use super::ui_manager;
@@ -10,13 +10,13 @@ fn format_timestamp(message: &String) -> String {
     let timestamp = chrono::NaiveDateTime::from_timestamp_opt(timestamp, 0);
     format!(
         "[{}] {}",
-        timestamp
-            .map_or_else(|| "???".to_string(), |time| time.format("%m-%d %H:%M:%S").to_string()),
+        timestamp.map_or_else(
+            || "???".to_string(),
+            |time| time.format("%m-%d %H:%M:%S").to_string()
+        ),
         message
     )
 }
-
-
 
 pub struct ConsoleLine {
     text: String,
@@ -78,7 +78,12 @@ impl Console {
         }
     }
 
-    fn add_line(&mut self, message: String, graphics_context: &mut gfx::GraphicsContext, color: gfx::Color) {
+    fn add_line(
+        &mut self,
+        message: String,
+        graphics_context: &mut gfx::GraphicsContext,
+        color: gfx::Color,
+    ) {
         //add a line
         let mut line = ConsoleLine::new(graphics_context, message);
         line.sprite.color = color;
@@ -142,11 +147,11 @@ impl ui_manager::ModuleTrait for Console {
                 ConsoleMessageType::Warning(message) => {
                     color = gfx::Color::new(200, 200, 0, 255);
                     message
-                },
+                }
                 ConsoleMessageType::Error(message) => {
                     color = gfx::Color::new(200, 0, 0, 255);
                     message
-                },
+                }
             };
 
             self.add_line(format_timestamp(message), graphics_context, color);
@@ -170,19 +175,28 @@ impl ui_manager::ModuleTrait for Console {
             .on_event(event, graphics_context, Some(&self.container));
         match event {
             gfx::Event::MouseScroll(scroll) => {
-                self.scroll += scroll * self.text_lines.first().map_or_else(|| 0.0, |line| line.sprite.texture.get_texture_size().1 + gfx::SPACING / 2.0);
+                self.scroll += scroll
+                    * self.text_lines.first().map_or_else(
+                        || 0.0,
+                        |line| line.sprite.texture.get_texture_size().1 + gfx::SPACING / 2.0,
+                    );
                 self.scroll = self.scroll.max(0.0);
                 self.position_lines();
             }
             gfx::Event::KeyPress(key, _repeat) => {
-                if matches!(key, gfx::Key::Enter) && self.input.selected && !self.input.text.is_empty() {
+                if matches!(key, gfx::Key::Enter)
+                    && self.input.selected
+                    && !self.input.text.is_empty()
+                {
                     send_to_srv(
                         &UiMessageType::UiToSrvConsoleMessage(self.input.get_text().to_owned()),
                         &self.sender,
                     );
-                    self.add_line(format_timestamp(
-                        &format!("[console] {}", self.input.text.clone())
-                    ), graphics_context, gfx::Color::new(200, 200, 200, 255));
+                    self.add_line(
+                        format_timestamp(&format!("[console] {}", self.input.text.clone())),
+                        graphics_context,
+                        gfx::Color::new(200, 200, 200, 255),
+                    );
                     self.input.set_text(String::new());
                 }
             }

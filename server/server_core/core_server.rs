@@ -131,10 +131,9 @@ impl Server {
         self.send_to_ui(&UiMessageType::ServerState(self.state));
         // start server loop
         self.print_to_console(
-            &format!("server started in {}ms",
-                     timer.elapsed().as_millis()
-            ),
-            0);
+            &format!("server started in {}ms", timer.elapsed().as_millis()),
+            0,
+        );
         status_text
             .lock()
             .unwrap_or_else(PoisonError::into_inner)
