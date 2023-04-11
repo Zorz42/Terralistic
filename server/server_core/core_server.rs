@@ -14,7 +14,7 @@ use crate::server::server_core::entities::ServerEntities;
 use crate::server::server_core::items::ServerItems;
 use crate::server::server_core::networking::{DisconnectEvent, NewConnectionEvent};
 use crate::server::server_core::players::ServerPlayers;
-use crate::server::server_ui::{PlayerEventType, ServerState, UiMessageType};
+use crate::server::server_ui::{ConsoleMessageType, PlayerEventType, ServerState, UiMessageType};
 
 use super::blocks::ServerBlocks;
 use super::mod_manager::ServerModManager;
@@ -77,7 +77,7 @@ impl Server {
         mods_serialized: Vec<Vec<u8>>,
         world_path: &Path,
     ) -> Result<()> {
-        self.print_to_console("Starting server...");
+        self.print_to_console("Starting server...", 0);
         let timer = std::time::Instant::now();
         *status_text.lock().unwrap_or_else(PoisonError::into_inner) = "Starting server".to_owned();
         self.state = ServerState::Starting;
@@ -102,7 +102,7 @@ impl Server {
 
         self.state = ServerState::InitMods;
         self.send_to_ui(&UiMessageType::ServerState(self.state));
-        self.print_to_console("initializing mods");
+        self.print_to_console("initializing mods", 0);
         *status_text.lock().unwrap_or_else(PoisonError::into_inner) =
             "Initializing mods".to_owned();
         self.mods.init()?;
@@ -110,7 +110,7 @@ impl Server {
         if world_path.exists() {
             self.state = ServerState::LoadingWorld;
             self.send_to_ui(&UiMessageType::ServerState(self.state));
-            self.print_to_console("loading world");
+            self.print_to_console("loading world", 0);
             *status_text.lock().unwrap_or_else(PoisonError::into_inner) =
                 "Loading world".to_owned();
             self.load_world(world_path)?;
@@ -130,10 +130,11 @@ impl Server {
         self.state = ServerState::Running;
         self.send_to_ui(&UiMessageType::ServerState(self.state));
         // start server loop
-        self.print_to_console(&format!(
-            "server started in {}ms",
-            timer.elapsed().as_millis()
-        ));
+        self.print_to_console(
+            &format!("server started in {}ms",
+                     timer.elapsed().as_millis()
+            ),
+            0);
         status_text
             .lock()
             .unwrap_or_else(PoisonError::into_inner)
@@ -202,12 +203,12 @@ impl Server {
 
         self.state = ServerState::Stopping;
         self.send_to_ui(&UiMessageType::ServerState(self.state));
-        self.print_to_console("saving world");
+        self.print_to_console("saving world", 0);
         *status_text.lock().unwrap_or_else(PoisonError::into_inner) = "Saving world".to_owned();
 
         self.save_world(world_path)?;
 
-        self.print_to_console("stopping server");
+        self.print_to_console("stopping server", 0);
         *status_text.lock().unwrap_or_else(PoisonError::into_inner) = "Stopping server".to_owned();
 
         self.state = ServerState::Stopped;
@@ -216,7 +217,7 @@ impl Server {
             .lock()
             .unwrap_or_else(PoisonError::into_inner)
             .clear();
-        self.print_to_console("server stopped.");
+        self.print_to_console("server stopped.", 0);
         Ok(())
     }
 
@@ -228,7 +229,7 @@ impl Server {
                     .decompress_vec(&data)
                     .unwrap_or_default();
                 let message = deserialize::<UiMessageType>(&data);
-                if let Ok(UiMessageType::ConsoleMessage(message)) = message {
+                if let Ok(UiMessageType::UiToSrvConsoleMessage(message)) = message {
                     println!("{message}");
                 }
             }
@@ -323,10 +324,23 @@ impl Server {
     }
 
     //prints to the terminal the server was started in and sends it to the ui
-    fn print_to_console(&self, text: &str) {
-        println!("{text}");
+    fn print_to_console(&self, text: &str, warn_level: u8) {
+        let formatted_text;
+        if warn_level == 0 {
+            formatted_text = format!("[INFO] {}", text);
+        } else if warn_level == 1 {
+            formatted_text = format!("[WARNING] {}", text);
+        } else {
+            formatted_text = format!("[ERROR] {}", text);
+        }
+        println!("{formatted_text}");
+        let text_with_type = match warn_level {
+            0 => ConsoleMessageType::Info(formatted_text),
+            1 => ConsoleMessageType::Warning(formatted_text),
+            _ => ConsoleMessageType::Error(formatted_text),
+        };
         send_to_ui(
-            &UiMessageType::ConsoleMessage(text.to_owned()),
+            &UiMessageType::SrvToUiConsoleMessage(text_with_type),
             &self.ui_event_sender,
         );
     }

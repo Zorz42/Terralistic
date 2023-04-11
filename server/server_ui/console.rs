@@ -1,8 +1,22 @@
 use crate::libraries::graphics as gfx;
-use crate::server::server_ui::{UiMessageType, EDGE_SPACING};
+use crate::server::server_ui::{UiMessageType, EDGE_SPACING, ConsoleMessageType};
 use std::sync::mpsc::Sender;
 
 use super::ui_manager;
+
+//this function formats the string to add the timestamp
+fn format_timestamp(message: &String) -> String {
+    let timestamp = chrono::Local::now().naive_local().timestamp();
+    let timestamp = chrono::NaiveDateTime::from_timestamp_opt(timestamp, 0);
+    format!(
+        "[{}] {}",
+        timestamp
+            .map_or_else(|| "???".to_string(), |time| time.format("%m-%d %H:%M:%S").to_string()),
+        message
+    )
+}
+
+
 
 pub struct ConsoleLine {
     text: String,
@@ -64,9 +78,10 @@ impl Console {
         }
     }
 
-    fn add_line(&mut self, message: String, graphics_context: &mut gfx::GraphicsContext) {
+    fn add_line(&mut self, message: String, graphics_context: &mut gfx::GraphicsContext, color: gfx::Color) {
         //add a line
-        let line = ConsoleLine::new(graphics_context, message);
+        let mut line = ConsoleLine::new(graphics_context, message);
+        line.sprite.color = color;
         self.text_lines.push(line);
         self.position_lines();
     }
@@ -74,7 +89,10 @@ impl Console {
     fn position_lines(&mut self) {
         let max_y = -self.input.pos.1 - self.input.get_size().1 - gfx::SPACING / 2.0 + 1.0;
         let min_y = -self.container.rect.size.1 - max_y;
-        let offset = line.sprite.texture.get_texture_size().1 + gfx::SPACING / 2.0;
+        let offset = self.text_lines.first().map_or_else(
+            || 0.0,
+            |line| line.sprite.texture.get_texture_size().1 + gfx::SPACING / 2.0,
+        );
         let mut y = -self.input.pos.1 - self.input.get_size().1 - gfx::SPACING / 2.0;
         for line in self.text_lines.iter_mut().rev() {
             line.sprite.pos.1 = y + self.scroll;
@@ -116,8 +134,22 @@ impl ui_manager::ModuleTrait for Console {
         message: &UiMessageType,
         graphics_context: &mut gfx::GraphicsContext,
     ) {
-        if let UiMessageType::ConsoleMessage(message) = message {
-            self.add_line(message.clone(), graphics_context);
+        if let UiMessageType::SrvToUiConsoleMessage(message) = message {
+            //extract the string from the message enum
+            let mut color = gfx::Color::new(200, 200, 200, 255);
+            let message = match message {
+                ConsoleMessageType::Info(message) => message,
+                ConsoleMessageType::Warning(message) => {
+                    color = gfx::Color::new(200, 200, 0, 255);
+                    message
+                },
+                ConsoleMessageType::Error(message) => {
+                    color = gfx::Color::new(200, 0, 0, 255);
+                    message
+                },
+            };
+
+            self.add_line(format_timestamp(message), graphics_context, color);
         }
     }
 
@@ -143,12 +175,14 @@ impl ui_manager::ModuleTrait for Console {
                 self.position_lines();
             }
             gfx::Event::KeyPress(key, _repeat) => {
-                if matches!(key, gfx::Key::Enter) && self.input.selected {
+                if matches!(key, gfx::Key::Enter) && self.input.selected && !self.input.text.is_empty() {
                     send_to_srv(
-                        &UiMessageType::ConsoleMessage(self.input.get_text().to_owned()),
+                        &UiMessageType::UiToSrvConsoleMessage(self.input.get_text().to_owned()),
                         &self.sender,
                     );
-                    self.add_line(self.input.text.clone(), graphics_context);
+                    self.add_line(format_timestamp(
+                        &format!("[console] {}", self.input.text.clone())
+                    ), graphics_context, gfx::Color::new(200, 200, 200, 255));
                     self.input.set_text(String::new());
                 }
             }
