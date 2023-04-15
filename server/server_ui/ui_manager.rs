@@ -7,7 +7,6 @@ use std::sync::mpsc::{Receiver, Sender};
 use std::time;
 
 use crate::libraries::graphics::Event;
-use bincode::deserialize;
 
 use crate::libraries::graphics as gfx;
 use crate::server::server_ui::player_list;
@@ -40,7 +39,7 @@ struct ModuleTreeNode {
 
 pub struct UiManager {
     graphics_context: gfx::GraphicsContext,
-    server_message_receiver: Receiver<Vec<u8>>,
+    server_message_receiver: Receiver<UiMessageType>,
     server_message_sender: Sender<Vec<u8>>,
     modules: Vec<Box<dyn ModuleTrait>>,
     save_path: PathBuf,
@@ -50,7 +49,7 @@ impl UiManager {
     #[must_use]
     pub fn new(
         graphics_context: gfx::GraphicsContext,
-        event_receiver: Receiver<Vec<u8>>,
+        event_receiver: Receiver<UiMessageType>,
         event_sender: Sender<Vec<u8>>,
         path: PathBuf,
     ) -> Self {
@@ -106,18 +105,12 @@ impl UiManager {
             self.graphics_context.renderer.handle_window_resize();
 
             //goes through the messages received from the server
-            while let Ok(data) = self.server_message_receiver.try_recv() {
-                let data = snap::raw::Decoder::new()
-                    .decompress_vec(&data)
-                    .unwrap_or_default();
-                let message = deserialize::<UiMessageType>(&data);
-                if let Ok(message) = message {
-                    if let UiMessageType::ServerState(state) = message {
-                        server_state = state;
-                    }
-                    for module in &mut self.modules {
-                        module.on_server_message(&message, &mut self.graphics_context);
-                    }
+            while let Ok(message) = self.server_message_receiver.try_recv() {
+                if let UiMessageType::ServerState(state) = message {
+                    server_state = state;
+                }
+                for module in &mut self.modules {
+                    module.on_server_message(&message, &mut self.graphics_context);
                 }
             }
 

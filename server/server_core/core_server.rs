@@ -36,7 +36,7 @@ pub struct Server {
     entities: ServerEntities,
     items: ServerItems,
     players: ServerPlayers,
-    ui_event_sender: Option<Sender<Vec<u8>>>,
+    ui_event_sender: Option<Sender<UiMessageType>>,
     #[allow(dead_code)] //TODO: remove this after the Console is fully implemented
     ui_event_receiver: Option<Receiver<Vec<u8>>>,
 }
@@ -45,7 +45,7 @@ impl Server {
     #[must_use]
     pub fn new(
         port: u16,
-        ui_event_sender: Option<Sender<Vec<u8>>>,
+        ui_event_sender: Option<Sender<UiMessageType>>,
         ui_event_receiver: Option<Receiver<Vec<u8>>>,
     ) -> Self {
         let blocks = ServerBlocks::new();
@@ -81,7 +81,7 @@ impl Server {
         let timer = std::time::Instant::now();
         *status_text.lock().unwrap_or_else(PoisonError::into_inner) = "Starting server".to_owned();
         self.state = ServerState::Starting;
-        self.send_to_ui(&UiMessageType::ServerState(self.state));
+        self.send_to_ui(UiMessageType::ServerState(self.state));
 
         let mut mods = Vec::new();
         for game_mod in mods_serialized {
@@ -101,7 +101,7 @@ impl Server {
         generator.init(&mut self.mods.mod_manager)?;
 
         self.state = ServerState::InitMods;
-        self.send_to_ui(&UiMessageType::ServerState(self.state));
+        self.send_to_ui(UiMessageType::ServerState(self.state));
         self.print_to_console("initializing mods", 0);
         *status_text.lock().unwrap_or_else(PoisonError::into_inner) =
             "Initializing mods".to_owned();
@@ -109,14 +109,14 @@ impl Server {
 
         if world_path.exists() {
             self.state = ServerState::LoadingWorld;
-            self.send_to_ui(&UiMessageType::ServerState(self.state));
+            self.send_to_ui(UiMessageType::ServerState(self.state));
             self.print_to_console("loading world", 0);
             *status_text.lock().unwrap_or_else(PoisonError::into_inner) =
                 "Loading world".to_owned();
             self.load_world(world_path)?;
         } else {
             self.state = ServerState::GeneratingWorld;
-            self.send_to_ui(&UiMessageType::ServerState(self.state));
+            self.send_to_ui(UiMessageType::ServerState(self.state));
             generator.generate(
                 (&mut *self.blocks.get_blocks(), &mut self.walls.walls),
                 &mut self.mods.mod_manager,
@@ -128,7 +128,7 @@ impl Server {
         }
 
         self.state = ServerState::Running;
-        self.send_to_ui(&UiMessageType::ServerState(self.state));
+        self.send_to_ui(UiMessageType::ServerState(self.state));
         // start server loop
         self.print_to_console(
             &format!("server started in {}ms", timer.elapsed().as_millis()),
@@ -176,7 +176,7 @@ impl Server {
                 self.entities.sync_entities(&mut self.networking)?;
                 sec_counter = std::time::Instant::now();
 
-                self.send_to_ui(&UiMessageType::MsptUpdate(
+                self.send_to_ui(UiMessageType::MsptUpdate(
                     //send microseconds per tick each second
                     micros / ticks,
                 ));
@@ -201,7 +201,7 @@ impl Server {
         self.handle_events()?;
 
         self.state = ServerState::Stopping;
-        self.send_to_ui(&UiMessageType::ServerState(self.state));
+        self.send_to_ui(UiMessageType::ServerState(self.state));
         self.print_to_console("saving world", 0);
         *status_text.lock().unwrap_or_else(PoisonError::into_inner) = "Saving world".to_owned();
 
@@ -211,7 +211,7 @@ impl Server {
         *status_text.lock().unwrap_or_else(PoisonError::into_inner) = "Stopping server".to_owned();
 
         self.state = ServerState::Stopped;
-        self.send_to_ui(&UiMessageType::ServerState(self.state));
+        self.send_to_ui(UiMessageType::ServerState(self.state));
         status_text
             .lock()
             .unwrap_or_else(PoisonError::into_inner)
@@ -236,21 +236,15 @@ impl Server {
 
         while let Some(event) = self.events.pop_event() {
             if let Some(disconnect) = event.downcast::<DisconnectEvent>() {
-                send_to_ui(
-                    &UiMessageType::PlayerEvent(PlayerEventType::Leave(
-                        disconnect.conn.address.addr(),
-                    )),
-                    &self.ui_event_sender,
-                );
+                self.send_to_ui(UiMessageType::PlayerEvent(PlayerEventType::Leave(
+                    disconnect.conn.address.addr(),
+                )));
             }
             if let Some(connect) = event.downcast::<NewConnectionEvent>() {
-                send_to_ui(
-                    &UiMessageType::PlayerEvent(PlayerEventType::Join((
-                        connect.name.clone(),
-                        connect.conn.address.addr(),
-                    ))),
-                    &self.ui_event_sender,
-                );
+                self.send_to_ui(UiMessageType::PlayerEvent(PlayerEventType::Join((
+                    connect.name.clone(),
+                    connect.conn.address.addr(),
+                ))));
             }
             self.mods.on_event(&event, &mut self.networking)?;
             self.blocks.on_event(
@@ -318,7 +312,7 @@ impl Server {
         Ok(())
     }
 
-    fn send_to_ui(&self, data: &UiMessageType) {
+    fn send_to_ui(&self, data: UiMessageType) {
         send_to_ui(data, &self.ui_event_sender);
     }
 
@@ -338,20 +332,13 @@ impl Server {
             1 => ConsoleMessageType::Warning(formatted_text),
             _ => ConsoleMessageType::Error(formatted_text),
         };
-        send_to_ui(
-            &UiMessageType::SrvToUiConsoleMessage(text_with_type),
-            &self.ui_event_sender,
-        );
+        self.send_to_ui(UiMessageType::SrvToUiConsoleMessage(text_with_type));
     }
 }
 
 //sends any data to the ui if the server was started without nogui flag
-pub fn send_to_ui(data: &UiMessageType, ui_event_sender: &Option<Sender<Vec<u8>>>) {
+pub fn send_to_ui(data: UiMessageType, ui_event_sender: &Option<Sender<UiMessageType>>) {
     if let Some(sender) = ui_event_sender {
-        let data = &bincode::serialize(&data).unwrap_or_default();
-        let data = snap::raw::Encoder::new()
-            .compress_vec(data)
-            .unwrap_or_default();
         let result = sender.send(data);
 
         if let Err(_e) = result {

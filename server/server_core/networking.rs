@@ -75,7 +75,7 @@ impl ServerNetworking {
         self.connection_names.get(conn).unwrap_or(&unknown).clone()
     }
 
-    pub fn init(&mut self, ui_event_sender: Option<Sender<Vec<u8>>>) {
+    pub fn init(&mut self, ui_event_sender: Option<Sender<UiMessageType>>) {
         // start listening for connections
         let (event_sender, event_receiver) = mpsc::channel();
         let (packet_sender, packet_receiver) = mpsc::channel();
@@ -102,7 +102,7 @@ impl ServerNetworking {
         packet_receiver: &Receiver<(Vec<u8>, Connection)>,
         is_running: &Arc<AtomicBool>,
         server_port: u16,
-        ui_event_sender: &Option<Sender<Vec<u8>>>,
+        ui_event_sender: &Option<Sender<UiMessageType>>,
     ) -> Result<()> {
         let (mut handler, listener) = node::split::<()>();
 
@@ -119,14 +119,14 @@ impl ServerNetworking {
                 NetEvent::Accepted(peer, _) => {
                     println!("[{peer}] connected");
                     send_to_ui(
-                        &UiMessageType::SrvToUiConsoleMessage(ConsoleMessageType::Info(format!("[INFO] [{peer}] connected"))),
+                        UiMessageType::SrvToUiConsoleMessage(ConsoleMessageType::Info(format!("[INFO] [{peer}] connected"))),
                         ui_event_sender,
                     );
                 }
                 NetEvent::Disconnected(peer) => {
                     println!("[{peer}] disconnected");
                     send_to_ui(
-                        &UiMessageType::SrvToUiConsoleMessage(ConsoleMessageType::Info(format!("[INFO] [{peer}] disconnected"))),
+                        UiMessageType::SrvToUiConsoleMessage(ConsoleMessageType::Info(format!("[INFO] [{peer}] disconnected"))),
                         ui_event_sender,
                     );
                     match event_sender.send(Event::new(DisconnectEvent {
@@ -143,7 +143,7 @@ impl ServerNetworking {
                     if let Some(packet) = packet.try_deserialize::<NamePacket>() {
                         println!("[{:?}] joined", packet.name);
                         send_to_ui(
-                            &UiMessageType::SrvToUiConsoleMessage(ConsoleMessageType::Info(format!("[{:?}] joined", packet.name))),
+                            UiMessageType::SrvToUiConsoleMessage(ConsoleMessageType::Info(format!("[{:?}] joined", packet.name))),
                             ui_event_sender,
                         );
                         match event_sender.send(Event::new(NewConnectionEvent {
@@ -154,7 +154,7 @@ impl ServerNetworking {
                             Err(e) => {
                                 println!("Failed to send new connection event: {e}");
                                 send_to_ui(
-                                    &UiMessageType::SrvToUiConsoleMessage(ConsoleMessageType::Error(format!("[ERROR] Failed to send new connection event: {e}"))),
+                                    UiMessageType::SrvToUiConsoleMessage(ConsoleMessageType::Error(format!("[ERROR] Failed to send new connection event: {e}"))),
                                     ui_event_sender,
                                 );
                             }
@@ -169,7 +169,7 @@ impl ServerNetworking {
                             Err(e) => {
                                 println!("Failed to send packet from client event: {e}");
                                 send_to_ui(
-                                    &UiMessageType::SrvToUiConsoleMessage(ConsoleMessageType::Error(format!("[ERROR] Failed to send packet from client event: {e}"))),
+                                    UiMessageType::SrvToUiConsoleMessage(ConsoleMessageType::Error(format!("[ERROR] Failed to send packet from client event: {e}"))),
                                     ui_event_sender,
                                 );
                             }
