@@ -46,6 +46,7 @@ mountains = 0
 
 -- global variables for item IDs
 dirt_item = 0
+hatchet_item = 0
 
 -- This function is called when the mod is loaded.
 function init()
@@ -129,8 +130,14 @@ function init()
     item_type["max_stack"] = 99
     item_type["places_block"] = dirt_block
     dirt_item = terralistic_register_item_type(item_type)
-
     terralistic_set_block_drop(dirt_block, dirt_item, 1)
+
+    item_type = terralistic_new_item_type()
+    item_type["name"] = "hatchet"
+    item_type["display_name"] = "Hatchet"
+    item_type["max_stack"] = 1
+    hatchet_item = terralistic_register_item_type(item_type)
+    terralistic_set_block_drop(grass_block, hatchet_item, 1)
 
     terralistic_print("base_game mod loaded.")
 end

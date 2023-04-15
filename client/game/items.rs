@@ -1,7 +1,7 @@
 use crate::client::game::camera::Camera;
 use crate::libraries::events::{Event, EventManager};
 use crate::libraries::graphics as gfx;
-use crate::libraries::graphics::{FloatPos, FloatSize};
+use crate::libraries::graphics::FloatPos;
 use crate::shared::blocks::{RENDER_BLOCK_WIDTH, RENDER_SCALE};
 use crate::shared::entities::{Entities, PositionComponent};
 use crate::shared::items::{ItemComponent, ItemId, ItemSpawnPacket, Items};
@@ -73,17 +73,19 @@ impl ClientItems {
                 .atlas
                 .get_rect(&item.get_item_type())
                 .ok_or_else(|| anyhow!("Item not found in atlas"))?;
-            src_rect.pos.0 += 1.0;
-            src_rect.pos.1 += 2.0;
-            src_rect.size = FloatSize(8.0, 8.0);
+            src_rect.size.0 /= 2.0;
             let top_left = camera.get_top_left(graphics);
 
             self.atlas.get_texture().render(
                 &graphics.renderer,
                 RENDER_SCALE,
                 FloatPos(
-                    position.x() * RENDER_BLOCK_WIDTH - top_left.0 * RENDER_BLOCK_WIDTH,
-                    position.y() * RENDER_BLOCK_WIDTH - top_left.1 * RENDER_BLOCK_WIDTH,
+                    position.x() * RENDER_BLOCK_WIDTH - top_left.0 * RENDER_BLOCK_WIDTH
+                        + 0.5 * RENDER_BLOCK_WIDTH
+                        - src_rect.size.0 / 2.0 * RENDER_SCALE,
+                    position.y() * RENDER_BLOCK_WIDTH - top_left.1 * RENDER_BLOCK_WIDTH
+                        + 0.5 * RENDER_BLOCK_WIDTH
+                        - src_rect.size.1 / 2.0 * RENDER_SCALE,
                 ),
                 Some(src_rect),
                 false,

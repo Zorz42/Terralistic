@@ -32,11 +32,9 @@ fn render_item_stack(
         let src_rect = items.get_atlas().get_rect(&item.item);
         if let Some(src_rect) = src_rect {
             let mut src_rect = *src_rect;
-            src_rect.pos.0 += 1.0;
-            src_rect.pos.1 += 2.0;
-            src_rect.size = FloatSize(8.0, 8.0);
+            src_rect.size.0 /= 2.0;
 
-            let scale = 4.0;
+            let scale = 3.0;
             let texture = items.get_atlas().get_texture();
             let item_pos = FloatPos(
                 pos.0 + INVENTORY_SLOT_SIZE / 2.0 - src_rect.size.0 / 2.0 * scale,
