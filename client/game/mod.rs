@@ -2,6 +2,7 @@ mod background;
 mod block_selector;
 mod blocks;
 mod camera;
+mod chat;
 pub mod core_client;
 mod debug_menu;
 mod entities;

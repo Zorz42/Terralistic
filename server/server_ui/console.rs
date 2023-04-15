@@ -186,14 +186,14 @@ impl ui_manager::ModuleTrait for Console {
             gfx::Event::KeyPress(key, _repeat) => {
                 if matches!(key, gfx::Key::Enter)
                     && self.input.selected
-                    && !self.input.text.is_empty()
+                    && !self.input.get_text().is_empty()
                 {
                     send_to_srv(
-                        &UiMessageType::UiToSrvConsoleMessage(self.input.get_text().to_owned()),
+                        &UiMessageType::UiToSrvConsoleMessage(self.input.get_text().clone()),
                         &self.sender,
                     );
                     self.add_line(
-                        format_timestamp(&format!("[console] {}", self.input.text.clone())),
+                        format_timestamp(&format!("[console] {}", self.input.get_text().clone())),
                         graphics_context,
                         gfx::Color::new(200, 200, 200, 255),
                     );

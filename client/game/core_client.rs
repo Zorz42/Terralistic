@@ -3,6 +3,7 @@ extern crate alloc;
 use alloc::sync::Arc;
 use std::sync::{Mutex, PoisonError};
 
+use crate::client::game::chat::ClientChat;
 use crate::client::game::debug_menu::DebugMenu;
 use anyhow::{bail, Result};
 
@@ -110,6 +111,7 @@ pub fn run_game(
     let mut pause_menu = PauseMenu::new();
     let mut debug_menu = DebugMenu::new();
     let mut framerate_measurer = FramerateMeasurer::new();
+    let mut chat = ClientChat::new(graphics);
 
     background.init()?;
     inventory.init();
@@ -123,6 +125,7 @@ pub fn run_game(
 
     pause_menu.init(graphics);
     debug_menu.init();
+    chat.init();
 
     // print the time it took to initialize
     println!("Game joined in {}ms", timer.elapsed().as_millis());
@@ -168,6 +171,7 @@ pub fn run_game(
         camera.render(graphics);
         block_selector.render(graphics, &mut networking, &camera)?;
         inventory.render(graphics, &items, &mut networking)?;
+        chat.render(graphics);
 
         pause_menu.render(graphics);
 
@@ -181,6 +185,9 @@ pub fn run_game(
         );
 
         while let Some(event) = events.pop_event() {
+            if chat.on_event(&event, graphics) {
+                continue;
+            }
             inventory.on_event(&event, &mut networking)?;
             mods.on_event(&event)?;
             blocks.on_event(&event, &mut events, &mut mods.mod_manager)?;

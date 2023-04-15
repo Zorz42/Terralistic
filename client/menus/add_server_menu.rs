@@ -61,7 +61,8 @@ fn server_exists(name: &str, servers_list: &Vec<ServerCard>) -> bool {
     false
 }
 
-/**this function runs the add server menu.*/
+/// this function runs the add server menu.
+#[allow(clippy::too_many_lines)]
 pub fn run_add_server_menu(
     graphics: &mut GraphicsContext,
     menu_back: &mut dyn BackgroundRect,
@@ -130,10 +131,10 @@ pub fn run_add_server_menu(
 
     //this is where the menu is drawn
     'render_loop: while graphics.renderer.is_window_open() {
-        add_button.disabled = server_name_input.text.is_empty()
-            || server_ip_input.text.is_empty()
-            || server_exists(&server_name_input.text, servers_list)
-            || !is_valid_ip(&server_ip_input.text);
+        add_button.disabled = server_name_input.get_text().is_empty()
+            || server_ip_input.get_text().is_empty()
+            || server_exists(server_name_input.get_text(), servers_list)
+            || !is_valid_ip(server_ip_input.get_text());
 
         while let Some(event) = graphics.renderer.get_event() {
             //sorts out the events
@@ -146,8 +147,12 @@ pub fn run_add_server_menu(
                             break 'render_loop;
                         }
                         if add_button.is_hovered(graphics, Some(&buttons_container)) {
-                            let (ip, port) = get_ip_port(&server_ip_input.text);
-                            return Some(ServerInfo::new(server_name_input.text.clone(), ip, port));
+                            let (ip, port) = get_ip_port(server_ip_input.get_text());
+                            return Some(ServerInfo::new(
+                                server_name_input.get_text().clone(),
+                                ip,
+                                port,
+                            ));
                         }
                     }
                     gfx::Key::Escape => {
@@ -160,8 +165,12 @@ pub fn run_add_server_menu(
                     }
                     gfx::Key::Enter => {
                         if !add_button.disabled {
-                            let (ip, port) = get_ip_port(&server_ip_input.text);
-                            return Some(ServerInfo::new(server_name_input.text.clone(), ip, port));
+                            let (ip, port) = get_ip_port(server_ip_input.get_text());
+                            return Some(ServerInfo::new(
+                                server_name_input.get_text().clone(),
+                                ip,
+                                port,
+                            ));
                         }
                     }
                     _ => {}

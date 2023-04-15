@@ -4,17 +4,14 @@ use crate::libraries::events::Event;
 use crate::libraries::graphics as gfx;
 use crate::libraries::graphics::{FloatPos, FloatSize};
 use crate::shared::blocks::{
-    BlockBreakStartPacket, BlockBreakStopPacket, BlockRightClickPacket,
-    ClientBlockBreakStartPacket, RENDER_BLOCK_WIDTH,
+    BlockBreakStopPacket, BlockRightClickPacket, ClientBlockBreakStartPacket, RENDER_BLOCK_WIDTH,
 };
 use crate::shared::packet::Packet;
 use anyhow::Result;
 
-/**
-Block selector is used to select a block.
-It draws a red rectangle around the block
-that is currently selected with the mouse.
- */
+/// Block selector is used to select a block.
+/// It draws a red rectangle around the block
+/// that is currently selected with the mouse.
 pub struct BlockSelector {
     prev_selected: (i32, i32),
     breaking: bool,
@@ -28,9 +25,7 @@ impl BlockSelector {
         }
     }
 
-    /**
-    This function gets the current block that is selected.
-     */
+    /// This function gets the current block that is selected.
     pub fn get_selected_block(graphics: &mut gfx::GraphicsContext, camera: &Camera) -> (i32, i32) {
         let mouse_x = graphics.renderer.get_mouse_pos().0;
         let mouse_y = graphics.renderer.get_mouse_pos().1;
@@ -44,9 +39,7 @@ impl BlockSelector {
         (block_x as i32, block_y as i32)
     }
 
-    /**
-    This function is called on every frame
-     */
+    /// This function is called on every frame
     pub fn render(
         &mut self,
         graphics: &mut gfx::GraphicsContext,
@@ -96,9 +89,7 @@ impl BlockSelector {
         Ok(())
     }
 
-    /**
-    This function is called on some event
-     */
+    /// This function is called on some event
     pub fn on_event(
         &mut self,
         graphics: &mut gfx::GraphicsContext,

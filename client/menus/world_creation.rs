@@ -93,10 +93,10 @@ pub fn run_world_creation(
             .data_dir()
             .join("Terralistic")
             .join("Worlds")
-            .join(world_name_input.text.clone() + ".world");
+            .join(world_name_input.get_text().clone() + ".world");
 
-        create_button.disabled = world_name_exists(worlds_list, &world_name_input.text)
-            || world_name_input.text.is_empty();
+        create_button.disabled = world_name_exists(worlds_list, world_name_input.get_text())
+            || world_name_input.get_text().is_empty();
 
         while let Some(event) = graphics.renderer.get_event() {
             //sorts out the events

@@ -29,7 +29,7 @@ pub struct TextInput {
     hint_color_progress: f32,
     timer: std::time::Instant,
     timer_counter: u32,
-    pub text: String,
+    text: String,
     text_texture: Texture,
     text_changed: bool,
     pub selected: bool,
@@ -111,7 +111,7 @@ impl TextInput {
 
     /// returns the text in the input box
     #[must_use]
-    pub fn get_text(&self) -> &str {
+    pub const fn get_text(&self) -> &String {
         &self.text
     }
 

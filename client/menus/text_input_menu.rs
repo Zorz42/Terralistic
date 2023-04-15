@@ -63,12 +63,12 @@ pub fn run_text_input_menu(
                             return None;
                         }
                         if confirm_button.is_hovered(graphics, Some(&buttons_container)) {
-                            return Some(input_field.text.clone());
+                            return Some(input_field.get_text().clone());
                         }
                     }
                     gfx::Key::Escape => return None,
                     gfx::Key::Enter => {
-                        return Some(input_field.text.clone());
+                        return Some(input_field.get_text().clone());
                     }
                     _ => {}
                 }

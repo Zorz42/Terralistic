@@ -18,7 +18,7 @@ pub struct Item {
 
 impl Item {
     #[must_use]
-    pub fn new() -> Self {
+    pub const fn new() -> Self {
         Self {
             name: String::new(),
             display_name: String::new(),

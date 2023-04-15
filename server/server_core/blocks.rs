@@ -50,6 +50,7 @@ impl ServerBlocks {
     }
 
     #[allow(clippy::too_many_arguments)]
+    #[allow(clippy::too_many_lines)]
     pub fn on_event(
         &mut self,
         event: &Event,
