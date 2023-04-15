@@ -154,7 +154,7 @@ impl Font {
             if let Some(char_surface) = self.font_surfaces.get(c as usize) {
                 if let Some(char_texture) = self.font_textures.get(c as usize) {
                     char_texture.render(&graphics.renderer, scale, pos, None, false, None);
-                    pos.0 += char_surface.get_size().0 as f32 * scale + CHAR_SPACING as f32;
+                    pos.0 += (char_surface.get_size().0 as i32 + CHAR_SPACING) as f32 * scale;
                     if c == ' ' {
                         pos.0 += SPACE_WIDTH as f32 * scale;
                     }

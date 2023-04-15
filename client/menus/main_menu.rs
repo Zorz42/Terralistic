@@ -40,7 +40,7 @@ pub fn run_main_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn Ba
     let mut debug_title = gfx::Sprite::new();
     debug_title.texture =
         gfx::Texture::load_from_surface(&graphics.font.create_text_surface("DEBUG MODE"));
-    debug_title.color = gfx::GREY;
+    debug_title.color = gfx::DARK_GREY;
     debug_title.orientation = gfx::TOP;
     debug_title.scale = 2.0;
     debug_title.pos.1 = SPACING / 4.0;
@@ -132,6 +132,7 @@ pub fn run_main_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn Ba
             button.render(graphics, Some(menu_back.get_back_rect_container()));
         }
 
+        #[cfg(debug_assertions)]
         debug_title.render(graphics, Some(menu_back.get_back_rect_container()));
         title.render(graphics, Some(menu_back.get_back_rect_container()));
         version.render(graphics, Some(menu_back.get_back_rect_container()));

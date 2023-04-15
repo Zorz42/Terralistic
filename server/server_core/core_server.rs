@@ -326,11 +326,11 @@ impl Server {
     fn print_to_console(&self, text: &str, warn_level: u8) {
         let formatted_text;
         if warn_level == 0 {
-            formatted_text = format!("[INFO] {}", text);
+            formatted_text = format!("[INFO] {text}");
         } else if warn_level == 1 {
-            formatted_text = format!("[WARNING] {}", text);
+            formatted_text = format!("[WARNING] {text}");
         } else {
-            formatted_text = format!("[ERROR] {}", text);
+            formatted_text = format!("[ERROR] {text}");
         }
         println!("{formatted_text}");
         let text_with_type = match warn_level {

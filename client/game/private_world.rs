@@ -1,4 +1,3 @@
-use super::core_client::Game;
 use crate::client::menus::{run_loading_screen, BackgroundRect};
 use crate::libraries::graphics::GraphicsContext;
 use crate::server::server_core::Server;
@@ -8,6 +7,7 @@ use core::sync::atomic::{AtomicBool, Ordering};
 use std::path::Path;
 use std::sync::{Mutex, PoisonError};
 extern crate alloc;
+use crate::client::game::core_client::run_game;
 use alloc::sync::Arc;
 
 /// # Errors
@@ -19,8 +19,6 @@ pub fn run_private_world(
 ) -> Result<()> {
     let server_running = Arc::new(AtomicBool::new(true));
     let server_running2 = server_running.clone();
-
-    let mut game = Game::new(SINGLEPLAYER_PORT, String::from("127.0.0.1"), "_");
 
     let loading_text = Arc::new(Mutex::new("Loading".to_owned()));
     let loading_text2 = loading_text.clone();
@@ -50,7 +48,13 @@ pub fn run_private_world(
     run_loading_screen(graphics, menu_back, &loading_text);
 
     if server_running.load(Ordering::Relaxed) {
-        game.run(graphics, menu_back)?;
+        run_game(
+            graphics,
+            menu_back,
+            SINGLEPLAYER_PORT,
+            String::from("127.0.0.1"),
+            "_",
+        )?;
 
         // stop server
         server_running.store(false, Ordering::Relaxed);

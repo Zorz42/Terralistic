@@ -1,12 +1,12 @@
 use super::background_rect::BackgroundRect;
 use super::{run_add_server_menu, run_choice_menu};
-use crate::client::game::core_client::Game;
 
 use crate::libraries::graphics as gfx;
 use crate::libraries::graphics::{FloatPos, FloatSize, GraphicsContext, IntSize};
 use directories::BaseDirs;
 use serde_derive::{Deserialize, Serialize};
 
+use crate::client::game::core_client::run_game;
 use crate::client::menus::run_text_input_menu;
 use std::path::{Path, PathBuf};
 
@@ -339,12 +339,13 @@ fn update_elements(
                         ) {
                             let name = run_text_input_menu("Enter your name", graphics, menu_back);
                             if let Some(name) = name {
-                                let mut game = Game::new(
+                                let game_result = run_game(
+                                    graphics,
+                                    menu_back,
                                     server.server_info.port,
                                     server.server_info.ip.clone(),
                                     &name,
                                 );
-                                let game_result = game.run(graphics, menu_back);
                                 if let Err(error) = game_result {
                                     println!("Game error: {error}");
                                 }

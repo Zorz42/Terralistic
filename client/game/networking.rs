@@ -15,17 +15,13 @@ use crate::libraries::events::EventManager;
 use crate::shared::packet::{Packet, WelcomeCompletePacket};
 use crate::shared::players::NamePacket;
 
-/**
-This event is called, when the client has received a welcome packet.
- */
+/// This event is called, when the client has received a welcome packet.
 pub struct WelcomePacketEvent {
     pub packet: Packet,
 }
 
-/**
-This handles all the networking for the client.
-client connects to a server and sends and receives packets.
- */
+/// This handles all the networking for the client.
+/// client connects to a server and sends and receives packets.
 pub struct ClientNetworking {
     server_port: u16,
     server_address: String,
