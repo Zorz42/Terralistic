@@ -4,7 +4,8 @@ use crate::libraries::events::Event;
 use crate::libraries::graphics as gfx;
 use crate::libraries::graphics::{FloatPos, FloatSize};
 use crate::shared::blocks::{
-    BlockBreakStartPacket, BlockBreakStopPacket, BlockRightClickPacket, RENDER_BLOCK_WIDTH,
+    BlockBreakStartPacket, BlockBreakStopPacket, BlockRightClickPacket,
+    ClientBlockBreakStartPacket, RENDER_BLOCK_WIDTH,
 };
 use crate::shared::packet::Packet;
 use anyhow::Result;
@@ -77,7 +78,10 @@ impl BlockSelector {
     fn start_breaking(&mut self, networking: &mut ClientNetworking, pos: (i32, i32)) -> Result<()> {
         self.breaking = true;
 
-        networking.send_packet(Packet::new(BlockBreakStartPacket { x: pos.0, y: pos.1 })?)?;
+        networking.send_packet(Packet::new(ClientBlockBreakStartPacket {
+            x: pos.0,
+            y: pos.1,
+        })?)?;
         Ok(())
     }
 

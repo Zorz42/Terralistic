@@ -180,7 +180,7 @@ impl ClientBlocks {
         } else if let Some(event) = event.downcast::<Packet>() {
             if let Some(packet) = event.try_deserialize::<BlockBreakStartPacket>() {
                 self.get_blocks()
-                    .start_breaking_block(events, packet.x, packet.y)?;
+                    .start_breaking_block(events, packet.x, packet.y, packet.tool, packet.tool_power)?;
             } else if let Some(packet) = event.try_deserialize::<BlockBreakStopPacket>() {
                 self.get_blocks()
                     .stop_breaking_block(events, packet.x, packet.y)?;

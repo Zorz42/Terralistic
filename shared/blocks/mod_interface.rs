@@ -1,6 +1,6 @@
 extern crate alloc;
 use crate::libraries::events::{Event, EventManager};
-use crate::shared::blocks::{Block, BlockBreakEvent, BlockId, Blocks};
+use crate::shared::blocks::{Block, BlockBreakEvent, BlockId, Blocks, Tool, ToolId};
 use crate::shared::mod_manager::ModManager;
 use alloc::sync::Arc;
 use anyhow::Result;
@@ -104,6 +104,16 @@ pub fn init_blocks_mod_interface(
         Ok(block_id)
     })?;
 
+    // a method to register a new tool
+    blocks2 = blocks.clone();
+    mods.add_global_function("register_tool", move |_lua, name: String| {
+        let mut block_types = blocks2.lock().unwrap_or_else(PoisonError::into_inner);
+        let mut tool = Tool::new();
+        tool.name = name;
+        let tool_id = block_types.register_new_tool_type(tool);
+        Ok(tool_id)
+    })?;
+
     Ok(receiver)
 }
 
@@ -170,6 +180,19 @@ impl rlua::UserData for Block {
                     };
                     Ok(())
                 }
+                rlua::Value::UserData(value) => {
+                    match key.as_str() {
+                        "effective_tool" => {
+                            this.effective_tool = Some(*value.borrow::<ToolId>()?);
+                        }
+                        _ => {
+                            return Err(rlua::Error::RuntimeError(format!(
+                                "{key} is not a valid field of Block for userdata value"
+                            )))
+                        }
+                    };
+                    Ok(())
+                }
                 _ => Err(rlua::Error::RuntimeError(
                     "Not a valid value type of BlockType".to_owned(),
                 )),
@@ -177,3 +200,6 @@ impl rlua::UserData for Block {
         );
     }
 }
+
+/// make `ToolId` Lua compatible
+impl rlua::UserData for ToolId {}

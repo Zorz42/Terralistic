@@ -48,8 +48,14 @@ mountains = 0
 dirt_item = 0
 hatchet_item = 0
 
+-- global variables for tool IDs
+axe_tool = 0
+
 -- This function is called when the mod is loaded.
 function init()
+    -- register tools
+    axe_tool = terralistic_register_tool("axe")
+
     -- register blocks
     air = terralistic_get_block_id_by_name("air")
 
@@ -90,6 +96,8 @@ function init()
     block_type["break_time"] = 1000
     block_type["ghost"] = true
     block_type["transparent"] = true
+    block_type["effective_tool"] = axe_tool
+    block_type["required_tool_power"] = 10
     wood_block = terralistic_register_block_type(block_type)
 
     -- BRANCH
@@ -136,6 +144,8 @@ function init()
     item_type["name"] = "hatchet"
     item_type["display_name"] = "Hatchet"
     item_type["max_stack"] = 1
+    item_type["tool"] = axe_tool
+    item_type["tool_power"] = 10
     hatchet_item = terralistic_register_item_type(item_type)
     terralistic_set_block_drop(grass_block, hatchet_item, 1)
 

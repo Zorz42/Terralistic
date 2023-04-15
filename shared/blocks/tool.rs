@@ -5,7 +5,7 @@ use serde_derive::{Deserialize, Serialize};
 /// Struct that contains all the information about a tool
 pub struct Tool {
     pub name: String,
-    pub id: i32,
+    pub id: ToolId,
 }
 
 impl Default for Tool {
@@ -19,7 +19,7 @@ impl Tool {
     pub const fn new() -> Self {
         Self {
             name: String::new(),
-            id: -1,
+            id: ToolId::new(),
         }
     }
 }
@@ -46,7 +46,7 @@ impl Blocks {
     /// Adds a new tool type to the world.
     pub fn register_new_tool_type(&mut self, mut tool: Tool) -> ToolId {
         let id = self.tool_types.len() as i32;
-        tool.id = id;
+        tool.id = ToolId { id };
         self.tool_types.push(tool);
         ToolId { id }
     }
@@ -55,7 +55,7 @@ impl Blocks {
     pub fn get_tool_id_by_name(&mut self, name: &String) -> Option<ToolId> {
         for tool_type in &self.tool_types {
             if tool_type.name == *name {
-                return Some(ToolId { id: tool_type.id });
+                return Some(tool_type.id);
             }
         }
         None
@@ -63,8 +63,6 @@ impl Blocks {
 
     /// Returns the reference to the Tool with the specified id.
     pub fn get_tool_by_id(&mut self, id: ToolId) -> Option<&Tool> {
-        self.tool_types
-            .iter()
-            .find(|&tool_type| tool_type.id == id.id)
+        self.tool_types.iter().find(|&tool_type| tool_type.id == id)
     }
 }

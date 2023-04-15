@@ -1,13 +1,11 @@
-use super::tool::Tool;
 use super::BlockId;
-extern crate alloc;
-use alloc::sync::Arc;
+use crate::shared::blocks::ToolId;
 
 /// Includes properties for each block type
 #[derive(Clone)]
 pub struct Block {
     // tool that can break the block, none means it can be broken by hand or any tool
-    pub effective_tool: Option<Arc<Tool>>,
+    pub effective_tool: Option<ToolId>,
     // how powerful the tool needs to be
     pub required_tool_power: i32,
     // ghost blocks are blocks that are not solid and can be walked through

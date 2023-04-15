@@ -1,7 +1,6 @@
 use crate::shared::blocks::{BlockId, ToolId};
 use crate::shared::items::ItemId;
 use crate::shared::walls::WallId;
-use std::collections::HashMap;
 
 #[derive(Clone)]
 pub struct Item {
@@ -10,7 +9,8 @@ pub struct Item {
     pub max_stack: i32,
     pub places_block: Option<BlockId>,
     pub places_wall: Option<WallId>,
-    pub tool_powers: HashMap<ToolId, i32>,
+    pub tool: Option<ToolId>,
+    pub tool_power: i32,
     pub(super) id: ItemId,
     pub width: f32,
     pub height: f32,
@@ -25,7 +25,8 @@ impl Item {
             max_stack: 0,
             places_block: None,
             places_wall: None,
-            tool_powers: HashMap::new(),
+            tool: None,
+            tool_power: 0,
             id: ItemId::new(),
             width: 0.0,
             height: 0.0,
@@ -55,6 +56,7 @@ impl rlua::UserData for Item {
                         "max_stack" => this.max_stack = value as i32,
                         "width" => this.width = value as f32,
                         "height" => this.height = value as f32,
+                        "tool_power" => this.tool_power = value as i32,
                         _ => {
                             return Err(rlua::Error::RuntimeError(format!(
                                 "{key} is not a valid field of Item for integer value"
@@ -84,6 +86,9 @@ impl rlua::UserData for Item {
                         }
                         "places_wall" => {
                             this.places_wall = Some(*value.borrow::<WallId>()?);
+                        }
+                        "tool" => {
+                            this.tool = Some(*value.borrow::<ToolId>()?);
                         }
                         _ => {
                             return Err(rlua::Error::RuntimeError(format!(

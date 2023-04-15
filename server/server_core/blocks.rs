@@ -13,6 +13,7 @@ use crate::shared::blocks::{
     handle_event_for_blocks_interface, init_blocks_mod_interface, BlockBreakStartPacket,
     BlockBreakStopPacket, BlockChangeEvent, BlockChangePacket, BlockRightClickPacket,
     BlockStartedBreakingEvent, BlockStoppedBreakingEvent, Blocks, BlocksWelcomePacket,
+    ClientBlockBreakStartPacket,
 };
 use crate::shared::entities::Entities;
 use crate::shared::inventory::Inventory;
@@ -68,7 +69,10 @@ impl ServerBlocks {
             })?;
             networking.send_packet(&welcome_packet, SendTarget::Connection(event.conn.clone()))?;
         } else if let Some(event) = event.downcast::<PacketFromClientEvent>() {
-            if let Some(packet) = event.packet.try_deserialize::<BlockBreakStartPacket>() {
+            if let Some(packet) = event
+                .packet
+                .try_deserialize::<ClientBlockBreakStartPacket>()
+            {
                 if let Some(pos) = self.conns_breaking.get(&event.conn).copied() {
                     self.get_blocks()
                         .stop_breaking_block(events, pos.0, pos.1)?;
@@ -76,8 +80,26 @@ impl ServerBlocks {
 
                 self.conns_breaking
                     .insert(event.conn.clone(), (packet.x, packet.y));
+
+                let player_id = players.get_player_from_connection(&event.conn)?;
+                let held_item = entities
+                    .ecs
+                    .get::<&Inventory>(player_id)?
+                    .get_selected_item();
+                let tool = if let Some(item) = &held_item {
+                    items.get_item_type(item.item)?.tool
+                } else {
+                    None
+                };
+
+                let tool_power = if let Some(item) = &held_item {
+                    items.get_item_type(item.item)?.tool_power
+                } else {
+                    0
+                };
+
                 self.get_blocks()
-                    .start_breaking_block(events, packet.x, packet.y)?;
+                    .start_breaking_block(events, packet.x, packet.y, tool, tool_power)?;
             }
 
             if let Some(packet) = event.packet.try_deserialize::<BlockBreakStopPacket>() {
@@ -106,6 +128,8 @@ impl ServerBlocks {
             let packet = Packet::new(BlockBreakStartPacket {
                 x: event.x,
                 y: event.y,
+                tool: event.tool,
+                tool_power: event.tool_power,
             })?;
             networking.send_packet(&packet, SendTarget::All)?;
         } else if let Some(event) = event.downcast::<BlockStoppedBreakingEvent>() {

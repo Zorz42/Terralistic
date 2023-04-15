@@ -385,25 +385,6 @@ pub struct BlockChangePacket {
     pub block: BlockId,
 }
 
-/// A packet that is sent to the server, when client starts
-/// to break a block and when the server should start to
-/// break the block.
-#[derive(Serialize, Deserialize)]
-pub struct BlockBreakStartPacket {
-    pub x: i32,
-    pub y: i32,
-}
-
-/// A packet that is sent to the server, when client stops
-/// breaking a block and when the server should stop
-/// breaking the block.
-#[derive(Serialize, Deserialize)]
-pub struct BlockBreakStopPacket {
-    pub x: i32,
-    pub y: i32,
-    pub break_time: i32,
-}
-
 /// A packet that is sent to the server, when client
 /// right clicks a block.
 #[derive(Serialize, Deserialize)]
