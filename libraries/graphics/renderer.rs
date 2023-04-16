@@ -29,6 +29,7 @@ pub struct Renderer {
     events: Vec<Event>,
     pub(super) shadow_context: ShadowContext,
     pub clipboard_context: ClipboardContext,
+    pub block_key_states: bool,
 }
 
 impl Renderer {
@@ -109,6 +110,7 @@ impl Renderer {
             events_queue: VecDeque::new(),
             window_open: true,
             clipboard_context: ClipboardContext::new().map_err(|e| anyhow!(e))?,
+            block_key_states: false,
         };
 
         result.handle_window_resize();
@@ -343,11 +345,11 @@ impl Renderer {
 
     /// Gets key state
     pub fn get_key_state(&self, key: Key) -> bool {
-        *self.key_states.get(&key).unwrap_or(&false)
+        !self.block_key_states && *self.key_states.get(&key).unwrap_or(&false)
     }
 
     /// Sets key state
-    pub fn set_key_state(&mut self, key: Key, state: bool) {
+    fn set_key_state(&mut self, key: Key, state: bool) {
         *self.key_states.entry(key).or_insert(false) = state;
     }
 
