@@ -43,7 +43,7 @@ impl ChatLine {
 
         if self.transparency > target_transparency {
             self.transparency -= 10;
-        } else if self.transparency < target_transparency {
+        } else {
             self.transparency += 10;
         }
 
