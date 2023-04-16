@@ -8,18 +8,33 @@ use anyhow::Result;
 
 pub struct ChatLine {
     texture: gfx::Texture,
+    back_rect: gfx::RenderRect,
 }
 
 impl ChatLine {
-    pub fn new(graphics: &mut GraphicsContext, text: &str) -> Self {
-        Self {
-            texture: gfx::Texture::load_from_surface(&graphics.font.create_text_surface(text)),
-        }
+    pub fn new(graphics: &mut GraphicsContext, text: &str, pos: FloatPos) -> Self {
+        let texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface(text));
+        let mut back_rect = gfx::RenderRect::new(
+            pos + FloatPos(
+                -texture.get_texture_size().0 * 3.0,
+                -texture.get_texture_size().1 * 3.0,
+            ),
+            FloatSize(0.0, 0.0),
+        );
+        back_rect.smooth_factor = 60.0;
+
+        Self { texture, back_rect }
     }
 
-    pub fn render(&mut self, graphics: &mut GraphicsContext, pos: FloatPos) {
+    pub fn render(&mut self, graphics: &mut GraphicsContext) {
+        self.back_rect.render(graphics, None);
+        let pos = self.back_rect.get_container(graphics, None).rect.pos;
         self.texture
             .render(&graphics.renderer, 3.0, pos, None, false, None);
+    }
+
+    pub fn set_pos(&mut self, pos: FloatPos) {
+        self.back_rect.pos = pos;
     }
 
     pub fn get_size(&self) -> FloatSize {
@@ -57,6 +72,7 @@ impl ClientChat {
         self.back_rect.size.1 = self.text_input.get_size().1;
         self.back_rect.blur_radius = gfx::BLUR;
         self.back_rect.smooth_factor = 60.0;
+        self.back_rect.shadow_intensity = gfx::SHADOW_INTENSITY;
     }
 
     pub fn render(&mut self, graphics: &mut GraphicsContext) {
@@ -76,7 +92,8 @@ impl ClientChat {
             graphics.renderer.get_window_size().1 - gfx::SPACING - self.text_input.get_size().1;
         for line in self.chat_lines.iter_mut().rev() {
             curr_y -= line.get_size().1;
-            line.render(graphics, FloatPos(gfx::SPACING, curr_y));
+            line.set_pos(FloatPos(gfx::SPACING, curr_y));
+            line.render(graphics);
         }
     }
 
@@ -106,8 +123,16 @@ impl ClientChat {
             }
         } else if let Some(event) = event.downcast::<Packet>() {
             if let Some(packet) = event.try_deserialize::<ChatPacket>() {
-                self.chat_lines
-                    .push(ChatLine::new(graphics, &packet.message));
+                self.chat_lines.push(ChatLine::new(
+                    graphics,
+                    &packet.message,
+                    FloatPos(
+                        0.0,
+                        graphics.renderer.get_window_size().1
+                            - gfx::SPACING
+                            - self.text_input.get_size().1,
+                    ),
+                ));
             }
         }
         Ok(false)
