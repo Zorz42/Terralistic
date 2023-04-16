@@ -185,7 +185,7 @@ pub fn run_game(
         );
 
         while let Some(event) = events.pop_event() {
-            if chat.on_event(&event, graphics) {
+            if chat.on_event(&event, graphics, &mut networking)? {
                 continue;
             }
             inventory.on_event(&event, &mut networking)?;

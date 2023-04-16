@@ -1,10 +1,39 @@
+use crate::client::game::networking::ClientNetworking;
 use crate::libraries::events::Event;
 use crate::libraries::graphics as gfx;
 use crate::libraries::graphics::{FloatPos, FloatSize, GraphicsContext};
+use crate::shared::chat::ChatPacket;
+use crate::shared::packet::Packet;
+use anyhow::Result;
+
+pub struct ChatLine {
+    texture: gfx::Texture,
+}
+
+impl ChatLine {
+    pub fn new(graphics: &mut GraphicsContext, text: &str) -> Self {
+        Self {
+            texture: gfx::Texture::load_from_surface(&graphics.font.create_text_surface(text)),
+        }
+    }
+
+    pub fn render(&mut self, graphics: &mut GraphicsContext, pos: FloatPos) {
+        self.texture
+            .render(&graphics.renderer, 3.0, pos, None, false, None);
+    }
+
+    pub fn get_size(&self) -> FloatSize {
+        FloatSize(
+            self.texture.get_texture_size().0 * 3.0,
+            self.texture.get_texture_size().1 * 3.0,
+        )
+    }
+}
 
 pub struct ClientChat {
     back_rect: gfx::RenderRect,
     text_input: gfx::TextInput,
+    chat_lines: Vec<ChatLine>,
 }
 
 impl ClientChat {
@@ -12,6 +41,7 @@ impl ClientChat {
         Self {
             text_input: gfx::TextInput::new(graphics),
             back_rect: gfx::RenderRect::new(FloatPos(0.0, 0.0), FloatSize(0.0, 0.0)),
+            chat_lines: Vec::new(),
         }
     }
 
@@ -41,13 +71,29 @@ impl ClientChat {
         self.text_input.width =
             self.back_rect.get_container(graphics, None).rect.size.0 / self.text_input.scale;
         self.text_input.render(graphics, None);
+
+        let mut curr_y =
+            graphics.renderer.get_window_size().1 - gfx::SPACING - self.text_input.get_size().1;
+        for line in self.chat_lines.iter_mut().rev() {
+            curr_y -= line.get_size().1;
+            line.render(graphics, FloatPos(gfx::SPACING, curr_y));
+        }
     }
 
-    pub fn on_event(&mut self, event: &Event, graphics: &mut GraphicsContext) -> bool {
+    pub fn on_event(
+        &mut self,
+        event: &Event,
+        graphics: &mut GraphicsContext,
+        networking: &mut ClientNetworking,
+    ) -> Result<bool> {
         if let Some(event) = event.downcast::<gfx::Event>() {
             self.text_input.on_event(event, graphics, None);
 
             if let gfx::Event::KeyPress(gfx::Key::Enter, ..) = event {
+                networking.send_packet(Packet::new(ChatPacket {
+                    message: self.text_input.get_text().clone(),
+                })?)?;
+
                 self.text_input.set_text(String::new());
                 self.text_input.selected = false;
             }
@@ -56,9 +102,14 @@ impl ClientChat {
                 && (matches!(event, gfx::Event::KeyPress(..))
                     || matches!(event, gfx::Event::KeyRelease(..)))
             {
-                return true;
+                return Ok(true);
+            }
+        } else if let Some(event) = event.downcast::<Packet>() {
+            if let Some(packet) = event.try_deserialize::<ChatPacket>() {
+                self.chat_lines
+                    .push(ChatLine::new(graphics, &packet.message));
             }
         }
-        false
+        Ok(false)
     }
 }
