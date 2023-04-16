@@ -76,7 +76,7 @@ impl TextInput {
     #[must_use]
     pub fn get_size(&self) -> FloatSize {
         FloatSize(
-            (self.width + self.padding * 2.0) * self.scale,
+            (self.width) * self.scale,
             (self.text_texture.get_texture_size().1 + self.padding * 2.0) * self.scale,
         )
     }
@@ -238,7 +238,7 @@ impl TextInput {
         );
 
         let mut src_rect = Rect::new(FloatPos(0.0, 0.0), self.text_texture.get_texture_size());
-        src_rect.size.0 = f32::min(src_rect.size.0, self.width);
+        src_rect.size.0 = f32::min(src_rect.size.0, self.width - self.padding * 2.0);
         if self.text.is_empty() {
             src_rect.size.0 = 0.0;
         }
@@ -281,7 +281,7 @@ impl TextInput {
 
             let text_begin_x = f32::min(
                 rect.pos.0 + self.padding * self.scale,
-                rect.pos.0 + self.padding * self.scale + rect.size.0 - texture_width,
+                rect.pos.0 - self.padding * self.scale + rect.size.0 - texture_width,
             );
 
             // w1 is the width of the text before the cursor.0
