@@ -10,6 +10,7 @@ use anyhow::{anyhow, Result};
 use bincode::deserialize;
 
 use crate::libraries::events::EventManager;
+use crate::server::server_core::chat::server_chat_on_event;
 use crate::server::server_core::entities::ServerEntities;
 use crate::server::server_core::items::ServerItems;
 use crate::server::server_core::networking::{DisconnectEvent, NewConnectionEvent};
@@ -276,6 +277,7 @@ impl Server {
             )?;
             ServerEntities::on_event(&event, &mut self.networking)?;
             self.networking.on_event(&event, &mut self.events)?;
+            server_chat_on_event(&event, &mut self.networking)?;
         }
 
         Ok(())
