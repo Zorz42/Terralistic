@@ -1,6 +1,7 @@
 extern crate core;
 
 pub mod blocks;
+pub mod chat;
 pub mod entities;
 pub mod inventory;
 pub mod items;
@@ -12,4 +13,3 @@ pub mod players;
 pub mod versions;
 pub mod walls;
 pub mod world_map;
-pub mod chat;

@@ -85,12 +85,7 @@ impl ServerNetworking {
         let server_port = self.server_port;
 
         self.net_loop_thread = Some(std::thread::spawn(move || {
-            Self::net_receive_loop(
-                &event_sender,
-                &packet_receiver,
-                &is_running,
-                server_port,
-            )
+            Self::net_receive_loop(&event_sender, &packet_receiver, &is_running, server_port)
         }));
     }
 
@@ -117,14 +112,14 @@ impl ServerNetworking {
                     println!("[{peer}] connected");
                     send_console_message(
                         event_sender,
-                        ConsoleMessageType::Info(format!("[INFO] [{peer}] connected"))
+                        ConsoleMessageType::Info(format!("[INFO] [{peer}] connected")),
                     );
                 }
                 NetEvent::Disconnected(peer) => {
                     println!("[{peer}] disconnected");
                     send_console_message(
                         event_sender,
-                        ConsoleMessageType::Info(format!("[INFO] [{peer}] disconnected"))
+                        ConsoleMessageType::Info(format!("[INFO] [{peer}] disconnected")),
                     );
                     match event_sender.send(Event::new(DisconnectEvent {
                         conn: Connection { address: peer },
@@ -141,7 +136,7 @@ impl ServerNetworking {
                         println!("[{:?}] joined", packet.name);
                         send_console_message(
                             event_sender,
-                            ConsoleMessageType::Info(format!("[{:?}] joined", packet.name))
+                            ConsoleMessageType::Info(format!("[{:?}] joined", packet.name)),
                         );
                         match event_sender.send(Event::new(NewConnectionEvent {
                             conn: Connection { address: peer },
@@ -152,7 +147,9 @@ impl ServerNetworking {
                                 println!("Failed to send new connection event: {e}");
                                 send_console_message(
                                     event_sender,
-                                    ConsoleMessageType::Error(format!("[ERROR] Failed to send new connection event: {e}"))
+                                    ConsoleMessageType::Error(format!(
+                                        "[ERROR] Failed to send new connection event: {e}"
+                                    )),
                                 );
                             }
                         }
@@ -161,13 +158,14 @@ impl ServerNetworking {
                             packet,
                             conn: Connection { address: peer },
                         })) {
-                            Ok(_) => {
-                            }
+                            Ok(_) => {}
                             Err(e) => {
                                 println!("Failed to send packet from client event: {e}");
                                 send_console_message(
                                     event_sender,
-                                    ConsoleMessageType::Error(format!("[ERROR] Failed to send packet from client event: {e}"))
+                                    ConsoleMessageType::Error(format!(
+                                        "[ERROR] Failed to send packet from client event: {e}"
+                                    )),
                                 );
                             }
                         }
@@ -319,13 +317,8 @@ impl ServerNetworking {
 }
 
 //sends a console message to UI
-fn send_console_message(
-    event_sender: &Sender<Event>,
-    message: ConsoleMessageType,
-) {
-    if let Err(e) = event_sender.send(
-        Event::new(UiMessageType::SrvToUiConsoleMessage(message))
-    ) {
+fn send_console_message(event_sender: &Sender<Event>, message: ConsoleMessageType) {
+    if let Err(e) = event_sender.send(Event::new(UiMessageType::SrvToUiConsoleMessage(message))) {
         println!("Failed to send console message: {e}");
     }
 }
