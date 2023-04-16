@@ -246,6 +246,10 @@ impl Server {
                     connect.conn.address.addr(),
                 ))));
             }
+            if let Some(event) = event.downcast::<UiMessageType>() {
+                self.send_to_ui(event.clone());
+            }
+
             self.mods.on_event(&event, &mut self.networking)?;
             self.blocks.on_event(
                 &event,

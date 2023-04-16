@@ -1,4 +1,4 @@
-#[derive(serde_derive::Serialize, serde_derive::Deserialize, PartialEq, Eq)]
+#[derive(Clone, serde_derive::Serialize, serde_derive::Deserialize, PartialEq, Eq)]
 pub enum UiMessageType {
     ServerState(ServerState),
     SrvToUiConsoleMessage(ConsoleMessageType),
@@ -26,7 +26,7 @@ pub enum PlayerEventType {
     //kick and ban will be added later
 }
 
-#[derive(serde_derive::Serialize, serde_derive::Deserialize, PartialEq, Eq)]
+#[derive(Clone, serde_derive::Serialize, serde_derive::Deserialize, PartialEq, Eq)]
 pub enum ConsoleMessageType {
     Info(String),
     Warning(String),
