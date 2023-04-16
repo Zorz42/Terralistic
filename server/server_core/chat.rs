@@ -9,7 +9,7 @@ pub fn server_chat_on_event(event: &Event, networking: &mut ServerNetworking) ->
         if let Some(packet) = event.packet.try_deserialize::<ChatPacket>() {
             let mut name = networking.get_connection_name(&event.conn);
             if name == "_" {
-                name = "Player".to_string();
+                name = "Player".to_owned();
             }
 
             let message = format!("{}: {}", name, packet.message);

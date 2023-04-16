@@ -138,7 +138,7 @@ impl ClientChat {
         Ok(false)
     }
 
-    pub fn is_selected(&self) -> bool {
+    pub const fn is_selected(&self) -> bool {
         self.text_input.selected
     }
 }
