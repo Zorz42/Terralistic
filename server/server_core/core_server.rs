@@ -92,7 +92,7 @@ impl Server {
         self.mods = ServerModManager::new(mods);
 
         // init modules
-        self.networking.init(self.ui_event_sender.clone());
+        self.networking.init();
         self.blocks.init(&mut self.mods.mod_manager)?;
         self.walls.init(&mut self.mods.mod_manager)?;
         self.items.init(&mut self.mods.mod_manager)?;

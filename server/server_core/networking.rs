@@ -8,7 +8,6 @@ use alloc::sync::Arc;
 use core::sync::atomic::Ordering;
 
 use crate::libraries::events::{Event, EventManager};
-use crate::server::server_core::send_to_ui;
 use crate::shared::packet::{Packet, WelcomeCompletePacket};
 use crate::shared::players::NamePacket;
 use anyhow::{anyhow, bail, Result};
@@ -75,7 +74,7 @@ impl ServerNetworking {
         self.connection_names.get(conn).unwrap_or(&unknown).clone()
     }
 
-    pub fn init(&mut self, ui_event_sender: Option<Sender<UiMessageType>>) {
+    pub fn init(&mut self) {
         // start listening for connections
         let (event_sender, event_receiver) = mpsc::channel();
         let (packet_sender, packet_receiver) = mpsc::channel();
@@ -91,7 +90,6 @@ impl ServerNetworking {
                 &packet_receiver,
                 &is_running,
                 server_port,
-                &ui_event_sender,
             )
         }));
     }
@@ -102,7 +100,6 @@ impl ServerNetworking {
         packet_receiver: &Receiver<(Vec<u8>, Connection)>,
         is_running: &Arc<AtomicBool>,
         server_port: u16,
-        ui_event_sender: &Option<Sender<UiMessageType>>,
     ) -> Result<()> {
         let (mut handler, listener) = node::split::<()>();
 
@@ -118,17 +115,19 @@ impl ServerNetworking {
                 NetEvent::Connected(..) => {}
                 NetEvent::Accepted(peer, _) => {
                     println!("[{peer}] connected");
-                    send_to_ui(
+                    if let Err(e) = event_sender.send(Event::new(
                         UiMessageType::SrvToUiConsoleMessage(ConsoleMessageType::Info(format!("[INFO] [{peer}] connected"))),
-                        ui_event_sender,
-                    );
+                    )) {
+                        println!("Failed to send console message: {e}");
+                    }
                 }
                 NetEvent::Disconnected(peer) => {
                     println!("[{peer}] disconnected");
-                    send_to_ui(
+                    if let Err(e) = event_sender.send(Event::new(
                         UiMessageType::SrvToUiConsoleMessage(ConsoleMessageType::Info(format!("[INFO] [{peer}] disconnected"))),
-                        ui_event_sender,
-                    );
+                    )) {
+                        println!("Failed to send console message: {e}");
+                    }
                     match event_sender.send(Event::new(DisconnectEvent {
                         conn: Connection { address: peer },
                     })) {
@@ -142,10 +141,11 @@ impl ServerNetworking {
                     let packet: Packet = bincode::deserialize(packet).unwrap();
                     if let Some(packet) = packet.try_deserialize::<NamePacket>() {
                         println!("[{:?}] joined", packet.name);
-                        send_to_ui(
+                        if let Err(e) = event_sender.send(Event::new(
                             UiMessageType::SrvToUiConsoleMessage(ConsoleMessageType::Info(format!("[{:?}] joined", packet.name))),
-                            ui_event_sender,
-                        );
+                        )) {
+                            println!("Failed to send console message: {e}");
+                        }
                         match event_sender.send(Event::new(NewConnectionEvent {
                             conn: Connection { address: peer },
                             name: packet.name,
@@ -153,10 +153,11 @@ impl ServerNetworking {
                             Ok(_) => {}
                             Err(e) => {
                                 println!("Failed to send new connection event: {e}");
-                                send_to_ui(
+                                if let Err(e) = event_sender.send(Event::new(
                                     UiMessageType::SrvToUiConsoleMessage(ConsoleMessageType::Error(format!("[ERROR] Failed to send new connection event: {e}"))),
-                                    ui_event_sender,
-                                );
+                                )) {
+                                    println!("Failed to send console message: {e}");
+                                }
                             }
                         }
                     } else {
@@ -168,10 +169,11 @@ impl ServerNetworking {
                             }
                             Err(e) => {
                                 println!("Failed to send packet from client event: {e}");
-                                send_to_ui(
+                                if let Err(e) = event_sender.send(Event::new(
                                     UiMessageType::SrvToUiConsoleMessage(ConsoleMessageType::Error(format!("[ERROR] Failed to send packet from client event: {e}"))),
-                                    ui_event_sender,
-                                );
+                                )) {
+                                    println!("Failed to send console message: {e}");
+                                }
                             }
                         }
                     }
