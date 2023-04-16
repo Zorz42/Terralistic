@@ -9,6 +9,8 @@ use anyhow::Result;
 pub struct ChatLine {
     texture: gfx::Texture,
     back_rect: gfx::RenderRect,
+    creation_time: std::time::Instant,
+    transparency: i32,
 }
 
 impl ChatLine {
@@ -23,14 +25,44 @@ impl ChatLine {
         );
         back_rect.smooth_factor = 60.0;
 
-        Self { texture, back_rect }
+        Self {
+            texture,
+            back_rect,
+            creation_time: std::time::Instant::now(),
+            transparency: 255,
+        }
     }
 
-    pub fn render(&mut self, graphics: &mut GraphicsContext) {
+    pub fn render(&mut self, graphics: &mut GraphicsContext, focused: bool) {
+        let target_transparency =
+            if focused || (self.creation_time.elapsed().as_millis() as i32) < 5000 {
+                255
+            } else {
+                0
+            };
+
+        if self.transparency > target_transparency {
+            self.transparency -= 10;
+        } else if self.transparency < target_transparency {
+            self.transparency += 10;
+        }
+
+        self.transparency = self.transparency.clamp(0, 255);
+
+        if self.transparency == 0 {
+            return;
+        }
+
         self.back_rect.render(graphics, None);
         let pos = self.back_rect.get_container(graphics, None).rect.pos;
-        self.texture
-            .render(&graphics.renderer, 3.0, pos, None, false, None);
+        self.texture.render(
+            &graphics.renderer,
+            3.0,
+            pos,
+            None,
+            false,
+            Some(gfx::Color::new(255, 255, 255, self.transparency as u8)),
+        );
     }
 
     pub fn set_pos(&mut self, pos: FloatPos) {
@@ -93,7 +125,7 @@ impl ClientChat {
         for line in self.chat_lines.iter_mut().rev() {
             curr_y -= line.get_size().1;
             line.set_pos(FloatPos(gfx::SPACING, curr_y));
-            line.render(graphics);
+            line.render(graphics, self.text_input.selected);
         }
     }
 
