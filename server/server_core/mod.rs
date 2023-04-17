@@ -1,5 +1,6 @@
 mod blocks;
 mod chat;
+mod commands;
 mod core_server;
 mod entities;
 mod items;

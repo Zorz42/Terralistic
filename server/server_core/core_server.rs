@@ -22,6 +22,7 @@ use super::mod_manager::ServerModManager;
 use super::networking::ServerNetworking;
 use super::walls::ServerWalls;
 use super::world_generator::WorldGenerator;
+use super::commands::{CommandManager, Command};
 
 pub const SINGLEPLAYER_PORT: u16 = 49152;
 pub const MULTIPLAYER_PORT: u16 = 49153;
@@ -38,8 +39,8 @@ pub struct Server {
     items: ServerItems,
     players: ServerPlayers,
     ui_event_sender: Option<Sender<UiMessageType>>,
-    #[allow(dead_code)] //TODO: remove this after the Console is fully implemented
     ui_event_receiver: Option<Receiver<Vec<u8>>>,
+    commands: CommandManager,
 }
 
 impl Server {
@@ -51,6 +52,13 @@ impl Server {
     ) -> Self {
         let blocks = ServerBlocks::new();
         let walls = ServerWalls::new(&mut blocks.get_blocks());
+        let mut commands = CommandManager::new();
+        commands.add_command(Command {
+            call_name: "help".to_owned(),
+            name: "Help".to_owned(),
+            description: "Shows all commands".to_owned(),
+            function: super::commands::help,
+        });
         Self {
             tps_limit: 20.0,
             state: ServerState::Nothing,
@@ -64,6 +72,7 @@ impl Server {
             players: ServerPlayers::new(),
             ui_event_sender,
             ui_event_receiver,
+            commands,
         }
     }
 
@@ -78,6 +87,13 @@ impl Server {
         mods_serialized: Vec<Vec<u8>>,
         world_path: &Path,
     ) -> Result<()> {
+        self.commands.add_command(Command {
+            call_name: "stop".to_owned(),
+            name: "Stop".to_owned(),
+            description: "Stops the server".to_owned(),
+            function: super::commands::stop,
+        });
+
         self.print_to_console("Starting server...", 0);
         let timer = std::time::Instant::now();
         *status_text.lock().unwrap_or_else(PoisonError::into_inner) = "Starting server".to_owned();
@@ -185,7 +201,7 @@ impl Server {
                 micros = 0;
             }
 
-            if !is_running.load(Ordering::Relaxed) {
+            if !is_running.load(Ordering::Relaxed) || self.state == ServerState::Stopping {//state is there so outside events can stop it
                 break;
             }
             // sleep
@@ -221,8 +237,13 @@ impl Server {
         Ok(())
     }
 
+    pub fn stop(&mut self) {
+        self.state = ServerState::Stopping;
+    }
+
     fn handle_events(&mut self) -> Result<()> {
         if let Some(receiver) = &self.ui_event_receiver {
+            let mut message_vec = Vec::new();
             //goes through the messages received from the server
             while let Ok(data) = receiver.try_recv() {
                 let data = snap::raw::Decoder::new()
@@ -230,8 +251,13 @@ impl Server {
                     .unwrap_or_default();
                 let message = deserialize::<UiMessageType>(&data);
                 if let Ok(UiMessageType::UiToSrvConsoleMessage(message)) = message {
-                    println!("{message}");
+                    message_vec.push(message);
                 }
+            }
+
+            for message in message_vec {
+                self.commands.execute_command(&message, &mut self.state);
+                println!("{message}");
             }
         }
 
