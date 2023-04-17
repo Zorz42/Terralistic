@@ -137,6 +137,8 @@ pub fn run_game(
             events.push_event(events::Event::new(event));
         }
 
+        graphics.renderer.block_key_states = chat.is_selected();
+
         networking.update(&mut events)?;
         mods.update()?;
         blocks.update(framerate_measurer.get_delta_time(), &mut events)?;
