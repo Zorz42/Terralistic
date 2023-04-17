@@ -40,7 +40,7 @@ struct ModuleTreeNode {
 pub struct UiManager {
     graphics_context: gfx::GraphicsContext,
     server_message_receiver: Receiver<UiMessageType>,
-    server_message_sender: Sender<Vec<u8>>,
+    server_message_sender: Sender<UiMessageType>,
     modules: Vec<Box<dyn ModuleTrait>>,
     save_path: PathBuf,
 }
@@ -50,7 +50,7 @@ impl UiManager {
     pub fn new(
         graphics_context: gfx::GraphicsContext,
         event_receiver: Receiver<UiMessageType>,
-        event_sender: Sender<Vec<u8>>,
+        event_sender: Sender<UiMessageType>,
         path: PathBuf,
     ) -> Self {
         let mut temp = Self {
@@ -288,7 +288,7 @@ pub trait ModuleTrait {
     //returns the name of the module
     fn get_name(&self) -> &str;
     //gives the event sender to the module, so it can send data to the server
-    fn set_sender(&mut self, _sender: Sender<Vec<u8>>) {}
+    fn set_sender(&mut self, _sender: Sender<UiMessageType>) {}
     //sends sdl2 events to the module
     fn on_event(&mut self, _event: &Event, _graphics_context: &mut gfx::GraphicsContext) {}
 }

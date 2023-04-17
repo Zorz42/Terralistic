@@ -1,6 +1,7 @@
-use crate::server::server_core::items;
 use crate::server::server_core::players;
-use crate::server::server_ui::ServerState;
+use crate::server::server_core::{items, send_to_ui};
+use crate::server::server_ui::{ConsoleMessageType, ServerState, UiMessageType};
+use std::sync::mpsc::{Receiver, Sender};
 
 /**
  * This struct contains all parameters that are needed to execute any command
@@ -69,6 +70,44 @@ impl CommandManager {
             }
         }
         Err(Some(String::from("Command not found")))
+    }
+
+    //executes all commands
+    pub fn execute_commands(
+        &self,
+        receiver: &Receiver<UiMessageType>,
+        ui_message_sender: &Option<Sender<UiMessageType>>,
+        state: &mut ServerState,
+        players: &mut players::ServerPlayers,
+        items: &mut items::ServerItems,
+    ) {
+        //goes through the messages received from the server
+        while let Ok(UiMessageType::UiToSrvConsoleMessage(message)) = receiver.try_recv() {
+            println!("[server UI console input] {message}");
+            let feedback = self.execute_command(&message, state, None, players, items);
+            let feedback = match feedback {
+                Ok(feedback) => {
+                    println!("{feedback}");
+                    ConsoleMessageType::Info(feedback)
+                }
+                Err(val) => val.map_or_else(
+                    || {
+                        println!("Invalid use. see /help for more info");
+                        ConsoleMessageType::Warning(
+                            "Invalid use. see /help for more info".to_owned(),
+                        )
+                    },
+                    |message| {
+                        println!("{message}");
+                        ConsoleMessageType::Warning(message)
+                    },
+                ),
+            };
+            send_to_ui(
+                UiMessageType::SrvToUiConsoleMessage(feedback),
+                ui_message_sender,
+            );
+        }
     }
 }
 

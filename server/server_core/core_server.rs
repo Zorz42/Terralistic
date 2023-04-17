@@ -7,7 +7,6 @@ use std::sync::{Mutex, PoisonError};
 use std::thread::sleep;
 
 use anyhow::{anyhow, Result};
-use bincode::deserialize;
 
 use crate::libraries::events::EventManager;
 use crate::server::server_core::chat::server_chat_on_event;
@@ -39,7 +38,7 @@ pub struct Server {
     items: ServerItems,
     players: ServerPlayers,
     ui_event_sender: Option<Sender<UiMessageType>>,
-    ui_event_receiver: Option<Receiver<Vec<u8>>>,
+    ui_event_receiver: Option<Receiver<UiMessageType>>,
     commands: CommandManager,
 }
 
@@ -48,7 +47,7 @@ impl Server {
     pub fn new(
         port: u16,
         ui_event_sender: Option<Sender<UiMessageType>>,
-        ui_event_receiver: Option<Receiver<Vec<u8>>>,
+        ui_event_receiver: Option<Receiver<UiMessageType>>,
     ) -> Self {
         let blocks = ServerBlocks::new();
         let walls = ServerWalls::new(&mut blocks.get_blocks());
@@ -249,39 +248,13 @@ impl Server {
 
     fn handle_events(&mut self) -> Result<()> {
         if let Some(receiver) = &self.ui_event_receiver {
-            let mut message_vec = Vec::new();
-            //goes through the messages received from the server
-            while let Ok(data) = receiver.try_recv() {
-                let data = snap::raw::Decoder::new()
-                    .decompress_vec(&data)
-                    .unwrap_or_default();
-                let message = deserialize::<UiMessageType>(&data);
-                if let Ok(UiMessageType::UiToSrvConsoleMessage(message)) = message {
-                    message_vec.push(message);
-                }
-            }
-
-            for message in message_vec {
-                let feedback = self.commands.execute_command(
-                    &message,
-                    &mut self.state,
-                    None,
-                    &mut self.players,
-                    &mut self.items,
-                );
-                let feedback = match feedback {
-                    Ok(feedback) => feedback,
-                    Err(val) => match val {
-                        Some(feedback) => feedback,
-                        None => "Invalid use. see /help for more info".to_owned(),
-                    },
-                };
-                println!("[server UI console input] {message}");
-                println!("{feedback}");
-                self.send_to_ui(UiMessageType::SrvToUiConsoleMessage(
-                    ConsoleMessageType::Info(feedback),
-                ));
-            }
+            self.commands.execute_commands(
+                receiver,
+                &self.ui_event_sender,
+                &mut self.state,
+                &mut self.players,
+                &mut self.items,
+            )
         }
 
         while let Some(event) = self.events.pop_event() {

@@ -56,7 +56,7 @@ impl ConsoleLine {
 pub struct Console {
     text_lines: Vec<ConsoleLine>,
     container: gfx::Container,
-    sender: Option<Sender<Vec<u8>>>,
+    sender: Option<Sender<UiMessageType>>,
     input: gfx::TextInput,
     scroll: f32,
 }
@@ -166,7 +166,7 @@ impl ui_manager::ModuleTrait for Console {
         "Console"
     }
 
-    fn set_sender(&mut self, sender: Sender<Vec<u8>>) {
+    fn set_sender(&mut self, sender: Sender<UiMessageType>) {
         self.sender = Some(sender);
     }
 
@@ -189,7 +189,7 @@ impl ui_manager::ModuleTrait for Console {
                     && !self.input.get_text().is_empty()
                 {
                     send_to_srv(
-                        &UiMessageType::UiToSrvConsoleMessage(self.input.get_text().clone()),
+                        UiMessageType::UiToSrvConsoleMessage(self.input.get_text().clone()),
                         &self.sender,
                     );
                     self.add_line(
@@ -206,12 +206,8 @@ impl ui_manager::ModuleTrait for Console {
 }
 
 //sends any data to the server
-pub fn send_to_srv(data: &UiMessageType, ui_event_sender: &Option<Sender<Vec<u8>>>) {
+pub fn send_to_srv(data: UiMessageType, ui_event_sender: &Option<Sender<UiMessageType>>) {
     if let Some(sender) = ui_event_sender {
-        let data = &bincode::serialize(&data).unwrap_or_default();
-        let data = snap::raw::Encoder::new()
-            .compress_vec(data)
-            .unwrap_or_default();
         let result = sender.send(data);
 
         if let Err(_e) = result {
