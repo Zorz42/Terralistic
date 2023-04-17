@@ -256,8 +256,12 @@ impl Server {
             }
 
             for message in message_vec {
-                self.commands.execute_command(&message, &mut self.state);
-                println!("{message}");
+                let feedback = self.commands.execute_command(&message, &mut self.state);
+                println!("[server UI console input] {message}");
+                println!("{feedback}");
+                self.send_to_ui(UiMessageType::SrvToUiConsoleMessage(ConsoleMessageType::Info(
+                    feedback,
+                )));
             }
         }
 

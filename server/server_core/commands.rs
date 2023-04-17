@@ -1,4 +1,3 @@
-use std::ops::Deref;
 use crate::server::server_ui::ServerState;
 
 //struct that contains the command name and the function that will be executed when the command is called
@@ -6,7 +5,7 @@ pub struct Command {
     pub call_name: String,
     pub name: String,
     pub description: String,
-    pub function: fn(&CommandManager, &mut ServerState),
+    pub function: fn(&CommandManager, &mut ServerState) -> String,
 }
 
 //contains all the commands
@@ -27,23 +26,28 @@ impl CommandManager {
     }
 
     //executes a command
-    pub fn execute_command(&self, command: &str, state: &mut ServerState) {
+    pub fn execute_command(&self, command: &str, state: &mut ServerState) -> String {
         for c in &self.commands {
             if c.call_name == command {
-                (c.function)(&self, state);
+                let feedback = (c.function)(&self, state);
+                return feedback;
             }
         }
+        String::from("Command not found")
     }
 }
 
 //help command
-pub fn help(command_manager: &CommandManager, mut state: &mut ServerState) {
-    println!("Commands:");
+pub fn help(command_manager: &CommandManager, _state: &mut ServerState) -> String {
+    let mut string = String::new();
+    string.push_str("Commands:\n");
     for c in &command_manager.commands {
-        println!("{} - {}", c.call_name, c.description);
+        string.push_str(&format!("{} - {}\n", c.call_name, c.description));
     }
+    string
 }
 
-pub fn stop(command_manager: &CommandManager, mut state: &mut ServerState) {
+pub fn stop(_command_manager: &CommandManager, state: &mut ServerState) -> String {
     *state = ServerState::Stopping;
+    String::from("Stopping server...")
 }
