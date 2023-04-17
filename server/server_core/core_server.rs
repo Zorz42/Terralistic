@@ -18,11 +18,11 @@ use crate::server::server_core::players::ServerPlayers;
 use crate::server::server_ui::{ConsoleMessageType, PlayerEventType, ServerState, UiMessageType};
 
 use super::blocks::ServerBlocks;
+use super::commands::{Command, CommandManager};
 use super::mod_manager::ServerModManager;
 use super::networking::ServerNetworking;
 use super::walls::ServerWalls;
 use super::world_generator::WorldGenerator;
-use super::commands::{CommandManager, Command};
 
 pub const SINGLEPLAYER_PORT: u16 = 49152;
 pub const MULTIPLAYER_PORT: u16 = 49153;
@@ -59,6 +59,18 @@ impl Server {
             description: "Shows all commands".to_owned(),
             function: super::commands::help,
         });
+        commands.add_command(Command {
+            call_name: "stop".to_owned(),
+            name: "Stop".to_owned(),
+            description: "Stops the server".to_owned(),
+            function: super::commands::stop,
+        });
+        commands.add_command(Command {
+            call_name: "give".to_owned(),
+            name: "Give".to_owned(),
+            description: "Gives an item to a player".to_owned(),
+            function: super::commands::give,
+        });
         Self {
             tps_limit: 20.0,
             state: ServerState::Nothing,
@@ -87,13 +99,6 @@ impl Server {
         mods_serialized: Vec<Vec<u8>>,
         world_path: &Path,
     ) -> Result<()> {
-        self.commands.add_command(Command {
-            call_name: "stop".to_owned(),
-            name: "Stop".to_owned(),
-            description: "Stops the server".to_owned(),
-            function: super::commands::stop,
-        });
-
         self.print_to_console("Starting server...", 0);
         let timer = std::time::Instant::now();
         *status_text.lock().unwrap_or_else(PoisonError::into_inner) = "Starting server".to_owned();
@@ -201,7 +206,8 @@ impl Server {
                 micros = 0;
             }
 
-            if !is_running.load(Ordering::Relaxed) || self.state == ServerState::Stopping {//state is there so outside events can stop it
+            if !is_running.load(Ordering::Relaxed) || self.state == ServerState::Stopping {
+                //state is there so outside events can stop it
                 break;
             }
             // sleep
@@ -256,12 +262,25 @@ impl Server {
             }
 
             for message in message_vec {
-                let feedback = self.commands.execute_command(&message, &mut self.state);
+                let feedback = self.commands.execute_command(
+                    &message,
+                    &mut self.state,
+                    None,
+                    &mut self.players,
+                    &mut self.items,
+                );
+                let feedback = match feedback {
+                    Ok(feedback) => feedback,
+                    Err(val) => match val {
+                        Some(feedback) => feedback,
+                        None => "Invalid use. see /help for more info".to_owned(),
+                    },
+                };
                 println!("[server UI console input] {message}");
                 println!("{feedback}");
-                self.send_to_ui(UiMessageType::SrvToUiConsoleMessage(ConsoleMessageType::Info(
-                    feedback,
-                )));
+                self.send_to_ui(UiMessageType::SrvToUiConsoleMessage(
+                    ConsoleMessageType::Info(feedback),
+                ));
             }
         }
 
