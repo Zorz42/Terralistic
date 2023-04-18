@@ -95,7 +95,7 @@ impl Console {
         let max_y = -self.input.pos.1 - self.input.get_size().1 - gfx::SPACING / 2.0 + 1.0;
         let min_y = -self.container.rect.size.1 - max_y;
         let offset = self.text_lines.first().map_or_else(
-            || 0.0,
+            || 26.0,
             |line| line.sprite.texture.get_texture_size().1 + gfx::SPACING / 2.0,
         );
         let mut y = -self.input.pos.1 - self.input.get_size().1 - gfx::SPACING / 2.0;
@@ -122,7 +122,6 @@ impl ui_manager::ModuleTrait for Console {
 
     fn update(&mut self, _delta_time: f32, _graphics_context: &mut gfx::GraphicsContext) {
         self.input.width = self.container.rect.size.0 / 2.0 - EDGE_SPACING * 2.0;
-        //TODO: add scroll
     }
 
     fn render(&mut self, graphics_context: &mut gfx::GraphicsContext) {
