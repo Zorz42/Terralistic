@@ -26,15 +26,19 @@ function mod_version()
 end
 
 -- global variables for block IDs
-air = 0
-dirt_block = 0
-stone_block = 0
-copper_ore_block = 0
-grass_block = 0
-wood_block = 0
-branch_block = 0
-leaves_block = 0
-canopy_block = 0
+blocks = {}
+
+blocks.air = 0
+blocks.dirt = 0
+blocks.stone_block = 0
+blocks.copper_ore = 0
+blocks.grass_block = 0
+blocks.wood = 0
+blocks.branch = 0
+blocks.leaves = 0
+blocks.canopy = 0
+blocks.grass = 0
+blocks.stone = 0
 
 -- global variables for wall IDs
 dirt_wall = 0
@@ -56,38 +60,41 @@ function init()
     -- register tools
     axe_tool = terralistic_register_tool("axe")
 
+
+
+
     -- register blocks
-    air = terralistic_get_block_id_by_name("air")
+    blocks.air = terralistic_get_block_id_by_name("air")
 
     -- DIRT
     block_type = terralistic_new_block_type()
     block_type["name"] = "dirt"
     block_type["can_update_states"] = true
     block_type["break_time"] = 1000
-    dirt_block = terralistic_register_block_type(block_type)
+    blocks.dirt = terralistic_register_block_type(block_type)
 
     -- STONE
     block_type = terralistic_new_block_type()
     block_type["name"] = "stone_block"
     block_type["can_update_states"] = true
     block_type["break_time"] = 1000
-    stone_block = terralistic_register_block_type(block_type)
+    blocks.stone_block = terralistic_register_block_type(block_type)
 
     -- COPPER ORE
     block_type = terralistic_new_block_type()
     block_type["name"] = "copper_ore"
     block_type["can_update_states"] = true
     block_type["break_time"] = 1000
-    copper_ore_block = terralistic_register_block_type(block_type)
+    blocks.copper_ore = terralistic_register_block_type(block_type)
 
     -- GRASS BLOCK
     block_type = terralistic_new_block_type()
     block_type["name"] = "grass_block"
     block_type["can_update_states"] = true
     block_type["break_time"] = 1000
-    grass_block = terralistic_register_block_type(block_type)
+    blocks.grass_block = terralistic_register_block_type(block_type)
 
-    terralistic_connect_blocks(dirt_block, grass_block);
+    terralistic_connect_blocks(blocks.dirt, blocks.grass_block);
 
     -- WOOD
     block_type = terralistic_new_block_type()
@@ -98,7 +105,7 @@ function init()
     block_type["transparent"] = true
     block_type["effective_tool"] = axe_tool
     block_type["required_tool_power"] = 10
-    wood_block = terralistic_register_block_type(block_type)
+    blocks.wood = terralistic_register_block_type(block_type)
 
     -- BRANCH
     block_type = terralistic_new_block_type()
@@ -106,14 +113,14 @@ function init()
     block_type["break_time"] = 1000
     block_type["ghost"] = true
     block_type["transparent"] = true
-    branch_block = terralistic_register_block_type(block_type)
+    blocks.branch = terralistic_register_block_type(block_type)
 
     -- LEAVES
     block_type = terralistic_new_block_type()
     block_type["name"] = "leaves"
     block_type["ghost"] = true
     block_type["transparent"] = true
-    leaves_block = terralistic_register_block_type(block_type)
+    blocks.leaves = terralistic_register_block_type(block_type)
 
     -- CANOPY
     block_type = terralistic_new_block_type()
@@ -122,23 +129,45 @@ function init()
     block_type["transparent"] = true
     block_type["width"] = 5
     block_type["height"] = 5
-    canopy_block = terralistic_register_block_type(block_type)
+    blocks.canopy = terralistic_register_block_type(block_type)
 
-    terralistic_connect_blocks(wood_block, canopy_block);
+    terralistic_connect_blocks(blocks.wood, blocks.canopy);
+
+    -- GRASS
+    block_type = terralistic_new_block_type()
+    block_type["name"] = "grass"
+    block_type["ghost"] = true
+    block_type["transparent"] = true
+    block_type["break_time"] = 0
+    blocks.grass = terralistic_register_block_type(block_type)
+
+    -- STONE
+    block_type = terralistic_new_block_type()
+    block_type["name"] = "stone"
+    block_type["ghost"] = true
+    block_type["transparent"] = true
+    block_type["break_time"] = 0
+    blocks.stone = terralistic_register_block_type(block_type)
+
+
+
 
     -- register walls
     wall_type = terralistic_new_wall_type()
     wall_type["name"] = "dirt"
     dirt_wall = terralistic_register_wall_type(wall_type)
 
+
+
+
     -- register items
     item_type = terralistic_new_item_type()
     item_type["name"] = "dirt"
     item_type["display_name"] = "Dirt Block"
     item_type["max_stack"] = 99
-    item_type["places_block"] = dirt_block
+    item_type["places_block"] = blocks.dirt
     dirt_item = terralistic_register_item_type(item_type)
-    terralistic_set_block_drop(dirt_block, dirt_item, 1)
+    terralistic_set_block_drop(blocks.dirt, dirt_item, 1)
 
     item_type = terralistic_new_item_type()
     item_type["name"] = "hatchet"
@@ -147,7 +176,7 @@ function init()
     item_type["tool"] = axe_tool
     item_type["tool_power"] = 10
     hatchet_item = terralistic_register_item_type(item_type)
-    terralistic_set_block_drop(grass_block, hatchet_item, 1)
+    terralistic_set_block_drop(blocks.grass_block, hatchet_item, 1)
 
     terralistic_print("base_game mod loaded.")
 end
@@ -162,11 +191,11 @@ function init_server()
     biome["max_terrain_height"] = 40
     biome["min_width"] = 100
     biome["max_width"] = 300
-    biome["base_block"] = dirt_block
+    biome["base_block"] = blocks.dirt
     biome["base_wall"] = dirt_wall
     biome["generator_function"] = "generate_plains"
-    biome:add_ore(stone_block, -2.0, 3.0);
-    biome:add_ore(copper_ore_block, -0.9, -0.4);
+    biome:add_ore(blocks.stone_block, -2.0, 3.0);
+    biome:add_ore(blocks.copper_ore, -0.9, -0.4);
     plains = terralistic_register_biome(biome)
 
     -- HILLS
@@ -175,11 +204,11 @@ function init_server()
     biome["max_terrain_height"] = 60
     biome["min_width"] = 100
     biome["max_width"] = 300
-    biome["base_block"] = dirt_block
+    biome["base_block"] = blocks.dirt
     biome["base_wall"] = dirt_wall
     biome["generator_function"] = "generate_plains"
-    biome:add_ore(stone_block, -2.0, 3.0);
-    biome:add_ore(copper_ore_block, -0.9, -0.4);
+    biome:add_ore(blocks.stone_block, -2.0, 3.0);
+    biome:add_ore(blocks.copper_ore, -0.9, -0.4);
     hills = terralistic_register_biome(biome)
     terralistic_connect_biomes(plains, hills, 100)
 
@@ -189,10 +218,10 @@ function init_server()
     biome["max_terrain_height"] = 120
     biome["min_width"] = 100
     biome["max_width"] = 300
-    biome["base_block"] = dirt_block
+    biome["base_block"] = blocks.dirt
     biome["base_wall"] = dirt_wall
-    biome:add_ore(stone_block, 1.0, 1.0);
-    biome:add_ore(copper_ore_block, -0.42, -0.38);
+    biome:add_ore(blocks.stone_block, 1.0, 1.0);
+    biome:add_ore(blocks.copper_ore, -0.42, -0.38);
     mountains = terralistic_register_biome(biome)
     terralistic_connect_biomes(hills, mountains, 100)
 end
@@ -210,38 +239,38 @@ end
 function on_block_break(x, y, block_id)
     if block_id == wood_block then
         -- if the wood block is broken, the wood block above it is also broken
-        if terralistic_get_block(x, y - 1) == wood_block then
+        if terralistic_get_block(x, y - 1) == blocks.wood then
             terralistic_break_block(x, y - 1)
         end
         -- also break left and right wood blocks
-        if terralistic_get_block(x - 1, y) == wood_block then
+        if terralistic_get_block(x - 1, y) == blocks.wood then
             terralistic_break_block(x - 1, y)
         end
-        if terralistic_get_block(x + 1, y) == wood_block then
+        if terralistic_get_block(x + 1, y) == blocks.wood then
             terralistic_break_block(x + 1, y)
         end
 
         -- also break branch blocks on the left and right
-        if terralistic_get_block(x - 1, y) == branch_block then
+        if terralistic_get_block(x - 1, y) == blocks.branch then
             terralistic_break_block(x - 1, y)
         end
-        if terralistic_get_block(x + 1, y) == branch_block then
+        if terralistic_get_block(x + 1, y) == blocks.branch then
             terralistic_break_block(x + 1, y)
         end
 
         -- also break canopy_block 1 block above
-        if terralistic_get_block(x, y - 1) == canopy_block then
+        if terralistic_get_block(x, y - 1) == blocks.canopy then
             terralistic_break_block(x, y - 1)
         end
     end
 
     -- if branch_block is broken, break the leaves_block on the left and right
     if block_id == branch_block then
-        if terralistic_get_block(x - 1, y) == leaves_block then
+        if terralistic_get_block(x - 1, y) == blocks.leaves then
             terralistic_break_block(x - 1, y)
         end
 
-        if terralistic_get_block(x + 1, y) == leaves_block then
+        if terralistic_get_block(x + 1, y) == blocks.leaves then
             terralistic_break_block(x + 1, y)
         end
     end
@@ -249,12 +278,12 @@ end
 
 function generate_plains(terrain, heights, width, height)
     for x = 1, width do
-        if terrain[x][height - heights[x] + 1] == dirt_block then
-            terrain[x][height - heights[x] + 1] = grass_block
+        if terrain[x][height - heights[x] + 1] == blocks.dirt then
+            terrain[x][height - heights[x] + 1] = blocks.grass_block
         end
     end
 
-    -- every 5 - 20 block there is a tree with a height of 7 - 20 blocks
+    -- every 5 - 20 blocks there is a tree with a height of 7 - 20 blocks
     -- the tree is made of wood blocks, if there is the same height
     -- on the left or right, there is a 50% chance for each to spawn additional
     -- wood block on the left or right
@@ -263,43 +292,63 @@ function generate_plains(terrain, heights, width, height)
     while x < width - 2 do
         tree_height = math.random(7, 15)
         tree_y = height - heights[x]
-        if terrain[x][tree_y + 1] == grass_block then
+        if terrain[x][tree_y + 1] == blocks.grass_block then
             for y = tree_y - tree_height, tree_y do
                 if y > 0 and y < height then
-                    terrain[x][y] = wood_block
+                    terrain[x][y] = blocks.wood
                 end
             end
 
-            if heights[x] == heights[x + 1] and terrain[x + 1][tree_y + 1] == grass_block and math.random(0, 1) == 0 then
-                terrain[x + 1][tree_y] = wood_block
+            if heights[x] == heights[x + 1] and terrain[x + 1][tree_y + 1] == blocks.grass_block and math.random(0, 1) == 0 then
+                terrain[x + 1][tree_y] = blocks.wood
             end
 
-            if heights[x] == heights[x - 1] and terrain[x - 1][tree_y + 1] == grass_block and math.random(0, 1) == 0 then
-                terrain[x - 1][tree_y] = wood_block
+            if heights[x] == heights[x - 1] and terrain[x - 1][tree_y + 1] == blocks.grass_block and math.random(0, 1) == 0 then
+                terrain[x - 1][tree_y] = blocks.wood
             end
 
             leave_y = tree_y - math.random(3, 7)
             while leave_y > tree_y - tree_height do
-                if terrain[x - 1][leave_y] == air and terrain[x - 2][leave_y] == air then
-                    terrain[x - 1][leave_y] = branch_block
-                    terrain[x - 2][leave_y] = leaves_block
+                if terrain[x - 1][leave_y] == blocks.air and terrain[x - 2][leave_y] == blocks.air then
+                    terrain[x - 1][leave_y] = blocks.branch
+                    terrain[x - 2][leave_y] = blocks.leaves
                 end
                 leave_y = leave_y - math.random(3, 10);
             end
 
             leave_y = tree_y - math.random(3, 7)
             while leave_y > tree_y - tree_height do
-                if terrain[x + 1][leave_y] == air and terrain[x + 2][leave_y] == air then
-                    terrain[x + 1][leave_y] = branch_block
-                    terrain[x + 2][leave_y] = leaves_block
+                if terrain[x + 1][leave_y] == blocks.air and terrain[x + 2][leave_y] == blocks.air then
+                    terrain[x + 1][leave_y] = blocks.branch
+                    terrain[x + 2][leave_y] = blocks.leaves
                 end
                 leave_y = leave_y - math.random(3, 10);
             end
 
-            terrain[x - 2][tree_y - tree_height - 5] = canopy_block
+            terrain[x - 2][tree_y - tree_height - 5] = blocks.canopy
         end
 
         x = x + math.random(6, 15)
+    end
+
+    -- every 3 - 10 blocks there is a stone on the ground
+    x = math.random(1, 8)
+    while x < width - 1 do
+        if terrain[x][height - heights[x] + 1] == blocks.grass_block and terrain[x][height - heights[x]] == blocks.air then
+            terrain[x][height - heights[x]] = blocks.stone
+        end
+
+        x = x + math.random(3, 10)
+    end
+
+    -- every 3 - 10 blocks there is grass on the ground
+    x = math.random(1, 8)
+    while x < width - 1 do
+        if terrain[x][height - heights[x] + 1] == blocks.grass_block and terrain[x][height - heights[x]] == blocks.air then
+            terrain[x][height - heights[x]] = blocks.grass
+        end
+
+        x = x + math.random(3, 10)
     end
 
     return terrain
