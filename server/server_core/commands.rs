@@ -4,9 +4,9 @@ use crate::server::server_core::{items, send_to_ui};
 use crate::server::server_ui::{ConsoleMessageType, ServerState, UiMessageType};
 use crate::shared::inventory::Inventory;
 use crate::shared::items::ItemStack;
-use std::sync::mpsc::{Receiver, Sender};
-use core::fmt::Write;
 use anyhow::{anyhow, Error};
+use core::fmt::Write;
+use std::sync::mpsc::{Receiver, Sender};
 
 /**
  * This struct contains all parameters that are needed to execute any command
@@ -50,6 +50,7 @@ impl CommandManager {
     }
 
     //executes a command
+    #[allow(clippy::too_many_arguments)]
     pub fn execute_command(
         &self,
         command: &str,
@@ -84,6 +85,7 @@ impl CommandManager {
     }
 
     //executes all commands
+    #[allow(clippy::too_many_arguments)]
     pub fn execute_commands(
         &self,
         receiver: &Receiver<UiMessageType>,
@@ -111,9 +113,7 @@ impl CommandManager {
                     println!("{feedback}");
                     ConsoleMessageType::Info(feedback)
                 }
-                Err(val) => {
-                    ConsoleMessageType::Warning(val.to_string())
-                }
+                Err(val) => ConsoleMessageType::Warning(val.to_string()),
             };
             send_to_ui(
                 UiMessageType::SrvToUiConsoleMessage(feedback),
@@ -124,7 +124,7 @@ impl CommandManager {
 }
 
 //help command
-#[allow(clippy::unnecessary_wraps)]//all command functions must return the same type
+#[allow(clippy::unnecessary_wraps)] //all command functions must return the same type
 pub fn help(parameters: &mut CommandParameters) -> anyhow::Result<String> {
     let mut string = String::new();
     string.push_str("Commands:\n");
@@ -134,7 +134,7 @@ pub fn help(parameters: &mut CommandParameters) -> anyhow::Result<String> {
     anyhow::Ok(string)
 }
 
-#[allow(clippy::unnecessary_wraps)]//all command functions must return the same type
+#[allow(clippy::unnecessary_wraps)] //all command functions must return the same type
 pub fn stop(parameters: &mut CommandParameters) -> anyhow::Result<String> {
     *parameters.state = ServerState::Stopping;
     anyhow::Ok(String::from("Stopping server..."))
@@ -142,7 +142,10 @@ pub fn stop(parameters: &mut CommandParameters) -> anyhow::Result<String> {
 
 //this command gives an item to the player
 pub fn give(parameters: &mut CommandParameters) -> anyhow::Result<String> {
-    let item_name = parameters.arguments.first().ok_or_else(|| anyhow!("no item name specified"))?;
+    let item_name = parameters
+        .arguments
+        .first()
+        .ok_or_else(|| anyhow!("no item name specified"))?;
     let player_name = parameters.arguments.get(1);
     let item = parameters.items.items.get_item_type_by_name(item_name)?;
     let player;
@@ -156,7 +159,9 @@ pub fn give(parameters: &mut CommandParameters) -> anyhow::Result<String> {
             .players
             .get_player_entity_from_name(executor.as_str(), &mut parameters.entities.entities)?;
     } else {
-        return Err(anyhow!("No player specified when the executor is a server console"));
+        return Err(anyhow!(
+            "No player specified when the executor is a server console"
+        ));
     };
 
     let mut inventory = parameters
@@ -166,14 +171,13 @@ pub fn give(parameters: &mut CommandParameters) -> anyhow::Result<String> {
         .get::<&mut Inventory>(*player)?
         .clone();
 
-    inventory
-        .give_item(
-            ItemStack::new(item.get_id(), 1),
-            (0.0, 0.0),
-            &mut parameters.items.items,
-            &mut parameters.entities.entities,
-            parameters.event_manager,
-        )?;
+    inventory.give_item(
+        ItemStack::new(item.get_id(), 1),
+        (0.0, 0.0),
+        &mut parameters.items.items,
+        &mut parameters.entities.entities,
+        parameters.event_manager,
+    )?;
 
     *parameters
         .entities

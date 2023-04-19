@@ -83,7 +83,7 @@ function register_blocks()
     block_type["name"] = "stone"
     block_type["ghost"] = true
     block_type["transparent"] = true
-    block_type["break_time"] = 0
+    block_type["break_time"] = 1000
     blocks.stone = terralistic_register_block_type(block_type)
 end
 
