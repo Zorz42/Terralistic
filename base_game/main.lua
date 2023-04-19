@@ -175,7 +175,7 @@ function init_server()
     biome:add_ore(blocks.stone_block, -2.0, 3.0);
     biome:add_ore(blocks.copper_ore, -0.9, -0.4);
     biomes.hills = terralistic_register_biome(biome)
-    terralistic_connect_biomes(plains, hills, 100)
+    terralistic_connect_biomes(biomes.plains, biomes.hills, 100)
 
     -- MOUNTAINS
     biome = terralistic_new_biome()
@@ -188,7 +188,7 @@ function init_server()
     biome:add_ore(blocks.stone_block, 1.0, 1.0);
     biome:add_ore(blocks.copper_ore, -0.42, -0.38);
     biomes.mountains = terralistic_register_biome(biome)
-    terralistic_connect_biomes(hills, mountains, 100)
+    terralistic_connect_biomes(biomes.hills, biomes.mountains, 100)
 end
 
 -- This function is called when the mod is unloaded.
