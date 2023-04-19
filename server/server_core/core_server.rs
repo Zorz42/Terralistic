@@ -254,6 +254,8 @@ impl Server {
                 &mut self.state,
                 &mut self.players,
                 &mut self.items,
+                &mut self.entities,
+                &mut self.events,
             )
         }
 

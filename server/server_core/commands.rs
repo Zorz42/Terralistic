@@ -1,7 +1,9 @@
-use crate::server::server_core::players;
+use crate::server::server_core::{entities, players};
 use crate::server::server_core::{items, send_to_ui};
 use crate::server::server_ui::{ConsoleMessageType, ServerState, UiMessageType};
+use crate::shared::items::ItemStack;
 use std::sync::mpsc::{Receiver, Sender};
+use crate::libraries::events::EventManager;
 
 /**
  * This struct contains all parameters that are needed to execute any command
@@ -14,6 +16,8 @@ pub struct CommandParameters<'a> {
     pub executor: Option<String>,
     pub players: &'a mut players::ServerPlayers,
     pub items: &'a mut items::ServerItems,
+    pub entities: &'a mut entities::ServerEntities,
+    pub event_manager: &'a mut EventManager,
     pub arguments: Vec<String>,
 }
 
@@ -50,6 +54,8 @@ impl CommandManager {
         executor: Option<String>,
         players: &mut players::ServerPlayers,
         items: &mut items::ServerItems,
+        entities: &mut entities::ServerEntities,
+        event_manager: &mut EventManager,
     ) -> Result<String, Option<String>> {
         let arguments: Vec<String> = command
             .split(' ')
@@ -65,6 +71,8 @@ impl CommandManager {
                     executor,
                     players,
                     items,
+                    entities,
+                    event_manager,
                     arguments: arguments.get(1..).unwrap_or(&[]).to_vec(),
                 });
             }
@@ -80,11 +88,13 @@ impl CommandManager {
         state: &mut ServerState,
         players: &mut players::ServerPlayers,
         items: &mut items::ServerItems,
+        entities: &mut entities::ServerEntities,
+        event_manager: &mut EventManager,
     ) {
         //goes through the messages received from the server
         while let Ok(UiMessageType::UiToSrvConsoleMessage(message)) = receiver.try_recv() {
             println!("[server UI console input] {message}");
-            let feedback = self.execute_command(&message, state, None, players, items);
+            let feedback = self.execute_command(&message, state, None, players, items, entities, event_manager);
             let feedback = match feedback {
                 Ok(feedback) => {
                     println!("{feedback}");
@@ -128,36 +138,49 @@ pub fn stop(parameters: CommandParameters) -> Result<String, Option<String>> {
 
 //this command gives an item to the player
 pub fn give(parameters: CommandParameters) -> Result<String, Option<String>> {
-    let _item_name = parameters.arguments.first();
+    let item_name = parameters.arguments.first();
     let player_name = parameters.arguments.get(1);
-    //let item;
-    //let player;
+    let item;
+    let player;
 
-    return if let Some(_player_name) = player_name {
-        Ok(String::from(
-            "this isn't implemented yet because you cannot get the player by name",
-        )) //get from player_name TODO
-    } else if let Some(_executor) = parameters.executor {
-        Ok(String::from(
-            "this isn't implemented yet because you cannot get the player by name",
-        )) //get from executor TODO
+    if let Some(player_name) = player_name {
+        if let Ok(player_) = parameters.players.get_player_from_name(player_name) {
+            player = player_;
+        } else {
+            return Err(Some(String::from("Player not found")));
+        }
+    } else if let Some(executor) = parameters.executor {
+        if let Ok(player_) = parameters.players.get_player_from_name(executor.as_str()) {
+            player = player_;
+        } else {
+            return Err(Some(String::from("Player not found")));
+        }
     } else {
-        Err(Some(String::from(
+        return Err(Some(String::from(
             "A player name must be specified if the command isn't executed by a player",
-        )))
+        )));
     };
 
-    /*if let Some(item_name) = item_name { //unreachable code, uncomment after the above thing is fixed
+    if let Some(item_name) = item_name {
         item = parameters.items.items.get_item_type_by_name(item_name)
     } else {
         return Err(None);
     }
 
     if let Ok(item) = item {
-        //give code
+        player
+            .inventory
+            .give_item(
+                ItemStack::new(item.get_id(), 1),
+                (0.0, 0.0),
+                &mut parameters.items.items,
+                &mut parameters.entities.entities,
+                parameters.event_manager,
+            )
+            .expect("TODO: panic message");
     } else {
         return Err(Some(String::from("Item not found")));
     }
 
-    Ok(String::from("Item given"))*/
+    Ok(String::from("Item given"))
 }
