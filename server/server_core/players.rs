@@ -212,10 +212,18 @@ impl ServerPlayers {
             .cloned()
     }
 
-    pub fn get_player_from_name(&mut self, name: &str) -> Result<&mut SavedPlayerData> {
-        self.saved_players
-            .get_mut(name)
-            .ok_or_else(|| anyhow!("Player with name {} not found", name))
+    pub fn get_player_entity_from_name(
+        &mut self,
+        name: &str,
+        entities: &mut Entities,
+    ) -> Result<&mut Entity> {
+        for e in &mut self.conns_to_players {
+            let e_component = entities.ecs.get::<&mut PlayerComponent>(*e.1)?;
+            if e_component.get_name() == name {
+                return Ok(e.1);
+            }
+        }
+        Err(anyhow!("Player not found"))
     }
 
     pub fn serialize(&self) -> Result<Vec<u8>> {

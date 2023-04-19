@@ -256,7 +256,7 @@ impl Server {
                 &mut self.items,
                 &mut self.entities,
                 &mut self.events,
-            )
+            );
         }
 
         while let Some(event) = self.events.pop_event() {
