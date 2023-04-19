@@ -6,6 +6,7 @@ use crate::shared::inventory::Inventory;
 use crate::shared::items::ItemStack;
 use std::sync::mpsc::{Receiver, Sender};
 use core::fmt::Write;
+use anyhow::{anyhow, Error};
 
 /**
  * This struct contains all parameters that are needed to execute any command
@@ -28,7 +29,7 @@ pub struct Command {
     pub call_name: String,
     pub name: String,
     pub description: String,
-    pub function: fn(&mut CommandParameters) -> Result<String, Option<String>>,
+    pub function: fn(&mut CommandParameters) -> anyhow::Result<String>,
 }
 
 //contains all the commands
@@ -58,7 +59,7 @@ impl CommandManager {
         items: &mut items::ServerItems,
         entities: &mut entities::ServerEntities,
         event_manager: &mut EventManager,
-    ) -> Result<String, Option<String>> {
+    ) -> anyhow::Result<String> {
         let arguments: Vec<String> = command
             .split(' ')
             .map(alloc::borrow::ToOwned::to_owned)
@@ -79,7 +80,7 @@ impl CommandManager {
                 });
             }
         }
-        Err(Some(String::from("Command not found")))
+        Err(Error::msg("Invalid command"))
     }
 
     //executes all commands
@@ -110,18 +111,9 @@ impl CommandManager {
                     println!("{feedback}");
                     ConsoleMessageType::Info(feedback)
                 }
-                Err(val) => val.map_or_else(
-                    || {
-                        println!("Invalid use. see /help for more info");
-                        ConsoleMessageType::Warning(
-                            "Invalid use. see /help for more info".to_owned(),
-                        )
-                    },
-                    |message| {
-                        println!("{message}");
-                        ConsoleMessageType::Warning(message)
-                    },
-                ),
+                Err(val) => {
+                    ConsoleMessageType::Warning(val.to_string())
+                }
             };
             send_to_ui(
                 UiMessageType::SrvToUiConsoleMessage(feedback),
@@ -133,98 +125,61 @@ impl CommandManager {
 
 //help command
 #[allow(clippy::unnecessary_wraps)]//all command functions must return the same type
-pub fn help(parameters: &mut CommandParameters) -> Result<String, Option<String>> {
+pub fn help(parameters: &mut CommandParameters) -> anyhow::Result<String> {
     let mut string = String::new();
     string.push_str("Commands:\n");
     for c in &parameters.command_manager.commands {
-        let res = writeln!(string, "{} - {}", c.call_name, c.description);
-        if res.is_err() {
-            return Err(Some(String::from("failed to write the help message")))
-        }
+        writeln!(string, "{} - {}", c.call_name, c.description)?;
     }
-    Ok(string)
+    anyhow::Ok(string)
 }
 
 #[allow(clippy::unnecessary_wraps)]//all command functions must return the same type
-pub fn stop(parameters: &mut CommandParameters) -> Result<String, Option<String>> {
+pub fn stop(parameters: &mut CommandParameters) -> anyhow::Result<String> {
     *parameters.state = ServerState::Stopping;
-    Ok(String::from("Stopping server..."))
+    anyhow::Ok(String::from("Stopping server..."))
 }
 
 //this command gives an item to the player
-pub fn give(parameters: &mut CommandParameters) -> Result<String, Option<String>> {
-    //TODO: simplify errors
-    let item_name = parameters.arguments.first();
+pub fn give(parameters: &mut CommandParameters) -> anyhow::Result<String> {
+    let item_name = parameters.arguments.first().ok_or_else(|| anyhow!("no item name specified"))?;
     let player_name = parameters.arguments.get(1);
-    let item;
+    let item = parameters.items.items.get_item_type_by_name(item_name)?;
     let player;
 
     if let Some(player_name) = player_name {
-        if let Ok(player_) = parameters
+        player = parameters
             .players
-            .get_player_entity_from_name(player_name, &mut parameters.entities.entities)
-        {
-            player = player_;
-        } else {
-            return Err(Some(String::from("Player not found")));
-        }
+            .get_player_entity_from_name(player_name, &mut parameters.entities.entities)?;
     } else if let Some(executor) = parameters.executor.clone() {
-        if let Ok(player_) = parameters
+        player = parameters
             .players
-            .get_player_entity_from_name(executor.as_str(), &mut parameters.entities.entities)
-        {
-            player = player_;
-        } else {
-            return Err(Some(String::from("Player not found")));
-        }
+            .get_player_entity_from_name(executor.as_str(), &mut parameters.entities.entities)?;
     } else {
-        return Err(Some(String::from(
-            "A player name must be specified if the command isn't executed by a player",
-        )));
+        return Err(anyhow!("No player specified when the executor is a server console"));
     };
 
-    if let Some(item_name) = item_name {
-        item = parameters.items.items.get_item_type_by_name(item_name);
-    } else {
-        return Err(None);
-    }
+    let mut inventory = parameters
+        .entities
+        .entities
+        .ecs
+        .get::<&mut Inventory>(*player)?
+        .clone();
 
-    if let Ok(item) = item {
-        let mut inventory;
-        if let Ok(inventory_) = parameters
-            .entities
-            .entities
-            .ecs
-            .get::<&mut Inventory>(*player)
-        {
-            inventory = inventory_.clone();
-        } else {
-            return Err(None); //shouldn't ever happen
-        }
-        let res = inventory
-            .give_item(
-                ItemStack::new(item.get_id(), 1),
-                (0.0, 0.0),
-                &mut parameters.items.items,
-                &mut parameters.entities.entities,
-                parameters.event_manager,
-            );
+    inventory
+        .give_item(
+            ItemStack::new(item.get_id(), 1),
+            (0.0, 0.0),
+            &mut parameters.items.items,
+            &mut parameters.entities.entities,
+            parameters.event_manager,
+        )?;
 
-        if res.is_err() {
-            return Err(Some(String::from("Failed to give item")))
-        }
+    *parameters
+        .entities
+        .entities
+        .ecs
+        .get::<&mut Inventory>(*player)? = inventory;
 
-        if let Ok(mut inventory_) = parameters
-            .entities
-            .entities
-            .ecs
-            .get::<&mut Inventory>(*player)
-        {
-            *inventory_ = inventory;
-        }
-    } else {
-        return Err(Some(String::from("Item not found")));
-    }
-
-    Ok(String::from("Item given"))
+    Ok(("Gave item to player").into())
 }
