@@ -20,7 +20,7 @@ use serde_derive::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 #[derive(Serialize, Deserialize)]
-struct SavedPlayerData {
+pub struct SavedPlayerData {
     pub inventory: Inventory,
     pub position: PositionComponent,
 }
@@ -210,6 +210,12 @@ impl ServerPlayers {
             .get(conn)
             .ok_or_else(|| anyhow!("Received PlayerMovingPacket from unknown connection"))
             .cloned()
+    }
+
+    pub fn get_player_from_name(&mut self, name: &str) -> Result<&mut SavedPlayerData> {
+        self.saved_players
+            .get_mut(name)
+            .ok_or_else(|| anyhow!("Player with name {} not found", name))
     }
 
     pub fn serialize(&self) -> Result<Vec<u8>> {
