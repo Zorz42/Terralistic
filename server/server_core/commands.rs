@@ -1,9 +1,9 @@
+use crate::libraries::events::EventManager;
 use crate::server::server_core::{entities, players};
 use crate::server::server_core::{items, send_to_ui};
 use crate::server::server_ui::{ConsoleMessageType, ServerState, UiMessageType};
 use crate::shared::items::ItemStack;
 use std::sync::mpsc::{Receiver, Sender};
-use crate::libraries::events::EventManager;
 
 /**
  * This struct contains all parameters that are needed to execute any command
@@ -94,7 +94,15 @@ impl CommandManager {
         //goes through the messages received from the server
         while let Ok(UiMessageType::UiToSrvConsoleMessage(message)) = receiver.try_recv() {
             println!("[server UI console input] {message}");
-            let feedback = self.execute_command(&message, state, None, players, items, entities, event_manager);
+            let feedback = self.execute_command(
+                &message,
+                state,
+                None,
+                players,
+                items,
+                entities,
+                event_manager,
+            );
             let feedback = match feedback {
                 Ok(feedback) => {
                     println!("{feedback}");

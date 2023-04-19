@@ -5,6 +5,7 @@ use crate::shared::mod_manager::GameMod;
 use darklua_core::generator::{DenseLuaGenerator, LuaGenerator};
 use darklua_core::Parser;
 use std::collections::HashMap;
+use std::ffi::OsStr;
 use std::path::PathBuf;
 
 /// This function compiles a game mod from a directory.
@@ -17,8 +18,15 @@ pub fn compile_mod(mod_path: PathBuf) {
         println!("cargo:rerun-if-changed={}", path.to_str().unwrap());
     }
 
-    // read the mod's lua code
-    let lua_code = std::fs::read_to_string(mod_path.join("mod.lua")).unwrap();
+    let mut lua_code = String::new();
+    // iterate through all files in the mod directory
+    // if the file ends with .lua then add it to the lua code
+    for entry in std::fs::read_dir(mod_path.clone()).unwrap() {
+        let path = entry.unwrap().path();
+        if path.extension().unwrap_or(OsStr::new("")) == "lua" {
+            lua_code.push_str(&std::fs::read_to_string(path).unwrap());
+        }
+    }
 
     //Use darklua to minify the mod's lua code. Use DenseLuaGenerator to generate the minified code.
     let parser = Parser::default();

@@ -8,57 +8,22 @@ of the mod.
 ]]--
 
 
--- This function returns the mod's name.
-function mod_name()
-    return "base_game"
-end
-
--- This function returns the mod's description.
-function mod_description()
-    return "The base game. It contains the basic" ..
+MOD_NAME = "base_game"
+MOD_DESCRIPTION = "The base game. It contains the basic" ..
             "game mechanics and the classic Terralistic" ..
             "experience."
-end
+VERSION = "0.1"
 
--- This function returns the mod's version.
-function mod_version()
-    return "0.1"
-end
-
--- global variables for block IDs
 blocks = {}
-
-blocks.air = 0
-blocks.dirt = 0
-blocks.stone_block = 0
-blocks.copper_ore = 0
-blocks.grass_block = 0
-blocks.wood = 0
-blocks.branch = 0
-blocks.leaves = 0
-blocks.canopy = 0
-blocks.grass = 0
-blocks.stone = 0
-
--- global variables for wall IDs
-dirt_wall = 0
-
--- global variables for biome IDs
-plains = 0
-hills = 0
-mountains = 0
-
--- global variables for item IDs
-dirt_item = 0
-hatchet_item = 0
-
--- global variables for tool IDs
-axe_tool = 0
+walls = {}
+biomes = {}
+items = {}
+tools = {}
 
 -- This function is called when the mod is loaded.
 function init()
     -- register tools
-    axe_tool = terralistic_register_tool("axe")
+    tools.axe = terralistic_register_tool("axe")
 
 
 
@@ -103,7 +68,7 @@ function init()
     block_type["break_time"] = 1000
     block_type["ghost"] = true
     block_type["transparent"] = true
-    block_type["effective_tool"] = axe_tool
+    block_type["effective_tool"] = tools.axe
     block_type["required_tool_power"] = 10
     blocks.wood = terralistic_register_block_type(block_type)
 
@@ -155,7 +120,7 @@ function init()
     -- register walls
     wall_type = terralistic_new_wall_type()
     wall_type["name"] = "dirt"
-    dirt_wall = terralistic_register_wall_type(wall_type)
+    walls.dirt = terralistic_register_wall_type(wall_type)
 
 
 
@@ -166,17 +131,17 @@ function init()
     item_type["display_name"] = "Dirt Block"
     item_type["max_stack"] = 99
     item_type["places_block"] = blocks.dirt
-    dirt_item = terralistic_register_item_type(item_type)
-    terralistic_set_block_drop(blocks.dirt, dirt_item, 1)
+    items.dirt = terralistic_register_item_type(item_type)
+    terralistic_set_block_drop(blocks.dirt, items.dirt, 1)
 
     item_type = terralistic_new_item_type()
     item_type["name"] = "hatchet"
     item_type["display_name"] = "Hatchet"
     item_type["max_stack"] = 1
-    item_type["tool"] = axe_tool
+    item_type["tool"] = tools.axe
     item_type["tool_power"] = 10
-    hatchet_item = terralistic_register_item_type(item_type)
-    terralistic_set_block_drop(blocks.grass_block, hatchet_item, 1)
+    items.hatchet = terralistic_register_item_type(item_type)
+    terralistic_set_block_drop(blocks.grass_block, items.hatchet, 1)
 
     terralistic_print("base_game mod loaded.")
 end
@@ -192,11 +157,11 @@ function init_server()
     biome["min_width"] = 100
     biome["max_width"] = 300
     biome["base_block"] = blocks.dirt
-    biome["base_wall"] = dirt_wall
+    biome["base_wall"] = walls.dirt
     biome["generator_function"] = "generate_plains"
     biome:add_ore(blocks.stone_block, -2.0, 3.0);
     biome:add_ore(blocks.copper_ore, -0.9, -0.4);
-    plains = terralistic_register_biome(biome)
+    biomes.plains = terralistic_register_biome(biome)
 
     -- HILLS
     biome = terralistic_new_biome()
@@ -205,11 +170,11 @@ function init_server()
     biome["min_width"] = 100
     biome["max_width"] = 300
     biome["base_block"] = blocks.dirt
-    biome["base_wall"] = dirt_wall
+    biome["base_wall"] = walls.dirt
     biome["generator_function"] = "generate_plains"
     biome:add_ore(blocks.stone_block, -2.0, 3.0);
     biome:add_ore(blocks.copper_ore, -0.9, -0.4);
-    hills = terralistic_register_biome(biome)
+    biomes.hills = terralistic_register_biome(biome)
     terralistic_connect_biomes(plains, hills, 100)
 
     -- MOUNTAINS
@@ -219,10 +184,10 @@ function init_server()
     biome["min_width"] = 100
     biome["max_width"] = 300
     biome["base_block"] = blocks.dirt
-    biome["base_wall"] = dirt_wall
+    biome["base_wall"] = walls.dirt
     biome:add_ore(blocks.stone_block, 1.0, 1.0);
     biome:add_ore(blocks.copper_ore, -0.42, -0.38);
-    mountains = terralistic_register_biome(biome)
+    biomes.mountains = terralistic_register_biome(biome)
     terralistic_connect_biomes(hills, mountains, 100)
 end
 
