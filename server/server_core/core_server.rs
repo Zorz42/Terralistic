@@ -275,6 +275,16 @@ impl Server {
                 self.send_to_ui(event.clone());
             }
 
+            self.commands.on_event(
+                &event,
+                &mut self.state,
+                &mut self.players,
+                &mut self.items,
+                &mut self.entities,
+                &mut self.events,
+                &self.ui_event_sender,
+            );
+
             self.mods.on_event(&event, &mut self.networking)?;
             self.blocks.on_event(
                 &event,
