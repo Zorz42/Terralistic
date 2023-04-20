@@ -25,6 +25,7 @@ pub fn compile_mod(mod_path: PathBuf) {
         let path = entry.unwrap().path();
         if path.extension().unwrap_or(OsStr::new("")) == "lua" {
             lua_code.push_str(&std::fs::read_to_string(path).unwrap());
+            lua_code.push('\n');
         }
     }
 

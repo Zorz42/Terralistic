@@ -124,6 +124,7 @@ impl CommandManager {
     }
 
     //executes a command
+    #[allow(clippy::too_many_arguments)]
     pub fn execute_command(
         &self,
         command: &str,
@@ -158,6 +159,7 @@ impl CommandManager {
     }
 
     //executes all commands
+    #[allow(clippy::too_many_arguments)]
     pub fn execute_commands(
         &self,
         receiver: &Receiver<UiMessageType>,
