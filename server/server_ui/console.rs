@@ -19,26 +19,29 @@ fn format_timestamp(message: &String) -> String {
 }
 
 pub struct ConsoleLine {
-    text: String,
+    //currently kinda useless but can be used for sprite loading/unloading to prevent gpu memory usage when not on screen. Will only be useful when a lot of messages get sent to the ui console
+    _text: String,
     sprite: gfx::Sprite,
 }
 
 impl ConsoleLine {
     pub fn new(graphics_context: &mut gfx::GraphicsContext, text: String) -> Self {
-        let mut a = Self {
-            text,
-            sprite: gfx::Sprite::new(),
-        };
-        a.sprite.texture =
-            gfx::Texture::load_from_surface(&graphics_context.font.create_text_surface(&a.text));
-        a.sprite.scale = 1.5;
-        a.sprite.orientation = gfx::BOTTOM_LEFT;
-        a.sprite.color = gfx::WHITE;
-        a.sprite.pos = gfx::FloatPos(gfx::SPACING / 3.0, 0.0);
-        a
+        let mut sprite = gfx::Sprite::new();
+        sprite.texture =
+            gfx::Texture::load_from_surface(&graphics_context.font.create_text_surface(&text));
+        sprite.scale = 1.5;
+        sprite.orientation = gfx::BOTTOM_LEFT;
+        sprite.color = gfx::WHITE;
+        sprite.pos = gfx::FloatPos(gfx::SPACING / 3.0, 0.0);
+
+        Self {
+            _text: text,
+            sprite,
+        }
     }
 
     pub fn render(
+        //TODO: change to a monospace font if possible
         &mut self,
         graphics_context: &mut gfx::GraphicsContext,
         container: &gfx::Container,
@@ -91,6 +94,7 @@ impl Console {
         self.position_lines();
     }
 
+    //repositions the lines when new lines are added or the view is scrolled. TODO: Is inefficient. Fix
     fn position_lines(&mut self) {
         let max_y = -self.input.pos.1 - self.input.get_size().1 - gfx::SPACING / 2.0 + 1.0;
         let min_y = -self.container.rect.size.1 - max_y;
@@ -111,6 +115,7 @@ impl Console {
 
 impl ui_manager::ModuleTrait for Console {
     fn init(&mut self, _graphics_context: &mut gfx::GraphicsContext) {
+        //initializes the input box
         self.input.pos = gfx::FloatPos(EDGE_SPACING, -EDGE_SPACING);
         self.input.scale = 2.0;
         self.input.orientation = gfx::BOTTOM_LEFT;
@@ -139,7 +144,7 @@ impl ui_manager::ModuleTrait for Console {
         graphics_context: &mut gfx::GraphicsContext,
     ) {
         if let UiMessageType::SrvToUiConsoleMessage(message) = message {
-            //extract the string from the message enum
+            //extract the string from the message enum and color the sprite
             let mut color = gfx::Color::new(200, 200, 200, 255);
             let message = match message {
                 ConsoleMessageType::Info(message) => message,
@@ -173,6 +178,7 @@ impl ui_manager::ModuleTrait for Console {
         self.input
             .on_event(event, graphics_context, Some(&self.container));
         match event {
+            //move the view on mouse scroll
             gfx::Event::MouseScroll(scroll) => {
                 self.scroll += scroll
                     * self.text_lines.first().map_or_else(
@@ -183,6 +189,7 @@ impl ui_manager::ModuleTrait for Console {
                 self.position_lines();
             }
             gfx::Event::KeyPress(key, _repeat) => {
+                //if enter is pressed, send the message to the server
                 if matches!(key, gfx::Key::Enter)
                     && self.input.selected
                     && !self.input.get_text().is_empty()

@@ -4,7 +4,7 @@ use crate::server::server_ui::{PlayerEventType, ServerState, UiMessageType};
 use super::ui_manager;
 use super::ui_manager::SCALE;
 
-//this function makes the string have at least a certain length by padding it with zeroes
+/**this function makes the string have at least a certain length by padding it with zeroes in the beginning*/
 fn pad_start(string: String, length: usize) -> String {
     let mut string = string;
     while string.len() < length {
@@ -13,7 +13,7 @@ fn pad_start(string: String, length: usize) -> String {
     string
 }
 
-//this function formats a number of seconds into a string of format HH:MM:SS
+/**this function formats a number of seconds into a string of format HH:MM:SS*/
 fn format_seconds(seconds: u64) -> String {
     let mut seconds = seconds;
     let hours = seconds / 3600;
@@ -29,10 +29,9 @@ fn format_seconds(seconds: u64) -> String {
 }
 
 pub struct ServerInfo {
-    players_sprite: gfx::Sprite,
+    player_count_sprite: gfx::Sprite,
     players_count: u32,
     server_state_enum: ServerState,
-    //format: state, if running then running:mspt
     server_state_sprite: gfx::Sprite,
     mspt: gfx::Sprite,
     uptime: gfx::Sprite,
@@ -44,7 +43,7 @@ impl ServerInfo {
     #[allow(clippy::default_trait_access)]
     pub fn new(graphics_context: &mut gfx::GraphicsContext) -> Self {
         Self {
-            players_sprite: Default::default(),
+            player_count_sprite: Default::default(),
             players_count: 0,
             server_state_enum: ServerState::Nothing,
             server_state_sprite: Default::default(),
@@ -80,6 +79,7 @@ impl ServerInfo {
 }
 
 impl ui_manager::ModuleTrait for ServerInfo {
+    //initializes all the sprites
     fn init(&mut self, graphics_context: &mut gfx::GraphicsContext) {
         self.server_state_sprite.texture =
             gfx::Texture::load_from_surface(&graphics_context.font.create_text_surface("test"));
@@ -96,11 +96,11 @@ impl ui_manager::ModuleTrait for ServerInfo {
         self.mspt.scale = SCALE;
         self.mspt.orientation = gfx::TOP;
 
-        self.players_sprite.color = gfx::WHITE;
-        self.players_sprite.scale = SCALE;
-        self.players_sprite.orientation = gfx::TOP_LEFT;
-        self.players_sprite.pos = gfx::FloatPos(gfx::SPACING, gfx::SPACING);
-        self.players_sprite.texture = gfx::Texture::load_from_surface(
+        self.player_count_sprite.color = gfx::WHITE;
+        self.player_count_sprite.scale = SCALE;
+        self.player_count_sprite.orientation = gfx::TOP_LEFT;
+        self.player_count_sprite.pos = gfx::FloatPos(gfx::SPACING, gfx::SPACING);
+        self.player_count_sprite.texture = gfx::Texture::load_from_surface(
             &graphics_context.font.create_text_surface("Players: 0"),
         );
     }
@@ -118,6 +118,7 @@ impl ui_manager::ModuleTrait for ServerInfo {
         let combined_size = self.server_state_sprite.texture.get_texture_size().0
             + self.mspt.texture.get_texture_size().0;
 
+        //if the server is running, move the running text slightly to the right and add the mspt text so they are centered together, otherwise keep it in the center and don't show mspt
         if self.server_state_enum == ServerState::Running {
             //move server state sprite to the left
             self.server_state_sprite.pos = gfx::FloatPos(
@@ -126,8 +127,11 @@ impl ui_manager::ModuleTrait for ServerInfo {
                 gfx::SPACING,
             );
         } else {
+            //move server state sprite to the center
             self.server_state_sprite.pos = gfx::FloatPos(0.0, gfx::SPACING);
         }
+
+        //move mspt sprite to the right
         self.mspt.pos = gfx::FloatPos(
             (combined_size / 2.0 * SCALE) - (self.mspt.texture.get_texture_size().0 / 2.0 * SCALE),
             gfx::SPACING,
@@ -135,6 +139,7 @@ impl ui_manager::ModuleTrait for ServerInfo {
     }
 
     fn render(&mut self, graphics_context: &mut gfx::GraphicsContext) {
+        //render sprites
         self.uptime.render(graphics_context, Some(&self.container));
 
         self.server_state_sprite
@@ -143,22 +148,22 @@ impl ui_manager::ModuleTrait for ServerInfo {
             self.mspt.render(graphics_context, Some(&self.container));
         }
 
-        self.players_sprite
+        self.player_count_sprite
             .render(graphics_context, Some(&self.container));
     }
 
-    #[allow(clippy::single_match)]
-    #[allow(clippy::match_wildcard_for_single_variants)]
     fn on_server_message(
         &mut self,
         message: &UiMessageType,
         graphics_context: &mut gfx::GraphicsContext,
     ) {
         match message {
+            //update server state sprite
             UiMessageType::ServerState(state) => {
                 self.server_state_enum = *state;
                 self.update_state_sprite(graphics_context);
             }
+            //update mspt sprite
             UiMessageType::MsptUpdate(mspt) => {
                 self.mspt.texture =
                     gfx::Texture::load_from_surface(&graphics_context.font.create_text_surface(
@@ -166,17 +171,19 @@ impl ui_manager::ModuleTrait for ServerInfo {
                     ));
             }
             UiMessageType::PlayerEvent(event) => match event {
+                //update player count sprite
                 PlayerEventType::Join((_name, _addr)) => {
                     self.players_count += 1;
-                    self.players_sprite.texture = gfx::Texture::load_from_surface(
+                    self.player_count_sprite.texture = gfx::Texture::load_from_surface(
                         &graphics_context
                             .font
                             .create_text_surface(&format!("Players: {}", self.players_count)),
                     );
                 }
+                //update player count sprite
                 PlayerEventType::Leave(_addr) => {
                     self.players_count -= 1;
-                    self.players_sprite.texture = gfx::Texture::load_from_surface(
+                    self.player_count_sprite.texture = gfx::Texture::load_from_surface(
                         &graphics_context
                             .font
                             .create_text_surface(&format!("Players: {}", self.players_count)),
