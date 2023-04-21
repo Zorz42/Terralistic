@@ -1,10 +1,13 @@
+use core::cmp::Ordering;
+
+use anyhow::Result;
+
 use crate::client::game::networking::ClientNetworking;
 use crate::libraries::events::Event;
 use crate::libraries::graphics as gfx;
 use crate::libraries::graphics::{FloatPos, FloatSize, GraphicsContext};
 use crate::shared::chat::ChatPacket;
 use crate::shared::packet::Packet;
-use anyhow::Result;
 
 pub struct ChatLine {
     texture: gfx::Texture,
@@ -41,10 +44,10 @@ impl ChatLine {
                 0
             };
 
-        if self.transparency > target_transparency {
-            self.transparency -= 10;
-        } else {
-            self.transparency += 10;
+        match self.transparency.cmp(&target_transparency) {
+            Ordering::Greater => self.transparency -= 10,
+            Ordering::Less => self.transparency += 10,
+            Ordering::Equal => {}
         }
 
         self.transparency = self.transparency.clamp(0, 255);
