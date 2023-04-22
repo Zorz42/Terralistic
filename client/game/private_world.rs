@@ -27,7 +27,7 @@ pub fn run_private_world(
     let world_path = world_path.to_path_buf();
     let server_thread = std::thread::spawn(move || {
         let mut server = Server::new(SINGLEPLAYER_PORT, None, None);
-        let result = server.start(
+        let result = server.run(
             &server_running2,
             &loading_text2,
             vec![include_bytes!("../../base_game/base_game.mod").to_vec()],

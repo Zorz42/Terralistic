@@ -9,6 +9,7 @@ use std::time;
 use crate::libraries::graphics::Event;
 
 use crate::libraries::graphics as gfx;
+use crate::server::server_core::Server;
 use crate::server::server_ui::player_list;
 use crate::server::server_ui::server_info;
 use crate::server::server_ui::{console, ServerState, UiMessageType};
@@ -57,6 +58,7 @@ struct ModuleTreeSplit {
  * `UiManager` is the main struct of the UI. It manages the UI modules and the UI window and communicates with the server.
  */
 pub struct UiManager {
+    server: Server,
     graphics_context: gfx::GraphicsContext,
     server_message_receiver: Receiver<UiMessageType>,
     server_message_sender: Sender<UiMessageType>,
@@ -70,12 +72,14 @@ impl UiManager {
      */
     #[must_use]
     pub fn new(
+        server: Server,
         graphics_context: gfx::GraphicsContext,
         event_receiver: Receiver<UiMessageType>,
         event_sender: Sender<UiMessageType>,
         path: PathBuf,
     ) -> Self {
         let mut temp = Self {
+            server,
             graphics_context,
             server_message_receiver: event_receiver,
             server_message_sender: event_sender,
@@ -116,6 +120,8 @@ impl UiManager {
         let mut last_frame_time = time::Instant::now();
 
         'main: loop {
+            //TODO: run the server
+
             //relays graphics events to the modules
             while let Some(event) = self.graphics_context.renderer.get_event() {
                 for module in &mut self.modules {

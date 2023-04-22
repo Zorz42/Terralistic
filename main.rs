@@ -166,48 +166,37 @@ fn server_main(args: &[String]) {
 
     let (srv_to_ui_event_sender, srv_to_ui_event_receiver) = std::sync::mpsc::channel();
     let (ui_to_srv_event_sender, ui_to_srv_event_receiver) = std::sync::mpsc::channel();
-    let gfx_is_some = server_graphics_context.is_some();
 
-    let server_thread = std::thread::spawn(move || {
-        let mut server = if gfx_is_some {
-            Server::new(
-                MULTIPLAYER_PORT,
-                Some(srv_to_ui_event_sender),
-                Some(ui_to_srv_event_receiver),
-            )
-        } else {
-            Server::new(MULTIPLAYER_PORT, None, None)
-        };
-        let result = server.start(
-            &server_running_clone,
+    let mut server = if server_graphics_context.is_some() {
+        Server::new(
+            MULTIPLAYER_PORT,
+            Some(srv_to_ui_event_sender),
+            Some(ui_to_srv_event_receiver),
+        )
+    } else {
+        Server::new(MULTIPLAYER_PORT, None, None)
+    };
+
+    if let Some(graphics) = server_graphics_context {
+        let mut manager = UiManager::new(
+            server,
+            graphics,
+            srv_to_ui_event_receiver,
+            ui_to_srv_event_sender,
+            path_clone,
+        );
+        manager.run(&server_running);
+    } else {
+        let res = server.run(
+            &server_running,
             &loading_text,
             vec![include_bytes!("base_game/base_game.mod").to_vec()],
             &path.join("server.world"),
         );
-
-        if let Err(e) = result {
+        if let Err(e) = res {
             println!("Server stopped with an error: {e}");
         }
-    });
-
-    server_graphics_context.map_or_else(
-        || loop {
-            if server_thread.is_finished() {
-                break;
-            }
-            sleep(Duration::from_millis(50));
-        },
-        |graphics| {
-            let mut manager = UiManager::new(
-                graphics,
-                srv_to_ui_event_receiver,
-                ui_to_srv_event_sender,
-                path_clone,
-            );
-            manager.run(&server_running);
-        },
-    );
-    let _thread_result = server_thread.join();
+    }
 }
 
 fn client_main() {

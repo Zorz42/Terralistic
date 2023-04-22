@@ -93,7 +93,6 @@ impl Server {
     #[allow(clippy::too_many_lines)]
     pub fn start(
         &mut self,
-        is_running: &AtomicBool,
         status_text: &Mutex<String>,
         mods_serialized: Vec<Vec<u8>>,
         world_path: &Path,
@@ -148,9 +147,6 @@ impl Server {
             )?;
         }
 
-        self.state = ServerState::Running;
-        self.send_to_ui(UiMessageType::ServerState(self.state));
-        // start server loop
         self.print_to_console(
             &format!("server started in {}ms", timer.elapsed().as_millis()),
             0,
@@ -159,64 +155,114 @@ impl Server {
             .lock()
             .unwrap_or_else(PoisonError::into_inner)
             .clear();
+
+        //self.run(is_running)?;
+
+        //self.stop(&status_text, world_path)?;
+        Ok(())
+    }
+
+    pub fn run(
+        &mut self,
+        is_running: &AtomicBool,
+        status_text: &Mutex<String>,
+        mods_serialized: Vec<Vec<u8>>,
+        world_path: &Path,
+    ) -> Result<()> {
         let ms_timer = std::time::Instant::now();
         let mut ms_counter = 0;
         let mut last_time = std::time::Instant::now();
         let mut sec_counter = std::time::Instant::now();
         let mut ticks = 1;
         let mut micros = 0;
+
+        self.start(status_text, mods_serialized, world_path)?;
+
+        self.state = ServerState::Running;
+        self.send_to_ui(UiMessageType::ServerState(self.state));
+
         loop {
             let delta_time = last_time.elapsed().as_secs_f32() * 1000.0;
             last_time = std::time::Instant::now();
 
-            // update modules
-            self.networking.update(&mut self.events)?;
-            self.mods.update()?;
-            self.blocks.update(&mut self.events, delta_time)?;
-            self.walls.update(delta_time, &mut self.events)?;
+            self.update(
+                delta_time,
+                ms_timer,
+                &mut ms_counter,
+                &mut sec_counter,
+                &mut micros,
+                last_time,
+                &mut ticks,
+            )?;
 
-            // handle events
-            self.handle_events()?;
-
-            while ms_counter < ms_timer.elapsed().as_millis() as i32 {
-                self.players.update(
-                    &mut self.entities.entities,
-                    &self.blocks.get_blocks(),
-                    &mut self.events,
-                    &mut self.items.items,
-                    &mut self.networking,
-                )?;
-                self.entities
-                    .entities
-                    .update_entities_ms(&self.blocks.get_blocks());
-                ms_counter += 5;
-            }
-
-            micros += last_time.elapsed().as_micros() as u64;
-            if sec_counter.elapsed().as_secs() >= 1 {
-                self.entities.sync_entities(&mut self.networking)?;
-                sec_counter = std::time::Instant::now();
-
-                self.send_to_ui(UiMessageType::MsptUpdate(
-                    //send microseconds per tick each second
-                    micros / ticks,
-                ));
-                ticks = 0;
-                micros = 0;
-            }
-
-            if !is_running.load(Ordering::Relaxed) || self.state == ServerState::Stopping {
-                //state is there so outside events can stop it
-                break;
-            }
             // sleep
             let sleep_time = 1000.0 / self.tps_limit - last_time.elapsed().as_secs_f32() * 1000.0;
             if sleep_time > 0.0 {
                 sleep(Duration::from_secs_f32(sleep_time / 1000.0));
             }
             ticks += 1;
+
+            if !is_running.load(Ordering::Relaxed) || self.state == ServerState::Stopping {
+                //state is there so outside events can stop it
+                break;
+            }
         }
 
+        self.stop(status_text, world_path)?;
+
+        Ok(())
+    }
+
+    pub fn update(
+        &mut self,
+        delta_time: f32,
+        ms_timer: std::time::Instant,
+        ms_counter: &mut i32,
+        sec_counter: &mut std::time::Instant,
+        micros: &mut u64,
+        last_time: std::time::Instant,
+        ticks: &mut u64,
+    ) -> Result<()> {
+        // update modules
+        self.networking.update(&mut self.events)?;
+        self.mods.update()?;
+        self.blocks.update(&mut self.events, delta_time)?;
+        self.walls.update(delta_time, &mut self.events)?;
+
+        // handle events
+        self.handle_events()?;
+
+        while *ms_counter < ms_timer.elapsed().as_millis() as i32 {
+            self.players.update(
+                &mut self.entities.entities,
+                &self.blocks.get_blocks(),
+                &mut self.events,
+                &mut self.items.items,
+                &mut self.networking,
+            )?;
+            self.entities
+                .entities
+                .update_entities_ms(&self.blocks.get_blocks());
+            *ms_counter += 5;
+        }
+
+        *micros += last_time.elapsed().as_micros() as u64;
+        if sec_counter.elapsed().as_secs() >= 1 {
+            self.entities.sync_entities(&mut self.networking)?;
+            *sec_counter = std::time::Instant::now();
+
+            self.send_to_ui(UiMessageType::MsptUpdate(
+                //send microseconds per tick each second
+                *micros / *ticks,
+            ));
+            *ticks = 0;
+            *micros = 0;
+        }
+
+        Ok(())
+    }
+
+    pub fn stop(&mut self, status_text: &Mutex<String>, world_path: &Path) -> Result<()> {
         // stop modules
         self.networking.stop(&mut self.events)?;
         self.mods.stop()?;
@@ -239,11 +285,8 @@ impl Server {
             .unwrap_or_else(PoisonError::into_inner)
             .clear();
         self.print_to_console("server stopped.", 0);
-        Ok(())
-    }
 
-    pub fn stop(&mut self) {
-        self.state = ServerState::Stopping;
+        Ok(())
     }
 
     fn handle_events(&mut self) -> Result<()> {
