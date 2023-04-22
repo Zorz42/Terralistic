@@ -120,7 +120,7 @@ impl UiManager {
         //init the server
         let res = self.server.start(status_text, mods_serialized, world_path);
         if let Err(e) = res {
-            println!("Error starting server: {}", e);
+            println!("Error starting server: {e}");
             return;
         }
 
@@ -153,7 +153,7 @@ impl UiManager {
                 last_time,
                 &mut ticks,
             ) {
-                println!("Error running server: {}", e);
+                println!("Error running server: {e}");
                 break;
             }
 
@@ -225,7 +225,7 @@ impl UiManager {
             let sleep_time =
                 1000.0 / self.server.tps_limit - last_time.elapsed().as_secs_f32() * 1000.0;
             if sleep_time > 0.0 {
-                sleep(std::time::Duration::from_secs_f32(sleep_time / 1000.0));
+                sleep(core::time::Duration::from_secs_f32(sleep_time / 1000.0));
             }
             ticks += 1;
 
@@ -238,7 +238,7 @@ impl UiManager {
         }
 
         if let Err(e) = self.server.stop(status_text, world_path) {
-            println!("Error stopping server: {}", e);
+            println!("Error stopping server: {e}");
         }
     }
 

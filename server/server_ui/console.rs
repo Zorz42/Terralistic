@@ -95,8 +95,6 @@ impl Console {
 
     //repositions the lines when new lines are added or the view is scrolled. TODO: Is inefficient. Fix
     fn position_lines(&mut self) {
-        let max_y = -self.input.pos.1 - self.input.get_size().1 - gfx::SPACING / 2.0 + 1.0;
-        let min_y = -self.container.rect.size.1 - max_y;
         let offset = self.text_lines.first().map_or_else(
             || 20.0,
             |line| line.sprite.texture.get_texture_size().1 + EDGE_SPACING,

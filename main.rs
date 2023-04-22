@@ -61,7 +61,6 @@
 #![allow(clippy::ptr_as_ptr)]
 #![allow(clippy::shadow_unrelated)]
 #![allow(clippy::many_single_char_names)]
-#![allow(clippy::significant_drop_tightening)]
 #![windows_subsystem = "windows"]
 
 extern crate alloc;
@@ -70,7 +69,6 @@ extern crate core;
 use alloc::sync::Arc;
 use core::sync::atomic::AtomicBool;
 use std::sync::Mutex;
-use std::thread::sleep;
 
 use crate::client::menus::{run_main_menu, MenuBack};
 use crate::libraries::graphics as gfx;
@@ -147,7 +145,6 @@ fn server_main(args: &[String]) {
     };
 
     let server_running = Arc::new(AtomicBool::new(true));
-    let server_running_clone = server_running.clone();
 
     let loading_text = Arc::new(Mutex::new("Loading".to_owned()));
 
