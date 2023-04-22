@@ -69,7 +69,6 @@ extern crate core;
 
 use alloc::sync::Arc;
 use core::sync::atomic::AtomicBool;
-use core::time::Duration;
 use std::sync::Mutex;
 use std::thread::sleep;
 
@@ -185,7 +184,12 @@ fn server_main(args: &[String]) {
             ui_to_srv_event_sender,
             path_clone,
         );
-        manager.run(&server_running);
+        manager.run(
+            &server_running,
+            &loading_text,
+            vec![include_bytes!("base_game/base_game.mod").to_vec()],
+            &path.join("server.world"),
+        );
     } else {
         let res = server.run(
             &server_running,

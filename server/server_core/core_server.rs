@@ -27,8 +27,8 @@ pub const SINGLEPLAYER_PORT: u16 = 49152;
 pub const MULTIPLAYER_PORT: u16 = 49153;
 
 pub struct Server {
-    tps_limit: f32,
-    state: ServerState,
+    pub tps_limit: f32,
+    pub state: ServerState,
     events: EventManager,
     networking: ServerNetworking,
     mods: ServerModManager,
@@ -155,10 +155,6 @@ impl Server {
             .lock()
             .unwrap_or_else(PoisonError::into_inner)
             .clear();
-
-        //self.run(is_running)?;
-
-        //self.stop(&status_text, world_path)?;
         Ok(())
     }
 

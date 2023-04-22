@@ -2,9 +2,10 @@ use alloc::sync::Arc;
 use core::sync::atomic::AtomicBool;
 use std::fs::File;
 use std::io::Write;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::sync::mpsc::{Receiver, Sender};
-use std::time;
+use std::sync::Mutex;
+use std::thread::sleep;
 
 use crate::libraries::graphics::Event;
 
@@ -97,10 +98,30 @@ impl UiManager {
     /**
      * runs the UI. This function should only be called once as it runs until the window is closed or the server is stopped (one of those 2 events also triggers the other one).
      */
-    pub fn run(&mut self, server_running: &Arc<AtomicBool>) {
+    pub fn run(
+        &mut self,
+        is_running: &Arc<AtomicBool>,
+        status_text: &Mutex<String>,
+        mods_serialized: Vec<Vec<u8>>,
+        world_path: &Path,
+    ) {
+        let ms_timer = std::time::Instant::now();
+        let mut ms_counter = 0;
+        let mut last_time = std::time::Instant::now();
+        let mut sec_counter = std::time::Instant::now();
+        let mut ticks = 1;
+        let mut micros = 0;
+
         //give sender to the modules
         for module in &mut self.modules {
             module.set_sender(self.server_message_sender.clone());
+        }
+
+        //init the server
+        let res = self.server.start(status_text, mods_serialized, world_path);
+        if let Err(e) = res {
+            println!("Error starting server: {}", e);
+            return;
         }
 
         //init the modules
@@ -117,10 +138,24 @@ impl UiManager {
         gfx::RenderRect::new(gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, 0.0))
             .render(&self.graphics_context, None); //rect that makes rendering work. It is useless but do not remove it or the rendering will not work. Blame the graphics library by Zorz42
 
-        let mut last_frame_time = time::Instant::now();
+        let mut last_frame_time = std::time::Instant::now();
 
         'main: loop {
-            //TODO: run the server
+            let delta_time = last_time.elapsed().as_secs_f32() * 1000.0;
+            last_time = std::time::Instant::now();
+
+            if let Err(e) = self.server.update(
+                delta_time,
+                ms_timer,
+                &mut ms_counter,
+                &mut sec_counter,
+                &mut micros,
+                last_time,
+                &mut ticks,
+            ) {
+                println!("Error running server: {}", e);
+                break;
+            }
 
             //relays graphics events to the modules
             while let Some(event) = self.graphics_context.renderer.get_event() {
@@ -131,7 +166,7 @@ impl UiManager {
 
             //stops the server if the window is closed
             if !self.graphics_context.renderer.is_window_open() {
-                server_running.store(false, core::sync::atomic::Ordering::Relaxed);
+                is_running.store(false, core::sync::atomic::Ordering::Relaxed);
             }
             self.graphics_context.renderer.handle_window_resize();
 
@@ -163,7 +198,7 @@ impl UiManager {
             for module in &mut self.modules {
                 module.update(time, &mut self.graphics_context);
             }
-            last_frame_time = time::Instant::now();
+            last_frame_time = std::time::Instant::now();
 
             //renders the background
             gfx::Rect::new(
@@ -185,6 +220,25 @@ impl UiManager {
 
             //display the frame
             self.graphics_context.renderer.update_window();
+
+            //sleep
+            let sleep_time =
+                1000.0 / self.server.tps_limit - last_time.elapsed().as_secs_f32() * 1000.0;
+            if sleep_time > 0.0 {
+                sleep(std::time::Duration::from_secs_f32(sleep_time / 1000.0));
+            }
+            ticks += 1;
+
+            if !is_running.load(core::sync::atomic::Ordering::Relaxed)
+                || self.server.state == ServerState::Stopping
+            {
+                //state is there so outside events can stop it
+                break;
+            }
+        }
+
+        if let Err(e) = self.server.stop(status_text, world_path) {
+            println!("Error stopping server: {}", e);
         }
     }
 
