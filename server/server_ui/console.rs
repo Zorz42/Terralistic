@@ -105,9 +105,6 @@ impl Console {
         for line in self.text_lines.iter_mut().rev() {
             line.sprite.pos.1 = y + self.scroll;
             y -= offset;
-            if line.sprite.pos.1 + line.sprite.texture.get_texture_size().1 < min_y {
-                break;
-            }
         }
     }
 }
@@ -179,11 +176,12 @@ impl ui_manager::ModuleTrait for Console {
         match event {
             //move the view on mouse scroll
             gfx::Event::MouseScroll(scroll) => {
-                self.scroll += scroll
-                    * self.text_lines.first().map_or_else(
-                        || 0.0,
-                        |line| line.sprite.texture.get_texture_size().1 + gfx::SPACING / 2.0,
-                    );
+                let offset = self.text_lines.first().map_or_else(
+                    || 0.0,
+                    |line| line.sprite.texture.get_texture_size().1 + EDGE_SPACING,
+                );
+                self.scroll += scroll * offset;
+                self.scroll = self.scroll.min(offset * (self.text_lines.len() - 1) as f32);
                 self.scroll = self.scroll.max(0.0);
                 self.position_lines();
             }
