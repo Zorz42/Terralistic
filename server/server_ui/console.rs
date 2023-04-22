@@ -29,7 +29,6 @@ impl ConsoleLine {
         let mut sprite = gfx::Sprite::new();
         sprite.texture =
             gfx::Texture::load_from_surface(&graphics_context.font.create_text_surface(&text));
-        sprite.scale = 1.5;
         sprite.orientation = gfx::BOTTOM_LEFT;
         sprite.color = gfx::WHITE;
         sprite.pos = gfx::FloatPos(gfx::SPACING / 3.0, 0.0);
@@ -100,7 +99,7 @@ impl Console {
         let min_y = -self.container.rect.size.1 - max_y;
         let offset = self.text_lines.first().map_or_else(
             || 26.0,
-            |line| line.sprite.texture.get_texture_size().1 + gfx::SPACING / 2.0,
+            |line| line.sprite.texture.get_texture_size().1 + EDGE_SPACING,
         );
         let mut y = -self.input.pos.1 - self.input.get_size().1 - gfx::SPACING / 2.0;
         for line in self.text_lines.iter_mut().rev() {
