@@ -117,16 +117,16 @@ impl UiManager {
             module.set_sender(self.server_message_sender.clone());
         }
 
+        //init the modules
+        for module in &mut self.modules {
+            module.init(&mut self.graphics_context);
+        }
+
         //init the server
         let res = self.server.start(status_text, mods_serialized, world_path);
         if let Err(e) = res {
             println!("Error starting server: {e}");
             return;
-        }
-
-        //init the modules
-        for module in &mut self.modules {
-            module.init(&mut self.graphics_context);
         }
 
         //load the module tree

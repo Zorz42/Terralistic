@@ -147,6 +147,9 @@ impl Server {
             )?;
         }
 
+        self.state = ServerState::Running;
+        self.send_to_ui(UiMessageType::ServerState(self.state));
+
         self.print_to_console(
             &format!("server started in {}ms", timer.elapsed().as_millis()),
             0,
@@ -173,9 +176,6 @@ impl Server {
         let mut micros = 0;
 
         self.start(status_text, mods_serialized, world_path)?;
-
-        self.state = ServerState::Running;
-        self.send_to_ui(UiMessageType::ServerState(self.state));
 
         loop {
             let delta_time = last_time.elapsed().as_secs_f32() * 1000.0;
