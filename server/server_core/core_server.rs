@@ -87,7 +87,7 @@ impl Server {
         }
     }
 
-    /// Starts the server
+    /// Starts the server - manual way. It only inits the server but doesn't run a loop
     /// # Errors
     /// A lot of server crashes are caused by mods and other stuff, so this function returns a Result
     #[allow(clippy::too_many_lines)]
@@ -161,6 +161,9 @@ impl Server {
         Ok(())
     }
 
+    ///Runs the server - automated way. It starts (inits) the server, runs it until it has top be stopped, then stops it and returns
+    /// # Errors
+    /// A lot of server crashes are caused by mods and other stuff, so this function returns a Result
     pub fn run(
         &mut self,
         is_running: &AtomicBool,
@@ -171,9 +174,6 @@ impl Server {
         let ms_timer = std::time::Instant::now();
         let mut ms_counter = 0;
         let mut last_time = std::time::Instant::now();
-        let mut sec_counter = std::time::Instant::now();
-        let mut ticks = 1;
-        let mut micros = 0;
 
         self.start(status_text, mods_serialized, world_path)?;
 
@@ -181,22 +181,13 @@ impl Server {
             let delta_time = last_time.elapsed().as_secs_f32() * 1000.0;
             last_time = std::time::Instant::now();
 
-            self.update(
-                delta_time,
-                ms_timer,
-                &mut ms_counter,
-                &mut sec_counter,
-                &mut micros,
-                last_time,
-                &mut ticks,
-            )?;
+            self.update(delta_time, ms_timer, &mut ms_counter)?;
 
             // sleep
             let sleep_time = 1000.0 / self.tps_limit - last_time.elapsed().as_secs_f32() * 1000.0;
             if sleep_time > 0.0 {
                 sleep(Duration::from_secs_f32(sleep_time / 1000.0));
             }
-            ticks += 1;
 
             if !is_running.load(Ordering::Relaxed) || self.state == ServerState::Stopping {
                 //state is there so outside events can stop it
@@ -209,15 +200,14 @@ impl Server {
         Ok(())
     }
 
+    ///Updates the server - manual way. It updates the server once and returns
+    ///# Errors
+    ///A lot of server crashes are caused by mods and other stuff, so this function returns a Result
     pub fn update(
         &mut self,
         delta_time: f32,
         ms_timer: std::time::Instant,
         ms_counter: &mut i32,
-        sec_counter: &mut std::time::Instant,
-        micros: &mut u64,
-        last_time: std::time::Instant,
-        ticks: &mut u64,
     ) -> Result<()> {
         // update modules
         self.networking.update(&mut self.events)?;
@@ -242,22 +232,16 @@ impl Server {
             *ms_counter += 5;
         }
 
-        *micros += last_time.elapsed().as_micros() as u64;
-        if sec_counter.elapsed().as_secs() >= 1 {
+        if *ms_counter % 1000 == 0 {
             self.entities.sync_entities(&mut self.networking)?;
-            *sec_counter = std::time::Instant::now();
-
-            self.send_to_ui(UiMessageType::MsptUpdate(
-                //send microseconds per tick each second
-                *micros / *ticks,
-            ));
-            *ticks = 0;
-            *micros = 0;
         }
 
         Ok(())
     }
 
+    ///Stops the server - manual way. It stops the server and returns
+    ///# Errors
+    ///A lot of server crashes are caused by mods and other stuff, so this function returns a Result
     pub fn stop(&mut self, status_text: &Mutex<String>, world_path: &Path) -> Result<()> {
         // stop modules
         self.networking.stop(&mut self.events)?;

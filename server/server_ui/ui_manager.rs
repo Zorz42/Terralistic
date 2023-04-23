@@ -108,9 +108,6 @@ impl UiManager {
         let ms_timer = std::time::Instant::now();
         let mut ms_counter = 0;
         let mut last_time = std::time::Instant::now();
-        let mut sec_counter = std::time::Instant::now();
-        let mut ticks = 1;
-        let mut micros = 0;
 
         //give sender to the modules
         for module in &mut self.modules {
@@ -138,24 +135,15 @@ impl UiManager {
         gfx::RenderRect::new(gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, 0.0))
             .render(&self.graphics_context, None); //rect that makes rendering work. It is useless but do not remove it or the rendering will not work. Blame the graphics library by Zorz42
 
-        let mut last_frame_time = std::time::Instant::now();
-
         'main: loop {
             let delta_time = last_time.elapsed().as_secs_f32() * 1000.0;
             last_time = std::time::Instant::now();
 
-            if let Err(e) = self.server.update(
-                delta_time,
-                ms_timer,
-                &mut ms_counter,
-                &mut sec_counter,
-                &mut micros,
-                last_time,
-                &mut ticks,
-            ) {
+            if let Err(e) = self.server.update(delta_time, ms_timer, &mut ms_counter) {
                 println!("Error running server: {e}");
                 break;
             }
+            let server_mspt = last_time.elapsed().as_micros() as u64;
 
             //relays graphics events to the modules
             while let Some(event) = self.graphics_context.renderer.get_event() {
@@ -163,12 +151,6 @@ impl UiManager {
                     module.on_event(&event, &mut self.graphics_context);
                 }
             }
-
-            //stops the server if the window is closed
-            if !self.graphics_context.renderer.is_window_open() {
-                is_running.store(false, core::sync::atomic::Ordering::Relaxed);
-            }
-            self.graphics_context.renderer.handle_window_resize();
 
             //goes through the messages received from the server and sends them to the modules
             //also closes the window if the server is stopped
@@ -192,13 +174,10 @@ impl UiManager {
                         .update(&self.graphics_context, None);
                 }
             }
-
-            let time = last_frame_time.elapsed().as_secs_f32();
             //updates the modules
             for module in &mut self.modules {
-                module.update(time, &mut self.graphics_context);
+                module.update(delta_time, &mut self.graphics_context);
             }
-            last_frame_time = std::time::Instant::now();
 
             //renders the background
             gfx::Rect::new(
@@ -220,20 +199,37 @@ impl UiManager {
 
             //display the frame
             self.graphics_context.renderer.update_window();
+            self.graphics_context.renderer.handle_window_resize(); //idk what this does
+
+            //update the mspt
+            let ui_mspt = last_time.elapsed().as_micros() as u64;
+
+            for module in &mut self.modules {
+                if module.get_name() == "ServerInfo" {
+                    module.on_server_message(
+                        &UiMessageType::MsptUpdate((server_mspt, ui_mspt)),
+                        &mut self.graphics_context,
+                    );
+                }
+            }
+
+            //close the window if the server is stopped
+            if !is_running.load(core::sync::atomic::Ordering::Relaxed)
+                || self.server.state == ServerState::Stopping
+            {
+                //state is there so outside events can stop it
+                break;
+            }
+            //stops the server if the window is closed
+            if !self.graphics_context.renderer.is_window_open() {
+                is_running.store(false, core::sync::atomic::Ordering::Relaxed);
+            }
 
             //sleep
             let sleep_time =
                 1000.0 / self.server.tps_limit - last_time.elapsed().as_secs_f32() * 1000.0;
             if sleep_time > 0.0 {
                 sleep(core::time::Duration::from_secs_f32(sleep_time / 1000.0));
-            }
-            ticks += 1;
-
-            if !is_running.load(core::sync::atomic::Ordering::Relaxed)
-                || self.server.state == ServerState::Stopping
-            {
-                //state is there so outside events can stop it
-                break;
             }
         }
 

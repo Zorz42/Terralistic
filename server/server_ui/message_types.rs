@@ -3,7 +3,7 @@ pub enum UiMessageType {
     ServerState(ServerState),
     SrvToUiConsoleMessage(ConsoleMessageType),
     UiToSrvConsoleMessage(String),
-    MsptUpdate(u64),
+    MsptUpdate((u64, u64)),
     PlayerEvent(PlayerEventType),
 }
 

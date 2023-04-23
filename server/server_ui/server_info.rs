@@ -33,10 +33,13 @@ pub struct ServerInfo {
     players_count: u32,
     server_state_enum: ServerState,
     server_state_sprite: gfx::Sprite,
-    mspt: gfx::Sprite,
+    mspt_sprite: gfx::Sprite,
+    mspt: (u64, u64),
     uptime: gfx::Sprite,
     container: gfx::Container,
     server_start: std::time::Instant,
+    last_update: std::time::Instant,
+    updated: i32,
 }
 
 impl ServerInfo {
@@ -47,7 +50,8 @@ impl ServerInfo {
             players_count: 0,
             server_state_enum: ServerState::Nothing,
             server_state_sprite: Default::default(),
-            mspt: Default::default(),
+            mspt_sprite: Default::default(),
+            mspt: (0, 0),
             uptime: Default::default(),
             //container math will be redone
             container: gfx::Container::new(
@@ -58,6 +62,8 @@ impl ServerInfo {
                 None,
             ),
             server_start: std::time::Instant::now(),
+            last_update: std::time::Instant::now(),
+            updated: 0,
         }
     }
 
@@ -92,9 +98,9 @@ impl ui_manager::ModuleTrait for ServerInfo {
         self.uptime.orientation = gfx::TOP_RIGHT;
         self.uptime.pos = gfx::FloatPos(-gfx::SPACING, gfx::SPACING);
 
-        self.mspt.color = gfx::WHITE;
-        self.mspt.scale = SCALE;
-        self.mspt.orientation = gfx::TOP;
+        self.mspt_sprite.color = gfx::WHITE;
+        self.mspt_sprite.scale = SCALE;
+        self.mspt_sprite.orientation = gfx::TOP;
 
         self.player_count_sprite.color = gfx::WHITE;
         self.player_count_sprite.scale = SCALE;
@@ -114,11 +120,11 @@ impl ui_manager::ModuleTrait for ServerInfo {
                 .create_text_surface(&format!("Uptime: {}", format_seconds(uptime_num))),
         );
 
-        //calculate state and mspt text positions
+        //calculate state and mspt_sprite text positions
         let combined_size = self.server_state_sprite.texture.get_texture_size().0
-            + self.mspt.texture.get_texture_size().0;
+            + self.mspt_sprite.texture.get_texture_size().0;
 
-        //if the server is running, move the running text slightly to the right and add the mspt text so they are centered together, otherwise keep it in the center and don't show mspt
+        //if the server is running, move the running text slightly to the right and add the mspt_sprite text so they are centered together, otherwise keep it in the center and don't show mspt_sprite
         if self.server_state_enum == ServerState::Running {
             //move server state sprite to the left
             self.server_state_sprite.pos = gfx::FloatPos(
@@ -131,9 +137,10 @@ impl ui_manager::ModuleTrait for ServerInfo {
             self.server_state_sprite.pos = gfx::FloatPos(0.0, gfx::SPACING);
         }
 
-        //move mspt sprite to the right
-        self.mspt.pos = gfx::FloatPos(
-            (combined_size / 2.0 * SCALE) - (self.mspt.texture.get_texture_size().0 / 2.0 * SCALE),
+        //move mspt_sprite sprite to the right
+        self.mspt_sprite.pos = gfx::FloatPos(
+            (combined_size / 2.0 * SCALE)
+                - (self.mspt_sprite.texture.get_texture_size().0 / 2.0 * SCALE),
             gfx::SPACING,
         );
     }
@@ -145,7 +152,8 @@ impl ui_manager::ModuleTrait for ServerInfo {
         self.server_state_sprite
             .render(graphics_context, Some(&self.container));
         if self.server_state_enum == ServerState::Running {
-            self.mspt.render(graphics_context, Some(&self.container));
+            self.mspt_sprite
+                .render(graphics_context, Some(&self.container));
         }
 
         self.player_count_sprite
@@ -163,12 +171,27 @@ impl ui_manager::ModuleTrait for ServerInfo {
                 self.server_state_enum = *state;
                 self.update_state_sprite(graphics_context);
             }
-            //update mspt sprite
-            UiMessageType::MsptUpdate(mspt) => {
-                self.mspt.texture =
-                    gfx::Texture::load_from_surface(&graphics_context.font.create_text_surface(
-                        format!(" ({}ms)", (*mspt as f64 / 1000.0).to_owned()).as_str(),
-                    ));
+            //update mspt_sprite sprite
+            UiMessageType::MsptUpdate((server_mspt, ui_mspt)) => {
+                self.mspt.0 += *server_mspt;
+                self.mspt.1 += *ui_mspt;
+                self.updated += 1;
+                if self.last_update.elapsed().as_millis() < 1000 {
+                    return;
+                }
+                self.mspt_sprite.texture = gfx::Texture::load_from_surface(
+                    &graphics_context.font.create_text_surface(
+                        format!(
+                            " {:.3}/{:.3}mspt",
+                            (self.mspt.0 as f64 / 1000.0 / self.updated as f64).to_owned(),
+                            (self.mspt.1 as f64 / 1000.0 / self.updated as f64).to_owned()
+                        )
+                        .as_str(),
+                    ),
+                );
+                self.last_update = std::time::Instant::now();
+                self.updated = 0;
+                self.mspt = (0, 0);
             }
             UiMessageType::PlayerEvent(event) => match event {
                 //update player count sprite
