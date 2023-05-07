@@ -10,4 +10,4 @@ mod players;
 mod walls;
 mod world_generator;
 
-pub use core_server::{send_to_ui, Server, MULTIPLAYER_PORT, SINGLEPLAYER_PORT};
+pub use core_server::{print_to_console, send_to_ui, Server, MULTIPLAYER_PORT, SINGLEPLAYER_PORT};

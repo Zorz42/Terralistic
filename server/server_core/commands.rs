@@ -1,7 +1,7 @@
 use crate::libraries::events::{Event, EventManager};
 use crate::server::server_core::networking::PacketFromClientEvent;
 use crate::server::server_core::{entities, players};
-use crate::server::server_core::{items, send_to_ui};
+use crate::server::server_core::{items, print_to_console, send_to_ui};
 use crate::server::server_ui::{ConsoleMessageType, ServerState, UiMessageType};
 use crate::shared::chat::ChatPacket;
 use crate::shared::inventory::Inventory;
@@ -10,7 +10,7 @@ use crate::shared::packet::Packet;
 use crate::shared::players::PlayerComponent;
 use anyhow::{anyhow, Error};
 use core::fmt::Write;
-use std::sync::mpsc::{Receiver, Sender};
+use std::sync::mpsc::Receiver;
 
 /**
  * This struct contains all parameters that are needed to execute any command
@@ -63,7 +63,6 @@ impl CommandManager {
         items: &mut items::ServerItems,
         entities: &mut entities::ServerEntities,
         event_manager: &mut EventManager,
-        ui_event_sender: &Option<Sender<UiMessageType>>,
     ) {
         if let Some(event) = event.downcast::<PacketFromClientEvent>() {
             let mut command = if let Some(packet_) = event.packet.try_deserialize::<ChatPacket>() {
@@ -110,7 +109,7 @@ impl CommandManager {
             println!("{output}");
             send_to_ui(
                 UiMessageType::SrvToUiConsoleMessage(ConsoleMessageType::Info(output)),
-                ui_event_sender,
+                None,
             );
             let Ok(packet) = Packet::new(ChatPacket {
                 message: format!("Command result: {result:?}"),
@@ -164,7 +163,6 @@ impl CommandManager {
     pub fn execute_commands(
         &self,
         receiver: &Receiver<UiMessageType>,
-        ui_message_sender: &Option<Sender<UiMessageType>>,
         state: &mut ServerState,
         players: &mut players::ServerPlayers,
         items: &mut items::ServerItems,
@@ -173,7 +171,6 @@ impl CommandManager {
     ) {
         //goes through the messages received from the server
         while let Ok(UiMessageType::UiToSrvConsoleMessage(message)) = receiver.try_recv() {
-            println!("[server UI console input] {message}");
             let feedback = self.execute_command(
                 &message,
                 state,
@@ -183,17 +180,10 @@ impl CommandManager {
                 entities,
                 event_manager,
             );
-            let feedback = match feedback {
-                Ok(feedback) => {
-                    println!("{feedback}");
-                    ConsoleMessageType::Info(feedback)
-                }
-                Err(val) => ConsoleMessageType::Warning(val.to_string()),
+            match feedback {
+                Ok(feedback) => print_to_console(&feedback, 0),
+                Err(val) => print_to_console(&val.to_string(), 1),
             };
-            send_to_ui(
-                UiMessageType::SrvToUiConsoleMessage(feedback),
-                ui_message_sender,
-            );
         }
     }
 }

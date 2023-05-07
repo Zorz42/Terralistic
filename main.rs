@@ -166,8 +166,8 @@ fn server_main(args: &[String]) {
     let mut server = if server_graphics_context.is_some() {
         Server::new(
             MULTIPLAYER_PORT,
-            Some(srv_to_ui_event_sender),
             Some(ui_to_srv_event_receiver),
+            Some(srv_to_ui_event_sender),
         )
     } else {
         Server::new(MULTIPLAYER_PORT, None, None)

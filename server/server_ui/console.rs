@@ -152,7 +152,7 @@ impl ui_manager::ModuleTrait for Console {
                 }
             };
 
-            self.add_line(format_timestamp(message), graphics_context, color);
+            self.add_line(message.to_string(), graphics_context, color);
         }
     }
 
@@ -193,11 +193,16 @@ impl ui_manager::ModuleTrait for Console {
                         UiMessageType::UiToSrvConsoleMessage(self.input.get_text().clone()),
                         &self.sender,
                     );
+                    let message = format_timestamp(&format!(
+                        "[console_input] {}",
+                        self.input.get_text().clone()
+                    ));
                     self.add_line(
-                        format_timestamp(&format!("[console] {}", self.input.get_text().clone())),
+                        message.clone(),
                         graphics_context,
                         gfx::Color::new(200, 200, 200, 255),
                     );
+                    println!("{message}");
                     self.input.set_text(String::new());
                 }
             }

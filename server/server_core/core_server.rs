@@ -37,7 +37,6 @@ pub struct Server {
     entities: ServerEntities,
     items: ServerItems,
     players: ServerPlayers,
-    ui_event_sender: Option<Sender<UiMessageType>>,
     ui_event_receiver: Option<Receiver<UiMessageType>>,
     commands: CommandManager,
 }
@@ -46,9 +45,13 @@ impl Server {
     #[must_use]
     pub fn new(
         port: u16,
-        ui_event_sender: Option<Sender<UiMessageType>>,
         ui_event_receiver: Option<Receiver<UiMessageType>>,
+        ui_event_sender: Option<Sender<UiMessageType>>,
     ) -> Self {
+        send_to_ui(
+            UiMessageType::ServerState(ServerState::Nothing),
+            ui_event_sender,
+        ); //this is useless but sets the ui event sender
         let blocks = ServerBlocks::new();
         let walls = ServerWalls::new(&mut blocks.get_blocks());
         let mut commands = CommandManager::new();
@@ -81,7 +84,6 @@ impl Server {
             entities: ServerEntities::new(),
             items: ServerItems::new(),
             players: ServerPlayers::new(),
-            ui_event_sender,
             ui_event_receiver,
             commands,
         }
@@ -97,11 +99,11 @@ impl Server {
         mods_serialized: Vec<Vec<u8>>,
         world_path: &Path,
     ) -> Result<()> {
-        self.print_to_console("Starting server...", 0);
+        print_to_console("Starting server...", 0);
         let timer = std::time::Instant::now();
         *status_text.lock().unwrap_or_else(PoisonError::into_inner) = "Starting server".to_owned();
         self.state = ServerState::Starting;
-        self.send_to_ui(UiMessageType::ServerState(self.state));
+        send_to_ui(UiMessageType::ServerState(self.state), None);
 
         let mut mods = Vec::new();
         for game_mod in mods_serialized {
@@ -121,22 +123,22 @@ impl Server {
         generator.init(&mut self.mods.mod_manager)?;
 
         self.state = ServerState::InitMods;
-        self.send_to_ui(UiMessageType::ServerState(self.state));
-        self.print_to_console("initializing mods", 0);
+        send_to_ui(UiMessageType::ServerState(self.state), None);
+        print_to_console("initializing mods", 0);
         *status_text.lock().unwrap_or_else(PoisonError::into_inner) =
             "Initializing mods".to_owned();
         self.mods.init()?;
 
         if world_path.exists() {
             self.state = ServerState::LoadingWorld;
-            self.send_to_ui(UiMessageType::ServerState(self.state));
-            self.print_to_console("loading world", 0);
+            send_to_ui(UiMessageType::ServerState(self.state), None);
+            print_to_console("loading world", 0);
             *status_text.lock().unwrap_or_else(PoisonError::into_inner) =
                 "Loading world".to_owned();
             self.load_world(world_path)?;
         } else {
             self.state = ServerState::GeneratingWorld;
-            self.send_to_ui(UiMessageType::ServerState(self.state));
+            send_to_ui(UiMessageType::ServerState(self.state), None);
             generator.generate(
                 (&mut *self.blocks.get_blocks(), &mut self.walls.walls),
                 &mut self.mods.mod_manager,
@@ -148,9 +150,9 @@ impl Server {
         }
 
         self.state = ServerState::Running;
-        self.send_to_ui(UiMessageType::ServerState(self.state));
+        send_to_ui(UiMessageType::ServerState(self.state), None);
 
-        self.print_to_console(
+        print_to_console(
             &format!("server started in {}ms", timer.elapsed().as_millis()),
             0,
         );
@@ -249,22 +251,22 @@ impl Server {
         self.handle_events()?;
 
         self.state = ServerState::Stopping;
-        self.send_to_ui(UiMessageType::ServerState(self.state));
-        self.print_to_console("saving world", 0);
+        send_to_ui(UiMessageType::ServerState(self.state), None);
+        print_to_console("saving world", 0);
         *status_text.lock().unwrap_or_else(PoisonError::into_inner) = "Saving world".to_owned();
 
         self.save_world(world_path)?;
 
-        self.print_to_console("stopping server", 0);
+        print_to_console("stopping server", 0);
         *status_text.lock().unwrap_or_else(PoisonError::into_inner) = "Stopping server".to_owned();
 
         self.state = ServerState::Stopped;
-        self.send_to_ui(UiMessageType::ServerState(self.state));
+        send_to_ui(UiMessageType::ServerState(self.state), None);
         status_text
             .lock()
             .unwrap_or_else(PoisonError::into_inner)
             .clear();
-        self.print_to_console("server stopped.", 0);
+        print_to_console("server stopped.", 0);
 
         Ok(())
     }
@@ -273,7 +275,6 @@ impl Server {
         if let Some(receiver) = &self.ui_event_receiver {
             self.commands.execute_commands(
                 receiver,
-                &self.ui_event_sender,
                 &mut self.state,
                 &mut self.players,
                 &mut self.items,
@@ -284,18 +285,24 @@ impl Server {
 
         while let Some(event) = self.events.pop_event() {
             if let Some(disconnect) = event.downcast::<DisconnectEvent>() {
-                self.send_to_ui(UiMessageType::PlayerEvent(PlayerEventType::Leave(
-                    disconnect.conn.address.addr(),
-                )));
+                send_to_ui(
+                    UiMessageType::PlayerEvent(PlayerEventType::Leave(
+                        disconnect.conn.address.addr(),
+                    )),
+                    None,
+                );
             }
             if let Some(connect) = event.downcast::<NewConnectionEvent>() {
-                self.send_to_ui(UiMessageType::PlayerEvent(PlayerEventType::Join((
-                    connect.name.clone(),
-                    connect.conn.address.addr(),
-                ))));
+                send_to_ui(
+                    UiMessageType::PlayerEvent(PlayerEventType::Join((
+                        connect.name.clone(),
+                        connect.conn.address.addr(),
+                    ))),
+                    None,
+                );
             }
             if let Some(event) = event.downcast::<UiMessageType>() {
-                self.send_to_ui(event.clone());
+                send_to_ui(event.clone(), None);
             }
 
             self.commands.on_event(
@@ -305,7 +312,6 @@ impl Server {
                 &mut self.items,
                 &mut self.entities,
                 &mut self.events,
-                &self.ui_event_sender,
             );
 
             self.mods.on_event(&event, &mut self.networking)?;
@@ -374,38 +380,57 @@ impl Server {
         std::fs::write(world_path, world_file)?;
         Ok(())
     }
-
-    fn send_to_ui(&self, data: UiMessageType) {
-        send_to_ui(data, &self.ui_event_sender);
-    }
-
-    //prints to the terminal the server was started in and sends it to the ui
-    fn print_to_console(&self, text: &str, warn_level: u8) {
-        let formatted_text;
-        if warn_level == 0 {
-            formatted_text = format!("[INFO] {text}");
-        } else if warn_level == 1 {
-            formatted_text = format!("[WARNING] {text}");
-        } else {
-            formatted_text = format!("[ERROR] {text}");
-        }
-        println!("{formatted_text}");
-        let text_with_type = match warn_level {
-            0 => ConsoleMessageType::Info(formatted_text),
-            1 => ConsoleMessageType::Warning(formatted_text),
-            _ => ConsoleMessageType::Error(formatted_text),
-        };
-        self.send_to_ui(UiMessageType::SrvToUiConsoleMessage(text_with_type));
-    }
 }
 
 //sends any data to the ui if the server was started without nogui flag
-pub fn send_to_ui(data: UiMessageType, ui_event_sender: &Option<Sender<UiMessageType>>) {
-    if let Some(sender) = ui_event_sender {
-        let result = sender.send(data);
+pub fn send_to_ui(data: UiMessageType, ui_event_sender: Option<Sender<UiMessageType>>) {
+    static mut UI_EVENT_SENDER: Option<Sender<UiMessageType>> = None; //TODO: change from static mut to something else
+                                                                      //SAFETY: should be safe as long as the server is single threaded, but will still change it from static mut to something else soon just in case
+    unsafe {
+        if UI_EVENT_SENDER.is_none() {
+            UI_EVENT_SENDER = ui_event_sender;
+        }
 
-        if let Err(_e) = result {
-            println!("error sending data to ui");
+        if let Some(sender) = &UI_EVENT_SENDER {
+            let result = sender.send(data);
+
+            if let Err(_e) = result {
+                println!("error sending data to ui");
+            }
         }
     }
+}
+
+//prints to the terminal the server was started in and sends it to the ui
+pub fn print_to_console(text: &str, warn_level: u8) {
+    let mut formatted_text;
+    if warn_level == 0 {
+        formatted_text = format!("[INFO] {text}");
+    } else if warn_level == 1 {
+        formatted_text = format!("[WARNING] {text}");
+    } else {
+        formatted_text = format!("[ERROR] {text}");
+    }
+    formatted_text = format_timestamp(&formatted_text);
+    println!("{formatted_text}");
+    let text_with_type = match warn_level {
+        0 => ConsoleMessageType::Info(formatted_text),
+        1 => ConsoleMessageType::Warning(formatted_text),
+        _ => ConsoleMessageType::Error(formatted_text),
+    };
+    send_to_ui(UiMessageType::SrvToUiConsoleMessage(text_with_type), None);
+}
+
+//this function formats the string to add the timestamp
+fn format_timestamp(message: &String) -> String {
+    let timestamp = chrono::Local::now().naive_local().timestamp();
+    let timestamp = chrono::NaiveDateTime::from_timestamp_opt(timestamp, 0);
+    format!(
+        "[{}] {}",
+        timestamp.map_or_else(
+            || "???".to_owned(),
+            |time| time.format("%m-%d %H:%M:%S").to_string()
+        ),
+        message
+    )
 }

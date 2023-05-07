@@ -139,6 +139,7 @@ impl UiManager {
             let delta_time = last_time.elapsed().as_secs_f32() * 1000.0;
             last_time = std::time::Instant::now();
 
+            //update the server by 1 tick
             if let Err(e) = self.server.update(delta_time, ms_timer, &mut ms_counter) {
                 println!("Error running server: {e}");
                 break;
