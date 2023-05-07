@@ -2,6 +2,7 @@ use anyhow::Result;
 
 use crate::libraries::events::Event;
 use crate::server::server_core::networking::SendTarget;
+use crate::server::server_core::print_to_console;
 use crate::shared::mod_manager::{GameMod, ModManager, ModsWelcomePacket};
 use crate::shared::packet::Packet;
 
@@ -29,7 +30,8 @@ impl ServerModManager {
     pub fn init(&mut self) -> Result<()> {
         self.mod_manager
             .add_global_function("print", |_, text: String| {
-                println!("[server mod] {text}");
+                print_to_console(&format!("[server mod] {text}"), 0);
+                //println!("[server mod] {text}");
                 Ok(())
             })?;
 
