@@ -1,5 +1,5 @@
 use crate::libraries::events::Event;
-use crate::server::server_core::networking::{PacketFromClientEvent, SendTarget, ServerNetworking};
+use crate::server::server_core::{networking::{PacketFromClientEvent, SendTarget, ServerNetworking}, print_to_console};
 use crate::shared::chat::ChatPacket;
 use crate::shared::packet::Packet;
 use anyhow::Result;
@@ -13,7 +13,7 @@ pub fn server_chat_on_event(event: &Event, networking: &mut ServerNetworking) ->
             }
 
             let message = format!("{}: {}", name, packet.message);
-            println!("{message}");
+            print_to_console(&message, 0);
             networking.send_packet(&Packet::new(ChatPacket { message })?, SendTarget::All)?;
         }
     }
