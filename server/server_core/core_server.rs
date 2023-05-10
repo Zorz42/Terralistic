@@ -59,19 +59,19 @@ impl Server {
             call_name: "help".to_owned(),
             name: "Help".to_owned(),
             description: "Shows all commands".to_owned(),
-            function: super::commands::help,
+            function: super::commands::help_command,
         });
         commands.add_command(Command {
             call_name: "stop".to_owned(),
             name: "Stop".to_owned(),
             description: "Stops the server".to_owned(),
-            function: super::commands::stop,
+            function: super::commands::stop_command,
         });
         commands.add_command(Command {
             call_name: "give".to_owned(),
             name: "Give".to_owned(),
             description: "Gives an item to a player".to_owned(),
-            function: super::commands::give,
+            function: super::commands::give_command,
         });
         Self {
             tps_limit: 20.0,

@@ -190,7 +190,7 @@ impl CommandManager {
 
 //help command
 #[allow(clippy::unnecessary_wraps)] //all command functions must return the same type
-pub fn help(parameters: &mut CommandParameters) -> anyhow::Result<String> {
+pub fn help_command(parameters: &mut CommandParameters) -> anyhow::Result<String> {
     let mut string = String::new();
     string.push_str("Commands:\n");
     for c in &parameters.command_manager.commands {
@@ -200,13 +200,13 @@ pub fn help(parameters: &mut CommandParameters) -> anyhow::Result<String> {
 }
 
 #[allow(clippy::unnecessary_wraps)] //all command functions must return the same type
-pub fn stop(parameters: &mut CommandParameters) -> anyhow::Result<String> {
+pub fn stop_command(parameters: &mut CommandParameters) -> anyhow::Result<String> {
     *parameters.state = ServerState::Stopping;
     anyhow::Ok(String::from("Stopping server..."))
 }
 
 //this command gives an item to the player
-pub fn give(parameters: &mut CommandParameters) -> anyhow::Result<String> {
+pub fn give_command(parameters: &mut CommandParameters) -> anyhow::Result<String> {
     let item_name = parameters
         .arguments
         .first()

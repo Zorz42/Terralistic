@@ -1,5 +1,8 @@
 use crate::libraries::events::Event;
-use crate::server::server_core::{networking::{PacketFromClientEvent, SendTarget, ServerNetworking}, print_to_console};
+use crate::server::server_core::{
+    networking::{PacketFromClientEvent, SendTarget, ServerNetworking},
+    print_to_console,
+};
 use crate::shared::chat::ChatPacket;
 use crate::shared::packet::Packet;
 use anyhow::Result;
