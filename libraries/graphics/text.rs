@@ -41,7 +41,7 @@ impl Font {
     /// surface array. The index of the array is the ascii value.
     /// # Errors
     /// Returns an error if the font data is invalid.
-    pub fn new(font_data: &[u8]) -> Result<Self> {
+    pub fn new(font_data: &[u8], mono: bool) -> Result<Self> {
         let mut font_surfaces = vec![];
         let font_surface = Surface::deserialize_from_bytes(font_data)?;
 
@@ -64,6 +64,13 @@ impl Font {
                 let mut right = 0;
                 while right < 16 - left && is_column_empty(&surface, 15 - right) {
                     right += 1;
+                }
+                if mono {
+                    let width = 16 - left - right;
+                    if width < 8 {
+                        left -= (8 - width) / 2;
+                        right -= (8 - width) / 2 + width % 2;
+                    }
                 }
 
                 // create new surface with the correct width

@@ -27,8 +27,12 @@ pub struct ConsoleLine {
 impl ConsoleLine {
     pub fn new(graphics_context: &mut gfx::GraphicsContext, text: String) -> Self {
         let mut sprite = gfx::Sprite::new();
-        sprite.texture =
-            gfx::Texture::load_from_surface(&graphics_context.font.create_text_surface(&text));
+        let font = if let Some(mono_font) = &graphics_context.font_mono {
+            mono_font
+        } else {
+            &graphics_context.font
+        };
+        sprite.texture = gfx::Texture::load_from_surface(&font.create_text_surface(&text));
         sprite.orientation = gfx::BOTTOM_LEFT;
         sprite.color = gfx::WHITE;
         sprite.pos = gfx::FloatPos(gfx::SPACING / 3.0, 0.0);
@@ -40,7 +44,6 @@ impl ConsoleLine {
     }
 
     pub fn render(
-        //TODO: change to a monospace font if possible
         &mut self,
         graphics_context: &mut gfx::GraphicsContext,
         container: &gfx::Container,

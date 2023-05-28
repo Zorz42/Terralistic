@@ -74,6 +74,7 @@ around the functions that need drawing
 pub struct GraphicsContext {
     pub renderer: Renderer,
     pub font: Font,
+    pub font_mono: Option<Font>,
 }
 
 use anyhow::Result;
@@ -87,9 +88,15 @@ pub fn init(
     window_height: u32,
     window_title: &str,
     default_font_data: &[u8],
+    default_mono_font_data: Option<&[u8]>,
 ) -> Result<GraphicsContext> {
     Ok(GraphicsContext {
         renderer: Renderer::new(window_width, window_height, window_title)?,
-        font: Font::new(default_font_data)?,
+        font: Font::new(default_font_data, false)?,
+        font_mono: if let Some(data) = default_mono_font_data {
+            Some(Font::new(data, true)?)
+        } else {
+            None
+        },
     })
 }

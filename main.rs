@@ -122,6 +122,7 @@ fn server_main(args: &[String]) {
             700,
             "Terralistic Server",
             include_bytes!("Build/Resources/font.opa"),
+            Some(include_bytes!("Build/Resources/font_mono.opa")),
         );
 
         let mut graphics;
@@ -206,6 +207,7 @@ fn client_main() {
         700,
         "Terralistic",
         include_bytes!("Build/Resources/font.opa"),
+        None,
     );
 
     let mut graphics;
