@@ -1,9 +1,9 @@
-#[derive(Clone, serde_derive::Serialize, serde_derive::Deserialize, PartialEq, Eq)]
+#[derive(Clone, serde_derive::Serialize, serde_derive::Deserialize, PartialEq)]
 pub enum UiMessageType {
     ServerState(ServerState),
     SrvToUiConsoleMessage(ConsoleMessageType),
     UiToSrvConsoleMessage(String),
-    MsptUpdate((u64, u64)),
+    MsptUpdate((Option<f64>, f64)),
     PlayerEvent(PlayerEventType),
 }
 

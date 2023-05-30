@@ -34,12 +34,13 @@ pub struct ServerInfo {
     server_state_enum: ServerState,
     server_state_sprite: gfx::Sprite,
     mspt_sprite: gfx::Sprite,
-    mspt: (u64, u64),
+    mspt: (f64, f64),
     uptime: gfx::Sprite,
     container: gfx::Container,
     server_start: std::time::Instant,
     last_update: std::time::Instant,
-    updated: i32,
+    updated_ui: i32,
+    updated_server: i32,
 }
 
 impl ServerInfo {
@@ -51,7 +52,7 @@ impl ServerInfo {
             server_state_enum: ServerState::Nothing,
             server_state_sprite: Default::default(),
             mspt_sprite: Default::default(),
-            mspt: (0, 0),
+            mspt: (0.0, 0.0),
             uptime: Default::default(),
             //container math will be redone
             container: gfx::Container::new(
@@ -63,7 +64,8 @@ impl ServerInfo {
             ),
             server_start: std::time::Instant::now(),
             last_update: std::time::Instant::now(),
-            updated: 0,
+            updated_ui: 0,
+            updated_server: 0,
         }
     }
 
@@ -173,25 +175,28 @@ impl ui_manager::ModuleTrait for ServerInfo {
             }
             //update mspt_sprite sprite
             UiMessageType::MsptUpdate((server_mspt, ui_mspt)) => {
-                self.mspt.0 += *server_mspt;
+                self.mspt.0 += server_mspt.unwrap_or(0.0);
                 self.mspt.1 += *ui_mspt;
-                self.updated += 1;
+                self.updated_ui += 1;
+                self.updated_server += if server_mspt.is_some() { 1 } else { 0 };
                 if self.last_update.elapsed().as_millis() < 1000 {
                     return;
                 }
                 self.mspt_sprite.texture = gfx::Texture::load_from_surface(
                     &graphics_context.font.create_text_surface(
                         format!(
-                            " {:.3}/{:.3}mspt",
-                            (self.mspt.0 as f64 / 1000.0 / self.updated as f64).to_owned(),
-                            (self.mspt.1 as f64 / 1000.0 / self.updated as f64).to_owned()
+                            " {:.3}/{:.3}mspt (max {:.3}mspt)",
+                            (self.mspt.0 / self.updated_server as f64).to_owned(),
+                            (self.mspt.1 / self.updated_ui as f64).to_owned(),
+                            1000.0 / 20.0
                         )
                         .as_str(),
                     ),
                 );
                 self.last_update = std::time::Instant::now();
-                self.updated = 0;
-                self.mspt = (0, 0);
+                self.updated_ui = 0;
+                self.updated_server = 0;
+                self.mspt = (0.0, 0.0);
             }
             UiMessageType::PlayerEvent(event) => match event {
                 //update player count sprite
