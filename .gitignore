@@ -8,3 +8,4 @@ server_data/
 target
 *.profraw
 coverage.sh
+cmake-build-debug/
