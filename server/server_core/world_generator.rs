@@ -1,16 +1,19 @@
-use crate::shared::blocks::{BlockId, Blocks};
-use crate::shared::mod_manager::{get_mod_id, ModManager};
-use crate::shared::walls::{WallId, Walls};
 extern crate alloc;
-use crate::libraries::events::EventManager;
+
 use alloc::sync::Arc;
+use std::collections::HashMap;
+use std::sync::{Mutex, PoisonError};
+
 use anyhow::{anyhow, bail, Result};
 use noise::{NoiseFn, Perlin};
 use rand::{RngCore, SeedableRng};
 use rlua::prelude::LuaUserData;
 use rlua::UserDataMethods;
-use std::collections::HashMap;
-use std::sync::{Mutex, PoisonError};
+
+use crate::libraries::events::EventManager;
+use crate::shared::blocks::{BlockId, Blocks};
+use crate::shared::mod_manager::{get_mod_id, ModManager};
+use crate::shared::walls::{WallId, Walls};
 
 fn turbulence(noise: &Perlin, x: f32, y: f32) -> f32 {
     let mut value = 0.0;
@@ -260,10 +263,6 @@ impl WorldGenerator {
 
         let cave_noise = Perlin::new(rng.next_u32());
         let terrain_noise = Perlin::new(rng.next_u32());
-        let mut ore_noises = HashMap::new();
-        for block_id in blocks.get_all_block_ids() {
-            ore_noises.insert(block_id, Perlin::new(rng.next_u32()));
-        }
 
         let mut curr_terrain = Vec::new();
         let mut curr_heights = Vec::new();
@@ -501,7 +500,7 @@ impl LuaUserData for Biome {
                         _ => {
                             return Err(rlua::Error::RuntimeError(format!(
                                 "{key} is not a valid field of Biome"
-                            )))
+                            )));
                         }
                     },
                     rlua::Value::UserData(b) => match key.as_str() {
@@ -510,7 +509,7 @@ impl LuaUserData for Biome {
                             Err(_) => {
                                 return Err(rlua::Error::RuntimeError(
                                     "value is not a valid value for base_block".to_owned(),
-                                ))
+                                ));
                             }
                         },
                         "base_wall" => match b.borrow::<WallId>() {
@@ -518,13 +517,13 @@ impl LuaUserData for Biome {
                             Err(_) => {
                                 return Err(rlua::Error::RuntimeError(
                                     "value is not a valid value for base_wall".to_owned(),
-                                ))
+                                ));
                             }
                         },
                         _ => {
                             return Err(rlua::Error::RuntimeError(format!(
                                 "{key} is not a valid field of Biome"
-                            )))
+                            )));
                         }
                     },
                     rlua::Value::String(b) => match key.as_str() {
@@ -535,13 +534,13 @@ impl LuaUserData for Biome {
                         _ => {
                             return Err(rlua::Error::RuntimeError(format!(
                                 "{key} is not a valid field of Biome"
-                            )))
+                            )));
                         }
                     },
                     _ => {
                         return Err(rlua::Error::RuntimeError(format!(
                             "{key} is not a valid field of Biome"
-                        )))
+                        )));
                     }
                 }
                 Ok(())

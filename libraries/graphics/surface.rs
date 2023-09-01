@@ -175,12 +175,7 @@ impl<'surface_lifetime> Iterator for MutSurfaceIterator<'surface_lifetime> {
         if let Some(result) = result {
             // Safety: We know that the result is a valid mutable reference and 'surface_lifetime
             // outlives the iterator. Apparently mutable iterators are not possible without unsafe code.
-            unsafe {
-                Some((
-                    self.pos - IntPos(1, 0),
-                    &mut *(result as *mut Color as *mut Color),
-                ))
-            }
+            unsafe { Some((self.pos - IntPos(1, 0), &mut *(result as *mut Color))) }
         } else {
             None
         }

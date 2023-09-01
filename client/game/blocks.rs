@@ -38,9 +38,13 @@ impl RenderBlockChunk {
 
     fn can_connect_to(block_type: BlockId, x: i32, y: i32, blocks: &Blocks) -> bool {
         let block = blocks.get_block_type_at(x, y);
-        let Ok(block) = block else { return true; };
+        let Ok(block) = block else {
+            return true;
+        };
         let block_type = blocks.get_block_type(block_type);
-        let Ok(block_type) = block_type else { return true; };
+        let Ok(block_type) = block_type else {
+            return true;
+        };
         block_type.connects_to.contains(&block.get_id()) || block.get_id() == block_type.get_id()
     }
 

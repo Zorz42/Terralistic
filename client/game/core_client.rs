@@ -92,7 +92,9 @@ pub fn run_game(
     run_loading_screen(graphics, menu_back, &loading_text);
 
     let result = init_thread.join();
-    let Ok(result) = result else { bail!("Failed to join init thread"); };
+    let Ok(result) = result else {
+        bail!("Failed to join init thread");
+    };
     let result = result?;
 
     let mut mods = result.0;

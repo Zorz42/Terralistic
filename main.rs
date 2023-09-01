@@ -61,6 +61,7 @@
 #![allow(clippy::ptr_as_ptr)]
 #![allow(clippy::shadow_unrelated)]
 #![allow(clippy::many_single_char_names)]
+#![allow(clippy::significant_drop_tightening)]
 #![windows_subsystem = "windows"]
 
 extern crate alloc;

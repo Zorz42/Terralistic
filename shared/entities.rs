@@ -161,7 +161,7 @@ impl Entities {
     pub fn despawn_entity(&mut self, id: u32, events: &mut EventManager) -> Result<()> {
         let mut entity_to_despawn = None;
 
-        for (entity, id_component) in self.ecs.query::<&IdComponent>().iter() {
+        for (entity, id_component) in &mut self.ecs.query::<&IdComponent>() {
             if id_component.id() == id {
                 entity_to_despawn = Some(entity);
                 break;

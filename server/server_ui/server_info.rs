@@ -178,7 +178,7 @@ impl ui_manager::ModuleTrait for ServerInfo {
                 self.mspt.0 += server_mspt.unwrap_or(0.0);
                 self.mspt.1 += *ui_mspt;
                 self.updated_ui += 1;
-                self.updated_server += if server_mspt.is_some() { 1 } else { 0 };
+                self.updated_server += i32::from(server_mspt.is_some());
                 if self.last_update.elapsed().as_millis() < 1000 {
                     return;
                 }

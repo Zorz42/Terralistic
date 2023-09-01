@@ -78,8 +78,8 @@ impl CommandManager {
             command = command.get(1..).unwrap_or("").to_owned();
 
             let Ok(player_entity) = players.get_player_from_connection(&event.conn) else {
-                    return;
-                };
+                return;
+            };
             let name = if let Ok(player_c) = entities
                 .entities
                 .ecs
@@ -114,7 +114,7 @@ impl CommandManager {
             let Ok(packet) = Packet::new(ChatPacket {
                 message: format!("Command result: {result:?}"),
             }) else {
-                    return;
+                return;
             };
             event_manager.push_event(Event::new(PacketFromClientEvent {
                 conn: event.conn.clone(),

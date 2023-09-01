@@ -1,4 +1,5 @@
 extern crate alloc;
+
 use crate::libraries::events::{Event, EventManager};
 use crate::shared::blocks::{Block, BlockBreakEvent, BlockId, Blocks, Tool, ToolId};
 use crate::shared::mod_manager::ModManager;
@@ -150,7 +151,7 @@ impl rlua::UserData for Block {
                         _ => {
                             return Err(rlua::Error::RuntimeError(format!(
                                 "{key} is not a valid field of BlockType for integer value"
-                            )))
+                            )));
                         }
                     };
                     Ok(())
@@ -164,7 +165,7 @@ impl rlua::UserData for Block {
                         _ => {
                             return Err(rlua::Error::RuntimeError(format!(
                                 "{key} is not a valid field of BlockType for boolean value"
-                            )))
+                            )));
                         }
                     };
                     Ok(())
@@ -175,7 +176,7 @@ impl rlua::UserData for Block {
                         _ => {
                             return Err(rlua::Error::RuntimeError(format!(
                                 "{key} is not a valid field of BlockType for string value"
-                            )))
+                            )));
                         }
                     };
                     Ok(())
@@ -188,7 +189,7 @@ impl rlua::UserData for Block {
                         _ => {
                             return Err(rlua::Error::RuntimeError(format!(
                                 "{key} is not a valid field of Block for userdata value"
-                            )))
+                            )));
                         }
                     };
                     Ok(())

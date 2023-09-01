@@ -141,13 +141,17 @@ impl UiManager {
             last_time = std::time::Instant::now();
             let mut server_mspt = None;
 
-            if num_updates < ms_timer.elapsed().as_millis() as u64 * self.server.tps_limit as u64 / 1000 {//update the server by 1 tick
+            if num_updates
+                < ms_timer.elapsed().as_millis() as u64 * self.server.tps_limit as u64 / 1000
+            {
+                //update the server by 1 tick
                 let server_tick_start = ms_timer.elapsed().as_micros();
                 if let Err(e) = self.server.update(delta_time, ms_timer, &mut ms_counter) {
                     println!("Error running server: {e}");
                     break;
                 }
-                server_mspt = Some((ms_timer.elapsed().as_micros() - server_tick_start) as f64 / 1000.0);
+                server_mspt =
+                    Some((ms_timer.elapsed().as_micros() - server_tick_start) as f64 / 1000.0);
                 num_updates += 1;
             }
 
