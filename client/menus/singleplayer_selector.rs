@@ -12,10 +12,8 @@ use std::time::SystemTime;
 
 pub const MENU_WIDTH: f32 = 800.0;
 
-/**
-This function returns formatted string "%d %B %Y %H:%M" of the time
-that the file was last modified.
- */
+/// This function returns formatted string "%d %B %Y %H:%M" of the time
+/// that the file was last modified.
 pub fn get_last_modified_time(file_path: &str) -> String {
     let metadata = fs::metadata(file_path);
     let modified_time;
@@ -32,7 +30,7 @@ pub fn get_last_modified_time(file_path: &str) -> String {
     datetime.format("%d %B %Y %H:%M").to_string()
 }
 
-/**struct to pass around the UI elements for rendering and updating.*/
+/// struct to pass around the UI elements for rendering and updating.
 struct SigleplayerSelectorElements {
     position: f32,
     top_rect: gfx::RenderRect,
@@ -45,10 +43,8 @@ struct SigleplayerSelectorElements {
     bottom_height: f32,
 }
 
-/**
-World is a struct that contains all information to
-render the world in singleplayer selector.
- */
+/// World is a struct that contains all information to
+/// render the world in singleplayer selector.
 pub struct World {
     pub name: String,
     rect: gfx::RenderRect,
@@ -194,10 +190,8 @@ impl World {
     }
 }
 
-/**
-`WorldList` is a struct that is used to list all worlds in the world folder
-and render them in the singleplayer selector menu.
- */
+/// `WorldList` is a struct that is used to list all worlds in the world folder
+/// and render them in the singleplayer selector menu.
 pub struct WorldList {
     pub worlds: Vec<World>,
 }
