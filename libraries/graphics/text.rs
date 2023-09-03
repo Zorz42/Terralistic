@@ -1,12 +1,12 @@
 use super::color::Color;
 use super::surface::Surface;
-use crate::libraries::graphics::{FloatPos, FloatSize, GraphicsContext, IntPos, IntSize, Texture};
+use crate::libraries::graphics as gfx;
 use anyhow::Result;
 use core::cmp::max;
 
 pub struct Font {
     font_surfaces: Vec<Surface>,
-    font_textures: Vec<Texture>,
+    font_textures: Vec<gfx::Texture>,
 }
 
 const CHAR_SPACING: i32 = 1;
@@ -15,17 +15,15 @@ const SPACE_WIDTH: i32 = 2;
 /// Check if the column of a surface is empty.
 fn is_column_empty(surface: &Surface, column: i32) -> bool {
     for y in 0..surface.get_size().1 {
-        let pixel = surface.get_pixel(IntPos(column, y as i32));
+        let pixel = surface.get_pixel(gfx::IntPos(column, y as i32));
         match pixel {
             Ok(pixel) => {
-                if *pixel
-                    != (Color {
-                        r: 0,
-                        g: 0,
-                        b: 0,
-                        a: 0,
-                    })
-                {
+                if *pixel != (Color {
+                    r: 0,
+                    g: 0,
+                    b: 0,
+                    a: 0,
+                }) {
                     return false;
                 }
             }
@@ -47,11 +45,9 @@ impl Font {
 
         for y in 0..16 {
             for x in 0..16 {
-                let mut surface = Surface::new(IntSize(16, 16));
+                let mut surface = Surface::new(gfx::IntSize(16, 16));
                 for (pos, pixel) in surface.iter_mut() {
-                    *pixel = *font_surface
-                        .get_pixel(IntPos(x * 16, y * 16) + pos)
-                        .unwrap_or(&Color::new(0, 0, 0, 0));
+                    *pixel = *font_surface.get_pixel(gfx::IntPos(x * 16, y * 16) + pos).unwrap_or(&Color::new(0, 0, 0, 0));
                 }
 
                 // get number of empty columns on the left
@@ -74,11 +70,9 @@ impl Font {
                 }
 
                 // create new surface with the correct width
-                let mut new_surface = Surface::new(IntSize((16 - left - right) as u32, 16));
+                let mut new_surface = Surface::new(gfx::IntSize((16 - left - right) as u32, 16));
                 for (pos, pixel) in new_surface.iter_mut() {
-                    *pixel = *surface
-                        .get_pixel(IntPos(left, 0) + pos)
-                        .unwrap_or(&Color::new(0, 0, 0, 0));
+                    *pixel = *surface.get_pixel(gfx::IntPos(left, 0) + pos).unwrap_or(&Color::new(0, 0, 0, 0));
                 }
 
                 font_surfaces.push(new_surface);
@@ -87,7 +81,7 @@ impl Font {
 
         let mut font_textures = Vec::new();
         for surface in &font_surfaces {
-            font_textures.push(Texture::load_from_surface(surface));
+            font_textures.push(gfx::Texture::load_from_surface(surface));
         }
 
         Ok(Self {
@@ -98,7 +92,7 @@ impl Font {
 
     /// This function returns the size of the text.
     #[must_use]
-    pub fn get_text_size(&self, text: &str) -> IntSize {
+    pub fn get_text_size(&self, text: &str) -> gfx::IntSize {
         let mut width = 0;
         let height = 16;
         for c in text.chars() {
@@ -114,14 +108,14 @@ impl Font {
         // if width is 0, set it to 1
         width = max(width, 1);
 
-        IntSize(width as u32, height)
+        gfx::IntSize(width as u32, height)
     }
 
     /// This function returns the size of the text scaled.
     #[must_use]
-    pub fn get_text_size_scaled(&self, text: &str, scale: f32) -> FloatSize {
+    pub fn get_text_size_scaled(&self, text: &str, scale: f32) -> gfx::FloatSize {
         let size = self.get_text_size(text);
-        FloatSize(size.0 as f32 * scale, size.1 as f32 * scale)
+        gfx::FloatSize(size.0 as f32 * scale, size.1 as f32 * scale)
     }
 
     /// This function creates a surface with the text on it.
@@ -134,7 +128,7 @@ impl Font {
         for c in text.chars() {
             if let Some(char_surface) = self.font_surfaces.get(c as usize) {
                 for (pos, pixel) in char_surface.iter() {
-                    if let Ok(surface_pixel) = surface.get_pixel_mut(IntPos(x, 0) + pos) {
+                    if let Ok(surface_pixel) = surface.get_pixel_mut(gfx::IntPos(x, 0) + pos) {
                         *surface_pixel = *pixel;
                     }
                 }
@@ -152,9 +146,9 @@ impl Font {
     /// This function renders text on the window.
     pub fn render_text(
         &self,
-        graphics: &GraphicsContext,
+        graphics: &gfx::GraphicsContext,
         text: &str,
-        mut pos: FloatPos,
+        mut pos: gfx::FloatPos,
         scale: f32,
     ) {
         for c in text.chars() {

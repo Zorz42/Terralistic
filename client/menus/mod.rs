@@ -27,5 +27,8 @@ pub use add_server_menu::run_add_server_menu;
 mod text_input_menu;
 pub use text_input_menu::run_text_input_menu;
 
+mod settings;
+pub use settings::{Setting, Settings, SliderSelection};
+
 mod settings_menu;
-pub use settings_menu::{Setting, Settings, SliderSelection};
+pub use settings_menu::{SettingsMenu};

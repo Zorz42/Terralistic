@@ -1,7 +1,9 @@
-use super::{Color, Rect, Surface, Texture};
-use crate::libraries::graphics::{FloatPos, FloatSize, IntPos, IntSize};
 use core::hash::Hash;
 use std::collections::HashMap;
+
+use crate::libraries::graphics as gfx;
+
+use super::{Color, Rect, Surface, Texture};
 
 /// Texture atlas is a struct that holds a texture and a list of rectangles
 /// that represent the position of each sprite in the texture.
@@ -33,20 +35,18 @@ impl<KeyType: Eq + Hash + Clone> TextureAtlas<KeyType> {
             }
         }
 
-        let mut main_surface = Surface::new(IntSize(total_width, max_height));
+        let mut main_surface = Surface::new(gfx::IntSize(total_width, max_height));
         let mut rects = HashMap::new();
 
         let mut x = 0;
         for (key, surface) in surfaces {
             rects.insert(
                 key.clone(),
-                Rect::new(FloatPos(x as f32, 0.0), FloatSize::from(surface.get_size())),
+                Rect::new(gfx::FloatPos(x as f32, 0.0), gfx::FloatSize::from(surface.get_size())),
             );
-            main_surface
-                .draw(IntPos(x, 0), surface, Color::new(255, 255, 255, 255))
-                .unwrap_or_else(|e| {
-                    println!("Failed to draw surface to main surface (unreachable) {e}");
-                });
+            main_surface.draw(gfx::IntPos(x, 0), surface, Color::new(255, 255, 255, 255)).unwrap_or_else(|e| {
+                println!("Failed to draw surface to main surface (unreachable) {e}");
+            });
             x += surface.get_size().0 as i32;
         }
 

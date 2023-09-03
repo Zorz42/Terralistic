@@ -17,7 +17,7 @@ use crate::client::game::players::ClientPlayers;
 use crate::client::menus::{run_loading_screen, BackgroundRect};
 use crate::libraries::events;
 use crate::libraries::events::EventManager;
-use crate::libraries::graphics::GraphicsContext;
+use crate::libraries::graphics as gfx;
 use crate::shared::entities::PositionComponent;
 
 use super::background::Background;
@@ -32,7 +32,7 @@ use super::walls::ClientWalls;
 /// # Errors
 /// If the game basically crashes
 pub fn run_game(
-    graphics: &mut GraphicsContext,
+    graphics: &mut gfx::GraphicsContext,
     menu_back: &mut dyn BackgroundRect,
     server_port: u16,
     server_address: String,
@@ -82,10 +82,7 @@ pub fn run_game(
         };
         // if the init fails, we clear the loading text so the error can be displayed
         let result = temp_fn();
-        loading_text2
-            .lock()
-            .unwrap_or_else(PoisonError::into_inner)
-            .clear();
+        loading_text2.lock().unwrap_or_else(PoisonError::into_inner).clear();
         result
     });
 
@@ -147,10 +144,7 @@ pub fn run_game(
         walls.update(framerate_measurer.get_delta_time(), &mut events)?;
 
         if let Some(main_player) = players.get_main_player() {
-            let player_pos = entities
-                .entities
-                .ecs
-                .get::<&PositionComponent>(main_player)?;
+            let player_pos = entities.entities.ecs.get::<&PositionComponent>(main_player)?;
 
             camera.set_position(player_pos.x(), player_pos.y());
         }

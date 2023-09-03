@@ -1,15 +1,17 @@
 use super::blur::BlurContext;
-use super::events::sdl_event_to_gfx_event;
 use super::passthrough_shader::PassthroughShader;
 use super::shadow::ShadowContext;
 use super::transformation::Transformation;
 use super::{set_blend_mode, BlendMode, Event, Key, Rect};
 use copypasta::ClipboardContext;
 use std::collections::HashMap;
+
 extern crate alloc;
-use crate::libraries::graphics::{FloatPos, FloatSize};
+
+use crate::libraries::graphics as gfx;
 use alloc::collections::VecDeque;
 use anyhow::{anyhow, Result};
+use crate::libraries::graphics::events::sdl_event_to_gfx_event;
 
 /// This stores all the values needed for rendering.
 pub struct Renderer {
@@ -54,18 +56,11 @@ impl Renderer {
         gl_attr.set_context_profile(sdl2::video::GLProfile::Core);
         gl_attr.set_context_version(3, 3);
 
-        let sdl_window = video_subsystem
-            .window(window_title, window_width, window_height)
-            .position_centered()
-            .opengl()
-            .resizable()
-            .build()?;
+        let sdl_window = video_subsystem.window(window_title, window_width, window_height).position_centered().opengl().resizable().build()?;
 
         let gl_context = sdl_window.gl_create_context().map_err(|e| anyhow!(e))?;
         gl::load_with(|s| {
-            video_subsystem
-                .gl_get_proc_address(s)
-                .cast::<core::ffi::c_void>()
+            video_subsystem.gl_get_proc_address(s).cast::<core::ffi::c_void>()
         });
 
         // Safety: We are calling OpenGL functions safely.
@@ -75,9 +70,7 @@ impl Renderer {
         set_blend_mode(BlendMode::Alpha);
 
         // enable vsync
-        video_subsystem
-            .gl_set_swap_interval(1)
-            .map_err(|e| anyhow!(e))?;
+        video_subsystem.gl_set_swap_interval(1).map_err(|e| anyhow!(e))?;
 
         let passthrough_shader = PassthroughShader::new()?;
         let mut window_texture = 0;
@@ -125,7 +118,7 @@ impl Renderer {
             2.0 / self.get_window_size().0,
             -2.0 / self.get_window_size().1,
         ));
-        self.normalization_transform.translate(FloatPos(
+        self.normalization_transform.translate(gfx::FloatPos(
             -self.get_window_size().0 / 2.0,
             -self.get_window_size().1 / 2.0,
         ));
@@ -321,23 +314,21 @@ impl Renderer {
     }
 
     /// Sets the minimum window size
-    pub fn set_min_window_size(&mut self, size: FloatSize) -> Result<()> {
-        self.sdl_window
-            .set_minimum_size(size.0 as u32, size.1 as u32)
-            .map_err(|e| anyhow!(e))
+    pub fn set_min_window_size(&mut self, size: gfx::FloatSize) -> Result<()> {
+        self.sdl_window.set_minimum_size(size.0 as u32, size.1 as u32).map_err(|e| anyhow!(e))
     }
 
     /// Get the current window size
-    pub fn get_window_size(&self) -> FloatSize {
-        FloatSize(
+    pub fn get_window_size(&self) -> gfx::FloatSize {
+        gfx::FloatSize(
             self.sdl_window.size().0 as f32,
             self.sdl_window.size().1 as f32,
         )
     }
 
     /// Gets mouse position
-    pub fn get_mouse_pos(&self) -> FloatPos {
-        FloatPos(
+    pub fn get_mouse_pos(&self) -> gfx::FloatPos {
+        gfx::FloatPos(
             self.sdl_event_pump.mouse_state().x() as f32,
             self.sdl_event_pump.mouse_state().y() as f32,
         )
@@ -360,7 +351,7 @@ impl Renderer {
         radius: i32,
         gl_texture: u32,
         back_texture: u32,
-        size: FloatSize,
+        size: gfx::FloatSize,
         texture_transform: &Transformation,
     ) {
         self.blur_context.blur_region(

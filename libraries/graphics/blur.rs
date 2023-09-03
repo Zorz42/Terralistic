@@ -1,7 +1,7 @@
 use super::shaders::compile_shader;
 use super::transformation::Transformation;
 use super::Rect;
-use crate::libraries::graphics::{FloatPos, FloatSize};
+use crate::libraries::graphics as gfx;
 use anyhow::Result;
 
 const BLUR_VERTEX_SHADER_CODE: &str = r#"
@@ -88,8 +88,7 @@ impl BlurContext {
                 unsafe {
                     gl::GenBuffers(1, &mut buffer);
 
-                    let rect_vertex_array: [f32; 12] =
-                        [0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 1.0];
+                    let rect_vertex_array: [f32; 12] = [0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 1.0];
 
                     gl::BindBuffer(gl::ARRAY_BUFFER, buffer);
                     gl::BufferData(
@@ -108,7 +107,7 @@ impl BlurContext {
     }
 
     /// Only applies blur shader pass to the given texture.
-    fn blur_rect(&self, offset: FloatPos, gl_texture1: u32, gl_texture2: u32) {
+    fn blur_rect(&self, offset: gfx::FloatPos, gl_texture1: u32, gl_texture2: u32) {
         // Safety: use of opengl functions is safe
         unsafe {
             gl::BindTexture(gl::TEXTURE_2D, gl_texture1);
@@ -125,7 +124,7 @@ impl BlurContext {
         radius: i32,
         gl_texture: u32,
         back_texture: u32,
-        size: FloatSize,
+        size: gfx::FloatSize,
         texture_transform: &Transformation,
     ) {
         if !self.blur_enabled {
@@ -148,8 +147,8 @@ impl BlurContext {
             end_x = end_x.min(size.0);
             end_y = end_y.min(size.1);
 
-            rect.pos = FloatPos(begin_x, begin_y);
-            rect.size = FloatSize(end_x - begin_x, end_y - begin_y);
+            rect.pos = gfx::FloatPos(begin_x, begin_y);
+            rect.size = gfx::FloatSize(end_x - begin_x, end_y - begin_y);
 
             if rect.size.0 <= 0.0 || rect.size.1 <= 0.0 {
                 return;
@@ -195,12 +194,12 @@ impl BlurContext {
             let mut radius = radius;
             while radius > 10 {
                 self.blur_rect(
-                    FloatPos(0.0, radius as f32 / size.1 / 10.0),
+                    gfx::FloatPos(0.0, radius as f32 / size.1 / 10.0),
                     gl_texture,
                     back_texture,
                 );
                 self.blur_rect(
-                    FloatPos(radius as f32 / size.0 / 10.0, 0.0),
+                    gfx::FloatPos(radius as f32 / size.0 / 10.0, 0.0),
                     back_texture,
                     gl_texture,
                 );

@@ -1,7 +1,7 @@
-use crate::libraries::graphics as gfx;
-use crate::libraries::graphics::{DARK_GREY, GREY};
-use crate::server::server_ui::{PlayerEventType, UiMessageType};
 use std::net::SocketAddr;
+
+use crate::libraries::graphics as gfx;
+use crate::server::server_ui::{PlayerEventType, UiMessageType};
 
 use super::ui_manager;
 use super::ui_manager::{EDGE_SPACING, SCALE};
@@ -26,8 +26,7 @@ impl PlayerCard {
         connection: SocketAddr,
     ) -> Self {
         let mut name_sprite = gfx::Sprite::new();
-        name_sprite.texture =
-            gfx::Texture::load_from_surface(&graphics_context.font.create_text_surface(&name));
+        name_sprite.texture = gfx::Texture::load_from_surface(&graphics_context.font.create_text_surface(&name));
         name_sprite.scale = SCALE;
         name_sprite.orientation = gfx::LEFT;
         name_sprite.color = gfx::WHITE;
@@ -52,17 +51,16 @@ impl PlayerCard {
     pub fn render(&mut self, graphics_context: &mut gfx::GraphicsContext) {
         //background
         let mut rect = gfx::RenderRect::new(gfx::FloatPos(0.0, 0.0), self.container.rect.size);
-        rect.fill_color = DARK_GREY;
+        rect.fill_color = gfx::DARK_GREY;
         rect.render(graphics_context, Some(&self.container));
 
         //name of the player
-        self.name_sprite
-            .render(graphics_context, Some(&self.container));
+        self.name_sprite.render(graphics_context, Some(&self.container));
 
         //if the sprite just appeared, do a smooth fade in animation by overlaying a transparent rectangle
         if self.timer < 1.0 {
             let mut rect = gfx::RenderRect::new(gfx::FloatPos(0.0, 0.0), self.container.rect.size);
-            rect.fill_color = GREY;
+            rect.fill_color = gfx::GREY;
             //calculate transparency
             rect.fill_color.a = (255.0 - self.timer * 255.0) as u8;
             rect.render(graphics_context, Some(&self.container));
@@ -113,8 +111,7 @@ impl ui_manager::ModuleTrait for PlayerList {
             //if the card isn't at the correct position, move it there slowly (animation)
             if (card.target_y - card.container.rect.pos.1).abs() > 0.0001 {
                 card.container.rect.pos.1 = card.target_y * 0.1 + card.container.rect.pos.1 * 0.9;
-                card.container
-                    .update(graphics_context, Some(&self.container));
+                card.container.update(graphics_context, Some(&self.container));
             }
 
             //if the fade in animation isn't finished yet, continue increasing the timer
@@ -146,8 +143,7 @@ impl ui_manager::ModuleTrait for PlayerList {
                     if let Some(card) = self.player_cards.last_mut() {
                         card.target_y = self.container.rect.size.1;
                         card.container.rect.pos.1 = card.target_y;
-                        card.container
-                            .update(graphics_context, Some(&self.container));
+                        card.container.update(graphics_context, Some(&self.container));
                     }
                 }
                 PlayerEventType::Leave(connection) => {

@@ -70,8 +70,9 @@ extern crate core;
 use alloc::sync::Arc;
 use core::sync::atomic::AtomicBool;
 use std::sync::Mutex;
+use directories::BaseDirs;
 
-use crate::client::menus::{run_main_menu, MenuBack};
+use crate::client::menus::{run_main_menu, MenuBack, Settings};
 use crate::libraries::graphics as gfx;
 use crate::server::server_core::{Server, MULTIPLAYER_PORT};
 use crate::server::server_ui::UiManager;
@@ -231,5 +232,14 @@ fn client_main() {
 
     let mut menu_back = MenuBack::new(&mut graphics);
 
-    run_main_menu(&mut graphics, &mut menu_back);
+    let base_dirs;
+    if let Some(base_dirs_) = BaseDirs::new() {
+        base_dirs = base_dirs_;
+    } else {
+        return;
+    }
+
+    let mut settings = Settings::new(base_dirs.data_dir().join("Terralistic").join("settings.txt"));
+
+    run_main_menu(&mut graphics, &mut menu_back, &mut settings);
 }

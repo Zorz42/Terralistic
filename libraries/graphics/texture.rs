@@ -2,12 +2,12 @@ use super::renderer::Renderer;
 use super::transformation::Transformation;
 use super::vertex_buffer::DrawMode;
 use super::{Color, Rect, Surface};
-use super::{FloatPos, FloatSize};
+use crate::libraries::graphics as gfx;
 
 /// Texture is an image stored in gpu
 pub struct Texture {
     pub(super) texture_handle: u32,
-    size: FloatSize,
+    size: gfx::FloatSize,
 }
 
 impl Default for Texture {
@@ -21,7 +21,7 @@ impl Texture {
     pub const fn new() -> Self {
         Self {
             texture_handle: u32::MAX,
-            size: FloatSize(0.0, 0.0),
+            size: gfx::FloatSize(0.0, 0.0),
         }
     }
 
@@ -29,7 +29,7 @@ impl Texture {
     #[must_use]
     pub fn load_from_surface(surface: &Surface) -> Self {
         let mut result = Self::new();
-        result.size = FloatSize::from(surface.get_size());
+        result.size = gfx::FloatSize::from(surface.get_size());
 
         // Safety: We are using OpenGL functions correctly.
         unsafe {
@@ -66,18 +66,18 @@ impl Texture {
                 gl::DeleteTextures(1, &self.texture_handle);
             }
             self.texture_handle = u32::MAX;
-            self.size = FloatSize(0.0, 0.0);
+            self.size = gfx::FloatSize(0.0, 0.0);
         }
     }
 
     #[must_use]
-    pub const fn get_texture_size(&self) -> FloatSize {
+    pub const fn get_texture_size(&self) -> gfx::FloatSize {
         self.size
     }
 
     pub(super) fn get_normalization_transform(&self) -> Transformation {
         let mut result = Transformation::new();
-        result.translate(FloatPos(-1.0, 1.0));
+        result.translate(gfx::FloatPos(-1.0, 1.0));
         result.stretch((1.0 / self.size.0, 1.0 / self.size.1));
         result
     }
@@ -86,13 +86,12 @@ impl Texture {
         &self,
         renderer: &Renderer,
         scale: f32,
-        pos: FloatPos,
+        pos: gfx::FloatPos,
         src_rect: Option<Rect>,
         flipped: bool,
         color: Option<Color>,
     ) {
-        let src_rect =
-            src_rect.unwrap_or_else(|| Rect::new(FloatPos(0.0, 0.0), self.get_texture_size()));
+        let src_rect = src_rect.unwrap_or_else(|| Rect::new(gfx::FloatPos(0.0, 0.0), self.get_texture_size()));
 
         let color = color.unwrap_or(Color {
             r: 255,
@@ -104,7 +103,7 @@ impl Texture {
         let mut transform = renderer.normalization_transform.clone();
 
         if flipped {
-            transform.translate(FloatPos(src_rect.size.0 * scale + pos.0 * 2.0, 0.0));
+            transform.translate(gfx::FloatPos(src_rect.size.0 * scale + pos.0 * 2.0, 0.0));
             transform.stretch((-1.0, 1.0));
         }
 
@@ -141,10 +140,7 @@ impl Texture {
 
             gl::BindTexture(gl::TEXTURE_2D, self.texture_handle);
 
-            renderer
-                .passthrough_shader
-                .rect_vertex_buffer
-                .draw(true, DrawMode::Triangles);
+            renderer.passthrough_shader.rect_vertex_buffer.draw(true, DrawMode::Triangles);
         }
     }
 }

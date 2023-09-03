@@ -1,56 +1,50 @@
-use super::background_rect::BackgroundRect;
-use super::{run_multiplayer_selector, run_singleplayer_selector};
+use crate::client::menus::Settings;
 use crate::libraries::graphics as gfx;
-use crate::libraries::graphics::SPACING;
 use crate::shared::versions::VERSION;
+
+use super::{run_multiplayer_selector, run_singleplayer_selector};
+use super::background_rect::BackgroundRect;
 
 #[allow(clippy::too_many_lines)] // TODO: split this function up
 #[allow(clippy::if_same_then_else)]
-pub fn run_main_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn BackgroundRect) {
+pub fn run_main_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn BackgroundRect, settings: &mut Settings) {
     let mut singleplayer_button = gfx::Button::new();
     singleplayer_button.scale = 3.0;
-    singleplayer_button.texture =
-        gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Singleplayer"));
+    singleplayer_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Singleplayer"));
     singleplayer_button.orientation = gfx::CENTER;
 
     let mut multiplayer_button = gfx::Button::new();
     multiplayer_button.scale = 3.0;
-    multiplayer_button.texture =
-        gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Multiplayer"));
+    multiplayer_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Multiplayer"));
     multiplayer_button.orientation = gfx::CENTER;
 
     let mut settings_button = gfx::Button::new();
     settings_button.scale = 3.0;
-    settings_button.texture =
-        gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Settings"));
+    settings_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Settings"));
     settings_button.orientation = gfx::CENTER;
 
     let mut mods_button = gfx::Button::new();
     mods_button.scale = 3.0;
-    mods_button.texture =
-        gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Mods"));
+    mods_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Mods"));
     mods_button.orientation = gfx::CENTER;
 
     let mut exit_button = gfx::Button::new();
     exit_button.scale = 3.0;
-    exit_button.texture =
-        gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Exit"));
+    exit_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Exit"));
     exit_button.orientation = gfx::CENTER;
 
     let mut debug_title = gfx::Sprite::new();
-    debug_title.texture =
-        gfx::Texture::load_from_surface(&graphics.font.create_text_surface("DEBUG MODE"));
+    debug_title.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("DEBUG MODE"));
     debug_title.color = gfx::DARK_GREY;
     debug_title.orientation = gfx::TOP;
     debug_title.scale = 2.0;
-    debug_title.pos.1 = SPACING / 4.0;
+    debug_title.pos.1 = gfx::SPACING / 4.0;
 
     let mut title = gfx::Sprite::new();
-    title.texture =
-        gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Terralistic"));
+    title.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Terralistic"));
     title.scale = 4.0;
     title.orientation = gfx::TOP;
-    title.pos.1 = debug_title.pos.1 + debug_title.get_size().1 + SPACING / 2.0;
+    title.pos.1 = debug_title.pos.1 + debug_title.get_size().1 + gfx::SPACING / 2.0;
 
     let mut version = gfx::Sprite::new();
     version.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface(VERSION));
@@ -87,23 +81,11 @@ pub fn run_main_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn Ba
             if let gfx::Event::KeyRelease(key, ..) = event {
                 // check for every button if it was clicked with the left mouse button
                 if key == gfx::Key::MouseLeft {
-                    if singleplayer_button
-                        .is_hovered(graphics, Some(menu_back.get_back_rect_container()))
-                    {
+                    if singleplayer_button.is_hovered(graphics, Some(menu_back.get_back_rect_container())) {
                         run_singleplayer_selector(graphics, menu_back);
-                    } else if multiplayer_button
-                        .is_hovered(graphics, Some(menu_back.get_back_rect_container()))
-                    {
+                    } else if multiplayer_button.is_hovered(graphics, Some(menu_back.get_back_rect_container())) {
                         run_multiplayer_selector(graphics, menu_back);
-                    } else if settings_button
-                        .is_hovered(graphics, Some(menu_back.get_back_rect_container()))
-                    {
-                    } else if mods_button
-                        .is_hovered(graphics, Some(menu_back.get_back_rect_container()))
-                    {
-                    } else if exit_button
-                        .is_hovered(graphics, Some(menu_back.get_back_rect_container()))
-                    {
+                    } else if settings_button.is_hovered(graphics, Some(menu_back.get_back_rect_container())) {} else if mods_button.is_hovered(graphics, Some(menu_back.get_back_rect_container())) {} else if exit_button.is_hovered(graphics, Some(menu_back.get_back_rect_container())) {
                         graphics.renderer.close_window();
                     }
                 }

@@ -1,6 +1,5 @@
 use crate::libraries::events::Event;
 use crate::libraries::graphics as gfx;
-use crate::libraries::graphics::{FloatPos, FloatSize, GraphicsContext};
 
 /// The debug menu shows useful information about the game.
 /// Like fps, time per frame, position, etc.
@@ -13,7 +12,7 @@ impl DebugMenu {
     pub fn new() -> Self {
         Self {
             open: false,
-            back_rect: gfx::RenderRect::new(FloatPos(0.0, 0.0), FloatSize(0.0, 0.0)),
+            back_rect: gfx::RenderRect::new(gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, 0.0)),
         }
     }
 
@@ -30,7 +29,7 @@ impl DebugMenu {
         self.back_rect.size.1 = 200.0;
     }
 
-    pub fn render(&mut self, graphics: &mut GraphicsContext, lines: &[String]) {
+    pub fn render(&mut self, graphics: &mut gfx::GraphicsContext, lines: &[String]) {
         self.back_rect.pos.0 = if self.open {
             -gfx::SPACING
         } else {
@@ -60,7 +59,7 @@ impl DebugMenu {
                 graphics.font.render_text(
                     graphics,
                     line,
-                    FloatPos(
+                    gfx::FloatPos(
                         debug_menu_rect_container.pos.0 + gfx::SPACING,
                         debug_menu_rect_container.pos.1 + y,
                     ),
@@ -82,8 +81,7 @@ impl DebugMenu {
         }
     }
 
-    fn is_visible(&self, graphics: &GraphicsContext) -> bool {
-        (self.back_rect.get_container(graphics, None).rect.pos.0 as i32)
-            < (graphics.renderer.get_window_size().0 as i32)
+    fn is_visible(&self, graphics: &gfx::GraphicsContext) -> bool {
+        (self.back_rect.get_container(graphics, None).rect.pos.0 as i32) < (graphics.renderer.get_window_size().0 as i32)
     }
 }

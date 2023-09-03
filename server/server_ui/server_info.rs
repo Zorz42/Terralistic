@@ -79,18 +79,15 @@ impl ServerInfo {
             ServerState::Running => "Running",
             ServerState::Stopping => "Stopping",
             ServerState::Stopped => "Stopped",
-        }
-        .to_owned();
-        self.server_state_sprite.texture =
-            gfx::Texture::load_from_surface(&graphics_context.font.create_text_surface(&state_str));
+        }.to_owned();
+        self.server_state_sprite.texture = gfx::Texture::load_from_surface(&graphics_context.font.create_text_surface(&state_str));
     }
 }
 
 impl ui_manager::ModuleTrait for ServerInfo {
     //initializes all the sprites
     fn init(&mut self, graphics_context: &mut gfx::GraphicsContext) {
-        self.server_state_sprite.texture =
-            gfx::Texture::load_from_surface(&graphics_context.font.create_text_surface("test"));
+        self.server_state_sprite.texture = gfx::Texture::load_from_surface(&graphics_context.font.create_text_surface("test"));
         self.server_state_sprite.color = gfx::WHITE;
         self.server_state_sprite.scale = SCALE;
         self.server_state_sprite.orientation = gfx::TOP;
@@ -117,21 +114,17 @@ impl ui_manager::ModuleTrait for ServerInfo {
         //update clock sprite
         let uptime_num = self.server_start.elapsed().as_secs();
         self.uptime.texture = gfx::Texture::load_from_surface(
-            &graphics_context
-                .font
-                .create_text_surface(&format!("Uptime: {}", format_seconds(uptime_num))),
+            &graphics_context.font.create_text_surface(&format!("Uptime: {}", format_seconds(uptime_num))),
         );
 
         //calculate state and mspt_sprite text positions
-        let combined_size = self.server_state_sprite.texture.get_texture_size().0
-            + self.mspt_sprite.texture.get_texture_size().0;
+        let combined_size = self.server_state_sprite.texture.get_texture_size().0 + self.mspt_sprite.texture.get_texture_size().0;
 
         //if the server is running, move the running text slightly to the right and add the mspt_sprite text so they are centered together, otherwise keep it in the center and don't show mspt_sprite
         if self.server_state_enum == ServerState::Running {
             //move server state sprite to the left
             self.server_state_sprite.pos = gfx::FloatPos(
-                (self.server_state_sprite.texture.get_texture_size().0 / 2.0 * SCALE)
-                    - (combined_size / 2.0 * SCALE),
+                (self.server_state_sprite.texture.get_texture_size().0 / 2.0 * SCALE) - (combined_size / 2.0 * SCALE),
                 gfx::SPACING,
             );
         } else {
@@ -141,8 +134,7 @@ impl ui_manager::ModuleTrait for ServerInfo {
 
         //move mspt_sprite sprite to the right
         self.mspt_sprite.pos = gfx::FloatPos(
-            (combined_size / 2.0 * SCALE)
-                - (self.mspt_sprite.texture.get_texture_size().0 / 2.0 * SCALE),
+            (combined_size / 2.0 * SCALE) - (self.mspt_sprite.texture.get_texture_size().0 / 2.0 * SCALE),
             gfx::SPACING,
         );
     }
@@ -151,15 +143,12 @@ impl ui_manager::ModuleTrait for ServerInfo {
         //render sprites
         self.uptime.render(graphics_context, Some(&self.container));
 
-        self.server_state_sprite
-            .render(graphics_context, Some(&self.container));
+        self.server_state_sprite.render(graphics_context, Some(&self.container));
         if self.server_state_enum == ServerState::Running {
-            self.mspt_sprite
-                .render(graphics_context, Some(&self.container));
+            self.mspt_sprite.render(graphics_context, Some(&self.container));
         }
 
-        self.player_count_sprite
-            .render(graphics_context, Some(&self.container));
+        self.player_count_sprite.render(graphics_context, Some(&self.container));
     }
 
     fn on_server_message(
@@ -189,8 +178,7 @@ impl ui_manager::ModuleTrait for ServerInfo {
                             (self.mspt.0 / self.updated_server as f64).to_owned(),
                             (self.mspt.1 / self.updated_ui as f64).to_owned(),
                             1000.0 / 20.0
-                        )
-                        .as_str(),
+                        ).as_str(),
                     ),
                 );
                 self.last_update = std::time::Instant::now();
@@ -203,18 +191,14 @@ impl ui_manager::ModuleTrait for ServerInfo {
                 PlayerEventType::Join((_name, _addr)) => {
                     self.players_count += 1;
                     self.player_count_sprite.texture = gfx::Texture::load_from_surface(
-                        &graphics_context
-                            .font
-                            .create_text_surface(&format!("Players: {}", self.players_count)),
+                        &graphics_context.font.create_text_surface(&format!("Players: {}", self.players_count)),
                     );
                 }
                 //update player count sprite
                 PlayerEventType::Leave(_addr) => {
                     self.players_count -= 1;
                     self.player_count_sprite.texture = gfx::Texture::load_from_surface(
-                        &graphics_context
-                            .font
-                            .create_text_surface(&format!("Players: {}", self.players_count)),
+                        &graphics_context.font.create_text_surface(&format!("Players: {}", self.players_count)),
                     );
                 }
             },

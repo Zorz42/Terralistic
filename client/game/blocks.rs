@@ -9,7 +9,6 @@ use anyhow::{anyhow, bail, Result};
 
 use crate::libraries::events::{Event, EventManager};
 use crate::libraries::graphics as gfx;
-use crate::libraries::graphics::{FloatPos, FloatSize, GraphicsContext};
 use crate::shared::blocks::{
     handle_event_for_blocks_interface, init_blocks_mod_interface, BlockBreakStartPacket,
     BlockBreakStopPacket, BlockChangeEvent, BlockChangePacket, BlockId,
@@ -50,7 +49,7 @@ impl RenderBlockChunk {
 
     pub fn render(
         &mut self,
-        graphics: &mut GraphicsContext,
+        graphics: &mut gfx::GraphicsContext,
         atlas: &gfx::TextureAtlas<BlockId>,
         world_x: i32,
         world_y: i32,
@@ -96,11 +95,11 @@ impl RenderBlockChunk {
 
                         self.rect_array.add_rect(
                             &gfx::Rect::new(
-                                FloatPos(
+                                gfx::FloatPos(
                                     x as f32 * RENDER_BLOCK_WIDTH,
                                     y as f32 * RENDER_BLOCK_WIDTH,
                                 ),
-                                FloatSize(RENDER_BLOCK_WIDTH, RENDER_BLOCK_WIDTH),
+                                gfx::FloatSize(RENDER_BLOCK_WIDTH, RENDER_BLOCK_WIDTH),
                             ),
                             &[
                                 gfx::Color::new(255, 255, 255, 255),
@@ -117,14 +116,12 @@ impl RenderBlockChunk {
             self.rect_array.update();
         }
 
-        let screen_x = world_x as f32 * RENDER_BLOCK_WIDTH
-            - camera.get_top_left(graphics).0 * RENDER_BLOCK_WIDTH;
-        let screen_y = world_y as f32 * RENDER_BLOCK_WIDTH
-            - camera.get_top_left(graphics).1 * RENDER_BLOCK_WIDTH;
+        let screen_x = world_x as f32 * RENDER_BLOCK_WIDTH - camera.get_top_left(graphics).0 * RENDER_BLOCK_WIDTH;
+        let screen_y = world_y as f32 * RENDER_BLOCK_WIDTH - camera.get_top_left(graphics).1 * RENDER_BLOCK_WIDTH;
         self.rect_array.render(
             graphics,
             Some(atlas.get_texture()),
-            FloatPos(screen_x.round(), screen_y.round()),
+            gfx::FloatPos(screen_x.round(), screen_y.round()),
         );
         Ok(())
     }
@@ -157,11 +154,7 @@ impl ClientBlocks {
     /// This function returns the chunk index at a given world position
     fn get_chunk_index(&self, x: i32, y: i32) -> Result<usize> {
         // check if x and y are in bounds
-        if x < 0
-            || y < 0
-            || x >= self.get_blocks().get_width() as i32 / CHUNK_SIZE
-            || y >= self.get_blocks().get_height() as i32 / CHUNK_SIZE
-        {
+        if x < 0 || y < 0 || x >= self.get_blocks().get_width() as i32 / CHUNK_SIZE || y >= self.get_blocks().get_height() as i32 / CHUNK_SIZE {
             bail!("Tried to get block chunk at {x}, {y} but it is out of bounds");
         }
 
@@ -191,10 +184,8 @@ impl ClientBlocks {
                     packet.tool_power,
                 )?;
             } else if let Some(packet) = event.try_deserialize::<BlockBreakStopPacket>() {
-                self.get_blocks()
-                    .stop_breaking_block(events, packet.x, packet.y)?;
-                self.get_blocks()
-                    .set_break_progress(packet.x, packet.y, packet.break_time)?;
+                self.get_blocks().stop_breaking_block(events, packet.x, packet.y)?;
+                self.get_blocks().set_break_progress(packet.x, packet.y, packet.break_time)?;
             } else if let Some(packet) = event.try_deserialize::<BlockChangePacket>() {
                 self.get_blocks().set_big_block(
                     events,
@@ -213,10 +204,7 @@ impl ClientBlocks {
                 (event.x, event.y + 1),
             ] {
                 let chunk_index = self.get_chunk_index(x / CHUNK_SIZE, y / CHUNK_SIZE)?;
-                self.chunks
-                    .get_mut(chunk_index)
-                    .ok_or_else(|| anyhow!("Chunk array malformed"))?
-                    .needs_update = true;
+                self.chunks.get_mut(chunk_index).ok_or_else(|| anyhow!("Chunk array malformed"))?.needs_update = true;
             }
         }
         Ok(())
@@ -249,15 +237,13 @@ impl ClientBlocks {
 
         self.atlas = gfx::TextureAtlas::new(&surfaces);
 
-        self.breaking_texture =
-            gfx::Texture::load_from_surface(&gfx::Surface::deserialize_from_bytes(
-                mods.get_resource("misc:breaking.opa")
-                    .ok_or_else(|| anyhow!("Could not find misc:breaking.opa"))?,
-            )?);
+        self.breaking_texture = gfx::Texture::load_from_surface(&gfx::Surface::deserialize_from_bytes(
+            mods.get_resource("misc:breaking.opa").ok_or_else(|| anyhow!("Could not find misc:breaking.opa"))?,
+        )?);
         Ok(())
     }
 
-    pub fn render(&mut self, graphics: &mut GraphicsContext, camera: &Camera) -> Result<()> {
+    pub fn render(&mut self, graphics: &mut gfx::GraphicsContext, camera: &Camera) -> Result<()> {
         let (top_left_x, top_left_y) = camera.get_top_left(graphics);
         let (bottom_right_x, bottom_right_y) = camera.get_bottom_right(graphics);
 
@@ -271,16 +257,9 @@ impl ClientBlocks {
         );
         for x in top_left_chunk_x..bottom_right_chunk_x {
             for y in top_left_chunk_y..bottom_right_chunk_y {
-                if x >= 0
-                    && y >= 0
-                    && x < self.get_blocks().get_width() as i32 / CHUNK_SIZE
-                    && y < self.get_blocks().get_height() as i32 / CHUNK_SIZE
-                {
+                if x >= 0 && y >= 0 && x < self.get_blocks().get_width() as i32 / CHUNK_SIZE && y < self.get_blocks().get_height() as i32 / CHUNK_SIZE {
                     let chunk_index = self.get_chunk_index(x, y)?;
-                    let chunk = self
-                        .chunks
-                        .get_mut(chunk_index)
-                        .ok_or_else(|| anyhow!("Chunk array malformed"))?;
+                    let chunk = self.chunks.get_mut(chunk_index).ok_or_else(|| anyhow!("Chunk array malformed"))?;
 
                     let blocks = self.blocks.lock().unwrap_or_else(PoisonError::into_inner);
                     chunk.render(
@@ -300,30 +279,22 @@ impl ClientBlocks {
             temp.get_breaking_blocks().clone()
         };
         for breaking_block in breaking_blocks {
-            if breaking_block.coord.0 < top_left_x as i32
-                || breaking_block.coord.0 > bottom_right_x as i32
-                || breaking_block.coord.1 < top_left_y as i32
-                || breaking_block.coord.1 > bottom_right_y as i32
-            {
+            if breaking_block.coord.0 < top_left_x as i32 || breaking_block.coord.0 > bottom_right_x as i32 || breaking_block.coord.1 < top_left_y as i32 || breaking_block.coord.1 > bottom_right_y as i32 {
                 continue;
             }
 
             let (x, y) = (
-                breaking_block.coord.0 as f32 * RENDER_BLOCK_WIDTH
-                    - camera.get_top_left(graphics).0 * RENDER_BLOCK_WIDTH,
-                breaking_block.coord.1 as f32 * RENDER_BLOCK_WIDTH
-                    - camera.get_top_left(graphics).1 * RENDER_BLOCK_WIDTH,
+                breaking_block.coord.0 as f32 * RENDER_BLOCK_WIDTH - camera.get_top_left(graphics).0 * RENDER_BLOCK_WIDTH,
+                breaking_block.coord.1 as f32 * RENDER_BLOCK_WIDTH - camera.get_top_left(graphics).1 * RENDER_BLOCK_WIDTH,
             );
-            let break_stage = self
-                .get_blocks()
-                .get_break_stage(breaking_block.coord.0, breaking_block.coord.1)?;
+            let break_stage = self.get_blocks().get_break_stage(breaking_block.coord.0, breaking_block.coord.1)?;
             self.breaking_texture.render(
                 &graphics.renderer,
                 RENDER_SCALE,
-                FloatPos(x, y),
+                gfx::FloatPos(x, y),
                 Some(gfx::Rect::new(
-                    FloatPos(0.0, break_stage as f32 * 8.0),
-                    FloatSize(8.0, 8.0),
+                    gfx::FloatPos(0.0, break_stage as f32 * 8.0),
+                    gfx::FloatSize(8.0, 8.0),
                 )),
                 false,
                 None,
@@ -344,7 +315,6 @@ impl ClientBlocks {
     pub fn update(&mut self, frame_length: f32, events: &mut EventManager) -> Result<()> {
         self.flush_mod_events(events);
 
-        self.get_blocks()
-            .update_breaking_blocks(events, frame_length)
+        self.get_blocks().update_breaking_blocks(events, frame_length)
     }
 }

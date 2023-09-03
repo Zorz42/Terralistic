@@ -1,5 +1,5 @@
 use super::color;
-use crate::libraries::graphics::FloatPos;
+use crate::libraries::graphics as gfx;
 use std::collections::HashMap;
 
 #[derive(Debug, Clone, Copy)]
@@ -10,9 +10,9 @@ pub enum DrawMode {
 
 #[derive(Clone, Copy, PartialEq, Eq, Hash)]
 pub struct Vertex {
-    pub(super) pos: FloatPos,
+    pub(super) pos: gfx::FloatPos,
     pub(super) color: color::Color,
-    pub(super) tex_pos: FloatPos,
+    pub(super) tex_pos: gfx::FloatPos,
 }
 
 pub struct VertexBuffer {

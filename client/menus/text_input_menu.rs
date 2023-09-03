@@ -1,10 +1,9 @@
 use crate::client::menus::BackgroundRect;
 use crate::libraries::graphics as gfx;
-use crate::libraries::graphics::{FloatPos, FloatSize, GraphicsContext};
 
 pub fn run_text_input_menu(
     menu_title: &str,
-    graphics: &mut GraphicsContext,
+    graphics: &mut gfx::GraphicsContext,
     menu_back: &mut dyn BackgroundRect,
 ) -> Option<String> {
     let text_lines_vec = menu_title.split('\n').collect::<Vec<&str>>();
@@ -15,15 +14,14 @@ pub fn run_text_input_menu(
         sprite.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface(line));
         sprite.scale = 3.0;
         sprite.orientation = gfx::TOP;
-        sprite.pos.1 =
-            gfx::SPACING + title_lines.len() as f32 * (sprite.get_size().1 + gfx::SPACING);
+        sprite.pos.1 = gfx::SPACING + title_lines.len() as f32 * (sprite.get_size().1 + gfx::SPACING);
         title_lines.push(sprite);
     }
 
     let mut buttons_container = gfx::Container::new(
         graphics,
-        FloatPos(0.0, 0.0),
-        FloatSize(0.0, 0.0),
+        gfx::FloatPos(0.0, 0.0),
+        gfx::FloatSize(0.0, 0.0),
         gfx::BOTTOM,
         None,
     );
@@ -31,18 +29,15 @@ pub fn run_text_input_menu(
     let back_str = "Back";
     let mut back_button = gfx::Button::new();
     back_button.scale = 3.0;
-    back_button.texture =
-        gfx::Texture::load_from_surface(&graphics.font.create_text_surface(back_str));
+    back_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface(back_str));
 
     let confirm_str = "Continue";
     let mut confirm_button = gfx::Button::new();
     confirm_button.scale = 3.0;
-    confirm_button.texture =
-        gfx::Texture::load_from_surface(&graphics.font.create_text_surface(confirm_str));
+    confirm_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface(confirm_str));
     confirm_button.pos.0 = back_button.get_size().0 + gfx::SPACING;
 
-    buttons_container.rect.size.0 =
-        back_button.get_size().0 + confirm_button.get_size().0 + gfx::SPACING;
+    buttons_container.rect.size.0 = back_button.get_size().0 + confirm_button.get_size().0 + gfx::SPACING;
     buttons_container.rect.size.1 = back_button.get_size().1;
     buttons_container.rect.pos.1 = -gfx::SPACING;
 

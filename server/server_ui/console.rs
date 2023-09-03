@@ -12,7 +12,7 @@ fn format_timestamp(message: &String) -> String {
         "[{}] {}",
         timestamp.map_or_else(
             || "???".to_owned(),
-            |time| time.format("%m-%d %H:%M:%S").to_string()
+            |time| time.format("%m-%d %H:%M:%S").to_string(),
         ),
         message
     )
@@ -50,9 +50,7 @@ impl ConsoleLine {
         max_y: f32,
         min_y: f32,
     ) {
-        if self.sprite.pos.1 < max_y
-            && self.sprite.pos.1 + self.sprite.texture.get_texture_size().1 > min_y
-        {
+        if self.sprite.pos.1 < max_y && self.sprite.pos.1 + self.sprite.texture.get_texture_size().1 > min_y {
             self.sprite.render(graphics_context, Some(container));
         }
     }
@@ -172,8 +170,7 @@ impl ui_manager::ModuleTrait for Console {
     }
 
     fn on_event(&mut self, event: &gfx::Event, graphics_context: &mut gfx::GraphicsContext) {
-        self.input
-            .on_event(event, graphics_context, Some(&self.container));
+        self.input.on_event(event, graphics_context, Some(&self.container));
         match event {
             //move the view on mouse scroll
             gfx::Event::MouseScroll(scroll) => {
@@ -188,10 +185,7 @@ impl ui_manager::ModuleTrait for Console {
             }
             gfx::Event::KeyPress(key, _repeat) => {
                 //if enter is pressed, send the message to the server
-                if matches!(key, gfx::Key::Enter)
-                    && self.input.selected
-                    && !self.input.get_text().is_empty()
-                {
+                if matches!(key, gfx::Key::Enter) && self.input.selected && !self.input.get_text().is_empty() {
                     send_to_srv(
                         UiMessageType::UiToSrvConsoleMessage(self.input.get_text().clone()),
                         &self.sender,

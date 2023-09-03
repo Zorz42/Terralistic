@@ -1,8 +1,8 @@
-use crate::libraries::graphics as gfx;
-use crate::libraries::graphics::{IntPos, IntSize};
 use std::fs::File;
 use std::io::Write;
 use std::path::PathBuf;
+
+use crate::libraries::graphics as gfx;
 
 #[must_use]
 pub fn png_file_to_opa_bytes(png_path: PathBuf) -> Vec<u8> {
@@ -12,7 +12,7 @@ pub fn png_file_to_opa_bytes(png_path: PathBuf) -> Vec<u8> {
     let info = reader.next_frame(&mut buf).unwrap();
     let bytes = &buf[..info.buffer_size()];
     // create surface from pixels
-    let mut surface = gfx::Surface::new(IntSize(info.width, info.height));
+    let mut surface = gfx::Surface::new(gfx::IntSize(info.width, info.height));
     for y in 0..info.height {
         for x in 0..info.width {
             let index = (y * info.width + x) as usize * 4;
@@ -22,7 +22,7 @@ pub fn png_file_to_opa_bytes(png_path: PathBuf) -> Vec<u8> {
                 b: bytes[index + 2],
                 a: bytes[index + 3],
             };
-            *surface.get_pixel_mut(IntPos(x as i32, y as i32)).unwrap() = color;
+            *surface.get_pixel_mut(gfx::IntPos(x as i32, y as i32)).unwrap() = color;
         }
     }
     // serialize surface and write to file

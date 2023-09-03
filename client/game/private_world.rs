@@ -1,19 +1,21 @@
 use crate::client::menus::{run_loading_screen, BackgroundRect};
-use crate::libraries::graphics::GraphicsContext;
+use crate::libraries::graphics as gfx;
 use crate::server::server_core::Server;
 use crate::server::server_core::SINGLEPLAYER_PORT;
 use anyhow::Result;
 use core::sync::atomic::{AtomicBool, Ordering};
 use std::path::Path;
 use std::sync::{Mutex, PoisonError};
+
 extern crate alloc;
+
 use crate::client::game::core_client::run_game;
 use alloc::sync::Arc;
 
 /// # Errors
 /// Returns an error if the server thread panics or if the server thread returns an error.
 pub fn run_private_world(
-    graphics: &mut GraphicsContext,
+    graphics: &mut gfx::GraphicsContext,
     menu_back: &mut dyn BackgroundRect,
     world_path: &Path,
 ) -> Result<()> {
@@ -35,10 +37,7 @@ pub fn run_private_world(
         );
 
         if result.is_err() {
-            loading_text2
-                .lock()
-                .unwrap_or_else(PoisonError::into_inner)
-                .clear();
+            loading_text2.lock().unwrap_or_else(PoisonError::into_inner).clear();
             server_running2.store(false, Ordering::Relaxed);
         }
 
@@ -59,8 +58,7 @@ pub fn run_private_world(
         // stop server
         server_running.store(false, Ordering::Relaxed);
 
-        *loading_text.lock().unwrap_or_else(PoisonError::into_inner) =
-            "Waiting for server".to_owned();
+        *loading_text.lock().unwrap_or_else(PoisonError::into_inner) = "Waiting for server".to_owned();
         run_loading_screen(graphics, menu_back, &loading_text);
     }
 

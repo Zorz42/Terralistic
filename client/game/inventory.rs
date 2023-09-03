@@ -2,7 +2,6 @@ use crate::client::game::items::ClientItems;
 use crate::client::game::networking::ClientNetworking;
 use crate::libraries::events::Event;
 use crate::libraries::graphics as gfx;
-use crate::libraries::graphics::{FloatPos, FloatSize, GraphicsContext};
 use crate::shared::inventory::{
     Inventory, InventoryPacket, InventorySelectPacket, InventorySwapPacket,
 };
@@ -23,7 +22,7 @@ const INVENTORY_SLOT_SIZE: f32 = 50.0;
 const INVENTORY_SPACING: f32 = 10.0;
 
 fn render_item_stack(
-    graphics: &GraphicsContext,
+    graphics: &gfx::GraphicsContext,
     items: &ClientItems,
     pos: (f32, f32),
     item: &Option<ItemStack>,
@@ -36,7 +35,7 @@ fn render_item_stack(
 
             let scale = 3.0;
             let texture = items.get_atlas().get_texture();
-            let item_pos = FloatPos(
+            let item_pos = gfx::FloatPos(
                 pos.0 + INVENTORY_SLOT_SIZE / 2.0 - src_rect.size.0 / 2.0 * scale,
                 pos.1 + INVENTORY_SLOT_SIZE / 2.0 - src_rect.size.1 / 2.0 * scale,
             );
@@ -53,27 +52,25 @@ fn render_item_stack(
                 let text_scale = 1.0;
                 let text = format!("{}", item.count);
                 let text_size = graphics.font.get_text_size_scaled(&text, text_scale);
-                let text_pos = FloatPos(
+                let text_pos = gfx::FloatPos(
                     pos.0 + INVENTORY_SLOT_SIZE - text_size.0 - 2.0,
                     pos.1 + INVENTORY_SLOT_SIZE - text_size.1 - 2.0,
                 );
-                graphics
-                    .font
-                    .render_text(graphics, &text, text_pos, text_scale);
+                graphics.font.render_text(graphics, &text, text_pos, text_scale);
             }
         }
     }
 }
 
 fn render_inventory_slot(
-    graphics: &GraphicsContext,
+    graphics: &gfx::GraphicsContext,
     items: &ClientItems,
     pos: (f32, f32),
     item: &Option<ItemStack>,
 ) -> bool {
     let rect = gfx::Rect::new(
-        FloatPos(pos.0, pos.1),
-        FloatSize(INVENTORY_SLOT_SIZE, INVENTORY_SLOT_SIZE),
+        gfx::FloatPos(pos.0, pos.1),
+        gfx::FloatSize(INVENTORY_SLOT_SIZE, INVENTORY_SLOT_SIZE),
     );
     let hovered = rect.contains(graphics.renderer.get_mouse_pos());
     rect.render(graphics, if hovered { gfx::GREY } else { gfx::DARK_GREY });
@@ -88,18 +85,18 @@ impl ClientInventory {
     pub fn new() -> Self {
         Self {
             is_open: false,
-            back_rect: gfx::RenderRect::new(FloatPos(0.0, 0.0), FloatSize(0.0, 0.0)),
+            back_rect: gfx::RenderRect::new(gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, 0.0)),
             inventory: Inventory::new(20),
             open_progress: 0.0,
             hovered_slot: None,
-            hovered_slot_rect: gfx::RenderRect::new(FloatPos(0.0, 0.0), FloatSize(0.0, 0.0)),
+            hovered_slot_rect: gfx::RenderRect::new(gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, 0.0)),
         }
     }
 
     pub fn init(&mut self) {
         self.back_rect.orientation = gfx::TOP;
-        self.back_rect.pos = FloatPos(0.0, INVENTORY_SPACING);
-        self.back_rect.size = FloatSize(
+        self.back_rect.pos = gfx::FloatPos(0.0, INVENTORY_SPACING);
+        self.back_rect.size = gfx::FloatSize(
             10.0 * (INVENTORY_SLOT_SIZE + INVENTORY_SPACING) + INVENTORY_SPACING,
             2.0 * INVENTORY_SPACING + INVENTORY_SLOT_SIZE,
         );
@@ -109,7 +106,7 @@ impl ClientInventory {
         self.back_rect.shadow_intensity = gfx::SHADOW_INTENSITY / 2;
         self.back_rect.smooth_factor = 20.0;
 
-        self.hovered_slot_rect.size = FloatSize(
+        self.hovered_slot_rect.size = gfx::FloatSize(
             INVENTORY_SLOT_SIZE + 2.0 * INVENTORY_SPACING,
             INVENTORY_SLOT_SIZE + 2.0 * INVENTORY_SPACING,
         );
@@ -119,7 +116,7 @@ impl ClientInventory {
 
     pub fn render(
         &mut self,
-        graphics: &mut GraphicsContext,
+        graphics: &mut gfx::GraphicsContext,
         items: &ClientItems,
         networking: &mut ClientNetworking,
     ) -> Result<()> {
@@ -149,21 +146,15 @@ impl ClientInventory {
             let x = slot % 10;
             let y = slot / 10;
 
-            let back_rect = *self
-                .back_rect
-                .get_container(graphics, None)
-                .get_absolute_rect();
-            self.hovered_slot_rect.pos = FloatPos(
+            let back_rect = *self.back_rect.get_container(graphics, None).get_absolute_rect();
+            self.hovered_slot_rect.pos = gfx::FloatPos(
                 back_rect.pos.0 + x as f32 * (INVENTORY_SLOT_SIZE + INVENTORY_SPACING),
                 back_rect.pos.1 + y as f32 * (INVENTORY_SLOT_SIZE + INVENTORY_SPACING),
             );
             self.hovered_slot_rect.render(graphics, None);
         }
 
-        let rect = *self
-            .back_rect
-            .get_container(graphics, None)
-            .get_absolute_rect();
+        let rect = *self.back_rect.get_container(graphics, None).get_absolute_rect();
         self.hovered_slot = None;
         for (i, item) in self.inventory.reverse_iter().enumerate() {
             let i = 19 - i;
@@ -178,9 +169,7 @@ impl ClientInventory {
                     graphics,
                     items,
                     (
-                        rect.pos.0
-                            + i as f32 * (INVENTORY_SLOT_SIZE + INVENTORY_SPACING)
-                            + INVENTORY_SPACING,
+                        rect.pos.0 + i as f32 * (INVENTORY_SLOT_SIZE + INVENTORY_SPACING) + INVENTORY_SPACING,
                         rect.pos.1 + INVENTORY_SPACING,
                     ),
                     item,
@@ -194,9 +183,7 @@ impl ClientInventory {
             if i >= 10 && self.is_open {
                 let animation_spacing = 1.0;
 
-                let pos_y = self.open_progress
-                    * (9.0 * animation_spacing + INVENTORY_SLOT_SIZE + INVENTORY_SPACING)
-                    - (i - 10) as f32 * animation_spacing;
+                let pos_y = self.open_progress * (9.0 * animation_spacing + INVENTORY_SLOT_SIZE + INVENTORY_SPACING) - (i - 10) as f32 * animation_spacing;
 
                 let item = if self.is_open && self.inventory.selected_slot == Some(i) {
                     &None
@@ -208,12 +195,8 @@ impl ClientInventory {
                     graphics,
                     items,
                     (
-                        rect.pos.0
-                            + (i - 10) as f32 * (INVENTORY_SLOT_SIZE + INVENTORY_SPACING)
-                            + INVENTORY_SPACING,
-                        rect.pos.1
-                            + INVENTORY_SPACING
-                            + pos_y.clamp(0.0, INVENTORY_SPACING + INVENTORY_SLOT_SIZE),
+                        rect.pos.0 + (i - 10) as f32 * (INVENTORY_SLOT_SIZE + INVENTORY_SPACING) + INVENTORY_SPACING,
+                        rect.pos.1 + INVENTORY_SPACING + pos_y.clamp(0.0, INVENTORY_SPACING + INVENTORY_SLOT_SIZE),
                     ),
                     item,
                 );
