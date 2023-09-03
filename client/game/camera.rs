@@ -3,9 +3,7 @@ use crate::libraries::graphics as gfx;
 use crate::libraries::graphics::{FloatPos, GraphicsContext};
 use crate::shared::blocks::RENDER_BLOCK_WIDTH;
 
-/**
-Camera is a struct that handles the camera position.
- */
+/// Camera is a struct that handles the camera position.
 
 pub struct Camera {
     target_position_x: f32,
@@ -78,9 +76,7 @@ impl Camera {
         }
     }
 
-    /**
-    This function gets the position of the top left corner of the screen in world coordinates.
-     */
+    /// This function gets the position of the top left corner of the screen in world coordinates.
     pub fn get_top_left(&self, graphics: &mut GraphicsContext) -> (f32, f32) {
         let width = graphics.renderer.get_window_size().0 / RENDER_BLOCK_WIDTH;
         let height = graphics.renderer.get_window_size().1 / RENDER_BLOCK_WIDTH;
@@ -90,9 +86,7 @@ impl Camera {
         )
     }
 
-    /**
-    This function gets the position of the bottom right corner of the screen in world coordinates.
-     */
+    /// This function gets the position of the bottom right corner of the screen in world coordinates.
     pub fn get_bottom_right(&self, graphics: &mut GraphicsContext) -> (f32, f32) {
         let width = graphics.renderer.get_window_size().0 / RENDER_BLOCK_WIDTH;
         let height = graphics.renderer.get_window_size().1 / RENDER_BLOCK_WIDTH;

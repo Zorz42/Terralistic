@@ -12,10 +12,8 @@ use anyhow::{anyhow, Error};
 use core::fmt::Write;
 use std::sync::mpsc::Receiver;
 
-/**
- * This struct contains all parameters that are needed to execute any command
- * It is used so that when a new argument is needed to be added to a command, it can be added here and all commands will be updated
- */
+/// This struct contains all parameters that are needed to execute any command
+/// It is used so that when a new argument is needed to be added to a command, it can be added here and all commands will be updated
 #[allow(clippy::single_char_lifetime_names)]
 pub struct CommandParameters<'a> {
     pub command_manager: &'a CommandManager,

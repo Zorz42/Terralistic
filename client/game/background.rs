@@ -3,9 +3,7 @@ use crate::libraries::graphics as gfx;
 use crate::libraries::graphics::FloatPos;
 use anyhow::Result;
 
-/**
-Background is a struct that holds the background image and renders it.
- */
+/// Background is a struct that holds the background image and renders it.
 pub struct Background {
     image: gfx::Texture,
 }

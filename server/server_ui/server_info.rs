@@ -4,7 +4,7 @@ use crate::server::server_ui::{PlayerEventType, ServerState, UiMessageType};
 use super::ui_manager;
 use super::ui_manager::SCALE;
 
-/**this function makes the string have at least a certain length by padding it with zeroes in the beginning*/
+/// this function makes the string have at least a certain length by padding it with zeroes in the beginning
 fn pad_start(string: String, length: usize) -> String {
     let mut string = string;
     while string.len() < length {
@@ -13,7 +13,7 @@ fn pad_start(string: String, length: usize) -> String {
     string
 }
 
-/**this function formats a number of seconds into a string of format HH:MM:SS*/
+/// this function formats a number of seconds into a string of format HH:MM:SS
 fn format_seconds(seconds: u64) -> String {
     let mut seconds = seconds;
     let hours = seconds / 3600;

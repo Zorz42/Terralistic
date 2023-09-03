@@ -6,7 +6,7 @@ const MAX_LIQUID_LEVEL: i32 = 100;
 
 //TODO: new events idk
 
-/**struct with information about a liquid*/
+/// struct with information about a liquid
 struct Liquid {
     pub id: i32,
     pub level: f32,
@@ -21,7 +21,7 @@ impl Liquid {
     }
 }
 
-/**struct that manages all the liquids*/
+/// struct that manages all the liquids
 pub struct Liquids {
     liquid_types: Vec<Rc<LiquidType>>,
     liquids: Vec<Liquid>,
@@ -50,7 +50,7 @@ impl Liquids {
         liquids_object
     }
 
-    /**this function returns a liquid at the given position*/
+    /// this function returns a liquid at the given position
     fn get_liquid(&self, x: i32, y: i32) -> &Liquid {
         assert!(
             !(x < 0 || y < 0 || x >= self.width as i32 || y >= self.height as i32),
@@ -59,7 +59,7 @@ impl Liquids {
         &self.liquids[(y * self.width as i32 + x) as usize]
     }
 
-    /**this function returns a mutable liquid at the given position*/
+    /// this function returns a mutable liquid at the given position
     fn get_liquid_mut(&mut self, x: i32, y: i32) -> &mut Liquid {
         assert!(
             !(x < 0 || y < 0 || x >= self.width as i32 || y >= self.height as i32),
@@ -68,13 +68,13 @@ impl Liquids {
         &mut self.liquids[(y * self.width as i32 + x) as usize]
     }
 
-    /**returns whether the given liquid is flowable*/
+    /// returns whether the given liquid is flowable
     fn is_flowable(&self, x: i32, y: i32, blocks: &Blocks) -> bool {
         blocks.get_block_type_at(x, y).unwrap().ghost
             && self.get_liquid_type(x, y).id == self.empty.id
     }
 
-    /**creates the liquid array*/
+    /// creates the liquid array
     pub fn create(&mut self, blocks: &Blocks) {
         self.liquids = Vec::new();
         self.height = blocks.get_height();
@@ -83,25 +83,25 @@ impl Liquids {
             .resize_with((self.width * self.height) as usize, Liquid::new);
     }
 
-    /**returns the width of the liquid array*/
+    /// returns the width of the liquid array
     #[must_use]
     pub fn get_width(&self) -> u32 {
         self.width
     }
 
-    /**returns the height of the liquid array*/
+    /// returns the height of the liquid array
     #[must_use]
     pub fn get_height(&self) -> u32 {
         self.height
     }
 
-    /**returns the liquid type at the given position*/
+    /// returns the liquid type at the given position
     #[must_use]
     pub fn get_liquid_type(&self, x: i32, y: i32) -> Rc<LiquidType> {
         self.get_liquid_type_by_id(self.get_liquid(x, y).id)
     }
 
-    /**returns the liquid type by id*/
+    /// returns the liquid type by id
     #[must_use]
     pub fn get_liquid_type_by_id(&self, id: i32) -> Rc<LiquidType> {
         assert!(
@@ -111,7 +111,7 @@ impl Liquids {
         self.liquid_types[id as usize].clone()
     }
 
-    /**returns the liquid type by name*/
+    /// returns the liquid type by name
     #[must_use]
     pub fn get_liquid_type_by_name(&self, name: &str) -> Option<Rc<LiquidType>> {
         for i in 0..self.liquid_types.len() {
@@ -122,12 +122,12 @@ impl Liquids {
         None
     }
 
-    /**sets the liquid type at the given position without updates*/
+    /// sets the liquid type at the given position without updates
     pub fn set_liquid_type_siletnly(&mut self, x: i32, y: i32, liquid_type: Rc<LiquidType>) {
         self.get_liquid_mut(x, y).id = liquid_type.id;
     }
 
-    /**sets the liquid type at the given position with updates*/
+    /// sets the liquid type at the given position with updates
     pub fn set_liquid_type(&mut self, x: i32, y: i32, liquid_type: Rc<LiquidType>) {
         if liquid_type.id != self.get_liquid(x, y).id {
             if liquid_type.id == self.empty.id {
@@ -139,7 +139,7 @@ impl Liquids {
         }
     }
 
-    /**updates the liquid at the given position*/
+    /// updates the liquid at the given position
     pub fn update_liquid(&mut self, x: i32, y: i32, blocks: &Blocks) {
         if self.get_liquid_level(x, y) == 0.0 {
             self.set_liquid_type(x, y, self.empty.clone());
@@ -232,18 +232,18 @@ impl Liquids {
         }
     }
 
-    /**returns the liquid level at the given position*/
+    /// returns the liquid level at the given position
     #[must_use]
     pub fn get_liquid_level(&self, x: i32, y: i32) -> f32 {
         self.get_liquid(x, y).level
     }
 
-    /**sets the liquid level at the given position without updating*/
+    /// sets the liquid level at the given position without updating
     pub fn set_liquid_level_siletnly(&mut self, x: i32, y: i32, level: f32) {
         self.get_liquid_mut(x, y).level = level;
     }
 
-    /**sets the liquid level at the given position with updating*/
+    /// sets the liquid level at the given position with updating
     pub fn set_liquid_level(&mut self, x: i32, y: i32, level: f32) {
         if level != self.get_liquid_level(x, y) {
             self.set_liquid_level_siletnly(x, y, level);
@@ -256,14 +256,14 @@ impl Liquids {
 
     //TODO: to_serial, from_serial
 
-    /**registers a new liquid type*/
+    /// registers a new liquid type
     pub fn register_liquid_type(&mut self, mut liquid_type: LiquidType) {
         liquid_type.id = self.liquid_types.len() as i32;
         self.liquid_types
             .insert(liquid_type.id as usize, Rc::new(liquid_type));
     }
 
-    /**returns the number of liquid types*/
+    /// returns the number of liquid types
     #[must_use]
     pub fn get_liquid_type_count(&self) -> u32 {
         self.liquid_types.len() as u32

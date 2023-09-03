@@ -1,7 +1,7 @@
+use anyhow::{anyhow, Result};
 use std::collections::HashMap;
 use std::fs;
 use std::path::PathBuf;
-use anyhow::{anyhow, Result};
 
 #[derive(Clone)]
 pub enum SliderSelection {
@@ -57,12 +57,10 @@ impl Settings {
     /// Adds a new setting, returns the id of the setting.
     pub fn register_setting(&mut self, mut setting: Setting) -> i32 {
         let config_label = match setting.clone() {
-                Setting::Toggle { config_label, .. } |
-                Setting::Choice { config_label, .. } |
-                Setting::Slider { config_label, .. } => {
-                    config_label
-                }
-            };
+            Setting::Toggle { config_label, .. }
+            | Setting::Choice { config_label, .. }
+            | Setting::Slider { config_label, .. } => config_label,
+        };
 
         if let Some(config_value) = self.config_data.get(&config_label) {
             let config_value = *config_value;
@@ -73,11 +71,18 @@ impl Settings {
                 Setting::Choice { selected, .. } => {
                     *selected = config_value;
                 }
-                Setting::Slider { selected, choices, lower_limit, .. } => {
+                Setting::Slider {
+                    selected,
+                    choices,
+                    lower_limit,
+                    ..
+                } => {
                     if config_value < choices.len() as i32 {
                         *selected = SliderSelection::Choice(config_value);
                     } else {
-                        *selected = SliderSelection::Slider(config_value - choices.len() as i32 + *lower_limit);
+                        *selected = SliderSelection::Slider(
+                            config_value - choices.len() as i32 + *lower_limit,
+                        );
                     }
                 }
             }
@@ -91,29 +96,40 @@ impl Settings {
     /// # Errors
     /// If id doesn't exist.
     pub fn get_setting(&self, id: i32) -> Result<&Setting> {
-        return self.settings.get(&id).ok_or_else(|| anyhow!("Invalid setting id"));
+        return self
+            .settings
+            .get(&id)
+            .ok_or_else(|| anyhow!("Invalid setting id"));
     }
 
     fn save_config(&mut self) -> Result<()> {
         for setting in self.settings.values() {
             let (config_label, value) = match setting {
-                Setting::Toggle { config_label, toggled, .. } => {
-                    (config_label.clone(), i32::from(*toggled))
-                }
+                Setting::Toggle {
+                    config_label,
+                    toggled,
+                    ..
+                } => (config_label.clone(), i32::from(*toggled)),
 
-                Setting::Choice { config_label, selected, .. } => {
-                    (config_label.clone(), *selected)
-                }
+                Setting::Choice {
+                    config_label,
+                    selected,
+                    ..
+                } => (config_label.clone(), *selected),
 
-                Setting::Slider { config_label, selected, choices, lower_limit, .. } => {
+                Setting::Slider {
+                    config_label,
+                    selected,
+                    choices,
+                    lower_limit,
+                    ..
+                } => {
                     let val = match selected {
                         SliderSelection::Slider(value) => {
                             *value - choices.len() as i32 + *lower_limit
                         }
 
-                        SliderSelection::Choice(value) => {
-                            *value
-                        }
+                        SliderSelection::Choice(value) => *value,
                     };
 
                     (config_label.clone(), val)

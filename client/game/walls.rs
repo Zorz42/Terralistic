@@ -110,9 +110,7 @@ impl RenderWallChunk {
     }
 }
 
-/**
-client blocks handles client side block stuff, such as rendering
- */
+/// Client blocks handles client side block stuff, such as rendering.
 pub struct ClientWalls {
     pub walls: Walls,
     chunks: Vec<RenderWallChunk>,
@@ -130,9 +128,7 @@ impl ClientWalls {
         }
     }
 
-    /**
-    This function returns the chunk index at a given world position
-     */
+    /// This function returns the chunk index at a given world position
     fn get_chunk_index(&self, x: i32, y: i32) -> Result<usize> {
         // check if x and y are in bounds
         if x < 0

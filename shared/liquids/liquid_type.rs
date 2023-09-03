@@ -1,6 +1,6 @@
 /*use rlua::{ToLua, UserDataMethods};
 
-/**struct with information about a liquid type*/
+/// struct with information about a liquid type
 pub struct LiquidType {
     //name of the liquid type
     pub name: String,

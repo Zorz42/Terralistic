@@ -25,7 +25,7 @@ impl ServerInfo {
     }
 }
 
-/**struct to pass around UI elements for rendering and updating*/
+/// struct to pass around UI elements for rendering and updating
 struct MultiplayerSelectorElements {
     position: f32,
     top_rect: gfx::RenderRect,
@@ -38,10 +38,8 @@ struct MultiplayerSelectorElements {
     bottom_height: f32,
 }
 
-/**
-World is a struct that contains all information to
-render the server in server selector.
- */
+/// World is a struct that contains all information to
+/// render the server in server selector.
 pub struct ServerCard {
     pub server_info: ServerInfo,
     rect: gfx::RenderRect,
@@ -114,9 +112,7 @@ impl ServerCard {
         }
     }
 
-    /**
-    This function renders the world card on the x and y position.
-     */
+    /// This function renders the world card on the x and y position.
     pub fn render(
         &mut self,
         graphics: &mut GraphicsContext,
@@ -133,24 +129,18 @@ impl ServerCard {
         self.delete_button.render(graphics, Some(&rect_container));
     }
 
-    /**
-    This function returns height of the world card.
-     */
+    /// This function returns height of the world card.
     pub const fn get_height(&self) -> f32 {
         self.rect.size.1
     }
 
-    /**
-    This function disables/enables the world card buttons.
-     */
+    /// This function disables/enables the world card buttons.
     pub fn set_enabled(&mut self, enabled: bool) {
         self.play_button.disabled = !enabled;
         self.delete_button.disabled = !enabled;
     }
 
-    /**
-    This function returns the container of the world card.
-     */
+    /// This function returns the container of the world card.
     pub fn get_container(
         &self,
         graphics: &GraphicsContext,
@@ -160,10 +150,8 @@ impl ServerCard {
     }
 }
 
-/**
-`WorldList` is a struct that is used to list all worlds in the world folder
-and render them in the singleplayer selector menu.
- */
+/// `WorldList` is a struct that is used to list all worlds in the world folder
+/// and render them in the singleplayer selector menu.
 pub struct ServerList {
     pub servers: Vec<ServerCard>,
 }

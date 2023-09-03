@@ -139,9 +139,7 @@ impl World {
         }
     }
 
-    /**
-    This function renders the world card on the x and y position.
-     */
+    /// This function renders the world card on the x and y position.
     pub fn render(
         &mut self,
         graphics: &mut GraphicsContext,
@@ -159,24 +157,18 @@ impl World {
         self.last_modified.render(graphics, Some(&rect_container));
     }
 
-    /**
-    This function returns height of the world card.
-     */
+    /// This function returns height of the world card.
     pub const fn get_height(&self) -> f32 {
         self.rect.size.1
     }
 
-    /**
-    This function disables/enables the world card buttons.
-     */
+    /// This function disables/enables the world card buttons.
     pub fn set_enabled(&mut self, enabled: bool) {
         self.play_button.disabled = !enabled;
         self.delete_button.disabled = !enabled;
     }
 
-    /**
-    This function returns the container of the world card.
-     */
+    /// This function returns the container of the world card.
     pub fn get_container(
         &self,
         graphics: &GraphicsContext,
