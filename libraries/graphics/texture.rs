@@ -10,12 +10,6 @@ pub struct Texture {
     size: gfx::FloatSize,
 }
 
-impl Default for Texture {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
 impl Texture {
     #[must_use]
     pub const fn new() -> Self {

@@ -39,12 +39,6 @@ impl Item {
     }
 }
 
-impl Default for Item {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
 // make item lua compatible
 impl rlua::UserData for Item {
     fn add_methods<'lua, M: rlua::UserDataMethods<'lua, Self>>(methods: &mut M) {

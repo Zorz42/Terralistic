@@ -7,12 +7,6 @@ pub struct RectArray {
     vertex_buffer: VertexBuffer,
 }
 
-impl Default for RectArray {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
 impl RectArray {
     /// Creates a new `RectArray`.
     #[must_use]

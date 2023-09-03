@@ -12,12 +12,6 @@ pub struct Sprite {
     pub color: gfx::Color,
 }
 
-impl Default for Sprite {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
 impl Sprite {
     /// Creates a new Sprite with default values.
     #[must_use]

@@ -23,12 +23,6 @@ pub struct Button {
     timer_counter: u32,
 }
 
-impl Default for Button {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
 impl Button {
     /// Creates a new button.
     #[must_use]

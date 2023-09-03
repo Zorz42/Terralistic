@@ -47,13 +47,13 @@ impl ServerInfo {
     #[allow(clippy::default_trait_access)]
     pub fn new(graphics_context: &mut gfx::GraphicsContext) -> Self {
         Self {
-            player_count_sprite: Default::default(),
+            player_count_sprite: gfx::Sprite::new(),
             players_count: 0,
             server_state_enum: ServerState::Nothing,
-            server_state_sprite: Default::default(),
-            mspt_sprite: Default::default(),
+            server_state_sprite: gfx::Sprite::new(),
+            mspt_sprite: gfx::Sprite::new(),
             mspt: (0.0, 0.0),
-            uptime: Default::default(),
+            uptime: gfx::Sprite::new(),
             //container math will be redone
             container: gfx::Container::new(
                 graphics_context,

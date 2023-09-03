@@ -29,12 +29,6 @@ pub struct BlockId {
     pub(super) id: i8,
 }
 
-impl Default for BlockId {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
 impl BlockId {
     #[must_use]
     pub const fn new() -> Self {
@@ -59,12 +53,6 @@ pub struct Blocks {
     pub(super) block_types: Vec<Block>,
     pub(super) tool_types: Vec<Tool>,
     pub air: BlockId,
-}
-
-impl Default for Blocks {
-    fn default() -> Self {
-        Self::new()
-    }
 }
 
 impl Blocks {

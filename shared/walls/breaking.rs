@@ -25,12 +25,6 @@ impl BreakingWall {
     }
 }
 
-impl Default for BreakingWall {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
 impl Walls {
     /// Returns the break progress of the wall at x and y
     /// # Errors

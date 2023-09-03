@@ -27,12 +27,6 @@ pub struct Light {
     pub update_light: bool,
 }
 
-impl Default for Light {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
 impl Light {
     #[must_use]
     pub const fn new() -> Self {

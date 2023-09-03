@@ -9,12 +9,6 @@ pub struct Wall {
     pub name: String,
 }
 
-impl Default for Wall {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
 impl Wall {
     #[must_use]
     pub const fn new() -> Self {

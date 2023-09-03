@@ -66,12 +66,6 @@ pub struct Items {
     wall_drops: HashMap<WallId, TileDrop>,
 }
 
-impl Default for Items {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
 impl Items {
     #[must_use]
     pub fn new() -> Self {
