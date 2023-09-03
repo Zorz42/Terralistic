@@ -1,4 +1,5 @@
-use crate::client::menus::Settings;
+use crate::client::menus::SettingsMenu;
+use crate::client::settings::Settings;
 use crate::libraries::graphics as gfx;
 use crate::shared::versions::VERSION;
 
@@ -87,8 +88,19 @@ pub fn run_main_menu(
         }
     }
 
+    let mut in_settings = false;
+    let mut settings_menu = SettingsMenu::new();
+    settings_menu.init(graphics, settings);
+
     while graphics.renderer.is_window_open() {
         while let Some(event) = graphics.renderer.get_event() {
+            if in_settings {
+                if settings_menu.on_event(&event, graphics) {
+                    in_settings = false;
+                }
+                continue;
+            }
+
             if let gfx::Event::KeyRelease(key, ..) = event {
                 // check for every button if it was clicked with the left mouse button
                 if key == gfx::Key::MouseLeft {
@@ -103,6 +115,7 @@ pub fn run_main_menu(
                     } else if settings_button
                         .is_hovered(graphics, Some(menu_back.get_back_rect_container()))
                     {
+                        in_settings = true;
                     } else if mods_button
                         .is_hovered(graphics, Some(menu_back.get_back_rect_container()))
                     {
@@ -113,6 +126,14 @@ pub fn run_main_menu(
                     }
                 }
             }
+        }
+
+        if in_settings {
+            menu_back.render_back(graphics);
+            let width = settings_menu.render(graphics);
+            menu_back.set_back_rect_width(width);
+            graphics.renderer.update_window();
+            continue;
         }
 
         let buttons = vec![

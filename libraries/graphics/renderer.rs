@@ -390,6 +390,10 @@ impl Renderer {
             &self.normalization_transform,
         );
     }
+    
+    pub fn enable_blur(&mut self, enable: bool) {
+        self.blur_context.blur_enabled = enable;
+    }
 }
 
 /// Implement the Drop trait for the Renderer
