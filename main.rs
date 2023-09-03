@@ -104,9 +104,7 @@ fn main() {
         },
         |arg| {
             if arg == "server" {
-                if let Err(e) = server_main(args.as_slice()){
-                    println!("Server crashed with error: {e}");
-                };
+                server_main(args.as_slice());
             } else if arg == "client" {
                 client_main();
             } else if arg == "version" {
@@ -118,16 +116,26 @@ fn main() {
     );
 }
 
-fn server_main(args: &[String]) -> anyhow::Result<()> {
+fn server_main(args: &[String]) {
     let server_graphics_context = if args.contains(&"nogui".to_owned()) {
         None
     } else {
-        let mut graphics = gfx::init(
+        let graphics_result = gfx::init(
             1130,
             700,
             "Terralistic Server",
             include_bytes!("Build/Resources/font.opa"),
-        )?;
+        );
+
+        let mut graphics;
+
+        match graphics_result {
+            Ok(g) => graphics = g,
+            Err(e) => {
+                println!("Failed to initialize graphics: {e}");
+                return;
+            }
+        }
 
         if graphics
             .renderer
@@ -135,7 +143,6 @@ fn server_main(args: &[String]) -> anyhow::Result<()> {
             .is_err()
         {
             println!("Failed to set minimum window size");
-            //no error because the server can still function
         }
         Some(graphics)
     };
@@ -150,7 +157,7 @@ fn server_main(args: &[String]) -> anyhow::Result<()> {
         Ok(path) => path,
         Err(e) => {
             println!("Couldn't get current directory: {e}");
-            return Ok(());
+            return;
         }
     };
 
@@ -201,7 +208,6 @@ fn server_main(args: &[String]) -> anyhow::Result<()> {
         },
     );
     let _thread_result = server_thread.join();
-    Ok(())
 }
 
 fn client_main() {
