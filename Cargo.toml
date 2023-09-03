@@ -61,8 +61,8 @@ opt-level = 1
 [profile.dev]
 strip = false
 lto = false
-codegen-units = 16
-opt-level = 1
+codegen-units = 256
+opt-level = 0
 
 [build-dependencies]
 bincode = "1.3"

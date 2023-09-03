@@ -110,6 +110,15 @@ impl Settings {
 
     /// # Errors
     /// If id doesn't exist.
+    pub fn get_setting_mut(&mut self, id: i32) -> Result<&mut Setting> {
+        return self
+            .settings
+            .get_mut(&id)
+            .ok_or_else(|| anyhow!("Invalid setting id"));
+    }
+
+    /// # Errors
+    /// If id doesn't exist.
     pub fn get_setting(&self, id: i32) -> Result<&Setting> {
         return self
             .settings
@@ -157,5 +166,9 @@ impl Settings {
         let json_str = serde_json::to_string_pretty(&self.config_data)?;
         fs::write(self.config_path.clone(), json_str)?;
         Ok(())
+    }
+
+    pub fn get_all_settings(&self) -> &HashMap<i32, Setting> {
+        &self.settings
     }
 }
