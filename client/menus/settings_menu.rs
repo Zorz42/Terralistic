@@ -1,22 +1,30 @@
-use std::path::{Path, PathBuf};
+use std::collections::HashMap;
+use std::fs;
+use std::path::PathBuf;
+use anyhow::{anyhow, Result};
 
+#[derive(Clone)]
 pub enum SliderSelection {
     Slider(i32),
     Choice(i32),
 }
 
+#[derive(Clone)]
 pub enum Setting {
     Toggle {
         text: String,
+        config_label: String,
         toggled: bool,
     },
     Choice {
         text: String,
+        config_label: String,
         choices: Vec<String>,
         selected: i32,
     },
     Slider {
         text: String,
+        config_label: String,
         upper_limit: i32,
         lower_limit: i32,
         choices: Vec<String>,
@@ -25,31 +33,98 @@ pub enum Setting {
 }
 
 pub struct Settings {
-    settings: Vec<Setting>,
+    settings: HashMap<i32, Setting>,
+    config_path: PathBuf,
+    config_data: HashMap<String, i32>,
+    curr_setting_id: i32,
 }
 
 impl Settings {
-    pub fn new(config_path: PathBuf) -> Self {
-        todo!();
+    /// # Errors
+    /// If config file couldn't be read.
+    pub fn new(config_path: PathBuf) -> Result<Self> {
+        let data = fs::read_to_string(config_path.clone())?;
+
+        let config_data: HashMap<String, i32> = serde_json::from_str(&data)?;
+        Ok(Self {
+            settings: HashMap::new(),
+            config_path,
+            config_data,
+            curr_setting_id: 0,
+        })
     }
 
-    pub fn register_setting(&mut self, setting: Setting) -> usize {
-        todo!();
+    /// Adds a new setting, returns the id of the setting.
+    pub fn register_setting(&mut self, mut setting: Setting) -> i32 {
+        let config_label = match setting.clone() {
+                Setting::Toggle { config_label, .. } |
+                Setting::Choice { config_label, .. } |
+                Setting::Slider { config_label, .. } => {
+                    config_label
+                }
+            };
+
+        if let Some(config_value) = self.config_data.get(&config_label) {
+            let config_value = *config_value;
+            match &mut setting {
+                Setting::Toggle { toggled, .. } => {
+                    *toggled = config_value != 0;
+                }
+                Setting::Choice { selected, .. } => {
+                    *selected = config_value;
+                }
+                Setting::Slider { selected, choices, lower_limit, .. } => {
+                    if config_value < choices.len() as i32 {
+                        *selected = SliderSelection::Choice(config_value);
+                    } else {
+                        *selected = SliderSelection::Slider(config_value - choices.len() as i32 + *lower_limit);
+                    }
+                }
+            }
+        }
+
+        self.curr_setting_id += 1;
+        self.settings.insert(self.curr_setting_id, setting);
+        self.curr_setting_id
     }
 
-    pub fn get_setting(&self, id: usize) -> &Setting {
-        todo!();
+    /// # Errors
+    /// If id doesn't exist.
+    pub fn get_setting(&self, id: i32) -> Result<&Setting> {
+        return self.settings.get(&id).ok_or_else(|| anyhow!("Invalid setting id"));
     }
 
-    pub fn get_config(&self, key: String) -> i32 {
-        todo!();
-    }
+    fn save_config(&mut self) -> Result<()> {
+        for setting in self.settings.values() {
+            let (config_label, value) = match setting {
+                Setting::Toggle { config_label, toggled, .. } => {
+                    (config_label.clone(), i32::from(*toggled))
+                }
 
-    pub fn write_config(&mut self, key: String, val: i32) {
-        todo!();
-    }
+                Setting::Choice { config_label, selected, .. } => {
+                    (config_label.clone(), *selected)
+                }
 
-    pub fn save_config(&self) {
-        todo!();
+                Setting::Slider { config_label, selected, choices, lower_limit, .. } => {
+                    let val = match selected {
+                        SliderSelection::Slider(value) => {
+                            *value - choices.len() as i32 + *lower_limit
+                        }
+
+                        SliderSelection::Choice(value) => {
+                            *value
+                        }
+                    };
+
+                    (config_label.clone(), val)
+                }
+            };
+
+            self.config_data.insert(config_label, value);
+        }
+
+        let json_str = serde_json::to_string_pretty(&self.config_data)?;
+        fs::write(self.config_path.clone(), json_str)?;
+        Ok(())
     }
 }
