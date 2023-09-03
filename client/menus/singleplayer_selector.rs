@@ -58,9 +58,11 @@ pub struct World {
 impl World {
     pub fn new(graphics: &gfx::GraphicsContext, file_path: PathBuf) -> Self {
         let stem = file_path.file_stem();
-        let name = stem.map_or("incorrect_file_path", |name_| {
-            name_.to_str().unwrap_or("invalid_text_format")
-        }).to_owned();
+        let name = stem
+            .map_or("incorrect_file_path", |name_| {
+                name_.to_str().unwrap_or("invalid_text_format")
+            })
+            .to_owned();
 
         let mut rect = gfx::RenderRect::new(
             gfx::FloatPos(0.0, 0.0),
@@ -74,7 +76,8 @@ impl World {
         icon.texture = gfx::Texture::load_from_surface(
             &gfx::Surface::deserialize_from_bytes(include_bytes!(
                 "../../Build/Resources/world_icon.opa"
-            )).unwrap_or_else(|_| gfx::Surface::new(gfx::IntSize(1, 1))),
+            ))
+            .unwrap_or_else(|_| gfx::Surface::new(gfx::IntSize(1, 1))),
         );
         rect.size.1 = icon.get_size().1 + 2.0 * gfx::SPACING;
         icon.pos.0 = gfx::SPACING;
@@ -90,7 +93,8 @@ impl World {
         play_button.texture = gfx::Texture::load_from_surface(
             &gfx::Surface::deserialize_from_bytes(include_bytes!(
                 "../../Build/Resources/play_button.opa"
-            )).unwrap_or_else(|_| gfx::Surface::new(gfx::IntSize(1, 1))),
+            ))
+            .unwrap_or_else(|_| gfx::Surface::new(gfx::IntSize(1, 1))),
         );
         play_button.scale = 3.0;
         play_button.padding = 5.0;
@@ -102,7 +106,8 @@ impl World {
         delete_button.texture = gfx::Texture::load_from_surface(
             &gfx::Surface::deserialize_from_bytes(include_bytes!(
                 "../../Build/Resources/delete_button.opa"
-            )).unwrap_or_else(|_| gfx::Surface::new(gfx::IntSize(1, 1))),
+            ))
+            .unwrap_or_else(|_| gfx::Surface::new(gfx::IntSize(1, 1))),
         );
         delete_button.scale = 3.0;
         delete_button.padding = 5.0;
@@ -111,9 +116,10 @@ impl World {
         delete_button.orientation = gfx::BOTTOM_LEFT;
 
         let mut last_modified = gfx::Sprite::new();
-        last_modified.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface(
-            get_last_modified_time(file_path.as_path().to_str().unwrap_or("")).as_str(),
-        ));
+        last_modified.texture =
+            gfx::Texture::load_from_surface(&graphics.font.create_text_surface(
+                get_last_modified_time(file_path.as_path().to_str().unwrap_or("")).as_str(),
+            ));
         last_modified.color = gfx::GREY;
         last_modified.orientation = gfx::BOTTOM_RIGHT;
         last_modified.pos.0 = -gfx::SPACING;
@@ -233,13 +239,15 @@ pub fn run_singleplayer_selector(
 
     let mut back_button = gfx::Button::new();
     back_button.scale = 3.0;
-    back_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Back"));
+    back_button.texture =
+        gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Back"));
     back_button.pos.1 = -gfx::SPACING;
     back_button.orientation = gfx::BOTTOM;
 
     let mut new_world_button = gfx::Button::new();
     new_world_button.scale = 3.0;
-    new_world_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("New"));
+    new_world_button.texture =
+        gfx::Texture::load_from_surface(&graphics.font.create_text_surface("New"));
     new_world_button.pos.0 = -gfx::SPACING;
     new_world_button.pos.1 = -gfx::SPACING;
     new_world_button.orientation = gfx::BOTTOM_RIGHT;
@@ -247,10 +255,12 @@ pub fn run_singleplayer_selector(
     let top_height = title.get_size().1 + 2.0 * gfx::SPACING;
     let bottom_height = back_button.get_size().1 + 2.0 * gfx::SPACING;
 
-    let mut top_rect = gfx::RenderRect::new(gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, top_height));
+    let mut top_rect =
+        gfx::RenderRect::new(gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, top_height));
     top_rect.orientation = gfx::TOP;
 
-    let mut bottom_rect = gfx::RenderRect::new(gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, bottom_height));
+    let mut bottom_rect =
+        gfx::RenderRect::new(gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, bottom_height));
     bottom_rect.fill_color.a = gfx::TRANSPARENCY / 2;
     bottom_rect.shadow_intensity = gfx::SHADOW_INTENSITY;
     bottom_rect.blur_radius = gfx::BLUR;
@@ -288,10 +298,16 @@ fn update_elements(
         match event {
             gfx::Event::KeyRelease(key, ..) => match key {
                 gfx::Key::MouseLeft => {
-                    if elements.back_button.is_hovered(graphics, Some(menu_back.get_back_rect_container())) {
+                    if elements
+                        .back_button
+                        .is_hovered(graphics, Some(menu_back.get_back_rect_container()))
+                    {
                         return true;
                     }
-                    if elements.new_world_button.is_hovered(graphics, Some(menu_back.get_back_rect_container())) {
+                    if elements
+                        .new_world_button
+                        .is_hovered(graphics, Some(menu_back.get_back_rect_container()))
+                    {
                         run_world_creation(graphics, menu_back, &mut elements.world_list.worlds);
                         elements.world_list.refresh(graphics);
                     }
@@ -305,7 +321,8 @@ fn update_elements(
                                 Some(menu_back.get_back_rect_container()),
                             )),
                         ) {
-                            let game_result = run_private_world(graphics, menu_back, world.get_file_path());
+                            let game_result =
+                                run_private_world(graphics, menu_back, world.get_file_path());
                             if let Err(error) = game_result {
                                 println!("Game error: {error}");
                             }
@@ -319,7 +336,8 @@ fn update_elements(
                             format!(
                                 "The world \"{}\" will be deleted.\nDo you want to proceed?",
                                 world.name
-                            ).as_str(),
+                            )
+                            .as_str(),
                             graphics,
                             menu_back,
                             None,
@@ -360,7 +378,9 @@ fn render_elements(
 
     menu_back.render_back(graphics);
 
-    let hoverable = graphics.renderer.get_mouse_pos().1 > elements.top_height && graphics.renderer.get_mouse_pos().1 < graphics.renderer.get_window_size().1 - elements.bottom_height;
+    let hoverable = graphics.renderer.get_mouse_pos().1 > elements.top_height
+        && graphics.renderer.get_mouse_pos().1
+            < graphics.renderer.get_window_size().1 - elements.bottom_height;
 
     for world in &mut elements.world_list.worlds {
         world.set_enabled(hoverable);
@@ -378,7 +398,8 @@ fn render_elements(
     }
 
     elements.top_rect.size.0 = menu_back.get_back_rect_width(graphics, None);
-    *top_rect_visibility += ((if elements.position < -5.0 { 1.0 } else { 0.0 }) - *top_rect_visibility) / 20.0;
+    *top_rect_visibility +=
+        ((if elements.position < -5.0 { 1.0 } else { 0.0 }) - *top_rect_visibility) / 20.0;
 
     if *top_rect_visibility < 0.01 {
         *top_rect_visibility = 0.0;
@@ -390,19 +411,26 @@ fn render_elements(
 
     elements.top_rect.fill_color.a = (*top_rect_visibility * gfx::TRANSPARENCY as f32 / 2.0) as u8;
     elements.top_rect.blur_radius = (*top_rect_visibility * gfx::BLUR as f32) as i32;
-    elements.top_rect.shadow_intensity = (*top_rect_visibility * gfx::SHADOW_INTENSITY as f32) as i32;
+    elements.top_rect.shadow_intensity =
+        (*top_rect_visibility * gfx::SHADOW_INTENSITY as f32) as i32;
     if *top_rect_visibility > 0.0 {
-        elements.top_rect.render(graphics, Some(menu_back.get_back_rect_container()));
+        elements
+            .top_rect
+            .render(graphics, Some(menu_back.get_back_rect_container()));
     }
 
     elements.bottom_rect.size.0 = menu_back.get_back_rect_width(graphics, None);
-    let mut scroll_limit = current_y - graphics.renderer.get_window_size().1 + elements.top_height + elements.bottom_height;
+    let mut scroll_limit = current_y - graphics.renderer.get_window_size().1
+        + elements.top_height
+        + elements.bottom_height;
     if scroll_limit < 0.0 {
         scroll_limit = 0.0;
     }
 
     if scroll_limit > 0.0 {
-        elements.bottom_rect.render(graphics, Some(menu_back.get_back_rect_container()));
+        elements
+            .bottom_rect
+            .render(graphics, Some(menu_back.get_back_rect_container()));
     }
 
     if elements.position > 0.0 {
@@ -413,10 +441,16 @@ fn render_elements(
         elements.position -= (elements.position + scroll_limit) / 20.0;
     }
 
-    elements.title.render(graphics, Some(menu_back.get_back_rect_container()));
-    elements.back_button.render(graphics, Some(menu_back.get_back_rect_container()));
+    elements
+        .title
+        .render(graphics, Some(menu_back.get_back_rect_container()));
+    elements
+        .back_button
+        .render(graphics, Some(menu_back.get_back_rect_container()));
 
-    elements.new_world_button.render(graphics, Some(menu_back.get_back_rect_container()));
+    elements
+        .new_world_button
+        .render(graphics, Some(menu_back.get_back_rect_container()));
 
     graphics.renderer.update_window();
 }

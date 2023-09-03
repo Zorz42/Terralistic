@@ -44,7 +44,11 @@ impl Rect {
             gl::Uniform1i(graphics.renderer.passthrough_shader.has_texture, 0);
         }
 
-        graphics.renderer.passthrough_shader.rect_vertex_buffer.draw(false, DrawMode::Triangles);
+        graphics
+            .renderer
+            .passthrough_shader
+            .rect_vertex_buffer
+            .draw(false, DrawMode::Triangles);
     }
 
     /// Renders the rectangle outline on the screen.
@@ -75,11 +79,18 @@ impl Rect {
             gl::Uniform1i(graphics.renderer.passthrough_shader.has_texture, 0);
         }
 
-        graphics.renderer.passthrough_shader.rect_outline_vertex_buffer.draw(false, DrawMode::Lines);
+        graphics
+            .renderer
+            .passthrough_shader
+            .rect_outline_vertex_buffer
+            .draw(false, DrawMode::Lines);
     }
 
     #[must_use]
     pub fn contains(&self, pos: gfx::FloatPos) -> bool {
-        pos.0 >= self.pos.0 && pos.0 <= self.pos.0 + self.size.0 && pos.1 >= self.pos.1 && pos.1 <= self.pos.1 + self.size.1
+        pos.0 >= self.pos.0
+            && pos.0 <= self.pos.0 + self.size.0
+            && pos.1 >= self.pos.1
+            && pos.1 <= self.pos.1 + self.size.1
     }
 }

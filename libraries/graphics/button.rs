@@ -94,7 +94,11 @@ impl Button {
     }
 
     /// Renders the button.
-    pub fn render(&mut self, graphics: &gfx::GraphicsContext, parent_container: Option<&gfx::Container>) {
+    pub fn render(
+        &mut self,
+        graphics: &gfx::GraphicsContext,
+        parent_container: Option<&gfx::Container>,
+    ) {
         let container = self.get_container(graphics, parent_container);
         let rect = container.get_absolute_rect();
 
@@ -117,17 +121,25 @@ impl Button {
         }
 
         let button_color = gfx::Color::new(
-            (self.hover_color.r as f32 * self.hover_progress + self.color.r as f32 * (1.0 - self.hover_progress)) as u8,
-            (self.hover_color.g as f32 * self.hover_progress + self.color.g as f32 * (1.0 - self.hover_progress)) as u8,
-            (self.hover_color.b as f32 * self.hover_progress + self.color.b as f32 * (1.0 - self.hover_progress)) as u8,
-            (self.hover_color.a as f32 * self.hover_progress + self.color.a as f32 * (1.0 - self.hover_progress)) as u8,
+            (self.hover_color.r as f32 * self.hover_progress
+                + self.color.r as f32 * (1.0 - self.hover_progress)) as u8,
+            (self.hover_color.g as f32 * self.hover_progress
+                + self.color.g as f32 * (1.0 - self.hover_progress)) as u8,
+            (self.hover_color.b as f32 * self.hover_progress
+                + self.color.b as f32 * (1.0 - self.hover_progress)) as u8,
+            (self.hover_color.a as f32 * self.hover_progress
+                + self.color.a as f32 * (1.0 - self.hover_progress)) as u8,
         );
 
         let button_border_color = gfx::Color::new(
-            (self.hover_border_color.r as f32 * self.hover_progress + self.border_color.r as f32 * (1.0 - self.hover_progress)) as u8,
-            (self.hover_border_color.g as f32 * self.hover_progress + self.border_color.g as f32 * (1.0 - self.hover_progress)) as u8,
-            (self.hover_border_color.b as f32 * self.hover_progress + self.border_color.b as f32 * (1.0 - self.hover_progress)) as u8,
-            (self.hover_border_color.a as f32 * self.hover_progress + self.border_color.a as f32 * (1.0 - self.hover_progress)) as u8,
+            (self.hover_border_color.r as f32 * self.hover_progress
+                + self.border_color.r as f32 * (1.0 - self.hover_progress)) as u8,
+            (self.hover_border_color.g as f32 * self.hover_progress
+                + self.border_color.g as f32 * (1.0 - self.hover_progress)) as u8,
+            (self.hover_border_color.b as f32 * self.hover_progress
+                + self.border_color.b as f32 * (1.0 - self.hover_progress)) as u8,
+            (self.hover_border_color.a as f32 * self.hover_progress
+                + self.border_color.a as f32 * (1.0 - self.hover_progress)) as u8,
         );
 
         let padding = (1.0 - self.hover_progress) * 30.0;
@@ -144,8 +156,10 @@ impl Button {
         hover_rect.render_outline(graphics, button_border_color);
 
         let texture_scale = self.scale + self.hover_progress * 0.4;
-        let x = rect.pos.0 + rect.size.0 / 2.0 - self.texture.get_texture_size().0 * texture_scale / 2.0;
-        let y = rect.pos.1 + rect.size.1 / 2.0 - self.texture.get_texture_size().1 * texture_scale / 2.0;
+        let x = rect.pos.0 + rect.size.0 / 2.0
+            - self.texture.get_texture_size().0 * texture_scale / 2.0;
+        let y = rect.pos.1 + rect.size.1 / 2.0
+            - self.texture.get_texture_size().1 * texture_scale / 2.0;
         self.texture.render(
             &graphics.renderer,
             texture_scale,

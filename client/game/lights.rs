@@ -36,13 +36,18 @@ impl LightChunk {
                         i32::max(world_x + x - 1, 0),
                         i32::max(world_y + y - 1, 0),
                     )?;
-                    let light_2 = lights.get_light_color(world_x + x, i32::max(world_y + y - 1, 0))?;
-                    let light_3 = lights.get_light_color(i32::max(world_x + x - 1, 0), world_y + y)?;
+                    let light_2 =
+                        lights.get_light_color(world_x + x, i32::max(world_y + y - 1, 0))?;
+                    let light_3 =
+                        lights.get_light_color(i32::max(world_x + x - 1, 0), world_y + y)?;
                     let light_4 = lights.get_light_color(world_x + x, world_y + y)?;
 
                     self.rect_array.add_rect(
                         &gfx::Rect::new(
-                            gfx::FloatPos(x as f32 * RENDER_BLOCK_WIDTH, y as f32 * RENDER_BLOCK_WIDTH),
+                            gfx::FloatPos(
+                                x as f32 * RENDER_BLOCK_WIDTH,
+                                y as f32 * RENDER_BLOCK_WIDTH,
+                            ),
                             gfx::FloatSize(RENDER_BLOCK_WIDTH, RENDER_BLOCK_WIDTH),
                         ),
                         &[
@@ -59,10 +64,16 @@ impl LightChunk {
             self.rect_array.update();
         }
 
-        let screen_x = world_x as f32 * RENDER_BLOCK_WIDTH - camera.get_top_left(graphics).0 * RENDER_BLOCK_WIDTH;
-        let screen_y = world_y as f32 * RENDER_BLOCK_WIDTH - camera.get_top_left(graphics).1 * RENDER_BLOCK_WIDTH;
+        let screen_x = world_x as f32 * RENDER_BLOCK_WIDTH
+            - camera.get_top_left(graphics).0 * RENDER_BLOCK_WIDTH;
+        let screen_y = world_y as f32 * RENDER_BLOCK_WIDTH
+            - camera.get_top_left(graphics).1 * RENDER_BLOCK_WIDTH;
         gfx::set_blend_mode(gfx::BlendMode::Multiply);
-        self.rect_array.render(graphics, None, gfx::FloatPos(screen_x.round(), screen_y.round()));
+        self.rect_array.render(
+            graphics,
+            None,
+            gfx::FloatPos(screen_x.round(), screen_y.round()),
+        );
         gfx::set_blend_mode(gfx::BlendMode::Alpha);
         Ok(())
     }
@@ -84,7 +95,11 @@ impl ClientLights {
 
     fn get_chunk_index(&self, x: i32, y: i32) -> Result<usize> {
         // check if x and y are in bounds
-        if x < 0 || y < 0 || x >= self.lights.get_width() as i32 / CHUNK_SIZE || y >= self.lights.get_height() as i32 / CHUNK_SIZE {
+        if x < 0
+            || y < 0
+            || x >= self.lights.get_width() as i32 / CHUNK_SIZE
+            || y >= self.lights.get_height() as i32 / CHUNK_SIZE
+        {
             bail!("Tried to get light chunk at {x}, {y} but it is out of bounds");
         }
 
@@ -127,7 +142,11 @@ impl ClientLights {
             let mut updated = false;
             for x in extended_start_x..extended_end_x {
                 for y in extended_start_y..extended_end_y {
-                    if y < 0 || y >= self.lights.get_height() as i32 || x < 0 || x >= self.lights.get_width() as i32 {
+                    if y < 0
+                        || y >= self.lights.get_height() as i32
+                        || x < 0
+                        || x >= self.lights.get_width() as i32
+                    {
                         continue;
                     }
 
@@ -145,12 +164,19 @@ impl ClientLights {
 
         for x in start_x / CHUNK_SIZE..=end_x / CHUNK_SIZE {
             for y in start_y / CHUNK_SIZE..=end_y / CHUNK_SIZE {
-                if y < 0 || y >= self.lights.get_height() as i32 / CHUNK_SIZE || x < 0 || x >= self.lights.get_width() as i32 / CHUNK_SIZE {
+                if y < 0
+                    || y >= self.lights.get_height() as i32 / CHUNK_SIZE
+                    || x < 0
+                    || x >= self.lights.get_width() as i32 / CHUNK_SIZE
+                {
                     continue;
                 }
 
                 let chunk_index = self.get_chunk_index(x, y)?;
-                let chunk = self.chunks.get_mut(chunk_index).ok_or_else(|| anyhow!("Chunk array malformed"))?;
+                let chunk = self
+                    .chunks
+                    .get_mut(chunk_index)
+                    .ok_or_else(|| anyhow!("Chunk array malformed"))?;
 
                 chunk.render(
                     graphics,
@@ -177,12 +203,19 @@ impl ClientLights {
             ];
 
             for (x, y) in pos {
-                if y < 0 || y >= self.lights.get_height() as i32 / CHUNK_SIZE || x < 0 || x >= self.lights.get_width() as i32 / CHUNK_SIZE {
+                if y < 0
+                    || y >= self.lights.get_height() as i32 / CHUNK_SIZE
+                    || x < 0
+                    || x >= self.lights.get_width() as i32 / CHUNK_SIZE
+                {
                     continue;
                 }
 
                 let chunk_index = self.get_chunk_index(x, y)?;
-                let chunk = self.chunks.get_mut(chunk_index).ok_or_else(|| anyhow!("Chunk array malformed"))?;
+                let chunk = self
+                    .chunks
+                    .get_mut(chunk_index)
+                    .ok_or_else(|| anyhow!("Chunk array malformed"))?;
 
                 chunk.needs_update = true;
             }

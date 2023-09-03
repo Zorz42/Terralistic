@@ -82,6 +82,7 @@ impl DebugMenu {
     }
 
     fn is_visible(&self, graphics: &gfx::GraphicsContext) -> bool {
-        (self.back_rect.get_container(graphics, None).rect.pos.0 as i32) < (graphics.renderer.get_window_size().0 as i32)
+        (self.back_rect.get_container(graphics, None).rect.pos.0 as i32)
+            < (graphics.renderer.get_window_size().0 as i32)
     }
 }

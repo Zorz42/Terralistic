@@ -38,7 +38,8 @@ pub struct TextInput {
 
 impl TextInput {
     pub fn new(graphics: &mut gfx::GraphicsContext) -> Self {
-        let mut cursor_rect = gfx::RenderRect::new(gfx::FloatPos(0.0, 0.0), gfx::FloatSize(1.0, 1.0));
+        let mut cursor_rect =
+            gfx::RenderRect::new(gfx::FloatPos(0.0, 0.0), gfx::FloatSize(1.0, 1.0));
         cursor_rect.smooth_factor = 30.0;
         cursor_rect.fill_color = gfx::WHITE;
 
@@ -120,7 +121,8 @@ impl TextInput {
 
     /// sets the hint text in the input box
     pub fn set_hint(&mut self, graphics: &mut gfx::GraphicsContext, hint: &str) {
-        self.hint_texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface(hint));
+        self.hint_texture =
+            gfx::Texture::load_from_surface(&graphics.font.create_text_surface(hint));
     }
 
     /// returns the cursor in order
@@ -139,7 +141,9 @@ impl TextInput {
         }
 
         if is_ctrl_pressed {
-            while initial_pos < self.text.len() && !SPACE_CHARACTERS.contains(&self.text.chars().nth(initial_pos).unwrap_or('\0')) {
+            while initial_pos < self.text.len()
+                && !SPACE_CHARACTERS.contains(&self.text.chars().nth(initial_pos).unwrap_or('\0'))
+            {
                 initial_pos += 1;
             }
         }
@@ -152,7 +156,10 @@ impl TextInput {
         initial_pos = initial_pos.saturating_sub(1);
 
         if is_ctrl_pressed {
-            while initial_pos > 0 && !SPACE_CHARACTERS.contains(&self.text.chars().nth(initial_pos - 1).unwrap_or('\0')) {
+            while initial_pos > 0
+                && !SPACE_CHARACTERS
+                    .contains(&self.text.chars().nth(initial_pos - 1).unwrap_or('\0'))
+            {
                 initial_pos -= 1;
             }
         }
@@ -161,12 +168,17 @@ impl TextInput {
 
     /// renders the text input
     #[allow(clippy::too_many_lines)] // TODO: split this function up
-    pub fn render(&mut self, graphics: &gfx::GraphicsContext, parent_container: Option<&gfx::Container>) {
+    pub fn render(
+        &mut self,
+        graphics: &gfx::GraphicsContext,
+        parent_container: Option<&gfx::Container>,
+    ) {
         let container = self.get_container(graphics, parent_container);
         let rect = container.get_absolute_rect();
 
         if self.text_changed && !self.text.is_empty() {
-            self.text_texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface(&self.text));
+            self.text_texture =
+                gfx::Texture::load_from_surface(&graphics.font.create_text_surface(&self.text));
         }
 
         let hover_progress_target = if self.is_hovered(graphics, parent_container) {
@@ -184,9 +196,11 @@ impl TextInput {
             }
             self.hover_progress += (hover_progress_target - self.hover_progress) / smooth_factor;
 
-            self.cursor_color_progress += (cursor_color_progress_target - self.cursor_color_progress) / 40.0;
+            self.cursor_color_progress +=
+                (cursor_color_progress_target - self.cursor_color_progress) / 40.0;
 
-            self.hint_color_progress += (hint_color_progress_target - self.hint_color_progress) / 40.0;
+            self.hint_color_progress +=
+                (hint_color_progress_target - self.hint_color_progress) / 40.0;
 
             if (hover_progress_target - self.hover_progress).abs() <= 0.01 {
                 self.hover_progress = hover_progress_target;
@@ -195,17 +209,25 @@ impl TextInput {
         }
 
         let color = gfx::Color::new(
-            (self.hover_color.r as f32 * self.hover_progress + self.color.r as f32 * (1.0 - self.hover_progress)) as u8,
-            (self.hover_color.g as f32 * self.hover_progress + self.color.g as f32 * (1.0 - self.hover_progress)) as u8,
-            (self.hover_color.b as f32 * self.hover_progress + self.color.b as f32 * (1.0 - self.hover_progress)) as u8,
-            (self.hover_color.a as f32 * self.hover_progress + self.color.a as f32 * (1.0 - self.hover_progress)) as u8,
+            (self.hover_color.r as f32 * self.hover_progress
+                + self.color.r as f32 * (1.0 - self.hover_progress)) as u8,
+            (self.hover_color.g as f32 * self.hover_progress
+                + self.color.g as f32 * (1.0 - self.hover_progress)) as u8,
+            (self.hover_color.b as f32 * self.hover_progress
+                + self.color.b as f32 * (1.0 - self.hover_progress)) as u8,
+            (self.hover_color.a as f32 * self.hover_progress
+                + self.color.a as f32 * (1.0 - self.hover_progress)) as u8,
         );
 
         let border_color = gfx::Color::new(
-            (self.hover_border_color.r as f32 * self.hover_progress + self.border_color.r as f32 * (1.0 - self.hover_progress)) as u8,
-            (self.hover_border_color.g as f32 * self.hover_progress + self.border_color.g as f32 * (1.0 - self.hover_progress)) as u8,
-            (self.hover_border_color.b as f32 * self.hover_progress + self.border_color.b as f32 * (1.0 - self.hover_progress)) as u8,
-            (self.hover_border_color.a as f32 * self.hover_progress + self.border_color.a as f32 * (1.0 - self.hover_progress)) as u8,
+            (self.hover_border_color.r as f32 * self.hover_progress
+                + self.border_color.r as f32 * (1.0 - self.hover_progress)) as u8,
+            (self.hover_border_color.g as f32 * self.hover_progress
+                + self.border_color.g as f32 * (1.0 - self.hover_progress)) as u8,
+            (self.hover_border_color.b as f32 * self.hover_progress
+                + self.border_color.b as f32 * (1.0 - self.hover_progress)) as u8,
+            (self.hover_border_color.a as f32 * self.hover_progress
+                + self.border_color.a as f32 * (1.0 - self.hover_progress)) as u8,
         );
 
         rect.render(graphics, color);
@@ -217,7 +239,10 @@ impl TextInput {
             self.shadow_intensity as f32 / 255.0,
         );
 
-        let mut src_rect = gfx::Rect::new(gfx::FloatPos(0.0, 0.0), self.text_texture.get_texture_size());
+        let mut src_rect = gfx::Rect::new(
+            gfx::FloatPos(0.0, 0.0),
+            self.text_texture.get_texture_size(),
+        );
         src_rect.size.0 = f32::min(src_rect.size.0, self.width - self.padding * 2.0);
         if self.text.is_empty() {
             src_rect.size.0 = 0.0;
@@ -228,7 +253,8 @@ impl TextInput {
             &graphics.renderer,
             self.scale,
             gfx::FloatPos(
-                rect.pos.0 + rect.size.0 / 2.0 - self.hint_texture.get_texture_size().0 / 2.0 * self.scale,
+                rect.pos.0 + rect.size.0 / 2.0
+                    - self.hint_texture.get_texture_size().0 / 2.0 * self.scale,
                 rect.pos.1 + self.padding * self.scale,
             ),
             None,
@@ -242,7 +268,8 @@ impl TextInput {
                 self.scale,
                 gfx::FloatPos(
                     rect.pos.0 + self.padding * self.scale,
-                    rect.pos.1 + rect.size.1 / 2.0 - self.text_texture.get_texture_size().1 * self.scale / 2.0,
+                    rect.pos.1 + rect.size.1 / 2.0
+                        - self.text_texture.get_texture_size().1 * self.scale / 2.0,
                 ),
                 Some(src_rect),
                 false,
@@ -266,14 +293,24 @@ impl TextInput {
             let w1 = if self.get_cursor().0 == 0 {
                 0.0
             } else {
-                graphics.font.create_text_surface(self.text.get(..self.get_cursor().0).unwrap_or("")).get_size().0 as f32 * self.scale
+                graphics
+                    .font
+                    .create_text_surface(self.text.get(..self.get_cursor().0).unwrap_or(""))
+                    .get_size()
+                    .0 as f32
+                    * self.scale
             };
 
             // w2 is the width of the text before the cursor.1
             let w2 = if self.get_cursor().1 == 0 {
                 0.0
             } else {
-                graphics.font.create_text_surface(self.text.get(..self.get_cursor().1).unwrap_or("")).get_size().0 as f32 * self.scale
+                graphics
+                    .font
+                    .create_text_surface(self.text.get(..self.get_cursor().1).unwrap_or(""))
+                    .get_size()
+                    .0 as f32
+                    * self.scale
             };
 
             let x1 = text_begin_x + w1 - 3.0;
@@ -284,7 +321,9 @@ impl TextInput {
             self.cursor_rect.size.0 = x2 - x1;
             self.cursor_rect.size.1 = rect.size.1 - self.padding * self.scale * 2.0;
 
-            if self.cursor_rect.get_container(graphics, None).rect.pos.0 == 0.0 && self.cursor_rect.get_container(graphics, None).rect.pos.1 == 0.0 {
+            if self.cursor_rect.get_container(graphics, None).rect.pos.0 == 0.0
+                && self.cursor_rect.get_container(graphics, None).rect.pos.1 == 0.0
+            {
                 self.cursor_rect.jump_to_target();
             }
         }
@@ -308,7 +347,8 @@ impl TextInput {
             gfx::Event::TextInput(text) => {
                 if self.selected {
                     if self.cursor.0 != self.cursor.1 {
-                        self.text.replace_range(self.get_cursor().0..self.get_cursor().1, "");
+                        self.text
+                            .replace_range(self.get_cursor().0..self.get_cursor().1, "");
                         self.cursor.1 = self.cursor.0;
                     }
                     // run every character of text through text_processing closure if it exists and create new string
@@ -342,7 +382,8 @@ impl TextInput {
                 match key {
                     gfx::Key::Backspace => {
                         if self.cursor.0 != self.cursor.1 {
-                            self.text.replace_range(self.get_cursor().0..self.get_cursor().1, "");
+                            self.text
+                                .replace_range(self.get_cursor().0..self.get_cursor().1, "");
                             self.cursor.0 = self.get_cursor().0;
                         } else if self.cursor.0 > 0 {
                             self.cursor.0 = self.find_space_left(
@@ -356,7 +397,8 @@ impl TextInput {
                     }
                     gfx::Key::Delete => {
                         if self.cursor.0 != self.cursor.1 {
-                            self.text.replace_range(self.get_cursor().0..self.get_cursor().1, "");
+                            self.text
+                                .replace_range(self.get_cursor().0..self.get_cursor().1, "");
                             self.cursor.0 = self.get_cursor().0;
                             self.cursor.1 = self.cursor.0;
                         } else if self.text.len() > self.cursor.0 {
@@ -408,11 +450,18 @@ impl TextInput {
                     }
                     gfx::Key::C => {
                         if graphics.renderer.get_key_state(gfx::Key::LeftControl) {
-                            graphics.renderer.clipboard_context.set_contents(
-                                self.text.get(self.get_cursor().0..self.get_cursor().1).unwrap_or("").to_owned(),
-                            ).unwrap_or_else(|e| {
-                                println!("Error setting clipboard contents: {e}");
-                            });
+                            graphics
+                                .renderer
+                                .clipboard_context
+                                .set_contents(
+                                    self.text
+                                        .get(self.get_cursor().0..self.get_cursor().1)
+                                        .unwrap_or("")
+                                        .to_owned(),
+                                )
+                                .unwrap_or_else(|e| {
+                                    println!("Error setting clipboard contents: {e}");
+                                });
                         }
                     }
                     gfx::Key::V => {
@@ -433,15 +482,25 @@ impl TextInput {
                         }
                     }
                     gfx::Key::X => {
-                        if graphics.renderer.get_key_state(gfx::Key::LeftControl) && self.cursor.0 != self.cursor.1 {
+                        if graphics.renderer.get_key_state(gfx::Key::LeftControl)
+                            && self.cursor.0 != self.cursor.1
+                        {
                             if graphics.renderer.get_key_state(gfx::Key::LeftControl) {
-                                graphics.renderer.clipboard_context.set_contents(
-                                    self.text.get(self.get_cursor().0..self.get_cursor().1).unwrap_or("").to_owned(),
-                                ).unwrap_or_else(|e| {
-                                    println!("Failed to copy to clipboard {e}");
-                                });
+                                graphics
+                                    .renderer
+                                    .clipboard_context
+                                    .set_contents(
+                                        self.text
+                                            .get(self.get_cursor().0..self.get_cursor().1)
+                                            .unwrap_or("")
+                                            .to_owned(),
+                                    )
+                                    .unwrap_or_else(|e| {
+                                        println!("Failed to copy to clipboard {e}");
+                                    });
                             }
-                            self.text.replace_range(self.get_cursor().0..self.get_cursor().1, ""); //add text filtering lol
+                            self.text
+                                .replace_range(self.get_cursor().0..self.get_cursor().1, ""); //add text filtering lol
                             self.cursor.0 = self.get_cursor().0;
                             self.cursor.1 = self.cursor.0;
                             self.text_changed = true;

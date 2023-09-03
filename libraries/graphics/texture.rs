@@ -91,7 +91,8 @@ impl Texture {
         flipped: bool,
         color: Option<Color>,
     ) {
-        let src_rect = src_rect.unwrap_or_else(|| Rect::new(gfx::FloatPos(0.0, 0.0), self.get_texture_size()));
+        let src_rect =
+            src_rect.unwrap_or_else(|| Rect::new(gfx::FloatPos(0.0, 0.0), self.get_texture_size()));
 
         let color = color.unwrap_or(Color {
             r: 255,
@@ -140,7 +141,10 @@ impl Texture {
 
             gl::BindTexture(gl::TEXTURE_2D, self.texture_handle);
 
-            renderer.passthrough_shader.rect_vertex_buffer.draw(true, DrawMode::Triangles);
+            renderer
+                .passthrough_shader
+                .rect_vertex_buffer
+                .draw(true, DrawMode::Triangles);
         }
     }
 }

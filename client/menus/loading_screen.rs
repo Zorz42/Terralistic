@@ -39,7 +39,12 @@ pub fn run_loading_screen(
     loading_bar.fill_color = gfx::LIGHT_GREY;
     loading_bar.smooth_factor = 60.0;
 
-    while graphics.renderer.is_window_open() && !loading_text.lock().unwrap_or_else(PoisonError::into_inner).is_empty() {
+    while graphics.renderer.is_window_open()
+        && !loading_text
+            .lock()
+            .unwrap_or_else(PoisonError::into_inner)
+            .is_empty()
+    {
         while graphics.renderer.get_event().is_some() {}
 
         menu_back.set_back_rect_width(PROGRESS_BAR_WIDTH as f32 + 2.0 * gfx::SPACING);
@@ -47,7 +52,10 @@ pub fn run_loading_screen(
         menu_back.render_back(graphics);
 
         if curr_text != *loading_text.lock().unwrap_or_else(PoisonError::into_inner) {
-            curr_text = loading_text.lock().unwrap_or_else(PoisonError::into_inner).clone();
+            curr_text = loading_text
+                .lock()
+                .unwrap_or_else(PoisonError::into_inner)
+                .clone();
             if !curr_text.is_empty() {
                 let mut progress_bar_progress = -1.0;
                 // let ending of the text be the back of the text until the space symbol
@@ -82,10 +90,12 @@ pub fn run_loading_screen(
                     loading_back_bar.size.1 = PROGRESS_BAR_HEIGHT as f32;
                     loading_bar.size.0 = (PROGRESS_BAR_WIDTH as f32) * progress_bar_progress;
                     loading_bar.size.1 = PROGRESS_BAR_HEIGHT as f32;
-                    loading_bar.pos.0 = menu_back.get_back_rect_width(graphics, None) / 2.0 - loading_back_bar.size.0 / 2.0;
+                    loading_bar.pos.0 = menu_back.get_back_rect_width(graphics, None) / 2.0
+                        - loading_back_bar.size.0 / 2.0;
                 }
 
-                loading_text_sprite.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface(&curr_text));
+                loading_text_sprite.texture =
+                    gfx::Texture::load_from_surface(&graphics.font.create_text_surface(&curr_text));
             }
         }
 

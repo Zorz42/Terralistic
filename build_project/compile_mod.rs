@@ -2,9 +2,9 @@ use std::collections::HashMap;
 use std::ffi::OsStr;
 use std::path::PathBuf;
 
+use crate::build_project::png_to_opa::png_file_to_opa_bytes;
 use darklua_core::generator::{DenseLuaGenerator, LuaGenerator};
 use darklua_core::Parser;
-use crate::build_project::png_to_opa::png_file_to_opa_bytes;
 
 use crate::libraries::graphics as gfx;
 use crate::shared::mod_manager::GameMod;
@@ -32,7 +32,13 @@ pub fn compile_mod(mod_path: PathBuf) {
 
     //Use darklua to minify the mod's lua code. Use DenseLuaGenerator to generate the minified code.
     let parser = Parser::default();
-    let block = std::thread::Builder::new().stack_size(100_000_000).spawn(move || parser.parse(&lua_code)).unwrap().join().unwrap().unwrap();
+    let block = std::thread::Builder::new()
+        .stack_size(100_000_000)
+        .spawn(move || parser.parse(&lua_code))
+        .unwrap()
+        .join()
+        .unwrap()
+        .unwrap();
 
     let mut generator = DenseLuaGenerator::default();
     generator.write_block(&block);
@@ -53,7 +59,8 @@ pub fn compile_mod(mod_path: PathBuf) {
             mod_path.file_name().unwrap().to_str().unwrap()
         )),
         mod_bytes,
-    ).unwrap();
+    )
+    .unwrap();
 }
 
 /// This function takes the resources folder, goes through all of the recursively,
@@ -116,7 +123,9 @@ fn process_template(data: Vec<u8>) -> Vec<u8> {
     for step in 0..16 {
         for y in 0..8 {
             for x in 0..8 {
-                *new_surface.get_pixel_mut(gfx::IntPos(x, y + step * 8)).unwrap() = *surface.get_pixel(gfx::IntPos(x, y)).unwrap();
+                *new_surface
+                    .get_pixel_mut(gfx::IntPos(x, y + step * 8))
+                    .unwrap() = *surface.get_pixel(gfx::IntPos(x, y)).unwrap();
             }
         }
     }
@@ -140,19 +149,25 @@ fn process_template(data: Vec<u8>) -> Vec<u8> {
 
     for step in 0..16 {
         if step & 8 == 0 && step & 1 == 0 {
-            *new_surface.get_pixel_mut(gfx::IntPos(0, step * 8)).unwrap() = gfx::Color::new(0, 0, 0, 0);
+            *new_surface.get_pixel_mut(gfx::IntPos(0, step * 8)).unwrap() =
+                gfx::Color::new(0, 0, 0, 0);
         }
 
         if step & 1 == 0 && step & 2 == 0 {
-            *new_surface.get_pixel_mut(gfx::IntPos(7, step * 8)).unwrap() = gfx::Color::new(0, 0, 0, 0);
+            *new_surface.get_pixel_mut(gfx::IntPos(7, step * 8)).unwrap() =
+                gfx::Color::new(0, 0, 0, 0);
         }
 
         if step & 2 == 0 && step & 4 == 0 {
-            *new_surface.get_pixel_mut(gfx::IntPos(7, step * 8 + 7)).unwrap() = gfx::Color::new(0, 0, 0, 0);
+            *new_surface
+                .get_pixel_mut(gfx::IntPos(7, step * 8 + 7))
+                .unwrap() = gfx::Color::new(0, 0, 0, 0);
         }
 
         if step & 4 == 0 && step & 8 == 0 {
-            *new_surface.get_pixel_mut(gfx::IntPos(0, step * 8 + 7)).unwrap() = gfx::Color::new(0, 0, 0, 0);
+            *new_surface
+                .get_pixel_mut(gfx::IntPos(0, step * 8 + 7))
+                .unwrap() = gfx::Color::new(0, 0, 0, 0);
         }
     }
 
@@ -169,7 +184,9 @@ fn copy_edge(
 ) {
     for y in 0..8 {
         for x in 0..8 {
-            let pixel = *source.get_pixel(gfx::IntPos(source_x + x, source_y + y)).unwrap();
+            let pixel = *source
+                .get_pixel(gfx::IntPos(source_x + x, source_y + y))
+                .unwrap();
             if pixel.a != 0 {
                 let applied_pixel = if pixel == gfx::Color::new(0, 255, 0, 255) {
                     gfx::Color::new(0, 0, 0, 0)
@@ -177,7 +194,9 @@ fn copy_edge(
                     pixel
                 };
 
-                *target.get_pixel_mut(gfx::IntPos(target_x + x, target_y + y)).unwrap() = applied_pixel;
+                *target
+                    .get_pixel_mut(gfx::IntPos(target_x + x, target_y + y))
+                    .unwrap() = applied_pixel;
             }
         }
     }

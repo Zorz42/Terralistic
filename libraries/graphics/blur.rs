@@ -88,7 +88,8 @@ impl BlurContext {
                 unsafe {
                     gl::GenBuffers(1, &mut buffer);
 
-                    let rect_vertex_array: [f32; 12] = [0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 1.0];
+                    let rect_vertex_array: [f32; 12] =
+                        [0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 1.0];
 
                     gl::BindBuffer(gl::ARRAY_BUFFER, buffer);
                     gl::BufferData(

@@ -69,8 +69,8 @@ extern crate core;
 
 use alloc::sync::Arc;
 use core::sync::atomic::AtomicBool;
-use std::sync::Mutex;
 use directories::BaseDirs;
+use std::sync::Mutex;
 
 use crate::client::menus::{run_main_menu, MenuBack, Settings};
 use crate::libraries::graphics as gfx;
@@ -239,7 +239,12 @@ fn client_main() {
         return;
     }
 
-    let mut settings = Settings::new(base_dirs.data_dir().join("Terralistic").join("settings.txt"));
+    let mut settings = Settings::new(
+        base_dirs
+            .data_dir()
+            .join("Terralistic")
+            .join("settings.txt"),
+    );
 
     run_main_menu(&mut graphics, &mut menu_back, &mut settings);
 }

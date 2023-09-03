@@ -37,7 +37,10 @@ pub fn run_private_world(
         );
 
         if result.is_err() {
-            loading_text2.lock().unwrap_or_else(PoisonError::into_inner).clear();
+            loading_text2
+                .lock()
+                .unwrap_or_else(PoisonError::into_inner)
+                .clear();
             server_running2.store(false, Ordering::Relaxed);
         }
 
@@ -58,7 +61,8 @@ pub fn run_private_world(
         // stop server
         server_running.store(false, Ordering::Relaxed);
 
-        *loading_text.lock().unwrap_or_else(PoisonError::into_inner) = "Waiting for server".to_owned();
+        *loading_text.lock().unwrap_or_else(PoisonError::into_inner) =
+            "Waiting for server".to_owned();
         run_loading_screen(graphics, menu_back, &loading_text);
     }
 

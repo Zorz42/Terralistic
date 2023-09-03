@@ -31,4 +31,4 @@ mod settings;
 pub use settings::{Setting, Settings, SliderSelection};
 
 mod settings_menu;
-pub use settings_menu::{SettingsMenu};
+pub use settings_menu::SettingsMenu;

@@ -12,7 +12,7 @@ pub struct IntSize(pub u32, pub u32);
 pub struct FloatPos(pub f32, pub f32);
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
-pub struct FloatSize( pub f32, pub f32);
+pub struct FloatSize(pub f32, pub f32);
 
 // implement the add and sub traits for the position types
 impl Add for IntPos {

@@ -18,12 +18,14 @@ fn is_column_empty(surface: &Surface, column: i32) -> bool {
         let pixel = surface.get_pixel(gfx::IntPos(column, y as i32));
         match pixel {
             Ok(pixel) => {
-                if *pixel != (Color {
-                    r: 0,
-                    g: 0,
-                    b: 0,
-                    a: 0,
-                }) {
+                if *pixel
+                    != (Color {
+                        r: 0,
+                        g: 0,
+                        b: 0,
+                        a: 0,
+                    })
+                {
                     return false;
                 }
             }
@@ -47,7 +49,9 @@ impl Font {
             for x in 0..16 {
                 let mut surface = Surface::new(gfx::IntSize(16, 16));
                 for (pos, pixel) in surface.iter_mut() {
-                    *pixel = *font_surface.get_pixel(gfx::IntPos(x * 16, y * 16) + pos).unwrap_or(&Color::new(0, 0, 0, 0));
+                    *pixel = *font_surface
+                        .get_pixel(gfx::IntPos(x * 16, y * 16) + pos)
+                        .unwrap_or(&Color::new(0, 0, 0, 0));
                 }
 
                 // get number of empty columns on the left
@@ -72,7 +76,9 @@ impl Font {
                 // create new surface with the correct width
                 let mut new_surface = Surface::new(gfx::IntSize((16 - left - right) as u32, 16));
                 for (pos, pixel) in new_surface.iter_mut() {
-                    *pixel = *surface.get_pixel(gfx::IntPos(left, 0) + pos).unwrap_or(&Color::new(0, 0, 0, 0));
+                    *pixel = *surface
+                        .get_pixel(gfx::IntPos(left, 0) + pos)
+                        .unwrap_or(&Color::new(0, 0, 0, 0));
                 }
 
                 font_surfaces.push(new_surface);

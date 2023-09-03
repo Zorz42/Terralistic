@@ -36,11 +36,12 @@ impl ChatLine {
     }
 
     pub fn render(&mut self, graphics: &mut gfx::GraphicsContext, focused: bool) {
-        let target_transparency = if focused || (self.creation_time.elapsed().as_millis() as i32) < 5000 {
-            255
-        } else {
-            0
-        };
+        let target_transparency =
+            if focused || (self.creation_time.elapsed().as_millis() as i32) < 5000 {
+                255
+            } else {
+                0
+            };
 
         match self.transparency.cmp(&target_transparency) {
             Ordering::Greater => self.transparency -= 10,
@@ -117,10 +118,12 @@ impl ClientChat {
 
         self.back_rect.render(graphics, None);
 
-        self.text_input.width = self.back_rect.get_container(graphics, None).rect.size.0 / self.text_input.scale;
+        self.text_input.width =
+            self.back_rect.get_container(graphics, None).rect.size.0 / self.text_input.scale;
         self.text_input.render(graphics, None);
 
-        let mut curr_y = graphics.renderer.get_window_size().1 - gfx::SPACING - self.text_input.get_size().1;
+        let mut curr_y =
+            graphics.renderer.get_window_size().1 - gfx::SPACING - self.text_input.get_size().1;
         for line in self.chat_lines.iter_mut().rev() {
             curr_y -= line.get_size().1;
             line.set_pos(gfx::FloatPos(gfx::SPACING, curr_y));
@@ -146,7 +149,10 @@ impl ClientChat {
                 self.text_input.selected = false;
             }
 
-            if self.text_input.selected && (matches!(event, gfx::Event::KeyPress(..)) || matches!(event, gfx::Event::KeyRelease(..))) {
+            if self.text_input.selected
+                && (matches!(event, gfx::Event::KeyPress(..))
+                    || matches!(event, gfx::Event::KeyRelease(..)))
+            {
                 return Ok(true);
             }
         } else if let Some(event) = event.downcast::<Packet>() {
@@ -156,7 +162,9 @@ impl ClientChat {
                     &packet.message,
                     gfx::FloatPos(
                         0.0,
-                        graphics.renderer.get_window_size().1 - gfx::SPACING - self.text_input.get_size().1,
+                        graphics.renderer.get_window_size().1
+                            - gfx::SPACING
+                            - self.text_input.get_size().1,
                     ),
                 ));
             }

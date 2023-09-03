@@ -22,7 +22,9 @@ pub fn png_file_to_opa_bytes(png_path: PathBuf) -> Vec<u8> {
                 b: bytes[index + 2],
                 a: bytes[index + 3],
             };
-            *surface.get_pixel_mut(gfx::IntPos(x as i32, y as i32)).unwrap() = color;
+            *surface
+                .get_pixel_mut(gfx::IntPos(x as i32, y as i32))
+                .unwrap() = color;
         }
     }
     // serialize surface and write to file

@@ -61,7 +61,10 @@ impl ShadowContext {
         let mut elements = vec![
             (
                 rect.pos - gfx::FloatPos(200.0, 200.0),
-                gfx::Rect::new(gfx::FloatPos(0.0, 0.0), gfx::FloatSize(shadow_edge_width, 200.0)),
+                gfx::Rect::new(
+                    gfx::FloatPos(0.0, 0.0),
+                    gfx::FloatSize(shadow_edge_width, 200.0),
+                ),
             ),
             (
                 rect.pos - gfx::FloatPos(200.0, 0.0),
@@ -93,7 +96,10 @@ impl ShadowContext {
             ),
             (
                 rect.pos + gfx::FloatPos(-200.0, rect.size.1),
-                gfx::Rect::new(gfx::FloatPos(0.0, 500.0), gfx::FloatSize(shadow_edge_width, 200.0)),
+                gfx::Rect::new(
+                    gfx::FloatPos(0.0, 500.0),
+                    gfx::FloatSize(shadow_edge_width, 200.0),
+                ),
             ),
             (
                 rect.pos + gfx::FloatPos(rect.size.0, rect.size.1 - shadow_edge_height + 200.0),

@@ -62,7 +62,8 @@ impl ServerCard {
         icon.texture = gfx::Texture::load_from_surface(
             &gfx::Surface::deserialize_from_bytes(include_bytes!(
                 "../../Build/Resources/world_icon.opa"
-            )).unwrap_or_else(|_| gfx::Surface::new(gfx::IntSize(1, 1))),
+            ))
+            .unwrap_or_else(|_| gfx::Surface::new(gfx::IntSize(1, 1))),
         );
         rect.size.1 = icon.get_size().1 + 2.0 * gfx::SPACING;
         icon.pos.0 = gfx::SPACING;
@@ -78,7 +79,8 @@ impl ServerCard {
         play_button.texture = gfx::Texture::load_from_surface(
             &gfx::Surface::deserialize_from_bytes(include_bytes!(
                 "../../Build/Resources/join_button.opa"
-            )).unwrap_or_else(|_| gfx::Surface::new(gfx::IntSize(1, 1))),
+            ))
+            .unwrap_or_else(|_| gfx::Surface::new(gfx::IntSize(1, 1))),
         );
         play_button.scale = 3.0;
         play_button.padding = 5.0;
@@ -90,7 +92,8 @@ impl ServerCard {
         delete_button.texture = gfx::Texture::load_from_surface(
             &gfx::Surface::deserialize_from_bytes(include_bytes!(
                 "../../Build/Resources/remove_button.opa"
-            )).unwrap_or_else(|_| gfx::Surface::new(gfx::IntSize(1, 1))),
+            ))
+            .unwrap_or_else(|_| gfx::Surface::new(gfx::IntSize(1, 1))),
         );
         delete_button.scale = 3.0;
         delete_button.padding = 5.0;
@@ -188,13 +191,17 @@ impl ServerList {
     }
 
     pub fn save(&self, file_path: PathBuf) {
-        let server_infos: Vec<ServerInfo> = self.servers.iter().map(|server| {
-            ServerInfo::new(
-                server.server_info.name.clone(),
-                server.server_info.ip.clone(),
-                server.server_info.port,
-            )
-        }).collect();
+        let server_infos: Vec<ServerInfo> = self
+            .servers
+            .iter()
+            .map(|server| {
+                ServerInfo::new(
+                    server.server_info.name.clone(),
+                    server.server_info.ip.clone(),
+                    server.server_info.port,
+                )
+            })
+            .collect();
 
         let res = std::fs::write(
             file_path,
@@ -221,20 +228,24 @@ pub fn run_multiplayer_selector(
     let mut title = gfx::Sprite::new();
     title.scale = 3.0;
     title.texture = gfx::Texture::load_from_surface(
-        &graphics.font.create_text_surface("Select a server to play!"),
+        &graphics
+            .font
+            .create_text_surface("Select a server to play!"),
     );
     title.pos.1 = gfx::SPACING;
     title.orientation = gfx::TOP;
 
     let mut back_button = gfx::Button::new();
     back_button.scale = 3.0;
-    back_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Back"));
+    back_button.texture =
+        gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Back"));
     back_button.pos.1 = -gfx::SPACING;
     back_button.orientation = gfx::BOTTOM;
 
     let mut new_world_button = gfx::Button::new();
     new_world_button.scale = 3.0;
-    new_world_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("New"));
+    new_world_button.texture =
+        gfx::Texture::load_from_surface(&graphics.font.create_text_surface("New"));
     new_world_button.pos.1 = -gfx::SPACING;
     new_world_button.pos.0 = -gfx::SPACING;
     new_world_button.orientation = gfx::BOTTOM_RIGHT;
@@ -242,10 +253,12 @@ pub fn run_multiplayer_selector(
     let top_height = title.get_size().1 + 2.0 * gfx::SPACING;
     let bottom_height = back_button.get_size().1 + 2.0 * gfx::SPACING;
 
-    let mut top_rect = gfx::RenderRect::new(gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, top_height));
+    let mut top_rect =
+        gfx::RenderRect::new(gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, top_height));
     top_rect.orientation = gfx::TOP;
 
-    let mut bottom_rect = gfx::RenderRect::new(gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, bottom_height));
+    let mut bottom_rect =
+        gfx::RenderRect::new(gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, bottom_height));
     bottom_rect.fill_color.a = gfx::TRANSPARENCY / 2;
     bottom_rect.shadow_intensity = gfx::SHADOW_INTENSITY;
     bottom_rect.blur_radius = gfx::BLUR;
@@ -284,11 +297,19 @@ fn update_elements(
         match event {
             gfx::Event::KeyRelease(key, ..) => match key {
                 gfx::Key::MouseLeft => {
-                    if elements.back_button.is_hovered(graphics, Some(menu_back.get_back_rect_container())) {
+                    if elements
+                        .back_button
+                        .is_hovered(graphics, Some(menu_back.get_back_rect_container()))
+                    {
                         return true;
                     }
-                    if elements.new_world_button.is_hovered(graphics, Some(menu_back.get_back_rect_container())) {
-                        if let Some(server) = run_add_server_menu(graphics, menu_back, &elements.server_list.servers) {
+                    if elements
+                        .new_world_button
+                        .is_hovered(graphics, Some(menu_back.get_back_rect_container()))
+                    {
+                        if let Some(server) =
+                            run_add_server_menu(graphics, menu_back, &elements.server_list.servers)
+                        {
                             elements.server_list.servers.push(ServerCard::new(
                                 graphics,
                                 server.name,
@@ -329,13 +350,18 @@ fn update_elements(
                             format!(
                                 "The server \"{}\" will be deleted.\nDo you want to proceed?",
                                 server.server_info.name
-                            ).as_str(),
+                            )
+                            .as_str(),
                             graphics,
                             menu_back,
                             None,
                             None,
                         ) {
-                            let pos = elements.server_list.servers.iter().position(|s| s.server_info.name == server.server_info.name);
+                            let pos = elements
+                                .server_list
+                                .servers
+                                .iter()
+                                .position(|s| s.server_info.name == server.server_info.name);
                             if let Some(pos) = pos {
                                 elements.server_list.servers.remove(pos);
                                 elements.server_list.save(servers_file.to_path_buf());
@@ -367,7 +393,9 @@ fn render_elements(
 
     menu_back.render_back(graphics);
 
-    let hoverable = graphics.renderer.get_mouse_pos().1 > elements.top_height && graphics.renderer.get_mouse_pos().1 < graphics.renderer.get_window_size().1 - elements.bottom_height;
+    let hoverable = graphics.renderer.get_mouse_pos().1 > elements.top_height
+        && graphics.renderer.get_mouse_pos().1
+            < graphics.renderer.get_window_size().1 - elements.bottom_height;
 
     for server in &mut elements.server_list.servers {
         server.set_enabled(hoverable);
@@ -384,7 +412,8 @@ fn render_elements(
     }
 
     elements.top_rect.size.0 = menu_back.get_back_rect_width(graphics, None);
-    top_rect_visibility += ((if elements.position < -5.0 { 1.0 } else { 0.0 }) - top_rect_visibility) / 20.0;
+    top_rect_visibility +=
+        ((if elements.position < -5.0 { 1.0 } else { 0.0 }) - top_rect_visibility) / 20.0;
 
     if top_rect_visibility < 0.01 {
         top_rect_visibility = 0.0;
@@ -396,19 +425,26 @@ fn render_elements(
 
     elements.top_rect.fill_color.a = (top_rect_visibility * gfx::TRANSPARENCY as f32 / 2.0) as u8;
     elements.top_rect.blur_radius = (top_rect_visibility * gfx::BLUR as f32) as i32;
-    elements.top_rect.shadow_intensity = (top_rect_visibility * gfx::SHADOW_INTENSITY as f32) as i32;
+    elements.top_rect.shadow_intensity =
+        (top_rect_visibility * gfx::SHADOW_INTENSITY as f32) as i32;
     if top_rect_visibility > 0.0 {
-        elements.top_rect.render(graphics, Some(menu_back.get_back_rect_container()));
+        elements
+            .top_rect
+            .render(graphics, Some(menu_back.get_back_rect_container()));
     }
 
     elements.bottom_rect.size.0 = menu_back.get_back_rect_width(graphics, None);
-    let mut scroll_limit = current_y - graphics.renderer.get_window_size().1 + elements.top_height + elements.bottom_height;
+    let mut scroll_limit = current_y - graphics.renderer.get_window_size().1
+        + elements.top_height
+        + elements.bottom_height;
     if scroll_limit < 0.0 {
         scroll_limit = 0.0;
     }
 
     if scroll_limit > 0.0 {
-        elements.bottom_rect.render(graphics, Some(menu_back.get_back_rect_container()));
+        elements
+            .bottom_rect
+            .render(graphics, Some(menu_back.get_back_rect_container()));
     }
 
     if elements.position > 0.0 {
@@ -419,10 +455,16 @@ fn render_elements(
         elements.position -= (elements.position + scroll_limit) / 20.0;
     }
 
-    elements.title.render(graphics, Some(menu_back.get_back_rect_container()));
-    elements.back_button.render(graphics, Some(menu_back.get_back_rect_container()));
+    elements
+        .title
+        .render(graphics, Some(menu_back.get_back_rect_container()));
+    elements
+        .back_button
+        .render(graphics, Some(menu_back.get_back_rect_container()));
 
-    elements.new_world_button.render(graphics, Some(menu_back.get_back_rect_container()));
+    elements
+        .new_world_button
+        .render(graphics, Some(menu_back.get_back_rect_container()));
 
     graphics.renderer.update_window();
 }

@@ -47,7 +47,10 @@ impl Settings {
     pub fn new(config_path: PathBuf) -> Self {
         let data = fs::read_to_string(config_path.clone());
 
-        let config_data: HashMap<String, i32> = data.map_or_else(|_| HashMap::new(), |data| serde_json::from_str(&data).unwrap_or_default());
+        let config_data: HashMap<String, i32> = data.map_or_else(
+            |_| HashMap::new(),
+            |data| serde_json::from_str(&data).unwrap_or_default(),
+        );
         Self {
             settings: HashMap::new(),
             config_path,
@@ -59,7 +62,9 @@ impl Settings {
     /// Adds a new setting, returns the id of the setting.
     pub fn register_setting(&mut self, mut setting: Setting) -> i32 {
         let config_label = match setting.clone() {
-            Setting::Toggle { config_label, .. } | Setting::Choice { config_label, .. } | Setting::Slider { config_label, .. } => config_label,
+            Setting::Toggle { config_label, .. }
+            | Setting::Choice { config_label, .. }
+            | Setting::Slider { config_label, .. } => config_label,
         };
 
         if let Some(config_value) = self.config_data.get(&config_label) {
@@ -106,7 +111,10 @@ impl Settings {
     /// # Errors
     /// If id doesn't exist.
     pub fn get_setting(&self, id: i32) -> Result<&Setting> {
-        return self.settings.get(&id).ok_or_else(|| anyhow!("Invalid setting id"));
+        return self
+            .settings
+            .get(&id)
+            .ok_or_else(|| anyhow!("Invalid setting id"));
     }
 
     fn save_config(&mut self) -> Result<()> {

@@ -49,13 +49,16 @@ impl BlockSelector {
     ) -> Result<()> {
         let selected_block = Self::get_selected_block(graphics, camera);
 
-        let x = selected_block.0 as f32 * RENDER_BLOCK_WIDTH - camera.get_top_left(graphics).0 * RENDER_BLOCK_WIDTH;
-        let y = selected_block.1 as f32 * RENDER_BLOCK_WIDTH - camera.get_top_left(graphics).1 * RENDER_BLOCK_WIDTH;
+        let x = selected_block.0 as f32 * RENDER_BLOCK_WIDTH
+            - camera.get_top_left(graphics).0 * RENDER_BLOCK_WIDTH;
+        let y = selected_block.1 as f32 * RENDER_BLOCK_WIDTH
+            - camera.get_top_left(graphics).1 * RENDER_BLOCK_WIDTH;
 
         gfx::Rect::new(
             gfx::FloatPos(x.round(), y.round()),
             gfx::FloatSize(RENDER_BLOCK_WIDTH, RENDER_BLOCK_WIDTH),
-        ).render_outline(graphics, gfx::Color::new(255, 0, 0, 255));
+        )
+        .render_outline(graphics, gfx::Color::new(255, 0, 0, 255));
 
         if self.prev_selected != selected_block {
             if self.breaking {

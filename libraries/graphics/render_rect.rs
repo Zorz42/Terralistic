@@ -51,13 +51,19 @@ impl RenderRect {
 
     /// This function renders the rectangle, it uses Rect class to render.
     /// It also approaches the position to the target position.
-    pub fn render(&mut self, graphics: &gfx::GraphicsContext, parent_container: Option<&Container>) {
+    pub fn render(
+        &mut self,
+        graphics: &gfx::GraphicsContext,
+        parent_container: Option<&Container>,
+    ) {
         while self.ms_counter < self.approach_timer.elapsed().as_millis() as u32 {
             self.ms_counter += 1;
             self.render_pos.0 = Self::approach(self.render_pos.0, self.pos.0, self.smooth_factor);
             self.render_pos.1 = Self::approach(self.render_pos.1, self.pos.1, self.smooth_factor);
-            self.render_size.0 = Self::approach(self.render_size.0, self.size.0, self.smooth_factor);
-            self.render_size.1 = Self::approach(self.render_size.1, self.size.1, self.smooth_factor);
+            self.render_size.0 =
+                Self::approach(self.render_size.0, self.size.0, self.smooth_factor);
+            self.render_size.1 =
+                Self::approach(self.render_size.1, self.size.1, self.smooth_factor);
         }
 
         let container = self.get_container(graphics, parent_container);

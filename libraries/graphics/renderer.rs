@@ -9,9 +9,9 @@ use std::collections::HashMap;
 extern crate alloc;
 
 use crate::libraries::graphics as gfx;
+use crate::libraries::graphics::events::sdl_event_to_gfx_event;
 use alloc::collections::VecDeque;
 use anyhow::{anyhow, Result};
-use crate::libraries::graphics::events::sdl_event_to_gfx_event;
 
 /// This stores all the values needed for rendering.
 pub struct Renderer {
@@ -56,11 +56,18 @@ impl Renderer {
         gl_attr.set_context_profile(sdl2::video::GLProfile::Core);
         gl_attr.set_context_version(3, 3);
 
-        let sdl_window = video_subsystem.window(window_title, window_width, window_height).position_centered().opengl().resizable().build()?;
+        let sdl_window = video_subsystem
+            .window(window_title, window_width, window_height)
+            .position_centered()
+            .opengl()
+            .resizable()
+            .build()?;
 
         let gl_context = sdl_window.gl_create_context().map_err(|e| anyhow!(e))?;
         gl::load_with(|s| {
-            video_subsystem.gl_get_proc_address(s).cast::<core::ffi::c_void>()
+            video_subsystem
+                .gl_get_proc_address(s)
+                .cast::<core::ffi::c_void>()
         });
 
         // Safety: We are calling OpenGL functions safely.
@@ -70,7 +77,9 @@ impl Renderer {
         set_blend_mode(BlendMode::Alpha);
 
         // enable vsync
-        video_subsystem.gl_set_swap_interval(1).map_err(|e| anyhow!(e))?;
+        video_subsystem
+            .gl_set_swap_interval(1)
+            .map_err(|e| anyhow!(e))?;
 
         let passthrough_shader = PassthroughShader::new()?;
         let mut window_texture = 0;
@@ -315,7 +324,9 @@ impl Renderer {
 
     /// Sets the minimum window size
     pub fn set_min_window_size(&mut self, size: gfx::FloatSize) -> Result<()> {
-        self.sdl_window.set_minimum_size(size.0 as u32, size.1 as u32).map_err(|e| anyhow!(e))
+        self.sdl_window
+            .set_minimum_size(size.0 as u32, size.1 as u32)
+            .map_err(|e| anyhow!(e))
     }
 
     /// Get the current window size

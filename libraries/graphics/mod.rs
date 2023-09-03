@@ -1,10 +1,10 @@
 use anyhow::Result;
 
-pub use blend_mode::{BlendMode, set_blend_mode};
+pub use blend_mode::{set_blend_mode, BlendMode};
 pub use button::Button;
 pub use color::Color;
 pub use container::{
-    BOTTOM, BOTTOM_LEFT, BOTTOM_RIGHT, CENTER, Container, LEFT, Orientation, TOP, TOP_LEFT,
+    Container, Orientation, BOTTOM, BOTTOM_LEFT, BOTTOM_RIGHT, CENTER, LEFT, TOP, TOP_LEFT,
     TOP_RIGHT,
 };
 pub use events::{Event, Key};
@@ -20,8 +20,8 @@ pub use text_input::TextInput;
 pub use texture::Texture;
 pub use texture_atlas::TextureAtlas;
 pub use theme::{
-    BLACK, BLUR, BORDER_COLOR, DARK_GREY, GREY, LIGHT_GREY, SHADOW_INTENSITY,
-    SPACING, TEXT_INPUT_WIDTH, TRANSPARENCY, TRANSPARENT, WHITE,
+    BLACK, BLUR, BORDER_COLOR, DARK_GREY, GREY, LIGHT_GREY, SHADOW_INTENSITY, SPACING,
+    TEXT_INPUT_WIDTH, TRANSPARENCY, TRANSPARENT, WHITE,
 };
 
 mod position;

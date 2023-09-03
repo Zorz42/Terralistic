@@ -78,7 +78,12 @@ impl RectArray {
     }
 
     /// Draws the `RectArray`.
-    pub fn render(&self, graphics: &mut gfx::GraphicsContext, texture: Option<&gfx::Texture>, pos: gfx::FloatPos) {
+    pub fn render(
+        &self,
+        graphics: &mut gfx::GraphicsContext,
+        texture: Option<&gfx::Texture>,
+        pos: gfx::FloatPos,
+    ) {
         // Safety: we are using the opengl functions correctly
         unsafe {
             let mut transform = graphics.renderer.normalization_transform.clone();
@@ -95,7 +100,10 @@ impl RectArray {
             if let Some(texture) = texture {
                 transform = texture.get_normalization_transform();
                 gl::UniformMatrix3fv(
-                    graphics.renderer.passthrough_shader.texture_transform_matrix,
+                    graphics
+                        .renderer
+                        .passthrough_shader
+                        .texture_transform_matrix,
                     1,
                     gl::FALSE,
                     transform.matrix.as_ptr(),
@@ -114,7 +122,8 @@ impl RectArray {
                 1.0,
             );
 
-            self.vertex_buffer.draw(texture.is_some(), DrawMode::Triangles);
+            self.vertex_buffer
+                .draw(texture.is_some(), DrawMode::Triangles);
         }
     }
 }

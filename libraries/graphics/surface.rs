@@ -56,7 +56,9 @@ impl Surface {
     /// Returns an error if the pixel is out of bounds.
     pub fn get_pixel(&self, pos: gfx::IntPos) -> Result<&Color> {
         let index = self.get_index(pos)?;
-        self.pixels.get(index).ok_or_else(|| anyhow!("Pixel array malformed"))
+        self.pixels
+            .get(index)
+            .ok_or_else(|| anyhow!("Pixel array malformed"))
     }
 
     /// Retrieves the pixel color on a specified location.
@@ -64,7 +66,9 @@ impl Surface {
     /// Returns an error if the pixel is out of bounds.
     pub fn get_pixel_mut(&mut self, pos: gfx::IntPos) -> Result<&mut Color> {
         let index = self.get_index(pos)?;
-        self.pixels.get_mut(index).ok_or_else(|| anyhow!("Pixel array malformed"))
+        self.pixels
+            .get_mut(index)
+            .ok_or_else(|| anyhow!("Pixel array malformed"))
     }
 
     #[must_use]
