@@ -95,7 +95,7 @@ pub fn run_main_menu(
     while graphics.renderer.is_window_open() {
         while let Some(event) = graphics.renderer.get_event() {
             if in_settings {
-                if settings_menu.on_event(&event, graphics) {
+                if settings_menu.on_event(&event, graphics, settings) {
                     in_settings = false;
                 }
                 continue;
@@ -130,7 +130,7 @@ pub fn run_main_menu(
 
         if in_settings {
             menu_back.render_back(graphics);
-            let width = settings_menu.render(graphics);
+            let width = settings_menu.render(graphics, settings);
             menu_back.set_back_rect_width(width);
             graphics.renderer.update_window();
             continue;

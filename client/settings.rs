@@ -62,9 +62,7 @@ impl Settings {
     /// Adds a new setting, returns the id of the setting.
     pub fn register_setting(&mut self, mut setting: Setting) -> i32 {
         let config_label = match setting.clone() {
-            Setting::Toggle { config_label, .. }
-            | Setting::Choice { config_label, .. }
-            | Setting::Slider { config_label, .. } => config_label,
+            Setting::Toggle { config_label, .. } | Setting::Choice { config_label, .. } | Setting::Slider { config_label, .. } => config_label,
         };
 
         if let Some(config_value) = self.config_data.get(&config_label) {
@@ -111,19 +109,13 @@ impl Settings {
     /// # Errors
     /// If id doesn't exist.
     pub fn get_setting_mut(&mut self, id: i32) -> Result<&mut Setting> {
-        return self
-            .settings
-            .get_mut(&id)
-            .ok_or_else(|| anyhow!("Invalid setting id"));
+        return self.settings.get_mut(&id).ok_or_else(|| anyhow!("Invalid setting id"));
     }
 
     /// # Errors
     /// If id doesn't exist.
     pub fn get_setting(&self, id: i32) -> Result<&Setting> {
-        return self
-            .settings
-            .get(&id)
-            .ok_or_else(|| anyhow!("Invalid setting id"));
+        return self.settings.get(&id).ok_or_else(|| anyhow!("Invalid setting id"));
     }
 
     fn save_config(&mut self) -> Result<()> {
@@ -168,7 +160,8 @@ impl Settings {
         Ok(())
     }
 
-    pub fn get_all_settings(&self) -> &HashMap<i32, Setting> {
+    #[must_use]
+    pub const fn get_all_settings(&self) -> &HashMap<i32, Setting> {
         &self.settings
     }
 }
