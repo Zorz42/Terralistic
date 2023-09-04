@@ -72,14 +72,15 @@ extern crate core;
 
 use alloc::sync::Arc;
 use core::sync::atomic::AtomicBool;
-use directories::BaseDirs;
 use std::sync::Mutex;
-use crate::client::global_settings::GlobalSettings;
 
-use crate::client::menus::{run_main_menu, MenuBack};
+use directories::BaseDirs;
+
+use crate::client::global_settings::GlobalSettings;
+use crate::client::menus::{MenuBack, run_main_menu};
 use crate::client::settings::Settings;
 use crate::libraries::graphics as gfx;
-use crate::server::server_core::{Server, MULTIPLAYER_PORT};
+use crate::server::server_core::{MULTIPLAYER_PORT, Server};
 use crate::server::server_ui::UiManager;
 
 pub mod libraries {
@@ -145,11 +146,7 @@ fn server_main(args: &[String]) {
             }
         }
 
-        if graphics
-            .renderer
-            .set_min_window_size(graphics.renderer.get_window_size())
-            .is_err()
-        {
+        if graphics.renderer.set_min_window_size(graphics.renderer.get_window_size()).is_err() {
             println!("Failed to set minimum window size");
         }
         Some(graphics)
@@ -230,11 +227,7 @@ fn client_main() {
         }
     }
 
-    if graphics
-        .renderer
-        .set_min_window_size(graphics.renderer.get_window_size())
-        .is_err()
-    {
+    if graphics.renderer.set_min_window_size(graphics.renderer.get_window_size()).is_err() {
         println!("Failed to set minimum window size");
     }
 
@@ -248,15 +241,16 @@ fn client_main() {
     }
 
     let mut settings = Settings::new(
-        base_dirs
-            .data_dir()
-            .join("Terralistic")
-            .join("settings.txt"),
+        base_dirs.data_dir().join("Terralistic").join("settings.txt"),
     );
 
     let mut global_settings = GlobalSettings::new();
     global_settings.init(&mut settings);
     global_settings.update(&mut graphics, &settings);
 
-    run_main_menu(&mut graphics, &mut menu_back, &mut settings);
+    run_main_menu(&mut graphics, &mut menu_back, &mut settings, &mut global_settings);
+
+    if let Err(error) = settings.save_config() {
+        println!("Failed to save settings to config file: {}", error);
+    }
 }

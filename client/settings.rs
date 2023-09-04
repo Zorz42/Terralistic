@@ -118,7 +118,7 @@ impl Settings {
         return self.settings.get(&id).ok_or_else(|| anyhow!("Invalid setting id"));
     }
 
-    fn save_config(&mut self) -> Result<()> {
+    pub fn save_config(&mut self) -> Result<()> {
         for setting in self.settings.values() {
             let (config_label, value) = match setting {
                 Setting::Toggle {

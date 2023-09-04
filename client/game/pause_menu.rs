@@ -6,6 +6,7 @@ use crate::libraries::graphics as gfx;
 pub struct PauseMenu {
     open: bool,
     resume_button: gfx::Button,
+    settings_button: gfx::Button,
     quit_button: gfx::Button,
     back_rect: gfx::RenderRect,
 }
@@ -15,6 +16,7 @@ impl PauseMenu {
         Self {
             open: false,
             resume_button: gfx::Button::new(),
+            settings_button: gfx::Button::new(),
             quit_button: gfx::Button::new(),
             back_rect: gfx::RenderRect::new(gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, 0.0)),
         }
@@ -29,16 +31,27 @@ impl PauseMenu {
         self.resume_button.orientation = gfx::TOP_RIGHT;
 
         self.quit_button.texture =
-            gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Quit"));
+            gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Settings"));
         self.quit_button.scale = 3.0;
         self.quit_button.pos.0 = -gfx::SPACING;
         self.quit_button.pos.1 = 2.0 * gfx::SPACING + self.resume_button.get_size().1;
         self.quit_button.orientation = gfx::TOP_RIGHT;
 
+        self.quit_button.texture =
+            gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Quit"));
+        self.quit_button.scale = 3.0;
+        self.quit_button.pos.0 = -gfx::SPACING;
+        self.quit_button.pos.1 = 3.0 * gfx::SPACING + self.settings_button.get_size().1 + self.resume_button.get_size().1;
+        self.quit_button.orientation = gfx::TOP_RIGHT;
+
         let pause_rect_width = f32::max(
             self.resume_button.get_size().0,
-            self.quit_button.get_size().0,
+            f32::max(
+                self.settings_button.get_size().0,
+                self.quit_button.get_size().0,
+            )
         ) + 2.0 * gfx::SPACING;
+
         self.back_rect.fill_color = gfx::BLACK;
         self.back_rect.fill_color.a = gfx::TRANSPARENCY;
         self.back_rect.border_color = gfx::BORDER_COLOR;
@@ -87,7 +100,12 @@ impl PauseMenu {
                             Some(&self.back_rect.get_container(graphics, None)),
                         ) {
                             self.open = false;
-                        } else if self.quit_button.is_hovered(
+                        } else if self.settings_button.is_hovered(
+                            graphics,
+                            Some(&self.back_rect.get_container(graphics, None)),
+                        ) {
+
+                        }else if self.quit_button.is_hovered(
                             graphics,
                             Some(&self.back_rect.get_container(graphics, None)),
                         ) {

@@ -1,3 +1,4 @@
+use crate::client::global_settings::GlobalSettings;
 use crate::client::menus::SettingsMenu;
 use crate::client::settings::Settings;
 use crate::libraries::graphics as gfx;
@@ -12,6 +13,7 @@ pub fn run_main_menu(
     graphics: &mut gfx::GraphicsContext,
     menu_back: &mut dyn BackgroundRect,
     settings: &mut Settings,
+    global_settings: &mut GlobalSettings,
 ) {
     let mut singleplayer_button = gfx::Button::new();
     singleplayer_button.scale = 3.0;
@@ -133,6 +135,7 @@ pub fn run_main_menu(
             let width = settings_menu.render(graphics, settings);
             menu_back.set_back_rect_width(width);
             graphics.renderer.update_window();
+            global_settings.update(graphics, settings);
             continue;
         }
 
