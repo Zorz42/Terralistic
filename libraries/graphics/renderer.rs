@@ -1,17 +1,19 @@
+extern crate alloc;
+
+use alloc::collections::VecDeque;
+use std::collections::HashMap;
+
+use anyhow::{anyhow, Result};
+use copypasta::ClipboardContext;
+
+use crate::libraries::graphics as gfx;
+use crate::libraries::graphics::events::sdl_event_to_gfx_event;
+
 use super::blur::BlurContext;
 use super::passthrough_shader::PassthroughShader;
 use super::shadow::ShadowContext;
 use super::transformation::Transformation;
 use super::{set_blend_mode, BlendMode, Event, Key, Rect};
-use copypasta::ClipboardContext;
-use std::collections::HashMap;
-
-extern crate alloc;
-
-use crate::libraries::graphics as gfx;
-use crate::libraries::graphics::events::sdl_event_to_gfx_event;
-use alloc::collections::VecDeque;
-use anyhow::{anyhow, Result};
 
 /// This stores all the values needed for rendering.
 pub struct Renderer {
@@ -32,6 +34,7 @@ pub struct Renderer {
     pub(super) shadow_context: ShadowContext,
     pub clipboard_context: ClipboardContext,
     pub block_key_states: bool,
+    pub scale: f32,
 }
 
 impl Renderer {
@@ -113,6 +116,7 @@ impl Renderer {
             window_open: true,
             clipboard_context: ClipboardContext::new().map_err(|e| anyhow!(e))?,
             block_key_states: false,
+            scale: 1.0,
         };
 
         result.handle_window_resize();
@@ -122,16 +126,6 @@ impl Renderer {
 
     /// Is called every time the window is resized.
     pub fn handle_window_resize(&mut self) {
-        self.normalization_transform = Transformation::new();
-        self.normalization_transform.stretch((
-            2.0 / self.get_window_size().0,
-            -2.0 / self.get_window_size().1,
-        ));
-        self.normalization_transform.translate(gfx::FloatPos(
-            -self.get_window_size().0 / 2.0,
-            -self.get_window_size().1 / 2.0,
-        ));
-
         // Safety: We are calling OpenGL functions safely.
         unsafe {
             gl::BindTexture(gl::TEXTURE_2D, self.window_texture);
@@ -139,8 +133,8 @@ impl Renderer {
                 gl::TEXTURE_2D,
                 0,
                 gl::RGBA as gl::types::GLint,
-                self.get_window_size().0 as i32,
-                self.get_window_size().1 as i32,
+                self.sdl_window.size().0 as i32,
+                self.sdl_window.size().1 as i32,
                 0,
                 gl::BGRA as gl::types::GLenum,
                 gl::UNSIGNED_BYTE,
@@ -163,8 +157,8 @@ impl Renderer {
                 gl::TEXTURE_2D,
                 0,
                 gl::RGBA as gl::types::GLint,
-                self.get_window_size().0 as i32,
-                self.get_window_size().1 as i32,
+                self.sdl_window.size().0 as i32,
+                self.sdl_window.size().1 as i32,
                 0,
                 gl::BGRA,
                 gl::UNSIGNED_BYTE,
@@ -185,13 +179,13 @@ impl Renderer {
             gl::Viewport(
                 0,
                 0,
-                self.get_window_size().0 as i32,
-                self.get_window_size().1 as i32,
+                self.sdl_window.size().0 as i32,
+                self.sdl_window.size().1 as i32,
             );
         }
     }
 
-    /// Returns an array of events, such as key presses
+    /// Returns an array of events, such as key presses.
     fn get_events(&mut self) -> Vec<Event> {
         let mut sdl_events = vec![];
 
@@ -255,6 +249,16 @@ impl Renderer {
 
     /// Should be called after rendering
     pub fn update_window(&mut self) {
+        self.normalization_transform = Transformation::new();
+        self.normalization_transform.stretch((
+            2.0 / self.get_window_size().0,
+            -2.0 / self.get_window_size().1,
+        ));
+        self.normalization_transform.translate(gfx::FloatPos(
+            -self.get_window_size().0 / 2.0,
+            -self.get_window_size().1 / 2.0,
+        ));
+
         // Safety: We are calling OpenGL functions safely.
         unsafe {
             gl::BindFramebuffer(gl::READ_FRAMEBUFFER, self.window_framebuffer);
@@ -332,16 +336,16 @@ impl Renderer {
     /// Get the current window size
     pub fn get_window_size(&self) -> gfx::FloatSize {
         gfx::FloatSize(
-            self.sdl_window.size().0 as f32,
-            self.sdl_window.size().1 as f32,
+            self.sdl_window.size().0 as f32 / self.scale,
+            self.sdl_window.size().1 as f32 / self.scale,
         )
     }
 
     /// Gets mouse position
     pub fn get_mouse_pos(&self) -> gfx::FloatPos {
         gfx::FloatPos(
-            self.sdl_event_pump.mouse_state().x() as f32,
-            self.sdl_event_pump.mouse_state().y() as f32,
+            self.sdl_event_pump.mouse_state().x() as f32 / self.scale,
+            self.sdl_event_pump.mouse_state().y() as f32 / self.scale,
         )
     }
 
@@ -390,15 +394,15 @@ impl Renderer {
             &self.normalization_transform,
         );
     }
-    
+
     pub fn enable_blur(&mut self, enable: bool) {
         self.blur_context.blur_enabled = enable;
     }
 }
 
-/// Implement the Drop trait for the Renderer
+/// Implement the Drop trait for the Renderer.
 impl Drop for Renderer {
-    /// Closes, destroys the window and cleans up the resources
+    /// Closes, destroys the window and cleans up the resources.
     fn drop(&mut self) {
         // Safety: We are calling OpenGL functions safely.
         unsafe {

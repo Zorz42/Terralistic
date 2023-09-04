@@ -41,7 +41,18 @@ impl GlobalSettings {
         }
 
         match settings.get_setting(self.scale_setting) {
-            Ok(Setting::Choice { selected, .. }) => {}
+            Ok(Setting::Choice { selected, .. }) => match *selected {
+                0 => {
+                    graphics.renderer.scale = 0.5;
+                }
+                1 => {
+                    graphics.renderer.scale = 1.0;
+                }
+                2 => {
+                    graphics.renderer.scale = 1.5;
+                }
+                _ => {}
+            },
             _ => {
                 println!("Error: Setting not found or is invalid enum");
             }
