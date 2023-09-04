@@ -28,12 +28,12 @@ layout(location = 0) out vec4 color;
 uniform sampler2D texture_sampler;
 uniform vec2 blur_offset;
 uniform vec4 limit;
-const float gauss[17] = float[](0.0038, 0.0087, 0.0180, 0.0332, 0.0547, 0.0807, 0.1065, 0.1258, 0.1330, 0.1258, 0.1065, 0.0807, 0.0547, 0.0332, 0.0180, 0.0087, 0.0038);
+const float gauss[13] = float[](0.01854, 0.034196, 0.056341, 0.083121, 0.109695, 0.129574, 0.13699, 0.129574, 0.109695, 0.083121, 0.056341, 0.034196, 0.01854);
 
 void main() {
    color = vec4(0, 0, 0, 255);
-   for(int i = 0; i < 17; i++)
-       color += texture(texture_sampler, max(min(uv + (i - 8.0) * blur_offset, vec2(limit.x, limit.y)), vec2(limit.z, limit.w))) * gauss[i];
+   for(int i = 0; i < 13; i++)
+       color += texture(texture_sampler, max(min(uv + (i - 6.0) * blur_offset, vec2(limit.x, limit.y)), vec2(limit.z, limit.w))) * gauss[i];
 }
 "#;
 
@@ -48,11 +48,8 @@ pub struct BlurContext {
     limit_uniform: i32,
     rect_vertex_buffer: u32,
     pub(super) blur_enabled: bool,
-    pub(super) anti_stutter: bool,
     blur_intensity: f32,
 }
-
-const BLUR_QUALITY: f32 = 3.0;
 
 impl BlurContext {
     /// Creates a new blur context. Opengl context must be initialized.
@@ -106,7 +103,6 @@ impl BlurContext {
                 buffer
             },
             blur_enabled: true,
-            anti_stutter: false,
             blur_intensity: 0.0,
         })
     }
@@ -132,18 +128,13 @@ impl BlurContext {
         size: gfx::FloatSize,
         texture_transform: &Transformation,
     ) {
-        if self.blur_intensity < 0.01 {
+        let radius = radius as f32 * self.blur_intensity / 5.0;
+        if radius < 1.0 {
             return;
         }
 
-        let radius = radius as f32 * self.blur_intensity;
-
         // Safety: use of opengl functions is safe
         unsafe {
-            if self.anti_stutter {
-                gl::Finish();
-            }
-
             let mut begin_x = rect.pos.0;
             let mut begin_y = rect.pos.1;
             let mut end_x = rect.pos.0 + rect.size.0;
@@ -198,19 +189,31 @@ impl BlurContext {
             gl::BindBuffer(gl::ARRAY_BUFFER, self.rect_vertex_buffer);
             gl::VertexAttribPointer(0, 2, gl::FLOAT, gl::FALSE, 0, core::ptr::null());
 
-            let mut radius = radius;
-            while radius > 10.0 {
-                self.blur_rect(
-                    gfx::FloatPos(0.0, radius / size.1 / 10.0),
-                    gl_texture,
-                    back_texture,
-                );
-                self.blur_rect(
-                    gfx::FloatPos(radius / size.0 / 10.0, 0.0),
-                    back_texture,
-                    gl_texture,
-                );
-                radius = (radius * BLUR_QUALITY).sqrt();
+            self.blur_rect(
+                gfx::FloatPos(0.0, radius / size.1 / 10.0),
+                gl_texture,
+                back_texture,
+            );
+            self.blur_rect(
+                gfx::FloatPos(radius / size.0 / 10.0, 0.0),
+                back_texture,
+                gl_texture,
+            );
+
+            self.blur_rect(
+                gfx::FloatPos(0.0, radius / size.1),
+                gl_texture,
+                back_texture,
+            );
+            self.blur_rect(
+                gfx::FloatPos(radius / size.0, 0.0),
+                back_texture,
+                gl_texture,
+            );
+
+            if radius > 5.0 {
+                self.blur_rect(gfx::FloatPos(0.0, 2.0 / size.1), gl_texture, back_texture);
+                self.blur_rect(gfx::FloatPos(2.0 / size.0, 0.0), back_texture, gl_texture);
             }
 
             gl::DisableVertexAttribArray(0);
@@ -221,7 +224,7 @@ impl BlurContext {
         let blur_target = if self.blur_enabled { 1.0 } else { 0.0 };
         self.blur_intensity += (blur_target - self.blur_intensity) / 5.0;
 
-        if f32::abs(self.blur_intensity - blur_target) < 0.01 {
+        if f32::abs(self.blur_intensity - blur_target) < 0.001 {
             self.blur_intensity = blur_target;
         }
     }
