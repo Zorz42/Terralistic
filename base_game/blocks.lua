@@ -88,7 +88,7 @@ function register_blocks()
 end
 
 function on_block_break(x, y, block_id)
-    if block_id == wood_block then
+    if block_id == blocks.wood then
         -- if the wood block is broken, the wood block above it is also broken
         if terralistic_get_block(x, y - 1) == blocks.wood then
             terralistic_break_block(x, y - 1)
@@ -116,7 +116,7 @@ function on_block_break(x, y, block_id)
     end
 
     -- if branch_block is broken, break the leaves_block on the left and right
-    if block_id == branch_block then
+    if block_id == blocks.branch then
         if terralistic_get_block(x - 1, y) == blocks.leaves then
             terralistic_break_block(x - 1, y)
         end

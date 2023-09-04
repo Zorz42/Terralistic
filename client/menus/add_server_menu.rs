@@ -1,6 +1,5 @@
 use super::background_rect::BackgroundRect;
 use crate::libraries::graphics as gfx;
-use crate::libraries::graphics::{FloatPos, FloatSize, GraphicsContext};
 
 use super::multiplayer_selector::ServerCard;
 use crate::server::server_core::MULTIPLAYER_PORT;
@@ -64,7 +63,7 @@ fn server_exists(name: &str, servers_list: &Vec<ServerCard>) -> bool {
 /// this function runs the add server menu.
 #[allow(clippy::too_many_lines)]
 pub fn run_add_server_menu(
-    graphics: &mut GraphicsContext,
+    graphics: &mut gfx::GraphicsContext,
     menu_back: &mut dyn BackgroundRect,
     servers_list: &Vec<ServerCard>,
 ) -> Option<ServerInfo> {
@@ -77,8 +76,8 @@ pub fn run_add_server_menu(
 
     let mut buttons_container = gfx::Container::new(
         graphics,
-        FloatPos(0.0, 0.0),
-        FloatSize(0.0, 0.0),
+        gfx::FloatPos(0.0, 0.0),
+        gfx::FloatSize(0.0, 0.0),
         gfx::BOTTOM,
         None,
     );

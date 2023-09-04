@@ -1,7 +1,7 @@
-use crate::libraries::graphics as gfx;
-use crate::libraries::graphics::{DARK_GREY, GREY};
-use crate::server::server_ui::{PlayerEventType, UiMessageType};
 use std::net::SocketAddr;
+
+use crate::libraries::graphics as gfx;
+use crate::server::server_ui::{PlayerEventType, UiMessageType};
 
 use super::ui_manager;
 use super::ui_manager::{EDGE_SPACING, SCALE};
@@ -52,7 +52,7 @@ impl PlayerCard {
     pub fn render(&mut self, graphics_context: &mut gfx::GraphicsContext) {
         //background
         let mut rect = gfx::RenderRect::new(gfx::FloatPos(0.0, 0.0), self.container.rect.size);
-        rect.fill_color = DARK_GREY;
+        rect.fill_color = gfx::DARK_GREY;
         rect.render(graphics_context, Some(&self.container));
 
         //name of the player
@@ -62,7 +62,7 @@ impl PlayerCard {
         //if the sprite just appeared, do a smooth fade in animation by overlaying a transparent rectangle
         if self.timer < 1.0 {
             let mut rect = gfx::RenderRect::new(gfx::FloatPos(0.0, 0.0), self.container.rect.size);
-            rect.fill_color = GREY;
+            rect.fill_color = gfx::GREY;
             //calculate transparency
             rect.fill_color.a = (255.0 - self.timer * 255.0) as u8;
             rect.render(graphics_context, Some(&self.container));

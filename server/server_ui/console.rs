@@ -12,7 +12,7 @@ fn format_timestamp(message: &String) -> String {
         "[{}] {}",
         timestamp.map_or_else(
             || "???".to_owned(),
-            |time| time.format("%m-%d %H:%M:%S").to_string()
+            |time| time.format("%m-%d %H:%M:%S").to_string(),
         ),
         message
     )

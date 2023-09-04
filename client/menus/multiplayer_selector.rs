@@ -2,7 +2,6 @@ use super::background_rect::BackgroundRect;
 use super::{run_add_server_menu, run_choice_menu};
 
 use crate::libraries::graphics as gfx;
-use crate::libraries::graphics::{FloatPos, FloatSize, GraphicsContext, IntSize};
 use directories::BaseDirs;
 use serde_derive::{Deserialize, Serialize};
 
@@ -25,7 +24,7 @@ impl ServerInfo {
     }
 }
 
-/**struct to pass around UI elements for rendering and updating*/
+/// struct to pass around UI elements for rendering and updating
 struct MultiplayerSelectorElements {
     position: f32,
     top_rect: gfx::RenderRect,
@@ -38,10 +37,8 @@ struct MultiplayerSelectorElements {
     bottom_height: f32,
 }
 
-/**
-World is a struct that contains all information to
-render the server in server selector.
- */
+/// World is a struct that contains all information to
+/// render the server in server selector.
 pub struct ServerCard {
     pub server_info: ServerInfo,
     rect: gfx::RenderRect,
@@ -52,10 +49,10 @@ pub struct ServerCard {
 }
 
 impl ServerCard {
-    pub fn new(graphics: &GraphicsContext, name: String, ip: String, port: u16) -> Self {
+    pub fn new(graphics: &gfx::GraphicsContext, name: String, ip: String, port: u16) -> Self {
         let mut rect = gfx::RenderRect::new(
-            FloatPos(0.0, 0.0),
-            FloatSize(MENU_WIDTH as f32 - 2.0 * gfx::SPACING, 0.0),
+            gfx::FloatPos(0.0, 0.0),
+            gfx::FloatSize(MENU_WIDTH as f32 - 2.0 * gfx::SPACING, 0.0),
         );
         rect.orientation = gfx::TOP;
         rect.fill_color.a = 100;
@@ -66,7 +63,7 @@ impl ServerCard {
             &gfx::Surface::deserialize_from_bytes(include_bytes!(
                 "../../Build/Resources/world_icon.opa"
             ))
-            .unwrap_or_else(|_| gfx::Surface::new(IntSize(1, 1))),
+            .unwrap_or_else(|_| gfx::Surface::new(gfx::IntSize(1, 1))),
         );
         rect.size.1 = icon.get_size().1 + 2.0 * gfx::SPACING;
         icon.pos.0 = gfx::SPACING;
@@ -83,7 +80,7 @@ impl ServerCard {
             &gfx::Surface::deserialize_from_bytes(include_bytes!(
                 "../../Build/Resources/join_button.opa"
             ))
-            .unwrap_or_else(|_| gfx::Surface::new(IntSize(1, 1))),
+            .unwrap_or_else(|_| gfx::Surface::new(gfx::IntSize(1, 1))),
         );
         play_button.scale = 3.0;
         play_button.padding = 5.0;
@@ -96,7 +93,7 @@ impl ServerCard {
             &gfx::Surface::deserialize_from_bytes(include_bytes!(
                 "../../Build/Resources/remove_button.opa"
             ))
-            .unwrap_or_else(|_| gfx::Surface::new(IntSize(1, 1))),
+            .unwrap_or_else(|_| gfx::Surface::new(gfx::IntSize(1, 1))),
         );
         delete_button.scale = 3.0;
         delete_button.padding = 5.0;
@@ -114,13 +111,11 @@ impl ServerCard {
         }
     }
 
-    /**
-    This function renders the world card on the x and y position.
-     */
+    /// This function renders the world card on the x and y position.
     pub fn render(
         &mut self,
-        graphics: &mut GraphicsContext,
-        pos: FloatPos,
+        graphics: &mut gfx::GraphicsContext,
+        pos: gfx::FloatPos,
         parent_container: Option<&gfx::Container>,
     ) {
         self.rect.pos = pos;
@@ -133,43 +128,35 @@ impl ServerCard {
         self.delete_button.render(graphics, Some(&rect_container));
     }
 
-    /**
-    This function returns height of the world card.
-     */
+    /// This function returns height of the world card.
     pub const fn get_height(&self) -> f32 {
         self.rect.size.1
     }
 
-    /**
-    This function disables/enables the world card buttons.
-     */
+    /// This function disables/enables the world card buttons.
     pub fn set_enabled(&mut self, enabled: bool) {
         self.play_button.disabled = !enabled;
         self.delete_button.disabled = !enabled;
     }
 
-    /**
-    This function returns the container of the world card.
-     */
+    /// This function returns the container of the world card.
     pub fn get_container(
         &self,
-        graphics: &GraphicsContext,
+        graphics: &gfx::GraphicsContext,
         parent_container: Option<&gfx::Container>,
     ) -> gfx::Container {
         self.rect.get_container(graphics, parent_container)
     }
 }
 
-/**
-`WorldList` is a struct that is used to list all worlds in the world folder
-and render them in the singleplayer selector menu.
- */
+/// `WorldList` is a struct that is used to list all worlds in the world folder
+/// and render them in the singleplayer selector menu.
 pub struct ServerList {
     pub servers: Vec<ServerCard>,
 }
 
 impl ServerList {
-    pub fn new(graphics: &GraphicsContext, file_path: PathBuf) -> Self {
+    pub fn new(graphics: &gfx::GraphicsContext, file_path: PathBuf) -> Self {
         let mut world_list = Self {
             servers: Vec::new(),
         };
@@ -177,7 +164,7 @@ impl ServerList {
         world_list
     }
 
-    pub fn refresh(&mut self, graphics: &GraphicsContext, file_path: PathBuf) {
+    pub fn refresh(&mut self, graphics: &gfx::GraphicsContext, file_path: PathBuf) {
         let temp_servers: Vec<ServerInfo>;
 
         if file_path.exists() {
@@ -227,7 +214,7 @@ impl ServerList {
 }
 
 pub fn run_multiplayer_selector(
-    graphics: &mut GraphicsContext,
+    graphics: &mut gfx::GraphicsContext,
     menu_back: &mut dyn BackgroundRect,
 ) {
     let Some(base_dirs) = BaseDirs::new() else {
@@ -266,10 +253,12 @@ pub fn run_multiplayer_selector(
     let top_height = title.get_size().1 + 2.0 * gfx::SPACING;
     let bottom_height = back_button.get_size().1 + 2.0 * gfx::SPACING;
 
-    let mut top_rect = gfx::RenderRect::new(FloatPos(0.0, 0.0), FloatSize(0.0, top_height));
+    let mut top_rect =
+        gfx::RenderRect::new(gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, top_height));
     top_rect.orientation = gfx::TOP;
 
-    let mut bottom_rect = gfx::RenderRect::new(FloatPos(0.0, 0.0), FloatSize(0.0, bottom_height));
+    let mut bottom_rect =
+        gfx::RenderRect::new(gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, bottom_height));
     bottom_rect.fill_color.a = gfx::TRANSPARENCY / 2;
     bottom_rect.shadow_intensity = gfx::SHADOW_INTENSITY;
     bottom_rect.blur_radius = gfx::BLUR;
@@ -297,8 +286,9 @@ pub fn run_multiplayer_selector(
         render_elements(graphics, menu_back, &mut elements);
     }
 }
+
 fn update_elements(
-    graphics: &mut GraphicsContext,
+    graphics: &mut gfx::GraphicsContext,
     menu_back: &mut dyn BackgroundRect,
     elements: &mut MultiplayerSelectorElements,
     servers_file: &Path,
@@ -393,7 +383,7 @@ fn update_elements(
 }
 
 fn render_elements(
-    graphics: &mut GraphicsContext,
+    graphics: &mut gfx::GraphicsContext,
     menu_back: &mut dyn BackgroundRect,
     elements: &mut MultiplayerSelectorElements,
 ) {
@@ -415,7 +405,7 @@ fn render_elements(
     for server in &mut elements.server_list.servers {
         server.render(
             graphics,
-            FloatPos(0.0, current_y + elements.top_height + elements.position),
+            gfx::FloatPos(0.0, current_y + elements.top_height + elements.position),
             Some(menu_back.get_back_rect_container()),
         );
         current_y += server.get_height() + gfx::SPACING;

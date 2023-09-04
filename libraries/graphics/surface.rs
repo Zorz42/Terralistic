@@ -1,20 +1,21 @@
-use super::Color;
-use super::IntPos;
-use crate::libraries::graphics::IntSize;
 use anyhow::{anyhow, bail, Result};
 use serde_derive::{Deserialize, Serialize};
+
+use crate::libraries::graphics as gfx;
+
+use super::Color;
 
 /// Surface is an image stored in ram.
 #[derive(Serialize, Deserialize, Clone)]
 pub struct Surface {
     pub(super) pixels: Vec<Color>,
-    size: IntSize,
+    size: gfx::IntSize,
 }
 
 impl Surface {
     /// Creates a new surface with all transparent pixels.
     #[must_use]
-    pub fn new(size: IntSize) -> Self {
+    pub fn new(size: gfx::IntSize) -> Self {
         Self {
             pixels: std::vec![Color::new(0, 0, 0, 0); (size.0 * size.1) as usize],
             size,
@@ -42,7 +43,7 @@ impl Surface {
     /// Converts 2D location to a linear location in color array.
     /// The index points to the red bit of the color and the next
     /// three to green, blue, alpha.
-    fn get_index(&self, pos: IntPos) -> Result<usize> {
+    fn get_index(&self, pos: gfx::IntPos) -> Result<usize> {
         if pos.0 < 0 || pos.0 >= self.size.0 as i32 || pos.1 < 0 || pos.1 >= self.size.1 as i32 {
             bail!("Pixel out of bounds");
         }
@@ -53,7 +54,7 @@ impl Surface {
     /// Retrieves the pixel color on a specified location.
     /// # Errors
     /// Returns an error if the pixel is out of bounds.
-    pub fn get_pixel(&self, pos: IntPos) -> Result<&Color> {
+    pub fn get_pixel(&self, pos: gfx::IntPos) -> Result<&Color> {
         let index = self.get_index(pos)?;
         self.pixels
             .get(index)
@@ -63,7 +64,7 @@ impl Surface {
     /// Retrieves the pixel color on a specified location.
     /// # Errors
     /// Returns an error if the pixel is out of bounds.
-    pub fn get_pixel_mut(&mut self, pos: IntPos) -> Result<&mut Color> {
+    pub fn get_pixel_mut(&mut self, pos: gfx::IntPos) -> Result<&mut Color> {
         let index = self.get_index(pos)?;
         self.pixels
             .get_mut(index)
@@ -71,14 +72,14 @@ impl Surface {
     }
 
     #[must_use]
-    pub const fn get_size(&self) -> IntSize {
+    pub const fn get_size(&self) -> gfx::IntSize {
         self.size
     }
 
     /// Copies another surface to the specified location.
     /// # Errors
     /// Returns an error if the surface is out of bounds.
-    pub fn draw(&mut self, pos: IntPos, surface: &Self, color: Color) -> Result<()> {
+    pub fn draw(&mut self, pos: gfx::IntPos, surface: &Self, color: Color) -> Result<()> {
         for (pos2, surface_color) in surface.iter() {
             *self.get_pixel_mut(pos + pos2)? = Color {
                 r: (surface_color.r as f32 * (color.r as f32 / 255.0)) as u8,
@@ -107,20 +108,20 @@ impl Surface {
 /// Surface iterator iterates through all pixels in a surface row by row.
 pub struct SurfaceIterator<'surface_lifetime> {
     surface: &'surface_lifetime Surface,
-    pos: IntPos,
+    pos: gfx::IntPos,
 }
 
 impl<'surface_lifetime> SurfaceIterator<'surface_lifetime> {
     pub const fn new(surface: &'surface_lifetime Surface) -> Self {
         Self {
             surface,
-            pos: IntPos(0, 0),
+            pos: gfx::IntPos(0, 0),
         }
     }
 }
 
 impl<'surface_lifetime> Iterator for SurfaceIterator<'surface_lifetime> {
-    type Item = (IntPos, &'surface_lifetime Color);
+    type Item = (gfx::IntPos, &'surface_lifetime Color);
 
     fn next(&mut self) -> Option<Self::Item> {
         if self.pos.0 >= self.surface.get_size().0 as i32 {
@@ -135,7 +136,7 @@ impl<'surface_lifetime> Iterator for SurfaceIterator<'surface_lifetime> {
         let result = self.surface.get_pixel(self.pos).ok();
         self.pos.0 += 1;
         if let Some(result) = result {
-            Some((self.pos - IntPos(1, 0), result))
+            Some((self.pos - gfx::IntPos(1, 0), result))
         } else {
             None
         }
@@ -145,20 +146,20 @@ impl<'surface_lifetime> Iterator for SurfaceIterator<'surface_lifetime> {
 /// Surface iterator iterates through all pixels in a surface row by row.
 pub struct MutSurfaceIterator<'surface_lifetime> {
     surface: &'surface_lifetime mut Surface,
-    pos: IntPos,
+    pos: gfx::IntPos,
 }
 
 impl<'surface_lifetime> MutSurfaceIterator<'surface_lifetime> {
     pub fn new(surface: &'surface_lifetime mut Surface) -> Self {
         Self {
             surface,
-            pos: IntPos(0, 0),
+            pos: gfx::IntPos(0, 0),
         }
     }
 }
 
 impl<'surface_lifetime> Iterator for MutSurfaceIterator<'surface_lifetime> {
-    type Item = (IntPos, &'surface_lifetime mut Color);
+    type Item = (gfx::IntPos, &'surface_lifetime mut Color);
 
     fn next(&mut self) -> Option<Self::Item> {
         if self.pos.0 >= self.surface.get_size().0 as i32 {
@@ -175,12 +176,7 @@ impl<'surface_lifetime> Iterator for MutSurfaceIterator<'surface_lifetime> {
         if let Some(result) = result {
             // Safety: We know that the result is a valid mutable reference and 'surface_lifetime
             // outlives the iterator. Apparently mutable iterators are not possible without unsafe code.
-            unsafe {
-                Some((
-                    self.pos - IntPos(1, 0),
-                    &mut *(result as *mut Color as *mut Color),
-                ))
-            }
+            unsafe { Some((self.pos - gfx::IntPos(1, 0), &mut *(result as *mut Color))) }
         } else {
             None
         }

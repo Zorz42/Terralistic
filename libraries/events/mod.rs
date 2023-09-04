@@ -29,12 +29,6 @@ pub struct EventManager {
     event_queue: VecDeque<Event>,
 }
 
-impl Default for EventManager {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
 impl EventManager {
     #[must_use]
     pub const fn new() -> Self {

@@ -1,17 +1,10 @@
 use super::vertex_buffer::{DrawMode, Vertex, VertexBuffer};
-use super::{Color, GraphicsContext, Rect, Texture};
-use crate::libraries::graphics::{FloatPos, FloatSize};
+use crate::libraries::graphics as gfx;
 
 /// The struct `RectArray` is used to draw multiple rectangles with the same texture
 /// and in one draw call. This is much faster than drawing each rectangle individually.
 pub struct RectArray {
     vertex_buffer: VertexBuffer,
-}
-
-impl Default for RectArray {
-    fn default() -> Self {
-        Self::new()
-    }
 }
 
 impl RectArray {
@@ -24,15 +17,15 @@ impl RectArray {
     }
 
     /// Adds a rectangle to the `RectArray`.
-    pub fn add_rect(&mut self, rect: &Rect, colors: &[Color; 4], tex_rect: &Rect) {
+    pub fn add_rect(&mut self, rect: &gfx::Rect, colors: &[gfx::Color; 4], tex_rect: &gfx::Rect) {
         let top_left = rect.pos;
-        let top_right = rect.pos + FloatSize(rect.size.0, 0.0);
-        let bottom_left = rect.pos + FloatSize(0.0, rect.size.1);
+        let top_right = rect.pos + gfx::FloatSize(rect.size.0, 0.0);
+        let bottom_left = rect.pos + gfx::FloatSize(0.0, rect.size.1);
         let bottom_right = rect.pos + rect.size;
 
         let tex_top_left = tex_rect.pos;
-        let tex_top_right = tex_rect.pos + FloatSize(tex_rect.size.0, 0.0);
-        let tex_bottom_left = tex_rect.pos + FloatSize(0.0, tex_rect.size.1);
+        let tex_top_right = tex_rect.pos + gfx::FloatSize(tex_rect.size.0, 0.0);
+        let tex_bottom_left = tex_rect.pos + gfx::FloatSize(0.0, tex_rect.size.1);
         let tex_bottom_right = tex_rect.pos + tex_rect.size;
 
         // first triangle
@@ -79,7 +72,12 @@ impl RectArray {
     }
 
     /// Draws the `RectArray`.
-    pub fn render(&self, graphics: &mut GraphicsContext, texture: Option<&Texture>, pos: FloatPos) {
+    pub fn render(
+        &self,
+        graphics: &mut gfx::GraphicsContext,
+        texture: Option<&gfx::Texture>,
+        pos: gfx::FloatPos,
+    ) {
         // Safety: we are using the opengl functions correctly
         unsafe {
             let mut transform = graphics.renderer.normalization_transform.clone();

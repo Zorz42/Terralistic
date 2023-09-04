@@ -48,6 +48,7 @@
 #![warn(clippy::unwrap_in_result)]
 #![warn(clippy::unwrap_used)]
 #![warn(clippy::verbose_file_reads)]
+
 // disable some Clippy lints
 #![allow(clippy::cast_possible_truncation)]
 #![allow(clippy::cast_possible_wrap)]
@@ -61,6 +62,9 @@
 #![allow(clippy::ptr_as_ptr)]
 #![allow(clippy::shadow_unrelated)]
 #![allow(clippy::many_single_char_names)]
+#![allow(clippy::significant_drop_tightening)]
+#![allow(clippy::new_without_default)]
+
 #![windows_subsystem = "windows"]
 
 extern crate alloc;
@@ -68,9 +72,12 @@ extern crate core;
 
 use alloc::sync::Arc;
 use core::sync::atomic::AtomicBool;
+use directories::BaseDirs;
 use std::sync::Mutex;
+use crate::client::global_settings::GlobalSettings;
 
 use crate::client::menus::{run_main_menu, MenuBack};
+use crate::client::settings::Settings;
 use crate::libraries::graphics as gfx;
 use crate::server::server_core::{Server, MULTIPLAYER_PORT};
 use crate::server::server_ui::UiManager;
@@ -90,7 +97,10 @@ pub mod server {
 pub mod client {
     pub mod game;
     pub mod menus;
+    pub mod settings;
+    pub mod global_settings;
 }
+
 
 fn main() {
     let args: Vec<String> = std::env::args().collect();
@@ -230,5 +240,23 @@ fn client_main() {
 
     let mut menu_back = MenuBack::new(&mut graphics);
 
-    run_main_menu(&mut graphics, &mut menu_back);
+    let base_dirs;
+    if let Some(base_dirs_) = BaseDirs::new() {
+        base_dirs = base_dirs_;
+    } else {
+        return;
+    }
+
+    let mut settings = Settings::new(
+        base_dirs
+            .data_dir()
+            .join("Terralistic")
+            .join("settings.txt"),
+    );
+
+    let mut global_settings = GlobalSettings::new();
+    global_settings.init(&mut settings);
+    global_settings.update(&mut graphics, &settings);
+
+    run_main_menu(&mut graphics, &mut menu_back, &mut settings);
 }

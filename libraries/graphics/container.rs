@@ -1,5 +1,5 @@
 use super::Rect;
-use crate::libraries::graphics::{FloatPos, FloatSize, GraphicsContext};
+use crate::libraries::graphics as gfx;
 
 #[derive(Clone, Copy)]
 pub struct Orientation {
@@ -12,7 +12,7 @@ pub const TOP: Orientation = Orientation { x: 0.5, y: 0.0 };
 pub const TOP_RIGHT: Orientation = Orientation { x: 1.0, y: 0.0 };
 pub const LEFT: Orientation = Orientation { x: 0.0, y: 0.5 };
 pub const CENTER: Orientation = Orientation { x: 0.5, y: 0.5 };
-pub const RIGHT: Orientation = Orientation { x: 1.0, y: 0.5 };
+// pub const RIGHT: Orientation = Orientation { x: 1.0, y: 0.5 };
 pub const BOTTOM_LEFT: Orientation = Orientation { x: 0.0, y: 1.0 };
 pub const BOTTOM: Orientation = Orientation { x: 0.5, y: 1.0 };
 pub const BOTTOM_RIGHT: Orientation = Orientation { x: 1.0, y: 1.0 };
@@ -30,15 +30,15 @@ impl Container {
     /// Creates a new container.
     #[must_use]
     pub fn new(
-        graphics: &GraphicsContext,
-        pos: FloatPos,
-        size: FloatSize,
+        graphics: &gfx::GraphicsContext,
+        pos: gfx::FloatPos,
+        size: gfx::FloatSize,
         orientation: Orientation,
         parent_container: Option<&Self>,
     ) -> Self {
         let mut result = Self {
             rect: Rect::new(pos, size),
-            abs_rect: Rect::new(FloatPos(0.0, 0.0), FloatSize(0.0, 0.0)),
+            abs_rect: Rect::new(gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, 0.0)),
             orientation,
         };
         result.update(graphics, parent_container);
@@ -55,19 +55,19 @@ impl Container {
     }
 
     /// This function gets parent container and updates the absolute values
-    pub fn update(&mut self, graphics: &GraphicsContext, parent_container: Option<&Self>) {
+    pub fn update(&mut self, graphics: &gfx::GraphicsContext, parent_container: Option<&Self>) {
         let parent_rect = parent_container.map_or_else(
-            || Rect::new(FloatPos(0.0, 0.0), graphics.renderer.get_window_size()),
+            || Rect::new(gfx::FloatPos(0.0, 0.0), graphics.renderer.get_window_size()),
             |parent| *parent.get_absolute_rect(),
         );
 
         self.abs_rect.pos = parent_rect.pos
             + self.rect.pos
-            + FloatPos(
+            + gfx::FloatPos(
                 parent_rect.size.0 * self.orientation.x,
                 parent_rect.size.1 * self.orientation.y,
             )
-            - FloatPos(
+            - gfx::FloatPos(
                 self.rect.size.0 * self.orientation.x,
                 self.rect.size.1 * self.orientation.y,
             );

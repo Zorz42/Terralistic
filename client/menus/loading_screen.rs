@@ -1,7 +1,6 @@
 use std::sync::{Mutex, PoisonError};
 
 use crate::libraries::graphics as gfx;
-use crate::libraries::graphics::{FloatPos, FloatSize};
 
 use super::background_rect::BackgroundRect;
 
@@ -9,11 +8,9 @@ const PROGRESS_BAR_WIDTH: i32 = 400;
 const PROGRESS_BAR_HEIGHT: i32 = 50;
 const PROGRESS_BAR_Y_OFFSET: i32 = 100;
 
-/**
-Loading screen displays `back_menu` and text which describes the current loading state.
-The text is shared through the `SharedMut`<String> which is updated by the loading thread.
-When the string is empty, the loading screen is closed.
- */
+/// Loading screen displays `back_menu` and text which describes the current loading state.
+/// The text is shared through the `SharedMut`<String> which is updated by the loading thread.
+/// When the string is empty, the loading screen is closed.
 pub fn run_loading_screen(
     graphics: &mut gfx::GraphicsContext,
     menu_back: &mut dyn BackgroundRect,
@@ -26,8 +23,8 @@ pub fn run_loading_screen(
     let mut curr_text = String::new();
 
     let mut loading_back_bar = gfx::RenderRect::new(
-        FloatPos(0.0, PROGRESS_BAR_Y_OFFSET as f32),
-        FloatSize(0.0, 0.0),
+        gfx::FloatPos(0.0, PROGRESS_BAR_Y_OFFSET as f32),
+        gfx::FloatSize(0.0, 0.0),
     );
     loading_back_bar.orientation = gfx::CENTER;
     loading_back_bar.fill_color = gfx::BLACK;
@@ -35,8 +32,8 @@ pub fn run_loading_screen(
     loading_back_bar.smooth_factor = 60.0;
 
     let mut loading_bar = gfx::RenderRect::new(
-        FloatPos(0.0, PROGRESS_BAR_Y_OFFSET as f32),
-        FloatSize(0.0, 0.0),
+        gfx::FloatPos(0.0, PROGRESS_BAR_Y_OFFSET as f32),
+        gfx::FloatSize(0.0, 0.0),
     );
     loading_bar.orientation = gfx::LEFT;
     loading_bar.fill_color = gfx::LIGHT_GREY;

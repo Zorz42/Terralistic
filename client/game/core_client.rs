@@ -17,7 +17,7 @@ use crate::client::game::players::ClientPlayers;
 use crate::client::menus::{run_loading_screen, BackgroundRect};
 use crate::libraries::events;
 use crate::libraries::events::EventManager;
-use crate::libraries::graphics::GraphicsContext;
+use crate::libraries::graphics as gfx;
 use crate::shared::entities::PositionComponent;
 
 use super::background::Background;
@@ -32,7 +32,7 @@ use super::walls::ClientWalls;
 /// # Errors
 /// If the game basically crashes
 pub fn run_game(
-    graphics: &mut GraphicsContext,
+    graphics: &mut gfx::GraphicsContext,
     menu_back: &mut dyn BackgroundRect,
     server_port: u16,
     server_address: String,
@@ -92,7 +92,9 @@ pub fn run_game(
     run_loading_screen(graphics, menu_back, &loading_text);
 
     let result = init_thread.join();
-    let Ok(result) = result else { bail!("Failed to join init thread"); };
+    let Ok(result) = result else {
+        bail!("Failed to join init thread");
+    };
     let result = result?;
 
     let mut mods = result.0;

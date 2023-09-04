@@ -120,10 +120,10 @@ impl ServerPlayers {
                 |player_data| (player_data.position.x(), player_data.position.y()),
             );
 
-            for (_entity, (player, position, id)) in entities
-                .ecs
-                .query::<(&PlayerComponent, &PositionComponent, &IdComponent)>()
-                .iter()
+            for (_entity, (player, position, id)) in
+                &mut entities
+                    .ecs
+                    .query::<(&PlayerComponent, &PositionComponent, &IdComponent)>()
             {
                 let spawn_packet = Packet::new(PlayerSpawnPacket {
                     id: id.id(),

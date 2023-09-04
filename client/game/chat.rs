@@ -5,7 +5,6 @@ use anyhow::Result;
 use crate::client::game::networking::ClientNetworking;
 use crate::libraries::events::Event;
 use crate::libraries::graphics as gfx;
-use crate::libraries::graphics::{FloatPos, FloatSize, GraphicsContext};
 use crate::shared::chat::ChatPacket;
 use crate::shared::packet::Packet;
 
@@ -17,14 +16,14 @@ pub struct ChatLine {
 }
 
 impl ChatLine {
-    pub fn new(graphics: &mut GraphicsContext, text: &str, pos: FloatPos) -> Self {
+    pub fn new(graphics: &mut gfx::GraphicsContext, text: &str, pos: gfx::FloatPos) -> Self {
         let texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface(text));
         let mut back_rect = gfx::RenderRect::new(
-            pos + FloatPos(
+            pos + gfx::FloatPos(
                 -texture.get_texture_size().0 * 3.0,
                 -texture.get_texture_size().1 * 3.0,
             ),
-            FloatSize(0.0, 0.0),
+            gfx::FloatSize(0.0, 0.0),
         );
         back_rect.smooth_factor = 60.0;
 
@@ -36,7 +35,7 @@ impl ChatLine {
         }
     }
 
-    pub fn render(&mut self, graphics: &mut GraphicsContext, focused: bool) {
+    pub fn render(&mut self, graphics: &mut gfx::GraphicsContext, focused: bool) {
         let target_transparency =
             if focused || (self.creation_time.elapsed().as_millis() as i32) < 5000 {
                 255
@@ -68,12 +67,12 @@ impl ChatLine {
         );
     }
 
-    pub fn set_pos(&mut self, pos: FloatPos) {
+    pub fn set_pos(&mut self, pos: gfx::FloatPos) {
         self.back_rect.pos = pos;
     }
 
-    pub fn get_size(&self) -> FloatSize {
-        FloatSize(
+    pub fn get_size(&self) -> gfx::FloatSize {
+        gfx::FloatSize(
             self.texture.get_texture_size().0 * 3.0,
             self.texture.get_texture_size().1 * 3.0,
         )
@@ -87,30 +86,30 @@ pub struct ClientChat {
 }
 
 impl ClientChat {
-    pub fn new(graphics: &mut GraphicsContext) -> Self {
+    pub fn new(graphics: &mut gfx::GraphicsContext) -> Self {
         Self {
             text_input: gfx::TextInput::new(graphics),
-            back_rect: gfx::RenderRect::new(FloatPos(0.0, 0.0), FloatSize(0.0, 0.0)),
+            back_rect: gfx::RenderRect::new(gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, 0.0)),
             chat_lines: Vec::new(),
         }
     }
 
     pub fn init(&mut self) {
         self.text_input.orientation = gfx::BOTTOM_LEFT;
-        self.text_input.pos = FloatPos(gfx::SPACING, -gfx::SPACING);
+        self.text_input.pos = gfx::FloatPos(gfx::SPACING, -gfx::SPACING);
         self.text_input.scale = 3.0;
         self.text_input.border_color = gfx::BORDER_COLOR;
 
         self.back_rect.fill_color = gfx::TRANSPARENT;
         self.back_rect.orientation = gfx::BOTTOM_LEFT;
-        self.back_rect.pos = FloatPos(gfx::SPACING, -gfx::SPACING);
+        self.back_rect.pos = gfx::FloatPos(gfx::SPACING, -gfx::SPACING);
         self.back_rect.size.1 = self.text_input.get_size().1;
         self.back_rect.blur_radius = gfx::BLUR;
         self.back_rect.smooth_factor = 60.0;
         self.back_rect.shadow_intensity = gfx::SHADOW_INTENSITY;
     }
 
-    pub fn render(&mut self, graphics: &mut GraphicsContext) {
+    pub fn render(&mut self, graphics: &mut gfx::GraphicsContext) {
         if self.text_input.selected {
             self.back_rect.size.0 = gfx::TEXT_INPUT_WIDTH * self.text_input.scale;
         } else {
@@ -127,7 +126,7 @@ impl ClientChat {
             graphics.renderer.get_window_size().1 - gfx::SPACING - self.text_input.get_size().1;
         for line in self.chat_lines.iter_mut().rev() {
             curr_y -= line.get_size().1;
-            line.set_pos(FloatPos(gfx::SPACING, curr_y));
+            line.set_pos(gfx::FloatPos(gfx::SPACING, curr_y));
             line.render(graphics, self.text_input.selected);
         }
     }
@@ -135,7 +134,7 @@ impl ClientChat {
     pub fn on_event(
         &mut self,
         event: &Event,
-        graphics: &mut GraphicsContext,
+        graphics: &mut gfx::GraphicsContext,
         networking: &mut ClientNetworking,
     ) -> Result<bool> {
         if let Some(event) = event.downcast::<gfx::Event>() {
@@ -161,7 +160,7 @@ impl ClientChat {
                 self.chat_lines.push(ChatLine::new(
                     graphics,
                     &packet.message,
-                    FloatPos(
+                    gfx::FloatPos(
                         0.0,
                         graphics.renderer.get_window_size().1
                             - gfx::SPACING

@@ -1,7 +1,7 @@
 use super::shaders::compile_shader;
 use super::vertex_buffer::{Vertex, VertexBuffer};
 use super::Color;
-use crate::libraries::graphics::FloatPos;
+use crate::libraries::graphics as gfx;
 use anyhow::Result;
 
 const VERTEX_SHADER_CODE: &str = r#"
@@ -63,12 +63,12 @@ impl PassthroughShader {
         let mut rect_outline_vertex_buffer = VertexBuffer::new();
 
         for pos in [
-            FloatPos(0.0, 0.0),
-            FloatPos(1.0, 0.0),
-            FloatPos(0.0, 1.0),
-            FloatPos(1.0, 1.0),
-            FloatPos(1.0, 0.0),
-            FloatPos(0.0, 1.0),
+            gfx::FloatPos(0.0, 0.0),
+            gfx::FloatPos(1.0, 0.0),
+            gfx::FloatPos(0.0, 1.0),
+            gfx::FloatPos(1.0, 1.0),
+            gfx::FloatPos(1.0, 0.0),
+            gfx::FloatPos(0.0, 1.0),
         ] {
             rect_vertex_buffer.add_vertex(&Vertex {
                 pos,
@@ -84,14 +84,14 @@ impl PassthroughShader {
         rect_vertex_buffer.upload();
 
         for pos in [
-            FloatPos(0.0, 0.0),
-            FloatPos(1.0, 0.0),
-            FloatPos(1.0, 0.0),
-            FloatPos(1.0, 1.0),
-            FloatPos(1.0, 1.0),
-            FloatPos(0.0, 1.0),
-            FloatPos(0.0, 1.0),
-            FloatPos(0.0, 0.0),
+            gfx::FloatPos(0.0, 0.0),
+            gfx::FloatPos(1.0, 0.0),
+            gfx::FloatPos(1.0, 0.0),
+            gfx::FloatPos(1.0, 1.0),
+            gfx::FloatPos(1.0, 1.0),
+            gfx::FloatPos(0.0, 1.0),
+            gfx::FloatPos(0.0, 1.0),
+            gfx::FloatPos(0.0, 0.0),
         ] {
             rect_outline_vertex_buffer.add_vertex(&Vertex {
                 pos,

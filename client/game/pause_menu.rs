@@ -1,6 +1,5 @@
 use crate::libraries::events::Event;
 use crate::libraries::graphics as gfx;
-use crate::libraries::graphics::{FloatPos, FloatSize, GraphicsContext};
 
 /// The pause menu actually does not pause the game (ironic, I know).
 /// It just shows a menu with options to quit the world or go back to the game.
@@ -17,11 +16,11 @@ impl PauseMenu {
             open: false,
             resume_button: gfx::Button::new(),
             quit_button: gfx::Button::new(),
-            back_rect: gfx::RenderRect::new(FloatPos(0.0, 0.0), FloatSize(0.0, 0.0)),
+            back_rect: gfx::RenderRect::new(gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, 0.0)),
         }
     }
 
-    pub fn init(&mut self, graphics: &mut GraphicsContext) {
+    pub fn init(&mut self, graphics: &mut gfx::GraphicsContext) {
         self.resume_button.texture =
             gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Resume"));
         self.resume_button.scale = 3.0;
@@ -49,7 +48,7 @@ impl PauseMenu {
         self.back_rect.size.0 = pause_rect_width;
     }
 
-    pub fn render(&mut self, graphics: &mut GraphicsContext) {
+    pub fn render(&mut self, graphics: &mut gfx::GraphicsContext) {
         self.back_rect.pos.0 = if self.open {
             0.0
         } else {
@@ -73,7 +72,7 @@ impl PauseMenu {
     }
 
     /// returns true if the game should quit
-    pub fn on_event(&mut self, event: &Event, graphics: &mut GraphicsContext) -> bool {
+    pub fn on_event(&mut self, event: &Event, graphics: &mut gfx::GraphicsContext) -> bool {
         if let Some(event) = event.downcast::<gfx::Event>() {
             match event {
                 gfx::Event::KeyPress(key, false) => {

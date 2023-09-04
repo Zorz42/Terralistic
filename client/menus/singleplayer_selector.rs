@@ -4,7 +4,6 @@ use super::world_creation::run_world_creation;
 use crate::client::game::private_world::run_private_world;
 
 use crate::libraries::graphics as gfx;
-use crate::libraries::graphics::{FloatPos, FloatSize, GraphicsContext, IntSize};
 use directories::BaseDirs;
 use std::fs;
 use std::path::PathBuf;
@@ -12,10 +11,8 @@ use std::time::SystemTime;
 
 pub const MENU_WIDTH: f32 = 800.0;
 
-/**
-This function returns formatted string "%d %B %Y %H:%M" of the time
-that the file was last modified.
- */
+/// This function returns formatted string "%d %B %Y %H:%M" of the time
+/// that the file was last modified.
 pub fn get_last_modified_time(file_path: &str) -> String {
     let metadata = fs::metadata(file_path);
     let modified_time;
@@ -32,7 +29,7 @@ pub fn get_last_modified_time(file_path: &str) -> String {
     datetime.format("%d %B %Y %H:%M").to_string()
 }
 
-/**struct to pass around the UI elements for rendering and updating.*/
+/// struct to pass around the UI elements for rendering and updating.
 struct SigleplayerSelectorElements {
     position: f32,
     top_rect: gfx::RenderRect,
@@ -45,10 +42,8 @@ struct SigleplayerSelectorElements {
     bottom_height: f32,
 }
 
-/**
-World is a struct that contains all information to
-render the world in singleplayer selector.
- */
+/// World is a struct that contains all information to
+/// render the world in singleplayer selector.
 pub struct World {
     pub name: String,
     rect: gfx::RenderRect,
@@ -61,7 +56,7 @@ pub struct World {
 }
 
 impl World {
-    pub fn new(graphics: &GraphicsContext, file_path: PathBuf) -> Self {
+    pub fn new(graphics: &gfx::GraphicsContext, file_path: PathBuf) -> Self {
         let stem = file_path.file_stem();
         let name = stem
             .map_or("incorrect_file_path", |name_| {
@@ -70,8 +65,8 @@ impl World {
             .to_owned();
 
         let mut rect = gfx::RenderRect::new(
-            FloatPos(0.0, 0.0),
-            FloatSize(MENU_WIDTH - 2.0 * gfx::SPACING, 0.0),
+            gfx::FloatPos(0.0, 0.0),
+            gfx::FloatSize(MENU_WIDTH - 2.0 * gfx::SPACING, 0.0),
         );
         rect.orientation = gfx::TOP;
         rect.fill_color.a = 100;
@@ -82,7 +77,7 @@ impl World {
             &gfx::Surface::deserialize_from_bytes(include_bytes!(
                 "../../Build/Resources/world_icon.opa"
             ))
-            .unwrap_or_else(|_| gfx::Surface::new(IntSize(1, 1))),
+            .unwrap_or_else(|_| gfx::Surface::new(gfx::IntSize(1, 1))),
         );
         rect.size.1 = icon.get_size().1 + 2.0 * gfx::SPACING;
         icon.pos.0 = gfx::SPACING;
@@ -99,7 +94,7 @@ impl World {
             &gfx::Surface::deserialize_from_bytes(include_bytes!(
                 "../../Build/Resources/play_button.opa"
             ))
-            .unwrap_or_else(|_| gfx::Surface::new(IntSize(1, 1))),
+            .unwrap_or_else(|_| gfx::Surface::new(gfx::IntSize(1, 1))),
         );
         play_button.scale = 3.0;
         play_button.padding = 5.0;
@@ -112,7 +107,7 @@ impl World {
             &gfx::Surface::deserialize_from_bytes(include_bytes!(
                 "../../Build/Resources/delete_button.opa"
             ))
-            .unwrap_or_else(|_| gfx::Surface::new(IntSize(1, 1))),
+            .unwrap_or_else(|_| gfx::Surface::new(gfx::IntSize(1, 1))),
         );
         delete_button.scale = 3.0;
         delete_button.padding = 5.0;
@@ -143,13 +138,11 @@ impl World {
         }
     }
 
-    /**
-    This function renders the world card on the x and y position.
-     */
+    /// This function renders the world card on the x and y position.
     pub fn render(
         &mut self,
-        graphics: &mut GraphicsContext,
-        pos: FloatPos,
+        graphics: &mut gfx::GraphicsContext,
+        pos: gfx::FloatPos,
         parent_container: Option<&gfx::Container>,
     ) {
         self.rect.pos = pos;
@@ -163,27 +156,21 @@ impl World {
         self.last_modified.render(graphics, Some(&rect_container));
     }
 
-    /**
-    This function returns height of the world card.
-     */
+    /// This function returns height of the world card.
     pub const fn get_height(&self) -> f32 {
         self.rect.size.1
     }
 
-    /**
-    This function disables/enables the world card buttons.
-     */
+    /// This function disables/enables the world card buttons.
     pub fn set_enabled(&mut self, enabled: bool) {
         self.play_button.disabled = !enabled;
         self.delete_button.disabled = !enabled;
     }
 
-    /**
-    This function returns the container of the world card.
-     */
+    /// This function returns the container of the world card.
     pub fn get_container(
         &self,
-        graphics: &GraphicsContext,
+        graphics: &gfx::GraphicsContext,
         parent_container: Option<&gfx::Container>,
     ) -> gfx::Container {
         self.rect.get_container(graphics, parent_container)
@@ -194,22 +181,20 @@ impl World {
     }
 }
 
-/**
-`WorldList` is a struct that is used to list all worlds in the world folder
-and render them in the singleplayer selector menu.
- */
+/// `WorldList` is a struct that is used to list all worlds in the world folder
+/// and render them in the singleplayer selector menu.
 pub struct WorldList {
     pub worlds: Vec<World>,
 }
 
 impl WorldList {
-    pub fn new(graphics: &GraphicsContext) -> Self {
+    pub fn new(graphics: &gfx::GraphicsContext) -> Self {
         let mut world_list = Self { worlds: Vec::new() };
         world_list.refresh(graphics);
         world_list
     }
 
-    pub fn refresh(&mut self, graphics: &GraphicsContext) {
+    pub fn refresh(&mut self, graphics: &gfx::GraphicsContext) {
         let base_dirs;
         if let Some(base_dirs_) = BaseDirs::new() {
             base_dirs = base_dirs_;
@@ -239,7 +224,7 @@ impl WorldList {
 }
 
 pub fn run_singleplayer_selector(
-    graphics: &mut GraphicsContext,
+    graphics: &mut gfx::GraphicsContext,
     menu_back: &mut dyn BackgroundRect,
 ) {
     let world_list = WorldList::new(graphics);
@@ -270,10 +255,12 @@ pub fn run_singleplayer_selector(
     let top_height = title.get_size().1 + 2.0 * gfx::SPACING;
     let bottom_height = back_button.get_size().1 + 2.0 * gfx::SPACING;
 
-    let mut top_rect = gfx::RenderRect::new(FloatPos(0.0, 0.0), FloatSize(0.0, top_height));
+    let mut top_rect =
+        gfx::RenderRect::new(gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, top_height));
     top_rect.orientation = gfx::TOP;
 
-    let mut bottom_rect = gfx::RenderRect::new(FloatPos(0.0, 0.0), FloatSize(0.0, bottom_height));
+    let mut bottom_rect =
+        gfx::RenderRect::new(gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, bottom_height));
     bottom_rect.fill_color.a = gfx::TRANSPARENCY / 2;
     bottom_rect.shadow_intensity = gfx::SHADOW_INTENSITY;
     bottom_rect.blur_radius = gfx::BLUR;
@@ -303,7 +290,7 @@ pub fn run_singleplayer_selector(
 }
 
 fn update_elements(
-    graphics: &mut GraphicsContext,
+    graphics: &mut gfx::GraphicsContext,
     menu_back: &mut dyn BackgroundRect,
     elements: &mut SigleplayerSelectorElements,
 ) -> bool {
@@ -382,7 +369,7 @@ fn update_elements(
 }
 
 fn render_elements(
-    graphics: &mut GraphicsContext,
+    graphics: &mut gfx::GraphicsContext,
     menu_back: &mut dyn BackgroundRect,
     elements: &mut SigleplayerSelectorElements,
     top_rect_visibility: &mut f32,
@@ -404,7 +391,7 @@ fn render_elements(
     for world in &mut elements.world_list.worlds {
         world.render(
             graphics,
-            FloatPos(0.0, current_y + elements.top_height + elements.position),
+            gfx::FloatPos(0.0, current_y + elements.top_height + elements.position),
             Some(menu_back.get_back_rect_container()),
         );
         current_y += world.get_height() + gfx::SPACING;

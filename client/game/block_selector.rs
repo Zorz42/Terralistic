@@ -1,13 +1,14 @@
-use super::camera::Camera;
-use super::networking::ClientNetworking;
+use anyhow::Result;
+
 use crate::libraries::events::Event;
 use crate::libraries::graphics as gfx;
-use crate::libraries::graphics::{FloatPos, FloatSize};
 use crate::shared::blocks::{
     BlockBreakStopPacket, BlockRightClickPacket, ClientBlockBreakStartPacket, RENDER_BLOCK_WIDTH,
 };
 use crate::shared::packet::Packet;
-use anyhow::Result;
+
+use super::camera::Camera;
+use super::networking::ClientNetworking;
 
 /// Block selector is used to select a block.
 /// It draws a red rectangle around the block
@@ -54,8 +55,8 @@ impl BlockSelector {
             - camera.get_top_left(graphics).1 * RENDER_BLOCK_WIDTH;
 
         gfx::Rect::new(
-            FloatPos(x.round(), y.round()),
-            FloatSize(RENDER_BLOCK_WIDTH, RENDER_BLOCK_WIDTH),
+            gfx::FloatPos(x.round(), y.round()),
+            gfx::FloatSize(RENDER_BLOCK_WIDTH, RENDER_BLOCK_WIDTH),
         )
         .render_outline(graphics, gfx::Color::new(255, 0, 0, 255));
 

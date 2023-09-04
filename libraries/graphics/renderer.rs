@@ -1,13 +1,15 @@
 use super::blur::BlurContext;
-use super::events::sdl_event_to_gfx_event;
 use super::passthrough_shader::PassthroughShader;
 use super::shadow::ShadowContext;
 use super::transformation::Transformation;
 use super::{set_blend_mode, BlendMode, Event, Key, Rect};
 use copypasta::ClipboardContext;
 use std::collections::HashMap;
+
 extern crate alloc;
-use crate::libraries::graphics::{FloatPos, FloatSize};
+
+use crate::libraries::graphics as gfx;
+use crate::libraries::graphics::events::sdl_event_to_gfx_event;
 use alloc::collections::VecDeque;
 use anyhow::{anyhow, Result};
 
@@ -125,7 +127,7 @@ impl Renderer {
             2.0 / self.get_window_size().0,
             -2.0 / self.get_window_size().1,
         ));
-        self.normalization_transform.translate(FloatPos(
+        self.normalization_transform.translate(gfx::FloatPos(
             -self.get_window_size().0 / 2.0,
             -self.get_window_size().1 / 2.0,
         ));
@@ -321,23 +323,23 @@ impl Renderer {
     }
 
     /// Sets the minimum window size
-    pub fn set_min_window_size(&mut self, size: FloatSize) -> Result<()> {
+    pub fn set_min_window_size(&mut self, size: gfx::FloatSize) -> Result<()> {
         self.sdl_window
             .set_minimum_size(size.0 as u32, size.1 as u32)
             .map_err(|e| anyhow!(e))
     }
 
     /// Get the current window size
-    pub fn get_window_size(&self) -> FloatSize {
-        FloatSize(
+    pub fn get_window_size(&self) -> gfx::FloatSize {
+        gfx::FloatSize(
             self.sdl_window.size().0 as f32,
             self.sdl_window.size().1 as f32,
         )
     }
 
     /// Gets mouse position
-    pub fn get_mouse_pos(&self) -> FloatPos {
-        FloatPos(
+    pub fn get_mouse_pos(&self) -> gfx::FloatPos {
+        gfx::FloatPos(
             self.sdl_event_pump.mouse_state().x() as f32,
             self.sdl_event_pump.mouse_state().y() as f32,
         )
@@ -360,7 +362,7 @@ impl Renderer {
         radius: i32,
         gl_texture: u32,
         back_texture: u32,
-        size: FloatSize,
+        size: gfx::FloatSize,
         texture_transform: &Transformation,
     ) {
         self.blur_context.blur_region(
@@ -387,6 +389,10 @@ impl Renderer {
             self.get_window_size(),
             &self.normalization_transform,
         );
+    }
+    
+    pub fn enable_blur(&mut self, enable: bool) {
+        self.blur_context.blur_enabled = enable;
     }
 }
 

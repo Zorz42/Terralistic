@@ -166,17 +166,13 @@ impl<'de> Deserialize<'de> for GameMod {
     }
 }
 
-/**
-Mod manager is responsible for loading mods and managing them.
- */
+/// Mod manager is responsible for loading mods and managing them.
 pub struct ModManager {
     mods: Vec<GameMod>,
 }
 
 impl ModManager {
-    /**
-    Creates a new mod manager.
-    */
+    /// Creates a new mod manager.
     #[must_use]
     pub const fn new(mods: Vec<GameMod>) -> Self {
         Self { mods }

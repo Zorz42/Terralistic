@@ -1,4 +1,4 @@
-use crate::libraries::graphics::FloatPos;
+use crate::libraries::graphics as gfx;
 
 /// Transformation is a 3x3 matrix used to move and scale drawn objects.
 #[derive(Clone)]
@@ -15,7 +15,7 @@ impl Transformation {
     }
 
     /// Moves the object around.
-    pub(super) fn translate(&mut self, pos: FloatPos) {
+    pub(super) fn translate(&mut self, pos: gfx::FloatPos) {
         let mut transformation = Self::new();
         transformation.matrix = [1.0, 0.0, 0.0, 0.0, 1.0, 0.0, pos.0, pos.1, 1.0];
         *self = self.clone() * transformation;

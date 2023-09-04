@@ -4,7 +4,7 @@ use crate::server::server_ui::{PlayerEventType, ServerState, UiMessageType};
 use super::ui_manager;
 use super::ui_manager::SCALE;
 
-/**this function makes the string have at least a certain length by padding it with zeroes in the beginning*/
+/// this function makes the string have at least a certain length by padding it with zeroes in the beginning
 fn pad_start(string: String, length: usize) -> String {
     let mut string = string;
     while string.len() < length {
@@ -13,7 +13,7 @@ fn pad_start(string: String, length: usize) -> String {
     string
 }
 
-/**this function formats a number of seconds into a string of format HH:MM:SS*/
+/// this function formats a number of seconds into a string of format HH:MM:SS
 fn format_seconds(seconds: u64) -> String {
     let mut seconds = seconds;
     let hours = seconds / 3600;
@@ -47,13 +47,13 @@ impl ServerInfo {
     #[allow(clippy::default_trait_access)]
     pub fn new(graphics_context: &mut gfx::GraphicsContext) -> Self {
         Self {
-            player_count_sprite: Default::default(),
+            player_count_sprite: gfx::Sprite::new(),
             players_count: 0,
             server_state_enum: ServerState::Nothing,
-            server_state_sprite: Default::default(),
-            mspt_sprite: Default::default(),
+            server_state_sprite: gfx::Sprite::new(),
+            mspt_sprite: gfx::Sprite::new(),
             mspt: (0.0, 0.0),
-            uptime: Default::default(),
+            uptime: gfx::Sprite::new(),
             //container math will be redone
             container: gfx::Container::new(
                 graphics_context,
@@ -178,7 +178,7 @@ impl ui_manager::ModuleTrait for ServerInfo {
                 self.mspt.0 += server_mspt.unwrap_or(0.0);
                 self.mspt.1 += *ui_mspt;
                 self.updated_ui += 1;
-                self.updated_server += if server_mspt.is_some() { 1 } else { 0 };
+                self.updated_server += i32::from(server_mspt.is_some());
                 if self.last_update.elapsed().as_millis() < 1000 {
                     return;
                 }

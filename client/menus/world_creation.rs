@@ -2,7 +2,6 @@ use super::singleplayer_selector::World;
 use crate::client::game::private_world::run_private_world;
 use crate::client::menus::background_rect::BackgroundRect;
 use crate::libraries::graphics as gfx;
-use crate::libraries::graphics::{FloatPos, FloatSize, GraphicsContext};
 use directories::BaseDirs;
 
 fn world_name_exists(worlds_list: &Vec<World>, name: &str) -> bool {
@@ -17,7 +16,7 @@ fn world_name_exists(worlds_list: &Vec<World>, name: &str) -> bool {
 /// this function runs the world creation menu.
 #[allow(clippy::too_many_lines)] // TODO: reduce the number of lines in this function
 pub fn run_world_creation(
-    graphics: &mut GraphicsContext,
+    graphics: &mut gfx::GraphicsContext,
     menu_back: &mut dyn BackgroundRect,
     worlds_list: &mut Vec<World>,
 ) {
@@ -30,8 +29,8 @@ pub fn run_world_creation(
 
     let mut buttons_container = gfx::Container::new(
         graphics,
-        FloatPos(0.0, 0.0),
-        FloatSize(0.0, 0.0),
+        gfx::FloatPos(0.0, 0.0),
+        gfx::FloatSize(0.0, 0.0),
         gfx::BOTTOM,
         None,
     );

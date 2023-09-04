@@ -35,7 +35,7 @@ impl ClientEntities {
             }
             if let Some(packet) = packet.try_deserialize::<EntityDespawnPacket>() {
                 let mut entity_to_despawn = None;
-                for (entity, id) in self.entities.ecs.query::<&IdComponent>().iter() {
+                for (entity, id) in &mut self.entities.ecs.query::<&IdComponent>() {
                     if id.id() == packet.id {
                         entity_to_despawn = Some(entity);
                     }

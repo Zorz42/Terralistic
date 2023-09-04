@@ -1,12 +1,18 @@
+use crate::client::menus::SettingsMenu;
+use crate::client::settings::Settings;
+use crate::libraries::graphics as gfx;
+use crate::shared::versions::VERSION;
+
 use super::background_rect::BackgroundRect;
 use super::{run_multiplayer_selector, run_singleplayer_selector};
-use crate::libraries::graphics as gfx;
-use crate::libraries::graphics::SPACING;
-use crate::shared::versions::VERSION;
 
 #[allow(clippy::too_many_lines)] // TODO: split this function up
 #[allow(clippy::if_same_then_else)]
-pub fn run_main_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn BackgroundRect) {
+pub fn run_main_menu(
+    graphics: &mut gfx::GraphicsContext,
+    menu_back: &mut dyn BackgroundRect,
+    settings: &mut Settings,
+) {
     let mut singleplayer_button = gfx::Button::new();
     singleplayer_button.scale = 3.0;
     singleplayer_button.texture =
@@ -43,14 +49,14 @@ pub fn run_main_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn Ba
     debug_title.color = gfx::DARK_GREY;
     debug_title.orientation = gfx::TOP;
     debug_title.scale = 2.0;
-    debug_title.pos.1 = SPACING / 4.0;
+    debug_title.pos.1 = gfx::SPACING / 4.0;
 
     let mut title = gfx::Sprite::new();
     title.texture =
         gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Terralistic"));
     title.scale = 4.0;
     title.orientation = gfx::TOP;
-    title.pos.1 = debug_title.pos.1 + debug_title.get_size().1 + SPACING / 2.0;
+    title.pos.1 = debug_title.pos.1 + debug_title.get_size().1 + gfx::SPACING / 2.0;
 
     let mut version = gfx::Sprite::new();
     version.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface(VERSION));
@@ -82,8 +88,19 @@ pub fn run_main_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn Ba
         }
     }
 
+    let mut in_settings = false;
+    let mut settings_menu = SettingsMenu::new();
+    settings_menu.init(graphics, settings);
+
     while graphics.renderer.is_window_open() {
         while let Some(event) = graphics.renderer.get_event() {
+            if in_settings {
+                if settings_menu.on_event(&event, graphics, settings) {
+                    in_settings = false;
+                }
+                continue;
+            }
+
             if let gfx::Event::KeyRelease(key, ..) = event {
                 // check for every button if it was clicked with the left mouse button
                 if key == gfx::Key::MouseLeft {
@@ -98,6 +115,7 @@ pub fn run_main_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn Ba
                     } else if settings_button
                         .is_hovered(graphics, Some(menu_back.get_back_rect_container()))
                     {
+                        in_settings = true;
                     } else if mods_button
                         .is_hovered(graphics, Some(menu_back.get_back_rect_container()))
                     {
@@ -108,6 +126,14 @@ pub fn run_main_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn Ba
                     }
                 }
             }
+        }
+
+        if in_settings {
+            menu_back.render_back(graphics);
+            let width = settings_menu.render(graphics, settings);
+            menu_back.set_back_rect_width(width);
+            graphics.renderer.update_window();
+            continue;
         }
 
         let buttons = vec![

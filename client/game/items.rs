@@ -1,14 +1,15 @@
+use std::collections::HashMap;
+
+use anyhow::{anyhow, Result};
+
 use crate::client::game::camera::Camera;
 use crate::libraries::events::{Event, EventManager};
 use crate::libraries::graphics as gfx;
-use crate::libraries::graphics::FloatPos;
 use crate::shared::blocks::{RENDER_BLOCK_WIDTH, RENDER_SCALE};
 use crate::shared::entities::{Entities, PositionComponent};
 use crate::shared::items::{ItemComponent, ItemId, ItemSpawnPacket, Items};
 use crate::shared::mod_manager::ModManager;
 use crate::shared::packet::Packet;
-use anyhow::{anyhow, Result};
-use std::collections::HashMap;
 
 pub struct ClientItems {
     pub items: Items,
@@ -79,7 +80,7 @@ impl ClientItems {
             self.atlas.get_texture().render(
                 &graphics.renderer,
                 RENDER_SCALE,
-                FloatPos(
+                gfx::FloatPos(
                     position.x() * RENDER_BLOCK_WIDTH - top_left.0 * RENDER_BLOCK_WIDTH
                         + 0.5 * RENDER_BLOCK_WIDTH
                         - src_rect.size.0 / 2.0 * RENDER_SCALE,

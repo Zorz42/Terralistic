@@ -34,12 +34,6 @@ pub struct Block {
     pub feet_collidable: bool,
 }
 
-impl Default for Block {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
 impl Block {
     /// Creates a new block type with default values
     #[must_use]

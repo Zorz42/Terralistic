@@ -1,26 +1,44 @@
-mod position;
+use anyhow::Result;
+
+pub use blend_mode::{set_blend_mode, BlendMode};
+pub use button::Button;
+pub use color::Color;
+pub use container::{
+    Container, Orientation, BOTTOM, BOTTOM_LEFT, BOTTOM_RIGHT, CENTER, LEFT, TOP, TOP_LEFT,
+    TOP_RIGHT,
+};
+pub use events::{Event, Key};
 pub use position::{FloatPos, FloatSize, IntPos, IntSize};
+pub use rect::Rect;
+pub use rect_array::RectArray;
+pub use render_rect::RenderRect;
+use renderer::Renderer;
+pub use sprite::Sprite;
+pub use surface::Surface;
+pub use text::Font;
+pub use text_input::TextInput;
+pub use texture::Texture;
+pub use texture_atlas::TextureAtlas;
+pub use theme::{
+    BLACK, BLUR, BORDER_COLOR, DARK_GREY, GREY, LIGHT_GREY, SHADOW_INTENSITY, SPACING,
+    TEXT_INPUT_WIDTH, TRANSPARENCY, TRANSPARENT, WHITE,
+};
+
+mod position;
 
 mod color;
-pub use color::Color;
 
 mod theme;
-pub use theme::{
-    BLACK, BLUR, BORDER_COLOR, BUTTON_PADDING, DARK_GREY, GREY, LIGHT_GREY, SHADOW_INTENSITY,
-    SPACING, TEXT_INPUT_WIDTH, TRANSPARENCY, TRANSPARENT, WHITE,
-};
 
 mod transformation;
 
 mod vertex_buffer;
 
 mod blend_mode;
-pub use blend_mode::{set_blend_mode, BlendMode};
 
 mod shaders;
 
 mod surface;
-pub use surface::Surface;
 
 mod blur;
 
@@ -29,43 +47,28 @@ mod shadow;
 mod passthrough_shader;
 
 mod renderer;
-use renderer::Renderer;
 
 mod events;
-pub use events::{Event, Key};
 
 mod rect;
-pub use rect::Rect;
 
 mod texture;
-pub use texture::Texture;
 
 mod text;
-pub use text::Font;
 
 mod container;
-pub use container::{
-    Container, Orientation, BOTTOM, BOTTOM_LEFT, BOTTOM_RIGHT, CENTER, LEFT, RIGHT, TOP, TOP_LEFT,
-    TOP_RIGHT,
-};
 
 mod render_rect;
-pub use render_rect::RenderRect;
 
 mod button;
-pub use button::Button;
 
 mod text_input;
-pub use text_input::TextInput;
 
 mod sprite;
-pub use sprite::Sprite;
 
 mod texture_atlas;
-pub use texture_atlas::TextureAtlas;
 
 mod rect_array;
-pub use rect_array::RectArray;
 
 /*
 A struct that will be passed all
@@ -76,8 +79,6 @@ pub struct GraphicsContext {
     pub font: Font,
     pub font_mono: Option<Font>,
 }
-
-use anyhow::Result;
 
 /// Initializes the graphics context.
 /// # Errors

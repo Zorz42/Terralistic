@@ -56,12 +56,6 @@ pub struct Entities {
     current_id: u32,
 }
 
-impl Default for Entities {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
 /// Reduce a by b, but never go below 0. if a is negative, increase it by b but never go above 0.
 pub fn reduce_by(a: &mut f32, b: f32) {
     let b = b.abs();
@@ -161,7 +155,7 @@ impl Entities {
     pub fn despawn_entity(&mut self, id: u32, events: &mut EventManager) -> Result<()> {
         let mut entity_to_despawn = None;
 
-        for (entity, id_component) in self.ecs.query::<&IdComponent>().iter() {
+        for (entity, id_component) in &mut self.ecs.query::<&IdComponent>() {
             if id_component.id() == id {
                 entity_to_despawn = Some(entity);
                 break;

@@ -5,7 +5,6 @@ use crate::client::game::camera::Camera;
 use crate::client::game::networking::ClientNetworking;
 use crate::libraries::events::Event;
 use crate::libraries::graphics as gfx;
-use crate::libraries::graphics::{FloatPos, FloatSize, IntPos};
 use crate::shared::blocks::{Blocks, BLOCK_WIDTH, RENDER_BLOCK_WIDTH, RENDER_SCALE};
 use crate::shared::entities::{Entities, IdComponent, PhysicsComponent, PositionComponent};
 use crate::shared::mod_manager::ModManager;
@@ -46,7 +45,7 @@ impl ClientPlayers {
             let x = color.r as i32 / 8;
             let y = color.g as i32 / 8;
 
-            *color = *player_surface.get_pixel(IntPos(x, y))?;
+            *color = *player_surface.get_pixel(gfx::IntPos(x, y))?;
         }
 
         self.player_texture = gfx::Texture::load_from_surface(&template_surface);
@@ -152,11 +151,11 @@ impl ClientPlayers {
                 - camera.get_top_left(graphics).1 * RENDER_BLOCK_WIDTH;
 
             let src_rect = gfx::Rect::new(
-                FloatPos(
+                gfx::FloatPos(
                     player_component.animation_frame as f32 * PLAYER_WIDTH * BLOCK_WIDTH,
                     0.0,
                 ),
-                FloatSize(PLAYER_WIDTH * BLOCK_WIDTH, PLAYER_HEIGHT * BLOCK_WIDTH),
+                gfx::FloatSize(PLAYER_WIDTH * BLOCK_WIDTH, PLAYER_HEIGHT * BLOCK_WIDTH),
             );
 
             let flipped = match player_component.direction {
@@ -167,7 +166,7 @@ impl ClientPlayers {
             self.player_texture.render(
                 &graphics.renderer,
                 RENDER_SCALE,
-                FloatPos(x.round(), y.round()),
+                gfx::FloatPos(x.round(), y.round()),
                 Some(src_rect),
                 flipped,
                 None,

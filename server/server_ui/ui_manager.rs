@@ -7,8 +7,6 @@ use std::sync::mpsc::{Receiver, Sender};
 use std::sync::Mutex;
 use std::thread::sleep;
 
-use crate::libraries::graphics::Event;
-
 use crate::libraries::graphics as gfx;
 use crate::server::server_core::Server;
 use crate::server::server_ui::player_list;
@@ -18,13 +16,11 @@ use crate::server::server_ui::{console, ServerState, UiMessageType};
 pub const SCALE: f32 = 2.0;
 pub const EDGE_SPACING: f32 = 4.0;
 
-/**
- * This enum indicates the type of the `ModuleTree` Node.
- * `Nothing` means that the node and its window area are empty.
- * `Split` means that the node's window area splits into 2 more nodes.
- * `Module` means that the node is a module which takes up the node's window area.
- * Ideally Nothing should never be used as that means the upper node splits into a module ans nothing, when it itself should just be a module. Nothing may be used for editing the tree in the future
- */
+/// This enum indicates the type of the `ModuleTree` Node.
+/// `Nothing` means that the node and its window area are empty.
+/// `Split` means that the node's window area splits into 2 more nodes.
+/// `Module` means that the node is a module which takes up the node's window area.
+/// Ideally Nothing should never be used as that means the upper node splits into a module ans nothing, when it itself should just be a module. Nothing may be used for editing the tree in the future
 #[derive(serde_derive::Serialize, serde_derive::Deserialize)]
 enum ModuleTreeNodeType {
     Nothing,
@@ -32,21 +28,17 @@ enum ModuleTreeNodeType {
     Module(String),
 }
 
-/**
- * This enum indicates the type of split. `Vertical` splits the window area of that node into 2 areas, one on the left and one on the right. `Horizontal` splits the window area of that node into 2 areas, one on the top and one on the bottom.
- */
+/// This enum indicates the type of split. `Vertical` splits the window area of that node into 2 areas, one on the left and one on the right. `Horizontal` splits the window area of that node into 2 areas, one on the top and one on the bottom.
 #[derive(serde_derive::Serialize, serde_derive::Deserialize)]
 enum SplitType {
     Vertical,
     Horizontal,
 }
 
-/**
- * This struct is used to save the module's positions on the screen in a binary tree like structure.
- * The `orientation` indicates the type of split.
- * The `split_pos` indicates the position of the split, with the number from 0 to 1 indicating what part of the area is assigned to the left or top subpart, and the rest is allocated to the bottom part.
- * The `first` and `second` indicate the first and second nodes of the split. The first node is the left or top node, and the second node is the right or bottom node, depending on the orientation.
- */
+/// This struct is used to save the module's positions on the screen in a binary tree like structure.
+/// The `orientation` indicates the type of split.
+/// The `split_pos` indicates the position of the split, with the number from 0 to 1 indicating what part of the area is assigned to the left or top subpart, and the rest is allocated to the bottom part.
+/// The `first` and `second` indicate the first and second nodes of the split. The first node is the left or top node, and the second node is the right or bottom node, depending on the orientation.
 #[derive(serde_derive::Serialize, serde_derive::Deserialize)]
 struct ModuleTreeSplit {
     orientation: SplitType,
@@ -55,9 +47,7 @@ struct ModuleTreeSplit {
     second: ModuleTreeNodeType,
 }
 
-/**
- * `UiManager` is the main struct of the UI. It manages the UI modules and the UI window and communicates with the server.
- */
+/// `UiManager` is the main struct of the UI. It manages the UI modules and the UI window and communicates with the server.
 pub struct UiManager {
     server: Server,
     graphics_context: gfx::GraphicsContext,
@@ -68,9 +58,7 @@ pub struct UiManager {
 }
 
 impl UiManager {
-    /**
-     * Creates a new UiManager.
-     */
+    /// Creates a new `UiManager`.
     #[must_use]
     pub fn new(
         server: Server,
@@ -95,9 +83,7 @@ impl UiManager {
         temp
     }
 
-    /**
-     * runs the UI. This function should only be called once as it runs until the window is closed or the server is stopped (one of those 2 events also triggers the other one).
-     */
+    /// runs the UI. This function should only be called once as it runs until the window is closed or the server is stopped (one of those 2 events also triggers the other one).
     pub fn run(
         &mut self,
         is_running: &Arc<AtomicBool>,
@@ -141,13 +127,17 @@ impl UiManager {
             last_time = std::time::Instant::now();
             let mut server_mspt = None;
 
-            if num_updates < ms_timer.elapsed().as_millis() as u64 * self.server.tps_limit as u64 / 1000 {//update the server by 1 tick
+            if num_updates
+                < ms_timer.elapsed().as_millis() as u64 * self.server.tps_limit as u64 / 1000
+            {
+                //update the server by 1 tick
                 let server_tick_start = ms_timer.elapsed().as_micros();
                 if let Err(e) = self.server.update(delta_time, ms_timer, &mut ms_counter) {
                     println!("Error running server: {e}");
                     break;
                 }
-                server_mspt = Some((ms_timer.elapsed().as_micros() - server_tick_start) as f64 / 1000.0);
+                server_mspt =
+                    Some((ms_timer.elapsed().as_micros() - server_tick_start) as f64 / 1000.0);
                 num_updates += 1;
             }
 
@@ -244,9 +234,7 @@ impl UiManager {
         }
     }
 
-    /**
-     * Reads the module tree from the save file.
-     */
+    /// Reads the module tree from the save file.
     fn tile_modules(&mut self, pos: gfx::FloatPos, size: gfx::FloatSize, node: &ModuleTreeSplit) {
         //calculate pos and size for both sides of the split
         let (first_size, second_size, first_pos, second_pos) =
@@ -293,9 +281,7 @@ impl UiManager {
         }
     }
 
-    /**
-     * Resizes and moves the module with the given name to the given position and size
-     */
+    /// Resizes and moves the module with the given name to the given position and size
     fn transform_module(&mut self, name: &str, pos: gfx::FloatPos, size: gfx::FloatSize) {
         if let Some(module) = self.get_module(name) {
             module.get_container_mut().rect.size =
@@ -304,20 +290,16 @@ impl UiManager {
         }
     }
 
-    /**
-     * Returns a mutable reference to the module with the given name. Functions from the ModuleTrait can be called on the returned reference
-     * Returns None if no module with that name exists
-     */
+    /// Returns a mutable reference to the module with the given name. Functions from the `ModuleTrait` can be called on the returned reference
+    /// Returns None if no module with that name exists
     fn get_module(&mut self, name: &str) -> Option<&mut Box<dyn ModuleTrait>> {
         self.modules
             .iter_mut()
             .find(|module| module.get_name() == name)
     }
 
-    /**
-     * Reads the module tree from the save file in server_data/ui_config.json. if the file doesn't exist or is not a valid format, use the default config
-     * NOTE: this is currently disabled because the ui config is not final. The default config is used instead
-     */
+    /// Reads the module tree from the save file in `server_data/ui_config.json`. if the file doesn't exist or is not a valid format, use the default config
+    /// NOTE: this is currently disabled because the ui config is not final. The default config is used instead
     fn read_module_tree(&self) -> ModuleTreeSplit {
         self.write_default_module_tree()
 
@@ -339,9 +321,7 @@ impl UiManager {
         }*/
     }
 
-    /**
-     * Creates the default module tree and saves it to the save file in server_data/ui_config.json, then returns it
-     */
+    /// Creates the default module tree and saves it to the save file in `server_data/ui_config.json`, then returns it
     fn write_default_module_tree(&self) -> ModuleTreeSplit {
         let split = ModuleTreeSplit {
             orientation: SplitType::Horizontal,
@@ -358,9 +338,7 @@ impl UiManager {
         split
     }
 
-    /**
-     * Saves the module tree to the save file in server_data/ui_config.json
-     */
+    /// Saves the module tree to the save file in `server_data/ui_config.json`
     fn save_file_tree(&self, tree: &ModuleTreeSplit) {
         let file = File::create(self.save_path.join("ui_config.json"));
         file.map_or_else(
@@ -386,24 +364,24 @@ impl UiManager {
 }
 
 pub trait ModuleTrait {
-    /**initializes the module*/
+    /// initializes the module
     fn init(&mut self, _graphics_context: &mut gfx::GraphicsContext) {}
-    /**updates the module*/
+    /// updates the module
     fn update(&mut self, delta_time_seconds: f32, graphics_context: &mut gfx::GraphicsContext);
-    /**renders the module*/
+    /// renders the module
     fn render(&mut self, graphics_context: &mut gfx::GraphicsContext);
-    /**relay messages from the server to the module*/
+    /// relay messages from the server to the module
     fn on_server_message(
         &mut self,
         message: &UiMessageType,
         graphics_context: &mut gfx::GraphicsContext,
     );
-    /**returns the mutable reference to the module's rect*/
+    /// returns the mutable reference to the module's rect
     fn get_container_mut(&mut self) -> &mut gfx::Container;
-    /**returns the name of the module*/
+    /// returns the name of the module
     fn get_name(&self) -> &str;
-    /**gives the event sender to the module, so it can send data to the server*/
+    /// gives the event sender to the module, so it can send data to the server
     fn set_sender(&mut self, _sender: Sender<UiMessageType>) {}
-    /**sends sdl2 events to the module*/
-    fn on_event(&mut self, _event: &Event, _graphics_context: &mut gfx::GraphicsContext) {}
+    /// sends sdl2 events to the module
+    fn on_event(&mut self, _event: &gfx::Event, _graphics_context: &mut gfx::GraphicsContext) {}
 }

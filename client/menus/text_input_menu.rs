@@ -1,10 +1,9 @@
 use crate::client::menus::BackgroundRect;
 use crate::libraries::graphics as gfx;
-use crate::libraries::graphics::{FloatPos, FloatSize, GraphicsContext};
 
 pub fn run_text_input_menu(
     menu_title: &str,
-    graphics: &mut GraphicsContext,
+    graphics: &mut gfx::GraphicsContext,
     menu_back: &mut dyn BackgroundRect,
 ) -> Option<String> {
     let text_lines_vec = menu_title.split('\n').collect::<Vec<&str>>();
@@ -22,8 +21,8 @@ pub fn run_text_input_menu(
 
     let mut buttons_container = gfx::Container::new(
         graphics,
-        FloatPos(0.0, 0.0),
-        FloatSize(0.0, 0.0),
+        gfx::FloatPos(0.0, 0.0),
+        gfx::FloatSize(0.0, 0.0),
         gfx::BOTTOM,
         None,
     );

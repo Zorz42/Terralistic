@@ -18,12 +18,6 @@ pub struct WallId {
     pub id: i8,
 }
 
-impl Default for WallId {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
 impl WallId {
     #[must_use]
     pub const fn new() -> Self {
