@@ -1,8 +1,10 @@
+use anyhow::Result;
+
+use crate::libraries::graphics as gfx;
+
 use super::shaders::compile_shader;
 use super::transformation::Transformation;
 use super::Rect;
-use crate::libraries::graphics as gfx;
-use anyhow::Result;
 
 const BLUR_VERTEX_SHADER_CODE: &str = r#"
 #version 330 core
@@ -47,6 +49,7 @@ pub struct BlurContext {
     rect_vertex_buffer: u32,
     pub(super) blur_enabled: bool,
     pub(super) anti_stutter: bool,
+    blur_intensity: f32,
 }
 
 const BLUR_QUALITY: f32 = 3.0;
@@ -104,6 +107,7 @@ impl BlurContext {
             },
             blur_enabled: true,
             anti_stutter: false,
+            blur_intensity: 0.0,
         })
     }
 
@@ -128,9 +132,11 @@ impl BlurContext {
         size: gfx::FloatSize,
         texture_transform: &Transformation,
     ) {
-        if !self.blur_enabled {
+        if self.blur_intensity < 0.01 {
             return;
         }
+
+        let radius = radius as f32 * self.blur_intensity;
 
         // Safety: use of opengl functions is safe
         unsafe {
@@ -193,21 +199,30 @@ impl BlurContext {
             gl::VertexAttribPointer(0, 2, gl::FLOAT, gl::FALSE, 0, core::ptr::null());
 
             let mut radius = radius;
-            while radius > 10 {
+            while radius > 10.0 {
                 self.blur_rect(
-                    gfx::FloatPos(0.0, radius as f32 / size.1 / 10.0),
+                    gfx::FloatPos(0.0, radius / size.1 / 10.0),
                     gl_texture,
                     back_texture,
                 );
                 self.blur_rect(
-                    gfx::FloatPos(radius as f32 / size.0 / 10.0, 0.0),
+                    gfx::FloatPos(radius / size.0 / 10.0, 0.0),
                     back_texture,
                     gl_texture,
                 );
-                radius = (radius as f32 * BLUR_QUALITY).sqrt() as i32;
+                radius = (radius * BLUR_QUALITY).sqrt();
             }
 
             gl::DisableVertexAttribArray(0);
+        }
+    }
+
+    pub(super) fn update(&mut self) {
+        let blur_target = if self.blur_enabled { 1.0 } else { 0.0 };
+        self.blur_intensity += (blur_target - self.blur_intensity) / 5.0;
+
+        if f32::abs(self.blur_intensity - blur_target) < 0.01 {
+            self.blur_intensity = blur_target;
         }
     }
 }

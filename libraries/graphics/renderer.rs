@@ -35,6 +35,7 @@ pub struct Renderer {
     pub clipboard_context: ClipboardContext,
     pub block_key_states: bool,
     pub scale: f32,
+    real_scale: f32,
 }
 
 impl Renderer {
@@ -117,6 +118,7 @@ impl Renderer {
             clipboard_context: ClipboardContext::new().map_err(|e| anyhow!(e))?,
             block_key_states: false,
             scale: 1.0,
+            real_scale: 1.0,
         };
 
         result.handle_window_resize();
@@ -249,6 +251,13 @@ impl Renderer {
 
     /// Should be called after rendering
     pub fn update_window(&mut self) {
+        self.blur_context.update();
+
+        self.real_scale += (self.scale - self.real_scale) / 5.0;
+        if f32::abs(self.real_scale - self.scale) < 0.001 {
+            self.real_scale = self.scale;
+        }
+
         self.normalization_transform = Transformation::new();
         self.normalization_transform.stretch((
             2.0 / self.get_window_size().0,
@@ -336,16 +345,16 @@ impl Renderer {
     /// Get the current window size
     pub fn get_window_size(&self) -> gfx::FloatSize {
         gfx::FloatSize(
-            self.sdl_window.size().0 as f32 / self.scale,
-            self.sdl_window.size().1 as f32 / self.scale,
+            self.sdl_window.size().0 as f32 / self.real_scale,
+            self.sdl_window.size().1 as f32 / self.real_scale,
         )
     }
 
     /// Gets mouse position
     pub fn get_mouse_pos(&self) -> gfx::FloatPos {
         gfx::FloatPos(
-            self.sdl_event_pump.mouse_state().x() as f32 / self.scale,
-            self.sdl_event_pump.mouse_state().y() as f32 / self.scale,
+            self.sdl_event_pump.mouse_state().x() as f32 / self.real_scale,
+            self.sdl_event_pump.mouse_state().y() as f32 / self.real_scale,
         )
     }
 
