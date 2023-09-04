@@ -1,6 +1,7 @@
+use crate::libraries::graphics as gfx;
+
 use super::color::Color;
 use super::vertex_buffer::DrawMode;
-use crate::libraries::graphics as gfx;
 
 /// This is a rectangle shape.
 #[derive(Clone, Copy)]
@@ -19,6 +20,14 @@ impl Rect {
     /// Renders the rectangle on the screen.
     pub fn render(&self, graphics: &gfx::GraphicsContext, color: Color) {
         if color.a == 0 {
+            return;
+        }
+
+        if self.pos.0 > graphics.renderer.get_window_size().0
+            || self.pos.1 > graphics.renderer.get_window_size().1
+            || self.pos.0 + self.size.0 < 0.0
+            || self.pos.1 + self.size.1 < 0.0
+        {
             return;
         }
 

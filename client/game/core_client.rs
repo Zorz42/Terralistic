@@ -3,10 +3,10 @@ extern crate alloc;
 use alloc::sync::Arc;
 use std::sync::{Mutex, PoisonError};
 
-use crate::client::game::chat::ClientChat;
-use crate::client::game::debug_menu::DebugMenu;
 use anyhow::{bail, Result};
 
+use crate::client::game::chat::ClientChat;
+use crate::client::game::debug_menu::DebugMenu;
 use crate::client::game::entities::ClientEntities;
 use crate::client::game::framerate_measurer::FramerateMeasurer;
 use crate::client::game::inventory::ClientInventory;
@@ -14,7 +14,9 @@ use crate::client::game::items::ClientItems;
 use crate::client::game::lights::ClientLights;
 use crate::client::game::pause_menu::PauseMenu;
 use crate::client::game::players::ClientPlayers;
+use crate::client::global_settings::GlobalSettings;
 use crate::client::menus::{run_loading_screen, BackgroundRect};
+use crate::client::settings::Settings;
 use crate::libraries::events;
 use crate::libraries::events::EventManager;
 use crate::libraries::graphics as gfx;
@@ -37,6 +39,8 @@ pub fn run_game(
     server_port: u16,
     server_address: String,
     player_name: &str,
+    settings: &mut Settings,
+    global_settings: &mut GlobalSettings,
 ) -> Result<()> {
     // load base game mod
     let mut pre_events = EventManager::new();
@@ -125,7 +129,7 @@ pub fn run_game(
     camera.load_resources(graphics);
     players.load_resources(&mut mods.mod_manager)?;
 
-    pause_menu.init(graphics);
+    pause_menu.init(graphics, settings);
     debug_menu.init();
     chat.init();
 
@@ -177,7 +181,7 @@ pub fn run_game(
         inventory.render(graphics, &items, &mut networking)?;
         chat.render(graphics);
 
-        pause_menu.render(graphics);
+        pause_menu.render(graphics, settings, global_settings);
 
         debug_menu.render(
             graphics,
@@ -202,7 +206,7 @@ pub fn run_game(
             players.on_event(&event, &mut entities.entities);
             lights.on_event(&event, &blocks.get_blocks())?;
             camera.on_event(&event);
-            if pause_menu.on_event(&event, graphics) {
+            if pause_menu.on_event(&event, graphics, settings) {
                 break 'main_loop;
             }
             debug_menu.on_event(&event);

@@ -1,8 +1,12 @@
-use super::singleplayer_selector::World;
-use crate::client::game::private_world::run_private_world;
-use crate::client::menus::background_rect::BackgroundRect;
-use crate::libraries::graphics as gfx;
 use directories::BaseDirs;
+
+use crate::client::game::private_world::run_private_world;
+use crate::client::global_settings::GlobalSettings;
+use crate::client::menus::background_rect::BackgroundRect;
+use crate::client::settings::Settings;
+use crate::libraries::graphics as gfx;
+
+use super::singleplayer_selector::World;
 
 fn world_name_exists(worlds_list: &Vec<World>, name: &str) -> bool {
     for world in worlds_list {
@@ -19,6 +23,8 @@ pub fn run_world_creation(
     graphics: &mut gfx::GraphicsContext,
     menu_back: &mut dyn BackgroundRect,
     worlds_list: &mut Vec<World>,
+    settings: &mut Settings,
+    global_settings: &mut GlobalSettings,
 ) {
     let mut title = gfx::Sprite::new();
     title.scale = 3.0;
@@ -108,7 +114,13 @@ pub fn run_world_creation(
                             break 'render_loop;
                         }
                         if create_button.is_hovered(graphics, Some(&buttons_container)) {
-                            let game_result = run_private_world(graphics, menu_back, &world_path);
+                            let game_result = run_private_world(
+                                graphics,
+                                menu_back,
+                                &world_path,
+                                settings,
+                                global_settings,
+                            );
                             if let Err(error) = game_result {
                                 println!("Game error: {error}");
                             }
@@ -125,7 +137,13 @@ pub fn run_world_creation(
                     }
                     gfx::Key::Enter => {
                         if !create_button.disabled {
-                            let game_result = run_private_world(graphics, menu_back, &world_path);
+                            let game_result = run_private_world(
+                                graphics,
+                                menu_back,
+                                &world_path,
+                                settings,
+                                global_settings,
+                            );
                             if let Err(error) = game_result {
                                 println!("Game error: {error}");
                             }

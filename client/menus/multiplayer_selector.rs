@@ -1,13 +1,16 @@
-use super::background_rect::BackgroundRect;
-use super::{run_add_server_menu, run_choice_menu};
+use std::path::{Path, PathBuf};
 
-use crate::libraries::graphics as gfx;
 use directories::BaseDirs;
 use serde_derive::{Deserialize, Serialize};
 
 use crate::client::game::core_client::run_game;
+use crate::client::global_settings::GlobalSettings;
 use crate::client::menus::run_text_input_menu;
-use std::path::{Path, PathBuf};
+use crate::client::settings::Settings;
+use crate::libraries::graphics as gfx;
+
+use super::background_rect::BackgroundRect;
+use super::{run_add_server_menu, run_choice_menu};
 
 pub const MENU_WIDTH: i32 = 800;
 
@@ -216,6 +219,8 @@ impl ServerList {
 pub fn run_multiplayer_selector(
     graphics: &mut gfx::GraphicsContext,
     menu_back: &mut dyn BackgroundRect,
+    settings: &mut Settings,
+    global_settings: &mut GlobalSettings,
 ) {
     let Some(base_dirs) = BaseDirs::new() else {
         println!("Failed to get base directories!");
@@ -280,7 +285,14 @@ pub fn run_multiplayer_selector(
 
     while graphics.renderer.is_window_open() {
         //update_elements returns true if the loop is to be broken
-        if update_elements(graphics, menu_back, &mut elements, &servers_file) {
+        if update_elements(
+            graphics,
+            menu_back,
+            &mut elements,
+            &servers_file,
+            settings,
+            global_settings,
+        ) {
             break;
         }
         render_elements(graphics, menu_back, &mut elements);
@@ -292,6 +304,8 @@ fn update_elements(
     menu_back: &mut dyn BackgroundRect,
     elements: &mut MultiplayerSelectorElements,
     servers_file: &Path,
+    settings: &mut Settings,
+    global_settings: &mut GlobalSettings,
 ) -> bool {
     while let Some(event) = graphics.renderer.get_event() {
         match event {
@@ -335,6 +349,8 @@ fn update_elements(
                                     server.server_info.port,
                                     server.server_info.ip.clone(),
                                     &name,
+                                    settings,
+                                    global_settings,
                                 );
                                 if let Err(error) = game_result {
                                     println!("Game error: {error}");

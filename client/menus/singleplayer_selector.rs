@@ -1,13 +1,17 @@
-use super::background_rect::BackgroundRect;
-use super::run_choice_menu;
-use super::world_creation::run_world_creation;
-use crate::client::game::private_world::run_private_world;
-
-use crate::libraries::graphics as gfx;
-use directories::BaseDirs;
 use std::fs;
 use std::path::PathBuf;
 use std::time::SystemTime;
+
+use directories::BaseDirs;
+
+use crate::client::game::private_world::run_private_world;
+use crate::client::global_settings::GlobalSettings;
+use crate::client::settings::Settings;
+use crate::libraries::graphics as gfx;
+
+use super::background_rect::BackgroundRect;
+use super::run_choice_menu;
+use super::world_creation::run_world_creation;
 
 pub const MENU_WIDTH: f32 = 800.0;
 
@@ -226,6 +230,8 @@ impl WorldList {
 pub fn run_singleplayer_selector(
     graphics: &mut gfx::GraphicsContext,
     menu_back: &mut dyn BackgroundRect,
+    settings: &mut Settings,
+    global_settings: &mut GlobalSettings,
 ) {
     let world_list = WorldList::new(graphics);
 
@@ -282,7 +288,13 @@ pub fn run_singleplayer_selector(
 
     let mut top_rect_visibility = 1.0;
     while graphics.renderer.is_window_open() {
-        if update_elements(graphics, menu_back, &mut elements) {
+        if update_elements(
+            graphics,
+            menu_back,
+            &mut elements,
+            settings,
+            global_settings,
+        ) {
             break;
         }
         render_elements(graphics, menu_back, &mut elements, &mut top_rect_visibility);
@@ -293,6 +305,8 @@ fn update_elements(
     graphics: &mut gfx::GraphicsContext,
     menu_back: &mut dyn BackgroundRect,
     elements: &mut SigleplayerSelectorElements,
+    settings: &mut Settings,
+    global_settings: &mut GlobalSettings,
 ) -> bool {
     while let Some(event) = graphics.renderer.get_event() {
         match event {
@@ -308,7 +322,13 @@ fn update_elements(
                         .new_world_button
                         .is_hovered(graphics, Some(menu_back.get_back_rect_container()))
                     {
-                        run_world_creation(graphics, menu_back, &mut elements.world_list.worlds);
+                        run_world_creation(
+                            graphics,
+                            menu_back,
+                            &mut elements.world_list.worlds,
+                            settings,
+                            global_settings,
+                        );
                         elements.world_list.refresh(graphics);
                     }
 
@@ -321,8 +341,13 @@ fn update_elements(
                                 Some(menu_back.get_back_rect_container()),
                             )),
                         ) {
-                            let game_result =
-                                run_private_world(graphics, menu_back, world.get_file_path());
+                            let game_result = run_private_world(
+                                graphics,
+                                menu_back,
+                                world.get_file_path(),
+                                settings,
+                                global_settings,
+                            );
                             if let Err(error) = game_result {
                                 println!("Game error: {error}");
                             }

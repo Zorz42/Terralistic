@@ -133,53 +133,62 @@ impl BlurContext {
             return;
         }
 
+        let mut begin_x = rect.pos.0;
+        let mut begin_y = rect.pos.1;
+        let mut end_x = rect.pos.0 + rect.size.0;
+        let mut end_y = rect.pos.1 + rect.size.1;
+
+        begin_x = begin_x.max(0.0);
+        begin_y = begin_y.max(0.0);
+        end_x = end_x.min(size.0);
+        end_y = end_y.min(size.1);
+
+        rect.pos = gfx::FloatPos(begin_x, begin_y);
+        rect.size = gfx::FloatSize(end_x - begin_x, end_y - begin_y);
+
+        if rect.size.0 <= 0.0 || rect.size.1 <= 0.0 {
+            return;
+        }
+
         // Safety: use of opengl functions is safe
         unsafe {
-            let mut begin_x = rect.pos.0;
-            let mut begin_y = rect.pos.1;
-            let mut end_x = rect.pos.0 + rect.size.0;
-            let mut end_y = rect.pos.1 + rect.size.1;
-
-            begin_x = begin_x.max(0.0);
-            begin_y = begin_y.max(0.0);
-            end_x = end_x.min(size.0);
-            end_y = end_y.min(size.1);
-
-            rect.pos = gfx::FloatPos(begin_x, begin_y);
-            rect.size = gfx::FloatSize(end_x - begin_x, end_y - begin_y);
-
-            if rect.size.0 <= 0.0 || rect.size.1 <= 0.0 {
-                return;
-            }
-
             gl::UseProgram(self.blur_shader);
 
             gl::EnableVertexAttribArray(0);
+        }
 
-            let x1 = (rect.pos.0 + 1.0) / size.0;
-            let y1 = (rect.pos.1 + 1.0) / size.1;
-            let x2 = (rect.pos.0 + rect.size.0 - 1.0) / size.0;
-            let y2 = (rect.pos.1 + rect.size.1 - 1.0) / size.1;
+        let x1 = (rect.pos.0 + 1.0) / size.0;
+        let y1 = (rect.pos.1 + 1.0) / size.1;
+        let x2 = (rect.pos.0 + rect.size.0 - 1.0) / size.0;
+        let y2 = (rect.pos.1 + rect.size.1 - 1.0) / size.1;
 
+        // Safety: use of opengl functions is safe
+        unsafe {
             gl::Uniform4f(self.limit_uniform, x2, -y1, x1, -y2);
             gl::Uniform1i(self.texture_sampler_uniform, 0);
+        }
 
-            let mut transform = texture_transform.clone();
-            transform.translate(rect.pos);
-            transform.stretch((rect.size.0, rect.size.1));
+        let mut transform = texture_transform.clone();
+        transform.translate(rect.pos);
+        transform.stretch((rect.size.0, rect.size.1));
 
+        // Safety: use of opengl functions is safe
+        unsafe {
             gl::UniformMatrix3fv(
                 self.transform_matrix_uniform,
                 1,
                 gl::FALSE,
                 transform.matrix.as_ptr(),
             );
+        }
 
-            transform = Transformation::new();
-            transform.stretch((1.0 / size.0, -1.0 / size.1));
-            transform.translate(rect.pos);
-            transform.stretch((rect.size.0, rect.size.1));
+        transform = Transformation::new();
+        transform.stretch((1.0 / size.0, -1.0 / size.1));
+        transform.translate(rect.pos);
+        transform.stretch((rect.size.0, rect.size.1));
 
+        // Safety: use of opengl functions is safe
+        unsafe {
             gl::UniformMatrix3fv(
                 self.texture_transform_matrix_uniform,
                 1,
@@ -188,34 +197,37 @@ impl BlurContext {
             );
             gl::BindBuffer(gl::ARRAY_BUFFER, self.rect_vertex_buffer);
             gl::VertexAttribPointer(0, 2, gl::FLOAT, gl::FALSE, 0, core::ptr::null());
+        }
 
-            self.blur_rect(
-                gfx::FloatPos(0.0, radius / size.1 / 10.0),
-                gl_texture,
-                back_texture,
-            );
-            self.blur_rect(
-                gfx::FloatPos(radius / size.0 / 10.0, 0.0),
-                back_texture,
-                gl_texture,
-            );
+        self.blur_rect(
+            gfx::FloatPos(0.0, radius / size.1 / 10.0),
+            gl_texture,
+            back_texture,
+        );
+        self.blur_rect(
+            gfx::FloatPos(radius / size.0 / 10.0, 0.0),
+            back_texture,
+            gl_texture,
+        );
 
-            self.blur_rect(
-                gfx::FloatPos(0.0, radius / size.1),
-                gl_texture,
-                back_texture,
-            );
-            self.blur_rect(
-                gfx::FloatPos(radius / size.0, 0.0),
-                back_texture,
-                gl_texture,
-            );
+        self.blur_rect(
+            gfx::FloatPos(0.0, radius / size.1),
+            gl_texture,
+            back_texture,
+        );
+        self.blur_rect(
+            gfx::FloatPos(radius / size.0, 0.0),
+            back_texture,
+            gl_texture,
+        );
 
-            if radius > 5.0 {
-                self.blur_rect(gfx::FloatPos(0.0, 2.0 / size.1), gl_texture, back_texture);
-                self.blur_rect(gfx::FloatPos(2.0 / size.0, 0.0), back_texture, gl_texture);
-            }
+        if radius > 5.0 {
+            self.blur_rect(gfx::FloatPos(0.0, 2.0 / size.1), gl_texture, back_texture);
+            self.blur_rect(gfx::FloatPos(2.0 / size.0, 0.0), back_texture, gl_texture);
+        }
 
+        // Safety: use of opengl functions is safe
+        unsafe {
             gl::DisableVertexAttribArray(0);
         }
     }

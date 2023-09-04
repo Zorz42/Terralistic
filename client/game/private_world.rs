@@ -1,16 +1,19 @@
-use crate::client::menus::{run_loading_screen, BackgroundRect};
-use crate::libraries::graphics as gfx;
-use crate::server::server_core::Server;
-use crate::server::server_core::SINGLEPLAYER_PORT;
-use anyhow::Result;
+extern crate alloc;
+
+use alloc::sync::Arc;
 use core::sync::atomic::{AtomicBool, Ordering};
 use std::path::Path;
 use std::sync::{Mutex, PoisonError};
 
-extern crate alloc;
+use anyhow::Result;
 
 use crate::client::game::core_client::run_game;
-use alloc::sync::Arc;
+use crate::client::global_settings::GlobalSettings;
+use crate::client::menus::{run_loading_screen, BackgroundRect};
+use crate::client::settings::Settings;
+use crate::libraries::graphics as gfx;
+use crate::server::server_core::Server;
+use crate::server::server_core::SINGLEPLAYER_PORT;
 
 /// # Errors
 /// Returns an error if the server thread panics or if the server thread returns an error.
@@ -18,6 +21,8 @@ pub fn run_private_world(
     graphics: &mut gfx::GraphicsContext,
     menu_back: &mut dyn BackgroundRect,
     world_path: &Path,
+    settings: &mut Settings,
+    global_settings: &mut GlobalSettings,
 ) -> Result<()> {
     let server_running = Arc::new(AtomicBool::new(true));
     let server_running2 = server_running.clone();
@@ -56,6 +61,8 @@ pub fn run_private_world(
             SINGLEPLAYER_PORT,
             String::from("127.0.0.1"),
             "_",
+            settings,
+            global_settings,
         )?;
 
         // stop server

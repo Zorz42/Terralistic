@@ -109,11 +109,11 @@ pub fn run_main_menu(
                     if singleplayer_button
                         .is_hovered(graphics, Some(menu_back.get_back_rect_container()))
                     {
-                        run_singleplayer_selector(graphics, menu_back);
+                        run_singleplayer_selector(graphics, menu_back, settings, global_settings);
                     } else if multiplayer_button
                         .is_hovered(graphics, Some(menu_back.get_back_rect_container()))
                     {
-                        run_multiplayer_selector(graphics, menu_back);
+                        run_multiplayer_selector(graphics, menu_back, settings, global_settings);
                     } else if settings_button
                         .is_hovered(graphics, Some(menu_back.get_back_rect_container()))
                     {
