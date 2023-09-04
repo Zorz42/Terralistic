@@ -1,9 +1,10 @@
-use crate::client::settings::{Setting, Settings};
+use crate::client::settings::{Setting, Settings, SliderSelection};
 use crate::libraries::graphics as gfx;
 
 pub struct GlobalSettings {
     blur_setting: i32,
     scale_setting: i32,
+    fps_setting: i32,
 }
 
 impl GlobalSettings {
@@ -12,6 +13,7 @@ impl GlobalSettings {
         Self {
             blur_setting: -1,
             scale_setting: -1,
+            fps_setting: -1,
         }
     }
 
@@ -27,6 +29,15 @@ impl GlobalSettings {
             config_label: "scale".to_owned(),
             choices: vec!["Small".to_owned(), "Normal".to_owned(), "Large".to_owned()],
             selected: 1,
+        });
+
+        self.fps_setting = settings.register_setting(Setting::Slider {
+            text: "Fps limit".to_owned(),
+            config_label: "fps_limit".to_owned(),
+            upper_limit: 300,
+            lower_limit: 5,
+            choices: vec!["VSync".to_owned(), "Unlimited".to_owned()],
+            selected: SliderSelection::Choice(0),
         });
     }
 
@@ -57,10 +68,32 @@ impl GlobalSettings {
                 println!("Error: Setting not found or is invalid enum");
             }
         }
+
+        match settings.get_setting(self.fps_setting) {
+            Ok(Setting::Slider { selected, .. }) => match *selected {
+                SliderSelection::Choice(choice) => {
+                    match choice {
+                        0 => {
+                            // TODO: enable vsync
+                        }
+                        1 => {
+                            // TODO: remove fps limit
+                        }
+                        _ => {}
+                    }
+                }
+                SliderSelection::Slider(value) => {
+                    // TODO: set fps limit to value
+                }
+            },
+            _ => {
+                println!("Error: Setting not found or is invalid enum");
+            }
+        }
     }
 
     pub fn stop(&mut self, settings: &mut Settings) {
-        for setting in [self.blur_setting, self.scale_setting] {
+        for setting in [self.blur_setting, self.scale_setting, self.fps_setting] {
             if let Err(error) = settings.remove_setting(setting) {
                 println!("Error removing setting: {error}");
             }

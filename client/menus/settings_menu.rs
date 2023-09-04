@@ -20,7 +20,7 @@ enum SettingUi {
     },
 }
 
-const SETTINGS_WIDTH: f32 = 500.0;
+const SETTINGS_WIDTH: f32 = 700.0;
 const SETTINGS_BOX_HEIGHT: f32 = 70.0;
 const TOGGLE_BUTTON_WIDTH: f32 = 30.0;
 const TOGGLE_BOX_WIDTH: f32 = 70.0;
