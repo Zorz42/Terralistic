@@ -12,6 +12,7 @@ enum SettingUi {
     Choice {
         setting_id: i32,
         text: gfx::Texture,
+        buttons: Vec<gfx::Button>,
     },
     Slider {
         setting_id: i32,
@@ -43,10 +44,20 @@ fn setting_to_ui(graphics: &mut gfx::GraphicsContext, setting: &Setting, setting
                 hovered: false,
             }
         }
-        Setting::Choice { .. } => {
+        Setting::Choice { choices, .. } => {
+            let mut buttons = Vec::new();
+
+            for choice in choices {
+                let mut button = gfx::Button::new();
+                button.scale = 2.0;
+                button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface(choice));
+                buttons.push(button);
+            }
+
             SettingUi::Choice {
                 setting_id,
                 text: text_texture,
+                buttons,
             }
         }
         Setting::Slider { .. } => {
@@ -62,8 +73,17 @@ fn render_setting_ui(graphics: &mut gfx::GraphicsContext, setting: &mut SettingU
     let back_rect = gfx::Rect::new(gfx::FloatPos(x, y), gfx::FloatSize(SETTINGS_WIDTH, SETTINGS_BOX_HEIGHT));
     back_rect.render(graphics, gfx::BLACK.set_a(TRANSPARENCY));
 
+    let text = match setting {
+        SettingUi::Toggle { text, .. } | SettingUi::Choice { text, .. } | SettingUi::Slider { text, .. } => {
+            text
+        }
+    };
+
+    let text_y = y + SETTINGS_BOX_HEIGHT / 2.0 - text.get_texture_size().1;
+    text.render(&graphics.renderer, 2.0, gfx::FloatPos(x + gfx::SPACING, text_y), None, false, None);
+
     match setting {
-        SettingUi::Toggle { text, hovered, setting_id, toggle_progress, .. } => {
+        SettingUi::Toggle { hovered, setting_id, toggle_progress, .. } => {
             let mut setting_toggled = false;
             if let Ok(Setting::Toggle { toggled, .. }) = settings.get_setting_mut(*setting_id) {
                 setting_toggled = *toggled;
@@ -71,9 +91,6 @@ fn render_setting_ui(graphics: &mut gfx::GraphicsContext, setting: &mut SettingU
 
             let toggle_progress_target = if setting_toggled { 1.0 } else { 0.0 };
             *toggle_progress += (toggle_progress_target - *toggle_progress) / 3.0;
-
-            let text_y = y + SETTINGS_BOX_HEIGHT / 2.0 - text.get_texture_size().1;
-            text.render(&graphics.renderer, 2.0, gfx::FloatPos(x + gfx::SPACING, text_y), None, false, None);
 
             let box_x = x + SETTINGS_WIDTH - TOGGLE_BOX_WIDTH - gfx::SPACING;
             let box_y = y + SETTINGS_BOX_HEIGHT / 2.0 - TOGGLE_BOX_HEIGHT / 2.0;
@@ -92,7 +109,14 @@ fn render_setting_ui(graphics: &mut gfx::GraphicsContext, setting: &mut SettingU
             let toggle_button_rect = gfx::Rect::new(gfx::FloatPos(button_x, button_y), gfx::FloatSize(TOGGLE_BUTTON_WIDTH, TOGGLE_BUTTON_WIDTH));
             toggle_button_rect.render(graphics, gfx::WHITE);
         }
-        SettingUi::Choice { .. } => {}
+        SettingUi::Choice { buttons, .. } => {
+            let mut curr_x = x + SETTINGS_WIDTH;
+            for button in buttons {
+                button.pos = gfx::FloatPos(curr_x - button.get_size().0, y);
+                curr_x -= button.get_size().0 + gfx::SPACING;
+                button.render(graphics, None);
+            }
+        }
         SettingUi::Slider { .. } => {}
     }
 }

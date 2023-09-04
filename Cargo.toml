@@ -53,10 +53,10 @@ codegen-units = 1
 opt-level = 3
 
 [profile.test]
-strip = false
-lto = false
-codegen-units = 16
-opt-level = 1
+strip = true
+lto = true
+codegen-units = 1
+opt-level = 3
 
 [profile.dev]
 strip = false
@@ -74,7 +74,7 @@ gl = "0.14"
 snap = "1.1"
 copypasta = "0.8"
 fnv = "1.0"
-darklua = "0.9"
+darklua = "0.10"
 png = "0.17"
 hecs = "0.10"
 message-io = "0.17"

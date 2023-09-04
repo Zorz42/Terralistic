@@ -250,7 +250,9 @@ fn client_main() {
 
     run_main_menu(&mut graphics, &mut menu_back, &mut settings, &mut global_settings);
 
+    global_settings.stop(&mut settings);
+
     if let Err(error) = settings.save_config() {
-        println!("Failed to save settings to config file: {}", error);
+        println!("Failed to save settings to config file: {error}");
     }
 }

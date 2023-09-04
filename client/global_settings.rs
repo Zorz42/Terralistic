@@ -3,6 +3,7 @@ use crate::libraries::graphics as gfx;
 
 pub struct GlobalSettings {
     blur_setting: i32,
+    scale_setting: i32,
 }
 
 impl GlobalSettings {
@@ -10,6 +11,7 @@ impl GlobalSettings {
     pub const fn new() -> Self {
         Self {
             blur_setting: -1,
+            scale_setting: -1,
         }
     }
 
@@ -18,6 +20,13 @@ impl GlobalSettings {
             text: "Blur effect".to_owned(),
             config_label: "blur_effect".to_owned(),
             toggled: true,
+        });
+
+        self.scale_setting = settings.register_setting(Setting::Choice {
+            text: "Scale".to_owned(),
+            config_label: "scale".to_owned(),
+            choices: vec!["Large".to_owned(), "Normal".to_owned(), "Small".to_owned()],
+            selected: 1,
         });
     }
 
@@ -28,6 +37,21 @@ impl GlobalSettings {
             }
             _ => {
                 println!("Error: Setting not found or is invalid enum");
+            }
+        }
+
+        match settings.get_setting(self.scale_setting) {
+            Ok(Setting::Choice { selected, .. }) => {}
+            _ => {
+                println!("Error: Setting not found or is invalid enum");
+            }
+        }
+    }
+
+    pub fn stop(&mut self, settings: &mut Settings) {
+        for setting in [self.blur_setting, self.scale_setting] {
+            if let Err(error) = settings.remove_setting(setting) {
+                println!("Error removing setting: {error}");
             }
         }
     }
