@@ -1,10 +1,10 @@
 use anyhow::Result;
 
-pub use blend_mode::{set_blend_mode, BlendMode};
+pub use blend_mode::{BlendMode, set_blend_mode};
 pub use button::Button;
 pub use color::Color;
 pub use container::{
-    Container, Orientation, BOTTOM, BOTTOM_LEFT, BOTTOM_RIGHT, CENTER, LEFT, TOP, TOP_LEFT,
+    BOTTOM, BOTTOM_LEFT, BOTTOM_RIGHT, CENTER, Container, LEFT, Orientation, RIGHT, TOP, TOP_LEFT,
     TOP_RIGHT,
 };
 pub use events::{Event, Key};
