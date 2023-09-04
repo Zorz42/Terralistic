@@ -11,7 +11,8 @@ enum SettingUi {
     Choice {
         setting_id: i32,
         text: gfx::Sprite,
-        buttons: Vec<gfx::Button>,
+        buttons: Vec<(bool, gfx::Button)>,
+        choice_rect: gfx::RenderRect,
     },
     Slider {
         setting_id: i32,
@@ -55,13 +56,19 @@ fn setting_to_ui(graphics: &mut gfx::GraphicsContext, setting: &Setting, setting
                 button.scale = 2.0;
                 button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface(choice));
                 button.orientation = gfx::RIGHT;
-                buttons.push(button);
+                buttons.push((false, button));
             }
+
+            let mut choice_rect = gfx::RenderRect::new(gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, 0.0));
+            choice_rect.fill_color = gfx::GREY.set_a(gfx::TRANSPARENCY);
+            choice_rect.smooth_factor = 30.0;
+            choice_rect.orientation = gfx::RIGHT;
 
             SettingUi::Choice {
                 setting_id,
                 text: text_sprite,
                 buttons,
+                choice_rect,
             }
         }
         Setting::Slider { .. } => {
@@ -114,12 +121,25 @@ fn render_setting_ui(graphics: &mut gfx::GraphicsContext, setting: &mut SettingU
             toggle_button_rect.orientation = gfx::LEFT;
             toggle_button_rect.render(graphics, Some(&toggle_box_rect.get_container(graphics, Some(&back_rect.get_container(graphics, None)))));
         }
-        SettingUi::Choice { buttons, .. } => {
+        SettingUi::Choice { buttons, setting_id, choice_rect, .. } => {
+            let mut chosen_button = 0;
+            if let Ok(Setting::Choice { selected, .. }) = settings.get_setting_mut(*setting_id) {
+                chosen_button = *selected;
+            }
+
+            if let Some((_hovered, button)) = buttons.get(chosen_button as usize) {
+                choice_rect.pos = button.pos;
+                choice_rect.size = button.get_size();
+            }
+
+            choice_rect.render(graphics, Some(&back_rect.get_container(graphics, None)));
+
             let mut curr_x = -gfx::SPACING;
-            for button in buttons {
+            for (hovered, button) in buttons {
                 button.pos = gfx::FloatPos(curr_x, 0.0);
                 curr_x -= button.get_size().0 + gfx::SPACING;
                 button.render(graphics, Some(&back_rect.get_container(graphics, None)));
+                *hovered = button.is_hovered(graphics, Some(&back_rect.get_container(graphics, None)));
             }
         }
         SettingUi::Slider { .. } => {}
@@ -180,7 +200,15 @@ impl SettingsMenu {
                             }
                         }
                     }
-                    SettingUi::Choice { .. } => {}
+                    SettingUi::Choice { buttons, setting_id, .. } => {
+                        for (i, (hovered, _button)) in buttons.iter().enumerate() {
+                            if *hovered {
+                                if let Ok(Setting::Choice { selected, .. }) = settings.get_setting_mut(*setting_id) {
+                                    *selected = i as i32;
+                                }
+                            }
+                        }
+                    }
                     SettingUi::Slider { .. } => {}
                 }
             }

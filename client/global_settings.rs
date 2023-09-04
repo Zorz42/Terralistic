@@ -25,7 +25,7 @@ impl GlobalSettings {
         self.scale_setting = settings.register_setting(Setting::Choice {
             text: "Scale".to_owned(),
             config_label: "scale".to_owned(),
-            choices: vec!["Large".to_owned(), "Normal".to_owned(), "Small".to_owned()],
+            choices: vec!["Small".to_owned(), "Normal".to_owned(), "Large".to_owned()],
             selected: 1,
         });
     }
