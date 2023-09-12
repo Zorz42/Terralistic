@@ -20,6 +20,8 @@ enum SettingUi {
         text: gfx::Sprite,
         buttons: Vec<(bool, gfx::Button)>,
         choice_rect: gfx::RenderRect,
+        slider_text: gfx::Sprite,
+        slider_text_string: String,
     },
 }
 
@@ -28,6 +30,9 @@ const SETTINGS_BOX_HEIGHT: f32 = 70.0;
 const TOGGLE_BUTTON_WIDTH: f32 = 30.0;
 const TOGGLE_BOX_WIDTH: f32 = 70.0;
 const TOGGLE_BOX_HEIGHT: f32 = 40.0;
+const SLIDER_WIDTH: f32 = 250.0;
+const SLIDER_BUTTON_WIDTH: f32 = 10.0;
+const SLIDER_HEIGHT: f32 = 50.0;
 
 fn setting_to_ui(
     graphics: &mut gfx::GraphicsContext,
@@ -96,11 +101,17 @@ fn setting_to_ui(
             choice_rect.smooth_factor = 30.0;
             choice_rect.orientation = gfx::RIGHT;
 
+            let mut slider_text = gfx::Sprite::new();
+            slider_text.scale = 2.0;
+            slider_text.orientation = gfx::CENTER;
+
             SettingUi::Slider {
                 setting_id,
                 text: text_sprite,
                 buttons,
                 choice_rect,
+                slider_text,
+                slider_text_string: String::new(),
             }
         }
     }
@@ -214,24 +225,93 @@ fn render_setting_ui(
             buttons,
             setting_id,
             choice_rect,
+            slider_text,
+            slider_text_string,
             ..
         } => {
-            let mut chosen_button = 0;
-            if let Ok(Setting::Slider { selected, .. }) = settings.get_setting_mut(*setting_id) {
-                match *selected {
-                    SliderSelection::Choice(i) => chosen_button = i,
-                    SliderSelection::Slider(_i) => {}
+            let mut choice = SliderSelection::Choice(0);
+            let mut slider_val_low = 0;
+            let mut slider_val_high = 0;
+            if let Ok(Setting::Slider {
+                selected,
+                upper_limit,
+                lower_limit,
+                ..
+            }) = settings.get_setting_mut(*setting_id)
+            {
+                choice = selected.clone();
+                slider_val_low = *lower_limit;
+                slider_val_high = *upper_limit;
+            }
+
+            let mut slider_chosen = false;
+
+            match choice {
+                SliderSelection::Slider(slider_choice) => {
+                    choice_rect.size = gfx::FloatSize(SLIDER_BUTTON_WIDTH, SLIDER_HEIGHT);
+                    let pos_x = slider_choice as f32 * (SLIDER_WIDTH - SLIDER_BUTTON_WIDTH)
+                        / (slider_val_high - slider_val_low) as f32;
+                    choice_rect.pos = gfx::FloatPos(
+                        pos_x - gfx::SPACING - SLIDER_WIDTH + SLIDER_BUTTON_WIDTH / 2.0,
+                        0.0,
+                    );
+                    slider_chosen = true;
+
+                    if slider_choice.to_string() != *slider_text_string {
+                        *slider_text_string = slider_choice.to_string();
+                        slider_text.texture = gfx::Texture::load_from_surface(
+                            &graphics.font.create_text_surface(&slider_text_string),
+                        );
+                    }
+                }
+                SliderSelection::Choice(chosen_button) => {
+                    if let Some((_hovered, button)) = buttons.get(chosen_button as usize) {
+                        choice_rect.pos = button.pos;
+                        choice_rect.size = button.get_size();
+                    }
                 }
             }
 
-            if let Some((_hovered, button)) = buttons.get(chosen_button as usize) {
-                choice_rect.pos = button.pos;
-                choice_rect.size = button.get_size();
+            let mut slider_rect = gfx::RenderRect::new(
+                gfx::FloatPos(-gfx::SPACING, 0.0),
+                gfx::FloatSize(SLIDER_WIDTH, SLIDER_HEIGHT),
+            );
+            slider_rect.fill_color = gfx::BLACK.set_a(gfx::TRANSPARENCY);
+            slider_rect.orientation = gfx::RIGHT;
+            slider_rect.render(graphics, Some(&back_rect.get_container(graphics, None)));
+
+            let slider_container =
+                slider_rect.get_container(graphics, Some(&back_rect.get_container(graphics, None)));
+            let slider_absoulute_rect = slider_container.get_absolute_rect();
+            if slider_absoulute_rect.contains(graphics.renderer.get_mouse_pos())
+                && graphics.renderer.get_key_state(gfx::Key::MouseLeft)
+            {
+                let mouse_x_in_rect =
+                    graphics.renderer.get_mouse_pos().0 - slider_absoulute_rect.pos.0;
+                let slider_val = mouse_x_in_rect / slider_absoulute_rect.size.0
+                    * (slider_val_high - slider_val_low) as f32
+                    + slider_val_low as f32;
+                if let Ok(Setting::Slider { selected, .. }) = settings.get_setting_mut(*setting_id)
+                {
+                    *selected = SliderSelection::Slider(slider_val as i32);
+                }
             }
 
             choice_rect.render(graphics, Some(&back_rect.get_container(graphics, None)));
 
-            let mut curr_x = -gfx::SPACING;
+            if slider_chosen {
+                slider_text.render(
+                    graphics,
+                    Some(
+                        &slider_rect.get_container(
+                            graphics,
+                            Some(&back_rect.get_container(graphics, None)),
+                        ),
+                    ),
+                );
+            }
+
+            let mut curr_x = -2.0 * gfx::SPACING - SLIDER_WIDTH;
             for (hovered, button) in buttons {
                 button.pos = gfx::FloatPos(curr_x, 0.0);
                 curr_x -= button.get_size().0 + gfx::SPACING;
