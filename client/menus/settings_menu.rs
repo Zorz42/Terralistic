@@ -1,3 +1,4 @@
+use crate::client::settings::SliderSelection;
 use crate::client::settings::{Setting, Settings};
 use crate::libraries::graphics as gfx;
 
@@ -17,6 +18,8 @@ enum SettingUi {
     Slider {
         setting_id: i32,
         text: gfx::Sprite,
+        buttons: Vec<(bool, gfx::Button)>,
+        choice_rect: gfx::RenderRect,
     },
 }
 
@@ -75,13 +78,35 @@ fn setting_to_ui(
                 choice_rect,
             }
         }
-        Setting::Slider { .. } => SettingUi::Slider {
-            setting_id,
-            text: text_sprite,
-        },
+        Setting::Slider { choices, .. } => {
+            let mut buttons = Vec::new();
+
+            for choice in choices {
+                let mut button = gfx::Button::new();
+                button.scale = 2.0;
+                button.texture =
+                    gfx::Texture::load_from_surface(&graphics.font.create_text_surface(choice));
+                button.orientation = gfx::RIGHT;
+                buttons.push((false, button));
+            }
+
+            let mut choice_rect =
+                gfx::RenderRect::new(gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, 0.0));
+            choice_rect.fill_color = gfx::GREY.set_a(gfx::TRANSPARENCY);
+            choice_rect.smooth_factor = 30.0;
+            choice_rect.orientation = gfx::RIGHT;
+
+            SettingUi::Slider {
+                setting_id,
+                text: text_sprite,
+                buttons,
+                choice_rect,
+            }
+        }
     }
 }
 
+#[allow(clippy::too_many_lines)]
 fn render_setting_ui(
     graphics: &mut gfx::GraphicsContext,
     setting: &mut SettingUi,
@@ -185,7 +210,36 @@ fn render_setting_ui(
                     button.is_hovered(graphics, Some(&back_rect.get_container(graphics, None)));
             }
         }
-        SettingUi::Slider { .. } => {}
+        SettingUi::Slider {
+            buttons,
+            setting_id,
+            choice_rect,
+            ..
+        } => {
+            let mut chosen_button = 0;
+            if let Ok(Setting::Slider { selected, .. }) = settings.get_setting_mut(*setting_id) {
+                match *selected {
+                    SliderSelection::Choice(i) => chosen_button = i,
+                    SliderSelection::Slider(_i) => {}
+                }
+            }
+
+            if let Some((_hovered, button)) = buttons.get(chosen_button as usize) {
+                choice_rect.pos = button.pos;
+                choice_rect.size = button.get_size();
+            }
+
+            choice_rect.render(graphics, Some(&back_rect.get_container(graphics, None)));
+
+            let mut curr_x = -gfx::SPACING;
+            for (hovered, button) in buttons {
+                button.pos = gfx::FloatPos(curr_x, 0.0);
+                curr_x -= button.get_size().0 + gfx::SPACING;
+                button.render(graphics, Some(&back_rect.get_container(graphics, None)));
+                *hovered =
+                    button.is_hovered(graphics, Some(&back_rect.get_container(graphics, None)));
+            }
+        }
     }
 }
 
@@ -274,7 +328,21 @@ impl SettingsMenu {
                             }
                         }
                     }
-                    SettingUi::Slider { .. } => {}
+                    SettingUi::Slider {
+                        buttons,
+                        setting_id,
+                        ..
+                    } => {
+                        for (i, (hovered, _button)) in buttons.iter().enumerate() {
+                            if *hovered {
+                                if let Ok(Setting::Slider { selected, .. }) =
+                                    settings.get_setting_mut(*setting_id)
+                                {
+                                    *selected = SliderSelection::Choice(i as i32);
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
