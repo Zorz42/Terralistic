@@ -249,10 +249,11 @@ fn render_setting_ui(
             match choice {
                 SliderSelection::Slider(slider_choice) => {
                     choice_rect.size = gfx::FloatSize(SLIDER_BUTTON_WIDTH, SLIDER_HEIGHT);
-                    let pos_x = slider_choice as f32 * (SLIDER_WIDTH - SLIDER_BUTTON_WIDTH)
+                    let pos_x = (slider_choice - slider_val_low) as f32
+                        * (SLIDER_WIDTH - SLIDER_BUTTON_WIDTH)
                         / (slider_val_high - slider_val_low) as f32;
                     choice_rect.pos = gfx::FloatPos(
-                        pos_x - gfx::SPACING - SLIDER_WIDTH + SLIDER_BUTTON_WIDTH / 2.0,
+                        pos_x - gfx::SPACING - SLIDER_WIDTH + SLIDER_BUTTON_WIDTH,
                         0.0,
                     );
                     slider_chosen = true;
@@ -282,13 +283,13 @@ fn render_setting_ui(
 
             let slider_container =
                 slider_rect.get_container(graphics, Some(&back_rect.get_container(graphics, None)));
-            let slider_absoulute_rect = slider_container.get_absolute_rect();
-            if slider_absoulute_rect.contains(graphics.renderer.get_mouse_pos())
+            let slider_absolute_rect = slider_container.get_absolute_rect();
+            if slider_absolute_rect.contains(graphics.renderer.get_mouse_pos())
                 && graphics.renderer.get_key_state(gfx::Key::MouseLeft)
             {
                 let mouse_x_in_rect =
-                    graphics.renderer.get_mouse_pos().0 - slider_absoulute_rect.pos.0;
-                let slider_val = mouse_x_in_rect / slider_absoulute_rect.size.0
+                    graphics.renderer.get_mouse_pos().0 - slider_absolute_rect.pos.0;
+                let slider_val = mouse_x_in_rect / slider_absolute_rect.size.0
                     * (slider_val_high - slider_val_low) as f32
                     + slider_val_low as f32;
                 if let Ok(Setting::Slider { selected, .. }) = settings.get_setting_mut(*setting_id)
