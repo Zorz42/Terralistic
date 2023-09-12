@@ -36,6 +36,10 @@ pub struct Renderer {
     pub block_key_states: bool,
     pub scale: f32,
     real_scale: f32,
+    min_ms_per_frame: f32,
+    frames_so_far: u32,
+    ms_so_far: f32,
+    prev_frame_time: std::time::Instant,
 }
 
 impl Renderer {
@@ -119,6 +123,10 @@ impl Renderer {
             block_key_states: false,
             scale: 1.0,
             real_scale: 1.0,
+            min_ms_per_frame: 0.0,
+            frames_so_far: 0,
+            ms_so_far: 0.0,
+            prev_frame_time: std::time::Instant::now(),
         };
 
         result.handle_window_resize();
@@ -333,6 +341,17 @@ impl Renderer {
         unsafe {
             gl::BindFramebuffer(gl::FRAMEBUFFER, self.window_framebuffer);
         }
+
+        self.frames_so_far += 1;
+        let now = std::time::Instant::now();
+        let delta = now.duration_since(self.prev_frame_time).as_millis() as f32;
+        self.ms_so_far += delta;
+        self.prev_frame_time = now;
+        if self.ms_so_far < self.min_ms_per_frame * self.frames_so_far as f32 {
+            std::thread::sleep(std::time::Duration::from_millis(
+                (self.min_ms_per_frame * self.frames_so_far as f32 - self.ms_so_far) as u64,
+            ));
+        }
     }
 
     /// Sets the minimum window size
@@ -406,6 +425,16 @@ impl Renderer {
 
     pub fn enable_blur(&mut self, enable: bool) {
         self.blur_context.blur_enabled = enable;
+    }
+
+    pub fn set_fps_limit(&mut self, fps: f32) {
+        self.min_ms_per_frame = 1000.0 / fps;
+        self.frames_so_far = 0;
+        self.ms_so_far = 0.0;
+    }
+
+    pub fn disable_fps_limit(&mut self) {
+        self.min_ms_per_frame = 0.0;
     }
 }
 

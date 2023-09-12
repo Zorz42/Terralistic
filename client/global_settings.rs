@@ -77,13 +77,13 @@ impl GlobalSettings {
                             // TODO: enable vsync
                         }
                         1 => {
-                            // TODO: remove fps limit
+                            graphics.renderer.disable_fps_limit();
                         }
                         _ => {}
                     }
                 }
                 SliderSelection::Slider(value) => {
-                    // TODO: set fps limit to value
+                    graphics.renderer.set_fps_limit(value as f32);
                 }
             },
             _ => {
