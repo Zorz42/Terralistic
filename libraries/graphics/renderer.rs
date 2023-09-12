@@ -2,9 +2,11 @@ extern crate alloc;
 
 use alloc::collections::VecDeque;
 use std::collections::HashMap;
+use std::mem::swap;
 
 use anyhow::{anyhow, Result};
 use copypasta::ClipboardContext;
+use sdl2::video::SwapInterval;
 
 use crate::libraries::graphics as gfx;
 use crate::libraries::graphics::events::sdl_event_to_gfx_event;
@@ -20,6 +22,7 @@ pub struct Renderer {
     _gl_context: sdl2::video::GLContext,
     sdl_window: sdl2::video::Window,
     sdl_event_pump: sdl2::EventPump,
+    video_subsystem: sdl2::VideoSubsystem,
     pub(super) normalization_transform: Transformation,
     window_texture: u32,
     window_texture_back: u32,
@@ -84,11 +87,6 @@ impl Renderer {
         }
         set_blend_mode(BlendMode::Alpha);
 
-        // enable vsync
-        video_subsystem
-            .gl_set_swap_interval(1)
-            .map_err(|e| anyhow!(e))?;
-
         let passthrough_shader = PassthroughShader::new()?;
         let mut window_texture = 0;
         let mut window_texture_back = 0;
@@ -108,6 +106,7 @@ impl Renderer {
             _gl_context: gl_context,
             sdl_window,
             sdl_event_pump: sdl.event_pump().map_err(|e| anyhow!(e))?,
+            video_subsystem,
             normalization_transform: Transformation::new(),
             window_texture,
             window_texture_back,
@@ -435,6 +434,17 @@ impl Renderer {
 
     pub fn disable_fps_limit(&mut self) {
         self.min_ms_per_frame = 0.0;
+    }
+
+    pub fn enable_vsync(&mut self, enable: bool) {
+        let swap_interval = if enable {
+            SwapInterval::VSync
+        } else {
+            SwapInterval::Immediate
+        };
+        if let Err(error) = self.video_subsystem.gl_set_swap_interval(swap_interval) {
+            println!("Error setting VSync: {}", error);
+        }
     }
 }
 

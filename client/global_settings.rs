@@ -71,19 +71,19 @@ impl GlobalSettings {
 
         match settings.get_setting(self.fps_setting) {
             Ok(Setting::Slider { selected, .. }) => match *selected {
-                SliderSelection::Choice(choice) => {
-                    match choice {
-                        0 => {
-                            // TODO: enable vsync
-                        }
-                        1 => {
-                            graphics.renderer.disable_fps_limit();
-                        }
-                        _ => {}
+                SliderSelection::Choice(choice) => match choice {
+                    0 => {
+                        graphics.renderer.enable_vsync(true);
                     }
-                }
+                    1 => {
+                        graphics.renderer.disable_fps_limit();
+                        graphics.renderer.enable_vsync(false);
+                    }
+                    _ => {}
+                },
                 SliderSelection::Slider(value) => {
                     graphics.renderer.set_fps_limit(value as f32);
+                    graphics.renderer.enable_vsync(false);
                 }
             },
             _ => {
