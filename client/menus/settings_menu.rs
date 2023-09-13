@@ -261,7 +261,7 @@ fn render_setting_ui(
                     if slider_choice.to_string() != *slider_text_string {
                         *slider_text_string = slider_choice.to_string();
                         slider_text.texture = gfx::Texture::load_from_surface(
-                            &graphics.font.create_text_surface(&slider_text_string),
+                            &graphics.font.create_text_surface(slider_text_string),
                         );
                     }
                 }

@@ -2,7 +2,6 @@ extern crate alloc;
 
 use alloc::collections::VecDeque;
 use std::collections::HashMap;
-use std::mem::swap;
 
 use anyhow::{anyhow, Result};
 use copypasta::ClipboardContext;
@@ -347,7 +346,7 @@ impl Renderer {
         self.ms_so_far += delta;
         self.prev_frame_time = now;
         if self.ms_so_far < self.min_ms_per_frame * self.frames_so_far as f32 {
-            std::thread::sleep(std::time::Duration::from_millis(
+            std::thread::sleep(core::time::Duration::from_millis(
                 (self.min_ms_per_frame * self.frames_so_far as f32 - self.ms_so_far) as u64,
             ));
         }
@@ -443,7 +442,7 @@ impl Renderer {
             SwapInterval::Immediate
         };
         if let Err(error) = self.video_subsystem.gl_set_swap_interval(swap_interval) {
-            println!("Error setting VSync: {}", error);
+            println!("Error setting VSync: {error}");
         }
     }
 }

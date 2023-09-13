@@ -163,6 +163,8 @@ impl Settings {
             .ok_or_else(|| anyhow!("Invalid setting id"));
     }
 
+    /// # Errors
+    /// If file could not be written.
     pub fn save_config(&mut self) -> Result<()> {
         if !self.settings.is_empty() {
             println!("Warning: not all settings were removed, therefore not saved!");
