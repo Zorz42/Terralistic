@@ -9,6 +9,7 @@ use crate::client::game::chat::ClientChat;
 use crate::client::game::debug_menu::DebugMenu;
 use crate::client::game::entities::ClientEntities;
 use crate::client::game::framerate_measurer::FramerateMeasurer;
+use crate::client::game::health::ClientHealth;
 use crate::client::game::inventory::ClientInventory;
 use crate::client::game::items::ClientItems;
 use crate::client::game::lights::ClientLights;
@@ -118,6 +119,7 @@ pub fn run_game(
     let mut debug_menu = DebugMenu::new();
     let mut framerate_measurer = FramerateMeasurer::new();
     let mut chat = ClientChat::new(graphics);
+    let mut health = ClientHealth::new();
 
     background.init()?;
     inventory.init();
@@ -128,6 +130,7 @@ pub fn run_game(
     items.load_resources(&mut mods.mod_manager)?;
     camera.load_resources(graphics);
     players.load_resources(&mut mods.mod_manager)?;
+    health.load_resources(&mut mods.mod_manager)?;
 
     pause_menu.init(graphics, settings);
     debug_menu.init();
@@ -179,6 +182,7 @@ pub fn run_game(
         camera.render(graphics);
         block_selector.render(graphics, &mut networking, &camera)?;
         inventory.render(graphics, &items, &mut networking)?;
+        health.render(graphics);
         chat.render(graphics);
 
         pause_menu.render(graphics, settings, global_settings);

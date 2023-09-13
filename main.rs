@@ -48,7 +48,6 @@
 #![warn(clippy::unwrap_in_result)]
 #![warn(clippy::unwrap_used)]
 #![warn(clippy::verbose_file_reads)]
-
 // disable some Clippy lints
 #![allow(clippy::cast_possible_truncation)]
 #![allow(clippy::cast_possible_wrap)]
@@ -64,7 +63,6 @@
 #![allow(clippy::many_single_char_names)]
 #![allow(clippy::significant_drop_tightening)]
 #![allow(clippy::new_without_default)]
-
 #![windows_subsystem = "windows"]
 
 extern crate alloc;
@@ -77,10 +75,10 @@ use std::sync::Mutex;
 use directories::BaseDirs;
 
 use crate::client::global_settings::GlobalSettings;
-use crate::client::menus::{MenuBack, run_main_menu};
+use crate::client::menus::{run_main_menu, MenuBack};
 use crate::client::settings::Settings;
 use crate::libraries::graphics as gfx;
-use crate::server::server_core::{MULTIPLAYER_PORT, Server};
+use crate::server::server_core::{Server, MULTIPLAYER_PORT};
 use crate::server::server_ui::UiManager;
 
 pub mod libraries {
@@ -97,11 +95,10 @@ pub mod server {
 
 pub mod client {
     pub mod game;
+    pub mod global_settings;
     pub mod menus;
     pub mod settings;
-    pub mod global_settings;
 }
-
 
 fn main() {
     let args: Vec<String> = std::env::args().collect();
@@ -146,7 +143,11 @@ fn server_main(args: &[String]) {
             }
         }
 
-        if graphics.renderer.set_min_window_size(graphics.renderer.get_window_size()).is_err() {
+        if graphics
+            .renderer
+            .set_min_window_size(graphics.renderer.get_window_size())
+            .is_err()
+        {
             println!("Failed to set minimum window size");
         }
         Some(graphics)
@@ -210,8 +211,8 @@ fn server_main(args: &[String]) {
 
 fn client_main() {
     let graphics_result = gfx::init(
-        1130,
-        700,
+        1670,
+        1050,
         "Terralistic",
         include_bytes!("Build/Resources/font.opa"),
         None,
@@ -227,7 +228,11 @@ fn client_main() {
         }
     }
 
-    if graphics.renderer.set_min_window_size(graphics.renderer.get_window_size()).is_err() {
+    if graphics
+        .renderer
+        .set_min_window_size(gfx::FloatSize(1130.0, 700.0))
+        .is_err()
+    {
         println!("Failed to set minimum window size");
     }
 
@@ -241,14 +246,22 @@ fn client_main() {
     }
 
     let mut settings = Settings::new(
-        base_dirs.data_dir().join("Terralistic").join("settings.txt"),
+        base_dirs
+            .data_dir()
+            .join("Terralistic")
+            .join("settings.txt"),
     );
 
     let mut global_settings = GlobalSettings::new();
     global_settings.init(&mut settings);
     global_settings.update(&mut graphics, &settings);
 
-    run_main_menu(&mut graphics, &mut menu_back, &mut settings, &mut global_settings);
+    run_main_menu(
+        &mut graphics,
+        &mut menu_back,
+        &mut settings,
+        &mut global_settings,
+    );
 
     global_settings.stop(&mut settings);
 

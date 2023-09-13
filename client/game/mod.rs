@@ -16,3 +16,4 @@ mod pause_menu;
 mod players;
 pub mod private_world;
 mod walls;
+mod health;
