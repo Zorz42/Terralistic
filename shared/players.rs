@@ -7,6 +7,7 @@ use crate::shared::blocks::{Blocks, BLOCK_WIDTH};
 use crate::shared::entities::{
     is_touching_ground, reduce_by, Entities, IdComponent, PhysicsComponent, PositionComponent,
 };
+use crate::shared::health::HealthComponent;
 use crate::shared::inventory::Inventory;
 use crate::shared::items::{ItemComponent, ItemStack, Items};
 
@@ -41,6 +42,7 @@ pub fn spawn_player(
         PhysicsComponent::new(PLAYER_WIDTH, PLAYER_HEIGHT),
         Inventory::new(20),
         PlayerComponent::new(name),
+        HealthComponent::new(PLAYER_MAX_HEALTH, PLAYER_MAX_HEALTH),
     ))
 }
 

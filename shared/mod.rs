@@ -13,3 +13,4 @@ pub mod players;
 pub mod versions;
 pub mod walls;
 pub mod world_map;
+pub mod health;

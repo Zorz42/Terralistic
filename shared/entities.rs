@@ -188,6 +188,7 @@ pub struct EntityDespawnPacket {
     pub id: u32,
 }
 
+#[derive(Clone, Copy, Eq, PartialEq, Hash)]
 pub struct IdComponent {
     id: u32,
 }

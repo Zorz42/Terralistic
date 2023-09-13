@@ -1,5 +1,8 @@
 use crate::gfx;
+use crate::libraries::events::Event;
+use crate::shared::health::HealthChangePacket;
 use crate::shared::mod_manager::ModManager;
+use crate::shared::packet::Packet;
 use anyhow::Result;
 
 const HEART_WIDTH: f32 = 33.0;
@@ -75,5 +78,14 @@ impl ClientHealth {
             Some(&self.heart_texture),
             gfx::FloatPos(pos_x, gfx::SPACING),
         );
+    }
+
+    pub fn on_event(&mut self, event: &Event) {
+        if let Some(packet) = event.downcast::<Packet>() {
+            if let Some(packet) = packet.try_deserialize::<HealthChangePacket>() {
+                self.health = packet.health;
+                self.generate_rect_array();
+            }
+        }
     }
 }
