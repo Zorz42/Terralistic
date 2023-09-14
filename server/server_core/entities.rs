@@ -26,7 +26,7 @@ impl ServerEntities {
         {
             networking.send_packet(
                 &Packet::new(EntityPositionVelocityPacket {
-                    id: id.id(),
+                    id: *id,
                     x: position.x(),
                     y: position.y(),
                     velocity_x: physics.velocity_x,

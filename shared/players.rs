@@ -33,11 +33,11 @@ pub fn spawn_player(
     x: f32,
     y: f32,
     name: &str,
-    id: Option<u32>,
+    id: Option<IdComponent>,
 ) -> Entity {
     let id = entities.unwrap_id(id);
     entities.ecs.spawn((
-        IdComponent::new(id),
+        id,
         PositionComponent::new(x, y),
         PhysicsComponent::new(PLAYER_WIDTH, PLAYER_HEIGHT),
         Inventory::new(20),
@@ -189,7 +189,7 @@ pub fn remove_all_picked_items(
             )?;
             *entities.ecs.get::<&mut Inventory>(player_entity)? = inventory;
 
-            let item_id = entities.ecs.get::<&IdComponent>(entity)?.id();
+            let item_id = *entities.ecs.get::<&IdComponent>(entity)?;
             entities.despawn_entity(item_id, events)?;
         }
     }
@@ -273,12 +273,12 @@ impl PlayerComponent {
 pub struct PlayerMovingPacket {
     pub moving_type: MovingType,
     pub jumping: bool,
-    pub player_id: u32,
+    pub player_id: IdComponent,
 }
 
 #[derive(Serialize, Deserialize)]
 pub struct PlayerSpawnPacket {
-    pub id: u32,
+    pub id: IdComponent,
     pub x: f32,
     pub y: f32,
     pub name: String,

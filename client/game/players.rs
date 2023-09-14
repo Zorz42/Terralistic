@@ -60,7 +60,7 @@ impl ClientPlayers {
         let packet = Packet::new(PlayerMovingPacket {
             moving_type: player_component.get_moving_type(),
             jumping: player_component.jumping,
-            player_id: 0,
+            player_id: IdComponent::new_undefined(),
         })?;
 
         networking.send_packet(packet)?;
@@ -189,7 +189,7 @@ impl ClientPlayers {
                         .ecs
                         .query_mut::<(&mut PlayerComponent, &IdComponent, &mut PhysicsComponent)>()
                 {
-                    if id.id() == packet.player_id {
+                    if *id == packet.player_id {
                         player_component.set_moving_type(packet.moving_type, physics);
                         player_component.jumping = packet.jumping;
                     }

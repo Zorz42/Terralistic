@@ -25,7 +25,7 @@ impl ClientEntities {
                     &mut PositionComponent,
                     &mut PhysicsComponent,
                 )>() {
-                    if id.id() == packet.id {
+                    if *id == packet.id {
                         position.set_x(packet.x);
                         position.set_y(packet.y);
                         physics.velocity_x = packet.velocity_x;
@@ -36,7 +36,7 @@ impl ClientEntities {
             if let Some(packet) = packet.try_deserialize::<EntityDespawnPacket>() {
                 let mut entity_to_despawn = None;
                 for (entity, id) in &mut self.entities.ecs.query::<&IdComponent>() {
-                    if id.id() == packet.id {
+                    if *id == packet.id {
                         entity_to_despawn = Some(entity);
                     }
                 }

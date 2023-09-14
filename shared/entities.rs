@@ -141,22 +141,22 @@ impl Entities {
         }
     }
 
-    pub fn unwrap_id(&mut self, id: Option<u32>) -> u32 {
+    pub fn unwrap_id(&mut self, id: Option<IdComponent>) -> IdComponent {
         if let Some(id) = id {
             id
         } else {
             self.current_id += 1;
-            self.current_id
+            IdComponent::new(self.current_id)
         }
     }
 
     /// # Errors
     /// If the entity could not be despawned
-    pub fn despawn_entity(&mut self, id: u32, events: &mut EventManager) -> Result<()> {
+    pub fn despawn_entity(&mut self, id: IdComponent, events: &mut EventManager) -> Result<()> {
         let mut entity_to_despawn = None;
 
         for (entity, id_component) in &mut self.ecs.query::<&IdComponent>() {
-            if id_component.id() == id {
+            if *id_component == id {
                 entity_to_despawn = Some(entity);
                 break;
             }
@@ -176,7 +176,7 @@ impl Entities {
 
 #[derive(Serialize, Deserialize)]
 pub struct EntityPositionVelocityPacket {
-    pub id: u32,
+    pub id: IdComponent,
     pub x: f32,
     pub y: f32,
     pub velocity_x: f32,
@@ -185,17 +185,17 @@ pub struct EntityPositionVelocityPacket {
 
 #[derive(Serialize, Deserialize)]
 pub struct EntityDespawnPacket {
-    pub id: u32,
+    pub id: IdComponent,
 }
 
-#[derive(Clone, Copy, Eq, PartialEq, Hash)]
+#[derive(Clone, Copy, Eq, PartialEq, Hash, Debug, Serialize, Deserialize)]
 pub struct IdComponent {
     id: u32,
 }
 
 #[derive(Serialize, Deserialize)]
 pub struct EntityDespawnEvent {
-    pub id: u32,
+    pub id: IdComponent,
 }
 
 impl IdComponent {
@@ -205,8 +205,8 @@ impl IdComponent {
     }
 
     #[must_use]
-    pub const fn id(&self) -> u32 {
-        self.id
+    pub const fn new_undefined() -> Self {
+        Self { id: 0 }
     }
 }
 

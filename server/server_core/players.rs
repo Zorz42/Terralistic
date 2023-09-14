@@ -86,7 +86,7 @@ impl ServerPlayers {
                 player_component.set_moving_type(packet.moving_type, &mut physics_component);
                 player_component.jumping = packet.jumping;
 
-                let id = entities.ecs.get::<&IdComponent>(player_entity)?.id();
+                let id = *entities.ecs.get::<&IdComponent>(player_entity)?;
                 let packet = Packet::new(PlayerMovingPacket {
                     moving_type: packet.moving_type,
                     jumping: packet.jumping,
@@ -126,7 +126,7 @@ impl ServerPlayers {
                     .query::<(&PlayerComponent, &PositionComponent, &IdComponent)>()
             {
                 let spawn_packet = Packet::new(PlayerSpawnPacket {
-                    id: id.id(),
+                    id: *id,
                     x: position.x(),
                     y: position.y(),
                     name: player.get_name().to_owned(),
@@ -144,7 +144,7 @@ impl ServerPlayers {
                 .insert(player_entity, new_connection_event.conn.clone());
 
             let player_spawn_packet = Packet::new(PlayerSpawnPacket {
-                id: entities.ecs.get::<&IdComponent>(player_entity)?.id(),
+                id: *entities.ecs.get::<&IdComponent>(player_entity)?,
                 x: spawn_x,
                 y: spawn_y,
                 name: name.clone(),
@@ -171,7 +171,7 @@ impl ServerPlayers {
 
                 self.conns_to_players.remove(&disconnect_event.conn);
                 self.players_to_conns.remove(&player_entity);
-                let player_id = entities.ecs.get::<&IdComponent>(player_entity)?.id();
+                let player_id = *entities.ecs.get::<&IdComponent>(player_entity)?;
                 entities.despawn_entity(player_id, events)?;
             }
         }

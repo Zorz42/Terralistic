@@ -49,7 +49,7 @@ impl ServerItems {
         if let Some(event) = event.downcast::<ItemSpawnEvent>() {
             let entity = event.entity;
             let item = entities.ecs.get::<&ItemComponent>(entity)?;
-            let id = entities.ecs.get::<&IdComponent>(entity)?.id();
+            let id = *entities.ecs.get::<&IdComponent>(entity)?;
             let position = entities.ecs.get::<&PositionComponent>(entity)?;
 
             let packet = ItemSpawnPacket {

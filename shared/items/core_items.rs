@@ -126,12 +126,12 @@ impl Items {
         item_id: ItemId,
         x: f32,
         y: f32,
-        id: Option<u32>,
+        id: Option<IdComponent>,
     ) -> Entity {
         let id = entities.unwrap_id(id);
 
         let entity = entities.ecs.spawn((
-            IdComponent::new(id),
+            id,
             PositionComponent::new(x, y),
             PhysicsComponent::new(1.0, 1.0),
             ItemComponent::new(item_id),
@@ -250,7 +250,7 @@ pub struct ItemSpawnPacket {
     pub item_type: ItemId,
     pub x: f32,
     pub y: f32,
-    pub id: u32,
+    pub id: IdComponent,
 }
 
 pub struct ItemComponent {
