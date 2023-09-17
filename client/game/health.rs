@@ -18,8 +18,8 @@ impl ClientHealth {
     pub fn new() -> Self {
         Self {
             heart_texture: gfx::Texture::new(),
-            health: 78,
-            max_health: 100,
+            health: 0,
+            max_health: 0,
             hearts_rect_array: gfx::RectArray::new(),
         }
     }
@@ -84,6 +84,7 @@ impl ClientHealth {
         if let Some(packet) = event.downcast::<Packet>() {
             if let Some(packet) = packet.try_deserialize::<HealthChangePacket>() {
                 self.health = packet.health;
+                self.max_health = packet.max_health;
                 self.generate_rect_array();
             }
         }

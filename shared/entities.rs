@@ -261,8 +261,8 @@ pub struct PhysicsComponent {
     pub velocity_y: f32,
     pub acceleration_x: f32,
     pub acceleration_y: f32,
-    pub collision_width: f32,
-    pub collision_height: f32,
+    collision_width: f32,
+    collision_height: f32,
 }
 
 impl PhysicsComponent {

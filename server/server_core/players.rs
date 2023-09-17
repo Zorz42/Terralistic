@@ -5,6 +5,7 @@ use crate::server::server_core::networking::{
 };
 use crate::shared::blocks::Blocks;
 use crate::shared::entities::{Entities, PhysicsComponent, PositionComponent};
+use crate::shared::health::{HealthChangePacket, HealthComponent};
 use crate::shared::inventory::{
     Inventory, InventoryPacket, InventorySelectPacket, InventorySwapPacket,
 };
@@ -161,6 +162,16 @@ impl ServerPlayers {
                 y: spawn_y,
                 name: name.clone(),
             })?;
+
+            let health_component = entities.ecs.get::<&mut HealthComponent>(player_entity)?;
+            let health_packet = Packet::new(HealthChangePacket {
+                health: health_component.health(),
+                max_health: health_component.max_health(),
+            })?;
+            networking.send_packet(
+                &health_packet,
+                SendTarget::Connection(new_connection_event.conn.clone()),
+            )?;
 
             if let Some(player_data) = player_data {
                 let mut inventory = entities.ecs.get::<&mut Inventory>(player_entity)?;
