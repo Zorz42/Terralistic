@@ -191,7 +191,8 @@ impl Inventory {
 
         // drop item
         for _ in 0..item.count {
-            items.spawn_item(events, entities, item.item, drop_pos.0, drop_pos.1, None);
+            let id = entities.new_id();
+            items.spawn_item(events, entities, item.item, drop_pos.0, drop_pos.1, id)?;
         }
 
         Ok(())

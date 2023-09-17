@@ -1,6 +1,8 @@
 use crate::libraries::events::{Event, EventManager};
 use anyhow::{bail, Result};
+use hecs::Entity;
 use serde_derive::{Deserialize, Serialize};
+use std::collections::HashMap;
 
 use crate::shared::blocks::Blocks;
 
@@ -54,6 +56,8 @@ pub fn is_touching_ground(
 pub struct Entities {
     pub ecs: hecs::World,
     current_id: u32,
+    id_to_entity: HashMap<EntityId, Entity>,
+    entity_to_id: HashMap<Entity, EntityId>,
 }
 
 /// Reduce a by b, but never go below 0. if a is negative, increase it by b but never go above 0.
@@ -78,6 +82,8 @@ impl Entities {
         Self {
             ecs: hecs::World::new(),
             current_id: 0,
+            id_to_entity: HashMap::new(),
+            entity_to_id: HashMap::new(),
         }
     }
 
@@ -141,26 +147,39 @@ impl Entities {
         }
     }
 
-    pub fn unwrap_id(&mut self, id: Option<IdComponent>) -> IdComponent {
-        if let Some(id) = id {
-            id
-        } else {
-            self.current_id += 1;
-            IdComponent::new(self.current_id)
+    /// # Errors
+    /// If id is already assigned
+    pub fn assign_id(&mut self, entity: Entity, id: EntityId) -> Result<()> {
+        if self.id_to_entity.contains_key(&id) {
+            bail!("id already assigned");
         }
+        if self.entity_to_id.contains_key(&entity) {
+            bail!("entity already has assigned id");
+        }
+
+        self.id_to_entity.insert(id, entity);
+        self.entity_to_id.insert(entity, id);
+
+        Ok(())
+    }
+
+    pub fn get_entity_from_id(&self, id: EntityId) -> Option<Entity> {
+        self.id_to_entity.get(&id).copied()
+    }
+
+    pub fn get_id_from_entity(&self, entity: Entity) -> Option<EntityId> {
+        self.entity_to_id.get(&entity).copied()
+    }
+
+    pub fn new_id(&mut self) -> EntityId {
+        self.current_id += 1;
+        EntityId::new(self.current_id)
     }
 
     /// # Errors
     /// If the entity could not be despawned
-    pub fn despawn_entity(&mut self, id: IdComponent, events: &mut EventManager) -> Result<()> {
-        let mut entity_to_despawn = None;
-
-        for (entity, id_component) in &mut self.ecs.query::<&IdComponent>() {
-            if *id_component == id {
-                entity_to_despawn = Some(entity);
-                break;
-            }
-        }
+    pub fn despawn_entity(&mut self, id: EntityId, events: &mut EventManager) -> Result<()> {
+        let entity_to_despawn = self.get_entity_from_id(id);
 
         if let Some(entity) = entity_to_despawn {
             self.ecs.despawn(entity)?;
@@ -176,7 +195,7 @@ impl Entities {
 
 #[derive(Serialize, Deserialize)]
 pub struct EntityPositionVelocityPacket {
-    pub id: IdComponent,
+    pub id: EntityId,
     pub x: f32,
     pub y: f32,
     pub velocity_x: f32,
@@ -185,28 +204,23 @@ pub struct EntityPositionVelocityPacket {
 
 #[derive(Serialize, Deserialize)]
 pub struct EntityDespawnPacket {
-    pub id: IdComponent,
+    pub id: EntityId,
 }
 
 #[derive(Clone, Copy, Eq, PartialEq, Hash, Debug, Serialize, Deserialize)]
-pub struct IdComponent {
+pub struct EntityId {
     id: u32,
 }
 
 #[derive(Serialize, Deserialize)]
 pub struct EntityDespawnEvent {
-    pub id: IdComponent,
+    pub id: EntityId,
 }
 
-impl IdComponent {
+impl EntityId {
     #[must_use]
-    pub const fn new(id: u32) -> Self {
+    const fn new(id: u32) -> Self {
         Self { id }
-    }
-
-    #[must_use]
-    pub const fn new_undefined() -> Self {
-        Self { id: 0 }
     }
 }
 
@@ -241,6 +255,7 @@ impl PositionComponent {
     }
 }
 
+#[derive(Clone)]
 pub struct PhysicsComponent {
     pub velocity_x: f32,
     pub velocity_y: f32,

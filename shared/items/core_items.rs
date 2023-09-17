@@ -1,5 +1,5 @@
 use crate::shared::blocks::BlockId;
-use crate::shared::entities::{Entities, IdComponent, PhysicsComponent, PositionComponent};
+use crate::shared::entities::{Entities, EntityId, PhysicsComponent, PositionComponent};
 use crate::shared::items::Item;
 use crate::shared::mod_manager::ModManager;
 use crate::shared::walls::WallId;
@@ -119,6 +119,8 @@ impl Items {
     }
 
     /// this function spawns an item into the world
+    /// # Errors
+    /// if the item could not be spawned
     pub fn spawn_item(
         &mut self,
         events: &mut EventManager,
@@ -126,21 +128,20 @@ impl Items {
         item_id: ItemId,
         x: f32,
         y: f32,
-        id: Option<IdComponent>,
-    ) -> Entity {
-        let id = entities.unwrap_id(id);
-
+        id: EntityId,
+    ) -> Result<Entity> {
         let entity = entities.ecs.spawn((
-            id,
             PositionComponent::new(x, y),
             PhysicsComponent::new(1.0, 1.0),
             ItemComponent::new(item_id),
         ));
 
+        entities.assign_id(entity, id)?;
+
         let event = ItemSpawnEvent { entity };
         events.push_event(Event::new(event));
 
-        entity
+        Ok(entity)
     }
 
     /// this function registers an item type
@@ -250,7 +251,7 @@ pub struct ItemSpawnPacket {
     pub item_type: ItemId,
     pub x: f32,
     pub y: f32,
-    pub id: IdComponent,
+    pub id: EntityId,
 }
 
 pub struct ItemComponent {

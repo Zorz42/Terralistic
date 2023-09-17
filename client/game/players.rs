@@ -1,4 +1,4 @@
-use anyhow::Result;
+use anyhow::{anyhow, Result};
 use hecs::Entity;
 
 use crate::client::game::camera::Camera;
@@ -6,12 +6,13 @@ use crate::client::game::networking::ClientNetworking;
 use crate::libraries::events::Event;
 use crate::libraries::graphics as gfx;
 use crate::shared::blocks::{Blocks, BLOCK_WIDTH, RENDER_BLOCK_WIDTH, RENDER_SCALE};
-use crate::shared::entities::{Entities, IdComponent, PhysicsComponent, PositionComponent};
+use crate::shared::entities::{Entities, PhysicsComponent, PositionComponent};
 use crate::shared::mod_manager::ModManager;
 use crate::shared::packet::Packet;
 use crate::shared::players::{
-    spawn_player, update_players_ms, Direction, MovingType, PlayerComponent, PlayerMovingPacket,
-    PlayerSpawnPacket, PLAYER_HEIGHT, PLAYER_WIDTH,
+    spawn_player, update_players_ms, Direction, MovingType, PlayerComponent,
+    PlayerMovingPacketToClient, PlayerMovingPacketToServer, PlayerSpawnPacket, PLAYER_HEIGHT,
+    PLAYER_WIDTH,
 };
 
 pub struct ClientPlayers {
@@ -57,10 +58,9 @@ impl ClientPlayers {
         networking: &mut ClientNetworking,
         player_component: &PlayerComponent,
     ) -> Result<()> {
-        let packet = Packet::new(PlayerMovingPacket {
+        let packet = Packet::new(PlayerMovingPacketToServer {
             moving_type: player_component.get_moving_type(),
             jumping: player_component.jumping,
-            player_id: IdComponent::new_undefined(),
         })?;
 
         networking.send_packet(packet)?;
@@ -174,28 +174,35 @@ impl ClientPlayers {
         }
     }
 
-    pub fn on_event(&mut self, event: &Event, entities: &mut Entities) {
+    pub fn on_event(&mut self, event: &Event, entities: &mut Entities) -> Result<()> {
         if let Some(packet_event) = event.downcast::<Packet>() {
             if let Some(packet) = packet_event.try_deserialize::<PlayerSpawnPacket>() {
-                let player =
-                    spawn_player(entities, packet.x, packet.y, &packet.name, Some(packet.id));
+                let player = spawn_player(entities, packet.x, packet.y, &packet.name, packet.id)?;
                 if packet.name == self.main_player_name {
                     self.main_player = Some(player);
                 }
             }
-            if let Some(packet) = packet_event.try_deserialize::<PlayerMovingPacket>() {
-                for (_, (player_component, id, physics)) in
-                    entities
-                        .ecs
-                        .query_mut::<(&mut PlayerComponent, &IdComponent, &mut PhysicsComponent)>()
+            if let Some(packet) = packet_event.try_deserialize::<PlayerMovingPacketToClient>() {
+                let entity = entities
+                    .get_entity_from_id(packet.player_id)
+                    .ok_or_else(|| anyhow!("invalid id"))?;
+                let mut physics_component = entities
+                    .ecs
+                    .query_one::<&mut PhysicsComponent>(entity)?
+                    .get()
+                    .ok_or_else(|| anyhow!("unwrap failed"))?
+                    .clone();
                 {
-                    if *id == packet.player_id {
-                        player_component.set_moving_type(packet.moving_type, physics);
-                        player_component.jumping = packet.jumping;
-                    }
+                    let player_component =
+                        entities.ecs.query_one_mut::<&mut PlayerComponent>(entity)?;
+                    player_component.set_moving_type(packet.moving_type, &mut physics_component);
+                    player_component.jumping = packet.jumping;
                 }
+
+                entities.ecs.insert_one(entity, physics_component)?;
             }
         }
+        Ok(())
     }
 
     pub const fn get_main_player(&self) -> Option<Entity> {

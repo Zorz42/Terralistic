@@ -73,7 +73,7 @@ pub fn run_game(
                 mods.on_event(&event)?;
                 blocks.on_event(&event, &mut pre_events, &mut mods.mod_manager)?;
                 walls.on_event(&event)?;
-                items.on_event(&event, &mut entities.entities, &mut pre_events);
+                items.on_event(&event, &mut entities.entities, &mut pre_events)?;
             }
 
             blocks.init(&mut mods.mod_manager)?;
@@ -205,9 +205,9 @@ pub fn run_game(
             blocks.on_event(&event, &mut events, &mut mods.mod_manager)?;
             walls.on_event(&event)?;
             entities.on_event(&event)?;
-            items.on_event(&event, &mut entities.entities, &mut events);
+            items.on_event(&event, &mut entities.entities, &mut events)?;
             block_selector.on_event(graphics, &mut networking, &camera, &event)?;
-            players.on_event(&event, &mut entities.entities);
+            players.on_event(&event, &mut entities.entities)?;
             lights.on_event(&event, &blocks.get_blocks())?;
             camera.on_event(&event);
             health.on_event(&event);

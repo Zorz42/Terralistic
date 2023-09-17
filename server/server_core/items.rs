@@ -1,11 +1,11 @@
 use crate::libraries::events::{Event, EventManager};
 use crate::server::server_core::networking::{SendTarget, ServerNetworking};
 use crate::shared::blocks::BlockBreakEvent;
-use crate::shared::entities::{Entities, IdComponent, PositionComponent};
+use crate::shared::entities::{Entities, PositionComponent};
 use crate::shared::items::{ItemComponent, ItemSpawnEvent, ItemSpawnPacket, Items};
 use crate::shared::mod_manager::ModManager;
 use crate::shared::packet::Packet;
-use anyhow::Result;
+use anyhow::{anyhow, Result};
 
 pub struct ServerItems {
     pub items: Items,
@@ -35,21 +35,24 @@ impl ServerItems {
             if let Ok(drop) = drop {
                 // spawn item at random chance. drop.chance is a float between 0 and 1
                 if rand::random::<f32>() < drop.chance {
+                    let id = entities.new_id();
                     self.items.spawn_item(
                         events,
                         entities,
                         drop.item,
                         event.x as f32,
                         event.y as f32,
-                        None,
-                    );
+                        id,
+                    )?;
                 }
             }
         }
         if let Some(event) = event.downcast::<ItemSpawnEvent>() {
             let entity = event.entity;
             let item = entities.ecs.get::<&ItemComponent>(entity)?;
-            let id = *entities.ecs.get::<&IdComponent>(entity)?;
+            let id = entities
+                .get_id_from_entity(entity)
+                .ok_or_else(|| anyhow!("unwrap or"))?;
             let position = entities.ecs.get::<&PositionComponent>(entity)?;
 
             let packet = ItemSpawnPacket {

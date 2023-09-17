@@ -1,4 +1,4 @@
-use crate::shared::entities::IdComponent;
+use crate::shared::entities::EntityId;
 use serde_derive::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize)]
@@ -13,7 +13,7 @@ pub struct HealthComponent {
 
 pub struct HealthChangeEvent {
     pub health: i32,
-    pub entity: IdComponent,
+    pub entity: EntityId,
 }
 
 impl HealthComponent {

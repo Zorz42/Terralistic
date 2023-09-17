@@ -4,15 +4,16 @@ use crate::server::server_core::networking::{
     ServerNetworking,
 };
 use crate::shared::blocks::Blocks;
-use crate::shared::entities::{Entities, IdComponent, PhysicsComponent, PositionComponent};
+use crate::shared::entities::{Entities, PhysicsComponent, PositionComponent};
 use crate::shared::inventory::{
     Inventory, InventoryPacket, InventorySelectPacket, InventorySwapPacket,
 };
 use crate::shared::items::Items;
 use crate::shared::packet::Packet;
 use crate::shared::players::{
-    remove_all_picked_items, spawn_player, update_players_ms, PlayerComponent, PlayerMovingPacket,
-    PlayerSpawnPacket, PLAYER_HEIGHT, PLAYER_WIDTH,
+    remove_all_picked_items, spawn_player, update_players_ms, PlayerComponent,
+    PlayerMovingPacketToClient, PlayerMovingPacketToServer, PlayerSpawnPacket, PLAYER_HEIGHT,
+    PLAYER_WIDTH,
 };
 use anyhow::{anyhow, Result};
 use hecs::Entity;
@@ -68,6 +69,7 @@ impl ServerPlayers {
         (spawn_x, spawn_y)
     }
 
+    #[allow(clippy::too_many_lines)]
     pub fn on_event(
         &mut self,
         event: &Event,
@@ -77,7 +79,10 @@ impl ServerPlayers {
         events: &mut EventManager,
     ) -> Result<()> {
         if let Some(packet_event) = event.downcast::<PacketFromClientEvent>() {
-            if let Some(packet) = packet_event.packet.try_deserialize::<PlayerMovingPacket>() {
+            if let Some(packet) = packet_event
+                .packet
+                .try_deserialize::<PlayerMovingPacketToServer>()
+            {
                 let player_entity = self.get_player_from_connection(&packet_event.conn)?;
                 let mut player_component =
                     entities.ecs.get::<&mut PlayerComponent>(player_entity)?;
@@ -86,8 +91,10 @@ impl ServerPlayers {
                 player_component.set_moving_type(packet.moving_type, &mut physics_component);
                 player_component.jumping = packet.jumping;
 
-                let id = *entities.ecs.get::<&IdComponent>(player_entity)?;
-                let packet = Packet::new(PlayerMovingPacket {
+                let id = entities
+                    .get_id_from_entity(player_entity)
+                    .ok_or_else(|| anyhow!("unwrap failed"))?;
+                let packet = Packet::new(PlayerMovingPacketToClient {
                     moving_type: packet.moving_type,
                     jumping: packet.jumping,
                     player_id: id,
@@ -120,13 +127,15 @@ impl ServerPlayers {
                 |player_data| (player_data.position.x(), player_data.position.y()),
             );
 
-            for (_entity, (player, position, id)) in
-                &mut entities
-                    .ecs
-                    .query::<(&PlayerComponent, &PositionComponent, &IdComponent)>()
+            for (entity, (player, position)) in &mut entities
+                .ecs
+                .query::<(&PlayerComponent, &PositionComponent)>()
             {
+                let id = entities
+                    .get_id_from_entity(entity)
+                    .ok_or_else(|| anyhow!("unwrap failed"))?;
                 let spawn_packet = Packet::new(PlayerSpawnPacket {
-                    id: *id,
+                    id,
                     x: position.x(),
                     y: position.y(),
                     name: player.get_name().to_owned(),
@@ -137,14 +146,17 @@ impl ServerPlayers {
                 )?;
             }
 
-            let player_entity = spawn_player(entities, spawn_x, spawn_y, &name, None);
+            let player_id = entities.new_id();
+            let player_entity = spawn_player(entities, spawn_x, spawn_y, &name, player_id)?;
             self.conns_to_players
                 .insert(new_connection_event.conn.clone(), player_entity);
             self.players_to_conns
                 .insert(player_entity, new_connection_event.conn.clone());
 
             let player_spawn_packet = Packet::new(PlayerSpawnPacket {
-                id: *entities.ecs.get::<&IdComponent>(player_entity)?,
+                id: entities
+                    .get_id_from_entity(player_entity)
+                    .ok_or_else(|| anyhow!("unwrap failed"))?,
                 x: spawn_x,
                 y: spawn_y,
                 name: name.clone(),
@@ -171,7 +183,9 @@ impl ServerPlayers {
 
                 self.conns_to_players.remove(&disconnect_event.conn);
                 self.players_to_conns.remove(&player_entity);
-                let player_id = *entities.ecs.get::<&IdComponent>(player_entity)?;
+                let player_id = entities
+                    .get_id_from_entity(player_entity)
+                    .ok_or_else(|| anyhow!("unwrap failed"))?;
                 entities.despawn_entity(player_id, events)?;
             }
         }

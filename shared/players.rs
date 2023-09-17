@@ -1,11 +1,11 @@
-use anyhow::Result;
+use anyhow::{anyhow, Result};
 use hecs::Entity;
 use serde_derive::{Deserialize, Serialize};
 
 use crate::libraries::events::EventManager;
 use crate::shared::blocks::{Blocks, BLOCK_WIDTH};
 use crate::shared::entities::{
-    is_touching_ground, reduce_by, Entities, IdComponent, PhysicsComponent, PositionComponent,
+    is_touching_ground, reduce_by, Entities, EntityId, PhysicsComponent, PositionComponent,
 };
 use crate::shared::health::HealthComponent;
 use crate::shared::inventory::Inventory;
@@ -28,22 +28,26 @@ pub enum MovingType {
     MovingRight,
 }
 
+/// # Errors
+/// Returns an error if the player could not be spawned
 pub fn spawn_player(
     entities: &mut Entities,
     x: f32,
     y: f32,
     name: &str,
-    id: Option<IdComponent>,
-) -> Entity {
-    let id = entities.unwrap_id(id);
-    entities.ecs.spawn((
-        id,
+    id: EntityId,
+) -> Result<Entity> {
+    let entity = entities.ecs.spawn((
         PositionComponent::new(x, y),
         PhysicsComponent::new(PLAYER_WIDTH, PLAYER_HEIGHT),
         Inventory::new(20),
         PlayerComponent::new(name),
         HealthComponent::new(PLAYER_MAX_HEALTH, PLAYER_MAX_HEALTH),
-    ))
+    ));
+
+    entities.assign_id(entity, id)?;
+
+    Ok(entity)
 }
 
 pub fn update_players_ms(entities: &mut Entities, blocks: &Blocks) {
@@ -189,7 +193,9 @@ pub fn remove_all_picked_items(
             )?;
             *entities.ecs.get::<&mut Inventory>(player_entity)? = inventory;
 
-            let item_id = *entities.ecs.get::<&IdComponent>(entity)?;
+            let item_id = entities
+                .get_id_from_entity(entity)
+                .ok_or_else(|| anyhow!("unwrap failed"))?;
             entities.despawn_entity(item_id, events)?;
         }
     }
@@ -270,15 +276,21 @@ impl PlayerComponent {
 }
 
 #[derive(Serialize, Deserialize)]
-pub struct PlayerMovingPacket {
+pub struct PlayerMovingPacketToClient {
     pub moving_type: MovingType,
     pub jumping: bool,
-    pub player_id: IdComponent,
+    pub player_id: EntityId,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct PlayerMovingPacketToServer {
+    pub moving_type: MovingType,
+    pub jumping: bool,
 }
 
 #[derive(Serialize, Deserialize)]
 pub struct PlayerSpawnPacket {
-    pub id: IdComponent,
+    pub id: EntityId,
     pub x: f32,
     pub y: f32,
     pub name: String,

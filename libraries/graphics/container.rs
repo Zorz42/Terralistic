@@ -62,13 +62,16 @@ impl Container {
             |parent| *parent.get_absolute_rect(),
         );
 
-        self.abs_rect.pos = parent_rect.pos + self.rect.pos + gfx::FloatPos(
-            parent_rect.size.0 * self.orientation.x,
-            parent_rect.size.1 * self.orientation.y,
-        ) - gfx::FloatPos(
-            self.rect.size.0 * self.orientation.x,
-            self.rect.size.1 * self.orientation.y,
-        );
+        self.abs_rect.pos = parent_rect.pos
+            + self.rect.pos
+            + gfx::FloatPos(
+                parent_rect.size.0 * self.orientation.x,
+                parent_rect.size.1 * self.orientation.y,
+            )
+            - gfx::FloatPos(
+                self.rect.size.0 * self.orientation.x,
+                self.rect.size.1 * self.orientation.y,
+            );
         self.abs_rect.size = self.rect.size;
     }
 }

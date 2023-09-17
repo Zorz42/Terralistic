@@ -45,7 +45,12 @@ impl ClientItems {
         Ok(())
     }
 
-    pub fn on_event(&mut self, event: &Event, entities: &mut Entities, events: &mut EventManager) {
+    pub fn on_event(
+        &mut self,
+        event: &Event,
+        entities: &mut Entities,
+        events: &mut EventManager,
+    ) -> Result<()> {
         if let Some(packet) = event.downcast::<Packet>() {
             if let Some(packet) = packet.try_deserialize::<ItemSpawnPacket>() {
                 self.items.spawn_item(
@@ -54,10 +59,11 @@ impl ClientItems {
                     packet.item_type,
                     packet.x,
                     packet.y,
-                    Some(packet.id),
-                );
+                    packet.id,
+                )?;
             }
         }
+        Ok(())
     }
 
     pub fn render(
