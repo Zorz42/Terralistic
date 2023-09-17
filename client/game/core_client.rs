@@ -170,7 +170,9 @@ pub fn run_game(
                 &mut networking,
                 &blocks.get_blocks(),
             )?;
-            entities.entities.update_entities_ms(&blocks.get_blocks());
+            entities
+                .entities
+                .update_entities_ms(&blocks.get_blocks(), &mut events)?;
         }
 
         background.render(graphics, &camera);

@@ -4,8 +4,8 @@ use crate::server::server_core::networking::{
     ServerNetworking,
 };
 use crate::shared::blocks::Blocks;
-use crate::shared::entities::{Entities, PhysicsComponent, PositionComponent};
-use crate::shared::health::{HealthChangePacket, HealthComponent};
+use crate::shared::entities::{Entities, HealthChangeEvent, PhysicsComponent, PositionComponent};
+use crate::shared::entities::{HealthChangePacket, HealthComponent};
 use crate::shared::inventory::{
     Inventory, InventoryPacket, InventorySelectPacket, InventorySwapPacket,
 };
@@ -92,9 +92,7 @@ impl ServerPlayers {
                 player_component.set_moving_type(packet.moving_type, &mut physics_component);
                 player_component.jumping = packet.jumping;
 
-                let id = entities
-                    .get_id_from_entity(player_entity)
-                    .ok_or_else(|| anyhow!("unwrap failed"))?;
+                let id = entities.get_id_from_entity(player_entity)?;
                 let packet = Packet::new(PlayerMovingPacketToClient {
                     moving_type: packet.moving_type,
                     jumping: packet.jumping,
@@ -132,9 +130,7 @@ impl ServerPlayers {
                 .ecs
                 .query::<(&PlayerComponent, &PositionComponent)>()
             {
-                let id = entities
-                    .get_id_from_entity(entity)
-                    .ok_or_else(|| anyhow!("unwrap failed"))?;
+                let id = entities.get_id_from_entity(entity)?;
                 let spawn_packet = Packet::new(PlayerSpawnPacket {
                     id,
                     x: position.x(),
@@ -155,9 +151,7 @@ impl ServerPlayers {
                 .insert(player_entity, new_connection_event.conn.clone());
 
             let player_spawn_packet = Packet::new(PlayerSpawnPacket {
-                id: entities
-                    .get_id_from_entity(player_entity)
-                    .ok_or_else(|| anyhow!("unwrap failed"))?,
+                id: entities.get_id_from_entity(player_entity)?,
                 x: spawn_x,
                 y: spawn_y,
                 name: name.clone(),
@@ -194,10 +188,23 @@ impl ServerPlayers {
 
                 self.conns_to_players.remove(&disconnect_event.conn);
                 self.players_to_conns.remove(&player_entity);
-                let player_id = entities
-                    .get_id_from_entity(player_entity)
-                    .ok_or_else(|| anyhow!("unwrap failed"))?;
+                let player_id = entities.get_id_from_entity(player_entity)?;
                 entities.despawn_entity(player_id, events)?;
+            }
+        }
+
+        if let Some(health_change_event) = event.downcast::<HealthChangeEvent>() {
+            let entity = entities.get_entity_from_id(health_change_event.entity)?;
+            let player_conn = self.players_to_conns.get(&entity);
+            if let Some(player_conn) = player_conn {
+                let health_component = entities.ecs.query_one_mut::<&HealthComponent>(entity)?;
+                networking.send_packet(
+                    &Packet::new(HealthChangePacket {
+                        health: health_component.health(),
+                        max_health: health_component.max_health(),
+                    })?,
+                    SendTarget::Connection(player_conn.clone()),
+                )?;
             }
         }
 

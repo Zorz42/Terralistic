@@ -1,13 +1,13 @@
-use anyhow::{anyhow, Result};
+use anyhow::Result;
 use hecs::Entity;
 use serde_derive::{Deserialize, Serialize};
 
 use crate::libraries::events::EventManager;
 use crate::shared::blocks::{Blocks, BLOCK_WIDTH};
 use crate::shared::entities::{
-    is_touching_ground, reduce_by, Entities, EntityId, PhysicsComponent, PositionComponent,
+    is_touching_ground, reduce_by, Entities, EntityId, HealthComponent, PhysicsComponent,
+    PositionComponent,
 };
-use crate::shared::health::HealthComponent;
 use crate::shared::inventory::Inventory;
 use crate::shared::items::{ItemComponent, ItemStack, Items};
 
@@ -193,9 +193,7 @@ pub fn remove_all_picked_items(
             )?;
             *entities.ecs.get::<&mut Inventory>(player_entity)? = inventory;
 
-            let item_id = entities
-                .get_id_from_entity(entity)
-                .ok_or_else(|| anyhow!("unwrap failed"))?;
+            let item_id = entities.get_id_from_entity(entity)?;
             entities.despawn_entity(item_id, events)?;
         }
     }

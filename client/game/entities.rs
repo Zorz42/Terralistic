@@ -4,7 +4,7 @@ use crate::shared::entities::{
     PositionComponent,
 };
 use crate::shared::packet::Packet;
-use anyhow::{anyhow, Result};
+use anyhow::Result;
 
 pub struct ClientEntities {
     pub entities: Entities,
@@ -20,10 +20,7 @@ impl ClientEntities {
     pub fn on_event(&mut self, event: &Event) -> Result<()> {
         if let Some(packet) = event.downcast::<Packet>() {
             if let Some(packet) = packet.try_deserialize::<EntityPositionVelocityPacket>() {
-                let entity = self
-                    .entities
-                    .get_entity_from_id(packet.id)
-                    .ok_or_else(|| anyhow!("unwrap failed"))?;
+                let entity = self.entities.get_entity_from_id(packet.id)?;
                 {
                     let position_component = self
                         .entities
@@ -44,7 +41,7 @@ impl ClientEntities {
             }
             if let Some(packet) = packet.try_deserialize::<EntityDespawnPacket>() {
                 let entity_to_despawn = self.entities.get_entity_from_id(packet.id);
-                if let Some(entity) = entity_to_despawn {
+                if let Ok(entity) = entity_to_despawn {
                     self.entities.ecs.despawn(entity)?;
                 }
             }

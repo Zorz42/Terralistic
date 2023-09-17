@@ -1,5 +1,5 @@
 use crate::libraries::events::{Event, EventManager};
-use anyhow::{bail, Result};
+use anyhow::{anyhow, bail, Result};
 use hecs::Entity;
 use serde_derive::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -87,11 +87,18 @@ impl Entities {
         }
     }
 
-    pub fn update_entities_ms(&mut self, blocks: &Blocks) {
-        for (_entity, (position, physics)) in self
+    /// # Errors
+    /// If the entity map is corrupted
+    pub fn update_entities_ms(&mut self, blocks: &Blocks, events: &mut EventManager) -> Result<()> {
+        let mut vec = Vec::new();
+
+        for (entity, (position, physics)) in self
             .ecs
             .query_mut::<(&mut PositionComponent, &mut PhysicsComponent)>()
         {
+            let velocity_x_before = physics.velocity_x;
+            let velocity_y_before = physics.velocity_y;
+
             physics.velocity_x += physics.acceleration_x / 200.0;
             physics.velocity_y += physics.acceleration_y / 200.0;
 
@@ -144,7 +151,24 @@ impl Entities {
 
             physics.velocity_x *= 1.0 - AIR_RESISTANCE_COEFFICIENT;
             physics.velocity_y *= 1.0 - AIR_RESISTANCE_COEFFICIENT;
+
+            let velocity_x_change = physics.velocity_x - velocity_x_before;
+            let velocity_y_change = physics.velocity_y - velocity_y_before;
+            let velocity_change = f32::hypot(velocity_x_change, velocity_y_change);
+
+            vec.push((entity, velocity_change));
         }
+
+        for (entity, velocity_change) in vec {
+            let id = self.get_id_from_entity(entity)?;
+            if let Ok(health_component) = self.ecs.query_one_mut::<&mut HealthComponent>(entity) {
+                if velocity_change > 30.0 {
+                    health_component.increase_health((-velocity_change / 5.0) as i32, events, id);
+                }
+            }
+        }
+
+        Ok(())
     }
 
     /// # Errors
@@ -163,12 +187,22 @@ impl Entities {
         Ok(())
     }
 
-    pub fn get_entity_from_id(&self, id: EntityId) -> Option<Entity> {
-        self.id_to_entity.get(&id).copied()
+    /// # Errors
+    /// If the id could not be found
+    pub fn get_entity_from_id(&self, id: EntityId) -> Result<Entity> {
+        self.id_to_entity
+            .get(&id)
+            .ok_or_else(|| anyhow!("invalid id"))
+            .copied()
     }
 
-    pub fn get_id_from_entity(&self, entity: Entity) -> Option<EntityId> {
-        self.entity_to_id.get(&entity).copied()
+    /// # Errors
+    /// If the entity could not be found
+    pub fn get_id_from_entity(&self, entity: Entity) -> Result<EntityId> {
+        self.entity_to_id
+            .get(&entity)
+            .ok_or_else(|| anyhow!("invalid entity"))
+            .copied()
     }
 
     pub fn new_id(&mut self) -> EntityId {
@@ -181,7 +215,7 @@ impl Entities {
     pub fn despawn_entity(&mut self, id: EntityId, events: &mut EventManager) -> Result<()> {
         let entity_to_despawn = self.get_entity_from_id(id);
 
-        if let Some(entity) = entity_to_despawn {
+        if let Ok(entity) = entity_to_despawn {
             self.ecs.despawn(entity)?;
         } else {
             bail!("Could not find entity with id");
@@ -276,5 +310,48 @@ impl PhysicsComponent {
             collision_width,
             collision_height,
         }
+    }
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct HealthChangePacket {
+    pub health: i32,
+    pub max_health: i32,
+}
+
+pub struct HealthComponent {
+    health: i32,
+    max_health: i32,
+}
+
+pub struct HealthChangeEvent {
+    pub entity: EntityId,
+}
+
+impl HealthComponent {
+    #[must_use]
+    pub const fn new(health: i32, max_health: i32) -> Self {
+        Self { health, max_health }
+    }
+
+    #[must_use]
+    pub const fn health(&self) -> i32 {
+        self.health
+    }
+
+    #[must_use]
+    pub const fn max_health(&self) -> i32 {
+        self.max_health
+    }
+
+    pub fn set_health(&mut self, health: i32, events: &mut EventManager, entity_id: EntityId) {
+        if self.health != health {
+            self.health = health;
+            events.push_event(Event::new(HealthChangeEvent { entity: entity_id }));
+        }
+    }
+
+    pub fn increase_health(&mut self, health: i32, events: &mut EventManager, entity_id: EntityId) {
+        self.set_health(self.health + health, events, entity_id);
     }
 }

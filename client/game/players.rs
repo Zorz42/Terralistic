@@ -183,9 +183,7 @@ impl ClientPlayers {
                 }
             }
             if let Some(packet) = packet_event.try_deserialize::<PlayerMovingPacketToClient>() {
-                let entity = entities
-                    .get_entity_from_id(packet.player_id)
-                    .ok_or_else(|| anyhow!("invalid id"))?;
+                let entity = entities.get_entity_from_id(packet.player_id)?;
                 let mut physics_component = entities
                     .ecs
                     .query_one::<&mut PhysicsComponent>(entity)?

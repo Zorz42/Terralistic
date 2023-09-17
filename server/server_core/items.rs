@@ -5,7 +5,7 @@ use crate::shared::entities::{Entities, PositionComponent};
 use crate::shared::items::{ItemComponent, ItemSpawnEvent, ItemSpawnPacket, Items};
 use crate::shared::mod_manager::ModManager;
 use crate::shared::packet::Packet;
-use anyhow::{anyhow, Result};
+use anyhow::Result;
 
 pub struct ServerItems {
     pub items: Items,
@@ -50,9 +50,7 @@ impl ServerItems {
         if let Some(event) = event.downcast::<ItemSpawnEvent>() {
             let entity = event.entity;
             let item = entities.ecs.get::<&ItemComponent>(entity)?;
-            let id = entities
-                .get_id_from_entity(entity)
-                .ok_or_else(|| anyhow!("unwrap or"))?;
+            let id = entities.get_id_from_entity(entity)?;
             let position = entities.ecs.get::<&PositionComponent>(entity)?;
 
             let packet = ItemSpawnPacket {

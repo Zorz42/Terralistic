@@ -230,7 +230,7 @@ impl Server {
             )?;
             self.entities
                 .entities
-                .update_entities_ms(&self.blocks.get_blocks());
+                .update_entities_ms(&self.blocks.get_blocks(), &mut self.events)?;
             *ms_counter += 5;
         }
 

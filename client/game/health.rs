@@ -1,6 +1,6 @@
 use crate::gfx;
 use crate::libraries::events::Event;
-use crate::shared::health::HealthChangePacket;
+use crate::shared::entities::HealthChangePacket;
 use crate::shared::mod_manager::ModManager;
 use crate::shared::packet::Packet;
 use anyhow::Result;

@@ -5,7 +5,7 @@ use crate::shared::entities::{
     PhysicsComponent, PositionComponent,
 };
 use crate::shared::packet::Packet;
-use anyhow::{anyhow, Result};
+use anyhow::Result;
 
 pub struct ServerEntities {
     pub entities: Entities,
@@ -24,10 +24,7 @@ impl ServerEntities {
             .ecs
             .query::<(&PositionComponent, &PhysicsComponent)>()
         {
-            let id = self
-                .entities
-                .get_id_from_entity(entity)
-                .ok_or_else(|| anyhow!("unwrap failed"))?;
+            let id = self.entities.get_id_from_entity(entity)?;
             networking.send_packet(
                 &Packet::new(EntityPositionVelocityPacket {
                     id,
