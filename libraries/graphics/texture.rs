@@ -33,6 +33,10 @@ impl Texture {
             gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MIN_FILTER, gl::NEAREST as i32);
             gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MAG_FILTER, gl::NEAREST as i32);
 
+            // set the texture wrapping parameters
+            gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_WRAP_S, gl::CLAMP_TO_EDGE as i32);
+            gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_WRAP_T, gl::CLAMP_TO_EDGE as i32);
+
             let data = surface.pixels.clone();
 
             gl::TexImage2D(
@@ -71,7 +75,6 @@ impl Texture {
 
     pub(super) fn get_normalization_transform(&self) -> Transformation {
         let mut result = Transformation::new();
-        result.translate(gfx::FloatPos(-1.0, 1.0));
         result.stretch((1.0 / self.size.0, 1.0 / self.size.1));
         result
     }
