@@ -78,6 +78,9 @@ impl RectArray {
         texture: Option<&gfx::Texture>,
         pos: gfx::FloatPos,
     ) {
+        // to avoid artifacts
+        let pos = gfx::FloatPos(pos.0 + 0.5, pos.1 + 0.5);
+
         // Safety: we are using the opengl functions correctly
         unsafe {
             let mut transform = graphics.renderer.normalization_transform.clone();

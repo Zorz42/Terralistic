@@ -46,7 +46,7 @@ impl Texture {
                 gl::UNSIGNED_BYTE,
                 data.as_ptr() as *const core::ffi::c_void,
             );
-            gl::GenerateMipmap(gl::TEXTURE_2D);
+            //gl::GenerateMipmap(gl::TEXTURE_2D);
         }
 
         result

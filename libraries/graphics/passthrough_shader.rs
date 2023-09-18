@@ -20,9 +20,9 @@ uniform mat3 transform_matrix;
 uniform mat3 texture_transform_matrix;
 
 void main() {
-	gl_Position = vec4(transform_matrix * vec3(vertex_position, 1), 1);
+	gl_Position = vec4(transform_matrix * vec3(vertex_position, 1.f), 1.f);
 	fragment_color = global_color * vertex_color;
-	texture_coord = (texture_transform_matrix * vec3(vertex_texture_coordinate.xy, 1)).xy;
+	texture_coord = (texture_transform_matrix * vec3(vertex_texture_coordinate.xy, 1.f)).xy;
 }
 "#;
 

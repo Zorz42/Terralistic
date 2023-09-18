@@ -140,7 +140,7 @@ impl Renderer {
             gl::TexImage2D(
                 gl::TEXTURE_2D,
                 0,
-                gl::RGBA as gl::types::GLint,
+                gl::RGBA as i32,
                 self.sdl_window.size().0 as i32,
                 self.sdl_window.size().1 as i32,
                 0,
@@ -149,22 +149,14 @@ impl Renderer {
                 core::ptr::null(),
             );
 
-            gl::TexParameteri(
-                gl::TEXTURE_2D,
-                gl::TEXTURE_MAG_FILTER,
-                gl::NEAREST as gl::types::GLint,
-            );
-            gl::TexParameteri(
-                gl::TEXTURE_2D,
-                gl::TEXTURE_MIN_FILTER,
-                gl::NEAREST as gl::types::GLint,
-            );
+            gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MAG_FILTER, gl::NEAREST as i32);
+            gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MIN_FILTER, gl::NEAREST as i32);
 
             gl::BindTexture(gl::TEXTURE_2D, self.window_texture_back);
             gl::TexImage2D(
                 gl::TEXTURE_2D,
                 0,
-                gl::RGBA as gl::types::GLint,
+                gl::RGBA as i32,
                 self.sdl_window.size().0 as i32,
                 self.sdl_window.size().1 as i32,
                 0,
@@ -173,16 +165,8 @@ impl Renderer {
                 core::ptr::null(),
             );
 
-            gl::TexParameteri(
-                gl::TEXTURE_2D,
-                gl::TEXTURE_MAG_FILTER,
-                gl::NEAREST as gl::types::GLint,
-            );
-            gl::TexParameteri(
-                gl::TEXTURE_2D,
-                gl::TEXTURE_MIN_FILTER,
-                gl::NEAREST as gl::types::GLint,
-            );
+            gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MAG_FILTER, gl::NEAREST as i32);
+            gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MIN_FILTER, gl::NEAREST as i32);
 
             gl::Viewport(
                 0,
@@ -265,13 +249,11 @@ impl Renderer {
         }
 
         self.normalization_transform = Transformation::new();
+        self.normalization_transform
+            .translate(gfx::FloatPos(-1.0, 1.0));
         self.normalization_transform.stretch((
             2.0 / self.get_window_size().0,
             -2.0 / self.get_window_size().1,
-        ));
-        self.normalization_transform.translate(gfx::FloatPos(
-            -self.get_window_size().0 / 2.0,
-            -self.get_window_size().1 / 2.0,
         ));
 
         // Safety: We are calling OpenGL functions safely.
