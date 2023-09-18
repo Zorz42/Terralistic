@@ -79,7 +79,7 @@ impl RectArray {
         pos: gfx::FloatPos,
     ) {
         // to avoid artifacts
-        let pos = gfx::FloatPos(pos.0 + 0.5, pos.1 + 0.5);
+        let pos = gfx::FloatPos(pos.0 + 0.01, pos.1 + 0.01);
 
         // Safety: we are using the opengl functions correctly
         unsafe {

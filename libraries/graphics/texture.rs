@@ -90,6 +90,8 @@ impl Texture {
     ) {
         let src_rect =
             src_rect.unwrap_or_else(|| Rect::new(gfx::FloatPos(0.0, 0.0), self.get_texture_size()));
+        
+        let pos = gfx::FloatPos(pos.0 + 0.0, pos.1 + 0.0);
 
         let color = color.unwrap_or(Color {
             r: 255,
@@ -119,7 +121,7 @@ impl Texture {
 
             transform = self.get_normalization_transform();
             transform.translate(src_rect.pos);
-            transform.stretch((src_rect.size.0, src_rect.size.1));
+            transform.stretch((src_rect.size.0 + 0.01, src_rect.size.1 + 0.01));
 
             gl::UniformMatrix3fv(
                 renderer.passthrough_shader.texture_transform_matrix,
