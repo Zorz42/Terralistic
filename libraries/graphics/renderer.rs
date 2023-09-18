@@ -2,6 +2,7 @@ extern crate alloc;
 
 use alloc::collections::VecDeque;
 use std::collections::HashMap;
+use std::mem::swap;
 
 use anyhow::{anyhow, Result};
 use copypasta::ClipboardContext;
@@ -215,8 +216,8 @@ impl Renderer {
             }
         }
 
-        let result = self.events.clone();
-        self.events.clear();
+        let mut result = Vec::new();
+        swap(&mut result, &mut self.events);
 
         result
     }

@@ -37,8 +37,6 @@ impl Texture {
             gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_WRAP_S, gl::CLAMP_TO_EDGE as i32);
             gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_WRAP_T, gl::CLAMP_TO_EDGE as i32);
 
-            let data = surface.pixels.clone();
-
             gl::TexImage2D(
                 gl::TEXTURE_2D,
                 0,
@@ -48,7 +46,7 @@ impl Texture {
                 0,
                 gl::RGBA,
                 gl::UNSIGNED_BYTE,
-                data.as_ptr() as *const core::ffi::c_void,
+                surface.pixels.as_ptr() as *const core::ffi::c_void,
             );
             //gl::GenerateMipmap(gl::TEXTURE_2D);
         }
