@@ -1,8 +1,8 @@
 extern crate alloc;
 
 use alloc::collections::VecDeque;
+use core::mem::swap;
 use std::collections::HashMap;
-use std::mem::swap;
 
 use anyhow::{anyhow, Result};
 use copypasta::ClipboardContext;
