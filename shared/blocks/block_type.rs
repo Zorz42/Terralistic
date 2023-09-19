@@ -1,5 +1,6 @@
-use super::BlockId;
 use crate::shared::blocks::ToolId;
+
+use super::BlockId;
 
 /// Includes properties for each block type
 #[derive(Clone)]
@@ -49,7 +50,7 @@ impl Block {
             light_emission_r: 0,
             light_emission_g: 0,
             light_emission_b: 0,
-            id: BlockId::new(),
+            id: BlockId::undefined(),
             width: 0,
             height: 0,
             can_update_states: false,

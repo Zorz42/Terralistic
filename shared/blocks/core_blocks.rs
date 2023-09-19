@@ -31,7 +31,7 @@ pub struct BlockId {
 
 impl BlockId {
     #[must_use]
-    pub const fn new() -> Self {
+    pub const fn undefined() -> Self {
         Self { id: -1 }
     }
 }
@@ -52,7 +52,7 @@ pub struct Blocks {
     pub(super) breaking_blocks: Vec<BreakingBlock>,
     pub(super) block_types: Vec<Block>,
     pub(super) tool_types: Vec<Tool>,
-    pub air: BlockId,
+    air: BlockId,
 }
 
 impl Blocks {
@@ -68,7 +68,7 @@ impl Blocks {
             breaking_blocks: vec![],
             block_types: vec![],
             tool_types: vec![],
-            air: BlockId::new(),
+            air: BlockId::undefined(),
         };
 
         let mut air = Block::new();
@@ -86,6 +86,11 @@ impl Blocks {
     }
 
     #[must_use]
+    pub const fn air(&self) -> BlockId {
+        self.air
+    }
+
+    #[must_use]
     pub const fn get_height(&self) -> u32 {
         self.block_data.map.get_height()
     }
@@ -93,7 +98,7 @@ impl Blocks {
     /// Creates an empty world with given width and height
     pub fn create(&mut self, width: u32, height: u32) {
         self.block_data.map = WorldMap::new(width, height);
-        self.block_data.blocks = vec![BlockId::new(); (height * height) as usize];
+        self.block_data.blocks = vec![self.air; (height * height) as usize];
     }
 
     /// This function creates a world from a 2d vector of block type ids

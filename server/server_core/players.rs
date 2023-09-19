@@ -54,7 +54,7 @@ impl ServerPlayers {
                 let block_type = blocks.get_block_type(
                     blocks
                         .get_block(spawn_x as i32 + x, y as i32)
-                        .unwrap_or(blocks.air),
+                        .unwrap_or(blocks.air()),
                 );
 
                 let is_ghost = match block_type.ok() {

@@ -192,7 +192,7 @@ impl WorldGenerator {
         *status_text.lock().unwrap_or_else(PoisonError::into_inner) = "Generating world".to_owned();
         blocks.create(width, height);
 
-        let mut block_terrain = vec![vec![BlockId::new(); height as usize]; width as usize];
+        let mut block_terrain = vec![vec![BlockId::undefined(); height as usize]; width as usize];
         let mut wall_terrain = vec![vec![WallId::new(); height as usize]; width as usize];
 
         let mut min_cave_thresholds = vec![0.0; width as usize];
@@ -289,7 +289,7 @@ impl WorldGenerator {
         };
 
         for x in 0..width {
-            curr_terrain.push(vec![BlockId::new(); height as usize]);
+            curr_terrain.push(vec![BlockId::undefined(); height as usize]);
             curr_heights.push(
                 *heights
                     .get(x as usize)
@@ -330,7 +330,7 @@ impl WorldGenerator {
 
                 let curr_block =
                     if terrain_height > terrain_noise_val || cave_threshold > cave_noise_val {
-                        blocks.air
+                        blocks.air()
                     } else {
                         self.biomes
                             .lock()
@@ -473,7 +473,7 @@ impl Biome {
             max_width: 0,
             min_terrain_height: 0,
             max_terrain_height: 0,
-            base_block: BlockId::new(),
+            base_block: BlockId::undefined(),
             base_wall: WallId::new(),
             adjacent_biomes: Vec::new(),
             mod_id,

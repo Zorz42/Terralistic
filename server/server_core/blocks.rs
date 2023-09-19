@@ -110,7 +110,7 @@ impl ServerBlocks {
                     .stop_breaking_block(events, packet.x, packet.y)?;
             } else if let Some(packet) = event.packet.try_deserialize::<BlockRightClickPacket>() {
                 let block = self.get_blocks().get_block(packet.x, packet.y)?;
-                if block == self.get_blocks().air {
+                if block == self.get_blocks().air() {
                     let player = players.get_player_from_connection(&event.conn)?;
                     let mut player_inventory = entities.ecs.get::<&mut Inventory>(player)?;
                     let selected_item = player_inventory.get_selected_item();

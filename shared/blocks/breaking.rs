@@ -1,8 +1,10 @@
-use super::Blocks;
-use crate::libraries::events::{Event, EventManager};
-use crate::shared::blocks::{BlockId, ToolId};
 use anyhow::{anyhow, Result};
 use serde_derive::{Deserialize, Serialize};
+
+use crate::libraries::events::{Event, EventManager};
+use crate::shared::blocks::{BlockId, ToolId};
+
+use super::Blocks;
 
 /// Breaking block struct represents a block that is currently being broken.
 #[derive(Clone)]
@@ -197,7 +199,7 @@ impl Blocks {
         };
         events.push_event(Event::new(event));
 
-        self.set_block(events, transformed_x, transformed_y, self.air)?;
+        self.set_block(events, transformed_x, transformed_y, self.air())?;
 
         Ok(())
     }
