@@ -123,9 +123,7 @@ impl Blocks {
         self.create(width, height);
         self.block_data.blocks.clear();
         for row in block_ids {
-            for block_id in row {
-                self.block_data.blocks.push(*block_id);
-            }
+            self.block_data.blocks.extend_from_slice(row);
         }
         Ok(())
     }

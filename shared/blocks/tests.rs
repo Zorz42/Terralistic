@@ -81,3 +81,36 @@ fn test_blocks_set_out_of_bound() {
     assert!(blocks.set_block(&mut events, 2, 1000, block_id1).is_err());
     assert!(blocks.set_block(&mut events, 1000, 2, block_id1).is_err());
 }
+
+#[test]
+fn test_blocks_create_from_block_ids() {
+    let mut blocks = Blocks::new();
+
+    let block_type1 = Block::new();
+    let block_type2 = Block::new();
+    let block_id1 = blocks.register_new_block_type(block_type1);
+    let block_id2 = blocks.register_new_block_type(block_type2);
+
+    let blocks_vector = vec![
+        vec![block_id1, block_id1, block_id1],
+        vec![block_id1, block_id2, block_id2],
+        vec![block_id1, block_id2, block_id1],
+        vec![block_id1, block_id2, block_id2],
+    ];
+    assert!(blocks.create_from_block_ids(&blocks_vector).is_ok());
+
+    assert_eq!(blocks.get_width(), 4);
+    assert_eq!(blocks.get_height(), 3);
+    assert_ok_and_eq(blocks.get_block(0, 0), block_id1);
+    assert_ok_and_eq(blocks.get_block(0, 1), block_id1);
+    assert_ok_and_eq(blocks.get_block(0, 2), block_id1);
+    assert_ok_and_eq(blocks.get_block(1, 0), block_id1);
+    assert_ok_and_eq(blocks.get_block(1, 1), block_id2);
+    assert_ok_and_eq(blocks.get_block(1, 2), block_id2);
+    assert_ok_and_eq(blocks.get_block(2, 0), block_id1);
+    assert_ok_and_eq(blocks.get_block(2, 1), block_id2);
+    assert_ok_and_eq(blocks.get_block(2, 2), block_id1);
+    assert_ok_and_eq(blocks.get_block(3, 0), block_id1);
+    assert_ok_and_eq(blocks.get_block(3, 1), block_id2);
+    assert_ok_and_eq(blocks.get_block(3, 2), block_id2);
+}
