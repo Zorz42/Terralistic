@@ -54,7 +54,7 @@ fn test_event_manager_none() {
 #[test]
 #[allow(clippy::unwrap_used)]
 fn test_event_manager_default() {
-    let mut event_manager = EventManager::default();
+    let mut event_manager = EventManager::new();
     let event = Event::new(5);
     event_manager.push_event(event);
     let event = event_manager.pop_event().unwrap();
