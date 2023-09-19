@@ -1,10 +1,11 @@
+use anyhow::Result;
+
 use crate::libraries::events::Event;
 use crate::shared::entities::{
     Entities, EntityDespawnPacket, EntityPositionVelocityPacket, PhysicsComponent,
     PositionComponent,
 };
 use crate::shared::packet::Packet;
-use anyhow::Result;
 
 pub struct ClientEntities {
     pub entities: Entities,

@@ -1,3 +1,5 @@
+use anyhow::Result;
+
 use crate::libraries::events::{Event, EventManager};
 use crate::server::server_core::networking::{SendTarget, ServerNetworking};
 use crate::shared::blocks::BlockBreakEvent;
@@ -5,7 +7,6 @@ use crate::shared::entities::{Entities, PositionComponent};
 use crate::shared::items::{ItemComponent, ItemSpawnEvent, ItemSpawnPacket, Items};
 use crate::shared::mod_manager::ModManager;
 use crate::shared::packet::Packet;
-use anyhow::Result;
 
 pub struct ServerItems {
     pub items: Items,

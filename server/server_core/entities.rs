@@ -1,3 +1,5 @@
+use anyhow::Result;
+
 use crate::libraries::events::Event;
 use crate::server::server_core::networking::{SendTarget, ServerNetworking};
 use crate::shared::entities::{
@@ -5,7 +7,6 @@ use crate::shared::entities::{
     PhysicsComponent, PositionComponent,
 };
 use crate::shared::packet::Packet;
-use anyhow::Result;
 
 pub struct ServerEntities {
     pub entities: Entities,

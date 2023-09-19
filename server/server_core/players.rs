@@ -1,3 +1,9 @@
+use std::collections::HashMap;
+
+use anyhow::{anyhow, Result};
+use hecs::Entity;
+use serde_derive::{Deserialize, Serialize};
+
 use crate::libraries::events::{Event, EventManager};
 use crate::server::server_core::networking::{
     Connection, DisconnectEvent, NewConnectionWelcomedEvent, PacketFromClientEvent, SendTarget,
@@ -16,10 +22,6 @@ use crate::shared::players::{
     PlayerMovingPacketToClient, PlayerMovingPacketToServer, PlayerSpawnPacket, PLAYER_HEIGHT,
     PLAYER_WIDTH,
 };
-use anyhow::{anyhow, Result};
-use hecs::Entity;
-use serde_derive::{Deserialize, Serialize};
-use std::collections::HashMap;
 
 #[derive(Serialize, Deserialize)]
 pub struct SavedPlayerData {

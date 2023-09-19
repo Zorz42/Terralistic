@@ -1,9 +1,11 @@
+use std::collections::HashMap;
+
+use anyhow::{anyhow, bail, Result};
+use serde_derive::{Deserialize, Serialize};
+
 use crate::libraries::events::EventManager;
 use crate::shared::entities::Entities;
 use crate::shared::items::{ItemId, ItemStack, Items};
-use anyhow::{anyhow, bail, Result};
-use serde_derive::{Deserialize, Serialize};
-use std::collections::HashMap;
 
 pub struct Recipe {
     pub result: ItemId,
