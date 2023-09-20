@@ -33,10 +33,10 @@ fn test_blocks_create_dimensions_twice() {
 }
 
 #[allow(dead_code)]
-fn assert_ok_and_eq<T: PartialEq>(result: Result<T>, expected: T) {
+fn assert_ok_and_eq<T: PartialEq>(result: Result<T>, expected: &T) {
     assert!(result.is_ok());
     if let Ok(value) = result {
-        assert!(value == expected);
+        assert!(value == *expected);
     }
 }
 
@@ -55,11 +55,11 @@ fn test_blocks_set_get() {
     blocks.set_block(&mut events, 1, 0, block_id2).unwrap();
     blocks.set_block(&mut events, 0, 1, block_id1).unwrap();
     blocks.set_block(&mut events, 1, 1, block_id2).unwrap();
-    assert_ok_and_eq(blocks.get_block(0, 0), block_id1);
-    assert_ok_and_eq(blocks.get_block(1, 0), block_id2);
-    assert_ok_and_eq(blocks.get_block(0, 1), block_id1);
-    assert_ok_and_eq(blocks.get_block(1, 1), block_id2);
-    assert_ok_and_eq(blocks.get_block(2, 2), blocks.air());
+    assert_ok_and_eq(blocks.get_block(0, 0), &block_id1);
+    assert_ok_and_eq(blocks.get_block(1, 0), &block_id2);
+    assert_ok_and_eq(blocks.get_block(0, 1), &block_id1);
+    assert_ok_and_eq(blocks.get_block(1, 1), &block_id2);
+    assert_ok_and_eq(blocks.get_block(2, 2), &blocks.air());
 }
 
 #[test]
@@ -101,16 +101,16 @@ fn test_blocks_create_from_block_ids() {
 
     assert_eq!(blocks.get_width(), 4);
     assert_eq!(blocks.get_height(), 3);
-    assert_ok_and_eq(blocks.get_block(0, 0), block_id1);
-    assert_ok_and_eq(blocks.get_block(0, 1), block_id1);
-    assert_ok_and_eq(blocks.get_block(0, 2), block_id1);
-    assert_ok_and_eq(blocks.get_block(1, 0), block_id1);
-    assert_ok_and_eq(blocks.get_block(1, 1), block_id2);
-    assert_ok_and_eq(blocks.get_block(1, 2), block_id2);
-    assert_ok_and_eq(blocks.get_block(2, 0), block_id1);
-    assert_ok_and_eq(blocks.get_block(2, 1), block_id2);
-    assert_ok_and_eq(blocks.get_block(2, 2), block_id1);
-    assert_ok_and_eq(blocks.get_block(3, 0), block_id1);
-    assert_ok_and_eq(blocks.get_block(3, 1), block_id2);
-    assert_ok_and_eq(blocks.get_block(3, 2), block_id2);
+    assert_ok_and_eq(blocks.get_block(0, 0), &block_id1);
+    assert_ok_and_eq(blocks.get_block(0, 1), &block_id1);
+    assert_ok_and_eq(blocks.get_block(0, 2), &block_id1);
+    assert_ok_and_eq(blocks.get_block(1, 0), &block_id1);
+    assert_ok_and_eq(blocks.get_block(1, 1), &block_id2);
+    assert_ok_and_eq(blocks.get_block(1, 2), &block_id2);
+    assert_ok_and_eq(blocks.get_block(2, 0), &block_id1);
+    assert_ok_and_eq(blocks.get_block(2, 1), &block_id2);
+    assert_ok_and_eq(blocks.get_block(2, 2), &block_id1);
+    assert_ok_and_eq(blocks.get_block(3, 0), &block_id1);
+    assert_ok_and_eq(blocks.get_block(3, 1), &block_id2);
+    assert_ok_and_eq(blocks.get_block(3, 2), &block_id2);
 }

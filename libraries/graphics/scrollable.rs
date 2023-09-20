@@ -77,7 +77,7 @@ impl Scrollable {
     }
 
     #[must_use]
-    pub fn get_scroll_pos(&self) -> f32 {
+    pub const fn get_scroll_pos(&self) -> f32 {
         self.scroll_pos
     }
 }
