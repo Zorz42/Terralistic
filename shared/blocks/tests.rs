@@ -51,10 +51,10 @@ fn test_blocks_set_get() {
 
     let mut events = EventManager::new();
 
-    assert!(blocks.set_block(&mut events, 0, 0, block_id1).is_ok());
-    assert!(blocks.set_block(&mut events, 1, 0, block_id2).is_ok());
-    assert!(blocks.set_block(&mut events, 0, 1, block_id1).is_ok());
-    assert!(blocks.set_block(&mut events, 1, 1, block_id2).is_ok());
+    blocks.set_block(&mut events, 0, 0, block_id1).unwrap();
+    blocks.set_block(&mut events, 1, 0, block_id2).unwrap();
+    blocks.set_block(&mut events, 0, 1, block_id1).unwrap();
+    blocks.set_block(&mut events, 1, 1, block_id2).unwrap();
     assert_ok_and_eq(blocks.get_block(0, 0), block_id1);
     assert_ok_and_eq(blocks.get_block(1, 0), block_id2);
     assert_ok_and_eq(blocks.get_block(0, 1), block_id1);
@@ -97,7 +97,7 @@ fn test_blocks_create_from_block_ids() {
         vec![block_id1, block_id2, block_id1],
         vec![block_id1, block_id2, block_id2],
     ];
-    assert!(blocks.create_from_block_ids(&blocks_vector).is_ok());
+    blocks.create_from_block_ids(&blocks_vector).unwrap();
 
     assert_eq!(blocks.get_width(), 4);
     assert_eq!(blocks.get_height(), 3);

@@ -35,7 +35,6 @@ pub fn get_last_modified_time(file_path: &str) -> String {
 
 /// struct to pass around the UI elements for rendering and updating.
 struct SigleplayerSelectorElements {
-    position: f32,
     top_rect: gfx::RenderRect,
     bottom_rect: gfx::RenderRect,
     title: gfx::Sprite,
@@ -74,7 +73,6 @@ impl World {
         );
         rect.orientation = gfx::TOP;
         rect.fill_color.a = 100;
-        rect.smooth_factor = 60.0;
 
         let mut icon = gfx::Sprite::new();
         icon.texture = gfx::Texture::load_from_surface(
@@ -272,10 +270,13 @@ pub fn run_singleplayer_selector(
     bottom_rect.blur_radius = gfx::BLUR;
     bottom_rect.orientation = gfx::BOTTOM;
 
-    let position: f32 = 0.0;
+    let mut scrollable = gfx::Scrollable::new();
+    scrollable.rect.pos.1 = gfx::SPACING;
+    scrollable.rect.size.0 = MENU_WIDTH;
+    scrollable.smooth_factor = 100.0;
+    scrollable.orientation = gfx::TOP;
 
     let mut elements = SigleplayerSelectorElements {
-        position,
         top_rect,
         bottom_rect,
         title,
@@ -294,10 +295,17 @@ pub fn run_singleplayer_selector(
             &mut elements,
             settings,
             global_settings,
+            &mut scrollable,
         ) {
             break;
         }
-        render_elements(graphics, menu_back, &mut elements, &mut top_rect_visibility);
+        render_elements(
+            graphics,
+            menu_back,
+            &mut elements,
+            &mut top_rect_visibility,
+            &mut scrollable,
+        );
     }
 }
 
@@ -307,10 +315,12 @@ fn update_elements(
     elements: &mut SigleplayerSelectorElements,
     settings: &mut Settings,
     global_settings: &mut GlobalSettings,
+    scrollable: &mut gfx::Scrollable,
 ) -> bool {
     while let Some(event) = graphics.renderer.get_event() {
-        match event {
-            gfx::Event::KeyRelease(key, ..) => match key {
+        scrollable.on_event(&event);
+        if let gfx::Event::KeyRelease(key, ..) = event {
+            match key {
                 gfx::Key::MouseLeft => {
                     if elements
                         .back_button
@@ -383,11 +393,7 @@ fn update_elements(
                     return true;
                 }
                 _ => {}
-            },
-            gfx::Event::MouseScroll(delta) => {
-                elements.position += delta * 2.0;
             }
-            _ => {}
         }
     }
     false
@@ -398,6 +404,7 @@ fn render_elements(
     menu_back: &mut dyn BackgroundRect,
     elements: &mut SigleplayerSelectorElements,
     top_rect_visibility: &mut f32,
+    scrollable: &mut gfx::Scrollable,
 ) {
     menu_back.set_back_rect_width(MENU_WIDTH);
 
@@ -411,20 +418,28 @@ fn render_elements(
         world.set_enabled(hoverable);
     }
 
-    let mut current_y = gfx::SPACING;
+    let mut current_y =
+        gfx::SPACING + scrollable.get_scroll_x(graphics, None) + elements.top_height;
+    let mut elements_height = 0.0;
 
     for world in &mut elements.world_list.worlds {
         world.render(
             graphics,
-            gfx::FloatPos(0.0, current_y + elements.top_height + elements.position),
+            gfx::FloatPos(0.0, current_y),
             Some(menu_back.get_back_rect_container()),
         );
         current_y += world.get_height() + gfx::SPACING;
+        elements_height += world.get_height() + gfx::SPACING;
     }
 
     elements.top_rect.size.0 = menu_back.get_back_rect_width(graphics, None);
-    *top_rect_visibility +=
-        ((if elements.position < -5.0 { 1.0 } else { 0.0 }) - *top_rect_visibility) / 20.0;
+
+    *top_rect_visibility += ((if scrollable.get_scroll_pos() > 5.0 {
+        1.0
+    } else {
+        0.0
+    }) - *top_rect_visibility)
+        / 20.0;
 
     if *top_rect_visibility < 0.01 {
         *top_rect_visibility = 0.0;
@@ -445,25 +460,11 @@ fn render_elements(
     }
 
     elements.bottom_rect.size.0 = menu_back.get_back_rect_width(graphics, None);
-    let mut scroll_limit = current_y - graphics.renderer.get_window_size().1
-        + elements.top_height
-        + elements.bottom_height;
-    if scroll_limit < 0.0 {
-        scroll_limit = 0.0;
-    }
 
-    if scroll_limit > 0.0 {
+    if scrollable.scroll_size > scrollable.rect.size.1 {
         elements
             .bottom_rect
             .render(graphics, Some(menu_back.get_back_rect_container()));
-    }
-
-    if elements.position > 0.0 {
-        elements.position -= elements.position / 20.0;
-    }
-
-    if elements.position < -scroll_limit {
-        elements.position -= (elements.position + scroll_limit) / 20.0;
     }
 
     elements
@@ -476,6 +477,11 @@ fn render_elements(
     elements
         .new_world_button
         .render(graphics, Some(menu_back.get_back_rect_container()));
+
+    scrollable.scroll_size = elements_height;
+    scrollable.rect.size.1 =
+        graphics.renderer.get_window_size().1 - elements.top_height - elements.bottom_height;
+    scrollable.render();
 
     graphics.renderer.update_window();
 }

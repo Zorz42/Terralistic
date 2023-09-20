@@ -1,5 +1,3 @@
-use super::Container;
-use super::Orientation;
 use crate::libraries::graphics as gfx;
 
 /// The struct `RenderRect` contains a container and
@@ -15,7 +13,7 @@ pub struct RenderRect {
     pub fill_color: gfx::Color,
     pub border_color: gfx::Color,
     pub smooth_factor: f32,
-    pub orientation: Orientation,
+    pub orientation: gfx::Orientation,
     pub blur_radius: i32,
     pub shadow_intensity: i32,
     ms_counter: u32,
@@ -54,7 +52,7 @@ impl RenderRect {
     pub fn render(
         &mut self,
         graphics: &gfx::GraphicsContext,
-        parent_container: Option<&Container>,
+        parent_container: Option<&gfx::Container>,
     ) {
         while self.ms_counter < self.approach_timer.elapsed().as_millis() as u32 {
             self.ms_counter += 1;
@@ -84,9 +82,9 @@ impl RenderRect {
     pub fn get_container(
         &self,
         graphics: &gfx::GraphicsContext,
-        parent_container: Option<&Container>,
-    ) -> Container {
-        Container::new(
+        parent_container: Option<&gfx::Container>,
+    ) -> gfx::Container {
+        gfx::Container::new(
             graphics,
             self.render_pos,
             self.render_size,

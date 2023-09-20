@@ -13,6 +13,7 @@ pub use rect::Rect;
 pub use rect_array::RectArray;
 pub use render_rect::RenderRect;
 use renderer::Renderer;
+pub use scrollable::Scrollable;
 pub use sprite::Sprite;
 pub use surface::Surface;
 pub use text::Font;
@@ -70,10 +71,10 @@ mod texture_atlas;
 
 mod rect_array;
 
-/*
-A struct that will be passed all
-around the functions that need drawing
-*/
+mod scrollable;
+
+/// A struct that will be passed all
+/// around the functions that need drawing
 pub struct GraphicsContext {
     pub renderer: Renderer,
     pub font: Font,
