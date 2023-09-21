@@ -6,6 +6,8 @@ use crate::libraries::events::EventManager;
 #[allow(unused_imports)]
 use crate::shared::blocks::Block;
 #[allow(unused_imports)]
+use crate::shared::blocks::BlockChangeEvent;
+#[allow(unused_imports)]
 use crate::shared::blocks::Blocks;
 
 #[test]
@@ -34,10 +36,7 @@ fn test_blocks_create_dimensions_twice() {
 
 #[allow(dead_code)]
 fn assert_ok_and_eq<T: PartialEq>(result: Result<T>, expected: &T) {
-    assert!(result.is_ok());
-    if let Ok(value) = result {
-        assert!(value == *expected);
-    }
+    assert!(result.unwrap() == *expected);
 }
 
 #[test]
@@ -113,4 +112,49 @@ fn test_blocks_create_from_block_ids() {
     assert_ok_and_eq(blocks.get_block(3, 0), &block_id1);
     assert_ok_and_eq(blocks.get_block(3, 1), &block_id2);
     assert_ok_and_eq(blocks.get_block(3, 2), &block_id2);
+}
+
+#[test]
+fn test_set_spawns_event() {
+    let mut blocks = Blocks::new();
+    blocks.create(50, 50);
+    let block_type1 = Block::new();
+    let block_type2 = Block::new();
+    let block_id1 = blocks.register_new_block_type(block_type1);
+    let block_id2 = blocks.register_new_block_type(block_type2);
+
+    let mut events = EventManager::new();
+
+    blocks.set_block(&mut events, 0, 0, block_id1).unwrap();
+    blocks.set_block(&mut events, 2, 1, block_id1).unwrap();
+    blocks.set_block(&mut events, 3, 3, block_id1).unwrap();
+    blocks.set_block(&mut events, 3, 3, block_id1).unwrap();
+    blocks.set_block(&mut events, 3, 3, block_id2).unwrap();
+
+    let event = events.pop_event().unwrap();
+    let event = event.downcast::<BlockChangeEvent>().unwrap();
+    assert_eq!(event.x, 0);
+    assert_eq!(event.y, 0);
+    assert!(event.prev_block == blocks.air());
+
+    let event = events.pop_event().unwrap();
+    let event = event.downcast::<BlockChangeEvent>().unwrap();
+    assert_eq!(event.x, 2);
+    assert_eq!(event.y, 1);
+    assert!(event.prev_block == blocks.air());
+
+    let event = events.pop_event().unwrap();
+    let event = event.downcast::<BlockChangeEvent>().unwrap();
+    assert_eq!(event.x, 3);
+    assert_eq!(event.y, 3);
+    assert!(event.prev_block == blocks.air());
+
+    let event = events.pop_event().unwrap();
+    let event = event.downcast::<BlockChangeEvent>().unwrap();
+    assert_eq!(event.x, 3);
+    assert_eq!(event.y, 3);
+    assert!(event.prev_block == block_id1);
+
+    let event = events.pop_event();
+    assert!(event.is_none());
 }
