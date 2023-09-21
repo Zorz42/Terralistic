@@ -3,12 +3,13 @@ use crate::libraries::graphics as gfx;
 pub struct Scrollable {
     pub rect: gfx::Rect,
     pub orientation: gfx::Orientation,
-    target_scroll_pos: f32,
+    scroll_velocity: f32,
     scroll_pos: f32,
     pub scroll_size: f32,
     ms_counter: u32,
     approach_timer: std::time::Instant,
-    pub smooth_factor: f32,
+    pub scroll_smooth_factor: f32,
+    pub boundary_smooth_factor: f32,
 }
 
 impl Scrollable {
@@ -17,34 +18,45 @@ impl Scrollable {
         Self {
             rect: gfx::Rect::new(gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, 0.0)),
             orientation: gfx::TOP_LEFT,
-            target_scroll_pos: 0.0,
+            scroll_velocity: 0.0,
             scroll_pos: 0.0,
             scroll_size: 0.0,
             ms_counter: 0,
             approach_timer: std::time::Instant::now(),
-            smooth_factor: 1.0,
+            scroll_smooth_factor: 1.0,
+            boundary_smooth_factor: 1.0,
         }
     }
 
     pub fn on_event(&mut self, event: &gfx::Event) {
         if let gfx::Event::MouseScroll(delta) = event {
-            self.target_scroll_pos += 3.0 * delta;
+            let delta = -*delta * 0.8;
+            if delta > 0.0 {
+                self.scroll_velocity = f32::max(self.scroll_velocity, delta);
+            } else if delta < 0.0 {
+                self.scroll_velocity = f32::min(self.scroll_velocity, delta);
+            }
         }
     }
 
     pub fn render(&mut self) {
         while self.ms_counter < self.approach_timer.elapsed().as_millis() as u32 {
             self.ms_counter += 1;
-            self.scroll_pos += (self.target_scroll_pos - self.scroll_pos) / self.smooth_factor;
+            self.scroll_pos += self.scroll_velocity;
 
-            if self.target_scroll_pos < 0.0 {
-                self.target_scroll_pos -= self.target_scroll_pos / self.smooth_factor;
+            if self.scroll_pos < 0.0 {
+                self.scroll_pos -= self.scroll_pos / self.boundary_smooth_factor;
             }
 
             let upper_bound = f32::max(self.scroll_size - self.rect.size.1, 0.0);
-            if self.target_scroll_pos > upper_bound {
-                self.target_scroll_pos -=
-                    (self.target_scroll_pos - upper_bound) / self.smooth_factor;
+            if self.scroll_pos > upper_bound {
+                self.scroll_pos -= (self.scroll_pos - upper_bound) / self.boundary_smooth_factor;
+            }
+
+            self.scroll_velocity -= self.scroll_velocity / self.scroll_smooth_factor;
+
+            if self.scroll_velocity.abs() < 0.01 {
+                self.scroll_velocity = 0.0;
             }
         }
     }
