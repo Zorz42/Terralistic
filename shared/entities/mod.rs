@@ -1,3 +1,3 @@
-pub use core_entities::*;
+pub use entities::*;
 
-mod core_entities;
+mod entities;
