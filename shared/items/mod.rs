@@ -4,3 +4,4 @@ pub use items::*;
 
 mod item_type;
 mod items;
+mod tests;
