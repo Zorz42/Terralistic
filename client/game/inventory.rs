@@ -7,7 +7,7 @@ use crate::shared::inventory::{
 };
 use crate::shared::items::ItemStack;
 use crate::shared::packet::Packet;
-use anyhow::Result;
+use anyhow::{anyhow, Result};
 
 pub struct ClientInventory {
     is_open: bool,
@@ -16,6 +16,7 @@ pub struct ClientInventory {
     open_progress: f32,
     hovered_slot: Option<usize>,
     hovered_slot_rect: gfx::RenderRect,
+    lower_slots_pos: [f32; 10],
 }
 
 const INVENTORY_SLOT_SIZE: f32 = 50.0;
@@ -95,6 +96,7 @@ impl ClientInventory {
                 gfx::FloatPos(0.0, 0.0),
                 gfx::FloatSize(0.0, 0.0),
             ),
+            lower_slots_pos: [0.0; 10],
         }
     }
 
@@ -109,7 +111,6 @@ impl ClientInventory {
         self.back_rect.fill_color.a = gfx::TRANSPARENCY;
         self.back_rect.blur_radius = gfx::BLUR / 2;
         self.back_rect.shadow_intensity = gfx::SHADOW_INTENSITY / 2;
-        self.back_rect.smooth_factor = 20.0;
 
         self.hovered_slot_rect.size = gfx::FloatSize(
             INVENTORY_SLOT_SIZE + 2.0 * INVENTORY_SPACING,
@@ -119,6 +120,7 @@ impl ClientInventory {
         self.hovered_slot_rect.smooth_factor = 40.0;
     }
 
+    #[allow(clippy::too_many_lines)]
     pub fn render(
         &mut self,
         graphics: &mut gfx::GraphicsContext,
@@ -140,11 +142,9 @@ impl ClientInventory {
             }
         }
 
-        self.back_rect.size.1 = if self.is_open {
-            3.0 * INVENTORY_SPACING + 2.0 * INVENTORY_SLOT_SIZE
-        } else {
-            2.0 * INVENTORY_SPACING + INVENTORY_SLOT_SIZE
-        };
+        self.back_rect.size.1 = self.open_progress
+            * (3.0 * INVENTORY_SPACING + 2.0 * INVENTORY_SLOT_SIZE)
+            + (1.0 - self.open_progress) * (2.0 * INVENTORY_SPACING + INVENTORY_SLOT_SIZE);
         self.back_rect.render(graphics, None);
 
         if let Some(slot) = self.inventory.selected_slot {
@@ -193,12 +193,19 @@ impl ClientInventory {
                 }
             }
 
-            if i >= 10 && self.is_open {
-                let animation_spacing = 1.0;
+            if i >= 10 {
+                let pos_y = self
+                    .lower_slots_pos
+                    .get_mut(i - 10)
+                    .ok_or_else(|| anyhow!("indexing error"))?;
 
-                let pos_y = self.open_progress
-                    * (9.0 * animation_spacing + INVENTORY_SLOT_SIZE + INVENTORY_SPACING)
-                    - (i - 10) as f32 * animation_spacing;
+                let target_y = if self.is_open && self.open_progress > 0.07 * (i - 9) as f32 {
+                    INVENTORY_SLOT_SIZE + INVENTORY_SPACING
+                } else {
+                    0.0
+                };
+
+                *pos_y += (target_y - *pos_y) / 10.0;
 
                 let item = if self.is_open && self.inventory.selected_slot == Some(i) {
                     &None
@@ -206,22 +213,22 @@ impl ClientInventory {
                     item
                 };
 
-                let result = render_inventory_slot(
-                    graphics,
-                    items,
-                    (
-                        rect.pos.0
-                            + (i - 10) as f32 * (INVENTORY_SLOT_SIZE + INVENTORY_SPACING)
-                            + INVENTORY_SPACING,
-                        rect.pos.1
-                            + INVENTORY_SPACING
-                            + pos_y.clamp(0.0, INVENTORY_SPACING + INVENTORY_SLOT_SIZE),
-                    ),
-                    item,
-                );
+                if *pos_y > 0.0 {
+                    let result = render_inventory_slot(
+                        graphics,
+                        items,
+                        (
+                            rect.pos.0
+                                + (i - 10) as f32 * (INVENTORY_SLOT_SIZE + INVENTORY_SPACING)
+                                + INVENTORY_SPACING,
+                            rect.pos.1 + INVENTORY_SPACING + *pos_y,
+                        ),
+                        item,
+                    );
 
-                if result {
-                    self.hovered_slot = Some(i);
+                    if result {
+                        self.hovered_slot = Some(i);
+                    }
                 }
             }
         }
