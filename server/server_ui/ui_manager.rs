@@ -241,7 +241,7 @@ impl UiManager {
 
         //recursively tile the nodes
         match &node.first {
-            //first node is a module. Transform it to it's dedicated position and size
+            //first node is a module. Transform it to its dedicated position and size
             ModuleTreeNodeType::Module(module) => {
                 self.transform_module(module, first_pos, first_size);
             }
@@ -253,7 +253,7 @@ impl UiManager {
             ModuleTreeNodeType::Nothing => {}
         }
         match &node.second {
-            //second node is a module. Transform it to it's dedicated position and size
+            //second node is a module. Transform it to its dedicated position and size
             ModuleTreeNodeType::Module(module) => {
                 self.transform_module(module, second_pos, second_size);
             }
