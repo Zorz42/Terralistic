@@ -27,7 +27,9 @@ impl Camera {
 
     pub fn load_resources(&mut self, graphics: &mut gfx::GraphicsContext) {
         self.detached_camera_text.texture = gfx::Texture::load_from_surface(
-            &graphics.font.create_text_surface("Camera is detached"),
+            &graphics
+                .font
+                .create_text_surface("Camera is detached", None),
         );
         self.detached_camera_text.orientation = gfx::BOTTOM;
         self.detached_camera_text.pos = gfx::FloatPos(0.0, -gfx::SPACING);

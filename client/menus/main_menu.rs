@@ -18,36 +18,36 @@ pub fn run_main_menu(
     let mut singleplayer_button = gfx::Button::new();
     singleplayer_button.scale = 3.0;
     singleplayer_button.texture =
-        gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Singleplayer"));
+        gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Singleplayer", None));
     singleplayer_button.orientation = gfx::CENTER;
 
     let mut multiplayer_button = gfx::Button::new();
     multiplayer_button.scale = 3.0;
     multiplayer_button.texture =
-        gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Multiplayer"));
+        gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Multiplayer", None));
     multiplayer_button.orientation = gfx::CENTER;
 
     let mut settings_button = gfx::Button::new();
     settings_button.scale = 3.0;
     settings_button.texture =
-        gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Settings"));
+        gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Settings", None));
     settings_button.orientation = gfx::CENTER;
 
     let mut mods_button = gfx::Button::new();
     mods_button.scale = 3.0;
     mods_button.texture =
-        gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Mods"));
+        gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Mods", None));
     mods_button.orientation = gfx::CENTER;
 
     let mut exit_button = gfx::Button::new();
     exit_button.scale = 3.0;
     exit_button.texture =
-        gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Exit"));
+        gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Exit", None));
     exit_button.orientation = gfx::CENTER;
 
     let mut debug_title = gfx::Sprite::new();
     debug_title.texture =
-        gfx::Texture::load_from_surface(&graphics.font.create_text_surface("DEBUG MODE"));
+        gfx::Texture::load_from_surface(&graphics.font.create_text_surface("DEBUG MODE", None));
     debug_title.color = gfx::DARK_GREY;
     debug_title.orientation = gfx::TOP;
     debug_title.scale = 2.0;
@@ -55,13 +55,14 @@ pub fn run_main_menu(
 
     let mut title = gfx::Sprite::new();
     title.texture =
-        gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Terralistic"));
+        gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Terralistic", None));
     title.scale = 4.0;
     title.orientation = gfx::TOP;
     title.pos.1 = debug_title.pos.1 + debug_title.get_size().1 + gfx::SPACING / 2.0;
 
     let mut version = gfx::Sprite::new();
-    version.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface(VERSION));
+    version.texture =
+        gfx::Texture::load_from_surface(&graphics.font.create_text_surface(VERSION, None));
     version.color = gfx::GREY;
     version.orientation = gfx::BOTTOM;
     version.scale = 2.0;

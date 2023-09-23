@@ -26,8 +26,9 @@ impl PlayerCard {
         connection: SocketAddr,
     ) -> Self {
         let mut name_sprite = gfx::Sprite::new();
-        name_sprite.texture =
-            gfx::Texture::load_from_surface(&graphics_context.font.create_text_surface(&name));
+        name_sprite.texture = gfx::Texture::load_from_surface(
+            &graphics_context.font.create_text_surface(&name, None),
+        );
         name_sprite.scale = SCALE;
         name_sprite.orientation = gfx::LEFT;
         name_sprite.color = gfx::WHITE;

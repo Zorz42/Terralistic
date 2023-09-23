@@ -98,43 +98,64 @@ impl Font {
 
     /// This function returns the size of the text.
     #[must_use]
-    pub fn get_text_size(&self, text: &str) -> gfx::IntSize {
+    pub fn get_text_size(&self, text: &str, width_limit: Option<i32>) -> gfx::IntSize {
         let mut width = 0;
-        let height = 16;
+        let mut height = 16;
+        let mut max_width = 0;
         for c in text.chars() {
             // is its space it makes it a little bigger
             if let Some(surface) = self.font_surfaces.get(c as usize) {
-                width += surface.get_size().0 as i32;
-            }
-            width += CHAR_SPACING;
-            if c == ' ' {
-                width += SPACE_WIDTH;
+                if let Some(width_limit) = width_limit {
+                    if width + surface.get_size().0 as i32 + CHAR_SPACING > width_limit {
+                        width = 0;
+                        height += surface.get_size().1 as i32 + CHAR_SPACING;
+                    }
+                }
+
+                width += surface.get_size().0 as i32 + CHAR_SPACING;
+                max_width = max(max_width, width);
+                if c == ' ' {
+                    width += SPACE_WIDTH;
+                }
             }
         }
         // if width is 0, set it to 1
-        width = max(width, 1);
+        max_width = max(max_width, 1);
 
-        gfx::IntSize(width as u32, height)
+        gfx::IntSize(max_width as u32, height as u32)
     }
 
     /// This function returns the size of the text scaled.
     #[must_use]
-    pub fn get_text_size_scaled(&self, text: &str, scale: f32) -> gfx::FloatSize {
-        let size = self.get_text_size(text);
+    pub fn get_text_size_scaled(
+        &self,
+        text: &str,
+        scale: f32,
+        width_limit: Option<i32>,
+    ) -> gfx::FloatSize {
+        let size = self.get_text_size(text, width_limit);
         gfx::FloatSize(size.0 as f32 * scale, size.1 as f32 * scale)
     }
 
     /// This function creates a surface with the text on it.
     #[must_use]
-    pub fn create_text_surface(&self, text: &str) -> Surface {
-        let text_size = self.get_text_size(text);
+    pub fn create_text_surface(&self, text: &str, width_limit: Option<i32>) -> Surface {
+        let text_size = self.get_text_size(text, width_limit);
 
         let mut surface = Surface::new(text_size);
         let mut x = 0;
+        let mut y = 0;
         for c in text.chars() {
             if let Some(char_surface) = self.font_surfaces.get(c as usize) {
+                if let Some(width_limit) = width_limit {
+                    if x + char_surface.get_size().0 as i32 + CHAR_SPACING > width_limit {
+                        x = 0;
+                        y += char_surface.get_size().1 as i32 + CHAR_SPACING;
+                    }
+                }
+
                 for (pos, pixel) in char_surface.iter() {
-                    if let Ok(surface_pixel) = surface.get_pixel_mut(gfx::IntPos(x, 0) + pos) {
+                    if let Ok(surface_pixel) = surface.get_pixel_mut(gfx::IntPos(x, y) + pos) {
                         *surface_pixel = *pixel;
                     }
                 }

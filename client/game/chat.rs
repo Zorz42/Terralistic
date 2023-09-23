@@ -17,7 +17,8 @@ pub struct ChatLine {
 
 impl ChatLine {
     pub fn new(graphics: &mut gfx::GraphicsContext, text: &str, pos: gfx::FloatPos) -> Self {
-        let texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface(text));
+        let texture =
+            gfx::Texture::load_from_surface(&graphics.font.create_text_surface(text, None));
         let mut back_rect = gfx::RenderRect::new(
             pos + gfx::FloatPos(
                 -texture.get_texture_size().0 * 3.0,

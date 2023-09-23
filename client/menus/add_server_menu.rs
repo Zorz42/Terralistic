@@ -69,8 +69,9 @@ pub fn run_add_server_menu(
 ) -> Option<ServerInfo> {
     let mut title = gfx::Sprite::new();
     title.scale = 3.0;
-    title.texture =
-        gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Add a new server:"));
+    title.texture = gfx::Texture::load_from_surface(
+        &graphics.font.create_text_surface("Add a new server:", None),
+    );
     title.pos.1 = gfx::SPACING;
     title.orientation = gfx::TOP;
 
@@ -85,13 +86,13 @@ pub fn run_add_server_menu(
     let mut back_button = gfx::Button::new();
     back_button.scale = 3.0;
     back_button.texture =
-        gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Back"));
+        gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Back", None));
 
     let mut add_button = gfx::Button::new();
     add_button.scale = 3.0;
     add_button.darken_on_disabled = true;
     add_button.texture =
-        gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Add server"));
+        gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Add server", None));
     add_button.pos.0 = back_button.get_size().0 + gfx::SPACING;
 
     buttons_container.rect.size.0 =

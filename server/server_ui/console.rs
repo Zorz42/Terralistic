@@ -32,7 +32,7 @@ impl ConsoleLine {
         } else {
             &graphics_context.font
         };
-        sprite.texture = gfx::Texture::load_from_surface(&font.create_text_surface(&text));
+        sprite.texture = gfx::Texture::load_from_surface(&font.create_text_surface(&text, None));
         sprite.orientation = gfx::BOTTOM_LEFT;
         sprite.color = gfx::WHITE;
         sprite.pos = gfx::FloatPos(gfx::SPACING / 3.0, 0.0);

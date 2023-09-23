@@ -52,7 +52,7 @@ fn render_item_stack(
             if item.count > 1 {
                 let text_scale = 1.0;
                 let text = format!("{}", item.count);
-                let text_size = graphics.font.get_text_size_scaled(&text, text_scale);
+                let text_size = graphics.font.get_text_size_scaled(&text, text_scale, None);
                 let text_pos = gfx::FloatPos(
                     pos.0 + INVENTORY_SLOT_SIZE - text_size.0 - 2.0,
                     pos.1 + INVENTORY_SLOT_SIZE - text_size.1 - 2.0,
@@ -128,7 +128,7 @@ impl ClientInventory {
         networking: &mut ClientNetworking,
     ) -> Result<()> {
         let open_target = if self.is_open { 1.0 } else { 0.0 };
-        self.open_progress += (open_target - self.open_progress) / 10.0;
+        self.open_progress += (open_target - self.open_progress) / 5.0;
 
         if !self.is_open {
             if self.inventory.selected_slot.is_none() {
@@ -205,7 +205,7 @@ impl ClientInventory {
                     0.0
                 };
 
-                *pos_y += (target_y - *pos_y) / 10.0;
+                *pos_y += (target_y - *pos_y) / 5.0;
 
                 let item = if self.is_open && self.inventory.selected_slot == Some(i) {
                     &None

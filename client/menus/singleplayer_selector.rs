@@ -86,7 +86,8 @@ impl World {
         icon.orientation = gfx::LEFT;
 
         let mut title = gfx::Sprite::new();
-        title.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface(&name));
+        title.texture =
+            gfx::Texture::load_from_surface(&graphics.font.create_text_surface(&name, None));
         title.pos.0 = icon.pos.0 + icon.get_size().0 + gfx::SPACING;
         title.pos.1 = gfx::SPACING;
         title.scale = 3.0;
@@ -121,6 +122,7 @@ impl World {
         last_modified.texture =
             gfx::Texture::load_from_surface(&graphics.font.create_text_surface(
                 get_last_modified_time(file_path.as_path().to_str().unwrap_or("")).as_str(),
+                None,
             ));
         last_modified.color = gfx::GREY;
         last_modified.orientation = gfx::BOTTOM_RIGHT;
@@ -236,7 +238,9 @@ pub fn run_singleplayer_selector(
     let mut title = gfx::Sprite::new();
     title.scale = 3.0;
     title.texture = gfx::Texture::load_from_surface(
-        &graphics.font.create_text_surface("Select a world to play!"),
+        &graphics
+            .font
+            .create_text_surface("Select a world to play!", None),
     );
     title.pos.1 = gfx::SPACING;
     title.orientation = gfx::TOP;
@@ -244,14 +248,14 @@ pub fn run_singleplayer_selector(
     let mut back_button = gfx::Button::new();
     back_button.scale = 3.0;
     back_button.texture =
-        gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Back"));
+        gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Back", None));
     back_button.pos.1 = -gfx::SPACING;
     back_button.orientation = gfx::BOTTOM;
 
     let mut new_world_button = gfx::Button::new();
     new_world_button.scale = 3.0;
     new_world_button.texture =
-        gfx::Texture::load_from_surface(&graphics.font.create_text_surface("New"));
+        gfx::Texture::load_from_surface(&graphics.font.create_text_surface("New", None));
     new_world_button.pos.0 = -gfx::SPACING;
     new_world_button.pos.1 = -gfx::SPACING;
     new_world_button.orientation = gfx::BOTTOM_RIGHT;
