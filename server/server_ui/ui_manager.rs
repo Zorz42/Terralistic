@@ -6,6 +6,7 @@ use std::sync::Mutex;
 use std::thread::sleep;
 
 use crate::libraries::graphics as gfx;
+use crate::libraries::graphics::Event;
 use crate::server::server_core::Server;
 use crate::server::server_ui::player_list;
 use crate::server::server_ui::server_info;
@@ -25,6 +26,7 @@ pub struct UiManager {
     server_message_sender: Sender<UiMessageType>,
     modules: Vec<Box<dyn ModuleTrait>>,
     save_path: PathBuf,
+    module_edit_mode: bool,
 }
 
 impl UiManager {
@@ -44,6 +46,7 @@ impl UiManager {
             server_message_sender: event_sender,
             modules: Vec::new(),
             save_path: path,
+            module_edit_mode: false,
         };
         temp.modules = vec![
             Box::new(server_info::ServerInfo::new(&mut temp.graphics_context)),
@@ -124,8 +127,17 @@ impl UiManager {
 
             //relays graphics events to the modules
             while let Some(event) = self.graphics_context.renderer.get_event() {
-                for module in &mut self.modules {
-                    module.on_event(&event, &mut self.graphics_context);
+                if let Event::KeyPress(key, repeat) = event {
+                    if key == gfx::Key::F1 && !repeat {
+                        self.module_edit_mode = !self.module_edit_mode;
+                    }
+                }
+
+                if self.module_edit_mode {
+                } else {
+                    for module in &mut self.modules {
+                        module.on_event(&event, &mut self.graphics_context);
+                    }
                 }
             }
 
@@ -146,7 +158,7 @@ impl UiManager {
                 self.tile_modules(
                     gfx::FloatPos(0.0, 0.0),
                     window_size,
-                    &module_manager.get_root(),
+                    module_manager.get_root(),
                 );
                 //loop through the modules and update their containers
                 for module in &mut self.modules {
@@ -284,7 +296,7 @@ impl UiManager {
     }
 
     ///returns the save path for config
-    pub fn get_save_path(&self) -> &PathBuf {
+    pub const fn get_save_path(&self) -> &PathBuf {
         &self.save_path
     }
 }
@@ -309,5 +321,5 @@ pub trait ModuleTrait {
     /// gives the event sender to the module, so it can send data to the server
     fn set_sender(&mut self, _sender: Sender<UiMessageType>) {}
     /// sends sdl2 events to the module
-    fn on_event(&mut self, _event: &gfx::Event, _graphics_context: &mut gfx::GraphicsContext) {}
+    fn on_event(&mut self, _event: &Event, _graphics_context: &mut gfx::GraphicsContext) {}
 }

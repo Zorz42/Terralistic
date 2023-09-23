@@ -1,7 +1,7 @@
 use anyhow::Result;
 use std::fs::File;
 use std::io::{BufReader, Write};
-use std::path::PathBuf;
+use std::path::Path;
 
 /// This enum indicates the type of the `ModuleTree` Node.
 /// `Nothing` means that the node and its window area are empty.
@@ -39,22 +39,22 @@ pub struct ModuleManager {
 }
 
 impl ModuleManager {
-    pub fn new(root: ModuleTreeSplit) -> Self {
+    pub const fn new(root: ModuleTreeSplit) -> Self {
         Self { root }
     }
 
     /// Reads the module tree from the save file in `server_data/ui_config.json`. if the file doesn't exist or is not a valid format, use the default config
-    pub fn from_save_file(config_path: &PathBuf) -> Self {
-        return match Self::try_from_save_file(config_path) {
+    pub fn from_save_file(config_path: &Path) -> Self {
+        match Self::try_from_save_file(config_path) {
             Ok(res) => res,
             Err(e) => {
                 eprintln!("{e}");
                 Self::default()
             }
-        };
+        }
     }
 
-    fn try_from_save_file(config_path: &PathBuf) -> Result<Self> {
+    fn try_from_save_file(config_path: &Path) -> Result<Self> {
         let config_file_path = config_path.join("ui_config.json");
         let file = File::open(config_file_path)?;
         let reader = BufReader::new(file);
@@ -63,7 +63,7 @@ impl ModuleManager {
         Ok(Self { root })
     }
 
-    pub fn save_to_file(&self, config_path: &PathBuf) -> Result<()> {
+    pub fn save_to_file(&self, config_path: &Path) -> Result<()> {
         let mut file = File::create(config_path.join("ui_config.json"))?;
         let json_str = serde_json::to_string_pretty(&self.root)?;
         let res = file.write(json_str.as_bytes());
@@ -76,7 +76,7 @@ impl ModuleManager {
 
     /// Creates the default module tree and returns it
     fn default_module_tree() -> ModuleTreeSplit {
-        let split = ModuleTreeSplit {
+        ModuleTreeSplit {
             orientation: SplitType::Horizontal,
             split_pos: 0.1,
             first: ModuleTreeNodeType::Module("ServerInfo".to_owned()),
@@ -86,11 +86,10 @@ impl ModuleManager {
                 first: ModuleTreeNodeType::Module("PlayerList".to_owned()),
                 second: ModuleTreeNodeType::Module("Console".to_owned()),
             })),
-        };
-        split
+        }
     }
 
-    pub fn get_root(&self) -> &ModuleTreeSplit {
+    pub const fn get_root(&self) -> &ModuleTreeSplit {
         &self.root
     }
 }
