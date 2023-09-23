@@ -39,6 +39,7 @@ pub struct ModuleManager {
 }
 
 impl ModuleManager {
+    #[allow(dead_code)]
     pub const fn new(root: ModuleTreeSplit) -> Self {
         Self { root }
     }
@@ -63,6 +64,7 @@ impl ModuleManager {
         Ok(Self { root })
     }
 
+    #[allow(dead_code)]
     pub fn save_to_file(&self, config_path: &Path) -> Result<()> {
         let mut file = File::create(config_path.join("ui_config.json"))?;
         let json_str = serde_json::to_string_pretty(&self.root)?;
