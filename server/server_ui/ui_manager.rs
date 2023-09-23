@@ -1,7 +1,5 @@
 use alloc::sync::Arc;
 use core::sync::atomic::AtomicBool;
-use std::fs::File;
-use std::io::Write;
 use std::path::{Path, PathBuf};
 use std::sync::mpsc::{Receiver, Sender};
 use std::sync::Mutex;
@@ -11,41 +9,13 @@ use crate::libraries::graphics as gfx;
 use crate::server::server_core::Server;
 use crate::server::server_ui::player_list;
 use crate::server::server_ui::server_info;
+use crate::server::server_ui::ui_module_manager::{
+    ModuleManager, ModuleTreeNodeType, ModuleTreeSplit, SplitType,
+};
 use crate::server::server_ui::{console, ServerState, UiMessageType};
 
 pub const SCALE: f32 = 2.0;
 pub const EDGE_SPACING: f32 = 4.0;
-
-/// This enum indicates the type of the `ModuleTree` Node.
-/// `Nothing` means that the node and its window area are empty.
-/// `Split` means that the node's window area splits into 2 more nodes.
-/// `Module` means that the node is a module which takes up the node's window area.
-/// Ideally Nothing should never be used as that means the upper node splits into a module ans nothing, when it itself should just be a module. Nothing may be used for editing the tree in the future
-#[derive(serde_derive::Serialize, serde_derive::Deserialize)]
-enum ModuleTreeNodeType {
-    Nothing,
-    Split(Box<ModuleTreeSplit>),
-    Module(String),
-}
-
-/// This enum indicates the type of split. `Vertical` splits the window area of that node into 2 areas, one on the left and one on the right. `Horizontal` splits the window area of that node into 2 areas, one on the top and one on the bottom.
-#[derive(serde_derive::Serialize, serde_derive::Deserialize)]
-enum SplitType {
-    Vertical,
-    Horizontal,
-}
-
-/// This struct is used to save the module's positions on the screen in a binary tree like structure.
-/// The `orientation` indicates the type of split.
-/// The `split_pos` indicates the position of the split, with the number from 0 to 1 indicating what part of the area is assigned to the left or top subpart, and the rest is allocated to the bottom part.
-/// The `first` and `second` indicate the first and second nodes of the split. The first node is the left or top node, and the second node is the right or bottom node, depending on the orientation.
-#[derive(serde_derive::Serialize, serde_derive::Deserialize)]
-struct ModuleTreeSplit {
-    orientation: SplitType,
-    split_pos: f32,
-    first: ModuleTreeNodeType,
-    second: ModuleTreeNodeType,
-}
 
 /// `UiManager` is the main struct of the UI. It manages the UI modules and the UI window and communicates with the server.
 pub struct UiManager {
@@ -115,7 +85,7 @@ impl UiManager {
         }
 
         //load the module tree
-        let module_tree = self.read_module_tree();
+        let module_manager = ModuleManager::from_save_file(&self.save_path);
 
         //this saves the window size. It is initialized to 0,0 so that all modules are resized on the first frame
         let mut window_size = gfx::FloatSize(0.0, 0.0);
@@ -123,8 +93,8 @@ impl UiManager {
         gfx::RenderRect::new(gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, 0.0))
             .render(&self.graphics_context, None); //rect that makes rendering work. It is useless but do not remove it or the rendering will not work. Blame the graphics library by Zorz42
 
-        let mut server_delta_time = server_last_time.elapsed().as_secs_f32() * 1000.0;
-        let mut ui_delta_time = ui_last_time.elapsed().as_secs_f32() * 1000.0;
+        let mut server_delta_time;
+        let mut ui_delta_time;
 
         'main: loop {
             ui_delta_time = ui_last_time.elapsed().as_secs_f32() * 1000.0;
@@ -172,7 +142,11 @@ impl UiManager {
             //resize the modules if the window size has changed
             if window_size != self.graphics_context.renderer.get_window_size() {
                 window_size = self.graphics_context.renderer.get_window_size();
-                self.tile_modules(gfx::FloatPos(0.0, 0.0), window_size, &module_tree);
+                self.tile_modules(
+                    gfx::FloatPos(0.0, 0.0),
+                    window_size,
+                    &module_manager.get_root(),
+                );
                 //loop through the modules and update their containers
                 for module in &mut self.modules {
                     module
@@ -244,7 +218,7 @@ impl UiManager {
         }
     }
 
-    /// Reads the module tree from the save file.
+    /// Moves and resizes the modules according to the config
     fn tile_modules(&mut self, pos: gfx::FloatPos, size: gfx::FloatSize, node: &ModuleTreeSplit) {
         //calculate pos and size for both sides of the split
         let (first_size, second_size, first_pos, second_pos) =
@@ -308,68 +282,9 @@ impl UiManager {
             .find(|module| module.get_name() == name)
     }
 
-    /// Reads the module tree from the save file in `server_data/ui_config.json`. if the file doesn't exist or is not a valid format, use the default config
-    /// NOTE: this is currently disabled because the ui config is not final. The default config is used instead
-    fn read_module_tree(&self) -> ModuleTreeSplit {
-        self.write_default_module_tree()
-
-        /*let config_file = self.save_path.join("ui_config.json");//TODO: uncomment after the final ui config is decided
-        if config_file.exists() {
-            let file = File::open(config_file);
-            file.map_or_else(
-                |_| self.write_default_module_tree(),
-                |file| {
-                    let reader = BufReader::new(file);
-                    let res = serde_json::from_reader(reader);
-                    res.map_or_else(|_| {
-                        println!("Failed to parse ui_config.json");
-                        self.write_default_module_tree()
-                    }, |res| res)
-                })
-        } else {
-            self.write_default_module_tree()
-        }*/
-    }
-
-    /// Creates the default module tree and saves it to the save file in `server_data/ui_config.json`, then returns it
-    fn write_default_module_tree(&self) -> ModuleTreeSplit {
-        let split = ModuleTreeSplit {
-            orientation: SplitType::Horizontal,
-            split_pos: 0.1,
-            first: ModuleTreeNodeType::Module("ServerInfo".to_owned()),
-            second: ModuleTreeNodeType::Split(Box::from(ModuleTreeSplit {
-                orientation: SplitType::Vertical,
-                split_pos: 0.5,
-                first: ModuleTreeNodeType::Module("PlayerList".to_owned()),
-                second: ModuleTreeNodeType::Module("Console".to_owned()),
-            })),
-        };
-        self.save_file_tree(&split);
-        split
-    }
-
-    /// Saves the module tree to the save file in `server_data/ui_config.json`
-    fn save_file_tree(&self, tree: &ModuleTreeSplit) {
-        let file = File::create(self.save_path.join("ui_config.json"));
-        file.map_or_else(
-            |_| {
-                println!("Failed to create ui_config.json");
-            },
-            |mut file| {
-                let json_str = serde_json::to_string_pretty(&tree);
-                json_str.map_or_else(
-                    |_| {
-                        println!("Failed to serialize ui_config.json");
-                    },
-                    |json_str| {
-                        let res = file.write(json_str.as_bytes());
-                        if let Err(err) = res {
-                            println!("Failed to write ui_config.json: {err}");
-                        }
-                    },
-                );
-            },
-        );
+    ///returns the save path for config
+    pub fn get_save_path(&self) -> &PathBuf {
+        &self.save_path
     }
 }
 
