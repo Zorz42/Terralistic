@@ -94,7 +94,8 @@ impl UiManager {
         let ms_timer = std::time::Instant::now();
         let mut ms_counter = 0;
         let mut num_updates = 0;
-        let mut last_time = std::time::Instant::now();
+        let mut ui_last_time = std::time::Instant::now();
+        let mut server_last_time = std::time::Instant::now();
 
         //give sender to the modules
         for module in &mut self.modules {
@@ -122,17 +123,26 @@ impl UiManager {
         gfx::RenderRect::new(gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, 0.0))
             .render(&self.graphics_context, None); //rect that makes rendering work. It is useless but do not remove it or the rendering will not work. Blame the graphics library by Zorz42
 
+        let mut server_delta_time = server_last_time.elapsed().as_secs_f32() * 1000.0;
+        let mut ui_delta_time = ui_last_time.elapsed().as_secs_f32() * 1000.0;
+
         'main: loop {
-            let delta_time = last_time.elapsed().as_secs_f32() * 1000.0;
-            last_time = std::time::Instant::now();
+            ui_delta_time = ui_last_time.elapsed().as_secs_f32() * 1000.0;
+            ui_last_time = std::time::Instant::now();
             let mut server_mspt = None;
 
-            if num_updates
+            while num_updates
                 < ms_timer.elapsed().as_millis() as u64 * self.server.tps_limit as u64 / 1000
             {
+                server_delta_time = server_last_time.elapsed().as_secs_f32() * 1000.0;
+                server_last_time = std::time::Instant::now();
+
                 //update the server by 1 tick
                 let server_tick_start = ms_timer.elapsed().as_micros();
-                if let Err(e) = self.server.update(delta_time, ms_timer, &mut ms_counter) {
+                if let Err(e) = self
+                    .server
+                    .update(server_delta_time, ms_timer, &mut ms_counter)
+                {
                     println!("Error running server: {e}");
                     break;
                 }
@@ -172,7 +182,7 @@ impl UiManager {
             }
             //updates the modules
             for module in &mut self.modules {
-                module.update(delta_time, &mut self.graphics_context);
+                module.update(ui_delta_time, &mut self.graphics_context);
             }
 
             //renders the background
@@ -198,7 +208,7 @@ impl UiManager {
             self.graphics_context.renderer.handle_window_resize(); //idk what this does
 
             //update the mspt
-            let ui_mspt = last_time.elapsed().as_micros() as f64 / 1000.0;
+            let ui_mspt = ui_delta_time as f64 / 1000.0;
 
             for module in &mut self.modules {
                 if module.get_name() == "ServerInfo" {
@@ -223,7 +233,7 @@ impl UiManager {
 
             //sleep
             let sleep_time =
-                1000.0 / 120.0 /*fps limit*/ - last_time.elapsed().as_secs_f32() * 1000.0;
+                1000.0 / 120.0 /*fps limit*/ - ui_last_time.elapsed().as_secs_f32() * 1000.0;
             if sleep_time > 0.0 {
                 sleep(core::time::Duration::from_secs_f32(sleep_time / 1000.0));
             }
