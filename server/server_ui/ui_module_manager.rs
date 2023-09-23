@@ -1,5 +1,4 @@
 use crate::libraries::graphics as gfx;
-use crate::libraries::graphics::Event;
 use anyhow::Result;
 use std::fs::File;
 use std::io::{BufReader, Write};
@@ -46,6 +45,7 @@ impl ModuleManager {
         Self { root }
     }
 
+    #[allow(dead_code)]
     /// Reads the module tree from the save file in `server_data/ui_config.json`. if the file doesn't exist or is not a valid format, use the default config
     pub fn from_save_file(config_path: &Path) -> Self {
         match Self::try_from_save_file(config_path) {
@@ -103,11 +103,17 @@ impl ModuleManager {
     }
 
     pub fn on_event(&self, event: &gfx::Event) {
-        /*match event {
-            Event::KeyPress(key, repeat) => {}
-            Event::MouseScroll(_) => {}
+        match event {
+            gfx::Event::KeyPress(key, _repeat) => {
+                if *key == gfx::Key::V {
+                    todo!()
+                }
+            }
+            gfx::Event::MouseScroll(_) => {
+                todo!()
+            }
             _ => {}
-        }*/
+        }
     }
 }
 

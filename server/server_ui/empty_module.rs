@@ -6,18 +6,20 @@ use crate::server::server_ui::UiMessageType;
 
 pub struct EmptyModule {
     container: Container,
+    name: String,
 }
 
 impl EmptyModule {
-    pub fn new(graphics_context: &mut GraphicsContext) -> Self {
-        EmptyModule {
-            container: gfx::Container::new(
+    pub fn new(graphics_context: &mut GraphicsContext, name: String) -> Self {
+        Self {
+            container: Container::new(
                 graphics_context,
                 gfx::FloatPos(EDGE_SPACING, 0.0),
                 gfx::FloatSize(0.0, 0.0),
                 gfx::TOP_LEFT,
                 None,
             ),
+            name,
         }
     }
 }
@@ -39,6 +41,6 @@ impl ui_manager::ModuleTrait for EmptyModule {
     }
 
     fn get_name(&self) -> &str {
-        "Empty"
+        &self.name
     }
 }

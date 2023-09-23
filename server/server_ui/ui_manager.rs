@@ -8,13 +8,11 @@ use std::thread::sleep;
 use crate::libraries::graphics as gfx;
 use crate::libraries::graphics::Event;
 use crate::server::server_core::Server;
-use crate::server::server_ui::empty_module;
-use crate::server::server_ui::player_list;
-use crate::server::server_ui::server_info;
 use crate::server::server_ui::ui_module_manager::{
     ModuleManager, ModuleTreeNodeType, ModuleTreeSplit, SplitType,
 };
-use crate::server::server_ui::{console, ServerState, UiMessageType};
+use crate::server::server_ui::{console, empty_module, player_list, server_info};
+use crate::server::server_ui::{ServerState, UiMessageType};
 
 pub const SCALE: f32 = 2.0;
 pub const EDGE_SPACING: f32 = 4.0;
@@ -53,7 +51,6 @@ impl UiManager {
             Box::new(server_info::ServerInfo::new(&mut temp.graphics_context)),
             Box::new(player_list::PlayerList::new(&mut temp.graphics_context)),
             Box::new(console::Console::new(&mut temp.graphics_context)),
-            Box::new(empty_module::EmptyModule::new(&mut temp.graphics_context)),
         ];
         temp
     }
@@ -91,7 +88,7 @@ impl UiManager {
         }
 
         //load the module tree
-        let module_manager = ModuleManager::default(); //ModuleManager::from_save_file(&self.save_path);
+        let module_manager = ModuleManager::from_save_file(&self.save_path);
 
         //this saves the window size. It is initialized to 0,0 so that all modules are resized on the first frame
         let mut window_size = gfx::FloatSize(0.0, 0.0);
@@ -257,8 +254,8 @@ impl UiManager {
         //recursively tile the nodes
         match &node.first {
             //first node is a module. Transform it to its dedicated position and size
-            ModuleTreeNodeType::Module(module) => {
-                self.transform_module(module, first_pos, first_size);
+            ModuleTreeNodeType::Module(module_name) => {
+                self.transform_module(module_name, first_pos, first_size);
             }
             //first node is a split. Tile it
             ModuleTreeNodeType::Split(node) => {
@@ -269,8 +266,8 @@ impl UiManager {
         }
         match &node.second {
             //second node is a module. Transform it to its dedicated position and size
-            ModuleTreeNodeType::Module(module) => {
-                self.transform_module(module, second_pos, second_size);
+            ModuleTreeNodeType::Module(module_name) => {
+                self.transform_module(module_name, second_pos, second_size);
             }
             //second node is a split. Tile it
             ModuleTreeNodeType::Split(node) => {
@@ -282,12 +279,23 @@ impl UiManager {
     }
 
     /// Resizes and moves the module with the given name to the given position and size
-    fn transform_module(&mut self, name: &str, pos: gfx::FloatPos, size: gfx::FloatSize) {
-        if let Some(module) = self.get_module(name) {
-            module.get_container_mut().rect.size =
-                size - gfx::FloatSize(EDGE_SPACING * 2.0, EDGE_SPACING * 2.0);
-            module.get_container_mut().rect.pos = pos + gfx::FloatPos(EDGE_SPACING, EDGE_SPACING);
-        }
+    fn transform_module(&mut self, module_name: &str, pos: gfx::FloatPos, size: gfx::FloatSize) {
+        let module = if let Some(module) = self.get_module(module_name) {
+            module
+        } else {
+            let module = Box::new(empty_module::EmptyModule::new(
+                &mut self.graphics_context,
+                module_name.to_owned(),
+            ));
+            self.modules.push(module);
+            #[allow(clippy::unwrap_used)]
+            //unwrap is safe because we just pushed it to self.modules
+            self.modules.last_mut().unwrap()
+        };
+
+        module.get_container_mut().rect.size =
+            size - gfx::FloatSize(EDGE_SPACING * 2.0, EDGE_SPACING * 2.0);
+        module.get_container_mut().rect.pos = pos + gfx::FloatPos(EDGE_SPACING, EDGE_SPACING);
     }
 
     /// Returns a mutable reference to the module with the given name. Functions from the `ModuleTrait` can be called on the returned reference
