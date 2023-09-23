@@ -1,4 +1,5 @@
 mod console;
+mod empty_module;
 mod message_types;
 mod player_list;
 mod server_info;

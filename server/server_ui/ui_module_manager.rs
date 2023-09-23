@@ -1,3 +1,5 @@
+use crate::libraries::graphics as gfx;
+use crate::libraries::graphics::Event;
 use anyhow::Result;
 use std::fs::File;
 use std::io::{BufReader, Write};
@@ -86,13 +88,27 @@ impl ModuleManager {
                 orientation: SplitType::Vertical,
                 split_pos: 0.5,
                 first: ModuleTreeNodeType::Module("PlayerList".to_owned()),
-                second: ModuleTreeNodeType::Module("Console".to_owned()),
+                second: ModuleTreeNodeType::Split(Box::from(ModuleTreeSplit {
+                    orientation: SplitType::Horizontal,
+                    split_pos: 0.2,
+                    first: ModuleTreeNodeType::Module("Empty".to_owned()),
+                    second: ModuleTreeNodeType::Module("Console".to_owned()),
+                })),
             })),
         }
     }
 
     pub const fn get_root(&self) -> &ModuleTreeSplit {
         &self.root
+    }
+
+    pub fn on_event(&self, event: &gfx::Event) {
+        match event {
+            Event::KeyPress(key, repeat) => {}
+            Event::KeyRelease(_, _) => {}
+            Event::MouseScroll(_) => {}
+            Event::TextInput(_) => {}
+        }
     }
 }
 

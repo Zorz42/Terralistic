@@ -8,6 +8,7 @@ use std::thread::sleep;
 use crate::libraries::graphics as gfx;
 use crate::libraries::graphics::Event;
 use crate::server::server_core::Server;
+use crate::server::server_ui::empty_module;
 use crate::server::server_ui::player_list;
 use crate::server::server_ui::server_info;
 use crate::server::server_ui::ui_module_manager::{
@@ -52,6 +53,7 @@ impl UiManager {
             Box::new(server_info::ServerInfo::new(&mut temp.graphics_context)),
             Box::new(player_list::PlayerList::new(&mut temp.graphics_context)),
             Box::new(console::Console::new(&mut temp.graphics_context)),
+            Box::new(empty_module::EmptyModule::new(&mut temp.graphics_context)),
         ];
         temp
     }
@@ -89,7 +91,7 @@ impl UiManager {
         }
 
         //load the module tree
-        let module_manager = ModuleManager::from_save_file(&self.save_path);
+        let module_manager = ModuleManager::default(); //ModuleManager::from_save_file(&self.save_path);
 
         //this saves the window size. It is initialized to 0,0 so that all modules are resized on the first frame
         let mut window_size = gfx::FloatSize(0.0, 0.0);
@@ -134,6 +136,7 @@ impl UiManager {
                 }
 
                 if self.module_edit_mode {
+                    module_manager.on_event(&event);
                 } else {
                     for module in &mut self.modules {
                         module.on_event(&event, &mut self.graphics_context);
