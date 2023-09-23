@@ -103,12 +103,11 @@ impl ModuleManager {
     }
 
     pub fn on_event(&self, event: &gfx::Event) {
-        match event {
+        /*match event {
             Event::KeyPress(key, repeat) => {}
-            Event::KeyRelease(_, _) => {}
             Event::MouseScroll(_) => {}
-            Event::TextInput(_) => {}
-        }
+            _ => {}
+        }*/
     }
 }
 

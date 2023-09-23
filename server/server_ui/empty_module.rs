@@ -1,5 +1,5 @@
 use super::ui_manager;
-use super::ui_manager::{EDGE_SPACING, SCALE};
+use super::ui_manager::EDGE_SPACING;
 use crate::libraries::graphics as gfx;
 use crate::libraries::graphics::{Container, GraphicsContext};
 use crate::server::server_ui::UiMessageType;
@@ -23,14 +23,14 @@ impl EmptyModule {
 }
 
 impl ui_manager::ModuleTrait for EmptyModule {
-    fn update(&mut self, delta_time_seconds: f32, graphics_context: &mut GraphicsContext) {}
+    fn update(&mut self, _delta_time_seconds: f32, _graphics_context: &mut GraphicsContext) {}
 
-    fn render(&mut self, graphics_context: &mut GraphicsContext) {}
+    fn render(&mut self, _graphics_context: &mut GraphicsContext) {}
 
     fn on_server_message(
         &mut self,
-        message: &UiMessageType,
-        graphics_context: &mut GraphicsContext,
+        _message: &UiMessageType,
+        _graphics_context: &mut GraphicsContext,
     ) {
     }
 
