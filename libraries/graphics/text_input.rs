@@ -60,7 +60,9 @@ impl TextInput {
             timer: std::time::Instant::now(),
             timer_counter: 0,
             text: String::new(),
-            text_texture: gfx::Texture::load_from_surface(&graphics.font.create_text_surface("")),
+            text_texture: gfx::Texture::load_from_surface(
+                &graphics.font.create_text_surface("", None),
+            ),
             text_changed: true,
             selected: false,
             shadow_intensity: GFX_DEFAULT_TEXT_INPUT_SHADOW_INTENSITY,
@@ -122,7 +124,7 @@ impl TextInput {
     /// sets the hint text in the input box
     pub fn set_hint(&mut self, graphics: &mut gfx::GraphicsContext, hint: &str) {
         self.hint_texture =
-            gfx::Texture::load_from_surface(&graphics.font.create_text_surface(hint));
+            gfx::Texture::load_from_surface(&graphics.font.create_text_surface(hint, None));
     }
 
     /// returns the cursor in order
@@ -177,8 +179,9 @@ impl TextInput {
         let rect = container.get_absolute_rect();
 
         if self.text_changed && !self.text.is_empty() {
-            self.text_texture =
-                gfx::Texture::load_from_surface(&graphics.font.create_text_surface(&self.text));
+            self.text_texture = gfx::Texture::load_from_surface(
+                &graphics.font.create_text_surface(&self.text, None),
+            );
         }
 
         let hover_progress_target = if self.is_hovered(graphics, parent_container) {
@@ -295,7 +298,7 @@ impl TextInput {
             } else {
                 graphics
                     .font
-                    .create_text_surface(self.text.get(..self.get_cursor().0).unwrap_or(""))
+                    .create_text_surface(self.text.get(..self.get_cursor().0).unwrap_or(""), None)
                     .get_size()
                     .0 as f32
                     * self.scale
@@ -307,7 +310,7 @@ impl TextInput {
             } else {
                 graphics
                     .font
-                    .create_text_surface(self.text.get(..self.get_cursor().1).unwrap_or(""))
+                    .create_text_surface(self.text.get(..self.get_cursor().1).unwrap_or(""), None)
                     .get_size()
                     .0 as f32
                     * self.scale

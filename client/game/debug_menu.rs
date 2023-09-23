@@ -43,7 +43,7 @@ impl DebugMenu {
             let mut width = 0.0;
             let mut height = 0.0;
             for line in lines {
-                let size = graphics.font.get_text_size_scaled(line, scale);
+                let size = graphics.font.get_text_size_scaled(line, scale, None);
 
                 width = f32::max(width, size.0);
                 height += size.1;
@@ -66,7 +66,7 @@ impl DebugMenu {
                     scale,
                 );
 
-                let size = graphics.font.get_text_size_scaled(line, scale);
+                let size = graphics.font.get_text_size_scaled(line, scale, None);
                 y += size.1;
             }
         }

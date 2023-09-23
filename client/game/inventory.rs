@@ -52,7 +52,7 @@ fn render_item_stack(
             if item.count > 1 {
                 let text_scale = 1.0;
                 let text = format!("{}", item.count);
-                let text_size = graphics.font.get_text_size_scaled(&text, text_scale);
+                let text_size = graphics.font.get_text_size_scaled(&text, text_scale, None);
                 let text_pos = gfx::FloatPos(
                     pos.0 + INVENTORY_SLOT_SIZE - text_size.0 - 2.0,
                     pos.1 + INVENTORY_SLOT_SIZE - text_size.1 - 2.0,

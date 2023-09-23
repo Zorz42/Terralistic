@@ -33,21 +33,21 @@ impl PauseMenu {
 
     pub fn init(&mut self, graphics: &mut gfx::GraphicsContext, settings: &mut Settings) {
         self.resume_button.texture =
-            gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Resume"));
+            gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Resume", None));
         self.resume_button.scale = 3.0;
         self.resume_button.pos.0 = -gfx::SPACING;
         self.resume_button.pos.1 = gfx::SPACING;
         self.resume_button.orientation = gfx::TOP_RIGHT;
 
         self.settings_button.texture =
-            gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Settings"));
+            gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Settings", None));
         self.settings_button.scale = 3.0;
         self.settings_button.pos.0 = -gfx::SPACING;
         self.settings_button.pos.1 = 2.0 * gfx::SPACING + self.resume_button.get_size().1;
         self.settings_button.orientation = gfx::TOP_RIGHT;
 
         self.quit_button.texture =
-            gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Quit"));
+            gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Quit", None));
         self.quit_button.scale = 3.0;
         self.quit_button.pos.0 = -gfx::SPACING;
         self.quit_button.pos.1 = 3.0 * gfx::SPACING

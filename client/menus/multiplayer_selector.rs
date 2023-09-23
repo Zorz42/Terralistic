@@ -71,7 +71,8 @@ impl ServerCard {
         icon.orientation = gfx::LEFT;
 
         let mut title = gfx::Sprite::new();
-        title.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface(&name));
+        title.texture =
+            gfx::Texture::load_from_surface(&graphics.font.create_text_surface(&name, None));
         title.pos.0 = icon.pos.0 + icon.get_size().1 + gfx::SPACING;
         title.pos.1 = gfx::SPACING;
         title.scale = 3.0;
@@ -233,7 +234,7 @@ pub fn run_multiplayer_selector(
     title.texture = gfx::Texture::load_from_surface(
         &graphics
             .font
-            .create_text_surface("Select a server to play!"),
+            .create_text_surface("Select a server to play!", None),
     );
     title.pos.1 = gfx::SPACING;
     title.orientation = gfx::TOP;
@@ -241,14 +242,14 @@ pub fn run_multiplayer_selector(
     let mut back_button = gfx::Button::new();
     back_button.scale = 3.0;
     back_button.texture =
-        gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Back"));
+        gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Back", None));
     back_button.pos.1 = -gfx::SPACING;
     back_button.orientation = gfx::BOTTOM;
 
     let mut new_server_button = gfx::Button::new();
     new_server_button.scale = 3.0;
     new_server_button.texture =
-        gfx::Texture::load_from_surface(&graphics.font.create_text_surface("New"));
+        gfx::Texture::load_from_surface(&graphics.font.create_text_surface("New", None));
     new_server_button.pos.1 = -gfx::SPACING;
     new_server_button.pos.0 = -gfx::SPACING;
     new_server_button.orientation = gfx::BOTTOM_RIGHT;

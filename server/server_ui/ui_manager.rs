@@ -84,6 +84,7 @@ impl UiManager {
     }
 
     /// runs the UI. This function should only be called once as it runs until the window is closed or the server is stopped (one of those 2 events also triggers the other one).
+    #[allow(clippy::too_many_lines)]
     pub fn run(
         &mut self,
         is_running: &Arc<AtomicBool>,
@@ -123,8 +124,8 @@ impl UiManager {
         gfx::RenderRect::new(gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, 0.0))
             .render(&self.graphics_context, None); //rect that makes rendering work. It is useless but do not remove it or the rendering will not work. Blame the graphics library by Zorz42
 
-        let mut server_delta_time = server_last_time.elapsed().as_secs_f32() * 1000.0;
-        let mut ui_delta_time = ui_last_time.elapsed().as_secs_f32() * 1000.0;
+        let mut server_delta_time;
+        let mut ui_delta_time;
 
         'main: loop {
             ui_delta_time = ui_last_time.elapsed().as_secs_f32() * 1000.0;

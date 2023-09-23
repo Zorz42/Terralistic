@@ -81,16 +81,18 @@ impl ServerInfo {
             ServerState::Stopped => "Stopped",
         }
         .to_owned();
-        self.server_state_sprite.texture =
-            gfx::Texture::load_from_surface(&graphics_context.font.create_text_surface(&state_str));
+        self.server_state_sprite.texture = gfx::Texture::load_from_surface(
+            &graphics_context.font.create_text_surface(&state_str, None),
+        );
     }
 }
 
 impl ui_manager::ModuleTrait for ServerInfo {
     //initializes all the sprites
     fn init(&mut self, graphics_context: &mut gfx::GraphicsContext) {
-        self.server_state_sprite.texture =
-            gfx::Texture::load_from_surface(&graphics_context.font.create_text_surface("test"));
+        self.server_state_sprite.texture = gfx::Texture::load_from_surface(
+            &graphics_context.font.create_text_surface("test", None),
+        );
         self.server_state_sprite.color = gfx::WHITE;
         self.server_state_sprite.scale = SCALE;
         self.server_state_sprite.orientation = gfx::TOP;
@@ -109,7 +111,9 @@ impl ui_manager::ModuleTrait for ServerInfo {
         self.player_count_sprite.orientation = gfx::TOP_LEFT;
         self.player_count_sprite.pos = gfx::FloatPos(gfx::SPACING, gfx::SPACING);
         self.player_count_sprite.texture = gfx::Texture::load_from_surface(
-            &graphics_context.font.create_text_surface("Players: 0"),
+            &graphics_context
+                .font
+                .create_text_surface("Players: 0", None),
         );
     }
 
@@ -119,7 +123,7 @@ impl ui_manager::ModuleTrait for ServerInfo {
         self.uptime.texture = gfx::Texture::load_from_surface(
             &graphics_context
                 .font
-                .create_text_surface(&format!("Uptime: {}", format_seconds(uptime_num))),
+                .create_text_surface(&format!("Uptime: {}", format_seconds(uptime_num)), None),
         );
 
         //calculate state and mspt_sprite text positions
@@ -191,6 +195,7 @@ impl ui_manager::ModuleTrait for ServerInfo {
                             1000.0 / 20.0
                         )
                         .as_str(),
+                        None,
                     ),
                 );
                 self.last_update = std::time::Instant::now();
@@ -205,7 +210,7 @@ impl ui_manager::ModuleTrait for ServerInfo {
                     self.player_count_sprite.texture = gfx::Texture::load_from_surface(
                         &graphics_context
                             .font
-                            .create_text_surface(&format!("Players: {}", self.players_count)),
+                            .create_text_surface(&format!("Players: {}", self.players_count), None),
                     );
                 }
                 //update player count sprite
@@ -214,7 +219,7 @@ impl ui_manager::ModuleTrait for ServerInfo {
                     self.player_count_sprite.texture = gfx::Texture::load_from_surface(
                         &graphics_context
                             .font
-                            .create_text_surface(&format!("Players: {}", self.players_count)),
+                            .create_text_surface(&format!("Players: {}", self.players_count), None),
                     );
                 }
             },

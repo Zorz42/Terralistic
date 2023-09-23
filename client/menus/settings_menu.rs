@@ -49,7 +49,8 @@ fn setting_to_ui(
     text_sprite.scale = 2.0;
     text_sprite.orientation = gfx::LEFT;
     text_sprite.pos = gfx::FloatPos(gfx::SPACING, 0.0);
-    text_sprite.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface(text));
+    text_sprite.texture =
+        gfx::Texture::load_from_surface(&graphics.font.create_text_surface(text, None));
 
     match setting {
         Setting::Toggle { toggled, .. } => SettingUi::Toggle {
@@ -64,8 +65,9 @@ fn setting_to_ui(
             for choice in choices {
                 let mut button = gfx::Button::new();
                 button.scale = 2.0;
-                button.texture =
-                    gfx::Texture::load_from_surface(&graphics.font.create_text_surface(choice));
+                button.texture = gfx::Texture::load_from_surface(
+                    &graphics.font.create_text_surface(choice, None),
+                );
                 button.orientation = gfx::RIGHT;
                 buttons.push((false, button));
             }
@@ -89,8 +91,9 @@ fn setting_to_ui(
             for choice in choices {
                 let mut button = gfx::Button::new();
                 button.scale = 2.0;
-                button.texture =
-                    gfx::Texture::load_from_surface(&graphics.font.create_text_surface(choice));
+                button.texture = gfx::Texture::load_from_surface(
+                    &graphics.font.create_text_surface(choice, None),
+                );
                 button.orientation = gfx::RIGHT;
                 buttons.push((false, button));
             }
@@ -261,7 +264,7 @@ fn render_setting_ui(
                     if slider_choice.to_string() != *slider_text_string {
                         *slider_text_string = slider_choice.to_string();
                         slider_text.texture = gfx::Texture::load_from_surface(
-                            &graphics.font.create_text_surface(slider_text_string),
+                            &graphics.font.create_text_surface(slider_text_string, None),
                         );
                     }
                 }
@@ -341,7 +344,7 @@ impl SettingsMenu {
     pub fn init(&mut self, graphics: &mut gfx::GraphicsContext, settings: &Settings) {
         self.back_button.scale = 3.0;
         self.back_button.texture =
-            gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Back"));
+            gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Back", None));
         self.back_button.pos.1 = -gfx::SPACING;
         self.back_button.orientation = gfx::BOTTOM;
 
