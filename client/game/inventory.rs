@@ -128,7 +128,7 @@ impl ClientInventory {
         networking: &mut ClientNetworking,
     ) -> Result<()> {
         let open_target = if self.is_open { 1.0 } else { 0.0 };
-        self.open_progress += (open_target - self.open_progress) / 10.0;
+        self.open_progress += (open_target - self.open_progress) / 5.0;
 
         if !self.is_open {
             if self.inventory.selected_slot.is_none() {
@@ -205,7 +205,7 @@ impl ClientInventory {
                     0.0
                 };
 
-                *pos_y += (target_y - *pos_y) / 10.0;
+                *pos_y += (target_y - *pos_y) / 5.0;
 
                 let item = if self.is_open && self.inventory.selected_slot == Some(i) {
                     &None
