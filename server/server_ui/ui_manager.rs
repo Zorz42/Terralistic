@@ -151,8 +151,11 @@ impl UiManager {
                 }
             }
 
-            //resize the modules if the window size has changed
-            if window_size != self.graphics_context.renderer.get_window_size() {
+            //resize the modules if the window size has changed or the module tree has changed
+            if window_size != self.graphics_context.renderer.get_window_size()
+                || module_manager.changed
+            {
+                module_manager.changed = false;
                 window_size = self.graphics_context.renderer.get_window_size();
                 self.tile_modules(
                     gfx::FloatPos(0.0, 0.0),
@@ -235,7 +238,12 @@ impl UiManager {
     }
 
     /// Moves and resizes the modules according to the config
-    fn tile_modules(&mut self, pos: gfx::FloatPos, size: gfx::FloatSize, node: &ModuleTreeNodeType) {
+    fn tile_modules(
+        &mut self,
+        pos: gfx::FloatPos,
+        size: gfx::FloatSize,
+        node: &ModuleTreeNodeType,
+    ) {
         //recursively tile the node
         match &node {
             //node is a module. Transform it to its dedicated position and size
@@ -252,7 +260,12 @@ impl UiManager {
     }
 
     /// Tiles a split node
-    fn tile_module_split(&mut self, pos: gfx::FloatPos, size: gfx::FloatSize, node: &ModuleTreeSplit) {
+    fn tile_module_split(
+        &mut self,
+        pos: gfx::FloatPos,
+        size: gfx::FloatSize,
+        node: &ModuleTreeSplit,
+    ) {
         //calculate pos and size for both sides of the split
         let (first_size, second_size, first_pos, second_pos) =
             if matches!(node.orientation, SplitType::Vertical) {

@@ -3,7 +3,6 @@ use anyhow::Result;
 use std::fs::File;
 use std::io::{BufReader, Write};
 use std::path::Path;
-use crate::libraries::graphics::{FloatPos, FloatSize};
 
 /// This enum indicates the type of the `ModuleTree` Node.
 /// `Nothing` means that the node and its window area are empty.
@@ -38,15 +37,25 @@ pub struct ModuleTreeSplit {
 
 pub struct ModuleManager {
     root: ModuleTreeNodeType,
-    path: [bool; 5],//max depth of 5
+    path: Vec<bool>, //max depth of 5
     depth: usize,
     rect: gfx::Rect,
+    pub changed: bool,
 }
 
 impl ModuleManager {
     #[allow(dead_code)]
     pub const fn new(root: ModuleTreeNodeType) -> Self {
-        Self { root, path: [false; 5], depth: 0, rect: gfx::Rect { pos: FloatPos(0.0, 0.0), size: FloatSize(1.0, 1.0) }}
+        Self {
+            root,
+            path: Vec::new(),
+            depth: 0,
+            rect: gfx::Rect {
+                pos: gfx::FloatPos(0.0, 0.0),
+                size: gfx::FloatSize(1.0, 1.0),
+            },
+            changed: false,
+        }
     }
 
     #[allow(dead_code)]
@@ -67,7 +76,16 @@ impl ModuleManager {
         let reader = BufReader::new(file);
         let root = serde_json::from_reader(reader)?;
 
-        Ok(Self { root, path: [false; 5], depth: 0, rect: gfx::Rect { pos: FloatPos(0.0, 0.0), size: FloatSize(1.0, 1.0) }})
+        Ok(Self {
+            root,
+            path: Vec::new(),
+            depth: 0,
+            rect: gfx::Rect {
+                pos: gfx::FloatPos(0.0, 0.0),
+                size: gfx::FloatSize(1.0, 1.0),
+            },
+            changed: false,
+        })
     }
 
     #[allow(dead_code)]
@@ -84,24 +102,22 @@ impl ModuleManager {
 
     /// Creates the default module tree and returns it
     fn default_module_tree() -> ModuleTreeNodeType {
-        ModuleTreeNodeType::Split(Box::from(
-            ModuleTreeSplit {
-                orientation: SplitType::Horizontal,
-                split_pos: 0.1,
-                first: ModuleTreeNodeType::Module("ServerInfo".to_owned()),
+        ModuleTreeNodeType::Split(Box::from(ModuleTreeSplit {
+            orientation: SplitType::Horizontal,
+            split_pos: 0.1,
+            first: ModuleTreeNodeType::Module("ServerInfo".to_owned()),
+            second: ModuleTreeNodeType::Split(Box::from(ModuleTreeSplit {
+                orientation: SplitType::Vertical,
+                split_pos: 0.5,
+                first: ModuleTreeNodeType::Module("PlayerList".to_owned()),
                 second: ModuleTreeNodeType::Split(Box::from(ModuleTreeSplit {
-                    orientation: SplitType::Vertical,
-                    split_pos: 0.5,
-                    first: ModuleTreeNodeType::Module("PlayerList".to_owned()),
-                    second: ModuleTreeNodeType::Split(Box::from(ModuleTreeSplit {
-                        orientation: SplitType::Horizontal,
-                        split_pos: 0.2,
-                        first: ModuleTreeNodeType::Module("Empty".to_owned()),
-                        second: ModuleTreeNodeType::Module("Console".to_owned()),
-                    })),
+                    orientation: SplitType::Horizontal,
+                    split_pos: 0.2,
+                    first: ModuleTreeNodeType::Module("Empty1".to_owned()),
+                    second: ModuleTreeNodeType::Module("Console".to_owned()),
                 })),
-            }
-        ))
+            })),
+        }))
     }
 
     pub const fn get_root(&self) -> &ModuleTreeNodeType {
@@ -110,28 +126,41 @@ impl ModuleManager {
 
     pub fn on_event(&mut self, event: &gfx::Event) {
         match event {
-            gfx::Event::KeyPress(key, _repeat) => {//on every change update depth to min(depth, max_depth)
-                if *key == gfx::Key::V {
-                    todo!()
-                }
-                if *key == gfx::Key::F1 {
-                    self.depth = 0;
-                    self.recalculate_selection_rect();
-                }
-                if *key == gfx::Key::Space && self.depth > 0 {
-                    let path_at_depth = self.path.get_mut(self.depth - 1);
-                    if let Some(path_at_depth) = path_at_depth {
-                        *path_at_depth = !*path_at_depth;
+            gfx::Event::KeyPress(key, _repeat) => {
+                //on every change update depth to min(depth, max_depth)
+                match *key {
+                    gfx::Key::F1 => {
+                        self.depth = 0;
                         self.recalculate_selection_rect();
                     }
-                }
-                if *key == gfx::Key::Down {
-                    self.depth += 1;
-                    self.recalculate_selection_rect();
-                }
-                if *key == gfx::Key::Up {
-                    self.depth -= 1;
-                    self.recalculate_selection_rect();
+                    gfx::Key::Down => {
+                        self.depth += 1;
+                        self.recalculate_selection_rect();
+                    }
+                    gfx::Key::Up => {
+                        if self.depth > 0 {
+                            self.depth -= 1;
+                            self.recalculate_selection_rect();
+                        }
+                    }
+                    gfx::Key::Space => {
+                        if self.depth > 0 {
+                            let path_at_depth = self.path.get_mut(self.depth - 1);
+                            if let Some(path_at_depth) = path_at_depth {
+                                *path_at_depth = !*path_at_depth;
+                                self.recalculate_selection_rect();
+                            }
+                        }
+                    }
+                    gfx::Key::V => {
+                        self.split(self.depth, SplitType::Vertical, 0.5);
+                        self.changed = true;
+                    }
+                    gfx::Key::S => {
+                        self.split(self.depth, SplitType::Horizontal, 0.5);
+                        self.changed = true;
+                    }
+                    _ => {}
                 }
             }
             gfx::Event::MouseScroll(_) => {
@@ -141,7 +170,52 @@ impl ModuleManager {
         }
     }
 
+    fn get_node_mut(&mut self, path: Option<&Vec<bool>>, depth: usize) -> &mut ModuleTreeNodeType {
+        if self.path.len() < depth + 1 {
+            self.path.resize(depth + 1, false);
+        }
+        let mut node = &mut self.root;
+        let path = path.unwrap_or(&self.path);
+        for &path_at_depth in path.get(0..depth).unwrap_or(&[]) {
+            match node {
+                ModuleTreeNodeType::Split(split_node) => {
+                    node = if path_at_depth {
+                        &mut split_node.second
+                    } else {
+                        &mut split_node.first
+                    };
+                }
+                _ => {
+                    break;
+                }
+            }
+        }
+        node
+    }
+    fn split(&mut self, depth: usize, orientation: SplitType, split_pos: f32) {
+        if self.path.len() < depth + 1 {
+            self.path.resize(depth + 1, false);
+        }
+        let mut path = String::from("Empty_");
+        //append a random number
+        path.push_str(&rand::random::<u32>().to_string());
+
+        let old_node = self.get_node_mut(None, depth);
+
+        let mut new_node = ModuleTreeNodeType::Nothing;
+        core::mem::swap(&mut new_node, old_node);
+        *old_node = ModuleTreeNodeType::Split(Box::from(ModuleTreeSplit {
+            orientation,
+            split_pos,
+            first: new_node,
+            second: ModuleTreeNodeType::Module(path),
+        }));
+    }
+
     fn recalculate_selection_rect(&mut self) {
+        if self.path.len() < self.depth + 1 {
+            self.path.resize(self.depth + 1, false);
+        }
         let (coords, max_depth) = self.get_overlay_rect_coords(&self.root, 0);
         self.depth = self.depth.clamp(0, max_depth);
         self.rect.pos = coords.0;
@@ -150,60 +224,105 @@ impl ModuleManager {
 
     pub fn render(&self, graphics_context: &mut gfx::GraphicsContext) {
         let window_size = graphics_context.renderer.get_window_size();
-        let pos = FloatPos(window_size.0 * self.rect.pos.0, window_size.1 * self.rect.pos.1);
-        let size = FloatSize(window_size.0 * self.rect.size.0, window_size.1 * self.rect.size.1);
+        let pos = gfx::FloatPos(
+            window_size.0 * self.rect.pos.0,
+            window_size.1 * self.rect.pos.1,
+        );
+        let size = gfx::FloatSize(
+            window_size.0 * self.rect.size.0,
+            window_size.1 * self.rect.size.1,
+        );
         let rect = gfx::Rect::new(pos, size);
         rect.render(graphics_context, gfx::WHITE);
     }
 
-    fn get_overlay_rect_coords(&self, node: &ModuleTreeNodeType, depth: usize) -> ((FloatPos, FloatSize), usize) {
+    fn get_overlay_rect_coords(
+        &self,
+        node: &ModuleTreeNodeType,
+        depth: usize,
+    ) -> ((gfx::FloatPos, gfx::FloatSize), usize) {
         if depth == self.depth {
-            return ((FloatPos(0.0, 0.0), FloatSize(1.0, 1.0)), depth);
+            return ((gfx::FloatPos(0.0, 0.0), gfx::FloatSize(1.0, 1.0)), depth);
         }
         match node {
-            ModuleTreeNodeType::Split(node) => {
-                match node.orientation {
-                    SplitType::Vertical => {
-                        let split_factors = self.get_vertical_split_factors(node, depth);
-                        let sub_node = if *self.path.get(depth).unwrap_or(&false) { &node.second } else { &node.first };
-                        let (sub_node_factors, max_depth) = self.get_overlay_rect_coords(sub_node, depth + 1);
+            ModuleTreeNodeType::Split(node) => match node.orientation {
+                SplitType::Vertical => {
+                    let split_factors = self.get_vertical_split_factors(node, depth);
+                    let sub_node = if *self.path.get(depth).unwrap_or(&false) {
+                        &node.second
+                    } else {
+                        &node.first
+                    };
+                    let (sub_node_factors, max_depth) =
+                        self.get_overlay_rect_coords(sub_node, depth + 1);
 
-                        (Self::calculate_factors(split_factors, sub_node_factors), max_depth)
-                    }
-                    SplitType::Horizontal => {
-                        let split_factors = self.get_horizontal_split_factors(node, depth);
-                        let sub_node = if *self.path.get(depth).unwrap_or(&false) { &node.second } else { &node.first };
-                        let (sub_node_factors, max_depth) = self.get_overlay_rect_coords(sub_node, depth + 1);
+                    (
+                        Self::calculate_factors(split_factors, sub_node_factors),
+                        max_depth,
+                    )
+                }
+                SplitType::Horizontal => {
+                    let split_factors = self.get_horizontal_split_factors(node, depth);
+                    let sub_node = if *self.path.get(depth).unwrap_or(&false) {
+                        &node.second
+                    } else {
+                        &node.first
+                    };
+                    let (sub_node_factors, max_depth) =
+                        self.get_overlay_rect_coords(sub_node, depth + 1);
 
-                        (Self::calculate_factors(split_factors, sub_node_factors), max_depth)
-                    }
+                    (
+                        Self::calculate_factors(split_factors, sub_node_factors),
+                        max_depth,
+                    )
                 }
             },
-            _ => {
-                ((FloatPos(0.0, 0.0), FloatSize(1.0, 1.0)), depth)
-            },
+            _ => ((gfx::FloatPos(0.0, 0.0), gfx::FloatSize(1.0, 1.0)), depth),
         }
     }
-    fn get_vertical_split_factors(&self, node: &ModuleTreeSplit, depth: usize) -> (FloatPos, FloatSize) {
+    fn get_vertical_split_factors(
+        &self,
+        node: &ModuleTreeSplit,
+        depth: usize,
+    ) -> (gfx::FloatPos, gfx::FloatSize) {
         if *self.path.get(depth).unwrap_or(&false) {
-            (FloatPos(node.split_pos, 0.0), FloatSize(1.0 - node.split_pos, 1.0))
+            (
+                gfx::FloatPos(node.split_pos, 0.0),
+                gfx::FloatSize(1.0 - node.split_pos, 1.0),
+            )
         } else {
-            (FloatPos(0.0, 0.0), FloatSize(node.split_pos, 1.0))
+            (gfx::FloatPos(0.0, 0.0), gfx::FloatSize(node.split_pos, 1.0))
         }
     }
 
-    fn get_horizontal_split_factors(&self, node: &ModuleTreeSplit, depth: usize) -> (FloatPos, FloatSize) {
+    fn get_horizontal_split_factors(
+        &self,
+        node: &ModuleTreeSplit,
+        depth: usize,
+    ) -> (gfx::FloatPos, gfx::FloatSize) {
         if *self.path.get(depth).unwrap_or(&false) {
-            (FloatPos(0.0, node.split_pos), FloatSize(1.0, 1.0 - node.split_pos))
+            (
+                gfx::FloatPos(0.0, node.split_pos),
+                gfx::FloatSize(1.0, 1.0 - node.split_pos),
+            )
         } else {
-            (FloatPos(0.0, 0.0), FloatSize(1.0, node.split_pos))
+            (gfx::FloatPos(0.0, 0.0), gfx::FloatSize(1.0, node.split_pos))
         }
     }
 
-    fn calculate_factors(split_factors: (FloatPos, FloatSize), sub_node_factors: (FloatPos, FloatSize)) -> (FloatPos, FloatSize) {
+    fn calculate_factors(
+        split_factors: (gfx::FloatPos, gfx::FloatSize),
+        sub_node_factors: (gfx::FloatPos, gfx::FloatSize),
+    ) -> (gfx::FloatPos, gfx::FloatSize) {
         (
-            FloatPos(split_factors.0.0 + sub_node_factors.0.0 * split_factors.1.0, split_factors.0.1 + sub_node_factors.0.1 * split_factors.1.1),
-            FloatSize(split_factors.1.0 * sub_node_factors.1.0, split_factors.1.1 * sub_node_factors.1.1)
+            gfx::FloatPos(
+                split_factors.0 .0 + sub_node_factors.0 .0 * split_factors.1 .0,
+                split_factors.0 .1 + sub_node_factors.0 .1 * split_factors.1 .1,
+            ),
+            gfx::FloatSize(
+                split_factors.1 .0 * sub_node_factors.1 .0,
+                split_factors.1 .1 * sub_node_factors.1 .1,
+            ),
         )
     }
 }
@@ -211,6 +330,15 @@ impl ModuleManager {
 impl Default for ModuleManager {
     fn default() -> Self {
         let root = Self::default_module_tree();
-        Self { root, path: [false; 5], depth: 1, rect: gfx::Rect { pos: FloatPos(0.0, 0.0), size: FloatSize(1.0, 1.0) } }
+        Self {
+            root,
+            path: Vec::new(),
+            depth: 1,
+            rect: gfx::Rect {
+                pos: gfx::FloatPos(0.0, 0.0),
+                size: gfx::FloatSize(1.0, 1.0),
+            },
+            changed: false,
+        }
     }
 }
