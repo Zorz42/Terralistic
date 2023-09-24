@@ -160,17 +160,22 @@ impl ModuleManager {
                         self.split(self.depth, SplitType::Horizontal, 0.5);
                         self.changed = true;
                     }
+                    gfx::Key::Q => {
+                        self.delete(self.depth);
+                        self.recalculate_selection_rect();
+                        self.changed = true;
+                    }
                     _ => {}
                 }
             }
             gfx::Event::MouseScroll(_) => {
-                todo!()
+                todo!("implement resizing with mouse scroll");
             }
             _ => {}
         }
     }
 
-    fn get_node_mut(&mut self, path: Option<&Vec<bool>>, depth: usize) -> &mut ModuleTreeNodeType {
+    fn get_node_mut(&mut self, path: Option<&[bool]>, depth: usize) -> &mut ModuleTreeNodeType {
         if self.path.len() < depth + 1 {
             self.path.resize(depth + 1, false);
         }
@@ -210,6 +215,27 @@ impl ModuleManager {
             first: new_node,
             second: ModuleTreeNodeType::Module(path),
         }));
+    }
+
+    fn delete(&mut self, depth: usize) {
+        if depth == 0 {
+            self.root = ModuleTreeNodeType::Module("Empty".to_owned());
+            return;
+        }
+        let mut flipped_path = self.path.clone(); //looks like a stupid way to flip the last element but avoids many Option<T> cases
+        if let Some(last) = flipped_path.get_mut(depth - 1) {
+            *last = !*last;
+        }
+
+        let mut temp_node = ModuleTreeNodeType::Nothing;
+        {
+            //isolate in a scope to avoid borrow problems
+            let new_node = self.get_node_mut(Some(&flipped_path), depth); //one of the children that will replace the parent split node
+            core::mem::swap(new_node, &mut temp_node);
+        }
+
+        let old_node = self.get_node_mut(None, depth - 1); //the split that will be replaced by one of its children
+        core::mem::swap(&mut temp_node, old_node);
     }
 
     fn recalculate_selection_rect(&mut self) {
@@ -330,9 +356,10 @@ impl ModuleManager {
 impl Default for ModuleManager {
     fn default() -> Self {
         let root = Self::default_module_tree();
+        let path = Vec::with_capacity(5);
         Self {
             root,
-            path: Vec::new(),
+            path,
             depth: 1,
             rect: gfx::Rect {
                 pos: gfx::FloatPos(0.0, 0.0),
