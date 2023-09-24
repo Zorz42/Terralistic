@@ -123,7 +123,7 @@ impl ServerNetworking {
                 NetEvent::Message(peer, packet) => {
                     let packet: Packet = bincode::deserialize(packet).unwrap();
                     if let Some(packet) = packet.try_deserialize::<NamePacket>() {
-                        print_to_console(&format!("[{:?}] joined", packet.name), 0);
+                        print_to_console(&format!("[{:?}] joined the game", packet.name), 0);
                         match event_sender.send(Event::new(NewConnectionEvent {
                             conn: Connection { address: peer },
                             name: packet.name,

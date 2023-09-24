@@ -9,6 +9,7 @@ use crate::server::server_core::networking::{
     Connection, DisconnectEvent, NewConnectionWelcomedEvent, PacketFromClientEvent, SendTarget,
     ServerNetworking,
 };
+use crate::server::server_core::print_to_console;
 use crate::shared::blocks::Blocks;
 use crate::shared::entities::{Entities, HealthChangeEvent, PhysicsComponent, PositionComponent};
 use crate::shared::entities::{HealthChangePacket, HealthComponent};
@@ -180,8 +181,11 @@ impl ServerPlayers {
 
         if let Some(disconnect_event) = event.downcast::<DisconnectEvent>() {
             if let Ok(player_entity) = self.get_player_from_connection(&disconnect_event.conn) {
+                let name = networking.get_connection_name(&disconnect_event.conn);
+                print_to_console(format!("[\"{name}\"] left the game").as_str(), 0);
+
                 self.saved_players.insert(
-                    networking.get_connection_name(&disconnect_event.conn),
+                    name,
                     SavedPlayerData {
                         position: (*entities.ecs.get::<&PositionComponent>(player_entity)?).clone(),
                         inventory: (*entities.ecs.get::<&Inventory>(player_entity)?).clone(),
