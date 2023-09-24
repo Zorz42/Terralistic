@@ -17,9 +17,6 @@ pub struct ItemId {
     id: i32,
 }
 
-// make ItemId lua compatible
-impl rlua::UserData for ItemId {}
-
 impl ItemId {
     #[must_use]
     pub const fn new() -> Self {
@@ -43,10 +40,6 @@ impl ItemStack {
     }
 }
 
-pub struct ItemCreationEvent {
-    pub item_id: u32,
-}
-
 #[derive(Clone)]
 pub struct TileDrop {
     pub item: ItemId,
@@ -60,9 +53,15 @@ impl TileDrop {
     }
 }
 
+pub struct Recipe {
+    pub result: ItemId,
+    pub ingredients: HashMap<ItemId, i32>,
+}
+
 pub struct Items {
     pub(super) item_types: Vec<Item>,
     pub(super) block_drops: HashMap<BlockId, TileDrop>,
+    recipes: Vec<Recipe>,
     wall_drops: HashMap<WallId, TileDrop>,
 }
 
@@ -73,6 +72,7 @@ impl Items {
             item_types: Vec::new(),
             block_drops: HashMap::new(),
             wall_drops: HashMap::new(),
+            recipes: Vec::new(),
         }
     }
 
@@ -170,12 +170,22 @@ impl Items {
             .ok_or_else(|| anyhow!("wall drop not found"))
     }
 
+    #[must_use]
     pub fn get_all_item_type_ids(&self) -> Vec<ItemId> {
         let mut ids = Vec::new();
         for item in &self.item_types {
             ids.push(item.id);
         }
         ids
+    }
+
+    pub fn add_recipe(&mut self, recipe: Recipe) {
+        self.recipes.push(recipe);
+    }
+
+    #[must_use]
+    pub const fn get_recipes(&self) -> &Vec<Recipe> {
+        &self.recipes
     }
 }
 
@@ -205,4 +215,8 @@ impl ItemComponent {
     pub const fn get_item_type(&self) -> ItemId {
         self.item_type
     }
+}
+
+pub struct ItemCreationEvent {
+    pub item_id: u32,
 }

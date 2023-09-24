@@ -1,38 +1,9 @@
-use std::collections::HashMap;
-
 use anyhow::{anyhow, bail, Result};
 use serde_derive::{Deserialize, Serialize};
 
 use crate::libraries::events::EventManager;
 use crate::shared::entities::Entities;
-use crate::shared::items::{ItemId, ItemStack, Items};
-
-pub struct Recipe {
-    pub result: ItemId,
-    pub ingredients: HashMap<ItemId, i32>,
-}
-
-pub struct Recipes {
-    recipes: Vec<Recipe>,
-}
-
-impl Recipes {
-    #[must_use]
-    pub const fn new() -> Self {
-        Self {
-            recipes: Vec::new(),
-        }
-    }
-
-    pub fn add_recipe(&mut self, recipe: Recipe) {
-        self.recipes.push(recipe);
-    }
-
-    #[must_use]
-    pub const fn get_recipes(&self) -> &Vec<Recipe> {
-        &self.recipes
-    }
-}
+use crate::shared::items::{ItemId, ItemStack, Items, Recipe};
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct Inventory {

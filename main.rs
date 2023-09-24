@@ -64,6 +64,8 @@
 #![allow(clippy::significant_drop_tightening)]
 #![allow(clippy::new_without_default)]
 #![allow(clippy::module_inception)]
+#![allow(clippy::std_instead_of_core)]
+#![allow(clippy::std_instead_of_alloc)]
 #![windows_subsystem = "windows"]
 
 extern crate alloc;

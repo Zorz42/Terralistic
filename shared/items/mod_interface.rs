@@ -6,6 +6,9 @@ use std::sync::{Arc, Mutex, PoisonError};
 
 use anyhow::Result;
 
+// make ItemId lua compatible
+impl rlua::UserData for ItemId {}
+
 /// this function initializes the items mod interface
 /// it adds lua functions to the lua context
 /// # Errors
