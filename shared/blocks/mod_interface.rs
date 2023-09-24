@@ -9,6 +9,16 @@ use rlua::UserDataMethods;
 use std::sync::mpsc::Receiver;
 use std::sync::{Mutex, PoisonError};
 
+// make BlockId lua compatible
+impl rlua::UserData for BlockId {
+    // implement equals comparison for BlockId
+    fn add_methods<'lua, M: rlua::UserDataMethods<'lua, Self>>(methods: &mut M) {
+        methods.add_meta_method(rlua::MetaMethod::Eq, |_, this, other: Self| {
+            Ok(this.id == other.id)
+        });
+    }
+}
+
 /// initialize the mod interface for the blocks module
 /// # Errors
 /// if the lua context is not available

@@ -36,16 +36,6 @@ impl BlockId {
     }
 }
 
-// make BlockId lua compatible
-impl rlua::UserData for BlockId {
-    // implement equals comparison for BlockId
-    fn add_methods<'lua, M: rlua::UserDataMethods<'lua, Self>>(methods: &mut M) {
-        methods.add_meta_method(rlua::MetaMethod::Eq, |_, this, other: Self| {
-            Ok(this.id == other.id)
-        });
-    }
-}
-
 /// A world is a 2d array of blocks.
 pub struct Blocks {
     pub(super) block_data: BlocksData,

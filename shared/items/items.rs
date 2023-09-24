@@ -1,8 +1,6 @@
 extern crate alloc;
 
-use alloc::sync::Arc;
 use std::collections::HashMap;
-use std::sync::{Mutex, PoisonError};
 
 use anyhow::{anyhow, bail, Result};
 use hecs::Entity;
@@ -12,7 +10,6 @@ use crate::libraries::events::{Event, EventManager};
 use crate::shared::blocks::BlockId;
 use crate::shared::entities::{Entities, EntityId, PhysicsComponent, PositionComponent};
 use crate::shared::items::Item;
-use crate::shared::mod_manager::ModManager;
 use crate::shared::walls::WallId;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -64,8 +61,8 @@ impl TileDrop {
 }
 
 pub struct Items {
-    item_types: Arc<Mutex<Vec<Item>>>,
-    block_drops: Arc<Mutex<HashMap<BlockId, TileDrop>>>,
+    pub(super) item_types: Vec<Item>,
+    pub(super) block_drops: HashMap<BlockId, TileDrop>,
     wall_drops: HashMap<WallId, TileDrop>,
 }
 
@@ -73,52 +70,10 @@ impl Items {
     #[must_use]
     pub fn new() -> Self {
         Self {
-            item_types: Arc::new(Mutex::new(Vec::new())),
-            block_drops: Arc::new(Mutex::new(HashMap::new())),
+            item_types: Vec::new(),
+            block_drops: HashMap::new(),
             wall_drops: HashMap::new(),
         }
-    }
-
-    /// this function initializes the items
-    /// it adds lua functions to the lua context
-    /// # Errors
-    /// if the function fails to add the lua functions
-    pub fn init(&mut self, mods: &mut ModManager) -> Result<()> {
-        mods.add_global_function("new_item_type", move |_lua, _: ()| Ok(Item::new()))?;
-
-        let mut item_types = self.item_types.clone();
-        mods.add_global_function("register_item_type", move |_lua, item_type: Item| {
-            let result = Self::register_new_item_type(
-                &mut item_types.lock().unwrap_or_else(PoisonError::into_inner),
-                item_type,
-            );
-            Ok(result)
-        })?;
-
-        item_types = self.item_types.clone();
-        mods.add_global_function("get_item_id_by_name", move |_lua, name: String| {
-            let item_types = item_types.lock().unwrap_or_else(PoisonError::into_inner);
-            let iter = item_types.iter();
-            for item_type in iter {
-                if item_type.name == name {
-                    return Ok(item_type.get_id());
-                }
-            }
-            Err(rlua::Error::RuntimeError("Item type not found".to_owned()))
-        })?;
-
-        let block_drops = self.block_drops.clone();
-        mods.add_global_function(
-            "set_block_drop",
-            move |_lua, (block_id, item_id, chance): (BlockId, ItemId, f32)| {
-                block_drops
-                    .lock()
-                    .unwrap_or_else(PoisonError::into_inner)
-                    .insert(block_id, TileDrop::new(item_id, chance));
-                Ok(())
-            },
-        )?;
-        Ok(())
     }
 
     /// this function spawns an item into the world
@@ -160,11 +115,8 @@ impl Items {
     /// # Errors
     /// if the item type is not found
     pub fn get_item_type(&self, id: ItemId) -> Result<Item> {
-        let item_types = self
+        Ok(self
             .item_types
-            .lock()
-            .unwrap_or_else(PoisonError::into_inner);
-        Ok(item_types
             .get(id.id as usize)
             .ok_or_else(|| anyhow!("item type not found"))?
             .clone())
@@ -174,12 +126,7 @@ impl Items {
     /// # Errors
     /// if the item type is not found
     pub fn get_item_type_by_name(&self, name: &str) -> Result<Item> {
-        let item_types = self
-            .item_types
-            .lock()
-            .unwrap_or_else(PoisonError::into_inner);
-        let iter = item_types.iter();
-        for item_type in iter {
+        for item_type in &self.item_types {
             if item_type.name == name {
                 return Ok(item_type.clone());
             }
@@ -190,18 +137,12 @@ impl Items {
     /// this function returns the number of item types
     #[must_use]
     pub fn get_num_item_types(&self) -> usize {
-        self.item_types
-            .lock()
-            .unwrap_or_else(PoisonError::into_inner)
-            .len()
+        self.item_types.len()
     }
 
     /// this function sets the block drop for the given block type
     pub fn set_block_drop(&mut self, block_type: BlockId, drop: TileDrop) {
-        self.block_drops
-            .lock()
-            .unwrap_or_else(PoisonError::into_inner)
-            .insert(block_type, drop);
+        self.block_drops.insert(block_type, drop);
     }
 
     /// this function returns the block drop for the given block type
@@ -210,8 +151,6 @@ impl Items {
     pub fn get_block_drop(&self, block_type: BlockId) -> Result<TileDrop> {
         Ok(self
             .block_drops
-            .lock()
-            .unwrap_or_else(PoisonError::into_inner)
             .get(&block_type)
             .ok_or_else(|| anyhow!("block drop not found"))?
             .clone())
@@ -233,12 +172,7 @@ impl Items {
 
     pub fn get_all_item_type_ids(&self) -> Vec<ItemId> {
         let mut ids = Vec::new();
-        let item_types = self
-            .item_types
-            .lock()
-            .unwrap_or_else(PoisonError::into_inner);
-        let iter = item_types.iter();
-        for item in iter {
+        for item in &self.item_types {
             ids.push(item.id);
         }
         ids

@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use std::sync::{Arc, Mutex, MutexGuard, PoisonError};
 
 use anyhow::{anyhow, Result};
 
@@ -7,32 +8,35 @@ use crate::libraries::events::{Event, EventManager};
 use crate::libraries::graphics as gfx;
 use crate::shared::blocks::{RENDER_BLOCK_WIDTH, RENDER_SCALE};
 use crate::shared::entities::{Entities, PositionComponent};
-use crate::shared::items::{ItemComponent, ItemId, ItemSpawnPacket, Items};
+use crate::shared::items::{
+    init_items_mod_interface, ItemComponent, ItemId, ItemSpawnPacket, Items,
+};
 use crate::shared::mod_manager::ModManager;
 use crate::shared::packet::Packet;
 
 pub struct ClientItems {
-    pub items: Items,
+    items: Arc<Mutex<Items>>,
     atlas: gfx::TextureAtlas<ItemId>,
 }
 
 impl ClientItems {
     pub fn new() -> Self {
         Self {
-            items: Items::new(),
+            items: Arc::new(Mutex::new(Items::new())),
             atlas: gfx::TextureAtlas::new(&HashMap::new()),
         }
     }
 
     pub fn init(&mut self, mods: &mut ModManager) -> Result<()> {
-        self.items.init(mods)
+        init_items_mod_interface(&self.items, mods)
     }
 
     pub fn load_resources(&mut self, mods: &mut ModManager) -> Result<()> {
         // go through all the item types get their images and load them
         let mut surfaces = HashMap::new();
-        for id in self.items.get_all_item_type_ids() {
-            let item_type = self.items.get_item_type(id)?;
+        let item_ids = self.get_items().get_all_item_type_ids();
+        for id in item_ids {
+            let item_type = self.get_items().get_item_type(id)?;
             let image_resource = mods.get_resource(&format!("items:{}.opa", item_type.name));
             if let Some(image_resource) = image_resource {
                 let image = gfx::Surface::deserialize_from_bytes(&image_resource.clone())?;
@@ -53,7 +57,7 @@ impl ClientItems {
     ) -> Result<()> {
         if let Some(packet) = event.downcast::<Packet>() {
             if let Some(packet) = packet.try_deserialize::<ItemSpawnPacket>() {
-                self.items.spawn_item(
+                self.get_items().spawn_item(
                     events,
                     entities,
                     packet.item_type,
@@ -106,5 +110,9 @@ impl ClientItems {
     #[must_use]
     pub const fn get_atlas(&self) -> &gfx::TextureAtlas<ItemId> {
         &self.atlas
+    }
+
+    pub fn get_items(&self) -> MutexGuard<Items> {
+        self.items.lock().unwrap_or_else(PoisonError::into_inner)
     }
 }

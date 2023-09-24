@@ -210,7 +210,10 @@ pub fn give_command(parameters: &mut CommandParameters) -> anyhow::Result<String
         .first()
         .ok_or_else(|| anyhow!("no item name specified"))?;
     let player_name = parameters.arguments.get(1);
-    let item = parameters.items.items.get_item_type_by_name(item_name)?;
+    let item = parameters
+        .items
+        .get_items()
+        .get_item_type_by_name(item_name)?;
     let player;
 
     if let Some(player_name) = player_name {
@@ -237,7 +240,7 @@ pub fn give_command(parameters: &mut CommandParameters) -> anyhow::Result<String
     inventory.give_item(
         ItemStack::new(item.get_id(), 1),
         (0.0, 0.0),
-        &mut parameters.items.items,
+        &mut parameters.items.get_items(),
         &mut parameters.entities.entities,
         parameters.event_manager,
     )?;
