@@ -6,7 +6,6 @@ use std::sync::Mutex;
 use std::thread::sleep;
 
 use crate::libraries::graphics as gfx;
-use crate::libraries::graphics::Event;
 use crate::server::server_core::Server;
 use crate::server::server_ui::ui_module_manager::{
     ModuleManager, ModuleTreeNodeType, ModuleTreeSplit, SplitType,
@@ -88,7 +87,7 @@ impl UiManager {
         }
 
         //load the module tree
-        let module_manager = ModuleManager::from_save_file(&self.save_path);
+        let mut module_manager = ModuleManager::from_save_file(&self.save_path);
 
         //this saves the window size. It is initialized to 0,0 so that all modules are resized on the first frame
         let mut window_size = gfx::FloatSize(0.0, 0.0);
@@ -126,7 +125,7 @@ impl UiManager {
 
             //relays graphics events to the modules
             while let Some(event) = self.graphics_context.renderer.get_event() {
-                if let Event::KeyPress(key, repeat) = event {
+                if let gfx::Event::KeyPress(key, repeat) = event {
                     if key == gfx::Key::F1 && !repeat {
                         self.module_edit_mode = !self.module_edit_mode;
                     }
@@ -178,6 +177,10 @@ impl UiManager {
                 self.graphics_context.renderer.get_window_size(),
             )
             .render(&self.graphics_context, gfx::DARK_GREY);
+
+            if self.module_edit_mode {
+                module_manager.render(&mut self.graphics_context);
+            }
 
             //renders the modules
             for module in &mut self.modules {
@@ -232,7 +235,24 @@ impl UiManager {
     }
 
     /// Moves and resizes the modules according to the config
-    fn tile_modules(&mut self, pos: gfx::FloatPos, size: gfx::FloatSize, node: &ModuleTreeSplit) {
+    fn tile_modules(&mut self, pos: gfx::FloatPos, size: gfx::FloatSize, node: &ModuleTreeNodeType) {
+        //recursively tile the node
+        match &node {
+            //node is a module. Transform it to its dedicated position and size
+            ModuleTreeNodeType::Module(module_name) => {
+                self.transform_module(module_name, pos, size);
+            }
+            //node is a split. Tile it
+            ModuleTreeNodeType::Split(node) => {
+                self.tile_module_split(pos, size, node);
+            }
+            //node is nothing. Do nothing
+            ModuleTreeNodeType::Nothing => {}
+        }
+    }
+
+    /// Tiles a split node
+    fn tile_module_split(&mut self, pos: gfx::FloatPos, size: gfx::FloatSize, node: &ModuleTreeSplit) {
         //calculate pos and size for both sides of the split
         let (first_size, second_size, first_pos, second_pos) =
             if matches!(node.orientation, SplitType::Vertical) {
@@ -251,31 +271,9 @@ impl UiManager {
                 )
             };
 
-        //recursively tile the nodes
-        match &node.first {
-            //first node is a module. Transform it to its dedicated position and size
-            ModuleTreeNodeType::Module(module_name) => {
-                self.transform_module(module_name, first_pos, first_size);
-            }
-            //first node is a split. Tile it
-            ModuleTreeNodeType::Split(node) => {
-                self.tile_modules(first_pos, first_size, node);
-            }
-            //first node is nothing. Do nothing
-            ModuleTreeNodeType::Nothing => {}
-        }
-        match &node.second {
-            //second node is a module. Transform it to its dedicated position and size
-            ModuleTreeNodeType::Module(module_name) => {
-                self.transform_module(module_name, second_pos, second_size);
-            }
-            //second node is a split. Tile it
-            ModuleTreeNodeType::Split(node) => {
-                self.tile_modules(second_pos, second_size, node);
-            }
-            //second node is nothing. Do nothing
-            ModuleTreeNodeType::Nothing => {}
-        }
+        //tile the modules
+        self.tile_modules(first_pos, first_size, &node.first);
+        self.tile_modules(second_pos, second_size, &node.second);
     }
 
     /// Resizes and moves the module with the given name to the given position and size
@@ -332,5 +330,5 @@ pub trait ModuleTrait {
     /// gives the event sender to the module, so it can send data to the server
     fn set_sender(&mut self, _sender: Sender<UiMessageType>) {}
     /// sends sdl2 events to the module
-    fn on_event(&mut self, _event: &Event, _graphics_context: &mut gfx::GraphicsContext) {}
+    fn on_event(&mut self, _event: &gfx::Event, _graphics_context: &mut gfx::GraphicsContext) {}
 }
