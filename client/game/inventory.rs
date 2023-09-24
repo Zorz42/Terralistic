@@ -5,7 +5,7 @@ use crate::libraries::graphics as gfx;
 use crate::shared::inventory::{
     Inventory, InventoryPacket, InventorySelectPacket, InventorySwapPacket,
 };
-use crate::shared::items::ItemStack;
+use crate::shared::items::{ItemStack, RecipeId};
 use crate::shared::packet::Packet;
 use anyhow::{anyhow, Result};
 
@@ -17,6 +17,8 @@ pub struct ClientInventory {
     hovered_slot: Option<usize>,
     hovered_slot_rect: gfx::RenderRect,
     lower_slots_pos: [f32; 10],
+    craftable_recipes: Vec<RecipeId>,
+    crafting_back_rect: gfx::RenderRect,
 }
 
 const INVENTORY_SLOT_SIZE: f32 = 50.0;
@@ -25,9 +27,11 @@ const INVENTORY_SPACING: f32 = 10.0;
 fn render_item_stack(
     graphics: &gfx::GraphicsContext,
     items: &ClientItems,
-    pos: (f32, f32),
+    pos: gfx::FloatPos,
     item: &Option<ItemStack>,
 ) {
+    let pos = gfx::FloatPos(pos.0.round(), pos.1.round());
+
     if let Some(item) = item {
         let src_rect = items.get_atlas().get_rect(&item.item);
         if let Some(src_rect) = src_rect {
@@ -36,10 +40,11 @@ fn render_item_stack(
 
             let scale = 3.0;
             let texture = items.get_atlas().get_texture();
-            let item_pos = gfx::FloatPos(
-                pos.0 + INVENTORY_SLOT_SIZE / 2.0 - src_rect.size.0 / 2.0 * scale,
-                pos.1 + INVENTORY_SLOT_SIZE / 2.0 - src_rect.size.1 / 2.0 * scale,
-            );
+            let item_pos = pos
+                + gfx::FloatPos(
+                    INVENTORY_SLOT_SIZE / 2.0 - src_rect.size.0 / 2.0 * scale,
+                    INVENTORY_SLOT_SIZE / 2.0 - src_rect.size.1 / 2.0 * scale,
+                );
             texture.render(
                 &graphics.renderer,
                 scale,
@@ -53,10 +58,9 @@ fn render_item_stack(
                 let text_scale = 1.0;
                 let text = format!("{}", item.count);
                 let text_size = graphics.font.get_text_size_scaled(&text, text_scale, None);
-                let text_pos = gfx::FloatPos(
-                    pos.0 + INVENTORY_SLOT_SIZE - text_size.0 - 2.0,
-                    pos.1 + INVENTORY_SLOT_SIZE - text_size.1 - 2.0,
-                );
+                let text_pos = pos
+                    + gfx::FloatPos(INVENTORY_SLOT_SIZE - 2.0, INVENTORY_SLOT_SIZE - 2.0)
+                    - text_size;
                 graphics
                     .font
                     .render_text(graphics, &text, text_pos, text_scale);
@@ -68,11 +72,11 @@ fn render_item_stack(
 fn render_inventory_slot(
     graphics: &gfx::GraphicsContext,
     items: &ClientItems,
-    pos: (f32, f32),
+    pos: gfx::FloatPos,
     item: &Option<ItemStack>,
 ) -> bool {
     let rect = gfx::Rect::new(
-        gfx::FloatPos(pos.0, pos.1),
+        pos,
         gfx::FloatSize(INVENTORY_SLOT_SIZE, INVENTORY_SLOT_SIZE),
     );
     let hovered = rect.contains(graphics.renderer.get_mouse_pos());
@@ -97,6 +101,11 @@ impl ClientInventory {
                 gfx::FloatSize(0.0, 0.0),
             ),
             lower_slots_pos: [0.0; 10],
+            craftable_recipes: Vec::new(),
+            crafting_back_rect: gfx::RenderRect::new(
+                gfx::FloatPos(0.0, 0.0),
+                gfx::FloatSize(0.0, 0.0),
+            ),
         }
     }
 
@@ -118,6 +127,24 @@ impl ClientInventory {
         );
         self.hovered_slot_rect.fill_color = gfx::BLACK.set_a(gfx::TRANSPARENCY);
         self.hovered_slot_rect.smooth_factor = 40.0;
+
+        self.crafting_back_rect.pos.1 = INVENTORY_SPACING;
+        self.crafting_back_rect.size.0 = INVENTORY_SLOT_SIZE + 2.0 * INVENTORY_SPACING;
+        self.crafting_back_rect.fill_color = gfx::BLACK;
+        self.crafting_back_rect.fill_color.a = gfx::TRANSPARENCY;
+        self.crafting_back_rect.blur_radius = gfx::BLUR / 2;
+        self.crafting_back_rect.shadow_intensity = gfx::SHADOW_INTENSITY / 2;
+    }
+
+    fn update_craftable_recipes(&mut self, items: &ClientItems) {
+        self.craftable_recipes.clear();
+        let items = items.get_items();
+        let recipes = items.get_recipes();
+        for recipe in recipes {
+            if self.inventory.can_craft(recipe) {
+                self.craftable_recipes.push(recipe.get_id());
+            }
+        }
     }
 
     #[allow(clippy::too_many_lines)]
@@ -179,12 +206,12 @@ impl ClientInventory {
                 let result = render_inventory_slot(
                     graphics,
                     items,
-                    (
-                        rect.pos.0
-                            + i as f32 * (INVENTORY_SLOT_SIZE + INVENTORY_SPACING)
-                            + INVENTORY_SPACING,
-                        rect.pos.1 + INVENTORY_SPACING,
-                    ),
+                    rect.pos
+                        + gfx::FloatPos(
+                            i as f32 * (INVENTORY_SLOT_SIZE + INVENTORY_SPACING)
+                                + INVENTORY_SPACING,
+                            INVENTORY_SPACING,
+                        ),
                     item,
                 );
 
@@ -217,12 +244,12 @@ impl ClientInventory {
                     let result = render_inventory_slot(
                         graphics,
                         items,
-                        (
-                            rect.pos.0
-                                + (i - 10) as f32 * (INVENTORY_SLOT_SIZE + INVENTORY_SPACING)
-                                + INVENTORY_SPACING,
-                            rect.pos.1 + INVENTORY_SPACING + *pos_y,
-                        ),
+                        rect.pos
+                            + gfx::FloatPos(
+                                (i - 10) as f32 * (INVENTORY_SLOT_SIZE + INVENTORY_SPACING)
+                                    + INVENTORY_SPACING,
+                                INVENTORY_SPACING + *pos_y,
+                            ),
                         item,
                     );
 
@@ -237,12 +264,33 @@ impl ClientInventory {
             render_item_stack(
                 graphics,
                 items,
-                (
-                    graphics.renderer.get_mouse_pos().0,
-                    graphics.renderer.get_mouse_pos().1,
-                ),
+                graphics.renderer.get_mouse_pos(),
                 &self.inventory.get_selected_item(),
             );
+        }
+
+        if self.open_progress > 0.0 {
+            self.crafting_back_rect.pos.0 = INVENTORY_SPACING * self.open_progress
+                + (-self.crafting_back_rect.size.0 - INVENTORY_SPACING)
+                    * (1.0 - self.open_progress);
+
+            self.crafting_back_rect.size.1 = INVENTORY_SPACING
+                * (self.craftable_recipes.len() as f32 + 1.0)
+                + INVENTORY_SLOT_SIZE * self.craftable_recipes.len() as f32;
+
+            self.crafting_back_rect.render(graphics, None);
+
+            let x = self.crafting_back_rect.pos.0 + INVENTORY_SPACING;
+            let mut y = self.crafting_back_rect.pos.1 + INVENTORY_SPACING;
+
+            for recipe_id in &self.craftable_recipes {
+                let items2 = items.get_items();
+                let recipe = items2.get_recipe(*recipe_id)?;
+                let item = recipe.result.clone();
+                render_inventory_slot(graphics, items, gfx::FloatPos(x, y), &Some(item));
+
+                y += INVENTORY_SPACING + INVENTORY_SLOT_SIZE;
+            }
         }
 
         Ok(())
@@ -268,7 +316,12 @@ impl ClientInventory {
         networking.send_packet(Packet::new(packet)?)
     }
 
-    pub fn on_event(&mut self, event: &Event, networking: &mut ClientNetworking) -> Result<()> {
+    pub fn on_event(
+        &mut self,
+        event: &Event,
+        networking: &mut ClientNetworking,
+        items: &mut ClientItems,
+    ) -> Result<()> {
         if let Some(gfx::Event::KeyPress { 0: key, .. }) = event.downcast::<gfx::Event>() {
             match *key {
                 gfx::Key::Num1 => self.select_slot(Some(0), networking)?,
@@ -303,6 +356,7 @@ impl ClientInventory {
         if let Some(packet) = event.downcast::<Packet>() {
             if let Some(packet) = packet.try_deserialize::<InventoryPacket>() {
                 self.inventory.transfer_items_from(packet.inventory);
+                self.update_craftable_recipes(items);
             }
         }
 

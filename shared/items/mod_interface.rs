@@ -2,7 +2,6 @@ use crate::shared::blocks::{BlockId, ToolId};
 use crate::shared::items::{Item, ItemId, ItemStack, Items, Recipe, TileDrop};
 use crate::shared::mod_manager::ModManager;
 use crate::shared::walls::WallId;
-use std::collections::HashMap;
 use std::sync::{Arc, Mutex, PoisonError};
 
 use anyhow::Result;
@@ -67,13 +66,8 @@ pub fn init_items_mod_interface(items: &Arc<Mutex<Items>>, mods: &mut ModManager
             Vec<ItemId>,
             Vec<i32>,
         )| {
-            let mut recipe = Recipe {
-                result: ItemStack {
-                    item: result,
-                    count: result_count,
-                },
-                ingredients: HashMap::new(),
-            };
+            let mut recipe = Recipe::new();
+            recipe.result = ItemStack::new(result, result_count);
 
             for (item, count) in ingredients.iter().zip(ingredients_count.iter()) {
                 recipe.ingredients.insert(*item, *count);

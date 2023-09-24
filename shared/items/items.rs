@@ -53,9 +53,38 @@ impl TileDrop {
     }
 }
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub struct RecipeId {
+    id: i32,
+}
+
+impl RecipeId {
+    #[must_use]
+    pub const fn new() -> Self {
+        Self { id: -1 }
+    }
+}
+
 pub struct Recipe {
     pub result: ItemStack,
     pub ingredients: HashMap<ItemId, i32>,
+    id: RecipeId,
+}
+
+impl Recipe {
+    #[must_use]
+    pub fn new() -> Self {
+        Self {
+            result: ItemStack::new(ItemId::new(), 0),
+            ingredients: HashMap::new(),
+            id: RecipeId::new(),
+        }
+    }
+
+    #[must_use]
+    pub const fn get_id(&self) -> RecipeId {
+        self.id
+    }
 }
 
 pub struct Items {
@@ -179,13 +208,25 @@ impl Items {
         ids
     }
 
-    pub fn add_recipe(&mut self, recipe: Recipe) {
+    pub fn add_recipe(&mut self, mut recipe: Recipe) {
+        recipe.id = RecipeId {
+            id: self.recipes.len() as i32,
+        };
         self.recipes.push(recipe);
     }
 
     #[must_use]
     pub const fn get_recipes(&self) -> &Vec<Recipe> {
         &self.recipes
+    }
+
+    /// this function returns the recipe with the given id
+    /// # Errors
+    /// if the recipe is not found
+    pub fn get_recipe(&self, id: RecipeId) -> Result<&Recipe> {
+        self.recipes
+            .get(id.id as usize)
+            .ok_or_else(|| anyhow!("recipe not found"))
     }
 }
 
