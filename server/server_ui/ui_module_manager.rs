@@ -40,13 +40,13 @@ pub struct ModuleManager {
     root: ModuleTreeNodeType,
     path: [bool; 5],//max depth of 5
     depth: usize,
-    rect_transform: (FloatPos, FloatSize),
+    rect: gfx::Rect,
 }
 
 impl ModuleManager {
     #[allow(dead_code)]
     pub const fn new(root: ModuleTreeNodeType) -> Self {
-        Self { root, path: [false; 5], depth: 0, rect_transform: (FloatPos(0.0, 0.0), FloatSize(1.0, 1.0))}
+        Self { root, path: [false; 5], depth: 0, rect: gfx::Rect { pos: FloatPos(0.0, 0.0), size: FloatSize(1.0, 1.0) }}
     }
 
     #[allow(dead_code)]
@@ -67,7 +67,7 @@ impl ModuleManager {
         let reader = BufReader::new(file);
         let root = serde_json::from_reader(reader)?;
 
-        Ok(Self { root, path: [false; 5], depth: 0, rect_transform: (FloatPos(0.0, 0.0), FloatSize(1.0, 1.0)) })
+        Ok(Self { root, path: [false; 5], depth: 0, rect: gfx::Rect { pos: FloatPos(0.0, 0.0), size: FloatSize(1.0, 1.0) }})
     }
 
     #[allow(dead_code)]
@@ -116,8 +116,22 @@ impl ModuleManager {
                 }
                 if *key == gfx::Key::F1 {
                     self.depth = 0;
-                    let (coords, _) = self.get_overlay_rect_coords(&self.root, 0);
-                    self.rect_transform = coords;
+                    self.recalculate_selection_rect();
+                }
+                if *key == gfx::Key::Space && self.depth > 0 {
+                    let path_at_depth = self.path.get_mut(self.depth - 1);
+                    if let Some(path_at_depth) = path_at_depth {
+                        *path_at_depth = !*path_at_depth;
+                        self.recalculate_selection_rect();
+                    }
+                }
+                if *key == gfx::Key::Down {
+                    self.depth += 1;
+                    self.recalculate_selection_rect();
+                }
+                if *key == gfx::Key::Up {
+                    self.depth -= 1;
+                    self.recalculate_selection_rect();
                 }
             }
             gfx::Event::MouseScroll(_) => {
@@ -127,10 +141,17 @@ impl ModuleManager {
         }
     }
 
+    fn recalculate_selection_rect(&mut self) {
+        let (coords, max_depth) = self.get_overlay_rect_coords(&self.root, 0);
+        self.depth = self.depth.clamp(0, max_depth);
+        self.rect.pos = coords.0;
+        self.rect.size = coords.1;
+    }
+
     pub fn render(&self, graphics_context: &mut gfx::GraphicsContext) {
         let window_size = graphics_context.renderer.get_window_size();
-        let pos = FloatPos(window_size.0 * self.rect_transform.0.0, window_size.1 * self.rect_transform.0.1);
-        let size = FloatSize(window_size.0 * self.rect_transform.1.0, window_size.1 * self.rect_transform.1.1);
+        let pos = FloatPos(window_size.0 * self.rect.pos.0, window_size.1 * self.rect.pos.1);
+        let size = FloatSize(window_size.0 * self.rect.size.0, window_size.1 * self.rect.size.1);
         let rect = gfx::Rect::new(pos, size);
         rect.render(graphics_context, gfx::WHITE);
     }
@@ -190,6 +211,6 @@ impl ModuleManager {
 impl Default for ModuleManager {
     fn default() -> Self {
         let root = Self::default_module_tree();
-        Self { root, path: [false; 5], depth: 0, rect_transform: (FloatPos(0.0, 0.0), FloatSize(1.0, 1.0)) }
+        Self { root, path: [false; 5], depth: 1, rect: gfx::Rect { pos: FloatPos(0.0, 0.0), size: FloatSize(1.0, 1.0) } }
     }
 }
