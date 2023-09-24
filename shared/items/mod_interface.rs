@@ -1,7 +1,8 @@
 use crate::shared::blocks::{BlockId, ToolId};
-use crate::shared::items::{Item, ItemId, Items, TileDrop};
+use crate::shared::items::{Item, ItemId, ItemStack, Items, Recipe, TileDrop};
 use crate::shared::mod_manager::ModManager;
 use crate::shared::walls::WallId;
+use std::collections::HashMap;
 use std::sync::{Arc, Mutex, PoisonError};
 
 use anyhow::Result;
@@ -55,6 +56,38 @@ pub fn init_items_mod_interface(items: &Arc<Mutex<Items>>, mods: &mut ModManager
             Ok(())
         },
     )?;
+
+    let items_clone = items.clone();
+    mods.add_global_function(
+        "register_recipe",
+        move |_lua,
+              (result, result_count, ingredients, ingredients_count): (
+            ItemId,
+            i32,
+            Vec<ItemId>,
+            Vec<i32>,
+        )| {
+            let mut recipe = Recipe {
+                result: ItemStack {
+                    item: result,
+                    count: result_count,
+                },
+                ingredients: HashMap::new(),
+            };
+
+            for (item, count) in ingredients.iter().zip(ingredients_count.iter()) {
+                recipe.ingredients.insert(*item, *count);
+            }
+
+            items_clone
+                .lock()
+                .unwrap_or_else(PoisonError::into_inner)
+                .add_recipe(recipe);
+
+            Ok(())
+        },
+    )?;
+
     Ok(())
 }
 

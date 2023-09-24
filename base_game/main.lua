@@ -13,14 +13,9 @@ MOD_DESCRIPTION = "The base game. It contains the basic" ..
             "experience."
 VERSION = "0.1"
 
-
-tools = {}
-
 -- This function is called when the mod is loaded.
 function init()
-    -- register tools
-    tools.axe = terralistic_register_tool("axe")
-
+    register_tools()
     register_blocks()
     register_walls()
     register_items()

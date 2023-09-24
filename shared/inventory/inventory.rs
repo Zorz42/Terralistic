@@ -106,10 +106,7 @@ impl Inventory {
             .iter_mut()
             .find(|item| item.is_none())
             .ok_or_else(|| anyhow!("no empty slot"))?;
-        *result = Some(ItemStack {
-            item: recipe.result,
-            count: 1,
-        });
+        *result = Some(recipe.result.clone());
         Ok(())
     }
 

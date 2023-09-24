@@ -54,7 +54,7 @@ impl TileDrop {
 }
 
 pub struct Recipe {
-    pub result: ItemId,
+    pub result: ItemStack,
     pub ingredients: HashMap<ItemId, i32>,
 }
 
