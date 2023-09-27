@@ -1,3 +1,5 @@
+use anyhow::{anyhow, Result};
+
 use crate::client::game::items::ClientItems;
 use crate::client::game::networking::ClientNetworking;
 use crate::libraries::events::Event;
@@ -7,7 +9,6 @@ use crate::shared::inventory::{
 };
 use crate::shared::items::{ItemStack, RecipeId};
 use crate::shared::packet::Packet;
-use anyhow::{anyhow, Result};
 
 pub struct ClientInventory {
     is_open: bool,
@@ -19,6 +20,7 @@ pub struct ClientInventory {
     lower_slots_pos: [f32; 10],
     craftable_recipes: Vec<RecipeId>,
     crafting_back_rect: gfx::RenderRect,
+    hover_back_rect: gfx::RenderRect,
 }
 
 const INVENTORY_SLOT_SIZE: f32 = 50.0;
@@ -106,6 +108,10 @@ impl ClientInventory {
                 gfx::FloatPos(0.0, 0.0),
                 gfx::FloatSize(0.0, 0.0),
             ),
+            hover_back_rect: gfx::RenderRect::new(
+                gfx::FloatPos(0.0, 0.0),
+                gfx::FloatSize(0.0, INVENTORY_SLOT_SIZE + 2.0 * INVENTORY_SPACING),
+            ),
         }
     }
 
@@ -134,6 +140,11 @@ impl ClientInventory {
         self.crafting_back_rect.fill_color.a = gfx::TRANSPARENCY;
         self.crafting_back_rect.blur_radius = gfx::BLUR / 2;
         self.crafting_back_rect.shadow_intensity = gfx::SHADOW_INTENSITY / 2;
+
+        self.hover_back_rect.fill_color = gfx::BLACK;
+        self.hover_back_rect.fill_color.a = gfx::TRANSPARENCY;
+        self.hover_back_rect.blur_radius = gfx::BLUR / 2;
+        self.hover_back_rect.shadow_intensity = gfx::SHADOW_INTENSITY / 2;
     }
 
     fn update_craftable_recipes(&mut self, items: &ClientItems) {
@@ -287,7 +298,32 @@ impl ClientInventory {
                 let items2 = items.get_items();
                 let recipe = items2.get_recipe(*recipe_id)?;
                 let item = recipe.result.clone();
-                render_inventory_slot(graphics, items, gfx::FloatPos(x, y), &Some(item));
+                let hovered =
+                    render_inventory_slot(graphics, items, gfx::FloatPos(x, y), &Some(item));
+
+                if hovered {
+                    let num_recipes = recipe.ingredients.len() as i32;
+
+                    self.hover_back_rect.pos = graphics.renderer.get_mouse_pos();
+                    self.hover_back_rect.size.0 = num_recipes as f32
+                        * (INVENTORY_SLOT_SIZE + INVENTORY_SPACING)
+                        + INVENTORY_SPACING;
+
+                    self.hover_back_rect.render(graphics, None);
+
+                    let mut x = graphics.renderer.get_mouse_pos().0 + INVENTORY_SPACING;
+                    let y = graphics.renderer.get_mouse_pos().1 + INVENTORY_SPACING;
+
+                    for (item, count) in &recipe.ingredients {
+                        render_inventory_slot(
+                            graphics,
+                            items,
+                            gfx::FloatPos(x, y),
+                            &Some(ItemStack::new(item.clone(), *count)),
+                        );
+                        x += INVENTORY_SLOT_SIZE + INVENTORY_SPACING;
+                    }
+                }
 
                 y += INVENTORY_SPACING + INVENTORY_SLOT_SIZE;
             }
