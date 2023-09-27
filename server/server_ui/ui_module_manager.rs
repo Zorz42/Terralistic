@@ -168,6 +168,11 @@ impl ModuleManager {
                         self.recalculate_selection_rect();
                         self.changed = true;
                     }
+                    gfx::Key::X => {
+                        self.swap(self.depth);
+                        self.recalculate_selection_rect();
+                        self.changed = true;
+                    }
                     _ => {}
                 }
             }
@@ -239,6 +244,14 @@ impl ModuleManager {
 
         let old_node = self.get_node_mut(None, depth - 1); //the split that will be replaced by one of its children
         std::mem::swap(&mut temp_node, old_node);
+    }
+
+    fn swap(&mut self, depth: usize) {
+        let node = self.get_node_mut(None, depth);
+        if let ModuleTreeNodeType::Split(split) = node {
+            split.split_pos = 1.0 - split.split_pos;
+            std::mem::swap(&mut split.first, &mut split.second);
+        }
     }
 
     fn recalculate_selection_rect(&mut self) {
