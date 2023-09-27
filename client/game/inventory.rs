@@ -5,7 +5,7 @@ use crate::client::game::networking::ClientNetworking;
 use crate::libraries::events::Event;
 use crate::libraries::graphics as gfx;
 use crate::shared::inventory::{
-    Inventory, InventoryPacket, InventorySelectPacket, InventorySwapPacket,
+    Inventory, InventoryCraftPacket, InventoryPacket, InventorySelectPacket, InventorySwapPacket,
 };
 use crate::shared::items::{ItemStack, RecipeId};
 use crate::shared::packet::Packet;
@@ -21,6 +21,7 @@ pub struct ClientInventory {
     craftable_recipes: Vec<RecipeId>,
     crafting_back_rect: gfx::RenderRect,
     hover_back_rect: gfx::RenderRect,
+    hovered_recipe: Option<RecipeId>,
 }
 
 const INVENTORY_SLOT_SIZE: f32 = 50.0;
@@ -112,6 +113,7 @@ impl ClientInventory {
                 gfx::FloatPos(0.0, 0.0),
                 gfx::FloatSize(0.0, INVENTORY_SLOT_SIZE + 2.0 * INVENTORY_SPACING),
             ),
+            hovered_recipe: None,
         }
     }
 
@@ -280,6 +282,7 @@ impl ClientInventory {
             );
         }
 
+        self.hovered_recipe = None;
         if self.open_progress > 0.0 {
             self.crafting_back_rect.pos.0 = INVENTORY_SPACING * self.open_progress
                 + (-self.crafting_back_rect.size.0 - INVENTORY_SPACING)
@@ -302,6 +305,8 @@ impl ClientInventory {
                     render_inventory_slot(graphics, items, gfx::FloatPos(x, y), &Some(item));
 
                 if hovered {
+                    self.hovered_recipe = Some(*recipe_id);
+
                     let num_recipes = recipe.ingredients.len() as i32;
 
                     self.hover_back_rect.pos = graphics.renderer.get_mouse_pos();
@@ -319,7 +324,7 @@ impl ClientInventory {
                             graphics,
                             items,
                             gfx::FloatPos(x, y),
-                            &Some(ItemStack::new(item.clone(), *count)),
+                            &Some(ItemStack::new(*item, *count)),
                         );
                         x += INVENTORY_SLOT_SIZE + INVENTORY_SPACING;
                     }
@@ -380,6 +385,10 @@ impl ClientInventory {
                         } else {
                             self.select_slot(self.hovered_slot, networking)?;
                         }
+                    }
+
+                    if let Some(recipe) = self.hovered_recipe {
+                        networking.send_packet(Packet::new(InventoryCraftPacket { recipe })?)?;
                     }
                 }
                 gfx::Key::E => {

@@ -3,7 +3,7 @@ use serde_derive::{Deserialize, Serialize};
 
 use crate::libraries::events::EventManager;
 use crate::shared::entities::Entities;
-use crate::shared::items::{ItemId, ItemStack, Items, Recipe};
+use crate::shared::items::{ItemId, ItemStack, Items, Recipe, RecipeId};
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct Inventory {
@@ -78,7 +78,14 @@ impl Inventory {
 
     /// # Errors
     /// if the recipe can't be crafted
-    pub fn craft(&mut self, recipe: &Recipe) -> Result<()> {
+    pub fn craft(
+        &mut self,
+        recipe: &Recipe,
+        drop_pos: (f32, f32),
+        items: &mut Items,
+        entities: &mut Entities,
+        events: &mut EventManager,
+    ) -> Result<()> {
         if !self.can_craft(recipe) {
             bail!("can't craft")
         }
@@ -101,12 +108,7 @@ impl Inventory {
             }
         }
 
-        let result = self
-            .items
-            .iter_mut()
-            .find(|item| item.is_none())
-            .ok_or_else(|| anyhow!("no empty slot"))?;
-        *result = Some(recipe.result.clone());
+        self.give_item(recipe.result.clone(), drop_pos, items, entities, events)?;
         Ok(())
     }
 
@@ -209,4 +211,9 @@ pub struct InventorySelectPacket {
 #[derive(Serialize, Deserialize)]
 pub struct InventorySwapPacket {
     pub slot: usize,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct InventoryCraftPacket {
+    pub recipe: RecipeId,
 }

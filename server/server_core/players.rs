@@ -14,7 +14,7 @@ use crate::shared::blocks::Blocks;
 use crate::shared::entities::{Entities, HealthChangeEvent, PhysicsComponent, PositionComponent};
 use crate::shared::entities::{HealthChangePacket, HealthComponent};
 use crate::shared::inventory::{
-    Inventory, InventoryPacket, InventorySelectPacket, InventorySwapPacket,
+    Inventory, InventoryCraftPacket, InventoryPacket, InventorySelectPacket, InventorySwapPacket,
 };
 use crate::shared::items::Items;
 use crate::shared::packet::Packet;
@@ -81,13 +81,14 @@ impl ServerPlayers {
         blocks: &Blocks,
         networking: &mut ServerNetworking,
         events: &mut EventManager,
+        items: &mut Items,
     ) -> Result<()> {
         if let Some(packet_event) = event.downcast::<PacketFromClientEvent>() {
+            let player_entity = self.get_player_from_connection(&packet_event.conn)?;
             if let Some(packet) = packet_event
                 .packet
                 .try_deserialize::<PlayerMovingPacketToServer>()
             {
-                let player_entity = self.get_player_from_connection(&packet_event.conn)?;
                 let mut player_component =
                     entities.ecs.get::<&mut PlayerComponent>(player_entity)?;
                 let mut physics_component =
@@ -107,16 +108,26 @@ impl ServerPlayers {
                 .packet
                 .try_deserialize::<InventorySelectPacket>()
             {
-                let player_entity = self.get_player_from_connection(&packet_event.conn)?;
                 let mut inventory = entities.ecs.get::<&mut Inventory>(player_entity)?;
                 inventory.selected_slot = packet.slot;
             } else if let Some(packet) =
                 packet_event.packet.try_deserialize::<InventorySwapPacket>()
             {
-                let player_entity = self.get_player_from_connection(&packet_event.conn)?;
                 let mut inventory = entities.ecs.get::<&mut Inventory>(player_entity)?;
 
                 inventory.swap_with_selected_item(packet.slot)?;
+            } else if let Some(packet) = packet_event
+                .packet
+                .try_deserialize::<InventoryCraftPacket>()
+            {
+                let mut inventory = entities.ecs.get::<&mut Inventory>(player_entity)?.clone();
+                let position_x = entities.ecs.get::<&PositionComponent>(player_entity)?.x();
+                let position_y = entities.ecs.get::<&PositionComponent>(player_entity)?.y();
+                let recipe = items.get_recipe(packet.recipe)?.clone();
+
+                inventory.craft(&recipe, (position_x, position_y), items, entities, events)?;
+
+                *entities.ecs.get::<&mut Inventory>(player_entity)? = inventory;
             }
         }
 

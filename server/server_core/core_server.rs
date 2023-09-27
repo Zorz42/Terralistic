@@ -337,6 +337,7 @@ impl Server {
                 &self.blocks.get_blocks(),
                 &mut self.networking,
                 &mut self.events,
+                &mut self.items.get_items(),
             )?;
             ServerEntities::on_event(&event, &mut self.networking)?;
             self.networking.on_event(&event, &mut self.events)?;
@@ -429,7 +430,7 @@ fn format_timestamp(message: &String) -> String {
         "[{}] {}",
         timestamp.map_or_else(
             || "???".to_owned(),
-            |time| time.format("%m-%d %H:%M:%S").to_string()
+            |time| time.format("%m-%d %H:%M:%S").to_string(),
         ),
         message
     )

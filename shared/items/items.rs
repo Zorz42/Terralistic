@@ -65,6 +65,7 @@ impl RecipeId {
     }
 }
 
+#[derive(Clone)]
 pub struct Recipe {
     pub result: ItemStack,
     pub ingredients: HashMap<ItemId, i32>,
