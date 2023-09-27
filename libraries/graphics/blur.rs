@@ -49,6 +49,7 @@ pub struct BlurContext {
     rect_vertex_buffer: u32,
     pub(super) blur_enabled: bool,
     blur_intensity: f32,
+    blur_animation_timer: gfx::AnimationTimer,
 }
 
 impl BlurContext {
@@ -104,6 +105,7 @@ impl BlurContext {
             },
             blur_enabled: true,
             blur_intensity: 0.0,
+            blur_animation_timer: gfx::AnimationTimer::new(10),
         })
     }
 
@@ -234,10 +236,13 @@ impl BlurContext {
 
     pub(super) fn update(&mut self) {
         let blur_target = if self.blur_enabled { 1.0 } else { 0.0 };
-        self.blur_intensity += (blur_target - self.blur_intensity) / 5.0;
 
-        if f32::abs(self.blur_intensity - blur_target) < 0.001 {
-            self.blur_intensity = blur_target;
+        while self.blur_animation_timer.frame_ready() {
+            self.blur_intensity += (blur_target - self.blur_intensity) / 10.0;
+
+            if f32::abs(self.blur_intensity - blur_target) < 0.001 {
+                self.blur_intensity = blur_target;
+            }
         }
     }
 }

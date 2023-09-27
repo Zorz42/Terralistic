@@ -9,6 +9,7 @@ enum SettingUi {
         toggle_progress: f32,
         hovered_progress: f32,
         hovered: bool,
+        animation_timer: gfx::AnimationTimer,
     },
     Choice {
         setting_id: i32,
@@ -26,6 +27,7 @@ enum SettingUi {
         hovered: bool,
         selected: bool,
         hovered_progress: f32,
+        animation_timer: gfx::AnimationTimer,
     },
 }
 
@@ -63,6 +65,7 @@ fn setting_to_ui(
             toggle_progress: if *toggled { 1.0 } else { 0.0 },
             hovered_progress: 0.0,
             hovered: false,
+            animation_timer: gfx::AnimationTimer::new(10),
         },
         Setting::Choice { choices, .. } => {
             let mut buttons = Vec::new();
@@ -123,6 +126,7 @@ fn setting_to_ui(
                 hovered: false,
                 selected: false,
                 hovered_progress: 0.0,
+                animation_timer: gfx::AnimationTimer::new(10),
             }
         }
     }
@@ -157,6 +161,7 @@ fn render_setting_ui(
             setting_id,
             toggle_progress,
             hovered_progress,
+            animation_timer,
             ..
         } => {
             let mut setting_toggled = false;
@@ -164,11 +169,13 @@ fn render_setting_ui(
                 setting_toggled = *toggled;
             }
 
-            let toggle_progress_target = if setting_toggled { 1.0 } else { 0.0 };
-            *toggle_progress += (toggle_progress_target - *toggle_progress) / 3.0;
+            while animation_timer.frame_ready() {
+                let toggle_progress_target = if setting_toggled { 1.0 } else { 0.0 };
+                *toggle_progress += (toggle_progress_target - *toggle_progress) / 10.0;
 
-            let hover_progress_target = if *hovered { 1.0 } else { 0.0 };
-            *hovered_progress += (hover_progress_target - *hovered_progress) / 10.0;
+                let hover_progress_target = if *hovered { 1.0 } else { 0.0 };
+                *hovered_progress += (hover_progress_target - *hovered_progress) / 30.0;
+            }
 
             let mut toggle_box_rect = gfx::RenderRect::new(
                 gfx::FloatPos(-gfx::SPACING, 0.0),
@@ -280,6 +287,7 @@ fn render_setting_ui(
             hovered,
             selected,
             hovered_progress,
+            animation_timer,
             ..
         } => {
             let mut choice = SliderSelection::Choice(0);
@@ -361,8 +369,10 @@ fn render_setting_ui(
                 }
             }
 
-            let hover_progress_target = if *hovered || *selected { 1.0 } else { 0.0 };
-            *hovered_progress += (hover_progress_target - *hovered_progress) / 10.0;
+            while animation_timer.frame_ready() {
+                let hover_progress_target = if *hovered || *selected { 1.0 } else { 0.0 };
+                *hovered_progress += (hover_progress_target - *hovered_progress) / 10.0;
+            }
 
             choice_rect.render(graphics, Some(&back_rect.get_container(graphics, None)));
 

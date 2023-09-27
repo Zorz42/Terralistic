@@ -9,13 +9,11 @@ use copypasta::ClipboardContext;
 use sdl2::video::SwapInterval;
 
 use crate::libraries::graphics as gfx;
+use crate::libraries::graphics::blur::BlurContext;
 use crate::libraries::graphics::events::sdl_event_to_gfx_event;
-
-use super::blur::BlurContext;
-use super::passthrough_shader::PassthroughShader;
-use super::shadow::ShadowContext;
-use super::transformation::Transformation;
-use super::{set_blend_mode, BlendMode, Event, Key, Rect};
+use crate::libraries::graphics::passthrough_shader::PassthroughShader;
+use crate::libraries::graphics::shadow::ShadowContext;
+use crate::libraries::graphics::transformation::Transformation;
 
 /// This stores all the values needed for rendering.
 pub struct Renderer {
@@ -29,16 +27,17 @@ pub struct Renderer {
     window_framebuffer: u32,
     blur_context: BlurContext,
     pub(super) passthrough_shader: PassthroughShader,
-    events_queue: VecDeque<Event>,
+    events_queue: VecDeque<gfx::Event>,
     window_open: bool,
     // Keep track of all Key states as a hashmap
-    key_states: HashMap<Key, bool>,
-    events: Vec<Event>,
+    key_states: HashMap<gfx::Key, bool>,
+    events: Vec<gfx::Event>,
     pub(super) shadow_context: ShadowContext,
     pub clipboard_context: ClipboardContext,
     pub block_key_states: bool,
     pub scale: f32,
     real_scale: f32,
+    scale_animation_timer: gfx::AnimationTimer,
     min_ms_per_frame: f32,
     frames_so_far: u32,
     ms_so_far: f32,
@@ -85,7 +84,7 @@ impl Renderer {
         unsafe {
             gl::Enable(gl::BLEND);
         }
-        set_blend_mode(BlendMode::Alpha);
+        gfx::set_blend_mode(gfx::BlendMode::Alpha);
 
         let passthrough_shader = PassthroughShader::new()?;
         let mut window_texture = 0;
@@ -122,6 +121,7 @@ impl Renderer {
             block_key_states: false,
             scale: 1.0,
             real_scale: 1.0,
+            scale_animation_timer: gfx::AnimationTimer::new(10),
             min_ms_per_frame: 0.0,
             frames_so_far: 0,
             ms_so_far: 0.0,
@@ -179,7 +179,7 @@ impl Renderer {
     }
 
     /// Returns an array of events, such as key presses.
-    fn get_events(&mut self) -> Vec<Event> {
+    fn get_events(&mut self) -> Vec<gfx::Event> {
         let mut sdl_events = vec![];
 
         for sdl_event in self.sdl_event_pump.poll_iter() {
@@ -204,11 +204,11 @@ impl Renderer {
 
             if let Some(event) = sdl_event_to_gfx_event(&sdl_event) {
                 // if event is a key press event update the key states to true
-                if let Event::KeyPress(key, ..) = event {
+                if let gfx::Event::KeyPress(key, ..) = event {
                     self.set_key_state(key, true);
                 }
                 // if event is a key release event update the key states to false
-                if let Event::KeyRelease(key, ..) = event {
+                if let gfx::Event::KeyRelease(key, ..) = event {
                     self.set_key_state(key, false);
                 }
 
@@ -223,7 +223,7 @@ impl Renderer {
     }
 
     /// Returns an event, returns None if there are no events
-    pub fn get_event(&mut self) -> Option<Event> {
+    pub fn get_event(&mut self) -> Option<gfx::Event> {
         for event in self.get_events() {
             self.events_queue.push_back(event);
         }
@@ -244,9 +244,11 @@ impl Renderer {
     pub fn update_window(&mut self) {
         self.blur_context.update();
 
-        self.real_scale += (self.scale - self.real_scale) / 5.0;
-        if f32::abs(self.real_scale - self.scale) < 0.001 {
-            self.real_scale = self.scale;
+        while self.scale_animation_timer.frame_ready() {
+            self.real_scale += (self.scale - self.real_scale) / 10.0;
+            if f32::abs(self.real_scale - self.scale) < 0.001 {
+                self.real_scale = self.scale;
+            }
         }
 
         self.normalization_transform = Transformation::new();
@@ -359,19 +361,19 @@ impl Renderer {
     }
 
     /// Gets key state
-    pub fn get_key_state(&self, key: Key) -> bool {
+    pub fn get_key_state(&self, key: gfx::Key) -> bool {
         !self.block_key_states && *self.key_states.get(&key).unwrap_or(&false)
     }
 
     /// Sets key state
-    fn set_key_state(&mut self, key: Key, state: bool) {
+    fn set_key_state(&mut self, key: gfx::Key, state: bool) {
         *self.key_states.entry(key).or_insert(false) = state;
     }
 
     /// Blurs given texture
     pub(super) fn blur_region(
         &self,
-        rect: Rect,
+        rect: gfx::Rect,
         radius: i32,
         gl_texture: u32,
         back_texture: u32,
@@ -393,7 +395,7 @@ impl Renderer {
     }
 
     /// Blurs a given rectangle on the screen
-    pub(super) fn blur_rect(&self, rect: Rect, radius: i32) {
+    pub(super) fn blur_rect(&self, rect: gfx::Rect, radius: i32) {
         self.blur_region(
             rect,
             radius,

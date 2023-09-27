@@ -1,5 +1,6 @@
 use anyhow::Result;
 
+pub use animation_timer::AnimationTimer;
 pub use blend_mode::{set_blend_mode, BlendMode};
 pub use button::Button;
 pub use color::{interpolate_colors, Color};
@@ -24,6 +25,8 @@ pub use theme::{
     BLACK, BLUR, BORDER_COLOR, DARK_GREY, GREY, LIGHT_GREY, SHADOW_INTENSITY, SPACING,
     TEXT_INPUT_WIDTH, TRANSPARENCY, TRANSPARENT, WHITE,
 };
+
+mod animation_timer;
 
 mod position;
 
