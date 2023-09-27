@@ -1,5 +1,3 @@
-extern crate alloc;
-
 use std::collections::HashMap;
 
 use anyhow::{anyhow, bail, Result};

@@ -1,11 +1,10 @@
-use core::hash::{Hash, Hasher};
-use core::sync::atomic::AtomicBool;
 use std::collections::HashMap;
+use std::hash::{Hash, Hasher};
+use std::sync::atomic::AtomicBool;
+use std::sync::atomic::Ordering;
 use std::sync::mpsc;
 use std::sync::mpsc::{Receiver, Sender};
-extern crate alloc;
-use alloc::sync::Arc;
-use core::sync::atomic::Ordering;
+use std::sync::Arc;
 
 use crate::libraries::events::{Event, EventManager};
 use crate::server::server_core::print_to_console;
@@ -163,7 +162,7 @@ impl ServerNetworking {
 
                 handler
                     .signals()
-                    .send_with_timer((), core::time::Duration::from_millis(1));
+                    .send_with_timer((), std::time::Duration::from_millis(1));
             }
         });
 
@@ -235,7 +234,7 @@ impl ServerNetworking {
                 SendStatus::ResourceNotFound => bail!("Resource not found"),
                 SendStatus::ResourceNotAvailable => {
                     // wait a bit and try again
-                    std::thread::sleep(core::time::Duration::from_millis(1));
+                    std::thread::sleep(std::time::Duration::from_millis(1));
                 }
             };
         }

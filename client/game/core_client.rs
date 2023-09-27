@@ -1,6 +1,4 @@
-extern crate alloc;
-
-use alloc::sync::Arc;
+use std::sync::Arc;
 use std::sync::{Mutex, PoisonError};
 
 use anyhow::{bail, Result};
@@ -49,7 +47,7 @@ pub fn run_game(
     networking.init(player_name.to_owned())?;
     while networking.is_welcoming() {
         // wait 1 ms
-        std::thread::sleep(core::time::Duration::from_millis(1));
+        std::thread::sleep(std::time::Duration::from_millis(1));
     }
 
     networking.update(&mut pre_events)?;

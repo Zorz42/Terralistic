@@ -10,7 +10,7 @@ impl ShadowContext {
     /// The color is blended with the previous color using the alpha channel.
     /// The alpha channel is calculated using a gaussian curve.
     fn set_gaussian_pixel(h: i32, pixel: &mut gfx::Color) {
-        let alpha = core::f32::consts::E.powf(-((h * h) as f32 / 2000.0));
+        let alpha = std::f32::consts::E.powf(-((h * h) as f32 / 2000.0));
         let prev_alpha = pixel.a as f32 / 255.0;
         *pixel = gfx::Color::new(0, 0, 0, (alpha * prev_alpha * 255.0) as u8);
     }

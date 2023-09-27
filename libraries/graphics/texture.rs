@@ -46,7 +46,7 @@ impl Texture {
                 0,
                 gl::RGBA,
                 gl::UNSIGNED_BYTE,
-                surface.pixels.as_ptr() as *const core::ffi::c_void,
+                surface.pixels.as_ptr() as *const std::ffi::c_void,
             );
             //gl::GenerateMipmap(gl::TEXTURE_2D);
         }

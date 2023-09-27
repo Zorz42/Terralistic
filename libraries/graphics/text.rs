@@ -2,7 +2,7 @@ use super::color::Color;
 use super::surface::Surface;
 use crate::libraries::graphics as gfx;
 use anyhow::Result;
-use core::cmp::max;
+use std::cmp::max;
 
 pub struct Font {
     font_surfaces: Vec<Surface>,

@@ -9,7 +9,7 @@ use crate::shared::items::ItemStack;
 use crate::shared::packet::Packet;
 use crate::shared::players::PlayerComponent;
 use anyhow::{anyhow, Error};
-use core::fmt::Write;
+use std::fmt::Write;
 use std::sync::mpsc::Receiver;
 
 /// This struct contains all parameters that are needed to execute any command
@@ -135,7 +135,7 @@ impl CommandManager {
     ) -> anyhow::Result<String> {
         let arguments: Vec<String> = command
             .split(' ')
-            .map(alloc::borrow::ToOwned::to_owned)
+            .map(std::borrow::ToOwned::to_owned)
             .collect();
 
         for c in &self.commands {

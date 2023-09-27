@@ -8,9 +8,8 @@ use bincode;
 
 use serde_derive::{Deserialize, Serialize};
 use snap;
+use std::sync::Arc;
 use std::sync::Mutex;
-extern crate alloc;
-use alloc::sync::Arc;
 
 /// `WallId` stores id to a type of wall.
 #[derive(Deserialize, Serialize, Clone, Copy, Eq, PartialEq, Hash)]

@@ -1,12 +1,10 @@
-extern crate alloc;
-
 use crate::libraries::events::{Event, EventManager};
 use crate::shared::blocks::{Block, BlockBreakEvent, BlockId, Blocks, Tool, ToolId};
 use crate::shared::mod_manager::ModManager;
-use alloc::sync::Arc;
 use anyhow::Result;
 use rlua::UserDataMethods;
 use std::sync::mpsc::Receiver;
+use std::sync::Arc;
 use std::sync::{Mutex, PoisonError};
 
 // make BlockId lua compatible

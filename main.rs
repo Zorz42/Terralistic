@@ -72,11 +72,8 @@
 #![allow(clippy::unimplemented)]
 #![windows_subsystem = "windows"]
 
-extern crate alloc;
-extern crate core;
-
-use alloc::sync::Arc;
-use core::sync::atomic::AtomicBool;
+use std::sync::atomic::AtomicBool;
+use std::sync::Arc;
 use std::sync::Mutex;
 
 use directories::BaseDirs;

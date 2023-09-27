@@ -1,5 +1,5 @@
-use core::any::TypeId;
-use core::hash::{Hash, Hasher};
+use std::any::TypeId;
+use std::hash::{Hash, Hasher};
 
 use anyhow::Result;
 use fnv::FnvHasher;

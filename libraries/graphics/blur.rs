@@ -96,7 +96,7 @@ impl BlurContext {
                     gl::BufferData(
                         gl::ARRAY_BUFFER,
                         4 * 12,
-                        rect_vertex_array.as_ptr().cast::<core::ffi::c_void>(),
+                        rect_vertex_array.as_ptr().cast::<std::ffi::c_void>(),
                         gl::STATIC_DRAW,
                     );
                     gl::BindBuffer(gl::ARRAY_BUFFER, 0);
@@ -198,7 +198,7 @@ impl BlurContext {
                 transform.matrix.as_ptr(),
             );
             gl::BindBuffer(gl::ARRAY_BUFFER, self.rect_vertex_buffer);
-            gl::VertexAttribPointer(0, 2, gl::FLOAT, gl::FALSE, 0, core::ptr::null());
+            gl::VertexAttribPointer(0, 2, gl::FLOAT, gl::FALSE, 0, std::ptr::null());
         }
 
         self.blur_rect(

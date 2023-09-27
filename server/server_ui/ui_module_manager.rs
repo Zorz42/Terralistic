@@ -208,7 +208,7 @@ impl ModuleManager {
         let old_node = self.get_node_mut(None, depth);
 
         let mut new_node = ModuleTreeNodeType::Nothing;
-        core::mem::swap(&mut new_node, old_node);
+        std::mem::swap(&mut new_node, old_node);
         *old_node = ModuleTreeNodeType::Split(Box::from(ModuleTreeSplit {
             orientation,
             split_pos,
@@ -231,11 +231,11 @@ impl ModuleManager {
         {
             //isolate in a scope to avoid borrow problems
             let new_node = self.get_node_mut(Some(&flipped_path), depth); //one of the children that will replace the parent split node
-            core::mem::swap(new_node, &mut temp_node);
+            std::mem::swap(new_node, &mut temp_node);
         }
 
         let old_node = self.get_node_mut(None, depth - 1); //the split that will be replaced by one of its children
-        core::mem::swap(&mut temp_node, old_node);
+        std::mem::swap(&mut temp_node, old_node);
     }
 
     fn recalculate_selection_rect(&mut self) {

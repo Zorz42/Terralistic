@@ -1,8 +1,7 @@
 mod tests;
 
-extern crate alloc;
-use alloc::collections::VecDeque;
-use core::any::Any;
+use std::any::Any;
+use std::collections::VecDeque;
 
 pub struct Event {
     event: Box<dyn Any + Send>,

@@ -1,8 +1,6 @@
-extern crate alloc;
-
-use alloc::sync::Arc;
-use core::sync::atomic::{AtomicBool, Ordering};
 use std::path::Path;
+use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::Arc;
 use std::sync::{Mutex, PoisonError};
 
 use anyhow::Result;

@@ -1,8 +1,6 @@
-extern crate alloc;
-
-use alloc::collections::VecDeque;
-use core::mem::swap;
 use std::collections::HashMap;
+use std::collections::VecDeque;
+use std::mem::swap;
 
 use anyhow::{anyhow, Result};
 use copypasta::ClipboardContext;
@@ -77,7 +75,7 @@ impl Renderer {
         gl::load_with(|s| {
             video_subsystem
                 .gl_get_proc_address(s)
-                .cast::<core::ffi::c_void>()
+                .cast::<std::ffi::c_void>()
         });
 
         // Safety: We are calling OpenGL functions safely.
@@ -147,7 +145,7 @@ impl Renderer {
                 0,
                 gl::BGRA as gl::types::GLenum,
                 gl::UNSIGNED_BYTE,
-                core::ptr::null(),
+                std::ptr::null(),
             );
 
             gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MAG_FILTER, gl::NEAREST as i32);
@@ -163,7 +161,7 @@ impl Renderer {
                 0,
                 gl::BGRA,
                 gl::UNSIGNED_BYTE,
-                core::ptr::null(),
+                std::ptr::null(),
             );
 
             gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MAG_FILTER, gl::NEAREST as i32);
@@ -331,7 +329,7 @@ impl Renderer {
         self.ms_so_far += delta;
         self.prev_frame_time = now;
         if self.ms_so_far < self.min_ms_per_frame * self.frames_so_far as f32 {
-            std::thread::sleep(core::time::Duration::from_millis(
+            std::thread::sleep(std::time::Duration::from_millis(
                 (self.min_ms_per_frame * self.frames_so_far as f32 - self.ms_so_far) as u64,
             ));
         }

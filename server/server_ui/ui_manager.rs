@@ -1,7 +1,7 @@
-use alloc::sync::Arc;
-use core::sync::atomic::AtomicBool;
 use std::path::{Path, PathBuf};
+use std::sync::atomic::AtomicBool;
 use std::sync::mpsc::{Receiver, Sender};
+use std::sync::Arc;
 use std::sync::Mutex;
 use std::thread::sleep;
 
@@ -213,7 +213,7 @@ impl UiManager {
             }
 
             //close the window if the server is stopped
-            if !is_running.load(core::sync::atomic::Ordering::Relaxed)
+            if !is_running.load(std::sync::atomic::Ordering::Relaxed)
                 || self.server.state == ServerState::Stopping
             {
                 //state is there so outside events can stop it
@@ -221,14 +221,14 @@ impl UiManager {
             }
             //stops the server if the window is closed
             if !self.graphics_context.renderer.is_window_open() {
-                is_running.store(false, core::sync::atomic::Ordering::Relaxed);
+                is_running.store(false, std::sync::atomic::Ordering::Relaxed);
             }
 
             //sleep
             let sleep_time =
                 1000.0 / 120.0 /*fps limit*/ - ui_last_time.elapsed().as_secs_f32() * 1000.0;
             if sleep_time > 0.0 {
-                sleep(core::time::Duration::from_secs_f32(sleep_time / 1000.0));
+                sleep(std::time::Duration::from_secs_f32(sleep_time / 1000.0));
             }
         }
 

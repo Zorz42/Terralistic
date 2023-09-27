@@ -1,8 +1,7 @@
-use core::sync::atomic::{AtomicBool, Ordering};
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::mpsc;
 use std::sync::mpsc::{Receiver, Sender};
-extern crate alloc;
-use alloc::sync::Arc;
+use std::sync::Arc;
 use std::thread::JoinHandle;
 
 use anyhow::{anyhow, bail, Result};
@@ -125,7 +124,7 @@ impl ClientNetworking {
                                 is_welcoming.store(false, Ordering::Relaxed);
                                 while !should_start_receiving.load(Ordering::Relaxed) {
                                     // wait 1 ms
-                                    std::thread::sleep(core::time::Duration::from_millis(1));
+                                    std::thread::sleep(std::time::Duration::from_millis(1));
                                 }
                                 handler.signals().send(());
                             }
@@ -162,7 +161,7 @@ impl ClientNetworking {
 
                         handler
                             .signals()
-                            .send_with_timer((), core::time::Duration::from_millis(1));
+                            .send_with_timer((), std::time::Duration::from_millis(1));
                     }
                 };
             }
@@ -203,7 +202,7 @@ impl ClientNetworking {
                     bail!("Resource not found");
                 }
                 SendStatus::ResourceNotAvailable => {
-                    std::thread::sleep(core::time::Duration::from_millis(1));
+                    std::thread::sleep(std::time::Duration::from_millis(1));
                     // just try again
                 }
             };

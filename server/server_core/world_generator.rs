@@ -1,7 +1,5 @@
-extern crate alloc;
-
-use alloc::sync::Arc;
 use std::collections::HashMap;
+use std::sync::Arc;
 use std::sync::{Mutex, PoisonError};
 
 use anyhow::{anyhow, bail, Result};

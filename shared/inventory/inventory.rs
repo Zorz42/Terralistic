@@ -129,7 +129,7 @@ impl Inventory {
             if slot.item == item.item {
                 let max = items.get_item_type(slot.item)?.max_stack;
                 if slot.count < max {
-                    let count = core::cmp::min(max - slot.count, item.count);
+                    let count = std::cmp::min(max - slot.count, item.count);
                     slot.count += count;
                     item.count -= count;
                     self.has_changed = true;

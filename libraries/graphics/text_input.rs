@@ -118,7 +118,7 @@ impl TextInput {
     pub fn set_text(&mut self, text: String) {
         self.text = text;
         self.text_changed = true;
-        self.cursor = core::cmp::min(self.cursor, (self.text.len(), self.text.len()));
+        self.cursor = std::cmp::min(self.cursor, (self.text.len(), self.text.len()));
     }
 
     /// sets the hint text in the input box
