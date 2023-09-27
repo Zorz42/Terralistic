@@ -1,8 +1,8 @@
 // Tests for the events library.
 // It tests the event manager and the event struct.
 
+#![allow(clippy::unwrap_used)]
 #![cfg(test)]
-
 mod tests {
     use crate::libraries::events::{Event, EventManager};
 
