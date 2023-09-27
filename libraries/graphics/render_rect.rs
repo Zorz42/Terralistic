@@ -74,6 +74,7 @@ impl RenderRect {
         );
 
         rect.render(graphics, self.fill_color);
+        rect.render_outline(graphics, self.border_color);
     }
 
     /// This function returns the container of the rectangle.

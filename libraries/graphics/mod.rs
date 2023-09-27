@@ -2,7 +2,7 @@ use anyhow::Result;
 
 pub use blend_mode::{set_blend_mode, BlendMode};
 pub use button::Button;
-pub use color::Color;
+pub use color::{interpolate_colors, Color};
 pub use container::{
     Container, Orientation, BOTTOM, BOTTOM_LEFT, BOTTOM_RIGHT, CENTER, LEFT, RIGHT, TOP, TOP_LEFT,
     TOP_RIGHT,

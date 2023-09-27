@@ -7,6 +7,7 @@ enum SettingUi {
         setting_id: i32,
         text: gfx::Sprite,
         toggle_progress: f32,
+        hovered_progress: f32,
         hovered: bool,
     },
     Choice {
@@ -57,6 +58,7 @@ fn setting_to_ui(
             setting_id,
             text: text_sprite,
             toggle_progress: if *toggled { 1.0 } else { 0.0 },
+            hovered_progress: 0.0,
             hovered: false,
         },
         Setting::Choice { choices, .. } => {
@@ -148,6 +150,7 @@ fn render_setting_ui(
             hovered,
             setting_id,
             toggle_progress,
+            hovered_progress,
             ..
         } => {
             let mut setting_toggled = false;
@@ -158,17 +161,55 @@ fn render_setting_ui(
             let toggle_progress_target = if setting_toggled { 1.0 } else { 0.0 };
             *toggle_progress += (toggle_progress_target - *toggle_progress) / 3.0;
 
+            let hover_progress_target = if *hovered { 1.0 } else { 0.0 };
+            *hovered_progress += (hover_progress_target - *hovered_progress) / 10.0;
+
             let mut toggle_box_rect = gfx::RenderRect::new(
                 gfx::FloatPos(-gfx::SPACING, 0.0),
                 gfx::FloatSize(TOGGLE_BOX_WIDTH, TOGGLE_BOX_HEIGHT),
             );
-            let color = gfx::Color::new(
-                ((1.0 - *toggle_progress) * 200.0) as u8,
-                (*toggle_progress * 200.0) as u8,
-                0,
-                255,
+            let color = gfx::interpolate_colors(
+                // turned off
+                gfx::interpolate_colors(
+                    // not hovered
+                    gfx::Color::new(170, 0, 0, 255),
+                    // hovered
+                    gfx::Color::new(210, 0, 0, 255),
+                    *hovered_progress,
+                ),
+                // turned on
+                gfx::interpolate_colors(
+                    // not hovered
+                    gfx::Color::new(0, 170, 0, 255),
+                    // hovered
+                    gfx::Color::new(0, 210, 0, 255),
+                    *hovered_progress,
+                ),
+                *toggle_progress,
             );
+
+            let border_color = gfx::interpolate_colors(
+                // turned off
+                gfx::interpolate_colors(
+                    // not hovered
+                    gfx::Color::new(0, 0, 0, 0),
+                    // hovered
+                    gfx::Color::new(180, 0, 0, 255),
+                    *hovered_progress,
+                ),
+                // turned on
+                gfx::interpolate_colors(
+                    // not hovered
+                    gfx::Color::new(0, 0, 0, 0),
+                    // hovered
+                    gfx::Color::new(0, 180, 0, 255),
+                    *hovered_progress,
+                ),
+                *toggle_progress,
+            );
+
             toggle_box_rect.fill_color = color;
+            toggle_box_rect.border_color = border_color;
             toggle_box_rect.orientation = gfx::RIGHT;
             toggle_box_rect.render(graphics, Some(&back_rect.get_container(graphics, None)));
 

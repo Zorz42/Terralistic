@@ -1,8 +1,10 @@
+use anyhow::Result;
+
+use crate::libraries::graphics as gfx;
+
 use super::shaders::compile_shader;
 use super::vertex_buffer::{Vertex, VertexBuffer};
 use super::Color;
-use crate::libraries::graphics as gfx;
-use anyhow::Result;
 
 const VERTEX_SHADER_CODE: &str = r#"
 #version 330 core
