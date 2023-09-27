@@ -51,7 +51,7 @@ pub fn compile_resource_pack(input_resource_pack: PathBuf, output_resource_pack:
                 path.clone(),
                 output_resource_pack.join(path.file_name().unwrap()),
             )
-                .unwrap();
+            .unwrap();
         }
     }
 }

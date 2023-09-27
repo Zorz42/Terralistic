@@ -60,7 +60,7 @@ pub fn compile_mod(mod_path: PathBuf) {
         )),
         mod_bytes,
     )
-        .unwrap();
+    .unwrap();
 }
 
 /// This function takes the resources folder, goes through all of the recursively,

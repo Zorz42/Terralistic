@@ -2,9 +2,9 @@ use anyhow::Result;
 
 use crate::libraries::graphics as gfx;
 
-use super::Color;
 use super::shaders::compile_shader;
 use super::vertex_buffer::{Vertex, VertexBuffer};
+use super::Color;
 
 const VERTEX_SHADER_CODE: &str = r#"
 #version 330 core
