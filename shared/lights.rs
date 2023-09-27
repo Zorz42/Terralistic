@@ -1,7 +1,8 @@
+use anyhow::{anyhow, Result};
+
 use crate::libraries::events::{Event, EventManager};
 use crate::shared::blocks::{BlockChangeEvent, Blocks};
 use crate::shared::world_map::WorldMap;
-use anyhow::{anyhow, Result};
 
 /// struct that contains the light rgb values
 #[derive(PartialEq, Eq, Clone, Copy)]

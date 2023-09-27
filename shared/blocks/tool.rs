@@ -1,6 +1,6 @@
-use crate::shared::blocks::Blocks;
-
 use serde_derive::{Deserialize, Serialize};
+
+use crate::shared::blocks::Blocks;
 
 /// Struct that contains all the information about a tool
 pub struct Tool {

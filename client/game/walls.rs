@@ -1,12 +1,15 @@
-use super::camera::Camera;
-use super::networking::WelcomePacketEvent;
+use std::collections::HashMap;
+
+use anyhow::{anyhow, bail, Result};
+
 use crate::libraries::events::{Event, EventManager};
 use crate::libraries::graphics as gfx;
 use crate::shared::blocks::{Blocks, BLOCK_WIDTH, CHUNK_SIZE, RENDER_BLOCK_WIDTH, RENDER_SCALE};
 use crate::shared::mod_manager::ModManager;
 use crate::shared::walls::{WallId, Walls, WallsWelcomePacket};
-use anyhow::{anyhow, bail, Result};
-use std::collections::HashMap;
+
+use super::camera::Camera;
+use super::networking::WelcomePacketEvent;
 
 pub struct RenderWallChunk {
     needs_update: bool,

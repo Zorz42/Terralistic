@@ -1,5 +1,6 @@
-use crate::shared::walls::WallId;
 use rlua::UserDataMethods;
+
+use crate::shared::walls::WallId;
 
 /// Wall holds all information about a type of a wall.
 #[derive(Clone)]
@@ -38,7 +39,7 @@ impl rlua::UserData for Wall {
                         _ => {
                             return Err(rlua::Error::RuntimeError(format!(
                                 "{key} is not a valid field of Wall for integer value"
-                            )))
+                            )));
                         }
                     };
                     Ok(())
@@ -49,7 +50,7 @@ impl rlua::UserData for Wall {
                         _ => {
                             return Err(rlua::Error::RuntimeError(format!(
                                 "{key} is not a valid field of Wall for string value"
-                            )))
+                            )));
                         }
                     };
                     Ok(())

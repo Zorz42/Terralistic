@@ -1,9 +1,10 @@
-use crate::libraries::events::{Event, EventManager};
+use std::collections::HashMap;
+
 use anyhow::{anyhow, bail, Result};
 use hecs::Entity;
 use serde_derive::{Deserialize, Serialize};
-use std::collections::HashMap;
 
+use crate::libraries::events::{Event, EventManager};
 use crate::shared::blocks::Blocks;
 
 pub const DEFAULT_GRAVITY: f32 = 80.0;

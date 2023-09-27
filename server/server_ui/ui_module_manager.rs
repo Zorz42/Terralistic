@@ -1,8 +1,10 @@
-use crate::libraries::graphics as gfx;
-use anyhow::Result;
 use std::fs::File;
 use std::io::{BufReader, Write};
 use std::path::Path;
+
+use anyhow::Result;
+
+use crate::libraries::graphics as gfx;
 
 /// This enum indicates the type of the `ModuleTree` Node.
 /// `Nothing` means that the node and its window area are empty.
@@ -37,7 +39,8 @@ pub struct ModuleTreeSplit {
 
 pub struct ModuleManager {
     root: ModuleTreeNodeType,
-    path: Vec<bool>, //max depth of 5
+    path: Vec<bool>,
+    //max depth of 5
     depth: usize,
     rect: gfx::Rect,
     pub changed: bool,

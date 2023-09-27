@@ -1,8 +1,9 @@
+use crate::libraries::graphics as gfx;
+
 use super::theme::{
     GFX_DEFAULT_BUTTON_BORDER_COLOR, GFX_DEFAULT_BUTTON_COLOR, GFX_DEFAULT_BUTTON_PADDING,
     GFX_DEFAULT_HOVERED_BUTTON_BORDER_COLOR, GFX_DEFAULT_HOVERED_BUTTON_COLOR,
 };
-use crate::libraries::graphics as gfx;
 
 /// A Button is a rectangle with an image in it.
 /// It can be clicked and has a hover animation.

@@ -1,10 +1,11 @@
+use std::sync::{Arc, Mutex, PoisonError};
+
+use anyhow::Result;
+
 use crate::shared::blocks::{BlockId, ToolId};
 use crate::shared::items::{Item, ItemId, ItemStack, Items, Recipe, TileDrop};
 use crate::shared::mod_manager::ModManager;
 use crate::shared::walls::WallId;
-use std::sync::{Arc, Mutex, PoisonError};
-
-use anyhow::Result;
 
 // make ItemId lua compatible
 impl rlua::UserData for ItemId {}
@@ -100,7 +101,7 @@ impl rlua::UserData for Item {
                         _ => {
                             return Err(rlua::Error::RuntimeError(format!(
                                 "{key} is not a valid field of Item for integer value"
-                            )))
+                            )));
                         }
                     };
                     Ok(())
@@ -114,7 +115,7 @@ impl rlua::UserData for Item {
                         _ => {
                             return Err(rlua::Error::RuntimeError(format!(
                                 "{key} is not a valid field of Item for string value"
-                            )))
+                            )));
                         }
                     };
                     Ok(())
@@ -133,7 +134,7 @@ impl rlua::UserData for Item {
                         _ => {
                             return Err(rlua::Error::RuntimeError(format!(
                                 "{key} is not a valid field of Item for userdata value"
-                            )))
+                            )));
                         }
                     };
                     Ok(())

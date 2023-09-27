@@ -1,11 +1,11 @@
-use super::background_rect::BackgroundRect;
-use crate::libraries::graphics as gfx;
+use std::net::{IpAddr, Ipv4Addr};
 
-use super::multiplayer_selector::ServerCard;
+use crate::libraries::graphics as gfx;
 use crate::server::server_core::MULTIPLAYER_PORT;
 
+use super::background_rect::BackgroundRect;
+use super::multiplayer_selector::ServerCard;
 use super::multiplayer_selector::ServerInfo;
-use std::net::{IpAddr, Ipv4Addr};
 
 fn get_ip_port(server_ip_input: &str) -> (String, u16) {
     let ip = server_ip_input

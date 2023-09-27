@@ -1,5 +1,6 @@
-use super::vertex_buffer::{DrawMode, Vertex, VertexBuffer};
 use crate::libraries::graphics as gfx;
+
+use super::vertex_buffer::{DrawMode, Vertex, VertexBuffer};
 
 /// The struct `RectArray` is used to draw multiple rectangles with the same texture
 /// and in one draw call. This is much faster than drawing each rectangle individually.

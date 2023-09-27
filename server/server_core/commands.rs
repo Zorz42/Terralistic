@@ -1,3 +1,8 @@
+use std::fmt::Write;
+use std::sync::mpsc::Receiver;
+
+use anyhow::{anyhow, Error};
+
 use crate::libraries::events::{Event, EventManager};
 use crate::server::server_core::networking::PacketFromClientEvent;
 use crate::server::server_core::{entities, players};
@@ -8,9 +13,6 @@ use crate::shared::inventory::Inventory;
 use crate::shared::items::ItemStack;
 use crate::shared::packet::Packet;
 use crate::shared::players::PlayerComponent;
-use anyhow::{anyhow, Error};
-use std::fmt::Write;
-use std::sync::mpsc::Receiver;
 
 /// This struct contains all parameters that are needed to execute any command
 /// It is used so that when a new argument is needed to be added to a command, it can be added here and all commands will be updated

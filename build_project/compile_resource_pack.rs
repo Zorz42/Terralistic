@@ -1,5 +1,6 @@
-use crate::build_project::png_to_opa::png_file_to_opa_file;
 use std::path::PathBuf;
+
+use crate::build_project::png_to_opa::png_file_to_opa_file;
 
 pub fn compile_resource_pack(input_resource_pack: PathBuf, output_resource_pack: PathBuf) {
     // make sure that cargo reruns this script if the input resource pack changes
@@ -50,7 +51,7 @@ pub fn compile_resource_pack(input_resource_pack: PathBuf, output_resource_pack:
                 path.clone(),
                 output_resource_pack.join(path.file_name().unwrap()),
             )
-            .unwrap();
+                .unwrap();
         }
     }
 }

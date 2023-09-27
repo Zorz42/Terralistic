@@ -1,15 +1,16 @@
+use std::sync::Arc;
+use std::sync::Mutex;
+
+use anyhow::{anyhow, bail, Result};
+use bincode;
+use serde_derive::{Deserialize, Serialize};
+use snap;
+
 use crate::shared::blocks::Tool;
 use crate::shared::blocks::{Blocks, ToolId};
 use crate::shared::mod_manager::ModManager;
 use crate::shared::walls::{BreakingWall, Wall};
 use crate::shared::world_map::WorldMap;
-use anyhow::{anyhow, bail, Result};
-use bincode;
-
-use serde_derive::{Deserialize, Serialize};
-use snap;
-use std::sync::Arc;
-use std::sync::Mutex;
 
 /// `WallId` stores id to a type of wall.
 #[derive(Deserialize, Serialize, Clone, Copy, Eq, PartialEq, Hash)]

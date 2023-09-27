@@ -1,9 +1,10 @@
+use std::collections::HashMap;
+use std::slice::{Iter, IterMut};
+
 use anyhow::Result;
 use rlua::prelude::LuaError;
 use rlua::{Context, FromLuaMulti, Lua, ToLuaMulti};
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
-use std::slice::{Iter, IterMut};
 
 static MOD_ID_IDENT: &str = "__TERRALISTIC_MOD_ID";
 

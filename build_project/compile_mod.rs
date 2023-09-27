@@ -2,10 +2,10 @@ use std::collections::HashMap;
 use std::ffi::OsStr;
 use std::path::PathBuf;
 
-use crate::build_project::png_to_opa::png_file_to_opa_bytes;
 use darklua_core::generator::{DenseLuaGenerator, LuaGenerator};
 use darklua_core::Parser;
 
+use crate::build_project::png_to_opa::png_file_to_opa_bytes;
 use crate::libraries::graphics as gfx;
 use crate::shared::mod_manager::GameMod;
 
@@ -60,7 +60,7 @@ pub fn compile_mod(mod_path: PathBuf) {
         )),
         mod_bytes,
     )
-    .unwrap();
+        .unwrap();
 }
 
 /// This function takes the resources folder, goes through all of the recursively,

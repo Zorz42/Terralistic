@@ -1,8 +1,9 @@
-use super::ui_manager;
-use super::ui_manager::EDGE_SPACING;
 use crate::libraries::graphics as gfx;
 use crate::libraries::graphics::{Container, GraphicsContext};
 use crate::server::server_ui::UiMessageType;
+
+use super::ui_manager;
+use super::ui_manager::EDGE_SPACING;
 
 pub struct EmptyModule {
     container: Container,

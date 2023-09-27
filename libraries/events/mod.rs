@@ -1,7 +1,7 @@
-mod tests;
-
 use std::any::Any;
 use std::collections::VecDeque;
+
+mod tests;
 
 pub struct Event {
     event: Box<dyn Any + Send>,

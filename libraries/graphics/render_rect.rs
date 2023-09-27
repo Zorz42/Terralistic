@@ -16,8 +16,7 @@ pub struct RenderRect {
     pub orientation: gfx::Orientation,
     pub blur_radius: i32,
     pub shadow_intensity: i32,
-    ms_counter: u32,
-    approach_timer: std::time::Instant,
+    animation_timer: gfx::AnimationTimer,
 }
 
 impl RenderRect {
@@ -34,8 +33,7 @@ impl RenderRect {
             orientation: gfx::TOP_LEFT,
             blur_radius: 0,
             shadow_intensity: 0,
-            ms_counter: 0,
-            approach_timer: std::time::Instant::now(),
+            animation_timer: gfx::AnimationTimer::new(1),
         }
     }
 
@@ -54,8 +52,7 @@ impl RenderRect {
         graphics: &gfx::GraphicsContext,
         parent_container: Option<&gfx::Container>,
     ) {
-        while self.ms_counter < self.approach_timer.elapsed().as_millis() as u32 {
-            self.ms_counter += 1;
+        while self.animation_timer.frame_ready() {
             self.render_pos.0 = Self::approach(self.render_pos.0, self.pos.0, self.smooth_factor);
             self.render_pos.1 = Self::approach(self.render_pos.1, self.pos.1, self.smooth_factor);
             self.render_size.0 =

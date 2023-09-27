@@ -1,5 +1,6 @@
-use anyhow::Result;
 use std::sync::{Arc, Mutex, MutexGuard, PoisonError};
+
+use anyhow::Result;
 
 use crate::libraries::events::{Event, EventManager};
 use crate::server::server_core::networking::{SendTarget, ServerNetworking};

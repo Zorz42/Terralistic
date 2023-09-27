@@ -1,7 +1,9 @@
-use super::networking::WelcomePacketEvent;
+use anyhow::Result;
+
 use crate::libraries::events::Event;
 use crate::shared::mod_manager::{ModManager, ModsWelcomePacket};
-use anyhow::Result;
+
+use super::networking::WelcomePacketEvent;
 
 /// client mod manager that manages all the mods for the client.
 /// It is used to initialize, update and stop all the mods.

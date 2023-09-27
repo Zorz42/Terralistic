@@ -1,11 +1,13 @@
-use crate::libraries::events::{Event, EventManager};
-use crate::shared::blocks::{Block, BlockBreakEvent, BlockId, Blocks, Tool, ToolId};
-use crate::shared::mod_manager::ModManager;
-use anyhow::Result;
-use rlua::UserDataMethods;
 use std::sync::mpsc::Receiver;
 use std::sync::Arc;
 use std::sync::{Mutex, PoisonError};
+
+use anyhow::Result;
+use rlua::UserDataMethods;
+
+use crate::libraries::events::{Event, EventManager};
+use crate::shared::blocks::{Block, BlockBreakEvent, BlockId, Blocks, Tool, ToolId};
+use crate::shared::mod_manager::ModManager;
 
 // make BlockId lua compatible
 impl rlua::UserData for BlockId {

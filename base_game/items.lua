@@ -2,7 +2,7 @@ items = {}
 
 function register_items()
     terralistic_print("registering items...")
-    
+
     -- DIRT
     item_type = terralistic_new_item_type()
     item_type["name"] = "dirt"

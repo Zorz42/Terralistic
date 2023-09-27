@@ -1,5 +1,6 @@
-use super::BackgroundRect;
 use crate::libraries::graphics as gfx;
+
+use super::BackgroundRect;
 
 pub fn run_choice_menu(
     menu_title: &str,

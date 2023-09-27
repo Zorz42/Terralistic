@@ -1,6 +1,7 @@
+use std::sync::mpsc::Sender;
+
 use crate::libraries::graphics as gfx;
 use crate::server::server_ui::{ConsoleMessageType, UiMessageType, EDGE_SPACING};
-use std::sync::mpsc::Sender;
 
 use super::ui_manager;
 

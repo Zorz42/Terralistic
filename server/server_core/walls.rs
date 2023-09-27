@@ -1,11 +1,13 @@
-use super::networking::{NewConnectionEvent, ServerNetworking};
+use anyhow::Result;
+
 use crate::libraries::events::{Event, EventManager};
 use crate::server::server_core::networking::SendTarget;
 use crate::shared::blocks::Blocks;
 use crate::shared::mod_manager::ModManager;
 use crate::shared::packet::Packet;
 use crate::shared::walls::{Walls, WallsWelcomePacket};
-use anyhow::Result;
+
+use super::networking::{NewConnectionEvent, ServerNetworking};
 
 pub struct ServerWalls {
     pub walls: Walls,

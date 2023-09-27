@@ -6,15 +6,15 @@ use std::sync::mpsc;
 use std::sync::mpsc::{Receiver, Sender};
 use std::sync::Arc;
 
+use anyhow::{anyhow, bail, Result};
+use message_io::network::{Endpoint, NetEvent, SendStatus, Transport};
+use message_io::node;
+use message_io::node::{NodeEvent, NodeHandler};
+
 use crate::libraries::events::{Event, EventManager};
 use crate::server::server_core::print_to_console;
 use crate::shared::packet::{Packet, WelcomeCompletePacket};
 use crate::shared::players::NamePacket;
-use anyhow::{anyhow, bail, Result};
-use message_io::network::{Endpoint, NetEvent, SendStatus, Transport};
-
-use message_io::node;
-use message_io::node::{NodeEvent, NodeHandler};
 
 /// This struct holds the address of a connection.
 #[derive(Clone, Eq)]

@@ -1,3 +1,5 @@
+use anyhow::Result;
+
 use crate::libraries::events::Event;
 use crate::server::server_core::{
     networking::{PacketFromClientEvent, SendTarget, ServerNetworking},
@@ -5,7 +7,6 @@ use crate::server::server_core::{
 };
 use crate::shared::chat::ChatPacket;
 use crate::shared::packet::Packet;
-use anyhow::Result;
 
 pub fn server_chat_on_event(event: &Event, networking: &mut ServerNetworking) -> Result<()> {
     if let Some(event) = event.downcast::<PacketFromClientEvent>() {

@@ -2,7 +2,7 @@ blocks = {}
 
 function register_blocks()
     terralistic_print("registering blocks...")
-    
+
     blocks.air = terralistic_get_block_id_by_name("air")
 
     -- DIRT

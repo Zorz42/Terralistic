@@ -1,6 +1,7 @@
-use serde_derive::{Deserialize, Serialize};
 use std::hash::{Hash, Hasher};
 use std::ops::{Add, Sub};
+
+use serde_derive::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Hash)]
 pub struct IntPos(pub i32, pub i32);

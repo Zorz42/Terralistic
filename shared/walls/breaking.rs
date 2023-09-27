@@ -1,6 +1,7 @@
+use anyhow::{anyhow, Result};
+
 use crate::libraries::events::EventManager;
 use crate::shared::walls::Walls;
-use anyhow::{anyhow, Result};
 
 /// Stores the info about a breaking progress about a wall.
 pub struct BreakingWall {

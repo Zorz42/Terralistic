@@ -1,6 +1,8 @@
-use super::color;
-use crate::libraries::graphics as gfx;
 use std::collections::HashMap;
+
+use crate::libraries::graphics as gfx;
+
+use super::color;
 
 #[derive(Debug, Clone, Copy)]
 pub enum DrawMode {

@@ -9,8 +9,8 @@ of the mod.
 
 MOD_NAME = "base_game"
 MOD_DESCRIPTION = "The base game. It contains the basic" ..
-            "game mechanics and the classic Terralistic" ..
-            "experience."
+        "game mechanics and the classic Terralistic" ..
+        "experience."
 VERSION = "0.1"
 
 -- This function is called when the mod is loaded.

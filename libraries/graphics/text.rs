@@ -1,8 +1,11 @@
+use std::cmp::max;
+
+use anyhow::Result;
+
+use crate::libraries::graphics as gfx;
+
 use super::color::Color;
 use super::surface::Surface;
-use crate::libraries::graphics as gfx;
-use anyhow::Result;
-use std::cmp::max;
 
 pub struct Font {
     font_surfaces: Vec<Surface>,

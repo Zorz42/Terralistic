@@ -1,11 +1,13 @@
+use copypasta::ClipboardProvider;
+
+use crate::libraries::graphics as gfx;
+
 use super::theme::{
     GFX_DEFAULT_TEXT_INPUT_BORDER_COLOR, GFX_DEFAULT_TEXT_INPUT_COLOR,
     GFX_DEFAULT_TEXT_INPUT_HOVER_BORDER_COLOR, GFX_DEFAULT_TEXT_INPUT_HOVER_COLOR,
     GFX_DEFAULT_TEXT_INPUT_PADDING, GFX_DEFAULT_TEXT_INPUT_SHADOW_INTENSITY,
     GFX_DEFAULT_TEXT_INPUT_WIDTH,
 };
-use crate::libraries::graphics as gfx;
-use copypasta::ClipboardProvider;
 
 const SPACE_CHARACTERS: [char; 3] = [' ', '-', '_'];
 
@@ -23,8 +25,7 @@ pub struct TextInput {
     hover_progress: f32,
     cursor_color_progress: f32,
     hint_color_progress: f32,
-    timer: std::time::Instant,
-    timer_counter: u32,
+    animation_timer: gfx::AnimationTimer,
     text: String,
     text_texture: gfx::Texture,
     text_changed: bool,
@@ -57,8 +58,7 @@ impl TextInput {
             hover_progress: 0.0,
             cursor_color_progress: 0.0,
             hint_color_progress: 1.0,
-            timer: std::time::Instant::now(),
-            timer_counter: 0,
+            animation_timer: gfx::AnimationTimer::new(1),
             text: String::new(),
             text_texture: gfx::Texture::load_from_surface(
                 &graphics.font.create_text_surface("", None),
@@ -192,7 +192,7 @@ impl TextInput {
         let cursor_color_progress_target = if self.selected { 0.5 } else { 0.0 };
         let hint_color_progress_target = if self.text.is_empty() { 1.0 } else { 0.0 };
 
-        while self.timer_counter < self.timer.elapsed().as_millis() as u32 {
+        while self.animation_timer.frame_ready() {
             let mut smooth_factor = 40.0;
             if hover_progress_target < self.hover_progress {
                 smooth_factor *= 10.0;
@@ -208,7 +208,6 @@ impl TextInput {
             if (hover_progress_target - self.hover_progress).abs() <= 0.01 {
                 self.hover_progress = hover_progress_target;
             }
-            self.timer_counter += 1;
         }
 
         let color = gfx::Color::new(

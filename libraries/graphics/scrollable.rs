@@ -6,8 +6,7 @@ pub struct Scrollable {
     scroll_velocity: f32,
     scroll_pos: f32,
     pub scroll_size: f32,
-    ms_counter: u32,
-    approach_timer: std::time::Instant,
+    animation_timer: gfx::AnimationTimer,
     pub scroll_smooth_factor: f32,
     pub boundary_smooth_factor: f32,
 }
@@ -21,8 +20,7 @@ impl Scrollable {
             scroll_velocity: 0.0,
             scroll_pos: 0.0,
             scroll_size: 0.0,
-            ms_counter: 0,
-            approach_timer: std::time::Instant::now(),
+            animation_timer: gfx::AnimationTimer::new(1),
             scroll_smooth_factor: 1.0,
             boundary_smooth_factor: 1.0,
         }
@@ -40,8 +38,7 @@ impl Scrollable {
     }
 
     pub fn render(&mut self) {
-        while self.ms_counter < self.approach_timer.elapsed().as_millis() as u32 {
-            self.ms_counter += 1;
+        while self.animation_timer.frame_ready() {
             self.scroll_pos += self.scroll_velocity;
 
             if self.scroll_pos < 0.0 {

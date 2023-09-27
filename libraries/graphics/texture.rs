@@ -1,8 +1,9 @@
+use crate::libraries::graphics as gfx;
+
+use super::{Color, Rect, Surface};
 use super::renderer::Renderer;
 use super::transformation::Transformation;
 use super::vertex_buffer::DrawMode;
-use super::{Color, Rect, Surface};
-use crate::libraries::graphics as gfx;
 
 /// Texture is an image stored in gpu
 pub struct Texture {

@@ -1,9 +1,10 @@
+use anyhow::{anyhow, bail, Result};
+
 use crate::client::game::camera::Camera;
 use crate::libraries::events::{Event, EventManager};
 use crate::libraries::graphics as gfx;
 use crate::shared::blocks::{Blocks, CHUNK_SIZE, RENDER_BLOCK_WIDTH};
 use crate::shared::lights::{LightColorChangeEvent, Lights};
-use anyhow::{anyhow, bail, Result};
 
 pub struct LightChunk {
     pub rect_array: gfx::RectArray,
