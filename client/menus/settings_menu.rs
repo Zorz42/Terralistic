@@ -23,6 +23,9 @@ enum SettingUi {
         choice_rect: gfx::RenderRect,
         slider_text: gfx::Sprite,
         slider_text_string: String,
+        hovered: bool,
+        selected: bool,
+        hovered_progress: f32,
     },
 }
 
@@ -117,6 +120,9 @@ fn setting_to_ui(
                 choice_rect,
                 slider_text,
                 slider_text_string: String::new(),
+                hovered: false,
+                selected: false,
+                hovered_progress: 0.0,
             }
         }
     }
@@ -271,6 +277,9 @@ fn render_setting_ui(
             choice_rect,
             slider_text,
             slider_text_string,
+            hovered,
+            selected,
+            hovered_progress,
             ..
         } => {
             let mut choice = SliderSelection::Choice(0);
@@ -321,18 +330,28 @@ fn render_setting_ui(
                 gfx::FloatPos(-gfx::SPACING, 0.0),
                 gfx::FloatSize(SLIDER_WIDTH, SLIDER_HEIGHT),
             );
-            slider_rect.fill_color = gfx::BLACK.set_a(gfx::TRANSPARENCY);
+            slider_rect.fill_color = gfx::interpolate_colors(
+                gfx::Color::new(0, 0, 0, gfx::TRANSPARENCY),
+                gfx::Color::new(30, 30, 30, gfx::TRANSPARENCY),
+                *hovered_progress,
+            );
+            slider_rect.border_color = gfx::interpolate_colors(
+                gfx::Color::new(0, 0, 0, 0),
+                gfx::Color::new(50, 50, 50, 255),
+                *hovered_progress,
+            );
             slider_rect.orientation = gfx::RIGHT;
             slider_rect.render(graphics, Some(&back_rect.get_container(graphics, None)));
 
             let slider_container =
                 slider_rect.get_container(graphics, Some(&back_rect.get_container(graphics, None)));
             let slider_absolute_rect = slider_container.get_absolute_rect();
-            if slider_absolute_rect.contains(graphics.renderer.get_mouse_pos())
-                && graphics.renderer.get_key_state(gfx::Key::MouseLeft)
-            {
-                let mouse_x_in_rect =
-                    graphics.renderer.get_mouse_pos().0 - slider_absolute_rect.pos.0;
+            *hovered = slider_absolute_rect.contains(graphics.renderer.get_mouse_pos());
+
+            if *selected {
+                let mouse_x_in_rect = (graphics.renderer.get_mouse_pos().0
+                    - slider_absolute_rect.pos.0)
+                    .clamp(0.0, slider_absolute_rect.size.0);
                 let slider_val = mouse_x_in_rect / slider_absolute_rect.size.0
                     * (slider_val_high - slider_val_low) as f32
                     + slider_val_low as f32;
@@ -341,6 +360,9 @@ fn render_setting_ui(
                     *selected = SliderSelection::Slider(slider_val as i32);
                 }
             }
+
+            let hover_progress_target = if *hovered || *selected { 1.0 } else { 0.0 };
+            *hovered_progress += (hover_progress_target - *hovered_progress) / 10.0;
 
             choice_rect.render(graphics, Some(&back_rect.get_container(graphics, None)));
 
@@ -456,8 +478,10 @@ impl SettingsMenu {
                     SettingUi::Slider {
                         buttons,
                         setting_id,
+                        selected,
                         ..
                     } => {
+                        *selected = false;
                         for (i, (hovered, _button)) in buttons.iter().enumerate() {
                             if *hovered {
                                 if let Ok(Setting::Slider { selected, .. }) =
@@ -468,6 +492,15 @@ impl SettingsMenu {
                             }
                         }
                     }
+                }
+            }
+        } else if let gfx::Event::KeyPress(gfx::Key::MouseLeft, ..) = event {
+            for setting in &mut self.settings {
+                if let SettingUi::Slider {
+                    hovered, selected, ..
+                } = setting
+                {
+                    *selected = *hovered;
                 }
             }
         }

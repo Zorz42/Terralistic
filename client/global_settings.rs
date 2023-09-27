@@ -73,6 +73,7 @@ impl GlobalSettings {
             Ok(Setting::Slider { selected, .. }) => match *selected {
                 SliderSelection::Choice(choice) => match choice {
                     0 => {
+                        graphics.renderer.disable_fps_limit();
                         graphics.renderer.enable_vsync(true);
                     }
                     1 => {
