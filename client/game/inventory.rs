@@ -31,7 +31,7 @@ fn render_item_stack(
     graphics: &gfx::GraphicsContext,
     items: &ClientItems,
     pos: gfx::FloatPos,
-    item: &Option<ItemStack>,
+    item: Option<&ItemStack>,
 ) {
     let pos = gfx::FloatPos(pos.0.round(), pos.1.round());
 
@@ -76,7 +76,7 @@ fn render_inventory_slot(
     graphics: &gfx::GraphicsContext,
     items: &ClientItems,
     pos: gfx::FloatPos,
-    item: &Option<ItemStack>,
+    item: Option<&ItemStack>,
 ) -> bool {
     let rect = gfx::Rect::new(
         pos,
@@ -211,9 +211,9 @@ impl ClientInventory {
             let i = 19 - i;
             if i < 10 {
                 let item = if self.is_open && self.inventory.selected_slot == Some(i) {
-                    &None
+                    None
                 } else {
-                    item
+                    item.as_ref()
                 };
 
                 let result = render_inventory_slot(
@@ -248,9 +248,9 @@ impl ClientInventory {
                 *pos_y += (target_y - *pos_y) / 5.0;
 
                 let item = if self.is_open && self.inventory.selected_slot == Some(i) {
-                    &None
+                    None
                 } else {
-                    item
+                    item.as_ref()
                 };
 
                 if *pos_y > 0.0 {
@@ -278,7 +278,7 @@ impl ClientInventory {
                 graphics,
                 items,
                 graphics.renderer.get_mouse_pos(),
-                &self.inventory.get_selected_item(),
+                self.inventory.get_selected_item().as_ref(),
             );
         }
 
@@ -302,7 +302,7 @@ impl ClientInventory {
                 let recipe = items2.get_recipe(*recipe_id)?;
                 let item = recipe.result.clone();
                 let hovered =
-                    render_inventory_slot(graphics, items, gfx::FloatPos(x, y), &Some(item));
+                    render_inventory_slot(graphics, items, gfx::FloatPos(x, y), Some(&item));
 
                 if hovered {
                     self.hovered_recipe = Some(*recipe_id);
@@ -324,7 +324,7 @@ impl ClientInventory {
                             graphics,
                             items,
                             gfx::FloatPos(x, y),
-                            &Some(ItemStack::new(*item, *count)),
+                            Some(&ItemStack::new(*item, *count)),
                         );
                         x += INVENTORY_SLOT_SIZE + INVENTORY_SPACING;
                     }

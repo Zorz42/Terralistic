@@ -195,7 +195,7 @@ impl ui_manager::ModuleTrait for Console {
                 {
                     send_to_srv(
                         UiMessageType::UiToSrvConsoleMessage(self.input.get_text().clone()),
-                        &self.sender,
+                        self.sender.as_ref(),
                     );
                     let message = format_timestamp(&format!(
                         "[console_input] {}",
@@ -216,7 +216,7 @@ impl ui_manager::ModuleTrait for Console {
 }
 
 //sends any data to the server
-pub fn send_to_srv(data: UiMessageType, ui_event_sender: &Option<Sender<UiMessageType>>) {
+pub fn send_to_srv(data: UiMessageType, ui_event_sender: Option<&Sender<UiMessageType>>) {
     if let Some(sender) = ui_event_sender {
         let result = sender.send(data);
 
