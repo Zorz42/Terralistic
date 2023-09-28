@@ -1,10 +1,12 @@
 use std::fs::File;
 use std::io::{BufReader, Write};
 use std::path::Path;
+use std::sync::mpsc::Sender;
 
-use anyhow::Result;
+use anyhow::{anyhow, Result};
 
 use crate::libraries::graphics as gfx;
+use crate::server::server_ui::UiMessageType;
 
 /// This enum indicates the type of the `ModuleTree` Node.
 /// `Nothing` means that the node and its window area are empty.
@@ -108,16 +110,24 @@ impl ModuleManager {
         })
     }
 
-    #[allow(dead_code)]
-    pub fn save_to_file(&self, config_path: &Path) -> Result<()> {
+    fn try_save_to_file(&self, config_path: &Path) -> Result<()> {
         let mut file = File::create(config_path.join("ui_config.json"))?;
         let json_str = serde_json::to_string_pretty(&self.root)?;
         let res = file.write(json_str.as_bytes());
         if let Err(err) = res {
-            println!("Failed to write ui_config.json: {err}");
+            anyhow!("Failed to write ui_config.json: {err}");
         }
 
         Ok(())
+    }
+
+    pub fn save_to_file(&self, config_path: &Path, sender: &Sender<UiMessageType>) {
+        if let Err(e) = self.try_save_to_file(config_path) {
+            eprintln!("{e}");
+            if let Err(e) = sender.send(UiMessageType::UiToSrvConsoleMessage(e.to_string())) {
+                eprintln!("{e}");
+            }
+        }
     }
 
     /// Creates the default module tree and returns it
