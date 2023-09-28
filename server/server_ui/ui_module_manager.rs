@@ -23,15 +23,15 @@ pub enum ModuleTreeNodeType {
 impl ModuleTreeNodeType {
     fn get_node_by_name_mut(&mut self, name: &str) -> Option<&mut Self> {
         match self {
-            ModuleTreeNodeType::Split(split_node) => {
+            Self::Split(split_node) => {
                 return if let Some(node) = split_node.first.get_node_by_name_mut(name) {
                     Some(node)
                 } else {
                     split_node.second.get_node_by_name_mut(name)
                 }
             }
-            ModuleTreeNodeType::Module(name) => {
-                if name == name {
+            Self::Module(mod_name) => {
+                if mod_name == name {
                     return Some(self);
                 }
             }
@@ -67,6 +67,7 @@ pub struct ModuleManager {
     depth: usize,
     rect: gfx::Rect,
     pub changed: bool,
+    key_buffer: Vec<gfx::Key>,
 }
 
 impl Default for ModuleManager {
@@ -82,6 +83,7 @@ impl Default for ModuleManager {
                 size: gfx::FloatSize(1.0, 1.0),
             },
             changed: false,
+            key_buffer: Vec::new(),
         }
     }
 }
@@ -98,10 +100,10 @@ impl ModuleManager {
                 size: gfx::FloatSize(1.0, 1.0),
             },
             changed: false,
+            key_buffer: Vec::new(),
         }
     }
 
-    #[allow(dead_code)]
     /// Reads the module tree from the save file in `server_data/ui_config.json`. if the file doesn't exist or is not a valid format, use the default config
     pub fn from_save_file(config_path: &Path) -> Self {
         match Self::try_from_save_file(config_path) {
@@ -128,6 +130,7 @@ impl ModuleManager {
                 size: gfx::FloatSize(1.0, 1.0),
             },
             changed: false,
+            key_buffer: Vec::new(),
         })
     }
 
@@ -181,8 +184,10 @@ impl ModuleManager {
                 //on every change update depth to min(depth, max_depth)
                 match *key {
                     gfx::Key::F1 => {
+                        //reset
                         self.depth = 0;
                         self.recalculate_selection_rect();
+                        self.key_buffer.clear();
                     }
                     gfx::Key::Down => {
                         self.depth += 1;
@@ -259,6 +264,21 @@ impl ModuleManager {
         node
     }
 
+    fn get_empty_name() -> String {
+        let mut name = "Empty_".to_owned();
+        //append a random number
+        name.push_str(&rand::random::<u32>().to_string());
+        name
+    }
+
+    fn replace_module_with_empty(&mut self, name: &str) {
+        if let Some(node) = self.get_node_by_name_mut(name) {
+            if let ModuleTreeNodeType::Module(_) = node {
+                *node = ModuleTreeNodeType::Module(Self::get_empty_name());
+            }
+        }
+    }
+
     fn get_node_by_name_mut(&mut self, name: &str) -> Option<&mut ModuleTreeNodeType> {
         self.root.get_node_by_name_mut(name)
     }
@@ -267,9 +287,7 @@ impl ModuleManager {
         if self.path.len() < depth + 1 {
             self.path.resize(depth + 1, false);
         }
-        let mut path = String::from("Empty_");
-        //append a random number
-        path.push_str(&rand::random::<u32>().to_string());
+        let name = Self::get_empty_name();
 
         let old_node = self.get_node_mut(None, depth);
 
@@ -279,7 +297,7 @@ impl ModuleManager {
             orientation,
             split_pos,
             first: new_node,
-            second: ModuleTreeNodeType::Module(path),
+            second: ModuleTreeNodeType::Module(name),
         }));
     }
 
