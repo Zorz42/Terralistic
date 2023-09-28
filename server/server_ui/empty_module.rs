@@ -8,6 +8,7 @@ use super::ui_manager::EDGE_SPACING;
 pub struct EmptyModule {
     container: Container,
     name: String,
+    enabled: bool,
 }
 
 impl EmptyModule {
@@ -21,6 +22,7 @@ impl EmptyModule {
                 None,
             ),
             name,
+            enabled: false,
         }
     }
 }
@@ -43,5 +45,9 @@ impl ui_manager::ModuleTrait for EmptyModule {
 
     fn get_name(&self) -> &str {
         &self.name
+    }
+
+    fn get_enabled_mut(&mut self) -> &mut bool {
+        &mut self.enabled
     }
 }

@@ -65,6 +65,7 @@ pub struct Console {
     sender: Option<Sender<UiMessageType>>,
     input: gfx::TextInput,
     scroll: f32,
+    enabled: bool,
 }
 
 impl Console {
@@ -81,6 +82,7 @@ impl Console {
             sender: None,
             input: gfx::TextInput::new(graphics_context),
             scroll: 0.0,
+            enabled: false,
         }
     }
 
@@ -212,6 +214,9 @@ impl ui_manager::ModuleTrait for Console {
             }
             _ => {}
         }
+    }
+    fn get_enabled_mut(&mut self) -> &mut bool {
+        &mut self.enabled
     }
 }
 

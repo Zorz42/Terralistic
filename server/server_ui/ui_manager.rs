@@ -152,6 +152,10 @@ impl UiManager {
                 }
             }
 
+            if module_manager.changed {
+                self.reset_modules();
+            }
+
             //resize the modules if the window size has changed or the module tree has changed
             if window_size != self.graphics_context.renderer.get_window_size()
                 || module_manager.changed
@@ -188,6 +192,9 @@ impl UiManager {
 
             //renders the modules
             for module in &mut self.modules {
+                if !*module.get_enabled_mut() {
+                    continue;
+                }
                 //background
                 module
                     .get_container_mut()
@@ -234,6 +241,15 @@ impl UiManager {
         if let Err(e) = self.server.stop(status_text, world_path) {
             println!("Error stopping server: {e}");
         }
+    }
+
+    fn reset_modules(&mut self) {
+        //delete all empty modules and disable all other modules
+        self.modules
+            .retain(|module| !module.get_name().starts_with("Empty"));
+        self.modules.iter_mut().for_each(|module| {
+            *module.get_enabled_mut() = false;
+        });
     }
 
     /// Moves and resizes the modules according to the config
@@ -291,6 +307,7 @@ impl UiManager {
     /// Resizes and moves the module with the given name to the given position and size
     fn transform_module(&mut self, module_name: &str, pos: gfx::FloatPos, size: gfx::FloatSize) {
         let module = if let Some(module) = self.get_module(module_name) {
+            *module.get_enabled_mut() = true;
             module
         } else {
             let module = Box::new(empty_module::EmptyModule::new(
@@ -300,7 +317,9 @@ impl UiManager {
             self.modules.push(module);
             #[allow(clippy::unwrap_used)]
             //unwrap is safe because we just pushed it to self.modules
-            self.modules.last_mut().unwrap()
+            let module = self.modules.last_mut().unwrap();
+            *module.get_enabled_mut() = true;
+            module
         };
 
         module.get_container_mut().rect.size =
@@ -343,4 +362,6 @@ pub trait ModuleTrait {
     fn set_sender(&mut self, _sender: Sender<UiMessageType>) {}
     /// sends sdl2 events to the module
     fn on_event(&mut self, _event: &gfx::Event, _graphics_context: &mut gfx::GraphicsContext) {}
+    /// returns a mut reference to whether the module is enabled. Modules will still be updated for consistency, but not rendered
+    fn get_enabled_mut(&mut self) -> &mut bool;
 }

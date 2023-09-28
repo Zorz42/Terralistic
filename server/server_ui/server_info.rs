@@ -41,6 +41,7 @@ pub struct ServerInfo {
     last_update: std::time::Instant,
     updated_ui: i32,
     updated_server: i32,
+    enabled: bool,
 }
 
 impl ServerInfo {
@@ -66,6 +67,7 @@ impl ServerInfo {
             last_update: std::time::Instant::now(),
             updated_ui: 0,
             updated_server: 0,
+            enabled: false,
         }
     }
 
@@ -232,5 +234,9 @@ impl ui_manager::ModuleTrait for ServerInfo {
 
     fn get_name(&self) -> &str {
         "ServerInfo"
+    }
+
+    fn get_enabled_mut(&mut self) -> &mut bool {
+        &mut self.enabled
     }
 }

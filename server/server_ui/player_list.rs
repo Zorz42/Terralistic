@@ -77,6 +77,7 @@ pub struct PlayerList {
     player_cards: Vec<PlayerCard>,
     //the container that contains all the player cards
     container: gfx::Container,
+    enabled: bool,
 }
 
 impl PlayerList {
@@ -90,6 +91,7 @@ impl PlayerList {
                 gfx::TOP_LEFT,
                 None,
             ),
+            enabled: false,
         }
     }
 }
@@ -169,5 +171,9 @@ impl ui_manager::ModuleTrait for PlayerList {
 
     fn get_name(&self) -> &str {
         "PlayerList"
+    }
+
+    fn get_enabled_mut(&mut self) -> &mut bool {
+        &mut self.enabled
     }
 }

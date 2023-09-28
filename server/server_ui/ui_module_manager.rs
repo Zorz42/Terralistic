@@ -115,7 +115,7 @@ impl ModuleManager {
         let json_str = serde_json::to_string_pretty(&self.root)?;
         let res = file.write(json_str.as_bytes());
         if let Err(err) = res {
-            anyhow!("Failed to write ui_config.json: {err}");
+            return Err(anyhow!("Failed to write ui_config.json: {err}"));
         }
 
         Ok(())
@@ -197,6 +197,11 @@ impl ModuleManager {
                     }
                     gfx::Key::X => {
                         self.swap(self.depth);
+                        self.recalculate_selection_rect();
+                        self.changed = true;
+                    }
+                    gfx::Key::R => {
+                        self.root = Self::default_module_tree();
                         self.recalculate_selection_rect();
                         self.changed = true;
                     }
