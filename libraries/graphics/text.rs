@@ -108,6 +108,11 @@ impl Font {
         for c in text.chars() {
             // is its space it makes it a little bigger
             if let Some(surface) = self.font_surfaces.get(c as usize) {
+                if c == '\n' {
+                    width = 0;
+                    height += surface.get_size().1 as i32 + CHAR_SPACING;
+                    continue;
+                }
                 if let Some(width_limit) = width_limit {
                     if width + surface.get_size().0 as i32 + CHAR_SPACING > width_limit {
                         width = 0;
@@ -150,6 +155,11 @@ impl Font {
         let mut y = 0;
         for c in text.chars() {
             if let Some(char_surface) = self.font_surfaces.get(c as usize) {
+                if c == '\n' {
+                    x = 0;
+                    y += char_surface.get_size().1 as i32 + CHAR_SPACING;
+                    continue;
+                }
                 if let Some(width_limit) = width_limit {
                     if x + char_surface.get_size().0 as i32 + CHAR_SPACING > width_limit {
                         x = 0;
