@@ -46,6 +46,23 @@ pub struct ModuleManager {
     pub changed: bool,
 }
 
+impl Default for ModuleManager {
+    fn default() -> Self {
+        let root = Self::default_module_tree();
+        let path = Vec::with_capacity(5);
+        Self {
+            root,
+            path,
+            depth: 1,
+            rect: gfx::Rect {
+                pos: gfx::FloatPos(0.0, 0.0),
+                size: gfx::FloatSize(1.0, 1.0),
+            },
+            changed: false,
+        }
+    }
+}
+
 impl ModuleManager {
     #[allow(dead_code)]
     pub const fn new(root: ModuleTreeNodeType) -> Self {
@@ -366,22 +383,5 @@ impl ModuleManager {
                 split_factors.1 .1 * sub_node_factors.1 .1,
             ),
         )
-    }
-}
-
-impl Default for ModuleManager {
-    fn default() -> Self {
-        let root = Self::default_module_tree();
-        let path = Vec::with_capacity(5);
-        Self {
-            root,
-            path,
-            depth: 1,
-            rect: gfx::Rect {
-                pos: gfx::FloatPos(0.0, 0.0),
-                size: gfx::FloatSize(1.0, 1.0),
-            },
-            changed: false,
-        }
     }
 }
