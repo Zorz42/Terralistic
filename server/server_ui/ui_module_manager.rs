@@ -20,6 +20,27 @@ pub enum ModuleTreeNodeType {
     Module(String),
 }
 
+impl ModuleTreeNodeType {
+    fn get_node_by_name_mut(&mut self, name: &str) -> Option<&mut Self> {
+        match self {
+            ModuleTreeNodeType::Split(split_node) => {
+                return if let Some(node) = split_node.first.get_node_by_name_mut(name) {
+                    Some(node)
+                } else {
+                    split_node.second.get_node_by_name_mut(name)
+                }
+            }
+            ModuleTreeNodeType::Module(name) => {
+                if name == name {
+                    return Some(self);
+                }
+            }
+            _ => {}
+        }
+        None
+    }
+}
+
 /// This enum indicates the type of split. `Vertical` splits the window area of that node into 2 areas, one on the left and one on the right. `Horizontal` splits the window area of that node into 2 areas, one on the top and one on the bottom.
 #[derive(serde_derive::Serialize, serde_derive::Deserialize)]
 pub enum SplitType {
@@ -237,6 +258,11 @@ impl ModuleManager {
         }
         node
     }
+
+    fn get_node_by_name_mut(&mut self, name: &str) -> Option<&mut ModuleTreeNodeType> {
+        self.root.get_node_by_name_mut(name)
+    }
+
     fn split(&mut self, depth: usize, orientation: SplitType, split_pos: f32) {
         if self.path.len() < depth + 1 {
             self.path.resize(depth + 1, false);
