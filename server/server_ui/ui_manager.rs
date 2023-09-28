@@ -204,12 +204,10 @@ impl UiManager {
             let ui_mspt = ui_delta_time as f64 / 1000.0;
 
             for module in &mut self.modules {
-                if module.get_name() == "ServerInfo" {
-                    module.on_server_message(
-                        &UiMessageType::MsptUpdate((server_mspt, ui_mspt)),
-                        &mut self.graphics_context,
-                    );
-                }
+                module.on_server_message(
+                    &UiMessageType::MsptUpdate((server_mspt, ui_mspt)),
+                    &mut self.graphics_context,
+                );
             }
 
             //close the window if the server is stopped
