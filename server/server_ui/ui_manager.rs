@@ -128,6 +128,15 @@ impl UiManager {
                 if let gfx::Event::KeyPress(key, repeat) = event {
                     if key == gfx::Key::F1 && !repeat {
                         self.module_edit_mode = !self.module_edit_mode;
+                        if let Err(e) = module_manager.save_to_file(&self.save_path) {
+                            eprintln!("{e}");
+                            if let Err(e) = self
+                                .server_message_sender
+                                .send(UiMessageType::UiToSrvConsoleMessage(e.to_string()))
+                            {
+                                eprintln!("{e}");
+                            }
+                        }
                     }
                 }
 
