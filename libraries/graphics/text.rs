@@ -103,7 +103,7 @@ impl Font {
     #[must_use]
     pub fn get_text_size(&self, text: &str, width_limit: Option<i32>) -> gfx::IntSize {
         let mut width = 0;
-        let mut height = 16;
+        let mut height = if text.ends_with('\n') { 0 } else { 16 };
         let mut max_width = 0;
         for c in text.chars() {
             // is its space it makes it a little bigger
