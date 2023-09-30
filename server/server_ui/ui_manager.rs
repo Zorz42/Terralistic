@@ -25,6 +25,8 @@ pub struct UiManager {
     modules: Vec<Box<dyn ModuleTrait>>,
     save_path: PathBuf,
     module_edit_mode: bool,
+    module_manager: ModuleManager,
+    window_size: gfx::FloatSize,
 }
 
 impl UiManager {
@@ -37,6 +39,7 @@ impl UiManager {
         event_sender: Sender<UiMessageType>,
         path: PathBuf,
     ) -> Self {
+        let module_manager = ModuleManager::from_save_file(&path);
         let mut temp = Self {
             server,
             graphics_context,
@@ -45,6 +48,8 @@ impl UiManager {
             modules: Vec::new(),
             save_path: path,
             module_edit_mode: false,
+            module_manager,
+            window_size: gfx::FloatSize(0.0, 0.0),
         };
         temp.modules = vec![
             Box::new(server_info::ServerInfo::new(&mut temp.graphics_context)),
@@ -55,8 +60,6 @@ impl UiManager {
     }
 
     /// runs the UI. This function should only be called once as it runs until the window is closed or the server is stopped (one of those 2 events also triggers the other one).
-    #[allow(clippy::too_many_lines)]
-    #[allow(clippy::cognitive_complexity)] //TODO: refactor
     pub fn run(
         &mut self,
         is_running: &Arc<AtomicBool>,
@@ -70,33 +73,19 @@ impl UiManager {
         let mut ui_last_time = std::time::Instant::now();
         let mut server_last_time = std::time::Instant::now();
 
-        //give sender to the modules
-        for module in &mut self.modules {
-            module.set_sender(self.server_message_sender.clone());
-        }
-
-        //init the modules
-        for module in &mut self.modules {
-            module.init(&mut self.graphics_context);
-        }
+        self.init_modules();
 
         //init the server
-        let res = self.server.start(status_text, mods_serialized, world_path);
-        if let Err(e) = res {
+        if let Err(e) = self.server.start(status_text, mods_serialized, world_path) {
             println!("Error starting server: {e}");
             return;
         }
 
         //load the module tree
-        let mut module_manager = ModuleManager::from_save_file(&self.save_path);
-
-        //this saves the window size. It is initialized to 0,0 so that all modules are resized on the first frame
-        let mut window_size = gfx::FloatSize(0.0, 0.0);
 
         gfx::RenderRect::new(gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, 0.0))
             .render(&self.graphics_context, None); //rect that makes rendering work. It is useless but do not remove it or the rendering will not work. Blame the graphics library by Zorz42
 
-        let mut server_delta_time;
         let mut ui_delta_time;
 
         'main: loop {
@@ -104,43 +93,16 @@ impl UiManager {
             ui_last_time = std::time::Instant::now();
             let mut server_mspt = None;
 
-            while num_updates
-                < ms_timer.elapsed().as_millis() as u64 * self.server.tps_limit as u64 / 1000
-            {
-                server_delta_time = server_last_time.elapsed().as_secs_f32() * 1000.0;
-                server_last_time = std::time::Instant::now();
+            //update the server
+            self.update_server(
+                &mut num_updates,
+                &ms_timer,
+                &mut server_last_time,
+                &mut server_mspt,
+                &mut ms_counter,
+            );
 
-                //update the server by 1 tick
-                let server_tick_start = ms_timer.elapsed().as_micros();
-                if let Err(e) = self
-                    .server
-                    .update(server_delta_time, ms_timer, &mut ms_counter)
-                {
-                    println!("Error running server: {e}");
-                    break;
-                }
-                server_mspt =
-                    Some((ms_timer.elapsed().as_micros() - server_tick_start) as f64 / 1000.0);
-                num_updates += 1;
-            }
-
-            //relays graphics events to the modules
-            while let Some(event) = self.graphics_context.renderer.get_event() {
-                if let gfx::Event::KeyPress(key, repeat) = event {
-                    if key == gfx::Key::F1 && !repeat {
-                        self.module_edit_mode = !self.module_edit_mode;
-                        module_manager.save_to_file(&self.save_path, &self.server_message_sender);
-                    }
-                }
-
-                if self.module_edit_mode {
-                    module_manager.on_event(&event);
-                } else {
-                    for module in &mut self.modules {
-                        module.on_event(&event, &mut self.graphics_context);
-                    }
-                }
-            }
+            self.relay_graphics_events();
 
             //goes through the messages received from the server and sends them to the modules
             //also closes the window if the server is stopped
@@ -153,27 +115,15 @@ impl UiManager {
                 }
             }
 
-            if module_manager.changed {
+            if self.module_manager.changed {
                 self.reset_modules();
             }
 
             //resize the modules if the window size has changed or the module tree has changed
-            if window_size != self.graphics_context.renderer.get_window_size()
-                || module_manager.changed
+            if self.window_size != self.graphics_context.renderer.get_window_size()
+                || self.module_manager.changed
             {
-                module_manager.changed = false;
-                window_size = self.graphics_context.renderer.get_window_size();
-                self.tile_modules(
-                    gfx::FloatPos(0.0, 0.0),
-                    window_size,
-                    module_manager.get_root(),
-                );
-                //loop through the modules and update their containers
-                for module in &mut self.modules {
-                    module
-                        .get_container_mut()
-                        .update(&self.graphics_context, None);
-                }
+                self.reposition_modules();
             }
             //updates the modules
             for module in &mut self.modules {
@@ -188,22 +138,10 @@ impl UiManager {
             .render(&self.graphics_context, gfx::DARK_GREY);
 
             if self.module_edit_mode {
-                module_manager.render(&mut self.graphics_context);
+                self.module_manager.render(&mut self.graphics_context);
             }
 
-            //renders the modules
-            for module in &mut self.modules {
-                if !*module.get_enabled_mut() {
-                    continue;
-                }
-                //background
-                module
-                    .get_container_mut()
-                    .rect
-                    .render(&self.graphics_context, gfx::GREY);
-
-                module.render(&mut self.graphics_context);
-            }
+            self.render_modules();
 
             //display the frame
             self.graphics_context.renderer.update_window();
@@ -212,6 +150,7 @@ impl UiManager {
             //update the mspt
             let ui_mspt = ui_delta_time as f64 / 1000.0;
 
+            //relays mspt changes to the module
             for module in &mut self.modules {
                 module.on_server_message(
                     &UiMessageType::MsptUpdate((server_mspt, ui_mspt)),
@@ -241,6 +180,99 @@ impl UiManager {
 
         if let Err(e) = self.server.stop(status_text, world_path) {
             println!("Error stopping server: {e}");
+        }
+    }
+
+    /// Initializes the modules
+    fn init_modules(&mut self) {
+        for module in &mut self.modules {
+            module.set_sender(self.server_message_sender.clone());
+        }
+
+        for module in &mut self.modules {
+            module.init(&mut self.graphics_context);
+        }
+    }
+
+    /// Updates the server when needed
+    fn update_server(
+        //TODO: rethink timings, this is too many variables
+        &mut self,
+        num_updates: &mut u64,
+        ms_timer: &std::time::Instant,
+        server_last_time: &mut std::time::Instant,
+        server_mspt: &mut Option<f64>,
+        ms_counter: &mut i32,
+    ) {
+        while *num_updates
+            < ms_timer.elapsed().as_millis() as u64 * self.server.tps_limit as u64 / 1000
+        {
+            let server_delta_time = server_last_time.elapsed().as_secs_f32() * 1000.0;
+            *server_last_time = std::time::Instant::now();
+
+            //update the server by 1 tick
+            let server_tick_start = ms_timer.elapsed().as_micros();
+            if let Err(e) = self.server.update(server_delta_time, *ms_timer, ms_counter) {
+                println!("Error running server: {e}");
+                break;
+            }
+            *server_mspt =
+                Some((ms_timer.elapsed().as_micros() - server_tick_start) as f64 / 1000.0);
+            *num_updates += 1;
+        }
+    }
+
+    fn relay_graphics_events(&mut self) {
+        while let Some(event) = self.graphics_context.renderer.get_event() {
+            if let gfx::Event::KeyPress(key, repeat) = event {
+                if key == gfx::Key::F1 && !repeat {
+                    self.module_edit_mode = !self.module_edit_mode;
+                    self.module_manager
+                        .save_to_file(&self.save_path, &self.server_message_sender);
+                }
+            }
+
+            if self.module_edit_mode {
+                self.module_manager.on_event(&event);
+            } else {
+                for module in &mut self.modules {
+                    module.on_event(&event, &mut self.graphics_context);
+                }
+            }
+        }
+    }
+
+    fn reposition_modules(&mut self) {
+        self.module_manager.changed = false;
+        self.window_size = self.graphics_context.renderer.get_window_size();
+
+        //swap the module tree with nothing to avoid double borrow
+        let temp_1 = self.module_manager.get_root_mut();
+        let temp_2 = &mut ModuleTreeNodeType::Nothing;
+        core::mem::swap(temp_1, temp_2);
+        self.tile_modules(gfx::FloatPos(0.0, 0.0), self.window_size, temp_2);
+        let temp_1 = self.module_manager.get_root_mut();
+        core::mem::swap(temp_1, temp_2);
+
+        //loop through the modules and update their containers
+        for module in &mut self.modules {
+            module
+                .get_container_mut()
+                .update(&self.graphics_context, None);
+        }
+    }
+
+    fn render_modules(&mut self) {
+        for module in &mut self.modules {
+            if !*module.get_enabled_mut() {
+                continue;
+            }
+            //background
+            module
+                .get_container_mut()
+                .rect
+                .render(&self.graphics_context, gfx::GREY);
+            module.render(&mut self.graphics_context);
         }
     }
 

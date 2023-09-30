@@ -245,6 +245,10 @@ impl Server {
     ///# Errors
     ///A lot of server crashes are caused by mods and other stuff, so this function returns a Result
     pub fn stop(&mut self, status_text: &Mutex<String>, world_path: &Path) -> Result<()> {
+        if self.state == ServerState::Stopped {
+            //so we don't stop it twice
+            return Ok(());
+        }
         // stop modules
         self.networking.stop(&mut self.events)?;
         self.mods.stop()?;

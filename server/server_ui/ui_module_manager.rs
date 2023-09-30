@@ -175,8 +175,8 @@ impl ModuleManager {
         }))
     }
 
-    pub const fn get_root(&self) -> &ModuleTreeNodeType {
-        &self.root
+    pub fn get_root_mut(&mut self) -> &mut ModuleTreeNodeType {
+        &mut self.root
     }
 
     pub fn on_event(&mut self, event: &gfx::Event) {
