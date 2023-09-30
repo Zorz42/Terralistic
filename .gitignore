@@ -7,4 +7,3 @@ Output/
 server_data/
 target
 *.profraw
-coverage.sh
