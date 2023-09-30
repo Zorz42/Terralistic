@@ -43,7 +43,7 @@ impl ServerItems {
                 // spawn item at random chance. drop.chance is a float between 0 and 1
                 if rand::random::<f32>() < drop.chance {
                     let id = entities.new_id();
-                    self.get_items().spawn_item(
+                    let entity = self.get_items().spawn_item(
                         events,
                         entities,
                         drop.item,
@@ -51,18 +51,18 @@ impl ServerItems {
                         event.y as f32,
                         id,
                     )?;
+                    let velocity_x = rand::random::<f32>() * 2.0 * VELOCITY_RANGE - VELOCITY_RANGE;
+                    let velocity_y = -rand::random::<f32>() * 4.0 * VELOCITY_RANGE;
+
+                    let mut physics = entities.ecs.get::<&mut PhysicsComponent>(entity)?;
+                    physics.velocity_x = velocity_x;
+                    physics.velocity_y = velocity_y;
                 }
             }
         }
         if let Some(event) = event.downcast::<ItemSpawnEvent>() {
-            let velocity_x = rand::random::<f32>() * 2.0 * VELOCITY_RANGE - VELOCITY_RANGE;
-            let velocity_y = -rand::random::<f32>() * 4.0 * VELOCITY_RANGE;
-
-            let mut physics = entities.ecs.get::<&mut PhysicsComponent>(event.entity)?;
-            physics.velocity_x = velocity_x;
-            physics.velocity_y = velocity_y;
-
             let entity = event.entity;
+            let physics = entities.ecs.get::<&mut PhysicsComponent>(entity)?;
             let item = entities.ecs.get::<&ItemComponent>(entity)?;
             let id = entities.get_id_from_entity(entity)?;
             let position = entities.ecs.get::<&PositionComponent>(entity)?;
@@ -72,8 +72,8 @@ impl ServerItems {
                 id,
                 x: position.x(),
                 y: position.y(),
-                velocity_x,
-                velocity_y,
+                velocity_x: physics.velocity_x,
+                velocity_y: physics.velocity_y,
             };
 
             networking.send_packet(&Packet::new(packet)?, SendTarget::All)?;
