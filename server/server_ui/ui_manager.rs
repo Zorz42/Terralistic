@@ -56,6 +56,7 @@ impl UiManager {
 
     /// runs the UI. This function should only be called once as it runs until the window is closed or the server is stopped (one of those 2 events also triggers the other one).
     #[allow(clippy::too_many_lines)]
+    #[allow(clippy::cognitive_complexity)] //TODO: refactor
     pub fn run(
         &mut self,
         is_running: &Arc<AtomicBool>,

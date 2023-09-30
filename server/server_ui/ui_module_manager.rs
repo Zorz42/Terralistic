@@ -21,6 +21,7 @@ pub enum ModuleTreeNodeType {
 }
 
 impl ModuleTreeNodeType {
+    #[allow(dead_code)] //will be used
     fn get_node_by_name_mut(&mut self, name: &str) -> Option<&mut Self> {
         match self {
             Self::Split(split_node) => {
@@ -35,7 +36,7 @@ impl ModuleTreeNodeType {
                     return Some(self);
                 }
             }
-            _ => {}
+            Self::Nothing => {}
         }
         None
     }
@@ -271,6 +272,7 @@ impl ModuleManager {
         name
     }
 
+    #[allow(dead_code)] //will be used
     fn replace_module_with_empty(&mut self, name: &str) {
         if let Some(node) = self.get_node_by_name_mut(name) {
             if let ModuleTreeNodeType::Module(_) = node {
