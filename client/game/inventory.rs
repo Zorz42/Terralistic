@@ -292,7 +292,9 @@ impl ClientInventory {
                 * (self.craftable_recipes.len() as f32 + 1.0)
                 + INVENTORY_SLOT_SIZE * self.craftable_recipes.len() as f32;
 
-            self.crafting_back_rect.render(graphics, None);
+            if !self.craftable_recipes.is_empty() {
+                self.crafting_back_rect.render(graphics, None);
+            }
 
             let x = self.crafting_back_rect.pos.0 + INVENTORY_SPACING;
             let mut y = self.crafting_back_rect.pos.1 + INVENTORY_SPACING;

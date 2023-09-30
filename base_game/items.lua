@@ -37,5 +37,20 @@ function register_items()
     item_type["tool"] = tools.axe
     item_type["tool_power"] = 10
     items.hatchet = terralistic_register_item_type(item_type)
-    terralistic_set_block_drop(blocks.grass_block, items.hatchet, 1)
+    
+    -- BRANCH
+    item_type = terralistic_new_item_type()
+    item_type["name"] = "branch"
+    item_type["display_name"] = "Branch"
+    item_type["max_stack"] = 99
+    items.branch = terralistic_register_item_type(item_type)
+    terralistic_set_block_drop(blocks.branch, items.branch, 1)
+    
+    -- WOOD PLANKS
+    item_type = terralistic_new_item_type()
+    item_type["name"] = "wood_planks"
+    item_type["display_name"] = "Wood planks"
+    item_type["max_stack"] = 99
+    items.wood_planks = terralistic_register_item_type(item_type)
+    terralistic_set_block_drop(blocks.wood, items.wood_planks, 1)
 end

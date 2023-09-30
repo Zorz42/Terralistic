@@ -30,7 +30,6 @@ function register_blocks()
     block_type = terralistic_new_block_type()
     block_type["name"] = "grass_block"
     block_type["can_update_states"] = true
-    block_type["break_time"] = 1000
     blocks.grass_block = terralistic_register_block_type(block_type)
 
     terralistic_connect_blocks(blocks.dirt, blocks.grass_block)
