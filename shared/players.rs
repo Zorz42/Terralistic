@@ -17,7 +17,7 @@ pub const PLAYER_MAX_HEALTH: i32 = 100;
 pub const PLAYER_ACCELERATION: f32 = 30.0;
 pub const PLAYER_INITIAL_SPEED: f32 = 5.0;
 pub const PLAYER_JUMP_SPEED: f32 = 30.0;
-pub const PLAYER_PICKUP_RADIUS: f32 = 4.0;
+pub const PLAYER_PICKUP_RADIUS: f32 = 6.0;
 pub const PLAYER_PICKUP_COEFFICIENT: f32 = 0.005;
 pub const PLAYER_PICKUP_MIN_SPEED: f32 = 0.8;
 
