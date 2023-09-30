@@ -5,12 +5,14 @@ use anyhow::Result;
 use crate::libraries::events::{Event, EventManager};
 use crate::server::server_core::networking::{SendTarget, ServerNetworking};
 use crate::shared::blocks::BlockBreakEvent;
-use crate::shared::entities::{Entities, PositionComponent};
+use crate::shared::entities::{Entities, PhysicsComponent, PositionComponent};
 use crate::shared::items::{
     init_items_mod_interface, ItemComponent, ItemSpawnEvent, ItemSpawnPacket, Items,
 };
 use crate::shared::mod_manager::ModManager;
 use crate::shared::packet::Packet;
+
+const VELOCITY_RANGE: f32 = 5.0;
 
 pub struct ServerItems {
     items: Arc<Mutex<Items>>,
@@ -53,6 +55,13 @@ impl ServerItems {
             }
         }
         if let Some(event) = event.downcast::<ItemSpawnEvent>() {
+            let velocity_x = rand::random::<f32>() * 2.0 * VELOCITY_RANGE - VELOCITY_RANGE;
+            let velocity_y = -rand::random::<f32>() * 4.0 * VELOCITY_RANGE;
+
+            let mut physics = entities.ecs.get::<&mut PhysicsComponent>(event.entity)?;
+            physics.velocity_x = velocity_x;
+            physics.velocity_y = velocity_y;
+
             let entity = event.entity;
             let item = entities.ecs.get::<&ItemComponent>(entity)?;
             let id = entities.get_id_from_entity(entity)?;
@@ -63,6 +72,8 @@ impl ServerItems {
                 id,
                 x: position.x(),
                 y: position.y(),
+                velocity_x,
+                velocity_y,
             };
 
             networking.send_packet(&Packet::new(packet)?, SendTarget::All)?;

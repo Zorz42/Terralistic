@@ -7,7 +7,7 @@ use crate::client::game::camera::Camera;
 use crate::libraries::events::{Event, EventManager};
 use crate::libraries::graphics as gfx;
 use crate::shared::blocks::{RENDER_BLOCK_WIDTH, RENDER_SCALE};
-use crate::shared::entities::{Entities, PositionComponent};
+use crate::shared::entities::{Entities, PhysicsComponent, PositionComponent};
 use crate::shared::items::{
     init_items_mod_interface, ItemComponent, ItemId, ItemSpawnPacket, Items,
 };
@@ -57,7 +57,7 @@ impl ClientItems {
     ) -> Result<()> {
         if let Some(packet) = event.downcast::<Packet>() {
             if let Some(packet) = packet.try_deserialize::<ItemSpawnPacket>() {
-                self.get_items().spawn_item(
+                let item = self.get_items().spawn_item(
                     events,
                     entities,
                     packet.item_type,
@@ -65,6 +65,10 @@ impl ClientItems {
                     packet.y,
                     packet.id,
                 )?;
+
+                let mut physics = entities.ecs.get::<&mut PhysicsComponent>(item)?;
+                physics.velocity_x = packet.velocity_x;
+                physics.velocity_y = packet.velocity_y;
             }
         }
         Ok(())

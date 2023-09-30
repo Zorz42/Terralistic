@@ -238,6 +238,8 @@ pub struct ItemSpawnPacket {
     pub item_type: ItemId,
     pub x: f32,
     pub y: f32,
+    pub velocity_x: f32,
+    pub velocity_y: f32,
     pub id: EntityId,
 }
 
