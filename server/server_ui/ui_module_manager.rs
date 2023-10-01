@@ -63,8 +63,8 @@ pub struct ModuleTreeSplit {
 
 #[derive(PartialEq, Eq)]
 enum EditMode {
-    SELECT,
-    NAME,
+    Select,
+    Name,
 }
 
 pub struct ModuleManager {
@@ -92,7 +92,7 @@ impl Default for ModuleManager {
             },
             changed: false,
             name_buffer: String::new(),
-            mode: EditMode::SELECT,
+            mode: EditMode::Select,
         }
     }
 }
@@ -181,12 +181,12 @@ impl ModuleManager {
                     self.depth = 0;
                     self.recalculate_selection_rect();
                     self.name_buffer.clear();
-                    self.mode = EditMode::SELECT;
+                    self.mode = EditMode::Select;
                 }
                 if *key == gfx::Key::F2 {
-                    self.mode = EditMode::NAME;
+                    self.mode = EditMode::Name;
                 }
-                if self.mode == EditMode::SELECT {
+                if self.mode == EditMode::Select {
                     match *key {
                         gfx::Key::Down => {
                             self.depth += 1;
@@ -232,7 +232,7 @@ impl ModuleManager {
                         }
                         _ => {}
                     }
-                } else if self.mode == EditMode::NAME {
+                } else if self.mode == EditMode::Name {
                     match *key {
                         gfx::Key::Enter => {
                             let name = self.name_buffer.clone();
@@ -242,13 +242,13 @@ impl ModuleManager {
                             let node = self.get_node_mut(None, self.depth);
                             *node = ModuleTreeNodeType::Module(name);
                             self.name_buffer.clear();
-                            self.mode = EditMode::SELECT;
+                            self.mode = EditMode::Select;
                             self.recalculate_selection_rect();
                             self.changed = true;
                         }
                         gfx::Key::Escape => {
                             self.name_buffer.clear();
-                            self.mode = EditMode::SELECT;
+                            self.mode = EditMode::Select;
                         }
                         gfx::Key::Backspace => {
                             self.name_buffer.pop();
@@ -261,11 +261,11 @@ impl ModuleManager {
                 todo!("implement resizing with mouse scroll");
             }
             gfx::Event::TextInput(text) => {
-                if self.mode == EditMode::NAME {
+                if self.mode == EditMode::Name {
                     self.name_buffer.push_str(text);
                 }
             }
-            _ => {}
+            gfx::Event::KeyRelease(_, _) => {}
         }
     }
 
