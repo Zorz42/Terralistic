@@ -61,6 +61,12 @@ pub struct ModuleTreeSplit {
     pub second: ModuleTreeNodeType,
 }
 
+#[derive(PartialEq, Eq)]
+enum EditMode {
+    SELECT,
+    NAME,
+}
+
 pub struct ModuleManager {
     root: ModuleTreeNodeType,
     path: Vec<bool>,
@@ -68,7 +74,8 @@ pub struct ModuleManager {
     depth: usize,
     rect: gfx::Rect,
     pub changed: bool,
-    key_buffer: Vec<gfx::Key>,
+    name_buffer: String,
+    mode: EditMode,
 }
 
 impl Default for ModuleManager {
@@ -84,24 +91,18 @@ impl Default for ModuleManager {
                 size: gfx::FloatSize(1.0, 1.0),
             },
             changed: false,
-            key_buffer: Vec::new(),
+            name_buffer: String::new(),
+            mode: EditMode::SELECT,
         }
     }
 }
 
 impl ModuleManager {
     #[allow(dead_code)]
-    pub const fn new(root: ModuleTreeNodeType) -> Self {
+    pub fn new(root: ModuleTreeNodeType) -> Self {
         Self {
             root,
-            path: Vec::new(),
-            depth: 0,
-            rect: gfx::Rect {
-                pos: gfx::FloatPos(0.0, 0.0),
-                size: gfx::FloatSize(1.0, 1.0),
-            },
-            changed: false,
-            key_buffer: Vec::new(),
+            ..Self::default()
         }
     }
 
@@ -124,14 +125,7 @@ impl ModuleManager {
 
         Ok(Self {
             root,
-            path: Vec::new(),
-            depth: 0,
-            rect: gfx::Rect {
-                pos: gfx::FloatPos(0.0, 0.0),
-                size: gfx::FloatSize(1.0, 1.0),
-            },
-            changed: false,
-            key_buffer: Vec::new(),
+            ..Self::default()
         })
     }
 
@@ -160,16 +154,16 @@ impl ModuleManager {
         ModuleTreeNodeType::Split(Box::from(ModuleTreeSplit {
             orientation: SplitType::Horizontal,
             split_pos: 0.1,
-            first: ModuleTreeNodeType::Module("ServerInfo".to_owned()),
+            first: ModuleTreeNodeType::Module("server_info".to_owned()),
             second: ModuleTreeNodeType::Split(Box::from(ModuleTreeSplit {
                 orientation: SplitType::Vertical,
                 split_pos: 0.5,
-                first: ModuleTreeNodeType::Module("PlayerList".to_owned()),
+                first: ModuleTreeNodeType::Module("player_list".to_owned()),
                 second: ModuleTreeNodeType::Split(Box::from(ModuleTreeSplit {
                     orientation: SplitType::Horizontal,
                     split_pos: 0.2,
-                    first: ModuleTreeNodeType::Module("Empty1".to_owned()),
-                    second: ModuleTreeNodeType::Module("Console".to_owned()),
+                    first: ModuleTreeNodeType::Module("empty_1".to_owned()),
+                    second: ModuleTreeNodeType::Module("console".to_owned()),
                 })),
             })),
         }))
@@ -182,61 +176,94 @@ impl ModuleManager {
     pub fn on_event(&mut self, event: &gfx::Event) {
         match event {
             gfx::Event::KeyPress(key, _repeat) => {
-                //on every change update depth to min(depth, max_depth)
-                match *key {
-                    gfx::Key::F1 => {
-                        //reset
-                        self.depth = 0;
-                        self.recalculate_selection_rect();
-                        self.key_buffer.clear();
-                    }
-                    gfx::Key::Down => {
-                        self.depth += 1;
-                        self.recalculate_selection_rect();
-                    }
-                    gfx::Key::Up => {
-                        if self.depth > 0 {
-                            self.depth -= 1;
+                if *key == gfx::Key::F1 {
+                    //reset
+                    self.depth = 0;
+                    self.recalculate_selection_rect();
+                    self.name_buffer.clear();
+                    self.mode = EditMode::SELECT;
+                }
+                if *key == gfx::Key::F2 {
+                    self.mode = EditMode::NAME;
+                }
+                if self.mode == EditMode::SELECT {
+                    match *key {
+                        gfx::Key::Down => {
+                            self.depth += 1;
                             self.recalculate_selection_rect();
                         }
-                    }
-                    gfx::Key::Space => {
-                        if self.depth > 0 {
-                            let path_at_depth = self.path.get_mut(self.depth - 1);
-                            if let Some(path_at_depth) = path_at_depth {
-                                *path_at_depth = !*path_at_depth;
+                        gfx::Key::Up => {
+                            if self.depth > 0 {
+                                self.depth -= 1;
                                 self.recalculate_selection_rect();
                             }
                         }
+                        gfx::Key::Space => {
+                            if self.depth > 0 {
+                                let path_at_depth = self.path.get_mut(self.depth - 1);
+                                if let Some(path_at_depth) = path_at_depth {
+                                    *path_at_depth = !*path_at_depth;
+                                    self.recalculate_selection_rect();
+                                }
+                            }
+                        }
+                        gfx::Key::V => {
+                            self.split(self.depth, SplitType::Vertical, 0.5);
+                            self.changed = true;
+                        }
+                        gfx::Key::S => {
+                            self.split(self.depth, SplitType::Horizontal, 0.5);
+                            self.changed = true;
+                        }
+                        gfx::Key::Q => {
+                            self.delete(self.depth);
+                            self.recalculate_selection_rect();
+                            self.changed = true;
+                        }
+                        gfx::Key::X => {
+                            self.swap(self.depth);
+                            self.recalculate_selection_rect();
+                            self.changed = true;
+                        }
+                        gfx::Key::R => {
+                            self.root = Self::default_module_tree();
+                            self.recalculate_selection_rect();
+                            self.changed = true;
+                        }
+                        _ => {}
                     }
-                    gfx::Key::V => {
-                        self.split(self.depth, SplitType::Vertical, 0.5);
-                        self.changed = true;
+                } else if self.mode == EditMode::NAME {
+                    match *key {
+                        gfx::Key::Enter => {
+                            let name = self.name_buffer.clone();
+                            if let Some(node) = self.get_node_by_name_mut(&name) {
+                                *node = ModuleTreeNodeType::Module(Self::get_empty_name());
+                            }
+                            let node = self.get_node_mut(None, self.depth);
+                            *node = ModuleTreeNodeType::Module(name);
+                            self.name_buffer.clear();
+                            self.mode = EditMode::SELECT;
+                            self.recalculate_selection_rect();
+                            self.changed = true;
+                        }
+                        gfx::Key::Escape => {
+                            self.name_buffer.clear();
+                            self.mode = EditMode::SELECT;
+                        }
+                        gfx::Key::Backspace => {
+                            self.name_buffer.pop();
+                        }
+                        _ => {}
                     }
-                    gfx::Key::S => {
-                        self.split(self.depth, SplitType::Horizontal, 0.5);
-                        self.changed = true;
-                    }
-                    gfx::Key::Q => {
-                        self.delete(self.depth);
-                        self.recalculate_selection_rect();
-                        self.changed = true;
-                    }
-                    gfx::Key::X => {
-                        self.swap(self.depth);
-                        self.recalculate_selection_rect();
-                        self.changed = true;
-                    }
-                    gfx::Key::R => {
-                        self.root = Self::default_module_tree();
-                        self.recalculate_selection_rect();
-                        self.changed = true;
-                    }
-                    _ => {}
                 }
             }
             gfx::Event::MouseScroll(_) => {
                 todo!("implement resizing with mouse scroll");
+            }
+            gfx::Event::TextInput(text) => {
+                if self.mode == EditMode::NAME {
+                    self.name_buffer.push_str(text);
+                }
             }
             _ => {}
         }
@@ -266,7 +293,7 @@ impl ModuleManager {
     }
 
     fn get_empty_name() -> String {
-        let mut name = "Empty_".to_owned();
+        let mut name = "empty_".to_owned();
         //append a random number
         name.push_str(&rand::random::<u32>().to_string());
         name

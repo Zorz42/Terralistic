@@ -233,7 +233,7 @@ impl ui_manager::ModuleTrait for ServerInfo {
     }
 
     fn get_name(&self) -> &str {
-        "ServerInfo"
+        "server_info"
     }
 
     fn get_enabled_mut(&mut self) -> &mut bool {

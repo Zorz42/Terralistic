@@ -170,7 +170,7 @@ impl ui_manager::ModuleTrait for PlayerList {
     }
 
     fn get_name(&self) -> &str {
-        "PlayerList"
+        "player_list"
     }
 
     fn get_enabled_mut(&mut self) -> &mut bool {

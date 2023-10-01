@@ -165,7 +165,7 @@ impl ui_manager::ModuleTrait for Console {
     }
 
     fn get_name(&self) -> &str {
-        "Console"
+        "console"
     }
 
     fn set_sender(&mut self, sender: Sender<UiMessageType>) {
