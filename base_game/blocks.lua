@@ -30,6 +30,7 @@ function register_blocks()
     block_type = terralistic_new_block_type()
     block_type["name"] = "grass_block"
     block_type["can_update_states"] = true
+    block_type["break_time"] = 0
     blocks.grass_block = terralistic_register_block_type(block_type)
 
     terralistic_connect_blocks(blocks.dirt, blocks.grass_block)
@@ -114,10 +115,9 @@ function on_block_break(x, y, block_id)
         if terralistic_get_block(x, y - 1) == blocks.canopy then
             terralistic_break_block(x, y - 1)
         end
-    end
-
-    -- if branch_block is broken, break the leaves_block on the left and right
-    if block_id == blocks.branch then
+        
+    elseif block_id == blocks.branch then
+        -- if branch_block is broken, break the leaves_block on the left and right
         if terralistic_get_block(x - 1, y) == blocks.leaves then
             terralistic_break_block(x - 1, y)
         end
@@ -125,5 +125,9 @@ function on_block_break(x, y, block_id)
         if terralistic_get_block(x + 1, y) == blocks.leaves then
             terralistic_break_block(x + 1, y)
         end
+        
+    elseif block_id == blocks.grass_block then
+        -- if grass_block is broken, replace it with dirt_block
+        terralistic_set_block(x, y, blocks.dirt)
     end
 end

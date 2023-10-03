@@ -22,6 +22,7 @@ impl rlua::UserData for BlockId {
 /// initialize the mod interface for the blocks module
 /// # Errors
 /// if the lua context is not available
+#[allow(clippy::too_many_lines)]
 pub fn init_blocks_mod_interface(
     blocks: &Arc<Mutex<Blocks>>,
     mods: &mut ModManager,
@@ -82,7 +83,7 @@ pub fn init_blocks_mod_interface(
 
     // a method to break a block
     blocks2 = blocks.clone();
-    let sender2 = sender;
+    let sender2 = sender.clone();
     mods.add_global_function("break_block", move |_lua, (x, y): (i32, i32)| {
         let mut block_types = blocks2.lock().unwrap_or_else(PoisonError::into_inner);
         let mut events = EventManager::new();
@@ -114,6 +115,33 @@ pub fn init_blocks_mod_interface(
             ))?;
         Ok(block_id)
     })?;
+
+    // a method to set block id by position
+    blocks2 = blocks.clone();
+    let sender2 = sender;
+    mods.add_global_function(
+        "set_block",
+        move |_lua, (x, y, block_id): (i32, i32, BlockId)| {
+            let mut events = EventManager::new();
+
+            let mut blocks = blocks2.lock().unwrap_or_else(PoisonError::into_inner);
+            blocks
+                .set_block(&mut events, x, y, block_id)
+                .ok()
+                .ok_or(rlua::Error::RuntimeError(
+                    "coordinates out of bounds".to_owned(),
+                ))?;
+
+            while let Some(event) = events.pop_event() {
+                sender2
+                    .send(event)
+                    .ok()
+                    .ok_or(rlua::Error::RuntimeError("could not send event".to_owned()))?;
+            }
+
+            Ok(())
+        },
+    )?;
 
     // a method to register a new tool
     blocks2 = blocks.clone();

@@ -33,6 +33,9 @@ pub struct Block {
     pub can_update_states: bool,
     // if the block is only collidable by feet, for example: platforms, they have special collision
     pub feet_collidable: bool,
+    // if right clicking the block sends an event
+    // this is used for example for doors or chests
+    pub clickable: bool,
 }
 
 impl Block {
@@ -55,6 +58,7 @@ impl Block {
             height: 0,
             can_update_states: false,
             feet_collidable: false,
+            clickable: false,
         }
     }
 
