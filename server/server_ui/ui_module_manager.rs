@@ -369,7 +369,7 @@ impl ModuleManager {
         self.rect.size = coords.1;
     }
 
-    pub fn render(&self, graphics_context: &mut gfx::GraphicsContext) {
+    pub fn render_selection(&self, graphics_context: &mut gfx::GraphicsContext) {
         let window_size = graphics_context.renderer.get_window_size();
         let pos = gfx::FloatPos(
             window_size.0 * self.rect.pos.0,
@@ -381,6 +381,23 @@ impl ModuleManager {
         );
         let rect = gfx::Rect::new(pos, size);
         rect.render(graphics_context, gfx::WHITE);
+    }
+
+    pub fn render_overlay(&self, graphics_context: &mut gfx::GraphicsContext) {
+        if self.mode == EditMode::Name {
+            let window_size = graphics_context.renderer.get_window_size();
+            let pos = gfx::FloatPos(
+                window_size.0 * self.rect.pos.0,
+                window_size.1 * self.rect.pos.1,
+            );
+            let size = gfx::FloatSize(
+                window_size.0 * self.rect.size.0,
+                window_size.1 * self.rect.size.1,
+            );
+            let rect = gfx::Rect::new(pos, size);
+            let color = gfx::Color::new(255, 255, 255, 100);
+            rect.render(graphics_context, color);
+        }
     }
 
     fn get_overlay_rect_coords(

@@ -81,8 +81,6 @@ impl UiManager {
             return;
         }
 
-        //load the module tree
-
         gfx::RenderRect::new(gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, 0.0))
             .render(&self.graphics_context, None); //rect that makes rendering work. It is useless but do not remove it or the rendering will not work. Blame the graphics library by Zorz42
 
@@ -138,10 +136,14 @@ impl UiManager {
             .render(&self.graphics_context, gfx::DARK_GREY);
 
             if self.module_edit_mode {
-                self.module_manager.render(&mut self.graphics_context);
+                self.module_manager.render_selection(&mut self.graphics_context);
             }
 
             self.render_modules();
+
+            if self.module_edit_mode {
+                self.module_manager.render_overlay(&mut self.graphics_context);
+            }
 
             //display the frame
             self.graphics_context.renderer.update_window();
