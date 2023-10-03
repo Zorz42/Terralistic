@@ -6,6 +6,7 @@ use std::sync::mpsc::Sender;
 use anyhow::{anyhow, Result};
 
 use crate::libraries::graphics as gfx;
+use crate::libraries::graphics::FloatPos;
 use crate::server::server_ui::UiMessageType;
 
 /// This enum indicates the type of the `ModuleTree` Node.
@@ -397,6 +398,20 @@ impl ModuleManager {
             let rect = gfx::Rect::new(pos, size);
             let color = gfx::Color::new(255, 255, 255, 100);
             rect.render(graphics_context, color);
+
+            /*let font = if let Some(mono_font) = &graphics_context.font_mono {
+                mono_font
+            } else {
+                &graphics_context.font
+            };*/
+            let font = &graphics_context.font;
+            let text_texture = gfx::Texture::load_from_surface(&font.create_text_surface(&self.name_buffer, None));
+            let mut text_sprite = gfx::Sprite::new();
+            text_sprite.texture = text_texture;
+            text_sprite.orientation = gfx::CENTER;
+            text_sprite.scale = 3.0;
+            let container = gfx::Container::new(graphics_context, pos, size, gfx::TOP_LEFT, None);
+            text_sprite.render(graphics_context, Some(&container));
         }
     }
 
