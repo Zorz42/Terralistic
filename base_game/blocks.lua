@@ -87,6 +87,24 @@ function register_blocks()
     block_type["transparent"] = true
     block_type["break_time"] = 1000
     blocks.stone = terralistic_register_block_type(block_type)
+
+    -- WOOD_PLANKS
+    block_type = terralistic_new_block_type()
+    block_type["name"] = "wood_planks"
+    block_type["can_update_states"] = true
+    block_type["break_time"] = 1000
+    blocks.wood_planks = terralistic_register_block_type(block_type)
+
+    -- TORCH
+    block_type = terralistic_new_block_type()
+    block_type["name"] = "torch"
+    block_type["light_emission_r"] = 200
+    block_type["light_emission_g"] = 200
+    block_type["light_emission_b"] = 150
+    block_type["ghost"] = true
+    block_type["transparent"] = true
+    block_type["break_time"] = 1000
+    blocks.torch = terralistic_register_block_type(block_type)
 end
 
 function on_block_break(x, y, block_id)
@@ -115,7 +133,7 @@ function on_block_break(x, y, block_id)
         if terralistic_get_block(x, y - 1) == blocks.canopy then
             terralistic_break_block(x, y - 1)
         end
-        
+
     elseif block_id == blocks.branch then
         -- if branch_block is broken, break the leaves_block on the left and right
         if terralistic_get_block(x - 1, y) == blocks.leaves then
@@ -125,7 +143,7 @@ function on_block_break(x, y, block_id)
         if terralistic_get_block(x + 1, y) == blocks.leaves then
             terralistic_break_block(x + 1, y)
         end
-        
+
     elseif block_id == blocks.grass_block then
         -- if grass_block is broken, replace it with dirt_block
         terralistic_set_block(x, y, blocks.dirt)
