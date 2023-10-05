@@ -6,6 +6,7 @@ mod chat;
 pub mod core_client;
 mod debug_menu;
 mod entities;
+mod floating_text;
 mod framerate_measurer;
 mod health;
 mod inventory;
