@@ -94,7 +94,7 @@ impl UiManager {
             //update the server
             self.update_server(
                 &mut num_updates,
-                &ms_timer,
+                ms_timer,
                 &mut server_last_time,
                 &mut server_mspt,
                 &mut ms_counter,
@@ -136,13 +136,15 @@ impl UiManager {
             .render(&self.graphics_context, gfx::DARK_GREY);
 
             if self.module_edit_mode {
-                self.module_manager.render_selection(&mut self.graphics_context);
+                self.module_manager
+                    .render_selection(&mut self.graphics_context);
             }
 
             self.render_modules();
 
             if self.module_edit_mode {
-                self.module_manager.render_overlay(&mut self.graphics_context);
+                self.module_manager
+                    .render_overlay(&mut self.graphics_context);
             }
 
             //display the frame
@@ -201,7 +203,7 @@ impl UiManager {
         //TODO: rethink timings, this is too many variables
         &mut self,
         num_updates: &mut u64,
-        ms_timer: &std::time::Instant,
+        ms_timer: std::time::Instant,
         server_last_time: &mut std::time::Instant,
         server_mspt: &mut Option<f64>,
         ms_counter: &mut i32,
@@ -214,7 +216,7 @@ impl UiManager {
 
             //update the server by 1 tick
             let server_tick_start = ms_timer.elapsed().as_micros();
-            if let Err(e) = self.server.update(server_delta_time, *ms_timer, ms_counter) {
+            if let Err(e) = self.server.update(server_delta_time, ms_timer, ms_counter) {
                 println!("Error running server: {e}");
                 break;
             }
