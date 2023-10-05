@@ -6,6 +6,7 @@ use anyhow::{bail, Result};
 use crate::client::game::chat::ClientChat;
 use crate::client::game::debug_menu::DebugMenu;
 use crate::client::game::entities::ClientEntities;
+use crate::client::game::floating_text::FloatingTextManager;
 use crate::client::game::framerate_measurer::FramerateMeasurer;
 use crate::client::game::health::ClientHealth;
 use crate::client::game::inventory::ClientInventory;
@@ -118,6 +119,7 @@ pub fn run_game(
     let mut framerate_measurer = FramerateMeasurer::new();
     let mut chat = ClientChat::new(graphics);
     let mut health = ClientHealth::new();
+    let mut floating_text = FloatingTextManager::new();
 
     background.init()?;
     inventory.init();
@@ -178,6 +180,7 @@ pub fn run_game(
         blocks.render(graphics, &camera)?;
         players.render(graphics, &mut entities.entities, &camera);
         items.render(graphics, &camera, &mut entities.entities)?;
+        floating_text.render(graphics, &camera);
         lights.render(graphics, &camera, &blocks.get_blocks(), &mut events)?;
         camera.render(graphics);
         block_selector.render(graphics, &mut networking, &camera)?;

@@ -1,5 +1,3 @@
-use anyhow::Result;
-
 use crate::client::game::camera::Camera;
 use crate::libraries::graphics as gfx;
 
@@ -19,6 +17,7 @@ pub struct FloatingText {
 impl FloatingText {
     /// # Errors
     /// If the font couldn't be loaded.
+    #[must_use]
     pub fn new(
         graphics: &mut gfx::GraphicsContext,
         text: String,
@@ -27,10 +26,10 @@ impl FloatingText {
         lifetime_ms: i32,
         color: gfx::Color,
         scale: f32,
-    ) -> Result<Self> {
+    ) -> Self {
         let text_texture =
             gfx::Texture::load_from_surface(&graphics.font.create_text_surface(&text, None));
-        Ok(Self {
+        Self {
             text,
             text_texture,
             x,
@@ -39,10 +38,10 @@ impl FloatingText {
             color,
             spawn_time: std::time::Instant::now(),
             scale,
-        })
+        }
     }
 
-    pub fn render(&self, graphics: &mut gfx::GraphicsContext, camera: &Camera) {
+    fn render(&self, graphics: &mut gfx::GraphicsContext, camera: &Camera) {
         self.text_texture.render(
             &graphics.renderer,
             3.0,
@@ -51,5 +50,35 @@ impl FloatingText {
             false,
             None,
         );
+    }
+
+    fn is_dead(&self) -> bool {
+        self.spawn_time.elapsed().as_millis() as i32 > self.lifetime_ms
+    }
+}
+
+/// Floating text manager.
+pub struct FloatingTextManager {
+    floating_texts: Vec<FloatingText>,
+}
+
+impl FloatingTextManager {
+    pub fn new() -> Self {
+        Self {
+            floating_texts: Vec::new(),
+        }
+    }
+
+    pub fn render(&mut self, graphics: &mut gfx::GraphicsContext, camera: &Camera) {
+        for floating_text in &self.floating_texts {
+            floating_text.render(graphics, camera);
+        }
+
+        self.floating_texts
+            .retain(|floating_text| !floating_text.is_dead());
+    }
+
+    pub fn spawn_text(&mut self, floating_text: FloatingText) {
+        self.floating_texts.push(floating_text);
     }
 }
