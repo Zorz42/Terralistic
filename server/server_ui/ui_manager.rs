@@ -80,9 +80,6 @@ impl UiManager {
             return;
         }
 
-        gfx::RenderRect::new(gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, 0.0))
-            .render(&self.graphics_context, None); //rect that makes rendering work. It is useless but do not remove it or the rendering will not work. Blame the graphics library by Zorz42
-
         let mut ui_delta_time;
 
         'main: loop {
@@ -126,26 +123,7 @@ impl UiManager {
                 module.update(ui_delta_time, &mut self.graphics_context);
             }
 
-            //renders the background
-            gfx::Rect::new(
-                gfx::FloatPos(0.0, 0.0),
-                self.graphics_context.renderer.get_window_size(),
-            )
-            .render(&self.graphics_context, gfx::DARK_GREY);
-
-            if self.module_edit_mode {
-                self.module_manager.render_selection(&self.graphics_context);
-            }
-
-            self.render_modules();
-
-            if self.module_edit_mode {
-                self.module_manager.render_overlay(&self.graphics_context);
-            }
-
-            //display the frame
-            self.graphics_context.renderer.update_window();
-            self.graphics_context.renderer.handle_window_resize(); //idk what this does
+            self.render();
 
             //update the mspt
             let ui_mspt = ui_delta_time as f64 / 1000.0;
@@ -158,16 +136,8 @@ impl UiManager {
                 );
             }
 
-            //close the window if the server is stopped
-            if !is_running.load(std::sync::atomic::Ordering::Relaxed)
-                || self.server.state == ServerState::Stopping
-            {
-                //state is there so outside events can stop it
+            if self.should_ui_stop(is_running) {
                 break;
-            }
-            //stops the server if the window is closed
-            if !self.graphics_context.renderer.is_window_open() {
-                is_running.store(false, std::sync::atomic::Ordering::Relaxed);
             }
 
             //sleep
@@ -181,6 +151,44 @@ impl UiManager {
         if let Err(e) = self.server.stop(status_text, world_path) {
             println!("Error stopping server: {e}");
         }
+    }
+
+    fn should_ui_stop(&self, is_running: &Arc<AtomicBool>) -> bool {
+        //close the window if the server is stopped
+        if !is_running.load(std::sync::atomic::Ordering::Relaxed)
+            || self.server.state == ServerState::Stopping
+        //state is there so outside events can stop it
+        {
+            return true;
+        }
+        //stops the server if the window is closed
+        if !self.graphics_context.renderer.is_window_open() {
+            is_running.store(false, std::sync::atomic::Ordering::Relaxed);
+        }
+        false
+    }
+
+    fn render(&mut self) {
+        //renders the background
+        gfx::Rect::new(
+            gfx::FloatPos(0.0, 0.0),
+            self.graphics_context.renderer.get_window_size(),
+        )
+        .render(&self.graphics_context, gfx::DARK_GREY);
+
+        if self.module_edit_mode {
+            self.module_manager.render_selection(&self.graphics_context);
+        }
+
+        self.render_modules();
+
+        if self.module_edit_mode {
+            self.module_manager.render_overlay(&self.graphics_context);
+        }
+
+        //display the frame
+        self.graphics_context.renderer.update_window();
+        self.graphics_context.renderer.handle_window_resize(); //idk what this does
     }
 
     /// Initializes the modules
