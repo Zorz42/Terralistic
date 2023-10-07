@@ -196,14 +196,13 @@ impl UiManager {
 
     /// Updates the server when needed
     fn update_server(
-        //TODO: rethink timings, this is too many variables
         &mut self,
         num_updates: &mut u64,
         ms_timer: std::time::Instant,
         server_last_time: &mut std::time::Instant,
         server_mspt: &mut Option<f64>,
     ) {
-        while *num_updates
+        while *num_updates //TODO: if this updates multiple times mspt will be wrong as the function is called once, but multiple ticks are processed. Fix
             < ms_timer.elapsed().as_millis() as u64 * self.server.tps_limit as u64 / 1000
         {
             *server_last_time = std::time::Instant::now();
