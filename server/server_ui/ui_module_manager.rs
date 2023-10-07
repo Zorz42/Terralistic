@@ -99,7 +99,6 @@ impl Default for ModuleManager {
 }
 
 impl ModuleManager {
-    #[allow(dead_code)]
     pub fn new(root: ModuleTreeNodeType) -> Self {
         Self {
             root,
@@ -124,10 +123,7 @@ impl ModuleManager {
         let reader = BufReader::new(file);
         let root = serde_json::from_reader(reader)?;
 
-        Ok(Self {
-            root,
-            ..Self::default()
-        })
+        Ok(Self::new(root))
     }
 
     fn try_save_to_file(&self, config_path: &Path) -> Result<()> {

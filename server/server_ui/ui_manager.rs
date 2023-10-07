@@ -110,6 +110,8 @@ impl UiManager {
 
             if self.module_manager.changed {
                 self.reset_modules();
+                self.module_manager
+                    .save_to_file(&self.save_path, &self.server_message_sender);
             }
 
             //resize the modules if the window size has changed or the module tree has changed
@@ -232,8 +234,6 @@ impl UiManager {
             if let gfx::Event::KeyPress(key, repeat) = event {
                 if key == gfx::Key::F1 && !repeat {
                     self.module_edit_mode = !self.module_edit_mode;
-                    self.module_manager
-                        .save_to_file(&self.save_path, &self.server_message_sender);
                 }
             }
 
