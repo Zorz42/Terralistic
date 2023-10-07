@@ -1,6 +1,6 @@
 [package]
 name = "Terralistic"
-version = "0.5.0-alpha"
+version = "0.5.1-alpha"
 edition = "2021"
 description = "Terralistic"
 build = "build_main.rs"
