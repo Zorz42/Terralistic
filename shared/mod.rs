@@ -1,6 +1,5 @@
-extern crate core;
-
 pub mod blocks;
+pub mod chat;
 pub mod entities;
 pub mod inventory;
 pub mod items;

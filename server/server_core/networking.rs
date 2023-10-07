@@ -1,22 +1,20 @@
-use core::hash::{Hash, Hasher};
-use core::sync::atomic::AtomicBool;
 use std::collections::HashMap;
+use std::hash::{Hash, Hasher};
+use std::sync::atomic::AtomicBool;
+use std::sync::atomic::Ordering;
 use std::sync::mpsc;
 use std::sync::mpsc::{Receiver, Sender};
-extern crate alloc;
-use alloc::sync::Arc;
-use core::sync::atomic::Ordering;
+use std::sync::Arc;
 
-use crate::libraries::events::{Event, EventManager};
-use crate::server::server_core::send_to_ui;
-use crate::shared::packet::{Packet, WelcomeCompletePacket};
-use crate::shared::players::NamePacket;
 use anyhow::{anyhow, bail, Result};
 use message_io::network::{Endpoint, NetEvent, SendStatus, Transport};
-
-use crate::server::server_ui::UiMessageType;
 use message_io::node;
 use message_io::node::{NodeEvent, NodeHandler};
+
+use crate::libraries::events::{Event, EventManager};
+use crate::server::server_core::print_to_console;
+use crate::shared::packet::{Packet, WelcomeCompletePacket};
+use crate::shared::players::NamePacket;
 
 /// This struct holds the address of a connection.
 #[derive(Clone, Eq)]
@@ -73,7 +71,7 @@ impl ServerNetworking {
         self.connection_names.get(conn).unwrap_or(&unknown).clone()
     }
 
-    pub fn init(&mut self, ui_event_sender: Option<Sender<Vec<u8>>>) {
+    pub fn init(&mut self) {
         // start listening for connections
         let (event_sender, event_receiver) = mpsc::channel();
         let (packet_sender, packet_receiver) = mpsc::channel();
@@ -84,13 +82,7 @@ impl ServerNetworking {
         let server_port = self.server_port;
 
         self.net_loop_thread = Some(std::thread::spawn(move || {
-            Self::net_receive_loop(
-                &event_sender,
-                &packet_receiver,
-                &is_running,
-                server_port,
-                &ui_event_sender,
-            )
+            Self::net_receive_loop(&event_sender, &packet_receiver, &is_running, server_port)
         }));
     }
 
@@ -100,9 +92,8 @@ impl ServerNetworking {
         packet_receiver: &Receiver<(Vec<u8>, Connection)>,
         is_running: &Arc<AtomicBool>,
         server_port: u16,
-        ui_event_sender: &Option<Sender<Vec<u8>>>,
     ) -> Result<()> {
-        let (mut handler, listener) = node::split::<()>();
+        let (handler, listener) = node::split::<()>();
 
         let listen_addr = format!("127.0.0.1:{server_port}");
         handler
@@ -115,22 +106,14 @@ impl ServerNetworking {
             NodeEvent::Network(net_event) => match net_event {
                 NetEvent::Connected(..) => {}
                 NetEvent::Accepted(peer, _) => {
-                    println!("[{peer}] connected");
-                    send_to_ui(
-                        &UiMessageType::ConsoleMessage(format!("[{peer}] connected")),
-                        ui_event_sender,
-                    );
+                    print_to_console(&format!("[{peer}] connected"), 0);
                 }
                 NetEvent::Disconnected(peer) => {
-                    println!("[{peer}] disconnected");
-                    send_to_ui(
-                        &UiMessageType::ConsoleMessage(format!("[{peer}] disconnected")),
-                        ui_event_sender,
-                    );
+                    print_to_console(&format!("[{peer}] disconnected"), 0);
                     match event_sender.send(Event::new(DisconnectEvent {
                         conn: Connection { address: peer },
                     })) {
-                        Ok(_) => {}
+                        Ok(()) => {}
                         Err(e) => {
                             println!("Failed to send disconnect event: {e}");
                         }
@@ -139,18 +122,17 @@ impl ServerNetworking {
                 NetEvent::Message(peer, packet) => {
                     let packet: Packet = bincode::deserialize(packet).unwrap();
                     if let Some(packet) = packet.try_deserialize::<NamePacket>() {
-                        println!("[{:?}] joined", packet.name);
-                        send_to_ui(
-                            &UiMessageType::ConsoleMessage(format!("[{:?}] joined", packet.name)),
-                            ui_event_sender,
-                        );
+                        print_to_console(&format!("[{:?}] joined the game", packet.name), 0);
                         match event_sender.send(Event::new(NewConnectionEvent {
                             conn: Connection { address: peer },
                             name: packet.name,
                         })) {
-                            Ok(_) => {}
+                            Ok(()) => {}
                             Err(e) => {
-                                println!("Failed to send new connection event: {e}");
+                                print_to_console(
+                                    &format!("Failed to send new connection event: {e}"),
+                                    2,
+                                );
                             }
                         }
                     } else {
@@ -158,26 +140,29 @@ impl ServerNetworking {
                             packet,
                             conn: Connection { address: peer },
                         })) {
-                            Ok(_) => {}
+                            Ok(()) => {}
                             Err(e) => {
-                                println!("Failed to send packet from client event: {e}");
+                                print_to_console(
+                                    &format!("Failed to send packet from client event: {e}"),
+                                    2,
+                                );
                             }
                         }
                     }
                 }
             },
-            NodeEvent::Signal(_) => {
+            NodeEvent::Signal(()) => {
                 if !is_running.load(Ordering::Relaxed) {
                     handler.stop();
                 }
 
                 while let Ok((packet_data, conn)) = packet_receiver.try_recv() {
-                    Self::send_packet_internal(&mut handler, &packet_data, &conn).unwrap();
+                    Self::send_packet_internal(&handler, &packet_data, &conn).unwrap();
                 }
 
                 handler
                     .signals()
-                    .send_with_timer((), core::time::Duration::from_millis(1));
+                    .send_with_timer((), std::time::Duration::from_millis(1));
             }
         });
 
@@ -237,7 +222,7 @@ impl ServerNetworking {
     }
 
     fn send_packet_internal(
-        net_server: &mut NodeHandler<()>,
+        net_server: &NodeHandler<()>,
         packet_data: &[u8],
         conn: &Connection,
     ) -> Result<()> {
@@ -249,7 +234,7 @@ impl ServerNetworking {
                 SendStatus::ResourceNotFound => bail!("Resource not found"),
                 SendStatus::ResourceNotAvailable => {
                     // wait a bit and try again
-                    std::thread::sleep(core::time::Duration::from_millis(1));
+                    std::thread::sleep(std::time::Duration::from_millis(1));
                 }
             };
         }

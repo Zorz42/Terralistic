@@ -1,9 +1,10 @@
+use std::collections::HashMap;
+use std::slice::{Iter, IterMut};
+
 use anyhow::Result;
-use core::slice::{Iter, IterMut};
 use rlua::prelude::LuaError;
 use rlua::{Context, FromLuaMulti, Lua, ToLuaMulti};
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
 
 static MOD_ID_IDENT: &str = "__TERRALISTIC_MOD_ID";
 
@@ -166,17 +167,13 @@ impl<'de> Deserialize<'de> for GameMod {
     }
 }
 
-/**
-Mod manager is responsible for loading mods and managing them.
- */
+/// Mod manager is responsible for loading mods and managing them.
 pub struct ModManager {
     mods: Vec<GameMod>,
 }
 
 impl ModManager {
-    /**
-    Creates a new mod manager.
-    */
+    /// Creates a new mod manager.
     #[must_use]
     pub const fn new(mods: Vec<GameMod>) -> Self {
         Self { mods }

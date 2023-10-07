@@ -1,25 +1,33 @@
+use crate::libraries::graphics as gfx;
+
 use super::color::Color;
 use super::vertex_buffer::DrawMode;
-use super::GraphicsContext;
-use crate::libraries::graphics::{FloatPos, FloatSize};
 
 /// This is a rectangle shape.
 #[derive(Clone, Copy)]
 pub struct Rect {
-    pub pos: FloatPos,
-    pub size: FloatSize,
+    pub pos: gfx::FloatPos,
+    pub size: gfx::FloatSize,
 }
 
 impl Rect {
     /// Creates a new rectangle.
     #[must_use]
-    pub const fn new(pos: FloatPos, size: FloatSize) -> Self {
+    pub const fn new(pos: gfx::FloatPos, size: gfx::FloatSize) -> Self {
         Self { pos, size }
     }
 
     /// Renders the rectangle on the screen.
-    pub fn render(&self, graphics: &GraphicsContext, color: Color) {
+    pub fn render(&self, graphics: &gfx::GraphicsContext, color: Color) {
         if color.a == 0 {
+            return;
+        }
+
+        if self.pos.0 > graphics.renderer.get_window_size().0
+            || self.pos.1 > graphics.renderer.get_window_size().1
+            || self.pos.0 + self.size.0 < 0.0
+            || self.pos.1 + self.size.1 < 0.0
+        {
             return;
         }
 
@@ -53,7 +61,7 @@ impl Rect {
     }
 
     /// Renders the rectangle outline on the screen.
-    pub fn render_outline(&self, graphics: &GraphicsContext, color: Color) {
+    pub fn render_outline(&self, graphics: &gfx::GraphicsContext, color: Color) {
         if color.a == 0 {
             return;
         }
@@ -88,7 +96,7 @@ impl Rect {
     }
 
     #[must_use]
-    pub fn contains(&self, pos: FloatPos) -> bool {
+    pub fn contains(&self, pos: gfx::FloatPos) -> bool {
         pos.0 >= self.pos.0
             && pos.0 <= self.pos.0 + self.size.0
             && pos.1 >= self.pos.1

@@ -1,7 +1,10 @@
-use super::Blocks;
-use crate::libraries::events::{Event, EventManager};
-use crate::shared::blocks::BlockId;
 use anyhow::{anyhow, Result};
+use serde_derive::{Deserialize, Serialize};
+
+use crate::libraries::events::{Event, EventManager};
+use crate::shared::blocks::{BlockId, ToolId};
+
+use super::Blocks;
 
 /// Breaking block struct represents a block that is currently being broken.
 #[derive(Clone)]
@@ -79,9 +82,19 @@ impl Blocks {
         events: &mut EventManager,
         x: i32,
         y: i32,
+        tool: Option<ToolId>,
+        tool_power: i32,
     ) -> Result<()> {
         if self.get_block_type_at(x, y)?.break_time.is_none() {
             return Ok(());
+        }
+
+        if let Some(effective_tool) = self.get_block_type_at(x, y)?.effective_tool {
+            if Some(effective_tool) != tool
+                && self.get_block_type_at(x, y)?.required_tool_power > tool_power
+            {
+                return Ok(());
+            }
         }
 
         let mut breaking_block: Option<&mut BreakingBlock> = None;
@@ -106,7 +119,12 @@ impl Blocks {
 
         breaking_block.is_breaking = true;
 
-        let event = BlockStartedBreakingEvent { x, y };
+        let event = BlockStartedBreakingEvent {
+            x,
+            y,
+            tool,
+            tool_power,
+        };
         events.push_event(Event::new(event));
 
         Ok(())
@@ -181,7 +199,7 @@ impl Blocks {
         };
         events.push_event(Event::new(event));
 
-        self.set_block(events, transformed_x, transformed_y, self.air)?;
+        self.set_block(events, transformed_x, transformed_y, self.air())?;
 
         Ok(())
     }
@@ -191,6 +209,35 @@ impl Blocks {
     pub const fn get_breaking_blocks(&self) -> &Vec<BreakingBlock> {
         &self.breaking_blocks
     }
+}
+
+/// A packet that is sent to the server,
+/// when the server should start to
+/// break the block.
+#[derive(Serialize, Deserialize)]
+pub struct BlockBreakStartPacket {
+    pub x: i32,
+    pub y: i32,
+    pub tool: Option<ToolId>,
+    pub tool_power: i32,
+}
+
+/// A packet that is sent to the server, when
+/// client starts to break a block
+#[derive(Serialize, Deserialize)]
+pub struct ClientBlockBreakStartPacket {
+    pub x: i32,
+    pub y: i32,
+}
+
+/// A packet that is sent to the server, when client stops
+/// breaking a block and when the server should stop
+/// breaking the block.
+#[derive(Serialize, Deserialize)]
+pub struct BlockBreakStopPacket {
+    pub x: i32,
+    pub y: i32,
+    pub break_time: i32,
 }
 
 /// Event that is fired when a block is broken
@@ -204,6 +251,8 @@ pub struct BlockBreakEvent {
 pub struct BlockStartedBreakingEvent {
     pub x: i32,
     pub y: i32,
+    pub tool: Option<ToolId>,
+    pub tool_power: i32,
 }
 
 /// Event that is fired when a block has stopped breaking

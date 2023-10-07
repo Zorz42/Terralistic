@@ -1,13 +1,15 @@
-use super::camera::Camera;
-use super::networking::WelcomePacketEvent;
+use std::collections::HashMap;
+
+use anyhow::{anyhow, bail, Result};
+
 use crate::libraries::events::{Event, EventManager};
 use crate::libraries::graphics as gfx;
-use crate::libraries::graphics::{FloatPos, FloatSize, GraphicsContext};
 use crate::shared::blocks::{Blocks, BLOCK_WIDTH, CHUNK_SIZE, RENDER_BLOCK_WIDTH, RENDER_SCALE};
 use crate::shared::mod_manager::ModManager;
 use crate::shared::walls::{WallId, Walls, WallsWelcomePacket};
-use anyhow::{anyhow, bail, Result};
-use std::collections::HashMap;
+
+use super::camera::Camera;
+use super::networking::WelcomePacketEvent;
 
 pub struct RenderWallChunk {
     needs_update: bool,
@@ -29,7 +31,7 @@ impl RenderWallChunk {
 
     pub fn render(
         &mut self,
-        graphics: &mut GraphicsContext,
+        graphics: &gfx::GraphicsContext,
         atlas: &gfx::TextureAtlas<WallId>,
         world_x: i32,
         world_y: i32,
@@ -46,11 +48,11 @@ impl RenderWallChunk {
                     if let Some(curr_wall_rect) = atlas.get_rect(&curr_wall.get_id()) {
                         let mut curr_wall_rect = *curr_wall_rect;
                         let mut dest_rect = gfx::Rect::new(
-                            FloatPos(
+                            gfx::FloatPos(
                                 (x - 1) as f32 * RENDER_BLOCK_WIDTH,
                                 (y - 1) as f32 * RENDER_BLOCK_WIDTH,
                             ),
-                            FloatSize(3.0 * RENDER_BLOCK_WIDTH, 3.0 * RENDER_BLOCK_WIDTH),
+                            gfx::FloatSize(3.0 * RENDER_BLOCK_WIDTH, 3.0 * RENDER_BLOCK_WIDTH),
                         );
 
                         let curr_x = world_x + x;
@@ -103,16 +105,14 @@ impl RenderWallChunk {
         self.rect_array.render(
             graphics,
             Some(atlas.get_texture()),
-            FloatPos(screen_x.round(), screen_y.round()),
+            gfx::FloatPos(screen_x.round(), screen_y.round()),
         );
 
         Ok(())
     }
 }
 
-/**
-client blocks handles client side block stuff, such as rendering
- */
+/// Client blocks handles client side block stuff, such as rendering.
 pub struct ClientWalls {
     pub walls: Walls,
     chunks: Vec<RenderWallChunk>,
@@ -130,9 +130,7 @@ impl ClientWalls {
         }
     }
 
-    /**
-    This function returns the chunk index at a given world position
-     */
+    /// This function returns the chunk index at a given world position
     fn get_chunk_index(&self, x: i32, y: i32) -> Result<usize> {
         // check if x and y are in bounds
         if x < 0
@@ -159,7 +157,7 @@ impl ClientWalls {
         self.walls.init(mods)
     }
 
-    pub fn load_resources(&mut self, mods: &mut ModManager) -> Result<()> {
+    pub fn load_resources(&mut self, mods: &ModManager) -> Result<()> {
         for _ in 0..self.walls.get_width() as i32 / CHUNK_SIZE * self.walls.get_height() as i32
             / CHUNK_SIZE
         {
@@ -189,7 +187,7 @@ impl ClientWalls {
         Ok(())
     }
 
-    pub fn render(&mut self, graphics: &mut GraphicsContext, camera: &Camera) -> Result<()> {
+    pub fn render(&mut self, graphics: &gfx::GraphicsContext, camera: &Camera) -> Result<()> {
         let (top_left_x, top_left_y) = camera.get_top_left(graphics);
         let (bottom_right_x, bottom_right_y) = camera.get_bottom_right(graphics);
 
@@ -247,10 +245,10 @@ impl ClientWalls {
             self.breaking_texture.render(
                 &graphics.renderer,
                 RENDER_SCALE,
-                FloatPos(x, y),
+                gfx::FloatPos(x, y),
                 Some(gfx::Rect::new(
-                    FloatPos(0.0, break_stage as f32 * 8.0),
-                    FloatSize(8.0, 8.0),
+                    gfx::FloatPos(0.0, break_stage as f32 * 8.0),
+                    gfx::FloatSize(8.0, 8.0),
                 )),
                 false,
                 None,

@@ -1,8 +1,7 @@
-mod tests;
+use std::any::Any;
+use std::collections::VecDeque;
 
-extern crate alloc;
-use alloc::collections::VecDeque;
-use core::any::Any;
+mod tests;
 
 pub struct Event {
     event: Box<dyn Any + Send>,
@@ -27,12 +26,6 @@ unsafe impl Send for Event {}
 /// Event manager can be used to push and pop events to and from a queue.
 pub struct EventManager {
     event_queue: VecDeque<Event>,
-}
-
-impl Default for EventManager {
-    fn default() -> Self {
-        Self::new()
-    }
 }
 
 impl EventManager {

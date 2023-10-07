@@ -1,6 +1,8 @@
-use super::color;
-use crate::libraries::graphics::FloatPos;
 use std::collections::HashMap;
+
+use crate::libraries::graphics as gfx;
+
+use super::color;
 
 #[derive(Debug, Clone, Copy)]
 pub enum DrawMode {
@@ -10,9 +12,9 @@ pub enum DrawMode {
 
 #[derive(Clone, Copy, PartialEq, Eq, Hash)]
 pub struct Vertex {
-    pub(super) pos: FloatPos,
+    pub(super) pos: gfx::FloatPos,
     pub(super) color: color::Color,
-    pub(super) tex_pos: FloatPos,
+    pub(super) tex_pos: gfx::FloatPos,
 }
 
 pub struct VertexBuffer {
@@ -104,7 +106,7 @@ impl VertexBuffer {
             gl::BindBuffer(gl::ARRAY_BUFFER, self.vertex_buffer);
             gl::BindBuffer(gl::ELEMENT_ARRAY_BUFFER, self.index_buffer);
 
-            gl::VertexAttribPointer(0, 2, gl::FLOAT, gl::FALSE, 8 * 4, core::ptr::null());
+            gl::VertexAttribPointer(0, 2, gl::FLOAT, gl::FALSE, 8 * 4, std::ptr::null());
             gl::VertexAttribPointer(1, 4, gl::FLOAT, gl::FALSE, 8 * 4, (2 * 4) as *const _);
             if has_texture {
                 gl::VertexAttribPointer(2, 2, gl::FLOAT, gl::FALSE, 8 * 4, (6 * 4) as *const _);
@@ -125,7 +127,7 @@ impl VertexBuffer {
                 gl_mode,
                 self.indices.len() as i32,
                 gl::UNSIGNED_INT,
-                core::ptr::null(),
+                std::ptr::null(),
             );
 
             gl::DisableVertexAttribArray(0);

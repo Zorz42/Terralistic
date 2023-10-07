@@ -1,10 +1,10 @@
+use anyhow::{anyhow, bail, Result};
+
 use crate::client::game::camera::Camera;
 use crate::libraries::events::{Event, EventManager};
 use crate::libraries::graphics as gfx;
-use crate::libraries::graphics::{FloatPos, FloatSize, GraphicsContext};
 use crate::shared::blocks::{Blocks, CHUNK_SIZE, RENDER_BLOCK_WIDTH};
 use crate::shared::lights::{LightColorChangeEvent, Lights};
-use anyhow::{anyhow, bail, Result};
 
 pub struct LightChunk {
     pub rect_array: gfx::RectArray,
@@ -21,7 +21,7 @@ impl LightChunk {
 
     pub fn render(
         &mut self,
-        graphics: &mut GraphicsContext,
+        graphics: &gfx::GraphicsContext,
         world_x: i32,
         world_y: i32,
         lights: &Lights,
@@ -45,8 +45,11 @@ impl LightChunk {
 
                     self.rect_array.add_rect(
                         &gfx::Rect::new(
-                            FloatPos(x as f32 * RENDER_BLOCK_WIDTH, y as f32 * RENDER_BLOCK_WIDTH),
-                            FloatSize(RENDER_BLOCK_WIDTH, RENDER_BLOCK_WIDTH),
+                            gfx::FloatPos(
+                                x as f32 * RENDER_BLOCK_WIDTH,
+                                y as f32 * RENDER_BLOCK_WIDTH,
+                            ),
+                            gfx::FloatSize(RENDER_BLOCK_WIDTH, RENDER_BLOCK_WIDTH),
                         ),
                         &[
                             gfx::Color::new(light_1.r, light_1.g, light_1.b, 255),
@@ -54,7 +57,7 @@ impl LightChunk {
                             gfx::Color::new(light_3.r, light_3.g, light_3.b, 255),
                             gfx::Color::new(light_4.r, light_4.g, light_4.b, 255),
                         ],
-                        &gfx::Rect::new(FloatPos(0.0, 0.0), FloatSize(0.0, 0.0)),
+                        &gfx::Rect::new(gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, 0.0)),
                     );
                 }
             }
@@ -67,8 +70,11 @@ impl LightChunk {
         let screen_y = world_y as f32 * RENDER_BLOCK_WIDTH
             - camera.get_top_left(graphics).1 * RENDER_BLOCK_WIDTH;
         gfx::set_blend_mode(gfx::BlendMode::Multiply);
-        self.rect_array
-            .render(graphics, None, FloatPos(screen_x.round(), screen_y.round()));
+        self.rect_array.render(
+            graphics,
+            None,
+            gfx::FloatPos(screen_x.round(), screen_y.round()),
+        );
         gfx::set_blend_mode(gfx::BlendMode::Alpha);
         Ok(())
     }
@@ -117,7 +123,7 @@ impl ClientLights {
 
     pub fn render(
         &mut self,
-        graphics: &mut GraphicsContext,
+        graphics: &gfx::GraphicsContext,
         camera: &Camera,
         blocks: &Blocks,
         events: &mut EventManager,

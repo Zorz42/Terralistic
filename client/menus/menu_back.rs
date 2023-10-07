@@ -1,13 +1,11 @@
-use super::background_rect::{Background, BackgroundRect};
 use crate::libraries::graphics as gfx;
-use crate::libraries::graphics::{FloatPos, FloatSize, IntSize};
 
-/**
-`MenuBack` is a struct that contains the background rectangle for
-the most main menus. It implements the `BackgroundRect` trait. It
-draws the background.opa image scaled to the window's height and
-scrolled to the left.
- */
+use super::background_rect::BackgroundRect;
+
+/// `MenuBack` is a struct that contains the background rectangle for
+/// the most main menus. It implements the `BackgroundRect` trait. It
+/// draws the background.opa image scaled to the window's height and
+/// scrolled to the left.
 pub struct MenuBack {
     background: gfx::Texture,
     background_timer: std::time::Instant,
@@ -16,12 +14,10 @@ pub struct MenuBack {
 }
 
 impl MenuBack {
-    /**
-    Creates a new MenuBack.
-     */
+    /// Creates a new `MenuBack`.
     #[must_use]
-    pub fn new(graphics: &mut gfx::GraphicsContext) -> Self {
-        let mut back_rect = gfx::RenderRect::new(FloatPos(0.0, 0.0), FloatSize(0.0, 0.0));
+    pub fn new(graphics: &gfx::GraphicsContext) -> Self {
+        let mut back_rect = gfx::RenderRect::new(gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, 0.0));
         back_rect.border_color = gfx::BORDER_COLOR;
         back_rect.fill_color.a = gfx::TRANSPARENCY;
         back_rect.orientation = gfx::CENTER;
@@ -34,14 +30,14 @@ impl MenuBack {
                 &gfx::Surface::deserialize_from_bytes(include_bytes!(
                     "../../Build/Resources/background.opa"
                 ))
-                .unwrap_or_else(|_| gfx::Surface::new(IntSize(1, 1))),
+                .unwrap_or_else(|_| gfx::Surface::new(gfx::IntSize(1, 1))),
             ),
             background_timer: std::time::Instant::now(),
             back_rect,
             back_container: gfx::Container::new(
                 graphics,
-                FloatPos(0.0, 0.0),
-                FloatSize(0.0, 0.0),
+                gfx::FloatPos(0.0, 0.0),
+                gfx::FloatSize(0.0, 0.0),
                 gfx::TOP_LEFT,
                 None,
             ),
@@ -49,10 +45,8 @@ impl MenuBack {
     }
 }
 
-impl Background for MenuBack {
-    /**
-    Renders the background.
-     */
+impl BackgroundRect for MenuBack {
+    /// Renders the background.
     fn render_back(&mut self, graphics: &mut gfx::GraphicsContext) {
         self.back_container = self.back_rect.get_container(graphics, None);
 
@@ -68,7 +62,7 @@ impl Background for MenuBack {
             self.background.render(
                 &graphics.renderer,
                 scale,
-                FloatPos(pos + i as f32 * texture_width_scaled, 0.0),
+                gfx::FloatPos(pos + i as f32 * texture_width_scaled, 0.0),
                 None,
                 false,
                 None,
@@ -81,19 +75,13 @@ impl Background for MenuBack {
         }
         self.back_rect.render(graphics, None);
     }
-}
 
-impl BackgroundRect for MenuBack {
-    /**
-    Sets the width of the background rectangle.
-     */
+    /// Sets the width of the background rectangle.
     fn set_back_rect_width(&mut self, width: f32) {
         self.back_rect.size.0 = width;
     }
 
-    /**
-    Gets the width of the background rectangle.
-     */
+    /// Gets the width of the background rectangle.
     fn get_back_rect_width(
         &self,
         graphics: &gfx::GraphicsContext,
@@ -106,9 +94,7 @@ impl BackgroundRect for MenuBack {
             .0
     }
 
-    /**
-    Gets the background rectangle's container.
-     */
+    /// Gets the background rectangle's container.
     fn get_back_rect_container(&self) -> &gfx::Container {
         &self.back_container
     }

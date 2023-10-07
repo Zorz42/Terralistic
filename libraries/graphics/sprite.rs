@@ -1,22 +1,15 @@
-use super::{Color, Container, GraphicsContext, Orientation, Texture, TOP_LEFT};
-use crate::libraries::graphics::{FloatPos, FloatSize};
+use crate::libraries::graphics as gfx;
 
 /// Sprite is a struct that represents a texture that can be rendered to the screen.
 /// It has a position, a scale, and an orientation. It can also be flipped and has
 /// a color.
 pub struct Sprite {
-    pub texture: Texture,
-    pub pos: FloatPos,
+    pub texture: gfx::Texture,
+    pub pos: gfx::FloatPos,
     pub scale: f32,
-    pub orientation: Orientation,
+    pub orientation: gfx::Orientation,
     pub flip: bool,
-    pub color: Color,
-}
-
-impl Default for Sprite {
-    fn default() -> Self {
-        Self::new()
-    }
+    pub color: gfx::Color,
 }
 
 impl Sprite {
@@ -24,30 +17,31 @@ impl Sprite {
     #[must_use]
     pub const fn new() -> Self {
         Self {
-            texture: Texture::new(),
-            pos: FloatPos(0.0, 0.0),
+            texture: gfx::Texture::new(),
+            pos: gfx::FloatPos(0.0, 0.0),
             scale: 1.0,
-            orientation: TOP_LEFT,
+            orientation: gfx::TOP_LEFT,
             flip: false,
-            color: Color::new(255, 255, 255, 255),
+            color: gfx::Color::new(255, 255, 255, 255),
         }
     }
 
     #[must_use]
-    pub fn get_size(&self) -> FloatSize {
-        FloatSize(
+    pub fn get_size(&self) -> gfx::FloatSize {
+        gfx::FloatSize(
             self.texture.get_texture_size().0 * self.scale,
             self.texture.get_texture_size().1 * self.scale,
         )
     }
 
     /// Generates containers for the sprite.
+    #[must_use]
     pub fn get_container(
         &self,
-        graphics: &mut GraphicsContext,
-        parent: Option<&Container>,
-    ) -> Container {
-        Container::new(
+        graphics: &gfx::GraphicsContext,
+        parent: Option<&gfx::Container>,
+    ) -> gfx::Container {
+        gfx::Container::new(
             graphics,
             self.pos,
             self.get_size(),
@@ -57,7 +51,7 @@ impl Sprite {
     }
 
     /// Renders the sprite.
-    pub fn render(&self, graphics: &mut GraphicsContext, parent: Option<&Container>) {
+    pub fn render(&self, graphics: &gfx::GraphicsContext, parent: Option<&gfx::Container>) {
         let container = self.get_container(graphics, parent);
         self.texture.render(
             &graphics.renderer,

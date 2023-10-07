@@ -1,7 +1,10 @@
-use crate::libraries::events::{Event, EventManager};
-use anyhow::{bail, Result};
+use std::collections::HashMap;
+
+use anyhow::{anyhow, bail, Result};
+use hecs::Entity;
 use serde_derive::{Deserialize, Serialize};
 
+use crate::libraries::events::{Event, EventManager};
 use crate::shared::blocks::Blocks;
 
 pub const DEFAULT_GRAVITY: f32 = 80.0;
@@ -54,12 +57,8 @@ pub fn is_touching_ground(
 pub struct Entities {
     pub ecs: hecs::World,
     current_id: u32,
-}
-
-impl Default for Entities {
-    fn default() -> Self {
-        Self::new()
-    }
+    id_to_entity: HashMap<EntityId, Entity>,
+    entity_to_id: HashMap<Entity, EntityId>,
 }
 
 /// Reduce a by b, but never go below 0. if a is negative, increase it by b but never go above 0.
@@ -84,14 +83,23 @@ impl Entities {
         Self {
             ecs: hecs::World::new(),
             current_id: 0,
+            id_to_entity: HashMap::new(),
+            entity_to_id: HashMap::new(),
         }
     }
 
-    pub fn update_entities_ms(&mut self, blocks: &Blocks) {
-        for (_entity, (position, physics)) in self
+    /// # Errors
+    /// If the entity map is corrupted
+    pub fn update_entities_ms(&mut self, blocks: &Blocks, events: &mut EventManager) -> Result<()> {
+        let mut vec = Vec::new();
+
+        for (entity, (position, physics)) in self
             .ecs
             .query_mut::<(&mut PositionComponent, &mut PhysicsComponent)>()
         {
+            let velocity_x_before = physics.velocity_x;
+            let velocity_y_before = physics.velocity_y;
+
             physics.velocity_x += physics.acceleration_x / 200.0;
             physics.velocity_y += physics.acceleration_y / 200.0;
 
@@ -144,31 +152,71 @@ impl Entities {
 
             physics.velocity_x *= 1.0 - AIR_RESISTANCE_COEFFICIENT;
             physics.velocity_y *= 1.0 - AIR_RESISTANCE_COEFFICIENT;
+
+            let velocity_x_change = physics.velocity_x - velocity_x_before;
+            let velocity_y_change = physics.velocity_y - velocity_y_before;
+            let velocity_change = f32::hypot(velocity_x_change, velocity_y_change);
+
+            vec.push((entity, velocity_change));
         }
+
+        for (entity, velocity_change) in vec {
+            let id = self.get_id_from_entity(entity)?;
+            if let Ok(health_component) = self.ecs.query_one_mut::<&mut HealthComponent>(entity) {
+                if velocity_change > 30.0 {
+                    health_component.increase_health((-velocity_change / 5.0) as i32, events, id);
+                }
+            }
+        }
+
+        Ok(())
     }
 
-    pub fn unwrap_id(&mut self, id: Option<u32>) -> u32 {
-        if let Some(id) = id {
-            id
-        } else {
-            self.current_id += 1;
-            self.current_id
+    /// # Errors
+    /// If id is already assigned
+    pub fn assign_id(&mut self, entity: Entity, id: EntityId) -> Result<()> {
+        if self.id_to_entity.contains_key(&id) {
+            bail!("id already assigned");
         }
+        if self.entity_to_id.contains_key(&entity) {
+            bail!("entity already has assigned id");
+        }
+
+        self.id_to_entity.insert(id, entity);
+        self.entity_to_id.insert(entity, id);
+
+        Ok(())
+    }
+
+    /// # Errors
+    /// If the id could not be found
+    pub fn get_entity_from_id(&self, id: EntityId) -> Result<Entity> {
+        self.id_to_entity
+            .get(&id)
+            .ok_or_else(|| anyhow!("invalid id"))
+            .copied()
+    }
+
+    /// # Errors
+    /// If the entity could not be found
+    pub fn get_id_from_entity(&self, entity: Entity) -> Result<EntityId> {
+        self.entity_to_id
+            .get(&entity)
+            .ok_or_else(|| anyhow!("invalid entity"))
+            .copied()
+    }
+
+    pub fn new_id(&mut self) -> EntityId {
+        self.current_id += 1;
+        EntityId::new(self.current_id)
     }
 
     /// # Errors
     /// If the entity could not be despawned
-    pub fn despawn_entity(&mut self, id: u32, events: &mut EventManager) -> Result<()> {
-        let mut entity_to_despawn = None;
+    pub fn despawn_entity(&mut self, id: EntityId, events: &mut EventManager) -> Result<()> {
+        let entity_to_despawn = self.get_entity_from_id(id);
 
-        for (entity, id_component) in self.ecs.query::<&IdComponent>().iter() {
-            if id_component.id() == id {
-                entity_to_despawn = Some(entity);
-                break;
-            }
-        }
-
-        if let Some(entity) = entity_to_despawn {
+        if let Ok(entity) = entity_to_despawn {
             self.ecs.despawn(entity)?;
         } else {
             bail!("Could not find entity with id");
@@ -182,7 +230,7 @@ impl Entities {
 
 #[derive(Serialize, Deserialize)]
 pub struct EntityPositionVelocityPacket {
-    pub id: u32,
+    pub id: EntityId,
     pub x: f32,
     pub y: f32,
     pub velocity_x: f32,
@@ -191,27 +239,23 @@ pub struct EntityPositionVelocityPacket {
 
 #[derive(Serialize, Deserialize)]
 pub struct EntityDespawnPacket {
-    pub id: u32,
+    pub id: EntityId,
 }
 
-pub struct IdComponent {
+#[derive(Clone, Copy, Eq, PartialEq, Hash, Debug, Serialize, Deserialize)]
+pub struct EntityId {
     id: u32,
 }
 
 #[derive(Serialize, Deserialize)]
 pub struct EntityDespawnEvent {
-    pub id: u32,
+    pub id: EntityId,
 }
 
-impl IdComponent {
+impl EntityId {
     #[must_use]
-    pub const fn new(id: u32) -> Self {
+    const fn new(id: u32) -> Self {
         Self { id }
-    }
-
-    #[must_use]
-    pub const fn id(&self) -> u32 {
-        self.id
     }
 }
 
@@ -246,13 +290,14 @@ impl PositionComponent {
     }
 }
 
+#[derive(Clone)]
 pub struct PhysicsComponent {
     pub velocity_x: f32,
     pub velocity_y: f32,
     pub acceleration_x: f32,
     pub acceleration_y: f32,
-    pub collision_width: f32,
-    pub collision_height: f32,
+    collision_width: f32,
+    collision_height: f32,
 }
 
 impl PhysicsComponent {
@@ -266,5 +311,48 @@ impl PhysicsComponent {
             collision_width,
             collision_height,
         }
+    }
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct HealthChangePacket {
+    pub health: i32,
+    pub max_health: i32,
+}
+
+pub struct HealthComponent {
+    health: i32,
+    max_health: i32,
+}
+
+pub struct HealthChangeEvent {
+    pub entity: EntityId,
+}
+
+impl HealthComponent {
+    #[must_use]
+    pub const fn new(health: i32, max_health: i32) -> Self {
+        Self { health, max_health }
+    }
+
+    #[must_use]
+    pub const fn health(&self) -> i32 {
+        self.health
+    }
+
+    #[must_use]
+    pub const fn max_health(&self) -> i32 {
+        self.max_health
+    }
+
+    pub fn set_health(&mut self, health: i32, events: &mut EventManager, entity_id: EntityId) {
+        if self.health != health {
+            self.health = health;
+            events.push_event(Event::new(HealthChangeEvent { entity: entity_id }));
+        }
+    }
+
+    pub fn increase_health(&mut self, health: i32, events: &mut EventManager, entity_id: EntityId) {
+        self.set_health(self.health + health, events, entity_id);
     }
 }

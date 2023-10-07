@@ -1,22 +1,23 @@
-use core::sync::atomic::{AtomicBool, Ordering};
-use core::time::Duration;
 use std::collections::HashMap;
 use std::path::Path;
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::mpsc::{Receiver, Sender};
 use std::sync::{Mutex, PoisonError};
 use std::thread::sleep;
+use std::time::Duration;
 
 use anyhow::{anyhow, Result};
-use bincode::deserialize;
 
 use crate::libraries::events::EventManager;
+use crate::server::server_core::chat::server_chat_on_event;
 use crate::server::server_core::entities::ServerEntities;
 use crate::server::server_core::items::ServerItems;
 use crate::server::server_core::networking::{DisconnectEvent, NewConnectionEvent};
 use crate::server::server_core::players::ServerPlayers;
-use crate::server::server_ui::{PlayerEventType, ServerState, UiMessageType};
+use crate::server::server_ui::{ConsoleMessageType, PlayerEventType, ServerState, UiMessageType};
 
 use super::blocks::ServerBlocks;
+use super::commands::{Command, CommandManager};
 use super::mod_manager::ServerModManager;
 use super::networking::ServerNetworking;
 use super::walls::ServerWalls;
@@ -26,8 +27,8 @@ pub const SINGLEPLAYER_PORT: u16 = 49152;
 pub const MULTIPLAYER_PORT: u16 = 49153;
 
 pub struct Server {
-    tps_limit: f32,
-    state: ServerState,
+    pub tps_limit: f32,
+    pub state: ServerState,
     events: EventManager,
     networking: ServerNetworking,
     mods: ServerModManager,
@@ -36,20 +37,42 @@ pub struct Server {
     entities: ServerEntities,
     items: ServerItems,
     players: ServerPlayers,
-    ui_event_sender: Option<Sender<Vec<u8>>>,
-    #[allow(dead_code)] //TODO: remove this after the Console is fully implemented
-    ui_event_receiver: Option<Receiver<Vec<u8>>>,
+    ui_event_receiver: Option<Receiver<UiMessageType>>,
+    commands: CommandManager,
 }
 
 impl Server {
     #[must_use]
     pub fn new(
         port: u16,
-        ui_event_sender: Option<Sender<Vec<u8>>>,
-        ui_event_receiver: Option<Receiver<Vec<u8>>>,
+        ui_event_receiver: Option<Receiver<UiMessageType>>,
+        ui_event_sender: Option<Sender<UiMessageType>>,
     ) -> Self {
+        send_to_ui(
+            UiMessageType::ServerState(ServerState::Nothing),
+            ui_event_sender,
+        ); //this is useless but sets the ui event sender
         let blocks = ServerBlocks::new();
         let walls = ServerWalls::new(&mut blocks.get_blocks());
+        let mut commands = CommandManager::new();
+        commands.add_command(Command {
+            call_name: "help".to_owned(),
+            name: "Help".to_owned(),
+            description: "Shows all commands".to_owned(),
+            function: super::commands::help_command,
+        });
+        commands.add_command(Command {
+            call_name: "stop".to_owned(),
+            name: "Stop".to_owned(),
+            description: "Stops the server".to_owned(),
+            function: super::commands::stop_command,
+        });
+        commands.add_command(Command {
+            call_name: "give".to_owned(),
+            name: "Give".to_owned(),
+            description: "Gives an item to a player".to_owned(),
+            function: super::commands::give_command,
+        });
         Self {
             tps_limit: 20.0,
             state: ServerState::Nothing,
@@ -61,27 +84,26 @@ impl Server {
             entities: ServerEntities::new(),
             items: ServerItems::new(),
             players: ServerPlayers::new(),
-            ui_event_sender,
             ui_event_receiver,
+            commands,
         }
     }
 
-    /// Starts the server
+    /// Starts the server - manual way. It only inits the server but doesn't run a loop
     /// # Errors
     /// A lot of server crashes are caused by mods and other stuff, so this function returns a Result
     #[allow(clippy::too_many_lines)]
     pub fn start(
         &mut self,
-        is_running: &AtomicBool,
         status_text: &Mutex<String>,
         mods_serialized: Vec<Vec<u8>>,
         world_path: &Path,
     ) -> Result<()> {
-        self.print_to_console("Starting server...");
+        print_to_console("Starting server...", 0);
         let timer = std::time::Instant::now();
         *status_text.lock().unwrap_or_else(PoisonError::into_inner) = "Starting server".to_owned();
         self.state = ServerState::Starting;
-        self.send_to_ui(&UiMessageType::ServerState(self.state));
+        send_to_ui(UiMessageType::ServerState(self.state), None);
 
         let mut mods = Vec::new();
         for game_mod in mods_serialized {
@@ -92,7 +114,7 @@ impl Server {
         self.mods = ServerModManager::new(mods);
 
         // init modules
-        self.networking.init(self.ui_event_sender.clone());
+        self.networking.init();
         self.blocks.init(&mut self.mods.mod_manager)?;
         self.walls.init(&mut self.mods.mod_manager)?;
         self.items.init(&mut self.mods.mod_manager)?;
@@ -101,22 +123,22 @@ impl Server {
         generator.init(&mut self.mods.mod_manager)?;
 
         self.state = ServerState::InitMods;
-        self.send_to_ui(&UiMessageType::ServerState(self.state));
-        self.print_to_console("initializing mods");
+        send_to_ui(UiMessageType::ServerState(self.state), None);
+        print_to_console("initializing mods", 0);
         *status_text.lock().unwrap_or_else(PoisonError::into_inner) =
             "Initializing mods".to_owned();
         self.mods.init()?;
 
         if world_path.exists() {
             self.state = ServerState::LoadingWorld;
-            self.send_to_ui(&UiMessageType::ServerState(self.state));
-            self.print_to_console("loading world");
+            send_to_ui(UiMessageType::ServerState(self.state), None);
+            print_to_console("loading world", 0);
             *status_text.lock().unwrap_or_else(PoisonError::into_inner) =
                 "Loading world".to_owned();
             self.load_world(world_path)?;
         } else {
             self.state = ServerState::GeneratingWorld;
-            self.send_to_ui(&UiMessageType::ServerState(self.state));
+            send_to_ui(UiMessageType::ServerState(self.state), None);
             generator.generate(
                 (&mut *self.blocks.get_blocks(), &mut self.walls.walls),
                 &mut self.mods.mod_manager,
@@ -128,138 +150,185 @@ impl Server {
         }
 
         self.state = ServerState::Running;
-        self.send_to_ui(&UiMessageType::ServerState(self.state));
-        // start server loop
-        self.print_to_console(&format!(
-            "server started in {}ms",
-            timer.elapsed().as_millis()
-        ));
+        send_to_ui(UiMessageType::ServerState(self.state), None);
+
+        print_to_console(
+            &format!("server started in {}ms", timer.elapsed().as_millis()),
+            0,
+        );
         status_text
             .lock()
             .unwrap_or_else(PoisonError::into_inner)
             .clear();
+        Ok(())
+    }
+
+    ///Runs the server - automated way. It starts (inits) the server, runs it until it has top be stopped, then stops it and returns
+    /// # Errors
+    /// A lot of server crashes are caused by mods and other stuff, so this function returns a Result
+    pub fn run(
+        &mut self,
+        is_running: &AtomicBool,
+        status_text: &Mutex<String>,
+        mods_serialized: Vec<Vec<u8>>,
+        world_path: &Path,
+    ) -> Result<()> {
         let ms_timer = std::time::Instant::now();
         let mut ms_counter = 0;
+        let mut s_counter = 0;
         let mut last_time = std::time::Instant::now();
-        let mut sec_counter = std::time::Instant::now();
-        let mut ticks = 1;
-        let mut micros = 0;
+
+        self.start(status_text, mods_serialized, world_path)?;
+
         loop {
             let delta_time = last_time.elapsed().as_secs_f32() * 1000.0;
             last_time = std::time::Instant::now();
 
-            // update modules
-            self.networking.update(&mut self.events)?;
-            self.mods.update()?;
-            self.blocks.update(&mut self.events, delta_time)?;
-            self.walls.update(delta_time, &mut self.events)?;
+            self.update(delta_time, ms_timer, &mut ms_counter, &mut s_counter)?;
 
-            // handle events
-            self.handle_events()?;
-
-            while ms_counter < ms_timer.elapsed().as_millis() as i32 {
-                self.players.update(
-                    &mut self.entities.entities,
-                    &self.blocks.get_blocks(),
-                    &mut self.events,
-                    &mut self.items.items,
-                    &mut self.networking,
-                )?;
-                self.entities
-                    .entities
-                    .update_entities_ms(&self.blocks.get_blocks());
-                ms_counter += 5;
-            }
-
-            micros += last_time.elapsed().as_micros() as u64;
-            if sec_counter.elapsed().as_secs() >= 1 {
-                self.entities.sync_entities(&mut self.networking)?;
-                sec_counter = std::time::Instant::now();
-
-                self.send_to_ui(&UiMessageType::MsptUpdate(
-                    //send microseconds per tick each second
-                    micros / ticks,
-                ));
-                ticks = 0;
-                micros = 0;
-            }
-
-            if !is_running.load(Ordering::Relaxed) {
-                break;
-            }
             // sleep
             let sleep_time = 1000.0 / self.tps_limit - last_time.elapsed().as_secs_f32() * 1000.0;
             if sleep_time > 0.0 {
                 sleep(Duration::from_secs_f32(sleep_time / 1000.0));
             }
-            ticks += 1;
+
+            if !is_running.load(Ordering::Relaxed) || self.state == ServerState::Stopping {
+                //state is there so outside events can stop it
+                break;
+            }
         }
 
+        self.stop(status_text, world_path)?;
+
+        Ok(())
+    }
+
+    ///Updates the server - manual way. It updates the server once and returns
+    ///# Errors
+    ///A lot of server crashes are caused by mods and other stuff, so this function returns a Result
+    pub fn update(
+        &mut self,
+        delta_time: f32,
+        ms_timer: std::time::Instant,
+        ms_counter: &mut i32,
+        s_counter: &mut i32,
+    ) -> Result<()> {
+        // update modules
+        self.networking.update(&mut self.events)?;
+        self.mods.update()?;
+        self.blocks.update(&mut self.events, delta_time)?;
+        self.walls.update(delta_time, &mut self.events)?;
+
+        // handle events
+        self.handle_events()?;
+
+        while *ms_counter < ms_timer.elapsed().as_millis() as i32 {
+            self.players.update(
+                &mut self.entities.entities,
+                &self.blocks.get_blocks(),
+                &mut self.events,
+                &mut self.items.get_items(),
+                &mut self.networking,
+            )?;
+            self.entities
+                .entities
+                .update_entities_ms(&self.blocks.get_blocks(), &mut self.events)?;
+            *ms_counter += 5;
+        }
+
+        if *s_counter < *ms_counter / 1000 {
+            self.entities.sync_entities(&mut self.networking)?;
+            *s_counter = *ms_counter / 1000;
+        }
+
+        Ok(())
+    }
+
+    ///Stops the server - manual way. It stops the server and returns
+    ///# Errors
+    ///A lot of server crashes are caused by mods and other stuff, so this function returns a Result
+    pub fn stop(&mut self, status_text: &Mutex<String>, world_path: &Path) -> Result<()> {
+        if self.state == ServerState::Stopped {
+            //so we don't stop it twice
+            return Ok(());
+        }
         // stop modules
         self.networking.stop(&mut self.events)?;
         self.mods.stop()?;
         self.handle_events()?;
 
         self.state = ServerState::Stopping;
-        self.send_to_ui(&UiMessageType::ServerState(self.state));
-        self.print_to_console("saving world");
+        send_to_ui(UiMessageType::ServerState(self.state), None);
+        print_to_console("saving world", 0);
         *status_text.lock().unwrap_or_else(PoisonError::into_inner) = "Saving world".to_owned();
 
         self.save_world(world_path)?;
 
-        self.print_to_console("stopping server");
+        print_to_console("stopping server", 0);
         *status_text.lock().unwrap_or_else(PoisonError::into_inner) = "Stopping server".to_owned();
 
         self.state = ServerState::Stopped;
-        self.send_to_ui(&UiMessageType::ServerState(self.state));
+        send_to_ui(UiMessageType::ServerState(self.state), None);
         status_text
             .lock()
             .unwrap_or_else(PoisonError::into_inner)
             .clear();
-        self.print_to_console("server stopped.");
+        print_to_console("server stopped.", 0);
+
         Ok(())
     }
 
     fn handle_events(&mut self) -> Result<()> {
         if let Some(receiver) = &self.ui_event_receiver {
-            //goes through the messages received from the server
-            while let Ok(data) = receiver.try_recv() {
-                let data = snap::raw::Decoder::new()
-                    .decompress_vec(&data)
-                    .unwrap_or_default();
-                let message = deserialize::<UiMessageType>(&data);
-                if let Ok(UiMessageType::ConsoleMessage(message)) = message {
-                    println!("{message}");
-                }
-            }
+            self.commands.execute_commands(
+                receiver,
+                &mut self.state,
+                &mut self.players,
+                &mut self.items,
+                &mut self.entities,
+                &mut self.events,
+            );
         }
 
         while let Some(event) = self.events.pop_event() {
             if let Some(disconnect) = event.downcast::<DisconnectEvent>() {
                 send_to_ui(
-                    &UiMessageType::PlayerEvent(PlayerEventType::Leave(
+                    UiMessageType::PlayerEvent(PlayerEventType::Leave(
                         disconnect.conn.address.addr(),
                     )),
-                    &self.ui_event_sender,
+                    None,
                 );
             }
             if let Some(connect) = event.downcast::<NewConnectionEvent>() {
                 send_to_ui(
-                    &UiMessageType::PlayerEvent(PlayerEventType::Join((
+                    UiMessageType::PlayerEvent(PlayerEventType::Join((
                         connect.name.clone(),
                         connect.conn.address.addr(),
                     ))),
-                    &self.ui_event_sender,
+                    None,
                 );
             }
+            if let Some(event) = event.downcast::<UiMessageType>() {
+                send_to_ui(event.clone(), None);
+            }
+
+            self.commands.on_event(
+                &event,
+                &mut self.state,
+                &mut self.players,
+                &mut self.items,
+                &mut self.entities,
+                &mut self.events,
+            );
+
             self.mods.on_event(&event, &mut self.networking)?;
             self.blocks.on_event(
                 &event,
                 &mut self.events,
                 &mut self.networking,
-                &mut self.entities.entities,
-                &mut self.players,
-                &mut self.items.items,
+                &self.entities.entities,
+                &self.players,
+                &self.items.get_items(),
                 &mut self.mods.mod_manager,
             )?;
             self.walls.on_event(&event, &mut self.networking)?;
@@ -275,9 +344,11 @@ impl Server {
                 &self.blocks.get_blocks(),
                 &mut self.networking,
                 &mut self.events,
+                &mut self.items.get_items(),
             )?;
             ServerEntities::on_event(&event, &mut self.networking)?;
             self.networking.on_event(&event, &mut self.events)?;
+            server_chat_on_event(&event, &mut self.networking)?;
         }
 
         Ok(())
@@ -317,32 +388,57 @@ impl Server {
         std::fs::write(world_path, world_file)?;
         Ok(())
     }
-
-    fn send_to_ui(&self, data: &UiMessageType) {
-        send_to_ui(data, &self.ui_event_sender);
-    }
-
-    //prints to the terminal the server was started in and sends it to the ui
-    fn print_to_console(&self, text: &str) {
-        println!("{text}");
-        send_to_ui(
-            &UiMessageType::ConsoleMessage(text.to_owned()),
-            &self.ui_event_sender,
-        );
-    }
 }
 
 //sends any data to the ui if the server was started without nogui flag
-pub fn send_to_ui(data: &UiMessageType, ui_event_sender: &Option<Sender<Vec<u8>>>) {
-    if let Some(sender) = ui_event_sender {
-        let data = &bincode::serialize(&data).unwrap_or_default();
-        let data = snap::raw::Encoder::new()
-            .compress_vec(data)
-            .unwrap_or_default();
-        let result = sender.send(data);
+pub fn send_to_ui(data: UiMessageType, ui_event_sender: Option<Sender<UiMessageType>>) {
+    static mut UI_EVENT_SENDER: Option<Sender<UiMessageType>> = None; //TODO: change from static mut to something else
+                                                                      //SAFETY: should be safe as long as the server is single threaded, but will still change it from static mut to something else soon just in case
+    unsafe {
+        if UI_EVENT_SENDER.is_none() {
+            UI_EVENT_SENDER = ui_event_sender;
+        }
 
-        if let Err(_e) = result {
-            println!("error sending data to ui");
+        if let Some(sender) = &UI_EVENT_SENDER {
+            let result = sender.send(data);
+
+            if let Err(_e) = result {
+                println!("error sending data to ui");
+            }
         }
     }
+}
+
+//prints to the terminal the server was started in and sends it to the ui
+pub fn print_to_console(text: &str, warn_level: u8) {
+    let mut formatted_text;
+    if warn_level == 0 {
+        formatted_text = format!("[INFO] {text}");
+    } else if warn_level == 1 {
+        formatted_text = format!("[WARNING] {text}");
+    } else {
+        formatted_text = format!("[ERROR] {text}");
+    }
+    formatted_text = format_timestamp(&formatted_text);
+    println!("{formatted_text}");
+    let text_with_type = match warn_level {
+        0 => ConsoleMessageType::Info(formatted_text),
+        1 => ConsoleMessageType::Warning(formatted_text),
+        _ => ConsoleMessageType::Error(formatted_text),
+    };
+    send_to_ui(UiMessageType::SrvToUiConsoleMessage(text_with_type), None);
+}
+
+//this function formats the string to add the timestamp
+fn format_timestamp(message: &String) -> String {
+    let timestamp = chrono::Local::now().naive_local().timestamp();
+    let timestamp = chrono::NaiveDateTime::from_timestamp_opt(timestamp, 0);
+    format!(
+        "[{}] {}",
+        timestamp.map_or_else(
+            || "???".to_owned(),
+            |time| time.format("%m-%d %H:%M:%S").to_string(),
+        ),
+        message
+    )
 }

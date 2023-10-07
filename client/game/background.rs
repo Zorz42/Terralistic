@@ -1,11 +1,10 @@
-use super::camera::Camera;
-use crate::libraries::graphics as gfx;
-use crate::libraries::graphics::FloatPos;
 use anyhow::Result;
 
-/**
-Background is a struct that holds the background image and renders it.
- */
+use crate::libraries::graphics as gfx;
+
+use super::camera::Camera;
+
+/// Background is a struct that holds the background image and renders it.
 pub struct Background {
     image: gfx::Texture,
 }
@@ -24,7 +23,7 @@ impl Background {
         Ok(())
     }
 
-    pub fn render(&self, graphics: &mut gfx::GraphicsContext, camera: &Camera) {
+    pub fn render(&self, graphics: &gfx::GraphicsContext, camera: &Camera) {
         //float scale = (float)gfx::getWindowHeight() / background.getTextureHeight();
         let scale = graphics.renderer.get_window_size().1 / self.image.get_texture_size().1;
         //int position_x = -int(camera->getX() * scale / 20) % int(background.getTextureWidth() * scale);
@@ -39,7 +38,7 @@ impl Background {
             self.image.render(
                 &graphics.renderer,
                 scale,
-                FloatPos(
+                gfx::FloatPos(
                     position_x + i as f32 * (self.image.get_texture_size().0 * scale),
                     0.0,
                 ),

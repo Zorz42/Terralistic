@@ -1,8 +1,10 @@
+use anyhow::Result;
+
+use crate::libraries::graphics as gfx;
+
 use super::shaders::compile_shader;
 use super::transformation::Transformation;
 use super::Rect;
-use crate::libraries::graphics::{FloatPos, FloatSize};
-use anyhow::Result;
 
 const BLUR_VERTEX_SHADER_CODE: &str = r#"
 #version 330 core
@@ -26,12 +28,12 @@ layout(location = 0) out vec4 color;
 uniform sampler2D texture_sampler;
 uniform vec2 blur_offset;
 uniform vec4 limit;
-const float gauss[17] = float[](0.0038, 0.0087, 0.0180, 0.0332, 0.0547, 0.0807, 0.1065, 0.1258, 0.1330, 0.1258, 0.1065, 0.0807, 0.0547, 0.0332, 0.0180, 0.0087, 0.0038);
+const float gauss[13] = float[](0.01854, 0.034196, 0.056341, 0.083121, 0.109695, 0.129574, 0.13699, 0.129574, 0.109695, 0.083121, 0.056341, 0.034196, 0.01854);
 
 void main() {
    color = vec4(0, 0, 0, 255);
-   for(int i = 0; i < 17; i++)
-       color += texture(texture_sampler, max(min(uv + (i - 8.0) * blur_offset, vec2(limit.x, limit.y)), vec2(limit.z, limit.w))) * gauss[i];
+   for(int i = 0; i < 13; i++)
+       color += texture(texture_sampler, max(min(uv + (i - 6.0) * blur_offset, vec2(limit.x, limit.y)), vec2(limit.z, limit.w))) * gauss[i];
 }
 "#;
 
@@ -46,10 +48,9 @@ pub struct BlurContext {
     limit_uniform: i32,
     rect_vertex_buffer: u32,
     pub(super) blur_enabled: bool,
-    pub(super) anti_stutter: bool,
+    blur_intensity: f32,
+    blur_animation_timer: gfx::AnimationTimer,
 }
-
-const BLUR_QUALITY: f32 = 3.0;
 
 impl BlurContext {
     /// Creates a new blur context. Opengl context must be initialized.
@@ -95,7 +96,7 @@ impl BlurContext {
                     gl::BufferData(
                         gl::ARRAY_BUFFER,
                         4 * 12,
-                        rect_vertex_array.as_ptr().cast::<core::ffi::c_void>(),
+                        rect_vertex_array.as_ptr().cast::<std::ffi::c_void>(),
                         gl::STATIC_DRAW,
                     );
                     gl::BindBuffer(gl::ARRAY_BUFFER, 0);
@@ -103,12 +104,13 @@ impl BlurContext {
                 buffer
             },
             blur_enabled: true,
-            anti_stutter: false,
+            blur_intensity: 0.0,
+            blur_animation_timer: gfx::AnimationTimer::new(10),
         })
     }
 
     /// Only applies blur shader pass to the given texture.
-    fn blur_rect(&self, offset: FloatPos, gl_texture1: u32, gl_texture2: u32) {
+    fn blur_rect(&self, offset: gfx::FloatPos, gl_texture1: u32, gl_texture2: u32) {
         // Safety: use of opengl functions is safe
         unsafe {
             gl::BindTexture(gl::TEXTURE_2D, gl_texture1);
@@ -125,64 +127,70 @@ impl BlurContext {
         radius: i32,
         gl_texture: u32,
         back_texture: u32,
-        size: FloatSize,
+        size: gfx::FloatSize,
         texture_transform: &Transformation,
     ) {
-        if !self.blur_enabled {
+        let radius = radius as f32 * self.blur_intensity / 5.0;
+        if radius < 1.0 {
+            return;
+        }
+
+        let mut begin_x = rect.pos.0;
+        let mut begin_y = rect.pos.1;
+        let mut end_x = rect.pos.0 + rect.size.0;
+        let mut end_y = rect.pos.1 + rect.size.1;
+
+        begin_x = begin_x.max(0.0);
+        begin_y = begin_y.max(0.0);
+        end_x = end_x.min(size.0);
+        end_y = end_y.min(size.1);
+
+        rect.pos = gfx::FloatPos(begin_x, begin_y);
+        rect.size = gfx::FloatSize(end_x - begin_x, end_y - begin_y);
+
+        if rect.size.0 <= 0.0 || rect.size.1 <= 0.0 {
             return;
         }
 
         // Safety: use of opengl functions is safe
         unsafe {
-            if self.anti_stutter {
-                gl::Finish();
-            }
-
-            let mut begin_x = rect.pos.0;
-            let mut begin_y = rect.pos.1;
-            let mut end_x = rect.pos.0 + rect.size.0;
-            let mut end_y = rect.pos.1 + rect.size.1;
-
-            begin_x = begin_x.max(0.0);
-            begin_y = begin_y.max(0.0);
-            end_x = end_x.min(size.0);
-            end_y = end_y.min(size.1);
-
-            rect.pos = FloatPos(begin_x, begin_y);
-            rect.size = FloatSize(end_x - begin_x, end_y - begin_y);
-
-            if rect.size.0 <= 0.0 || rect.size.1 <= 0.0 {
-                return;
-            }
-
             gl::UseProgram(self.blur_shader);
 
             gl::EnableVertexAttribArray(0);
+        }
 
-            let x1 = (rect.pos.0 + 1.0) / size.0;
-            let y1 = (rect.pos.1 + 1.0) / size.1;
-            let x2 = (rect.pos.0 + rect.size.0 - 1.0) / size.0;
-            let y2 = (rect.pos.1 + rect.size.1 - 1.0) / size.1;
+        let x1 = (rect.pos.0 + 1.0) / size.0;
+        let y1 = (rect.pos.1 + 1.0) / size.1;
+        let x2 = (rect.pos.0 + rect.size.0 - 1.0) / size.0;
+        let y2 = (rect.pos.1 + rect.size.1 - 1.0) / size.1;
 
+        // Safety: use of opengl functions is safe
+        unsafe {
             gl::Uniform4f(self.limit_uniform, x2, -y1, x1, -y2);
             gl::Uniform1i(self.texture_sampler_uniform, 0);
+        }
 
-            let mut transform = texture_transform.clone();
-            transform.translate(rect.pos);
-            transform.stretch((rect.size.0, rect.size.1));
+        let mut transform = texture_transform.clone();
+        transform.translate(rect.pos);
+        transform.stretch((rect.size.0, rect.size.1));
 
+        // Safety: use of opengl functions is safe
+        unsafe {
             gl::UniformMatrix3fv(
                 self.transform_matrix_uniform,
                 1,
                 gl::FALSE,
                 transform.matrix.as_ptr(),
             );
+        }
 
-            transform = Transformation::new();
-            transform.stretch((1.0 / size.0, -1.0 / size.1));
-            transform.translate(rect.pos);
-            transform.stretch((rect.size.0, rect.size.1));
+        transform = Transformation::new();
+        transform.stretch((1.0 / size.0, -1.0 / size.1));
+        transform.translate(rect.pos);
+        transform.stretch((rect.size.0, rect.size.1));
 
+        // Safety: use of opengl functions is safe
+        unsafe {
             gl::UniformMatrix3fv(
                 self.texture_transform_matrix_uniform,
                 1,
@@ -190,24 +198,51 @@ impl BlurContext {
                 transform.matrix.as_ptr(),
             );
             gl::BindBuffer(gl::ARRAY_BUFFER, self.rect_vertex_buffer);
-            gl::VertexAttribPointer(0, 2, gl::FLOAT, gl::FALSE, 0, core::ptr::null());
+            gl::VertexAttribPointer(0, 2, gl::FLOAT, gl::FALSE, 0, std::ptr::null());
+        }
 
-            let mut radius = radius;
-            while radius > 10 {
-                self.blur_rect(
-                    FloatPos(0.0, radius as f32 / size.1 / 10.0),
-                    gl_texture,
-                    back_texture,
-                );
-                self.blur_rect(
-                    FloatPos(radius as f32 / size.0 / 10.0, 0.0),
-                    back_texture,
-                    gl_texture,
-                );
-                radius = (radius as f32 * BLUR_QUALITY).sqrt() as i32;
-            }
+        self.blur_rect(
+            gfx::FloatPos(0.0, radius / size.1 / 10.0),
+            gl_texture,
+            back_texture,
+        );
+        self.blur_rect(
+            gfx::FloatPos(radius / size.0 / 10.0, 0.0),
+            back_texture,
+            gl_texture,
+        );
 
+        self.blur_rect(
+            gfx::FloatPos(0.0, radius / size.1),
+            gl_texture,
+            back_texture,
+        );
+        self.blur_rect(
+            gfx::FloatPos(radius / size.0, 0.0),
+            back_texture,
+            gl_texture,
+        );
+
+        if radius > 5.0 {
+            self.blur_rect(gfx::FloatPos(0.0, 2.0 / size.1), gl_texture, back_texture);
+            self.blur_rect(gfx::FloatPos(2.0 / size.0, 0.0), back_texture, gl_texture);
+        }
+
+        // Safety: use of opengl functions is safe
+        unsafe {
             gl::DisableVertexAttribArray(0);
+        }
+    }
+
+    pub(super) fn update(&mut self) {
+        let blur_target = if self.blur_enabled { 1.0 } else { 0.0 };
+
+        while self.blur_animation_timer.frame_ready() {
+            self.blur_intensity += (blur_target - self.blur_intensity) / 10.0;
+
+            if f32::abs(self.blur_intensity - blur_target) < 0.001 {
+                self.blur_intensity = blur_target;
+            }
         }
     }
 }

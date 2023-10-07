@@ -1,20 +1,13 @@
-use crate::shared::walls::WallId;
 use rlua::UserDataMethods;
 
-/**
-Wall holds all information about a type of a wall.
- */
+use crate::shared::walls::WallId;
+
+/// Wall holds all information about a type of a wall.
 #[derive(Clone)]
 pub struct Wall {
     pub(super) id: WallId,
     pub break_time: Option<i32>,
     pub name: String,
-}
-
-impl Default for Wall {
-    fn default() -> Self {
-        Self::new()
-    }
 }
 
 impl Wall {
@@ -33,9 +26,7 @@ impl Wall {
     }
 }
 
-/**
-make Wall Lua compatible, implement getter and setter for every field except id and image
- */
+/// Make Wall Lua compatible, implement getter and setter for every field except id and image
 impl rlua::UserData for Wall {
     fn add_methods<'lua, M: UserDataMethods<'lua, Self>>(methods: &mut M) {
         // add meta method to set fields, id and image are not accessible
@@ -48,7 +39,7 @@ impl rlua::UserData for Wall {
                         _ => {
                             return Err(rlua::Error::RuntimeError(format!(
                                 "{key} is not a valid field of Wall for integer value"
-                            )))
+                            )));
                         }
                     };
                     Ok(())
@@ -59,7 +50,7 @@ impl rlua::UserData for Wall {
                         _ => {
                             return Err(rlua::Error::RuntimeError(format!(
                                 "{key} is not a valid field of Wall for string value"
-                            )))
+                            )));
                         }
                     };
                     Ok(())

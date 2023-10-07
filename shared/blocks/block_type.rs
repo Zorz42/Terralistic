@@ -1,13 +1,12 @@
-use super::tool::Tool;
+use crate::shared::blocks::ToolId;
+
 use super::BlockId;
-extern crate alloc;
-use alloc::sync::Arc;
 
 /// Includes properties for each block type
 #[derive(Clone)]
 pub struct Block {
     // tool that can break the block, none means it can be broken by hand or any tool
-    pub effective_tool: Option<Arc<Tool>>,
+    pub effective_tool: Option<ToolId>,
     // how powerful the tool needs to be
     pub required_tool_power: i32,
     // ghost blocks are blocks that are not solid and can be walked through
@@ -34,12 +33,9 @@ pub struct Block {
     pub can_update_states: bool,
     // if the block is only collidable by feet, for example: platforms, they have special collision
     pub feet_collidable: bool,
-}
-
-impl Default for Block {
-    fn default() -> Self {
-        Self::new()
-    }
+    // if right clicking the block sends an event
+    // this is used for example for doors or chests
+    pub clickable: bool,
 }
 
 impl Block {
@@ -57,11 +53,12 @@ impl Block {
             light_emission_r: 0,
             light_emission_g: 0,
             light_emission_b: 0,
-            id: BlockId::new(),
+            id: BlockId::undefined(),
             width: 0,
             height: 0,
             can_update_states: false,
             feet_collidable: false,
+            clickable: false,
         }
     }
 

@@ -1,26 +1,29 @@
-use super::core_client::Game;
+use std::path::Path;
+use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::Arc;
+use std::sync::{Mutex, PoisonError};
+
+use anyhow::Result;
+
+use crate::client::game::core_client::run_game;
+use crate::client::global_settings::GlobalSettings;
 use crate::client::menus::{run_loading_screen, BackgroundRect};
-use crate::libraries::graphics::GraphicsContext;
+use crate::client::settings::Settings;
+use crate::libraries::graphics as gfx;
 use crate::server::server_core::Server;
 use crate::server::server_core::SINGLEPLAYER_PORT;
-use anyhow::Result;
-use core::sync::atomic::{AtomicBool, Ordering};
-use std::path::Path;
-use std::sync::{Mutex, PoisonError};
-extern crate alloc;
-use alloc::sync::Arc;
 
 /// # Errors
 /// Returns an error if the server thread panics or if the server thread returns an error.
 pub fn run_private_world(
-    graphics: &mut GraphicsContext,
+    graphics: &mut gfx::GraphicsContext,
     menu_back: &mut dyn BackgroundRect,
     world_path: &Path,
+    settings: &mut Settings,
+    global_settings: &mut GlobalSettings,
 ) -> Result<()> {
     let server_running = Arc::new(AtomicBool::new(true));
     let server_running2 = server_running.clone();
-
-    let mut game = Game::new(SINGLEPLAYER_PORT, String::from("127.0.0.1"), "_");
 
     let loading_text = Arc::new(Mutex::new("Loading".to_owned()));
     let loading_text2 = loading_text.clone();
@@ -29,7 +32,7 @@ pub fn run_private_world(
     let world_path = world_path.to_path_buf();
     let server_thread = std::thread::spawn(move || {
         let mut server = Server::new(SINGLEPLAYER_PORT, None, None);
-        let result = server.start(
+        let result = server.run(
             &server_running2,
             &loading_text2,
             vec![include_bytes!("../../base_game/base_game.mod").to_vec()],
@@ -50,7 +53,15 @@ pub fn run_private_world(
     run_loading_screen(graphics, menu_back, &loading_text);
 
     if server_running.load(Ordering::Relaxed) {
-        game.run(graphics, menu_back)?;
+        run_game(
+            graphics,
+            menu_back,
+            SINGLEPLAYER_PORT,
+            String::from("127.0.0.1"),
+            "_",
+            settings,
+            global_settings,
+        )?;
 
         // stop server
         server_running.store(false, Ordering::Relaxed);

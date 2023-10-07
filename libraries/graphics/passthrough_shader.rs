@@ -1,8 +1,10 @@
+use anyhow::Result;
+
+use crate::libraries::graphics as gfx;
+
 use super::shaders::compile_shader;
 use super::vertex_buffer::{Vertex, VertexBuffer};
 use super::Color;
-use crate::libraries::graphics::FloatPos;
-use anyhow::Result;
 
 const VERTEX_SHADER_CODE: &str = r#"
 #version 330 core
@@ -20,9 +22,9 @@ uniform mat3 transform_matrix;
 uniform mat3 texture_transform_matrix;
 
 void main() {
-	gl_Position = vec4(transform_matrix * vec3(vertex_position, 1), 1);
+	gl_Position = vec4(transform_matrix * vec3(vertex_position, 1.f), 1.f);
 	fragment_color = global_color * vertex_color;
-	texture_coord = (texture_transform_matrix * vec3(vertex_texture_coordinate.xy, 1)).xy;
+	texture_coord = (texture_transform_matrix * vec3(vertex_texture_coordinate.xy, 1.f)).xy;
 }
 "#;
 
@@ -63,12 +65,12 @@ impl PassthroughShader {
         let mut rect_outline_vertex_buffer = VertexBuffer::new();
 
         for pos in [
-            FloatPos(0.0, 0.0),
-            FloatPos(1.0, 0.0),
-            FloatPos(0.0, 1.0),
-            FloatPos(1.0, 1.0),
-            FloatPos(1.0, 0.0),
-            FloatPos(0.0, 1.0),
+            gfx::FloatPos(0.0, 0.0),
+            gfx::FloatPos(1.0, 0.0),
+            gfx::FloatPos(0.0, 1.0),
+            gfx::FloatPos(1.0, 1.0),
+            gfx::FloatPos(1.0, 0.0),
+            gfx::FloatPos(0.0, 1.0),
         ] {
             rect_vertex_buffer.add_vertex(&Vertex {
                 pos,
@@ -84,14 +86,14 @@ impl PassthroughShader {
         rect_vertex_buffer.upload();
 
         for pos in [
-            FloatPos(0.0, 0.0),
-            FloatPos(1.0, 0.0),
-            FloatPos(1.0, 0.0),
-            FloatPos(1.0, 1.0),
-            FloatPos(1.0, 1.0),
-            FloatPos(0.0, 1.0),
-            FloatPos(0.0, 1.0),
-            FloatPos(0.0, 0.0),
+            gfx::FloatPos(0.0, 0.0),
+            gfx::FloatPos(1.0, 0.0),
+            gfx::FloatPos(1.0, 0.0),
+            gfx::FloatPos(1.0, 1.0),
+            gfx::FloatPos(1.0, 1.0),
+            gfx::FloatPos(0.0, 1.0),
+            gfx::FloatPos(0.0, 1.0),
+            gfx::FloatPos(0.0, 0.0),
         ] {
             rect_outline_vertex_buffer.add_vertex(&Vertex {
                 pos,

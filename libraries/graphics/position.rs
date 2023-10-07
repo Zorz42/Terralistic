@@ -1,13 +1,17 @@
-use core::hash::{Hash, Hasher};
-use core::ops::{Add, Sub};
+use std::hash::{Hash, Hasher};
+use std::ops::{Add, Sub};
+
 use serde_derive::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Hash)]
 pub struct IntPos(pub i32, pub i32);
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Hash)]
 pub struct IntSize(pub u32, pub u32);
+
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
 pub struct FloatPos(pub f32, pub f32);
+
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
 pub struct FloatSize(pub f32, pub f32);
 

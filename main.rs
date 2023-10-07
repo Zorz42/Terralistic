@@ -61,19 +61,26 @@
 #![allow(clippy::ptr_as_ptr)]
 #![allow(clippy::shadow_unrelated)]
 #![allow(clippy::many_single_char_names)]
-
+#![allow(clippy::significant_drop_tightening)]
+#![allow(clippy::new_without_default)]
+#![allow(clippy::module_inception)]
+#![allow(clippy::std_instead_of_core)]
+#![allow(clippy::std_instead_of_alloc)]
+#![allow(clippy::missing_errors_doc)]
+#![allow(clippy::missing_panics_doc)]
+#![allow(clippy::todo)]
+#![allow(clippy::unimplemented)]
 #![windows_subsystem = "windows"]
 
-extern crate alloc;
-extern crate core;
-
-use alloc::sync::Arc;
-use core::sync::atomic::AtomicBool;
-use core::time::Duration;
+use std::sync::atomic::AtomicBool;
+use std::sync::Arc;
 use std::sync::Mutex;
-use std::thread::sleep;
 
+use directories::BaseDirs;
+
+use crate::client::global_settings::GlobalSettings;
 use crate::client::menus::{run_main_menu, MenuBack};
+use crate::client::settings::Settings;
 use crate::libraries::graphics as gfx;
 use crate::server::server_core::{Server, MULTIPLAYER_PORT};
 use crate::server::server_ui::UiManager;
@@ -92,7 +99,9 @@ pub mod server {
 
 pub mod client {
     pub mod game;
+    pub mod global_settings;
     pub mod menus;
+    pub mod settings;
 }
 
 fn main() {
@@ -125,6 +134,7 @@ fn server_main(args: &[String]) {
             700,
             "Terralistic Server",
             include_bytes!("Build/Resources/font.opa"),
+            Some(include_bytes!("Build/Resources/font_mono.opa")),
         );
 
         let mut graphics;
@@ -148,7 +158,6 @@ fn server_main(args: &[String]) {
     };
 
     let server_running = Arc::new(AtomicBool::new(true));
-    let server_running_clone = server_running.clone();
 
     let loading_text = Arc::new(Mutex::new("Loading".to_owned()));
 
@@ -166,56 +175,51 @@ fn server_main(args: &[String]) {
 
     let (srv_to_ui_event_sender, srv_to_ui_event_receiver) = std::sync::mpsc::channel();
     let (ui_to_srv_event_sender, ui_to_srv_event_receiver) = std::sync::mpsc::channel();
-    let gfx_is_some = server_graphics_context.is_some();
 
-    let server_thread = std::thread::spawn(move || {
-        let mut server = if gfx_is_some {
-            Server::new(
-                MULTIPLAYER_PORT,
-                Some(srv_to_ui_event_sender),
-                Some(ui_to_srv_event_receiver),
-            )
-        } else {
-            Server::new(MULTIPLAYER_PORT, None, None)
-        };
-        let result = server.start(
-            &server_running_clone,
+    let mut server = if server_graphics_context.is_some() {
+        Server::new(
+            MULTIPLAYER_PORT,
+            Some(ui_to_srv_event_receiver),
+            Some(srv_to_ui_event_sender),
+        )
+    } else {
+        Server::new(MULTIPLAYER_PORT, None, None)
+    };
+
+    if let Some(graphics) = server_graphics_context {
+        let mut manager = UiManager::new(
+            server,
+            graphics,
+            srv_to_ui_event_receiver,
+            ui_to_srv_event_sender,
+            path_clone,
+        );
+        manager.run(
+            &server_running,
             &loading_text,
             vec![include_bytes!("base_game/base_game.mod").to_vec()],
             &path.join("server.world"),
         );
-
-        if let Err(e) = result {
+    } else {
+        let res = server.run(
+            &server_running,
+            &loading_text,
+            vec![include_bytes!("base_game/base_game.mod").to_vec()],
+            &path.join("server.world"),
+        );
+        if let Err(e) = res {
             println!("Server stopped with an error: {e}");
         }
-    });
-
-    server_graphics_context.map_or_else(
-        || loop {
-            if server_thread.is_finished() {
-                break;
-            }
-            sleep(Duration::from_millis(50));
-        },
-        |graphics| {
-            let mut manager = UiManager::new(
-                graphics,
-                srv_to_ui_event_receiver,
-                ui_to_srv_event_sender,
-                path_clone,
-            );
-            manager.run(&server_running);
-        },
-    );
-    let _thread_result = server_thread.join();
+    }
 }
 
 fn client_main() {
     let graphics_result = gfx::init(
-        1130,
-        700,
+        1670,
+        1050,
         "Terralistic",
         include_bytes!("Build/Resources/font.opa"),
+        None,
     );
 
     let mut graphics;
@@ -230,13 +234,42 @@ fn client_main() {
 
     if graphics
         .renderer
-        .set_min_window_size(graphics.renderer.get_window_size())
+        .set_min_window_size(gfx::FloatSize(1130.0, 700.0))
         .is_err()
     {
         println!("Failed to set minimum window size");
     }
 
-    let mut menu_back = MenuBack::new(&mut graphics);
+    let mut menu_back = MenuBack::new(&graphics);
 
-    run_main_menu(&mut graphics, &mut menu_back);
+    let base_dirs;
+    if let Some(base_dirs_) = BaseDirs::new() {
+        base_dirs = base_dirs_;
+    } else {
+        return;
+    }
+
+    let mut settings = Settings::new(
+        base_dirs
+            .data_dir()
+            .join("Terralistic")
+            .join("settings.txt"),
+    );
+
+    let mut global_settings = GlobalSettings::new();
+    global_settings.init(&mut settings);
+    global_settings.update(&mut graphics, &settings);
+
+    run_main_menu(
+        &mut graphics,
+        &mut menu_back,
+        &mut settings,
+        &mut global_settings,
+    );
+
+    global_settings.stop(&mut settings);
+
+    if let Err(error) = settings.save_config() {
+        println!("Failed to save settings to config file: {error}");
+    }
 }

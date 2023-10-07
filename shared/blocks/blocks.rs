@@ -29,26 +29,10 @@ pub struct BlockId {
     pub(super) id: i8,
 }
 
-impl Default for BlockId {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
 impl BlockId {
     #[must_use]
-    pub const fn new() -> Self {
+    pub const fn undefined() -> Self {
         Self { id: -1 }
-    }
-}
-
-// make BlockId lua compatible
-impl rlua::UserData for BlockId {
-    // implement equals comparison for BlockId
-    fn add_methods<'lua, M: rlua::UserDataMethods<'lua, Self>>(methods: &mut M) {
-        methods.add_meta_method(rlua::MetaMethod::Eq, |_, this, other: Self| {
-            Ok(this.id == other.id)
-        });
     }
 }
 
@@ -58,13 +42,7 @@ pub struct Blocks {
     pub(super) breaking_blocks: Vec<BreakingBlock>,
     pub(super) block_types: Vec<Block>,
     pub(super) tool_types: Vec<Tool>,
-    pub air: BlockId,
-}
-
-impl Default for Blocks {
-    fn default() -> Self {
-        Self::new()
-    }
+    air: BlockId,
 }
 
 impl Blocks {
@@ -80,7 +58,7 @@ impl Blocks {
             breaking_blocks: vec![],
             block_types: vec![],
             tool_types: vec![],
-            air: BlockId::new(),
+            air: BlockId::undefined(),
         };
 
         let mut air = Block::new();
@@ -98,6 +76,11 @@ impl Blocks {
     }
 
     #[must_use]
+    pub const fn air(&self) -> BlockId {
+        self.air
+    }
+
+    #[must_use]
     pub const fn get_height(&self) -> u32 {
         self.block_data.map.get_height()
     }
@@ -105,7 +88,7 @@ impl Blocks {
     /// Creates an empty world with given width and height
     pub fn create(&mut self, width: u32, height: u32) {
         self.block_data.map = WorldMap::new(width, height);
-        self.block_data.blocks = vec![BlockId::new(); (height * height) as usize];
+        self.block_data.blocks = vec![self.air; (height * height) as usize];
     }
 
     /// This function creates a world from a 2d vector of block type ids
@@ -130,9 +113,7 @@ impl Blocks {
         self.create(width, height);
         self.block_data.blocks.clear();
         for row in block_ids {
-            for block_id in row {
-                self.block_data.blocks.push(*block_id);
-            }
+            self.block_data.blocks.extend_from_slice(row);
         }
         Ok(())
     }
@@ -383,25 +364,6 @@ pub struct BlockChangePacket {
     pub from_main_x: i32,
     pub from_main_y: i32,
     pub block: BlockId,
-}
-
-/// A packet that is sent to the server, when client starts
-/// to break a block and when the server should start to
-/// break the block.
-#[derive(Serialize, Deserialize)]
-pub struct BlockBreakStartPacket {
-    pub x: i32,
-    pub y: i32,
-}
-
-/// A packet that is sent to the server, when client stops
-/// breaking a block and when the server should stop
-/// breaking the block.
-#[derive(Serialize, Deserialize)]
-pub struct BlockBreakStopPacket {
-    pub x: i32,
-    pub y: i32,
-    pub break_time: i32,
 }
 
 /// A packet that is sent to the server, when client

@@ -1,19 +1,14 @@
+use crate::libraries::graphics as gfx;
+
 use super::renderer::Renderer;
 use super::transformation::Transformation;
 use super::vertex_buffer::DrawMode;
 use super::{Color, Rect, Surface};
-use super::{FloatPos, FloatSize};
 
 /// Texture is an image stored in gpu
 pub struct Texture {
     pub(super) texture_handle: u32,
-    size: FloatSize,
-}
-
-impl Default for Texture {
-    fn default() -> Self {
-        Self::new()
-    }
+    size: gfx::FloatSize,
 }
 
 impl Texture {
@@ -21,7 +16,7 @@ impl Texture {
     pub const fn new() -> Self {
         Self {
             texture_handle: u32::MAX,
-            size: FloatSize(0.0, 0.0),
+            size: gfx::FloatSize(0.0, 0.0),
         }
     }
 
@@ -29,7 +24,7 @@ impl Texture {
     #[must_use]
     pub fn load_from_surface(surface: &Surface) -> Self {
         let mut result = Self::new();
-        result.size = FloatSize::from(surface.get_size());
+        result.size = gfx::FloatSize::from(surface.get_size());
 
         // Safety: We are using OpenGL functions correctly.
         unsafe {
@@ -39,7 +34,9 @@ impl Texture {
             gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MIN_FILTER, gl::NEAREST as i32);
             gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MAG_FILTER, gl::NEAREST as i32);
 
-            let data = surface.pixels.clone();
+            // set the texture wrapping parameters
+            gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_WRAP_S, gl::CLAMP_TO_EDGE as i32);
+            gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_WRAP_T, gl::CLAMP_TO_EDGE as i32);
 
             gl::TexImage2D(
                 gl::TEXTURE_2D,
@@ -50,9 +47,9 @@ impl Texture {
                 0,
                 gl::RGBA,
                 gl::UNSIGNED_BYTE,
-                data.as_ptr() as *const core::ffi::c_void,
+                surface.pixels.as_ptr() as *const std::ffi::c_void,
             );
-            gl::GenerateMipmap(gl::TEXTURE_2D);
+            //gl::GenerateMipmap(gl::TEXTURE_2D);
         }
 
         result
@@ -66,18 +63,17 @@ impl Texture {
                 gl::DeleteTextures(1, &self.texture_handle);
             }
             self.texture_handle = u32::MAX;
-            self.size = FloatSize(0.0, 0.0);
+            self.size = gfx::FloatSize(0.0, 0.0);
         }
     }
 
     #[must_use]
-    pub const fn get_texture_size(&self) -> FloatSize {
+    pub const fn get_texture_size(&self) -> gfx::FloatSize {
         self.size
     }
 
     pub(super) fn get_normalization_transform(&self) -> Transformation {
         let mut result = Transformation::new();
-        result.translate(FloatPos(-1.0, 1.0));
         result.stretch((1.0 / self.size.0, 1.0 / self.size.1));
         result
     }
@@ -86,13 +82,13 @@ impl Texture {
         &self,
         renderer: &Renderer,
         scale: f32,
-        pos: FloatPos,
+        pos: gfx::FloatPos,
         src_rect: Option<Rect>,
         flipped: bool,
         color: Option<Color>,
     ) {
         let src_rect =
-            src_rect.unwrap_or_else(|| Rect::new(FloatPos(0.0, 0.0), self.get_texture_size()));
+            src_rect.unwrap_or_else(|| Rect::new(gfx::FloatPos(0.0, 0.0), self.get_texture_size()));
 
         let color = color.unwrap_or(Color {
             r: 255,
@@ -104,7 +100,7 @@ impl Texture {
         let mut transform = renderer.normalization_transform.clone();
 
         if flipped {
-            transform.translate(FloatPos(src_rect.size.0 * scale + pos.0 * 2.0, 0.0));
+            transform.translate(gfx::FloatPos(src_rect.size.0 * scale + pos.0 * 2.0, 0.0));
             transform.stretch((-1.0, 1.0));
         }
 
@@ -122,7 +118,7 @@ impl Texture {
 
             transform = self.get_normalization_transform();
             transform.translate(src_rect.pos);
-            transform.stretch((src_rect.size.0, src_rect.size.1));
+            transform.stretch((src_rect.size.0 + 0.1, src_rect.size.1 + 0.1));
 
             gl::UniformMatrix3fv(
                 renderer.passthrough_shader.texture_transform_matrix,

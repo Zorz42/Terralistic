@@ -1,6 +1,7 @@
+use anyhow::{anyhow, Result};
+
 use crate::libraries::events::EventManager;
 use crate::shared::walls::Walls;
-use anyhow::{anyhow, Result};
 
 /// Stores the info about a breaking progress about a wall.
 pub struct BreakingWall {
@@ -22,12 +23,6 @@ impl BreakingWall {
     #[must_use]
     pub const fn get_coord(&self) -> (i32, i32) {
         self.coord
-    }
-}
-
-impl Default for BreakingWall {
-    fn default() -> Self {
-        Self::new()
     }
 }
 

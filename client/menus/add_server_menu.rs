@@ -1,12 +1,11 @@
-use super::background_rect::BackgroundRect;
-use crate::libraries::graphics as gfx;
-use crate::libraries::graphics::{FloatPos, FloatSize, GraphicsContext};
+use std::net::{IpAddr, Ipv4Addr};
 
-use super::multiplayer_selector::ServerCard;
+use crate::libraries::graphics as gfx;
 use crate::server::server_core::MULTIPLAYER_PORT;
 
+use super::background_rect::BackgroundRect;
+use super::multiplayer_selector::ServerCard;
 use super::multiplayer_selector::ServerInfo;
-use std::net::{IpAddr, Ipv4Addr};
 
 fn get_ip_port(server_ip_input: &str) -> (String, u16) {
     let ip = server_ip_input
@@ -61,23 +60,25 @@ fn server_exists(name: &str, servers_list: &Vec<ServerCard>) -> bool {
     false
 }
 
-/**this function runs the add server menu.*/
+/// this function runs the add server menu.
+#[allow(clippy::too_many_lines)]
 pub fn run_add_server_menu(
-    graphics: &mut GraphicsContext,
+    graphics: &mut gfx::GraphicsContext,
     menu_back: &mut dyn BackgroundRect,
     servers_list: &Vec<ServerCard>,
 ) -> Option<ServerInfo> {
     let mut title = gfx::Sprite::new();
     title.scale = 3.0;
-    title.texture =
-        gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Add a new server:"));
+    title.texture = gfx::Texture::load_from_surface(
+        &graphics.font.create_text_surface("Add a new server:", None),
+    );
     title.pos.1 = gfx::SPACING;
     title.orientation = gfx::TOP;
 
     let mut buttons_container = gfx::Container::new(
         graphics,
-        FloatPos(0.0, 0.0),
-        FloatSize(0.0, 0.0),
+        gfx::FloatPos(0.0, 0.0),
+        gfx::FloatSize(0.0, 0.0),
         gfx::BOTTOM,
         None,
     );
@@ -85,13 +86,13 @@ pub fn run_add_server_menu(
     let mut back_button = gfx::Button::new();
     back_button.scale = 3.0;
     back_button.texture =
-        gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Back"));
+        gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Back", None));
 
     let mut add_button = gfx::Button::new();
     add_button.scale = 3.0;
     add_button.darken_on_disabled = true;
     add_button.texture =
-        gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Add server"));
+        gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Add server", None));
     add_button.pos.0 = back_button.get_size().0 + gfx::SPACING;
 
     buttons_container.rect.size.0 =
@@ -130,10 +131,10 @@ pub fn run_add_server_menu(
 
     //this is where the menu is drawn
     'render_loop: while graphics.renderer.is_window_open() {
-        add_button.disabled = server_name_input.text.is_empty()
-            || server_ip_input.text.is_empty()
-            || server_exists(&server_name_input.text, servers_list)
-            || !is_valid_ip(&server_ip_input.text);
+        add_button.disabled = server_name_input.get_text().is_empty()
+            || server_ip_input.get_text().is_empty()
+            || server_exists(server_name_input.get_text(), servers_list)
+            || !is_valid_ip(server_ip_input.get_text());
 
         while let Some(event) = graphics.renderer.get_event() {
             //sorts out the events
@@ -146,8 +147,12 @@ pub fn run_add_server_menu(
                             break 'render_loop;
                         }
                         if add_button.is_hovered(graphics, Some(&buttons_container)) {
-                            let (ip, port) = get_ip_port(&server_ip_input.text);
-                            return Some(ServerInfo::new(server_name_input.text.clone(), ip, port));
+                            let (ip, port) = get_ip_port(server_ip_input.get_text());
+                            return Some(ServerInfo::new(
+                                server_name_input.get_text().clone(),
+                                ip,
+                                port,
+                            ));
                         }
                     }
                     gfx::Key::Escape => {
@@ -160,8 +165,12 @@ pub fn run_add_server_menu(
                     }
                     gfx::Key::Enter => {
                         if !add_button.disabled {
-                            let (ip, port) = get_ip_port(&server_ip_input.text);
-                            return Some(ServerInfo::new(server_name_input.text.clone(), ip, port));
+                            let (ip, port) = get_ip_port(server_ip_input.get_text());
+                            return Some(ServerInfo::new(
+                                server_name_input.get_text().clone(),
+                                ip,
+                                port,
+                            ));
                         }
                     }
                     _ => {}

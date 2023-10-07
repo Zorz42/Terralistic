@@ -1,10 +1,10 @@
-use super::BackgroundRect;
 use crate::libraries::graphics as gfx;
-use crate::libraries::graphics::{FloatPos, FloatSize, GraphicsContext};
+
+use super::BackgroundRect;
 
 pub fn run_choice_menu(
     menu_title: &str,
-    graphics: &mut GraphicsContext,
+    graphics: &mut gfx::GraphicsContext,
     menu_back: &mut dyn BackgroundRect,
     confirm_name_override: Option<&str>,
     back_name_override: Option<&str>,
@@ -14,7 +14,8 @@ pub fn run_choice_menu(
     let mut title_lines = Vec::new();
     for line in text_lines_vec {
         let mut sprite = gfx::Sprite::new();
-        sprite.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface(line));
+        sprite.texture =
+            gfx::Texture::load_from_surface(&graphics.font.create_text_surface(line, None));
         sprite.scale = 3.0;
         sprite.orientation = gfx::TOP;
         sprite.pos.1 =
@@ -24,8 +25,8 @@ pub fn run_choice_menu(
 
     let mut buttons_container = gfx::Container::new(
         graphics,
-        FloatPos(0.0, 0.0),
-        FloatSize(0.0, 0.0),
+        gfx::FloatPos(0.0, 0.0),
+        gfx::FloatSize(0.0, 0.0),
         gfx::BOTTOM,
         None,
     );
@@ -34,13 +35,13 @@ pub fn run_choice_menu(
     let mut back_button = gfx::Button::new();
     back_button.scale = 3.0;
     back_button.texture =
-        gfx::Texture::load_from_surface(&graphics.font.create_text_surface(back_str));
+        gfx::Texture::load_from_surface(&graphics.font.create_text_surface(back_str, None));
 
     let confirm_str = confirm_name_override.unwrap_or("Confirm");
     let mut confirm_button = gfx::Button::new();
     confirm_button.scale = 3.0;
     confirm_button.texture =
-        gfx::Texture::load_from_surface(&graphics.font.create_text_surface(confirm_str));
+        gfx::Texture::load_from_surface(&graphics.font.create_text_surface(confirm_str, None));
     confirm_button.pos.0 = back_button.get_size().0 + gfx::SPACING;
 
     buttons_container.rect.size.0 =

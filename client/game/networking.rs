@@ -1,8 +1,7 @@
-use core::sync::atomic::{AtomicBool, Ordering};
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::mpsc;
 use std::sync::mpsc::{Receiver, Sender};
-extern crate alloc;
-use alloc::sync::Arc;
+use std::sync::Arc;
 use std::thread::JoinHandle;
 
 use anyhow::{anyhow, bail, Result};
@@ -15,17 +14,13 @@ use crate::libraries::events::EventManager;
 use crate::shared::packet::{Packet, WelcomeCompletePacket};
 use crate::shared::players::NamePacket;
 
-/**
-This event is called, when the client has received a welcome packet.
- */
+/// This event is called, when the client has received a welcome packet.
 pub struct WelcomePacketEvent {
     pub packet: Packet,
 }
 
-/**
-This handles all the networking for the client.
-client connects to a server and sends and receives packets.
- */
+/// This handles all the networking for the client.
+/// client connects to a server and sends and receives packets.
 pub struct ClientNetworking {
     server_port: u16,
     server_address: String,
@@ -98,7 +93,7 @@ impl ClientNetworking {
         server_port: u16,
         player_name: &str,
     ) -> Result<()> {
-        let (mut handler, listener) = node::split();
+        let (handler, listener) = node::split();
 
         let server_addr = format!("{server_address}:{server_port}");
         let (server_endpoint, _) = handler
@@ -107,7 +102,7 @@ impl ClientNetworking {
             .unwrap();
 
         Self::send_packet_internal(
-            &mut handler,
+            &handler,
             &Packet::new(NamePacket {
                 name: player_name.to_owned(),
             })?,
@@ -129,7 +124,7 @@ impl ClientNetworking {
                                 is_welcoming.store(false, Ordering::Relaxed);
                                 while !should_start_receiving.load(Ordering::Relaxed) {
                                     // wait 1 ms
-                                    std::thread::sleep(core::time::Duration::from_millis(1));
+                                    std::thread::sleep(std::time::Duration::from_millis(1));
                                 }
                                 handler.signals().send(());
                             }
@@ -154,19 +149,18 @@ impl ClientNetworking {
                             event_sender.send(events::Event::new(packet)).ok();
                         }
                     },
-                    NodeEvent::Signal(_) => {
+                    NodeEvent::Signal(()) => {
                         if !is_running.load(Ordering::Relaxed) {
                             handler.stop();
                         }
 
                         while let Ok(packet) = packet_receiver.try_recv() {
-                            Self::send_packet_internal(&mut handler, &packet, server_endpoint)
-                                .unwrap();
+                            Self::send_packet_internal(&handler, &packet, server_endpoint).unwrap();
                         }
 
                         handler
                             .signals()
-                            .send_with_timer((), core::time::Duration::from_millis(1));
+                            .send_with_timer((), std::time::Duration::from_millis(1));
                     }
                 };
             }
@@ -190,7 +184,7 @@ impl ClientNetworking {
     }
 
     fn send_packet_internal(
-        net_client: &mut NodeHandler<()>,
+        net_client: &NodeHandler<()>,
         packet: &Packet,
         endpoint: Endpoint,
     ) -> Result<()> {
@@ -207,7 +201,7 @@ impl ClientNetworking {
                     bail!("Resource not found");
                 }
                 SendStatus::ResourceNotAvailable => {
-                    std::thread::sleep(core::time::Duration::from_millis(1));
+                    std::thread::sleep(std::time::Duration::from_millis(1));
                     // just try again
                 }
             };

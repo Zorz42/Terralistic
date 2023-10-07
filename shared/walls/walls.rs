@@ -1,27 +1,21 @@
+use std::sync::Arc;
+use std::sync::Mutex;
+
+use anyhow::{anyhow, bail, Result};
+use bincode;
+use serde_derive::{Deserialize, Serialize};
+use snap;
+
 use crate::shared::blocks::Tool;
 use crate::shared::blocks::{Blocks, ToolId};
 use crate::shared::mod_manager::ModManager;
 use crate::shared::walls::{BreakingWall, Wall};
 use crate::shared::world_map::WorldMap;
-use anyhow::{anyhow, bail, Result};
-use bincode;
-
-use serde_derive::{Deserialize, Serialize};
-use snap;
-use std::sync::Mutex;
-extern crate alloc;
-use alloc::sync::Arc;
 
 /// `WallId` stores id to a type of wall.
 #[derive(Deserialize, Serialize, Clone, Copy, Eq, PartialEq, Hash)]
 pub struct WallId {
     pub id: i8,
-}
-
-impl Default for WallId {
-    fn default() -> Self {
-        Self::new()
-    }
 }
 
 impl WallId {
@@ -104,7 +98,7 @@ impl Walls {
     /// # Errors
     /// Returns an error if the functions couldn't be added to the lua state.
     pub fn init(&mut self, mods: &mut ModManager) -> Result<()> {
-        mods.add_global_function("new_wall_type", move |_lua, _: ()| Ok(Wall::new()))?;
+        mods.add_global_function("new_wall_type", move |_lua, ()| Ok(Wall::new()))?;
 
         let mut wall_types = self.wall_types.clone();
         mods.add_global_function("register_wall_type", move |_lua, wall_type: Wall| {

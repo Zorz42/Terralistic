@@ -1,7 +1,4 @@
-use super::Container;
-use super::Orientation;
-use super::{Color, GraphicsContext, TOP_LEFT};
-use crate::libraries::graphics::{FloatPos, FloatSize};
+use crate::libraries::graphics as gfx;
 
 /// The struct `RenderRect` contains a container and
 /// moves smoothly visually to the saved position
@@ -9,36 +6,34 @@ use crate::libraries::graphics::{FloatPos, FloatSize};
 /// of the container is changed by the distance to the
 /// target position divided by the `smooth_factor`. It is 1 by default.
 pub struct RenderRect {
-    pub pos: FloatPos,
-    pub size: FloatSize,
-    pub render_pos: FloatPos,
-    pub render_size: FloatSize,
-    pub fill_color: Color,
-    pub border_color: Color,
+    pub pos: gfx::FloatPos,
+    pub size: gfx::FloatSize,
+    pub render_pos: gfx::FloatPos,
+    pub render_size: gfx::FloatSize,
+    pub fill_color: gfx::Color,
+    pub border_color: gfx::Color,
     pub smooth_factor: f32,
-    pub orientation: Orientation,
+    pub orientation: gfx::Orientation,
     pub blur_radius: i32,
     pub shadow_intensity: i32,
-    ms_counter: u32,
-    approach_timer: std::time::Instant,
+    animation_timer: gfx::AnimationTimer,
 }
 
 impl RenderRect {
     #[must_use]
-    pub fn new(pos: FloatPos, size: FloatSize) -> Self {
+    pub fn new(pos: gfx::FloatPos, size: gfx::FloatSize) -> Self {
         Self {
             pos,
             size,
             render_pos: pos,
             render_size: size,
-            fill_color: Color::new(0, 0, 0, 255),
-            border_color: Color::new(0, 0, 0, 0),
+            fill_color: gfx::Color::new(0, 0, 0, 255),
+            border_color: gfx::Color::new(0, 0, 0, 0),
             smooth_factor: 1.0,
-            orientation: TOP_LEFT,
+            orientation: gfx::TOP_LEFT,
             blur_radius: 0,
             shadow_intensity: 0,
-            ms_counter: 0,
-            approach_timer: std::time::Instant::now(),
+            animation_timer: gfx::AnimationTimer::new(1),
         }
     }
 
@@ -52,9 +47,12 @@ impl RenderRect {
 
     /// This function renders the rectangle, it uses Rect class to render.
     /// It also approaches the position to the target position.
-    pub fn render(&mut self, graphics: &GraphicsContext, parent_container: Option<&Container>) {
-        while self.ms_counter < self.approach_timer.elapsed().as_millis() as u32 {
-            self.ms_counter += 1;
+    pub fn render(
+        &mut self,
+        graphics: &gfx::GraphicsContext,
+        parent_container: Option<&gfx::Container>,
+    ) {
+        while self.animation_timer.frame_ready() {
             self.render_pos.0 = Self::approach(self.render_pos.0, self.pos.0, self.smooth_factor);
             self.render_pos.1 = Self::approach(self.render_pos.1, self.pos.1, self.smooth_factor);
             self.render_size.0 =
@@ -73,6 +71,7 @@ impl RenderRect {
         );
 
         rect.render(graphics, self.fill_color);
+        rect.render_outline(graphics, self.border_color);
     }
 
     /// This function returns the container of the rectangle.
@@ -80,10 +79,10 @@ impl RenderRect {
     #[must_use]
     pub fn get_container(
         &self,
-        graphics: &GraphicsContext,
-        parent_container: Option<&Container>,
-    ) -> Container {
-        Container::new(
+        graphics: &gfx::GraphicsContext,
+        parent_container: Option<&gfx::Container>,
+    ) -> gfx::Container {
+        gfx::Container::new(
             graphics,
             self.render_pos,
             self.render_size,

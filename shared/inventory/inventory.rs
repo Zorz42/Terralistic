@@ -1,36 +1,9 @@
-use crate::libraries::events::EventManager;
-use crate::shared::entities::Entities;
-use crate::shared::items::{ItemId, ItemStack, Items};
 use anyhow::{anyhow, bail, Result};
 use serde_derive::{Deserialize, Serialize};
-use std::collections::HashMap;
 
-pub struct Recipe {
-    pub result: ItemId,
-    pub ingredients: HashMap<ItemId, i32>,
-}
-
-pub struct Recipes {
-    recipes: Vec<Recipe>,
-}
-
-impl Recipes {
-    #[must_use]
-    pub const fn new() -> Self {
-        Self {
-            recipes: Vec::new(),
-        }
-    }
-
-    pub fn add_recipe(&mut self, recipe: Recipe) {
-        self.recipes.push(recipe);
-    }
-
-    #[must_use]
-    pub const fn get_recipes(&self) -> &Vec<Recipe> {
-        &self.recipes
-    }
-}
+use crate::libraries::events::EventManager;
+use crate::shared::entities::Entities;
+use crate::shared::items::{ItemId, ItemStack, Items, Recipe, RecipeId};
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct Inventory {
@@ -105,7 +78,14 @@ impl Inventory {
 
     /// # Errors
     /// if the recipe can't be crafted
-    pub fn craft(&mut self, recipe: &Recipe) -> Result<()> {
+    pub fn craft(
+        &mut self,
+        recipe: &Recipe,
+        drop_pos: (f32, f32),
+        items: &mut Items,
+        entities: &mut Entities,
+        events: &mut EventManager,
+    ) -> Result<()> {
         if !self.can_craft(recipe) {
             bail!("can't craft")
         }
@@ -128,15 +108,7 @@ impl Inventory {
             }
         }
 
-        let result = self
-            .items
-            .iter_mut()
-            .find(|item| item.is_none())
-            .ok_or_else(|| anyhow!("no empty slot"))?;
-        *result = Some(ItemStack {
-            item: recipe.result,
-            count: 1,
-        });
+        self.give_item(recipe.result.clone(), drop_pos, items, entities, events)?;
         Ok(())
     }
 
@@ -157,7 +129,7 @@ impl Inventory {
             if slot.item == item.item {
                 let max = items.get_item_type(slot.item)?.max_stack;
                 if slot.count < max {
-                    let count = core::cmp::min(max - slot.count, item.count);
+                    let count = std::cmp::min(max - slot.count, item.count);
                     slot.count += count;
                     item.count -= count;
                     self.has_changed = true;
@@ -191,7 +163,8 @@ impl Inventory {
 
         // drop item
         for _ in 0..item.count {
-            items.spawn_item(events, entities, item.item, drop_pos.0, drop_pos.1, None);
+            let id = entities.new_id();
+            items.spawn_item(events, entities, item.item, drop_pos.0, drop_pos.1, id)?;
         }
 
         Ok(())
@@ -238,4 +211,9 @@ pub struct InventorySelectPacket {
 #[derive(Serialize, Deserialize)]
 pub struct InventorySwapPacket {
     pub slot: usize,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct InventoryCraftPacket {
+    pub recipe: RecipeId,
 }

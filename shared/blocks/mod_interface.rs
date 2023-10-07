@@ -1,23 +1,34 @@
-extern crate alloc;
-use crate::libraries::events::{Event, EventManager};
-use crate::shared::blocks::{Block, BlockBreakEvent, BlockId, Blocks};
-use crate::shared::mod_manager::ModManager;
-use alloc::sync::Arc;
-use anyhow::Result;
-use rlua::UserDataMethods;
 use std::sync::mpsc::Receiver;
+use std::sync::Arc;
 use std::sync::{Mutex, PoisonError};
+
+use anyhow::Result;
+
+use crate::libraries::events::{Event, EventManager};
+use crate::shared::blocks::{Block, BlockBreakEvent, BlockId, Blocks, Tool, ToolId};
+use crate::shared::mod_manager::ModManager;
+
+// make BlockId lua compatible
+impl rlua::UserData for BlockId {
+    // implement equals comparison for BlockId
+    fn add_methods<'lua, M: rlua::UserDataMethods<'lua, Self>>(methods: &mut M) {
+        methods.add_meta_method(rlua::MetaMethod::Eq, |_, this, other: Self| {
+            Ok(this.id == other.id)
+        });
+    }
+}
 
 /// initialize the mod interface for the blocks module
 /// # Errors
 /// if the lua context is not available
+#[allow(clippy::too_many_lines)]
 pub fn init_blocks_mod_interface(
     blocks: &Arc<Mutex<Blocks>>,
     mods: &mut ModManager,
 ) -> Result<Receiver<Event>> {
     let (sender, receiver) = std::sync::mpsc::channel();
 
-    mods.add_global_function("new_block_type", move |_lua, _: ()| Ok(Block::new()))?;
+    mods.add_global_function("new_block_type", move |_lua, ()| Ok(Block::new()))?;
 
     let mut blocks2 = blocks.clone();
     mods.add_global_function("register_block_type", move |_lua, block_type: Block| {
@@ -71,7 +82,7 @@ pub fn init_blocks_mod_interface(
 
     // a method to break a block
     blocks2 = blocks.clone();
-    let sender2 = sender;
+    let sender2 = sender.clone();
     mods.add_global_function("break_block", move |_lua, (x, y): (i32, i32)| {
         let mut block_types = blocks2.lock().unwrap_or_else(PoisonError::into_inner);
         let mut events = EventManager::new();
@@ -104,6 +115,43 @@ pub fn init_blocks_mod_interface(
         Ok(block_id)
     })?;
 
+    // a method to set block id by position
+    blocks2 = blocks.clone();
+    let sender2 = sender;
+    mods.add_global_function(
+        "set_block",
+        move |_lua, (x, y, block_id): (i32, i32, BlockId)| {
+            let mut events = EventManager::new();
+
+            let mut blocks = blocks2.lock().unwrap_or_else(PoisonError::into_inner);
+            blocks
+                .set_block(&mut events, x, y, block_id)
+                .ok()
+                .ok_or(rlua::Error::RuntimeError(
+                    "coordinates out of bounds".to_owned(),
+                ))?;
+
+            while let Some(event) = events.pop_event() {
+                sender2
+                    .send(event)
+                    .ok()
+                    .ok_or(rlua::Error::RuntimeError("could not send event".to_owned()))?;
+            }
+
+            Ok(())
+        },
+    )?;
+
+    // a method to register a new tool
+    blocks2 = blocks.clone();
+    mods.add_global_function("register_tool", move |_lua, name: String| {
+        let mut block_types = blocks2.lock().unwrap_or_else(PoisonError::into_inner);
+        let mut tool = Tool::new();
+        tool.name = name;
+        let tool_id = block_types.register_new_tool_type(tool);
+        Ok(tool_id)
+    })?;
+
     Ok(receiver)
 }
 
@@ -123,7 +171,7 @@ pub fn handle_event_for_blocks_interface(mods: &mut ModManager, event: &Event) -
 
 /// make `BlockType` Lua compatible, implement getter and setter for every field except id
 impl rlua::UserData for Block {
-    fn add_methods<'lua, M: UserDataMethods<'lua, Self>>(methods: &mut M) {
+    fn add_methods<'lua, M: rlua::UserDataMethods<'lua, Self>>(methods: &mut M) {
         // add meta method to set fields, id and image are not accessible
         methods.add_meta_method_mut(
             rlua::MetaMethod::NewIndex,
@@ -140,7 +188,7 @@ impl rlua::UserData for Block {
                         _ => {
                             return Err(rlua::Error::RuntimeError(format!(
                                 "{key} is not a valid field of BlockType for integer value"
-                            )))
+                            )));
                         }
                     };
                     Ok(())
@@ -154,7 +202,7 @@ impl rlua::UserData for Block {
                         _ => {
                             return Err(rlua::Error::RuntimeError(format!(
                                 "{key} is not a valid field of BlockType for boolean value"
-                            )))
+                            )));
                         }
                     };
                     Ok(())
@@ -165,7 +213,20 @@ impl rlua::UserData for Block {
                         _ => {
                             return Err(rlua::Error::RuntimeError(format!(
                                 "{key} is not a valid field of BlockType for string value"
-                            )))
+                            )));
+                        }
+                    };
+                    Ok(())
+                }
+                rlua::Value::UserData(value) => {
+                    match key.as_str() {
+                        "effective_tool" => {
+                            this.effective_tool = Some(*value.borrow::<ToolId>()?);
+                        }
+                        _ => {
+                            return Err(rlua::Error::RuntimeError(format!(
+                                "{key} is not a valid field of Block for userdata value"
+                            )));
                         }
                     };
                     Ok(())
@@ -177,3 +238,6 @@ impl rlua::UserData for Block {
         );
     }
 }
+
+/// make `ToolId` Lua compatible
+impl rlua::UserData for ToolId {}
