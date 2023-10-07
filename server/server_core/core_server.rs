@@ -173,18 +173,14 @@ impl Server {
         mods_serialized: Vec<Vec<u8>>,
         world_path: &Path,
     ) -> Result<()> {
-        let ms_timer = std::time::Instant::now();
-        let mut ms_counter = 0;
-        let mut s_counter = 0;
-        let mut last_time = std::time::Instant::now();
+        let mut last_time;
 
         self.start(status_text, mods_serialized, world_path)?;
 
         loop {
-            let delta_time = last_time.elapsed().as_secs_f32() * 1000.0;
             last_time = std::time::Instant::now();
 
-            self.update(delta_time, ms_timer, &mut ms_counter, &mut s_counter)?;
+            self.update()?;
 
             // sleep
             let sleep_time = 1000.0 / self.tps_limit - last_time.elapsed().as_secs_f32() * 1000.0;
@@ -206,13 +202,22 @@ impl Server {
     ///Updates the server - manual way. It updates the server once and returns
     ///# Errors
     ///A lot of server crashes are caused by mods and other stuff, so this function returns a Result
-    pub fn update(
-        &mut self,
-        delta_time: f32,
-        ms_timer: std::time::Instant,
-        ms_counter: &mut i32,
-        s_counter: &mut i32,
-    ) -> Result<()> {
+    pub fn update(&mut self) -> Result<()> {
+        //there's no point in outside functions knowing about the counters. Letting outside functions manage these variables could lead to bugs
+        static mut MS_COUNTER: i32 = 0;
+        static mut SECONDS_COUNTER: i32 = 0;
+        static mut MS_TIMER: Option<std::time::Instant> = None;
+        static mut LAST_TIME: Option<std::time::Instant> = None;
+
+        //Safety: safe, we're only updating and using the count without any multithreading
+        let Some((ms_timer, last_time)) =
+            (unsafe { get_timers_from_static(&mut MS_TIMER, &mut LAST_TIME) })
+        else {
+            return Ok(()); //we return early this time
+        };
+
+        let delta_time = last_time.elapsed().as_secs_f32() * 1000.0;
+
         // update modules
         self.networking.update(&mut self.events)?;
         self.mods.update()?;
@@ -222,7 +227,8 @@ impl Server {
         // handle events
         self.handle_events()?;
 
-        while *ms_counter < ms_timer.elapsed().as_millis() as i32 {
+        //Safety: safe, we're only updating and using the count without any multithreading
+        while unsafe { MS_COUNTER < ms_timer.elapsed().as_millis() as i32 } {
             self.players.update(
                 &mut self.entities.entities,
                 &self.blocks.get_blocks(),
@@ -233,12 +239,18 @@ impl Server {
             self.entities
                 .entities
                 .update_entities_ms(&self.blocks.get_blocks(), &mut self.events)?;
-            *ms_counter += 5;
+            //Safety: safe, we're only updating and using the count without any multithreading
+            unsafe {
+                MS_COUNTER += 5;
+            }
         }
 
-        if *s_counter < *ms_counter / 1000 {
-            self.entities.sync_entities(&mut self.networking)?;
-            *s_counter = *ms_counter / 1000;
+        //Safety: safe, we're only updating and using the count without any multithreading
+        unsafe {
+            if SECONDS_COUNTER < MS_COUNTER / 1000 {
+                self.entities.sync_entities(&mut self.networking)?;
+                SECONDS_COUNTER = MS_COUNTER / 1000;
+            }
         }
 
         Ok(())
@@ -390,10 +402,34 @@ impl Server {
     }
 }
 
+unsafe fn get_timers_from_static(
+    ms_timer_static: &mut Option<std::time::Instant>,
+    last_time_static: &mut Option<std::time::Instant>,
+) -> Option<(std::time::Instant, std::time::Instant)> {
+    let ms_timer = if let Some(timer) = ms_timer_static {
+        *timer
+    } else {
+        *ms_timer_static = Some(std::time::Instant::now());
+        *last_time_static = *ms_timer_static;
+        return None; //we skip this time
+    };
+
+    let last_time = if let Some(instant) = last_time_static {
+        *instant
+    } else {
+        *last_time_static = Some(std::time::Instant::now());
+        return None; //we skip this time
+    };
+
+    *last_time_static = Some(std::time::Instant::now());
+
+    Some((ms_timer, last_time))
+}
+
 //sends any data to the ui if the server was started without nogui flag
 pub fn send_to_ui(data: UiMessageType, ui_event_sender: Option<Sender<UiMessageType>>) {
-    static mut UI_EVENT_SENDER: Option<Sender<UiMessageType>> = None; //TODO: change from static mut to something else
-                                                                      //SAFETY: should be safe as long as the server is single threaded, but will still change it from static mut to something else soon just in case
+    static mut UI_EVENT_SENDER: Option<Sender<UiMessageType>> = None;
+
     unsafe {
         if UI_EVENT_SENDER.is_none() {
             UI_EVENT_SENDER = ui_event_sender;

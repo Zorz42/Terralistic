@@ -68,8 +68,6 @@ impl UiManager {
         world_path: &Path,
     ) {
         let ms_timer = std::time::Instant::now();
-        let mut ms_counter = 0;
-        let mut s_counter = 0;
         let mut num_updates = 0;
         let mut ui_last_time = std::time::Instant::now();
         let mut server_last_time = std::time::Instant::now();
@@ -98,8 +96,6 @@ impl UiManager {
                 ms_timer,
                 &mut server_last_time,
                 &mut server_mspt,
-                &mut ms_counter,
-                &mut s_counter,
             );
 
             self.relay_graphics_events();
@@ -206,21 +202,15 @@ impl UiManager {
         ms_timer: std::time::Instant,
         server_last_time: &mut std::time::Instant,
         server_mspt: &mut Option<f64>,
-        ms_counter: &mut i32,
-        s_counter: &mut i32,
     ) {
         while *num_updates
             < ms_timer.elapsed().as_millis() as u64 * self.server.tps_limit as u64 / 1000
         {
-            let server_delta_time = server_last_time.elapsed().as_secs_f32() * 1000.0;
             *server_last_time = std::time::Instant::now();
 
             //update the server by 1 tick
             let server_tick_start = ms_timer.elapsed().as_micros();
-            if let Err(e) = self
-                .server
-                .update(server_delta_time, ms_timer, ms_counter, s_counter)
-            {
+            if let Err(e) = self.server.update() {
                 println!("Error running server: {e}");
                 break;
             }
