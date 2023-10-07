@@ -65,6 +65,7 @@ pub struct ModuleTreeSplit {
 enum EditMode {
     Select,
     Name,
+    Resize,
 }
 
 pub struct ModuleManager {
@@ -186,14 +187,23 @@ impl ModuleManager {
                 if *key == gfx::Key::F2 {
                     self.mode = EditMode::Name;
                 }
-                if self.mode == EditMode::Select {
-                    self.handle_select_mode_key_events(*key);
-                } else if self.mode == EditMode::Name {
-                    self.handle_rename_mode_key_events(*key);
+                if *key == gfx::Key::F3 {
+                    self.mode = EditMode::Resize;
+                }
+                match self.mode {
+                    EditMode::Select => {
+                        self.handle_select_mode_key_events(*key);
+                    }
+                    EditMode::Name => {
+                        self.handle_rename_mode_key_events(*key);
+                    }
+                    EditMode::Resize => {
+                        self.handle_resize_mode_key_events(*key);
+                    }
                 }
             }
-            gfx::Event::MouseScroll(_) => {
-                todo!("implement resizing with mouse scroll");
+            gfx::Event::MouseScroll(scroll) => {
+                self.handle_mouse_scroll(*scroll);
             }
             gfx::Event::TextInput(text) => {
                 if self.mode == EditMode::Name {
@@ -275,6 +285,27 @@ impl ModuleManager {
         }
     }
 
+    fn handle_resize_mode_key_events(&mut self, key: gfx::Key) {
+        match key {
+            gfx::Key::Enter | gfx::Key::Escape => {
+                self.mode = EditMode::Select;
+            }
+            _ => {}
+        }
+    }
+
+    fn handle_mouse_scroll(&mut self, scroll: f32) {
+        if self.mode == EditMode::Resize {
+            let node = self.get_node_mut(None, self.depth);
+            if let ModuleTreeNodeType::Split(split) = node {
+                split.split_pos += scroll * 0.01;
+                split.split_pos = split.split_pos.clamp(0.0, 1.0);
+                self.changed = true;
+                self.recalculate_selection_rect();
+            }
+        }
+    }
+
     fn get_node_mut(&mut self, path: Option<&[bool]>, depth: usize) -> &mut ModuleTreeNodeType {
         if self.path.len() < depth + 1 {
             self.path.resize(depth + 1, false);
@@ -287,6 +318,23 @@ impl ModuleManager {
                     &mut split_node.second
                 } else {
                     &mut split_node.first
+                };
+            } else {
+                break;
+            }
+        }
+        node
+    }
+
+    fn get_node(&self, path: Option<&[bool]>, depth: usize) -> &ModuleTreeNodeType {
+        let mut node = &self.root;
+        let path = path.unwrap_or(&self.path);
+        for &path_at_depth in path.get(0..depth).unwrap_or(&[]) {
+            if let ModuleTreeNodeType::Split(split_node) = node {
+                node = if path_at_depth {
+                    &split_node.second
+                } else {
+                    &split_node.first
                 };
             } else {
                 break;
@@ -382,29 +430,74 @@ impl ModuleManager {
     }
 
     pub fn render_overlay(&self, graphics_context: &gfx::GraphicsContext) {
-        if self.mode == EditMode::Name {
-            let window_size = graphics_context.renderer.get_window_size();
-            let pos = gfx::FloatPos(
-                window_size.0 * self.rect.pos.0,
-                window_size.1 * self.rect.pos.1,
-            );
-            let size = gfx::FloatSize(
-                window_size.0 * self.rect.size.0,
-                window_size.1 * self.rect.size.1,
-            );
-            let rect = gfx::Rect::new(pos, size);
-            let color = gfx::Color::new(0, 0, 0, 150);
-            rect.render(graphics_context, color);
+        if self.mode == EditMode::Select {
+            return;
+        }
+        let window_size = graphics_context.renderer.get_window_size();
+        let pos = gfx::FloatPos(
+            window_size.0 * self.rect.pos.0,
+            window_size.1 * self.rect.pos.1,
+        );
+        let size = gfx::FloatSize(
+            window_size.0 * self.rect.size.0,
+            window_size.1 * self.rect.size.1,
+        );
+        let rect = gfx::Rect::new(pos, size);
+        let color = gfx::Color::new(0, 0, 0, 150);
+        rect.render(graphics_context, color);
 
-            let font = &graphics_context.font;
-            let text_texture =
-                gfx::Texture::load_from_surface(&font.create_text_surface(&self.name_buffer, None));
-            let mut text_sprite = gfx::Sprite::new();
-            text_sprite.texture = text_texture;
-            text_sprite.orientation = gfx::CENTER;
-            text_sprite.scale = 3.0;
+        if self.mode == EditMode::Name {
+            self.render_rename_overlay(graphics_context, pos, size);
+        }
+        if self.mode == EditMode::Resize {
+            self.render_resize_overlay(graphics_context, pos, size);
+        }
+    }
+
+    fn render_rename_overlay(
+        &self,
+        graphics_context: &gfx::GraphicsContext,
+        pos: gfx::FloatPos,
+        size: gfx::FloatSize,
+    ) {
+        let font = &graphics_context.font;
+        let text_texture =
+            gfx::Texture::load_from_surface(&font.create_text_surface(&self.name_buffer, None));
+        let mut text_sprite = gfx::Sprite::new();
+        text_sprite.texture = text_texture;
+        text_sprite.orientation = gfx::CENTER;
+        text_sprite.scale = 3.0;
+        let container = gfx::Container::new(graphics_context, pos, size, gfx::TOP_LEFT, None);
+        text_sprite.render(graphics_context, Some(&container));
+    }
+
+    fn render_resize_overlay(
+        &self,
+        graphics_context: &gfx::GraphicsContext,
+        pos: gfx::FloatPos,
+        size: gfx::FloatSize,
+    ) {
+        let vertical_resize_texture =
+            include_bytes!("../../Build/Resources/vertical_resize_arrow.opa");
+        let horizontal_resize_texture =
+            include_bytes!("../../Build/Resources/horizontal_resize_arrow.opa");
+        if let ModuleTreeNodeType::Split(node) = self.get_node(None, self.depth) {
+            let texture: &[u8] = if matches!(node.orientation, SplitType::Horizontal) {
+                vertical_resize_texture
+            } else {
+                horizontal_resize_texture
+            };
+            //TODO: cache this and the name text texture
+            let texture = gfx::Texture::load_from_surface(
+                &gfx::Surface::deserialize_from_bytes(texture)
+                    .unwrap_or_else(|_| gfx::Surface::new(gfx::IntSize(0, 0))),
+            );
+            let mut sprite = gfx::Sprite::new();
+            sprite.texture = texture;
+            sprite.orientation = gfx::CENTER;
+            sprite.scale = 4.0;
             let container = gfx::Container::new(graphics_context, pos, size, gfx::TOP_LEFT, None);
-            text_sprite.render(graphics_context, Some(&container));
+            sprite.render(graphics_context, Some(&container));
         }
     }
 
