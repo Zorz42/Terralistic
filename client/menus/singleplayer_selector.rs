@@ -145,7 +145,7 @@ impl World {
     /// This function renders the world card on the x and y position.
     pub fn render(
         &mut self,
-        graphics: &mut gfx::GraphicsContext,
+        graphics: &gfx::GraphicsContext,
         pos: gfx::FloatPos,
         parent_container: Option<&gfx::Container>,
     ) {
@@ -340,7 +340,7 @@ fn update_elements(
                         run_world_creation(
                             graphics,
                             menu_back,
-                            &mut elements.world_list.worlds,
+                            &elements.world_list.worlds,
                             settings,
                             global_settings,
                         );

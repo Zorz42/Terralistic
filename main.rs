@@ -240,7 +240,7 @@ fn client_main() {
         println!("Failed to set minimum window size");
     }
 
-    let mut menu_back = MenuBack::new(&mut graphics);
+    let mut menu_back = MenuBack::new(&graphics);
 
     let base_dirs;
     if let Some(base_dirs_) = BaseDirs::new() {

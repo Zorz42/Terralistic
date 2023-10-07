@@ -16,7 +16,7 @@ pub struct ChatLine {
 }
 
 impl ChatLine {
-    pub fn new(graphics: &mut gfx::GraphicsContext, text: &str, pos: gfx::FloatPos) -> Self {
+    pub fn new(graphics: &gfx::GraphicsContext, text: &str, pos: gfx::FloatPos) -> Self {
         let texture =
             gfx::Texture::load_from_surface(&graphics.font.create_text_surface(text, None));
         let mut back_rect = gfx::RenderRect::new(
@@ -36,7 +36,7 @@ impl ChatLine {
         }
     }
 
-    pub fn render(&mut self, graphics: &mut gfx::GraphicsContext, focused: bool) {
+    pub fn render(&mut self, graphics: &gfx::GraphicsContext, focused: bool) {
         let target_transparency =
             if focused || (self.creation_time.elapsed().as_millis() as i32) < 5000 {
                 255
@@ -87,7 +87,7 @@ pub struct ClientChat {
 }
 
 impl ClientChat {
-    pub fn new(graphics: &mut gfx::GraphicsContext) -> Self {
+    pub fn new(graphics: &gfx::GraphicsContext) -> Self {
         Self {
             text_input: gfx::TextInput::new(graphics),
             back_rect: gfx::RenderRect::new(gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, 0.0)),
@@ -110,7 +110,7 @@ impl ClientChat {
         self.back_rect.shadow_intensity = gfx::SHADOW_INTENSITY;
     }
 
-    pub fn render(&mut self, graphics: &mut gfx::GraphicsContext) {
+    pub fn render(&mut self, graphics: &gfx::GraphicsContext) {
         if self.text_input.selected {
             self.back_rect.size.0 = gfx::TEXT_INPUT_WIDTH * self.text_input.scale;
         } else {

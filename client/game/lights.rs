@@ -21,7 +21,7 @@ impl LightChunk {
 
     pub fn render(
         &mut self,
-        graphics: &mut gfx::GraphicsContext,
+        graphics: &gfx::GraphicsContext,
         world_x: i32,
         world_y: i32,
         lights: &Lights,
@@ -123,7 +123,7 @@ impl ClientLights {
 
     pub fn render(
         &mut self,
-        graphics: &mut gfx::GraphicsContext,
+        graphics: &gfx::GraphicsContext,
         camera: &Camera,
         blocks: &Blocks,
         events: &mut EventManager,

@@ -4,7 +4,6 @@ use anyhow::Result;
 
 use crate::gfx;
 use crate::libraries::events::Event;
-use crate::libraries::graphics::GraphicsContext;
 use crate::shared::entities::{Entities, HealthChangePacket, PositionComponent};
 use crate::shared::mod_manager::ModManager;
 use crate::shared::packet::Packet;
@@ -63,7 +62,7 @@ impl ClientHealth {
         self.hearts_rect_array.update();
     }
 
-    pub fn load_resources(&mut self, mods: &mut ModManager) -> Result<()> {
+    pub fn load_resources(&mut self, mods: &ModManager) -> Result<()> {
         let hearts_surface = gfx::Surface::deserialize_from_bytes(
             mods.get_resource("misc:hearts.opa").ok_or_else(|| {
                 anyhow::anyhow!("Failed to load misc:hearts.opa from mod manager")
@@ -76,7 +75,7 @@ impl ClientHealth {
         Ok(())
     }
 
-    pub fn render(&mut self, graphics: &mut gfx::GraphicsContext) {
+    pub fn render(&mut self, graphics: &gfx::GraphicsContext) {
         let pos_x = graphics.renderer.get_window_size().0 - 10.0 * HEART_WIDTH - gfx::SPACING;
         self.hearts_rect_array.render(
             graphics,
@@ -88,10 +87,10 @@ impl ClientHealth {
     pub fn on_event(
         &mut self,
         event: &Event,
-        graphics: &mut GraphicsContext,
+        graphics: &gfx::GraphicsContext,
         floating_texts: &mut FloatingTextManager,
-        players: &mut ClientPlayers,
-        entities: &mut Entities,
+        players: &ClientPlayers,
+        entities: &Entities,
     ) {
         if let Some(packet) = event.downcast::<Packet>() {
             if let Some(packet) = packet.try_deserialize::<HealthChangePacket>() {

@@ -2,6 +2,8 @@ use crate::client::game::camera::Camera;
 use crate::libraries::graphics as gfx;
 use crate::shared::blocks::RENDER_BLOCK_WIDTH;
 
+const FADE_OUT_TIME_MS: i32 = 1000;
+
 /// Floating text is text that randomly appears in the map and stays there.
 /// It is used to display health changes, damage, chats, etc.
 pub struct FloatingText {
@@ -19,7 +21,7 @@ impl FloatingText {
     /// If the font couldn't be loaded.
     #[must_use]
     pub fn new(
-        graphics: &mut gfx::GraphicsContext,
+        graphics: &gfx::GraphicsContext,
         text: &str,
         x: f32,
         y: f32,
@@ -40,7 +42,7 @@ impl FloatingText {
         }
     }
 
-    fn render(&self, graphics: &mut gfx::GraphicsContext, camera: &Camera) {
+    fn render(&self, graphics: &gfx::GraphicsContext, camera: &Camera) {
         let camera_pos = camera.get_top_left(graphics);
         let texture_size = self.text_texture.get_texture_size();
 
@@ -58,7 +60,7 @@ impl FloatingText {
     }
 
     fn is_dead(&self) -> bool {
-        self.spawn_time.elapsed().as_millis() as i32 > self.lifetime_ms
+        self.spawn_time.elapsed().as_millis() as i32 > self.lifetime_ms + FADE_OUT_TIME_MS
     }
 }
 
@@ -74,7 +76,7 @@ impl FloatingTextManager {
         }
     }
 
-    pub fn render(&mut self, graphics: &mut gfx::GraphicsContext, camera: &Camera) {
+    pub fn render(&mut self, graphics: &gfx::GraphicsContext, camera: &Camera) {
         for floating_text in &self.floating_texts {
             floating_text.render(graphics, camera);
         }

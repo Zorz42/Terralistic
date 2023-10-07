@@ -125,12 +125,12 @@ pub fn run_game(
     inventory.init();
     lights.init(&blocks.get_blocks())?;
 
-    blocks.load_resources(&mut mods.mod_manager)?;
-    walls.load_resources(&mut mods.mod_manager)?;
-    items.load_resources(&mut mods.mod_manager)?;
+    blocks.load_resources(&mods.mod_manager)?;
+    walls.load_resources(&mods.mod_manager)?;
+    items.load_resources(&mods.mod_manager)?;
     camera.load_resources(graphics);
-    players.load_resources(&mut mods.mod_manager)?;
-    health.load_resources(&mut mods.mod_manager)?;
+    players.load_resources(&mods.mod_manager)?;
+    health.load_resources(&mods.mod_manager)?;
 
     pause_menu.init(graphics, settings);
     debug_menu.init();
@@ -203,7 +203,7 @@ pub fn run_game(
             if chat.on_event(&event, graphics, &mut networking)? {
                 continue;
             }
-            inventory.on_event(&event, &mut networking, &mut items)?;
+            inventory.on_event(&event, &mut networking, &items)?;
             mods.on_event(&event)?;
             blocks.on_event(&event, &mut events, &mut mods.mod_manager)?;
             walls.on_event(&event)?;
@@ -217,8 +217,8 @@ pub fn run_game(
                 &event,
                 graphics,
                 &mut floating_text,
-                &mut players,
-                &mut entities.entities,
+                &players,
+                &entities.entities,
             );
             if pause_menu.on_event(&event, graphics, settings) {
                 break 'main_loop;

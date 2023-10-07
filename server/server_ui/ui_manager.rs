@@ -52,9 +52,9 @@ impl UiManager {
             window_size: gfx::FloatSize(0.0, 0.0),
         };
         temp.modules = vec![
-            Box::new(server_info::ServerInfo::new(&mut temp.graphics_context)),
-            Box::new(player_list::PlayerList::new(&mut temp.graphics_context)),
-            Box::new(console::Console::new(&mut temp.graphics_context)),
+            Box::new(server_info::ServerInfo::new(&temp.graphics_context)),
+            Box::new(player_list::PlayerList::new(&temp.graphics_context)),
+            Box::new(console::Console::new(&temp.graphics_context)),
         ];
         temp
     }
@@ -138,15 +138,13 @@ impl UiManager {
             .render(&self.graphics_context, gfx::DARK_GREY);
 
             if self.module_edit_mode {
-                self.module_manager
-                    .render_selection(&mut self.graphics_context);
+                self.module_manager.render_selection(&self.graphics_context);
             }
 
             self.render_modules();
 
             if self.module_edit_mode {
-                self.module_manager
-                    .render_overlay(&mut self.graphics_context);
+                self.module_manager.render_overlay(&self.graphics_context);
             }
 
             //display the frame
@@ -354,7 +352,7 @@ impl UiManager {
             module
         } else {
             let module = Box::new(empty_module::EmptyModule::new(
-                &mut self.graphics_context,
+                &self.graphics_context,
                 module_name.to_owned(),
             ));
             self.modules.push(module);

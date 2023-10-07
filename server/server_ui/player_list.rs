@@ -21,7 +21,7 @@ pub struct PlayerCard {
 
 impl PlayerCard {
     pub fn new(
-        graphics_context: &mut gfx::GraphicsContext,
+        graphics_context: &gfx::GraphicsContext,
         name: String,
         connection: SocketAddr,
     ) -> Self {
@@ -50,7 +50,7 @@ impl PlayerCard {
         }
     }
 
-    pub fn render(&mut self, graphics_context: &mut gfx::GraphicsContext) {
+    pub fn render(&mut self, graphics_context: &gfx::GraphicsContext) {
         //background
         let mut rect = gfx::RenderRect::new(gfx::FloatPos(0.0, 0.0), self.container.rect.size);
         rect.fill_color = gfx::DARK_GREY;
@@ -81,7 +81,7 @@ pub struct PlayerList {
 }
 
 impl PlayerList {
-    pub fn new(graphics_context: &mut gfx::GraphicsContext) -> Self {
+    pub fn new(graphics_context: &gfx::GraphicsContext) -> Self {
         Self {
             player_cards: Vec::new(),
             container: gfx::Container::new(

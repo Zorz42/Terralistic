@@ -221,11 +221,11 @@ pub fn give_command(parameters: &mut CommandParameters) -> anyhow::Result<String
     if let Some(player_name) = player_name {
         player = parameters
             .players
-            .get_player_entity_from_name(player_name, &mut parameters.entities.entities)?;
+            .get_player_entity_from_name(player_name, &parameters.entities.entities)?;
     } else if let Some(executor) = parameters.executor {
         player = parameters
             .players
-            .get_player_entity_from_name(executor, &mut parameters.entities.entities)?;
+            .get_player_entity_from_name(executor, &parameters.entities.entities)?;
     } else {
         return Err(anyhow!(
             "No player specified when the executor is a server console"

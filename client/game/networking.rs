@@ -93,7 +93,7 @@ impl ClientNetworking {
         server_port: u16,
         player_name: &str,
     ) -> Result<()> {
-        let (mut handler, listener) = node::split();
+        let (handler, listener) = node::split();
 
         let server_addr = format!("{server_address}:{server_port}");
         let (server_endpoint, _) = handler
@@ -102,7 +102,7 @@ impl ClientNetworking {
             .unwrap();
 
         Self::send_packet_internal(
-            &mut handler,
+            &handler,
             &Packet::new(NamePacket {
                 name: player_name.to_owned(),
             })?,
@@ -149,14 +149,13 @@ impl ClientNetworking {
                             event_sender.send(events::Event::new(packet)).ok();
                         }
                     },
-                    NodeEvent::Signal(_) => {
+                    NodeEvent::Signal(()) => {
                         if !is_running.load(Ordering::Relaxed) {
                             handler.stop();
                         }
 
                         while let Ok(packet) = packet_receiver.try_recv() {
-                            Self::send_packet_internal(&mut handler, &packet, server_endpoint)
-                                .unwrap();
+                            Self::send_packet_internal(&handler, &packet, server_endpoint).unwrap();
                         }
 
                         handler
@@ -185,7 +184,7 @@ impl ClientNetworking {
     }
 
     fn send_packet_internal(
-        net_client: &mut NodeHandler<()>,
+        net_client: &NodeHandler<()>,
         packet: &Packet,
         endpoint: Endpoint,
     ) -> Result<()> {

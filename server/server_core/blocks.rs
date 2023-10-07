@@ -55,9 +55,9 @@ impl ServerBlocks {
         event: &Event,
         events: &mut EventManager,
         networking: &mut ServerNetworking,
-        entities: &mut Entities,
-        players: &mut ServerPlayers,
-        items: &mut Items,
+        entities: &Entities,
+        players: &ServerPlayers,
+        items: &Items,
         mods: &mut ModManager,
     ) -> Result<()> {
         self.flush_mods_events(events);

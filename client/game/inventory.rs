@@ -163,7 +163,7 @@ impl ClientInventory {
     #[allow(clippy::too_many_lines)]
     pub fn render(
         &mut self,
-        graphics: &mut gfx::GraphicsContext,
+        graphics: &gfx::GraphicsContext,
         items: &ClientItems,
         networking: &mut ClientNetworking,
     ) -> Result<()> {
@@ -363,7 +363,7 @@ impl ClientInventory {
         &mut self,
         event: &Event,
         networking: &mut ClientNetworking,
-        items: &mut ClientItems,
+        items: &ClientItems,
     ) -> Result<()> {
         if let Some(gfx::Event::KeyPress { 0: key, .. }) = event.downcast::<gfx::Event>() {
             match *key {

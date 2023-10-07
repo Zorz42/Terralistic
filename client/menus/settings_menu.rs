@@ -40,11 +40,7 @@ const SLIDER_WIDTH: f32 = 250.0;
 const SLIDER_BUTTON_WIDTH: f32 = 10.0;
 const SLIDER_HEIGHT: f32 = 50.0;
 
-fn setting_to_ui(
-    graphics: &mut gfx::GraphicsContext,
-    setting: &Setting,
-    setting_id: i32,
-) -> SettingUi {
+fn setting_to_ui(graphics: &gfx::GraphicsContext, setting: &Setting, setting_id: i32) -> SettingUi {
     let text = match setting {
         Setting::Toggle { text, .. }
         | Setting::Choice { text, .. }
@@ -134,7 +130,7 @@ fn setting_to_ui(
 
 #[allow(clippy::too_many_lines)]
 fn render_setting_ui(
-    graphics: &mut gfx::GraphicsContext,
+    graphics: &gfx::GraphicsContext,
     setting: &mut SettingUi,
     settings: &mut Settings,
     y: f32,
@@ -414,7 +410,7 @@ impl SettingsMenu {
         }
     }
 
-    pub fn init(&mut self, graphics: &mut gfx::GraphicsContext, settings: &Settings) {
+    pub fn init(&mut self, graphics: &gfx::GraphicsContext, settings: &Settings) {
         self.back_button.scale = 3.0;
         self.back_button.texture =
             gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Back", None));
@@ -431,7 +427,7 @@ impl SettingsMenu {
     }
 
     /// returns the required width of background container
-    pub fn render(&mut self, graphics: &mut gfx::GraphicsContext, settings: &mut Settings) -> f32 {
+    pub fn render(&mut self, graphics: &gfx::GraphicsContext, settings: &mut Settings) -> f32 {
         self.back_button.render(graphics, None);
 
         let mut y = gfx::SPACING;
@@ -447,7 +443,7 @@ impl SettingsMenu {
     pub fn on_event(
         &mut self,
         event: &gfx::Event,
-        graphics: &mut gfx::GraphicsContext,
+        graphics: &gfx::GraphicsContext,
         settings: &mut Settings,
     ) -> bool {
         if let gfx::Event::KeyRelease(gfx::Key::MouseLeft, ..) = event {

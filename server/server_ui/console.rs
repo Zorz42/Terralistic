@@ -26,13 +26,12 @@ pub struct ConsoleLine {
 }
 
 impl ConsoleLine {
-    pub fn new(graphics_context: &mut gfx::GraphicsContext, text: String) -> Self {
+    pub fn new(graphics_context: &gfx::GraphicsContext, text: String) -> Self {
         let mut sprite = gfx::Sprite::new();
-        let font = if let Some(mono_font) = &graphics_context.font_mono {
-            mono_font
-        } else {
-            &graphics_context.font
-        };
+        let font = graphics_context
+            .font_mono
+            .as_ref()
+            .map_or(&graphics_context.font, |mono_font| mono_font);
         sprite.texture = gfx::Texture::load_from_surface(&font.create_text_surface(&text, None));
         sprite.orientation = gfx::BOTTOM_LEFT;
         sprite.color = gfx::WHITE;
@@ -46,7 +45,7 @@ impl ConsoleLine {
 
     pub fn render(
         &mut self,
-        graphics_context: &mut gfx::GraphicsContext,
+        graphics_context: &gfx::GraphicsContext,
         container: &gfx::Container,
         max_y: f32,
         min_y: f32,
@@ -69,7 +68,7 @@ pub struct Console {
 }
 
 impl Console {
-    pub fn new(graphics_context: &mut gfx::GraphicsContext) -> Self {
+    pub fn new(graphics_context: &gfx::GraphicsContext) -> Self {
         Self {
             text_lines: Vec::new(),
             container: gfx::Container::new(
@@ -89,7 +88,7 @@ impl Console {
     fn add_line(
         &mut self,
         message: String,
-        graphics_context: &mut gfx::GraphicsContext,
+        graphics_context: &gfx::GraphicsContext,
         color: gfx::Color,
     ) {
         //add a line

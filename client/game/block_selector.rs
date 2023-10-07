@@ -27,7 +27,7 @@ impl BlockSelector {
     }
 
     /// This function gets the current block that is selected.
-    pub fn get_selected_block(graphics: &mut gfx::GraphicsContext, camera: &Camera) -> (i32, i32) {
+    pub fn get_selected_block(graphics: &gfx::GraphicsContext, camera: &Camera) -> (i32, i32) {
         let mouse_x = graphics.renderer.get_mouse_pos().0;
         let mouse_y = graphics.renderer.get_mouse_pos().1;
 
@@ -43,7 +43,7 @@ impl BlockSelector {
     /// This function is called on every frame
     pub fn render(
         &mut self,
-        graphics: &mut gfx::GraphicsContext,
+        graphics: &gfx::GraphicsContext,
         networking: &mut ClientNetworking,
         camera: &Camera,
     ) -> Result<()> {
@@ -93,7 +93,7 @@ impl BlockSelector {
     /// This function is called on some event
     pub fn on_event(
         &mut self,
-        graphics: &mut gfx::GraphicsContext,
+        graphics: &gfx::GraphicsContext,
         networking: &mut ClientNetworking,
         camera: &Camera,
         event: &Event,

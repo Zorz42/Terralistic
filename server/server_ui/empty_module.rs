@@ -12,7 +12,7 @@ pub struct EmptyModule {
 }
 
 impl EmptyModule {
-    pub fn new(graphics_context: &mut GraphicsContext, name: String) -> Self {
+    pub fn new(graphics_context: &GraphicsContext, name: String) -> Self {
         Self {
             container: Container::new(
                 graphics_context,

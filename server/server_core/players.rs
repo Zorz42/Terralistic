@@ -264,7 +264,7 @@ impl ServerPlayers {
     pub fn get_player_entity_from_name(
         &mut self,
         name: &str,
-        entities: &mut Entities,
+        entities: &Entities,
     ) -> Result<&mut Entity> {
         for e in &mut self.conns_to_players {
             let e_component = entities.ecs.get::<&mut PlayerComponent>(*e.1)?;

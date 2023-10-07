@@ -29,7 +29,7 @@ impl DebugMenu {
         self.back_rect.size.1 = 200.0;
     }
 
-    pub fn render(&mut self, graphics: &mut gfx::GraphicsContext, lines: &[String]) {
+    pub fn render(&mut self, graphics: &gfx::GraphicsContext, lines: &[String]) {
         self.back_rect.pos.0 = if self.open {
             -gfx::SPACING
         } else {

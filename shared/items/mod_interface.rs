@@ -15,7 +15,7 @@ impl rlua::UserData for ItemId {}
 /// # Errors
 /// if the function fails to add the lua functions
 pub fn init_items_mod_interface(items: &Arc<Mutex<Items>>, mods: &mut ModManager) -> Result<()> {
-    mods.add_global_function("new_item_type", move |_lua, _: ()| Ok(Item::new()))?;
+    mods.add_global_function("new_item_type", move |_lua, ()| Ok(Item::new()))?;
 
     let items_clone = items.clone();
     mods.add_global_function("register_item_type", move |_lua, item_type: Item| {

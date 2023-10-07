@@ -116,7 +116,7 @@ impl ServerCard {
     /// This function renders the server card on the x and y position.
     pub fn render(
         &mut self,
-        graphics: &mut gfx::GraphicsContext,
+        graphics: &gfx::GraphicsContext,
         pos: gfx::FloatPos,
         parent_container: Option<&gfx::Container>,
     ) {

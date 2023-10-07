@@ -31,7 +31,7 @@ impl ClientItems {
         init_items_mod_interface(&self.items, mods)
     }
 
-    pub fn load_resources(&mut self, mods: &mut ModManager) -> Result<()> {
+    pub fn load_resources(&mut self, mods: &ModManager) -> Result<()> {
         // go through all the item types get their images and load them
         let mut surfaces = HashMap::new();
         let item_ids = self.get_items().get_all_item_type_ids();
@@ -76,7 +76,7 @@ impl ClientItems {
 
     pub fn render(
         &self,
-        graphics: &mut gfx::GraphicsContext,
+        graphics: &gfx::GraphicsContext,
         camera: &Camera,
         entities: &mut Entities,
     ) -> Result<()> {

@@ -3,7 +3,6 @@ use std::sync::Arc;
 use std::sync::{Mutex, PoisonError};
 
 use anyhow::Result;
-use rlua::UserDataMethods;
 
 use crate::libraries::events::{Event, EventManager};
 use crate::shared::blocks::{Block, BlockBreakEvent, BlockId, Blocks, Tool, ToolId};
@@ -29,7 +28,7 @@ pub fn init_blocks_mod_interface(
 ) -> Result<Receiver<Event>> {
     let (sender, receiver) = std::sync::mpsc::channel();
 
-    mods.add_global_function("new_block_type", move |_lua, _: ()| Ok(Block::new()))?;
+    mods.add_global_function("new_block_type", move |_lua, ()| Ok(Block::new()))?;
 
     let mut blocks2 = blocks.clone();
     mods.add_global_function("register_block_type", move |_lua, block_type: Block| {
@@ -172,7 +171,7 @@ pub fn handle_event_for_blocks_interface(mods: &mut ModManager, event: &Event) -
 
 /// make `BlockType` Lua compatible, implement getter and setter for every field except id
 impl rlua::UserData for Block {
-    fn add_methods<'lua, M: UserDataMethods<'lua, Self>>(methods: &mut M) {
+    fn add_methods<'lua, M: rlua::UserDataMethods<'lua, Self>>(methods: &mut M) {
         // add meta method to set fields, id and image are not accessible
         methods.add_meta_method_mut(
             rlua::MetaMethod::NewIndex,

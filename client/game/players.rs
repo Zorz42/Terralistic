@@ -30,7 +30,7 @@ impl ClientPlayers {
         }
     }
 
-    pub fn load_resources(&mut self, mods: &mut ModManager) -> Result<()> {
+    pub fn load_resources(&mut self, mods: &ModManager) -> Result<()> {
         let mut template_surface = gfx::Surface::deserialize_from_bytes(
             mods.get_resource("misc:skin_template.opa").ok_or_else(|| {
                 anyhow::anyhow!("Failed to load misc:skin_template.opa from mod manager")
@@ -101,7 +101,7 @@ impl ClientPlayers {
 
     pub fn update(
         &mut self,
-        graphics: &mut gfx::GraphicsContext,
+        graphics: &gfx::GraphicsContext,
         entities: &mut Entities,
         networking: &mut ClientNetworking,
         blocks: &Blocks,
@@ -137,7 +137,7 @@ impl ClientPlayers {
 
     pub fn render(
         &self,
-        graphics: &mut gfx::GraphicsContext,
+        graphics: &gfx::GraphicsContext,
         entities: &mut Entities,
         camera: &Camera,
     ) {

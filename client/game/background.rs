@@ -23,7 +23,7 @@ impl Background {
         Ok(())
     }
 
-    pub fn render(&self, graphics: &mut gfx::GraphicsContext, camera: &Camera) {
+    pub fn render(&self, graphics: &gfx::GraphicsContext, camera: &Camera) {
         //float scale = (float)gfx::getWindowHeight() / background.getTextureHeight();
         let scale = graphics.renderer.get_window_size().1 / self.image.get_texture_size().1;
         //int position_x = -int(camera->getX() * scale / 20) % int(background.getTextureWidth() * scale);

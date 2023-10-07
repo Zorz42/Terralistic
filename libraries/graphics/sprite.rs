@@ -35,9 +35,10 @@ impl Sprite {
     }
 
     /// Generates containers for the sprite.
+    #[must_use]
     pub fn get_container(
         &self,
-        graphics: &mut gfx::GraphicsContext,
+        graphics: &gfx::GraphicsContext,
         parent: Option<&gfx::Container>,
     ) -> gfx::Container {
         gfx::Container::new(
@@ -50,7 +51,7 @@ impl Sprite {
     }
 
     /// Renders the sprite.
-    pub fn render(&self, graphics: &mut gfx::GraphicsContext, parent: Option<&gfx::Container>) {
+    pub fn render(&self, graphics: &gfx::GraphicsContext, parent: Option<&gfx::Container>) {
         let container = self.get_container(graphics, parent);
         self.texture.render(
             &graphics.renderer,

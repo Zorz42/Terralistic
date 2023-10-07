@@ -16,7 +16,7 @@ pub struct MenuBack {
 impl MenuBack {
     /// Creates a new `MenuBack`.
     #[must_use]
-    pub fn new(graphics: &mut gfx::GraphicsContext) -> Self {
+    pub fn new(graphics: &gfx::GraphicsContext) -> Self {
         let mut back_rect = gfx::RenderRect::new(gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, 0.0));
         back_rect.border_color = gfx::BORDER_COLOR;
         back_rect.fill_color.a = gfx::TRANSPARENCY;

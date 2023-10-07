@@ -98,7 +98,7 @@ impl Walls {
     /// # Errors
     /// Returns an error if the functions couldn't be added to the lua state.
     pub fn init(&mut self, mods: &mut ModManager) -> Result<()> {
-        mods.add_global_function("new_wall_type", move |_lua, _: ()| Ok(Wall::new()))?;
+        mods.add_global_function("new_wall_type", move |_lua, ()| Ok(Wall::new()))?;
 
         let mut wall_types = self.wall_types.clone();
         mods.add_global_function("register_wall_type", move |_lua, wall_type: Wall| {

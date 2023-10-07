@@ -22,7 +22,7 @@ fn world_name_exists(worlds_list: &Vec<World>, name: &str) -> bool {
 pub fn run_world_creation(
     graphics: &mut gfx::GraphicsContext,
     menu_back: &mut dyn BackgroundRect,
-    worlds_list: &mut Vec<World>,
+    worlds_list: &Vec<World>,
     settings: &mut Settings,
     global_settings: &mut GlobalSettings,
 ) {

@@ -25,7 +25,7 @@ impl Camera {
         }
     }
 
-    pub fn load_resources(&mut self, graphics: &mut gfx::GraphicsContext) {
+    pub fn load_resources(&mut self, graphics: &gfx::GraphicsContext) {
         self.detached_camera_text.texture = gfx::Texture::load_from_surface(
             &graphics
                 .font
@@ -48,7 +48,7 @@ impl Camera {
         gfx::FloatPos(self.position_x, self.position_y)
     }
 
-    pub fn update_ms(&mut self, graphics: &mut gfx::GraphicsContext) {
+    pub fn update_ms(&mut self, graphics: &gfx::GraphicsContext) {
         self.position_x += (self.target_position_x - self.position_x) * 0.03;
         self.position_y += (self.target_position_y - self.position_y) * 0.03;
 
@@ -71,14 +71,14 @@ impl Camera {
         }
     }
 
-    pub fn render(&self, graphics: &mut gfx::GraphicsContext) {
+    pub fn render(&self, graphics: &gfx::GraphicsContext) {
         if self.detached_camera {
             self.detached_camera_text.render(graphics, None);
         }
     }
 
     /// This function gets the position of the top left corner of the screen in world coordinates.
-    pub fn get_top_left(&self, graphics: &mut gfx::GraphicsContext) -> (f32, f32) {
+    pub fn get_top_left(&self, graphics: &gfx::GraphicsContext) -> (f32, f32) {
         let width = graphics.renderer.get_window_size().0 / RENDER_BLOCK_WIDTH;
         let height = graphics.renderer.get_window_size().1 / RENDER_BLOCK_WIDTH;
         (
@@ -88,7 +88,7 @@ impl Camera {
     }
 
     /// This function gets the position of the bottom right corner of the screen in world coordinates.
-    pub fn get_bottom_right(&self, graphics: &mut gfx::GraphicsContext) -> (f32, f32) {
+    pub fn get_bottom_right(&self, graphics: &gfx::GraphicsContext) -> (f32, f32) {
         let width = graphics.renderer.get_window_size().0 / RENDER_BLOCK_WIDTH;
         let height = graphics.renderer.get_window_size().1 / RENDER_BLOCK_WIDTH;
         (

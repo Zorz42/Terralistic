@@ -46,7 +46,7 @@ pub struct ServerInfo {
 
 impl ServerInfo {
     #[allow(clippy::default_trait_access)]
-    pub fn new(graphics_context: &mut gfx::GraphicsContext) -> Self {
+    pub fn new(graphics_context: &gfx::GraphicsContext) -> Self {
         Self {
             player_count_sprite: gfx::Sprite::new(),
             players_count: 0,
@@ -71,7 +71,7 @@ impl ServerInfo {
         }
     }
 
-    fn update_state_sprite(&mut self, graphics_context: &mut gfx::GraphicsContext) {
+    fn update_state_sprite(&mut self, graphics_context: &gfx::GraphicsContext) {
         let state_str = match self.server_state_enum {
             ServerState::Nothing => "Nothing",
             ServerState::Starting => "Starting",

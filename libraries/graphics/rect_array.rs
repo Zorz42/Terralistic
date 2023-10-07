@@ -75,7 +75,7 @@ impl RectArray {
     /// Draws the `RectArray`.
     pub fn render(
         &self,
-        graphics: &mut gfx::GraphicsContext,
+        graphics: &gfx::GraphicsContext,
         texture: Option<&gfx::Texture>,
         pos: gfx::FloatPos,
     ) {
@@ -95,22 +95,25 @@ impl RectArray {
                 transform.matrix.as_ptr(),
             );
 
-            if let Some(texture) = texture {
-                transform = texture.get_normalization_transform();
-                gl::UniformMatrix3fv(
-                    graphics
-                        .renderer
-                        .passthrough_shader
-                        .texture_transform_matrix,
-                    1,
-                    gl::FALSE,
-                    transform.matrix.as_ptr(),
-                );
-                gl::Uniform1i(graphics.renderer.passthrough_shader.has_texture, 1);
-                gl::BindTexture(gl::TEXTURE_2D, texture.texture_handle);
-            } else {
-                gl::Uniform1i(graphics.renderer.passthrough_shader.has_texture, 0);
-            }
+            texture.map_or_else(
+                || {
+                    gl::Uniform1i(graphics.renderer.passthrough_shader.has_texture, 0);
+                },
+                |texture| {
+                    transform = texture.get_normalization_transform();
+                    gl::UniformMatrix3fv(
+                        graphics
+                            .renderer
+                            .passthrough_shader
+                            .texture_transform_matrix,
+                        1,
+                        gl::FALSE,
+                        transform.matrix.as_ptr(),
+                    );
+                    gl::Uniform1i(graphics.renderer.passthrough_shader.has_texture, 1);
+                    gl::BindTexture(gl::TEXTURE_2D, texture.texture_handle);
+                },
+            );
 
             gl::Uniform4f(
                 graphics.renderer.passthrough_shader.global_color,

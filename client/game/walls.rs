@@ -31,7 +31,7 @@ impl RenderWallChunk {
 
     pub fn render(
         &mut self,
-        graphics: &mut gfx::GraphicsContext,
+        graphics: &gfx::GraphicsContext,
         atlas: &gfx::TextureAtlas<WallId>,
         world_x: i32,
         world_y: i32,
@@ -157,7 +157,7 @@ impl ClientWalls {
         self.walls.init(mods)
     }
 
-    pub fn load_resources(&mut self, mods: &mut ModManager) -> Result<()> {
+    pub fn load_resources(&mut self, mods: &ModManager) -> Result<()> {
         for _ in 0..self.walls.get_width() as i32 / CHUNK_SIZE * self.walls.get_height() as i32
             / CHUNK_SIZE
         {
@@ -187,7 +187,7 @@ impl ClientWalls {
         Ok(())
     }
 
-    pub fn render(&mut self, graphics: &mut gfx::GraphicsContext, camera: &Camera) -> Result<()> {
+    pub fn render(&mut self, graphics: &gfx::GraphicsContext, camera: &Camera) -> Result<()> {
         let (top_left_x, top_left_y) = camera.get_top_left(graphics);
         let (bottom_right_x, bottom_right_y) = camera.get_bottom_right(graphics);
 

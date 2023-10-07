@@ -93,7 +93,7 @@ impl ServerNetworking {
         is_running: &Arc<AtomicBool>,
         server_port: u16,
     ) -> Result<()> {
-        let (mut handler, listener) = node::split::<()>();
+        let (handler, listener) = node::split::<()>();
 
         let listen_addr = format!("127.0.0.1:{server_port}");
         handler
@@ -113,7 +113,7 @@ impl ServerNetworking {
                     match event_sender.send(Event::new(DisconnectEvent {
                         conn: Connection { address: peer },
                     })) {
-                        Ok(_) => {}
+                        Ok(()) => {}
                         Err(e) => {
                             println!("Failed to send disconnect event: {e}");
                         }
@@ -127,7 +127,7 @@ impl ServerNetworking {
                             conn: Connection { address: peer },
                             name: packet.name,
                         })) {
-                            Ok(_) => {}
+                            Ok(()) => {}
                             Err(e) => {
                                 print_to_console(
                                     &format!("Failed to send new connection event: {e}"),
@@ -140,7 +140,7 @@ impl ServerNetworking {
                             packet,
                             conn: Connection { address: peer },
                         })) {
-                            Ok(_) => {}
+                            Ok(()) => {}
                             Err(e) => {
                                 print_to_console(
                                     &format!("Failed to send packet from client event: {e}"),
@@ -151,13 +151,13 @@ impl ServerNetworking {
                     }
                 }
             },
-            NodeEvent::Signal(_) => {
+            NodeEvent::Signal(()) => {
                 if !is_running.load(Ordering::Relaxed) {
                     handler.stop();
                 }
 
                 while let Ok((packet_data, conn)) = packet_receiver.try_recv() {
-                    Self::send_packet_internal(&mut handler, &packet_data, &conn).unwrap();
+                    Self::send_packet_internal(&handler, &packet_data, &conn).unwrap();
                 }
 
                 handler
@@ -222,7 +222,7 @@ impl ServerNetworking {
     }
 
     fn send_packet_internal(
-        net_server: &mut NodeHandler<()>,
+        net_server: &NodeHandler<()>,
         packet_data: &[u8],
         conn: &Connection,
     ) -> Result<()> {

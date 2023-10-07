@@ -31,7 +31,7 @@ impl PauseMenu {
         }
     }
 
-    pub fn init(&mut self, graphics: &mut gfx::GraphicsContext, settings: &mut Settings) {
+    pub fn init(&mut self, graphics: &gfx::GraphicsContext, settings: &Settings) {
         self.resume_button.texture =
             gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Resume", None));
         self.resume_button.scale = 3.0;
@@ -129,7 +129,7 @@ impl PauseMenu {
     pub fn on_event(
         &mut self,
         event: &Event,
-        graphics: &mut gfx::GraphicsContext,
+        graphics: &gfx::GraphicsContext,
         settings: &mut Settings,
     ) -> bool {
         if let Some(event) = event.downcast::<gfx::Event>() {

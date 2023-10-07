@@ -78,7 +78,7 @@ impl Scrollable {
     #[must_use]
     pub fn get_scroll_x(
         &self,
-        graphics: &mut gfx::GraphicsContext,
+        graphics: &gfx::GraphicsContext,
         parent_container: Option<&gfx::Container>,
     ) -> f32 {
         let container = self.get_container(graphics, parent_container);

@@ -38,7 +38,8 @@ pub struct TextInput {
 }
 
 impl TextInput {
-    pub fn new(graphics: &mut gfx::GraphicsContext) -> Self {
+    #[must_use]
+    pub fn new(graphics: &gfx::GraphicsContext) -> Self {
         let mut cursor_rect =
             gfx::RenderRect::new(gfx::FloatPos(0.0, 0.0), gfx::FloatSize(1.0, 1.0));
         cursor_rect.smooth_factor = 30.0;
@@ -122,7 +123,7 @@ impl TextInput {
     }
 
     /// sets the hint text in the input box
-    pub fn set_hint(&mut self, graphics: &mut gfx::GraphicsContext, hint: &str) {
+    pub fn set_hint(&mut self, graphics: &gfx::GraphicsContext, hint: &str) {
         self.hint_texture =
             gfx::Texture::load_from_surface(&graphics.font.create_text_surface(hint, None));
     }
