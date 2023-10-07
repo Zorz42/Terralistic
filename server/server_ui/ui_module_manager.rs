@@ -187,74 +187,9 @@ impl ModuleManager {
                     self.mode = EditMode::Name;
                 }
                 if self.mode == EditMode::Select {
-                    match *key {
-                        gfx::Key::Down => {
-                            self.depth += 1;
-                            self.recalculate_selection_rect();
-                        }
-                        gfx::Key::Up => {
-                            if self.depth > 0 {
-                                self.depth -= 1;
-                                self.recalculate_selection_rect();
-                            }
-                        }
-                        gfx::Key::Space => {
-                            if self.depth > 0 {
-                                let path_at_depth = self.path.get_mut(self.depth - 1);
-                                if let Some(path_at_depth) = path_at_depth {
-                                    *path_at_depth = !*path_at_depth;
-                                    self.recalculate_selection_rect();
-                                }
-                            }
-                        }
-                        gfx::Key::V => {
-                            self.split(self.depth, SplitType::Vertical, 0.5);
-                            self.changed = true;
-                        }
-                        gfx::Key::S => {
-                            self.split(self.depth, SplitType::Horizontal, 0.5);
-                            self.changed = true;
-                        }
-                        gfx::Key::Q => {
-                            self.delete(self.depth);
-                            self.recalculate_selection_rect();
-                            self.changed = true;
-                        }
-                        gfx::Key::X => {
-                            self.swap(self.depth);
-                            self.recalculate_selection_rect();
-                            self.changed = true;
-                        }
-                        gfx::Key::R => {
-                            self.root = Self::default_module_tree();
-                            self.recalculate_selection_rect();
-                            self.changed = true;
-                        }
-                        _ => {}
-                    }
+                    self.handle_select_mode_key_events(*key);
                 } else if self.mode == EditMode::Name {
-                    match *key {
-                        gfx::Key::Enter => {
-                            let name = self.name_buffer.clone();
-                            if let Some(node) = self.get_node_by_name_mut(&name) {
-                                *node = ModuleTreeNodeType::Module(Self::get_empty_name());
-                            }
-                            let node = self.get_node_mut(None, self.depth);
-                            *node = ModuleTreeNodeType::Module(name);
-                            self.name_buffer.clear();
-                            self.mode = EditMode::Select;
-                            self.recalculate_selection_rect();
-                            self.changed = true;
-                        }
-                        gfx::Key::Escape => {
-                            self.name_buffer.clear();
-                            self.mode = EditMode::Select;
-                        }
-                        gfx::Key::Backspace => {
-                            self.name_buffer.pop();
-                        }
-                        _ => {}
-                    }
+                    self.handle_rename_mode_key_events(*key);
                 }
             }
             gfx::Event::MouseScroll(_) => {
@@ -269,6 +204,77 @@ impl ModuleManager {
         }
     }
 
+    fn handle_select_mode_key_events(&mut self, key: gfx::Key) {
+        match key {
+            gfx::Key::Down => {
+                self.depth += 1;
+                self.recalculate_selection_rect();
+            }
+            gfx::Key::Up => {
+                if self.depth > 0 {
+                    self.depth -= 1;
+                    self.recalculate_selection_rect();
+                }
+            }
+            gfx::Key::Space => {
+                if self.depth > 0 {
+                    let path_at_depth = self.path.get_mut(self.depth - 1);
+                    if let Some(path_at_depth) = path_at_depth {
+                        *path_at_depth = !*path_at_depth;
+                        self.recalculate_selection_rect();
+                    }
+                }
+            }
+            gfx::Key::V => {
+                self.split(self.depth, SplitType::Vertical, 0.5);
+                self.changed = true;
+            }
+            gfx::Key::S => {
+                self.split(self.depth, SplitType::Horizontal, 0.5);
+                self.changed = true;
+            }
+            gfx::Key::Q => {
+                self.delete(self.depth);
+                self.recalculate_selection_rect();
+                self.changed = true;
+            }
+            gfx::Key::X => {
+                self.swap(self.depth);
+                self.recalculate_selection_rect();
+                self.changed = true;
+            }
+            gfx::Key::R => {
+                self.root = Self::default_module_tree();
+                self.recalculate_selection_rect();
+                self.changed = true;
+            }
+            _ => {}
+        }
+    }
+
+    fn handle_rename_mode_key_events(&mut self, key: gfx::Key) {
+        match key {
+            gfx::Key::Enter => {
+                let name = self.name_buffer.clone();
+                self.replace_module_with_empty(&name);
+                let node = self.get_node_mut(None, self.depth);
+                *node = ModuleTreeNodeType::Module(name);
+                self.name_buffer.clear();
+                self.mode = EditMode::Select;
+                self.recalculate_selection_rect();
+                self.changed = true;
+            }
+            gfx::Key::Escape => {
+                self.name_buffer.clear();
+                self.mode = EditMode::Select;
+            }
+            gfx::Key::Backspace => {
+                self.name_buffer.pop();
+            }
+            _ => {}
+        }
+    }
+
     fn get_node_mut(&mut self, path: Option<&[bool]>, depth: usize) -> &mut ModuleTreeNodeType {
         if self.path.len() < depth + 1 {
             self.path.resize(depth + 1, false);
@@ -276,17 +282,14 @@ impl ModuleManager {
         let mut node = &mut self.root;
         let path = path.unwrap_or(&self.path);
         for &path_at_depth in path.get(0..depth).unwrap_or(&[]) {
-            match node {
-                ModuleTreeNodeType::Split(split_node) => {
-                    node = if path_at_depth {
-                        &mut split_node.second
-                    } else {
-                        &mut split_node.first
-                    };
-                }
-                _ => {
-                    break;
-                }
+            if let ModuleTreeNodeType::Split(split_node) = node {
+                node = if path_at_depth {
+                    &mut split_node.second
+                } else {
+                    &mut split_node.first
+                };
+            } else {
+                break;
             }
         }
         node
@@ -299,12 +302,9 @@ impl ModuleManager {
         name
     }
 
-    #[allow(dead_code)] //will be used
     fn replace_module_with_empty(&mut self, name: &str) {
         if let Some(node) = self.get_node_by_name_mut(name) {
-            if let ModuleTreeNodeType::Module(_) = node {
-                *node = ModuleTreeNodeType::Module(Self::get_empty_name());
-            }
+            *node = ModuleTreeNodeType::Module(Self::get_empty_name());
         }
     }
 
@@ -341,11 +341,9 @@ impl ModuleManager {
         }
 
         let mut temp_node = ModuleTreeNodeType::Nothing;
-        {
-            //isolate in a scope to avoid borrow problems
-            let new_node = self.get_node_mut(Some(&flipped_path), depth); //one of the children that will replace the parent split node
-            std::mem::swap(new_node, &mut temp_node);
-        }
+
+        let new_node = self.get_node_mut(Some(&flipped_path), depth); //one of the children that will replace the parent split node
+        std::mem::swap(new_node, &mut temp_node);
 
         let old_node = self.get_node_mut(None, depth - 1); //the split that will be replaced by one of its children
         std::mem::swap(&mut temp_node, old_node);
