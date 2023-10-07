@@ -175,6 +175,7 @@ impl Server {
     ) -> Result<()> {
         let ms_timer = std::time::Instant::now();
         let mut ms_counter = 0;
+        let mut s_counter = 0;
         let mut last_time = std::time::Instant::now();
 
         self.start(status_text, mods_serialized, world_path)?;
@@ -183,7 +184,7 @@ impl Server {
             let delta_time = last_time.elapsed().as_secs_f32() * 1000.0;
             last_time = std::time::Instant::now();
 
-            self.update(delta_time, ms_timer, &mut ms_counter)?;
+            self.update(delta_time, ms_timer, &mut ms_counter, &mut s_counter)?;
 
             // sleep
             let sleep_time = 1000.0 / self.tps_limit - last_time.elapsed().as_secs_f32() * 1000.0;
@@ -210,6 +211,7 @@ impl Server {
         delta_time: f32,
         ms_timer: std::time::Instant,
         ms_counter: &mut i32,
+        s_counter: &mut i32,
     ) -> Result<()> {
         // update modules
         self.networking.update(&mut self.events)?;
@@ -234,8 +236,9 @@ impl Server {
             *ms_counter += 5;
         }
 
-        if *ms_counter % 1000 == 0 {
+        if *s_counter < *ms_counter / 1000 {
             self.entities.sync_entities(&mut self.networking)?;
+            *s_counter = *ms_counter / 1000;
         }
 
         Ok(())

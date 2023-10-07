@@ -1,10 +1,10 @@
 use crate::client::game::camera::Camera;
 use crate::libraries::graphics as gfx;
+use crate::shared::blocks::RENDER_BLOCK_WIDTH;
 
 /// Floating text is text that randomly appears in the map and stays there.
 /// It is used to display health changes, damage, chats, etc.
 pub struct FloatingText {
-    text: String,
     text_texture: gfx::Texture,
     x: f32,
     y: f32,
@@ -20,7 +20,7 @@ impl FloatingText {
     #[must_use]
     pub fn new(
         graphics: &mut gfx::GraphicsContext,
-        text: String,
+        text: &str,
         x: f32,
         y: f32,
         lifetime_ms: i32,
@@ -28,9 +28,8 @@ impl FloatingText {
         scale: f32,
     ) -> Self {
         let text_texture =
-            gfx::Texture::load_from_surface(&graphics.font.create_text_surface(&text, None));
+            gfx::Texture::load_from_surface(&graphics.font.create_text_surface(text, None));
         Self {
-            text,
             text_texture,
             x,
             y,
@@ -42,13 +41,19 @@ impl FloatingText {
     }
 
     fn render(&self, graphics: &mut gfx::GraphicsContext, camera: &Camera) {
+        let camera_pos = camera.get_top_left(graphics);
+        let texture_size = self.text_texture.get_texture_size();
+
         self.text_texture.render(
             &graphics.renderer,
-            3.0,
-            gfx::FloatPos(self.x, self.y) - camera.get_position(),
+            self.scale,
+            gfx::FloatPos(
+                (self.x - camera_pos.0) * RENDER_BLOCK_WIDTH - texture_size.0 * self.scale / 2.0,
+                (self.y - camera_pos.1) * RENDER_BLOCK_WIDTH - texture_size.1 * self.scale / 2.0,
+            ),
             None,
             false,
-            None,
+            Some(self.color),
         );
     }
 
@@ -63,7 +68,7 @@ pub struct FloatingTextManager {
 }
 
 impl FloatingTextManager {
-    pub fn new() -> Self {
+    pub const fn new() -> Self {
         Self {
             floating_texts: Vec::new(),
         }

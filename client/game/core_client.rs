@@ -213,7 +213,13 @@ pub fn run_game(
             players.on_event(&event, &mut entities.entities)?;
             lights.on_event(&event, &blocks.get_blocks())?;
             camera.on_event(&event);
-            health.on_event(&event);
+            health.on_event(
+                &event,
+                graphics,
+                &mut floating_text,
+                &mut players,
+                &mut entities.entities,
+            );
             if pause_menu.on_event(&event, graphics, settings) {
                 break 'main_loop;
             }

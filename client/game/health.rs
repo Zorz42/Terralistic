@@ -1,10 +1,14 @@
+use crate::client::game::floating_text::{FloatingText, FloatingTextManager};
+use crate::client::game::players::ClientPlayers;
 use anyhow::Result;
 
 use crate::gfx;
 use crate::libraries::events::Event;
-use crate::shared::entities::HealthChangePacket;
+use crate::libraries::graphics::GraphicsContext;
+use crate::shared::entities::{Entities, HealthChangePacket, PositionComponent};
 use crate::shared::mod_manager::ModManager;
 use crate::shared::packet::Packet;
+use crate::shared::players::PLAYER_WIDTH;
 
 const HEART_WIDTH: f32 = 33.0;
 
@@ -81,9 +85,47 @@ impl ClientHealth {
         );
     }
 
-    pub fn on_event(&mut self, event: &Event) {
+    pub fn on_event(
+        &mut self,
+        event: &Event,
+        graphics: &mut GraphicsContext,
+        floating_texts: &mut FloatingTextManager,
+        players: &mut ClientPlayers,
+        entities: &mut Entities,
+    ) {
         if let Some(packet) = event.downcast::<Packet>() {
             if let Some(packet) = packet.try_deserialize::<HealthChangePacket>() {
+                if self.max_health != 0 {
+                    let player_pos = players
+                        .get_main_player()
+                        .and_then(|player| entities.ecs.get::<&PositionComponent>(player).ok());
+
+                    if let Some(player_pos) = player_pos {
+                        let x = player_pos.x() + PLAYER_WIDTH / 2.0;
+                        let y = player_pos.y() - 0.5;
+
+                        let (val, color) = match self.health.cmp(&packet.health) {
+                            std::cmp::Ordering::Less => {
+                                (packet.health - self.health, gfx::Color::new(0, 200, 0, 255))
+                            }
+                            std::cmp::Ordering::Greater => {
+                                (self.health - packet.health, gfx::Color::new(200, 0, 0, 255))
+                            }
+                            std::cmp::Ordering::Equal => (0, gfx::Color::new(255, 255, 255, 255)),
+                        };
+
+                        floating_texts.spawn_text(FloatingText::new(
+                            graphics,
+                            &(val).to_string(),
+                            x,
+                            y,
+                            3000,
+                            color,
+                            2.0,
+                        ));
+                    }
+                }
+
                 self.health = packet.health;
                 self.max_health = packet.max_health;
                 self.generate_rect_array();
