@@ -209,8 +209,8 @@ impl Server {
         static mut MS_TIMER: Option<std::time::Instant> = None;
         static mut LAST_TIME: Option<std::time::Instant> = None;
 
-        //Safety: safe, we're only updating and using the count without any multithreading
         let Some((ms_timer, last_time)) =
+            //Safety: safe, we're only updating and using the count without any multithreading
             (unsafe { get_timers_from_static(&mut MS_TIMER, &mut LAST_TIME) })
         else {
             return Ok(()); //we return early this time
@@ -430,6 +430,7 @@ unsafe fn get_timers_from_static(
 pub fn send_to_ui(data: UiMessageType, ui_event_sender: Option<Sender<UiMessageType>>) {
     static mut UI_EVENT_SENDER: Option<Sender<UiMessageType>> = None;
 
+    //Safety: safe becuase the server is single threaded
     unsafe {
         if UI_EVENT_SENDER.is_none() {
             UI_EVENT_SENDER = ui_event_sender;
