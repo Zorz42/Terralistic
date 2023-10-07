@@ -395,14 +395,9 @@ impl ModuleManager {
                 window_size.1 * self.rect.size.1,
             );
             let rect = gfx::Rect::new(pos, size);
-            let color = gfx::Color::new(255, 255, 255, 100);
+            let color = gfx::Color::new(0, 0, 0, 150);
             rect.render(graphics_context, color);
 
-            /*let font = if let Some(mono_font) = &graphics_context.font_mono {
-                mono_font
-            } else {
-                &graphics_context.font
-            };*/
             let font = &graphics_context.font;
             let text_texture =
                 gfx::Texture::load_from_surface(&font.create_text_surface(&self.name_buffer, None));
