@@ -123,7 +123,7 @@ impl ClientLights {
 
         let lights_settings = Setting::Toggle {
             text: "Enable lights".to_owned(),
-            config_label: "enable_Lights".to_string(),
+            config_label: "enable_Lights".to_owned(),
             toggled: true,
         };
 
@@ -138,7 +138,7 @@ impl ClientLights {
         camera: &Camera,
         blocks: &Blocks,
         events: &mut EventManager,
-        settings: &mut Settings,
+        settings: &Settings,
     ) -> Result<()> {
         if let Setting::Toggle { toggled, .. } = settings.get_setting(self.lights_setting)? {
             if !toggled {
