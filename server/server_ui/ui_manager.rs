@@ -238,7 +238,7 @@ impl UiManager {
             }
 
             if self.module_edit_mode {
-                self.module_manager.on_event(&event);
+                self.module_manager.on_event(&event, &self.graphics_context);
             } else {
                 for module in &mut self.modules {
                     module.on_event(&event, &mut self.graphics_context);
