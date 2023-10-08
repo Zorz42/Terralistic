@@ -51,8 +51,8 @@ impl ConsoleLine {
         min_y: f32,
     ) {
         if self.sprite.pos.1 < max_y {
-            let crop =
-                (min_y - self.sprite.pos.1).clamp(0.0, self.sprite.texture.get_texture_size().1);
+            let crop = (min_y - self.sprite.pos.1 - self.sprite.texture.get_texture_size().1)
+                .clamp(0.0, self.sprite.texture.get_texture_size().1);
             let src_rect = Some(gfx::Rect::new(
                 gfx::FloatPos(0.0, crop),
                 gfx::FloatSize(
