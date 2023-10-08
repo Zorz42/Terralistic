@@ -155,17 +155,18 @@ impl ui_manager::ModuleTrait for ServerInfo {
 
     fn render(&mut self, graphics_context: &mut gfx::GraphicsContext) {
         //render sprites
-        self.uptime.render(graphics_context, Some(&self.container));
+        self.uptime
+            .render(graphics_context, Some(&self.container), None);
 
         self.server_state_sprite
-            .render(graphics_context, Some(&self.container));
+            .render(graphics_context, Some(&self.container), None);
         if self.server_state_enum == ServerState::Running {
             self.mspt_sprite
-                .render(graphics_context, Some(&self.container));
+                .render(graphics_context, Some(&self.container), None);
         }
 
         self.player_count_sprite
-            .render(graphics_context, Some(&self.container));
+            .render(graphics_context, Some(&self.container), None);
     }
 
     fn on_server_message(

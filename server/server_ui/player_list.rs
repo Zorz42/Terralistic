@@ -58,7 +58,7 @@ impl PlayerCard {
 
         //name of the player
         self.name_sprite
-            .render(graphics_context, Some(&self.container));
+            .render(graphics_context, Some(&self.container), None);
 
         //if the sprite just appeared, do a smooth fade in animation by overlaying a transparent rectangle
         if self.timer < 1.0 {

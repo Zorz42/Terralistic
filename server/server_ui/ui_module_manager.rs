@@ -407,7 +407,7 @@ impl ModuleManager {
     }
 
     pub fn render_selection(&self, graphics_context: &gfx::GraphicsContext) {
-        self.renderer.render_selection(graphics_context, &self.rect);
+        ModuleManagerRenderer::render_selection(graphics_context, &self.rect);
     }
 
     pub fn render_overlay(&self, graphics_context: &gfx::GraphicsContext) {
@@ -564,7 +564,7 @@ impl ModuleManagerRenderer {
         gfx::Rect::new(pos, size)
     }
 
-    fn render_selection(&self, graphics_context: &gfx::GraphicsContext, fraction_rect: &gfx::Rect) {
+    fn render_selection(graphics_context: &gfx::GraphicsContext, fraction_rect: &gfx::Rect) {
         let rect = Self::get_pos_size(fraction_rect, graphics_context);
         rect.render(graphics_context, gfx::WHITE);
     }
@@ -593,7 +593,8 @@ impl ModuleManagerRenderer {
     fn render_rename_overlay(&self, graphics_context: &gfx::GraphicsContext, rect: &gfx::Rect) {
         let container =
             gfx::Container::new(graphics_context, rect.pos, rect.size, gfx::TOP_LEFT, None);
-        self.name_sprite.render(graphics_context, Some(&container));
+        self.name_sprite
+            .render(graphics_context, Some(&container), None);
     }
 
     fn render_resize_overlay(&self, graphics_context: &gfx::GraphicsContext, rect: &gfx::Rect) {
@@ -601,10 +602,10 @@ impl ModuleManagerRenderer {
             gfx::Container::new(graphics_context, rect.pos, rect.size, gfx::TOP_LEFT, None);
         if self.split_orientation == SplitType::Horizontal {
             self.vertical_arrow_sprite
-                .render(graphics_context, Some(&container));
+                .render(graphics_context, Some(&container), None);
         } else {
             self.horizontal_arrow_sprite
-                .render(graphics_context, Some(&container));
+                .render(graphics_context, Some(&container), None);
         }
     }
 

@@ -73,7 +73,7 @@ impl Camera {
 
     pub fn render(&self, graphics: &gfx::GraphicsContext) {
         if self.detached_camera {
-            self.detached_camera_text.render(graphics, None);
+            self.detached_camera_text.render(graphics, None, None);
         }
     }
 

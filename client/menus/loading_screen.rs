@@ -100,7 +100,7 @@ pub fn run_loading_screen(
             }
         }
 
-        loading_text_sprite.render(graphics, Some(menu_back.get_back_rect_container()));
+        loading_text_sprite.render(graphics, Some(menu_back.get_back_rect_container()), None);
 
         loading_back_bar.render(graphics, Some(menu_back.get_back_rect_container()));
         loading_bar.render(graphics, Some(menu_back.get_back_rect_container()));

@@ -149,7 +149,11 @@ fn render_setting_ui(
         | SettingUi::Slider { text, .. } => text,
     };
 
-    text.render(graphics, Some(&back_rect.get_container(graphics, None)));
+    text.render(
+        graphics,
+        Some(&back_rect.get_container(graphics, None)),
+        None,
+    );
 
     match setting {
         SettingUi::Toggle {
@@ -381,6 +385,7 @@ fn render_setting_ui(
                             Some(&back_rect.get_container(graphics, None)),
                         ),
                     ),
+                    None,
                 );
             }
 

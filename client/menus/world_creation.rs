@@ -164,7 +164,7 @@ pub fn run_world_creation(
         //render input fields
         buttons_container.update(graphics, Some(menu_back.get_back_rect_container()));
 
-        title.render(graphics, Some(menu_back.get_back_rect_container()));
+        title.render(graphics, Some(menu_back.get_back_rect_container()), None);
         back_button.render(graphics, Some(&buttons_container));
 
         create_button.render(graphics, Some(&buttons_container));

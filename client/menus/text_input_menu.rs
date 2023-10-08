@@ -83,7 +83,7 @@ pub fn run_text_input_menu(
         buttons_container.update(graphics, Some(menu_back.get_back_rect_container()));
 
         for sprite in &mut title_lines {
-            sprite.render(graphics, Some(menu_back.get_back_rect_container()));
+            sprite.render(graphics, Some(menu_back.get_back_rect_container()), None);
         }
 
         back_button.render(graphics, Some(&buttons_container));

@@ -153,11 +153,12 @@ impl World {
         self.rect.render(graphics, parent_container);
 
         let rect_container = self.rect.get_container(graphics, parent_container);
-        self.icon.render(graphics, Some(&rect_container));
-        self.title.render(graphics, Some(&rect_container));
+        self.icon.render(graphics, Some(&rect_container), None);
+        self.title.render(graphics, Some(&rect_container), None);
         self.play_button.render(graphics, Some(&rect_container));
         self.delete_button.render(graphics, Some(&rect_container));
-        self.last_modified.render(graphics, Some(&rect_container));
+        self.last_modified
+            .render(graphics, Some(&rect_container), None);
     }
 
     /// This function returns height of the world card.
@@ -474,7 +475,7 @@ fn render_elements(
 
     elements
         .title
-        .render(graphics, Some(menu_back.get_back_rect_container()));
+        .render(graphics, Some(menu_back.get_back_rect_container()), None);
     elements
         .back_button
         .render(graphics, Some(menu_back.get_back_rect_container()));

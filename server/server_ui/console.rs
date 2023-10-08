@@ -53,7 +53,7 @@ impl ConsoleLine {
         if self.sprite.pos.1 < max_y
             && self.sprite.pos.1 + self.sprite.texture.get_texture_size().1 > min_y
         {
-            self.sprite.render(graphics_context, Some(container));
+            self.sprite.render(graphics_context, Some(container), None);
         }
     }
 }

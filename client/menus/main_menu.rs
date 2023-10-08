@@ -163,9 +163,9 @@ pub fn run_main_menu(
         }
 
         #[cfg(debug_assertions)]
-        debug_title.render(graphics, Some(menu_back.get_back_rect_container()));
-        title.render(graphics, Some(menu_back.get_back_rect_container()));
-        version.render(graphics, Some(menu_back.get_back_rect_container()));
+        debug_title.render(graphics, Some(menu_back.get_back_rect_container()), None);
+        title.render(graphics, Some(menu_back.get_back_rect_container()), None);
+        version.render(graphics, Some(menu_back.get_back_rect_container()), None);
 
         graphics.renderer.update_window();
     }

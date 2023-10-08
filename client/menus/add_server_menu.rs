@@ -185,7 +185,7 @@ pub fn run_add_server_menu(
 
         buttons_container.update(graphics, Some(menu_back.get_back_rect_container()));
 
-        title.render(graphics, Some(menu_back.get_back_rect_container()));
+        title.render(graphics, Some(menu_back.get_back_rect_container()), None);
         back_button.render(graphics, Some(&buttons_container));
 
         add_button.render(graphics, Some(&buttons_container));

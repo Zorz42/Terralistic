@@ -51,13 +51,18 @@ impl Sprite {
     }
 
     /// Renders the sprite.
-    pub fn render(&self, graphics: &gfx::GraphicsContext, parent: Option<&gfx::Container>) {
+    pub fn render(
+        &self,
+        graphics: &gfx::GraphicsContext,
+        parent: Option<&gfx::Container>,
+        src_rect: Option<gfx::Rect>,
+    ) {
         let container = self.get_container(graphics, parent);
         self.texture.render(
             &graphics.renderer,
             self.scale,
             container.get_absolute_rect().pos,
-            None,
+            src_rect,
             self.flip,
             Some(self.color),
         );
