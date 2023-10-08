@@ -57,7 +57,13 @@ impl Sprite {
         parent: Option<&gfx::Container>,
         src_rect: Option<gfx::Rect>,
     ) {
-        let container = self.get_container(graphics, parent);
+        let size = src_rect.map_or_else(
+            || self.get_size(),
+            |src_rect| gfx::FloatSize(src_rect.size.0 * self.scale, src_rect.size.1 * self.scale),
+        );
+
+        let container = gfx::Container::new(graphics, self.pos, size, self.orientation, parent);
+
         self.texture.render(
             &graphics.renderer,
             self.scale,
