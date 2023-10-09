@@ -2,7 +2,7 @@ use anyhow::{anyhow, Result};
 
 use crate::libraries::events::{Event, EventManager};
 use crate::shared::blocks::{BlockChangeEvent, Blocks};
-use crate::shared::world_map::WorldMap;
+use crate::shared::world_map::{WorldMap, CHUNK_SIZE};
 
 /// struct that contains the light rgb values
 #[derive(PartialEq, Eq, Clone, Copy)]
@@ -41,13 +41,24 @@ impl Light {
 }
 
 /// struct that contains light data for a given chunk
+#[derive(Clone, Copy)]
 pub struct LightChunk {
-    pub needs_update: bool,
+    pub scheduled_light_update_count: i32,
+}
+
+impl LightChunk {
+    #[must_use]
+    pub const fn new() -> Self {
+        Self {
+            scheduled_light_update_count: CHUNK_SIZE * CHUNK_SIZE,
+        }
+    }
 }
 
 /// struct that manages all the lights in the world
 pub struct Lights {
     lights: Vec<Light>,
+    light_chunks: Vec<LightChunk>,
     map: WorldMap,
     sky_heights: Vec<i32>,
 }
@@ -57,6 +68,7 @@ impl Lights {
     pub const fn new() -> Self {
         Self {
             lights: Vec::new(),
+            light_chunks: Vec::new(),
             map: WorldMap::new_empty(),
             sky_heights: Vec::new(),
         }
@@ -88,6 +100,20 @@ impl Lights {
             .ok_or_else(|| anyhow!("Light not found! x: {}, y: {}", x, y))
     }
 
+    /// returns the light chunk at the given coordinate
+    pub fn get_light_chunk(&self, x: i32, y: i32) -> Result<&LightChunk> {
+        self.light_chunks
+            .get(self.map.translate_chunk_coords(x, y)?)
+            .ok_or_else(|| anyhow!("Light chunk not found! x: {}, y: {}", x, y))
+    }
+
+    /// returns mutable light chunk at the given coordinate
+    fn get_light_chunk_mut(&mut self, x: i32, y: i32) -> Result<&mut LightChunk> {
+        self.light_chunks
+            .get_mut(self.map.translate_chunk_coords(x, y)?)
+            .ok_or_else(|| anyhow!("Light chunk not found! x: {}, y: {}", x, y))
+    }
+
     /// sets the light color at the given coordinate
     fn set_light_color(
         &mut self,
@@ -111,6 +137,10 @@ impl Lights {
     /// creates an empty light vector
     pub fn create(&mut self, width: u32, height: u32) {
         self.lights = vec![Light::new(); (width * height) as usize];
+        self.light_chunks = vec![
+            LightChunk::new();
+            (width as i32 / CHUNK_SIZE * height as i32 / CHUNK_SIZE) as usize
+        ];
         self.map = WorldMap::new(width, height);
         self.sky_heights = vec![-1; width as usize];
     }
@@ -144,7 +174,11 @@ impl Lights {
         blocks: &Blocks,
         events: &mut EventManager,
     ) -> Result<()> {
-        self.get_light_mut(x, y)?.scheduled_light_update = false;
+        if self.get_light_mut(x, y)?.scheduled_light_update {
+            self.get_light_mut(x, y)?.scheduled_light_update = false;
+            self.get_light_chunk_mut(x / CHUNK_SIZE, y / CHUNK_SIZE)?
+                .scheduled_light_update_count -= 1;
+        }
         self.update_light_emitter(x, y, blocks)?;
 
         let mut neighbours = [[-1, 0], [-1, 0], [-1, 0], [-1, 0]];
@@ -227,7 +261,11 @@ impl Lights {
     /// # Errors
     /// returns an error if the coordinates are out of bounds
     pub fn schedule_light_update(&mut self, x: i32, y: i32) -> Result<()> {
-        self.get_light_mut(x, y)?.scheduled_light_update = true;
+        if !self.get_light_mut(x, y)?.scheduled_light_update {
+            self.get_light_mut(x, y)?.scheduled_light_update = true;
+            self.get_light_chunk_mut(x / CHUNK_SIZE, y / CHUNK_SIZE)?
+                .scheduled_light_update_count += 1;
+        }
         Ok(())
     }
 

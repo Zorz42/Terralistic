@@ -1,6 +1,8 @@
 use anyhow::{bail, Result};
 use serde_derive::{Deserialize, Serialize};
 
+pub const CHUNK_SIZE: i32 = 16;
+
 /// `WorldMap` contains the width and height of the map and is used
 /// for everything that needs to know the size of the map.
 #[derive(Serialize, Deserialize)]
@@ -42,5 +44,18 @@ impl WorldMap {
         }
 
         Ok((x * self.height as i32 + y) as usize)
+    }
+
+    /// Same as `translate_coords` but for chunks
+    pub fn translate_chunk_coords(&self, x: i32, y: i32) -> Result<usize> {
+        if x < 0
+            || y < 0
+            || x >= self.width as i32 / CHUNK_SIZE
+            || y >= self.height as i32 / CHUNK_SIZE
+        {
+            bail!("Coordinates are out of bounds! x: {}, y: {}", x, y);
+        }
+
+        Ok((x + y * (self.width as i32 / CHUNK_SIZE)) as usize)
     }
 }

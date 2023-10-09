@@ -12,10 +12,11 @@ use crate::shared::blocks::{
     BlockBreakStopPacket, BlockChangeEvent, BlockChangePacket, BlockId,
 };
 use crate::shared::blocks::{
-    Blocks, BlocksWelcomePacket, BLOCK_WIDTH, CHUNK_SIZE, RENDER_BLOCK_WIDTH, RENDER_SCALE,
+    Blocks, BlocksWelcomePacket, BLOCK_WIDTH, RENDER_BLOCK_WIDTH, RENDER_SCALE,
 };
 use crate::shared::mod_manager::ModManager;
 use crate::shared::packet::Packet;
+use crate::shared::world_map::CHUNK_SIZE;
 
 use super::camera::Camera;
 use super::networking::WelcomePacketEvent;

@@ -4,8 +4,9 @@ use crate::client::game::camera::Camera;
 use crate::client::settings::{Setting, Settings};
 use crate::libraries::events::{Event, EventManager};
 use crate::libraries::graphics as gfx;
-use crate::shared::blocks::{Blocks, CHUNK_SIZE, RENDER_BLOCK_WIDTH};
+use crate::shared::blocks::{Blocks, RENDER_BLOCK_WIDTH};
 use crate::shared::lights::{LightColorChangeEvent, Lights};
+use crate::shared::world_map::CHUNK_SIZE;
 
 pub struct LightChunk {
     pub rect_array: gfx::RectArray,
@@ -170,23 +171,28 @@ impl ClientLights {
             end_y + extended_view_distance,
         );
 
-        loop {
-            let mut updated = false;
+        let mut updated = true;
+        while updated {
+            updated = false;
             for chunk_x in extended_start_x / CHUNK_SIZE..=extended_end_x / CHUNK_SIZE {
                 for chunk_y in extended_start_y / CHUNK_SIZE..=extended_end_y / CHUNK_SIZE {
-                    for x in chunk_x * CHUNK_SIZE..(chunk_x + 1) * CHUNK_SIZE {
-                        for y in chunk_y * CHUNK_SIZE..(chunk_y + 1) * CHUNK_SIZE {
-                            self.lights.update_light_emitter(x, y, blocks)?;
-                            if self.lights.get_light(x, y)?.scheduled_light_update {
-                                self.lights.update_light(x, y, blocks, events)?;
-                                updated = true;
+                    if self
+                        .lights
+                        .get_light_chunk(chunk_x, chunk_y)?
+                        .scheduled_light_update_count
+                        != 0
+                    {
+                        for x in chunk_x * CHUNK_SIZE..(chunk_x + 1) * CHUNK_SIZE {
+                            for y in chunk_y * CHUNK_SIZE..(chunk_y + 1) * CHUNK_SIZE {
+                                self.lights.update_light_emitter(x, y, blocks)?;
+                                if self.lights.get_light(x, y)?.scheduled_light_update {
+                                    self.lights.update_light(x, y, blocks, events)?;
+                                    updated = true;
+                                }
                             }
                         }
                     }
                 }
-            }
-            if !updated {
-                break;
             }
         }
 

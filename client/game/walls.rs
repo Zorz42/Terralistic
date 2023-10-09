@@ -4,9 +4,10 @@ use anyhow::{anyhow, bail, Result};
 
 use crate::libraries::events::{Event, EventManager};
 use crate::libraries::graphics as gfx;
-use crate::shared::blocks::{Blocks, BLOCK_WIDTH, CHUNK_SIZE, RENDER_BLOCK_WIDTH, RENDER_SCALE};
+use crate::shared::blocks::{Blocks, BLOCK_WIDTH, RENDER_BLOCK_WIDTH, RENDER_SCALE};
 use crate::shared::mod_manager::ModManager;
 use crate::shared::walls::{WallId, Walls, WallsWelcomePacket};
+use crate::shared::world_map::CHUNK_SIZE;
 
 use super::camera::Camera;
 use super::networking::WelcomePacketEvent;

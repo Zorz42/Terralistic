@@ -11,7 +11,6 @@ use crate::shared::world_map::WorldMap;
 pub const BLOCK_WIDTH: f32 = 8.0;
 pub const RENDER_SCALE: f32 = 2.0;
 pub const RENDER_BLOCK_WIDTH: f32 = BLOCK_WIDTH * RENDER_SCALE;
-pub const CHUNK_SIZE: i32 = 16;
 pub const RANDOM_TICK_SPEED: i32 = 10;
 
 #[derive(Serialize, Deserialize)]
