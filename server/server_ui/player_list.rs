@@ -50,7 +50,14 @@ impl PlayerCard {
         }
     }
 
-    pub fn render(&mut self, graphics_context: &gfx::GraphicsContext) {
+    pub fn render(
+        &mut self,
+        graphics_context: &gfx::GraphicsContext,
+        parent_container: &gfx::Container,
+    ) {
+        self.container
+            .update(graphics_context, Some(parent_container));
+
         //background
         let mut rect = gfx::RenderRect::new(gfx::FloatPos(0.0, 0.0), self.container.rect.size);
         rect.fill_color = gfx::DARK_GREY;
@@ -63,9 +70,10 @@ impl PlayerCard {
         //if the sprite just appeared, do a smooth fade in animation by overlaying a transparent rectangle
         if self.timer < 1.0 {
             let mut rect = gfx::RenderRect::new(gfx::FloatPos(0.0, 0.0), self.container.rect.size);
-            rect.fill_color = gfx::GREY;
-            //calculate transparency
-            rect.fill_color.a = (255.0 - self.timer * 255.0) as u8;
+            rect.fill_color = gfx::Color {
+                a: (255.0 - self.timer * 255.0) as u8,
+                ..gfx::GREY
+            };
             rect.render(graphics_context, Some(&self.container));
         }
     }
@@ -97,7 +105,7 @@ impl PlayerList {
 }
 
 impl ui_manager::ModuleTrait for PlayerList {
-    fn update(&mut self, delta_time: f32, graphics_context: &mut gfx::GraphicsContext) {
+    fn update(&mut self, delta_time: f32, _graphics_context: &mut gfx::GraphicsContext) {
         //ideally there should be a on_window_resize function
 
         //loop through all the player cards and resize them
@@ -116,8 +124,6 @@ impl ui_manager::ModuleTrait for PlayerList {
             //if the card isn't at the correct position, move it there slowly (animation)
             if (card.target_y - card.container.rect.pos.1).abs() > 0.0001 {
                 card.container.rect.pos.1 = card.target_y * 0.1 + card.container.rect.pos.1 * 0.9;
-                card.container
-                    .update(graphics_context, Some(&self.container));
             }
 
             //if the fade in animation isn't finished yet, continue increasing the timer
@@ -129,7 +135,7 @@ impl ui_manager::ModuleTrait for PlayerList {
 
     fn render(&mut self, graphics_context: &mut gfx::GraphicsContext) {
         for card in &mut self.player_cards {
-            card.render(graphics_context);
+            card.render(graphics_context, &self.container);
         }
     }
 
@@ -149,8 +155,6 @@ impl ui_manager::ModuleTrait for PlayerList {
                     if let Some(card) = self.player_cards.last_mut() {
                         card.target_y = self.container.rect.size.1;
                         card.container.rect.pos.1 = card.target_y;
-                        card.container
-                            .update(graphics_context, Some(&self.container));
                     }
                 }
                 PlayerEventType::Leave(connection) => {

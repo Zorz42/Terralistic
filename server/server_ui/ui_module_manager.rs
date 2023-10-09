@@ -21,7 +21,6 @@ pub enum ModuleTreeNodeType {
 }
 
 impl ModuleTreeNodeType {
-    #[allow(dead_code)] //will be used
     fn get_node_by_name_mut(&mut self, name: &str) -> Option<&mut Self> {
         match self {
             Self::Split(split_node) => {
