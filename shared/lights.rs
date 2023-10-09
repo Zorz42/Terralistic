@@ -1,6 +1,6 @@
 use anyhow::{anyhow, Result};
 
-use crate::libraries::events::{Event, EventManager};
+use crate::libraries::events::Event;
 use crate::shared::blocks::{BlockChangeEvent, Blocks};
 use crate::shared::world_map::{WorldMap, CHUNK_SIZE};
 
@@ -115,16 +115,9 @@ impl Lights {
     }
 
     /// sets the light color at the given coordinate
-    fn set_light_color(
-        &mut self,
-        x: i32,
-        y: i32,
-        color: LightColor,
-        events: &mut EventManager,
-    ) -> Result<()> {
+    fn set_light_color(&mut self, x: i32, y: i32, color: LightColor) -> Result<()> {
         if self.get_light(x, y)?.color != color {
             self.get_light_mut(x, y)?.color = color;
-            events.push_event(Event::new(LightColorChangeEvent { x, y }));
 
             self.schedule_light_update(x + 1, y).ok();
             self.schedule_light_update(x - 1, y).ok();
@@ -167,13 +160,7 @@ impl Lights {
     /// updates the light at the given coordinate
     /// # Errors
     /// returns an error if the light at the given coordinate is not found
-    pub fn update_light(
-        &mut self,
-        x: i32,
-        y: i32,
-        blocks: &Blocks,
-        events: &mut EventManager,
-    ) -> Result<()> {
+    pub fn update_light(&mut self, x: i32, y: i32, blocks: &Blocks) -> Result<()> {
         if self.get_light_mut(x, y)?.scheduled_light_update {
             self.get_light_mut(x, y)?.scheduled_light_update = false;
             self.get_light_chunk_mut(x / CHUNK_SIZE, y / CHUNK_SIZE)?
@@ -239,7 +226,7 @@ impl Lights {
         }
 
         if color_to_be != self.get_light(x, y)?.color {
-            self.set_light_color(x, y, color_to_be, events)?;
+            self.set_light_color(x, y, color_to_be)?;
             self.schedule_light_update(x, y)?;
         }
         Ok(())
@@ -336,10 +323,4 @@ impl Lights {
         }
         Ok(())
     }
-}
-
-/// event that fires when the light color is changed
-pub struct LightColorChangeEvent {
-    pub x: i32,
-    pub y: i32,
 }

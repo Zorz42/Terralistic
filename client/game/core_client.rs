@@ -181,13 +181,7 @@ pub fn run_game(
         players.render(graphics, &mut entities.entities, &camera);
         items.render(graphics, &camera, &mut entities.entities)?;
         floating_text.render(graphics, &camera);
-        lights.render(
-            graphics,
-            &camera,
-            &blocks.get_blocks(),
-            &mut events,
-            settings,
-        )?;
+        lights.render(graphics, &camera, &blocks.get_blocks(), settings)?;
         camera.render(graphics);
         block_selector.render(graphics, &mut networking, &camera)?;
         inventory.render(graphics, &items, &mut networking)?;

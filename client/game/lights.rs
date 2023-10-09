@@ -2,10 +2,10 @@ use anyhow::{anyhow, bail, Result};
 
 use crate::client::game::camera::Camera;
 use crate::client::settings::{Setting, Settings};
-use crate::libraries::events::{Event, EventManager};
+use crate::libraries::events::Event;
 use crate::libraries::graphics as gfx;
 use crate::shared::blocks::{Blocks, RENDER_BLOCK_WIDTH};
-use crate::shared::lights::{LightColorChangeEvent, Lights};
+use crate::shared::lights::Lights;
 use crate::shared::world_map::CHUNK_SIZE;
 
 pub struct LightChunk {
@@ -139,7 +139,6 @@ impl ClientLights {
         graphics: &gfx::GraphicsContext,
         camera: &Camera,
         blocks: &Blocks,
-        events: &mut EventManager,
         settings: &Settings,
     ) -> Result<()> {
         if let Setting::Toggle { toggled, .. } = settings.get_setting(self.lights_setting)? {
@@ -186,10 +185,35 @@ impl ClientLights {
                             for y in chunk_y * CHUNK_SIZE..(chunk_y + 1) * CHUNK_SIZE {
                                 self.lights.update_light_emitter(x, y, blocks)?;
                                 if self.lights.get_light(x, y)?.scheduled_light_update {
-                                    self.lights.update_light(x, y, blocks, events)?;
+                                    self.lights.update_light(x, y, blocks)?;
                                     updated = true;
                                 }
                             }
+                        }
+
+                        let pos = [
+                            (chunk_x, chunk_y),
+                            (chunk_x + 1, chunk_y),
+                            (chunk_x, chunk_y + 1),
+                            (chunk_x + 1, chunk_y + 1),
+                        ];
+
+                        for (x, y) in pos {
+                            if y < 0
+                                || y >= self.lights.get_height() as i32 / CHUNK_SIZE
+                                || x < 0
+                                || x >= self.lights.get_width() as i32 / CHUNK_SIZE
+                            {
+                                continue;
+                            }
+
+                            let chunk_index = self.get_chunk_index(x, y)?;
+                            let chunk = self
+                                .chunks
+                                .get_mut(chunk_index)
+                                .ok_or_else(|| anyhow!("Chunk array malformed"))?;
+
+                            chunk.needs_update = true;
                         }
                     }
                 }
@@ -218,35 +242,7 @@ impl ClientLights {
     }
 
     pub fn on_event(&mut self, event: &Event, blocks: &Blocks) -> Result<()> {
-        self.lights.on_event(event, blocks)?;
-
-        if let Some(event) = event.downcast::<LightColorChangeEvent>() {
-            let pos = [
-                (event.x / CHUNK_SIZE, event.y / CHUNK_SIZE),
-                ((event.x + 1) / CHUNK_SIZE, event.y / CHUNK_SIZE),
-                (event.x / CHUNK_SIZE, (event.y + 1) / CHUNK_SIZE),
-                ((event.x + 1) / CHUNK_SIZE, (event.y + 1) / CHUNK_SIZE),
-            ];
-
-            for (x, y) in pos {
-                if y < 0
-                    || y >= self.lights.get_height() as i32 / CHUNK_SIZE
-                    || x < 0
-                    || x >= self.lights.get_width() as i32 / CHUNK_SIZE
-                {
-                    continue;
-                }
-
-                let chunk_index = self.get_chunk_index(x, y)?;
-                let chunk = self
-                    .chunks
-                    .get_mut(chunk_index)
-                    .ok_or_else(|| anyhow!("Chunk array malformed"))?;
-
-                chunk.needs_update = true;
-            }
-        }
-        Ok(())
+        self.lights.on_event(event, blocks)
     }
 
     pub fn stop(&self, settings: &mut Settings) -> Result<()> {
