@@ -320,6 +320,8 @@ impl Lights {
                     .get_mut(event.x as usize)
                     .ok_or_else(|| anyhow!("sky_heights out of bounds"))? = event.y - 1;
             }
+
+            self.schedule_light_update_for_neighbours(event.x, event.y);
         }
         Ok(())
     }
