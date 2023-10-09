@@ -2,6 +2,7 @@
 
 use crate::build_project::compile_mod::compile_mod;
 use crate::build_project::compile_resource_pack::compile_resource_pack;
+#[cfg(target_os = "windows")]
 use winres::WindowsResource;
 
 pub mod build_project {

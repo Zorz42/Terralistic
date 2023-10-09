@@ -24,20 +24,25 @@ impl LightColor {
 pub struct Light {
     pub color: LightColor,
     pub source_color: LightColor,
-    pub source: bool,
-    pub update_light: bool,
+    pub is_source: bool,
+    pub scheduled_light_update: bool,
 }
 
 impl Light {
     #[must_use]
-    pub const fn new() -> Self {
+    const fn new() -> Self {
         Self {
             color: LightColor::new(0, 0, 0),
             source_color: LightColor::new(0, 0, 0),
-            source: false,
-            update_light: true,
+            is_source: false,
+            scheduled_light_update: true,
         }
     }
+}
+
+/// struct that contains light data for a given chunk
+pub struct LightChunk {
+    pub needs_update: bool,
 }
 
 /// struct that manages all the lights in the world
@@ -70,7 +75,7 @@ impl Lights {
     }
 
     /// returns the light at the given coordinate
-    fn get_light(&self, x: i32, y: i32) -> Result<&Light> {
+    pub fn get_light(&self, x: i32, y: i32) -> Result<&Light> {
         self.lights
             .get(self.map.translate_coords(x, y)?)
             .ok_or_else(|| anyhow!("Light not found! x: {}, y: {}", x, y))
@@ -139,7 +144,7 @@ impl Lights {
         blocks: &Blocks,
         events: &mut EventManager,
     ) -> Result<()> {
-        self.get_light_mut(x, y)?.update_light = false;
+        self.get_light_mut(x, y)?.scheduled_light_update = false;
         self.update_light_emitter(x, y, blocks)?;
 
         let mut neighbours = [[-1, 0], [-1, 0], [-1, 0], [-1, 0]];
@@ -174,11 +179,11 @@ impl Lights {
                     0.7
                 };
 
-                let r = (self.get_light_color(neighbour[0], neighbour[1])?.r as f32 * light_step)
+                let r = (self.get_light(neighbour[0], neighbour[1])?.color.r as f32 * light_step)
                     .floor() as u8;
-                let g = (self.get_light_color(neighbour[0], neighbour[1])?.g as f32 * light_step)
+                let g = (self.get_light(neighbour[0], neighbour[1])?.color.g as f32 * light_step)
                     .floor() as u8;
-                let b = (self.get_light_color(neighbour[0], neighbour[1])?.b as f32 * light_step)
+                let b = (self.get_light(neighbour[0], neighbour[1])?.color.b as f32 * light_step)
                     .floor() as u8;
 
                 if r > color_to_be.r {
@@ -193,13 +198,13 @@ impl Lights {
             }
         }
 
-        if self.is_light_source(x, y)? {
-            color_to_be.r = u8::max(color_to_be.r, self.get_light_source_color(x, y)?.r);
-            color_to_be.g = u8::max(color_to_be.g, self.get_light_source_color(x, y)?.g);
-            color_to_be.b = u8::max(color_to_be.b, self.get_light_source_color(x, y)?.b);
+        if self.get_light(x, y)?.is_source {
+            color_to_be.r = u8::max(color_to_be.r, self.get_light(x, y)?.source_color.r);
+            color_to_be.g = u8::max(color_to_be.g, self.get_light(x, y)?.source_color.g);
+            color_to_be.b = u8::max(color_to_be.b, self.get_light(x, y)?.source_color.b);
         }
 
-        if color_to_be != self.get_light_color(x, y)? {
+        if color_to_be != self.get_light(x, y)?.color {
             self.set_light_color(x, y, color_to_be, events)?;
             self.schedule_light_update(x, y)?;
         }
@@ -210,7 +215,7 @@ impl Lights {
     /// # Errors
     /// returns an error if the coordinates are out of bounds
     pub fn set_light_source(&mut self, x: i32, y: i32, color: LightColor) -> Result<()> {
-        self.get_light_mut(x, y)?.source = color != LightColor::new(0, 0, 0);
+        self.get_light_mut(x, y)?.is_source = color != LightColor::new(0, 0, 0);
         if self.get_light(x, y)?.source_color != color {
             self.get_light_mut(x, y)?.source_color = color;
             self.schedule_light_update_for_neighbours(x, y);
@@ -218,40 +223,12 @@ impl Lights {
         Ok(())
     }
 
-    /// returns whether the coordinates x and y are a light source
-    /// # Errors
-    /// returns an error if the coordinates are out of bounds
-    pub fn is_light_source(&self, x: i32, y: i32) -> Result<bool> {
-        Ok(self.get_light(x, y)?.source)
-    }
-
-    /// returns the light color at the given coordinate
-    /// # Errors
-    /// returns an error if the coordinates are out of bounds
-    pub fn get_light_color(&self, x: i32, y: i32) -> Result<LightColor> {
-        Ok(self.get_light(x, y)?.color)
-    }
-
-    /// returns the light source color at the given coordinate
-    /// # Errors
-    /// returns an error if the coordinates are out of bounds
-    pub fn get_light_source_color(&self, x: i32, y: i32) -> Result<LightColor> {
-        Ok(self.get_light(x, y)?.source_color)
-    }
-
     /// schedules a light update for the given coordinate
     /// # Errors
     /// returns an error if the coordinates are out of bounds
     pub fn schedule_light_update(&mut self, x: i32, y: i32) -> Result<()> {
-        self.get_light_mut(x, y)?.update_light = true;
+        self.get_light_mut(x, y)?.scheduled_light_update = true;
         Ok(())
-    }
-
-    /// returns whether the light at the given coordinate needs to be updated
-    /// # Errors
-    /// returns an error if the coordinates are out of bounds
-    pub fn has_scheduled_light_update(&self, x: i32, y: i32) -> Result<bool> {
-        Ok(self.get_light(x, y)?.update_light)
     }
 
     /// schedules a light update for the neighbours of the given coordinate

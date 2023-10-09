@@ -34,15 +34,16 @@ impl LightChunk {
             self.rect_array = gfx::RectArray::new();
             for x in 0..CHUNK_SIZE {
                 for y in 0..CHUNK_SIZE {
-                    let light_1 = lights.get_light_color(
-                        i32::max(world_x + x - 1, 0),
-                        i32::max(world_y + y - 1, 0),
-                    )?;
-                    let light_2 =
-                        lights.get_light_color(world_x + x, i32::max(world_y + y - 1, 0))?;
-                    let light_3 =
-                        lights.get_light_color(i32::max(world_x + x - 1, 0), world_y + y)?;
-                    let light_4 = lights.get_light_color(world_x + x, world_y + y)?;
+                    let light_1 = lights
+                        .get_light(i32::max(world_x + x - 1, 0), i32::max(world_y + y - 1, 0))?
+                        .color;
+                    let light_2 = lights
+                        .get_light(world_x + x, i32::max(world_y + y - 1, 0))?
+                        .color;
+                    let light_3 = lights
+                        .get_light(i32::max(world_x + x - 1, 0), world_y + y)?
+                        .color;
+                    let light_4 = lights.get_light(world_x + x, world_y + y)?.color;
 
                     self.rect_array.add_rect(
                         &gfx::Rect::new(
@@ -146,33 +147,41 @@ impl ClientLights {
             }
         }
 
-        let start_x = camera.get_top_left(graphics).0 as i32;
-        let start_y = camera.get_top_left(graphics).1 as i32;
-        let end_x = camera.get_bottom_right(graphics).0 as i32;
-        let end_y = camera.get_bottom_right(graphics).1 as i32;
+        let start_x = i32::max(0, camera.get_top_left(graphics).0 as i32);
+        let start_y = i32::max(0, camera.get_top_left(graphics).1 as i32);
+        let end_x = i32::min(
+            self.lights.get_width() as i32 - 1,
+            camera.get_bottom_right(graphics).0 as i32,
+        );
+        let end_y = i32::min(
+            self.lights.get_height() as i32 - 1,
+            camera.get_bottom_right(graphics).1 as i32,
+        );
 
         let extended_view_distance = 10;
-        let extended_start_x = start_x - extended_view_distance;
-        let extended_start_y = start_y - extended_view_distance;
-        let extended_end_x = end_x + extended_view_distance;
-        let extended_end_y = end_y + extended_view_distance;
+        let extended_start_x = i32::max(0, start_x - extended_view_distance);
+        let extended_start_y = i32::max(0, start_y - extended_view_distance);
+        let extended_end_x = i32::min(
+            self.lights.get_width() as i32,
+            end_x + extended_view_distance,
+        );
+        let extended_end_y = i32::min(
+            self.lights.get_height() as i32,
+            end_y + extended_view_distance,
+        );
 
         loop {
             let mut updated = false;
-            for x in extended_start_x..extended_end_x {
-                for y in extended_start_y..extended_end_y {
-                    if y < 0
-                        || y >= self.lights.get_height() as i32
-                        || x < 0
-                        || x >= self.lights.get_width() as i32
-                    {
-                        continue;
-                    }
-
-                    self.lights.update_light_emitter(x, y, blocks)?;
-                    if self.lights.has_scheduled_light_update(x, y)? {
-                        self.lights.update_light(x, y, blocks, events)?;
-                        updated = true;
+            for chunk_x in extended_start_x / CHUNK_SIZE..extended_end_x / CHUNK_SIZE {
+                for chunk_y in extended_start_y / CHUNK_SIZE..extended_end_y / CHUNK_SIZE {
+                    for x in chunk_x * CHUNK_SIZE..(chunk_x + 1) * CHUNK_SIZE {
+                        for y in chunk_y * CHUNK_SIZE..(chunk_y + 1) * CHUNK_SIZE {
+                            self.lights.update_light_emitter(x, y, blocks)?;
+                            if self.lights.get_light(x, y)?.scheduled_light_update {
+                                self.lights.update_light(x, y, blocks, events)?;
+                                updated = true;
+                            }
+                        }
                     }
                 }
             }
@@ -183,14 +192,6 @@ impl ClientLights {
 
         for x in start_x / CHUNK_SIZE..=end_x / CHUNK_SIZE {
             for y in start_y / CHUNK_SIZE..=end_y / CHUNK_SIZE {
-                if y < 0
-                    || y >= self.lights.get_height() as i32 / CHUNK_SIZE
-                    || x < 0
-                    || x >= self.lights.get_width() as i32 / CHUNK_SIZE
-                {
-                    continue;
-                }
-
                 let chunk_index = self.get_chunk_index(x, y)?;
                 let chunk = self
                     .chunks
