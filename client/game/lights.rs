@@ -162,18 +162,18 @@ impl ClientLights {
         let extended_start_x = i32::max(0, start_x - extended_view_distance);
         let extended_start_y = i32::max(0, start_y - extended_view_distance);
         let extended_end_x = i32::min(
-            self.lights.get_width() as i32,
+            self.lights.get_width() as i32 - 1,
             end_x + extended_view_distance,
         );
         let extended_end_y = i32::min(
-            self.lights.get_height() as i32,
+            self.lights.get_height() as i32 - 1,
             end_y + extended_view_distance,
         );
 
         loop {
             let mut updated = false;
-            for chunk_x in extended_start_x / CHUNK_SIZE..extended_end_x / CHUNK_SIZE {
-                for chunk_y in extended_start_y / CHUNK_SIZE..extended_end_y / CHUNK_SIZE {
+            for chunk_x in extended_start_x / CHUNK_SIZE..=extended_end_x / CHUNK_SIZE {
+                for chunk_y in extended_start_y / CHUNK_SIZE..=extended_end_y / CHUNK_SIZE {
                     for x in chunk_x * CHUNK_SIZE..(chunk_x + 1) * CHUNK_SIZE {
                         for y in chunk_y * CHUNK_SIZE..(chunk_y + 1) * CHUNK_SIZE {
                             self.lights.update_light_emitter(x, y, blocks)?;
