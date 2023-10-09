@@ -2,6 +2,7 @@
 
 use crate::build_project::compile_mod::compile_mod;
 use crate::build_project::compile_resource_pack::compile_resource_pack;
+use winres::WindowsResource;
 
 pub mod build_project {
     pub mod compile_mod;
@@ -22,6 +23,14 @@ fn main() {
 
     #[cfg(target_os = "linux")]
     println!("cargo:rustc-link-arg=-Wl,-rpath,$ORIGIN");
+
+    #[cfg(target_os = "windows")]
+    {
+        WindowsResource::new()
+            .set_icon("resources/icon.ico")
+            .compile()
+            .unwrap();
+    }
 
     // compile resource pack resources into Build/resources
     compile_resource_pack(

@@ -79,6 +79,8 @@ darklua = "0.10"
 png = "0.17"
 hecs = "0.10"
 message-io = "0.18"
+winres = "0.1"
+
 
 [dev-dependencies]
 criterion = { version = "0.5", features = ["html_reports"] }
