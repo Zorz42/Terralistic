@@ -123,7 +123,7 @@ pub fn run_game(
 
     background.init()?;
     inventory.init();
-    lights.init(&blocks.get_blocks())?;
+    lights.init(&blocks.get_blocks(), settings)?;
 
     blocks.load_resources(&mods.mod_manager)?;
     walls.load_resources(&mods.mod_manager)?;
@@ -181,7 +181,13 @@ pub fn run_game(
         players.render(graphics, &mut entities.entities, &camera);
         items.render(graphics, &camera, &mut entities.entities)?;
         floating_text.render(graphics, &camera);
-        lights.render(graphics, &camera, &blocks.get_blocks(), &mut events)?;
+        lights.render(
+            graphics,
+            &camera,
+            &blocks.get_blocks(),
+            &mut events,
+            settings,
+        )?;
         camera.render(graphics);
         block_selector.render(graphics, &mut networking, &camera)?;
         inventory.render(graphics, &items, &mut networking)?;
@@ -231,6 +237,7 @@ pub fn run_game(
         graphics.renderer.update_window();
     }
 
+    lights.stop(settings)?;
     networking.stop()?;
     mods.stop()?;
 

@@ -1,6 +1,7 @@
 use anyhow::{anyhow, bail, Result};
 
 use crate::client::game::camera::Camera;
+use crate::client::settings::{Setting, Settings};
 use crate::libraries::events::{Event, EventManager};
 use crate::libraries::graphics as gfx;
 use crate::shared::blocks::{Blocks, CHUNK_SIZE, RENDER_BLOCK_WIDTH};
@@ -83,6 +84,7 @@ impl LightChunk {
 pub struct ClientLights {
     pub lights: Lights,
     chunks: Vec<LightChunk>,
+    lights_setting: i32,
 }
 
 impl ClientLights {
@@ -91,6 +93,7 @@ impl ClientLights {
         Self {
             lights: Lights::new(),
             chunks: Vec::new(),
+            lights_setting: 0,
         }
     }
 
@@ -107,7 +110,7 @@ impl ClientLights {
         Ok((x + y * (self.lights.get_width() as i32 / CHUNK_SIZE)) as usize)
     }
 
-    pub fn init(&mut self, blocks: &Blocks) -> Result<()> {
+    pub fn init(&mut self, blocks: &Blocks, settings: &mut Settings) -> Result<()> {
         self.lights.create(blocks.get_width(), blocks.get_height());
         self.lights.init_sky_heights(blocks)?;
 
@@ -118,6 +121,14 @@ impl ClientLights {
             self.chunks.push(LightChunk::new());
         }
 
+        let lights_settings = Setting::Toggle {
+            text: "Enable lights".to_owned(),
+            config_label: "enable_Lights".to_owned(),
+            toggled: true,
+        };
+
+        self.lights_setting = settings.register_setting(lights_settings);
+
         Ok(())
     }
 
@@ -127,7 +138,14 @@ impl ClientLights {
         camera: &Camera,
         blocks: &Blocks,
         events: &mut EventManager,
+        settings: &Settings,
     ) -> Result<()> {
+        if let Setting::Toggle { toggled, .. } = settings.get_setting(self.lights_setting)? {
+            if !toggled {
+                return Ok(());
+            }
+        }
+
         let start_x = camera.get_top_left(graphics).0 as i32;
         let start_y = camera.get_top_left(graphics).1 as i32;
         let end_x = camera.get_bottom_right(graphics).0 as i32;
@@ -222,5 +240,9 @@ impl ClientLights {
             }
         }
         Ok(())
+    }
+
+    pub fn stop(&self, settings: &mut Settings) -> Result<()> {
+        settings.remove_setting(self.lights_setting)
     }
 }
