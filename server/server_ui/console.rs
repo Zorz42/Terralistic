@@ -51,7 +51,7 @@ impl ConsoleLine {
         max_y: f32,
         min_y: f32,
     ) {
-        if true /*self.sprite.pos.1 < max_y*/ {
+        if self.sprite.pos.1 + self.sprite.texture.get_texture_size().1 < max_y {
             let top_crop = (min_y - self.sprite.pos.1 - self.sprite.texture.get_texture_size().1)
                 .clamp(0.0, self.sprite.texture.get_texture_size().1);
             let bottom_crop = (self.sprite.pos.1 - max_y)
