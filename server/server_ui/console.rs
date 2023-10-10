@@ -1,4 +1,3 @@
-use std::ops::Deref;
 use std::sync::mpsc::Sender;
 
 use crate::libraries::graphics as gfx;
@@ -66,7 +65,7 @@ impl ConsoleLine {
             container.rect.pos.1 -= bottom_crop;
             container.update(graphics_context, None);
             self.sprite
-                .render(graphics_context, Some(&container), src_rect);
+                .render(graphics_context, Some(container), src_rect);
             container.rect.pos.1 += bottom_crop;
             container.update(graphics_context, None);
         }
