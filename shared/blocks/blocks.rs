@@ -264,7 +264,8 @@ impl Blocks {
     }
 
     /// Returns all block ids.
-    pub fn get_all_block_ids(&mut self) -> Vec<BlockId> {
+    #[must_use]
+    pub fn get_all_block_ids(&self) -> Vec<BlockId> {
         let mut result = Vec::new();
         for block_type in &self.block_types {
             result.push(block_type.id);

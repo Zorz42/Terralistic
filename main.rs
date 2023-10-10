@@ -70,6 +70,7 @@
 #![allow(clippy::missing_panics_doc)]
 #![allow(clippy::todo)]
 #![allow(clippy::unimplemented)]
+#![allow(clippy::type_complexity)]
 #![windows_subsystem = "windows"]
 
 use std::sync::atomic::AtomicBool;

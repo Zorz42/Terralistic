@@ -13,7 +13,7 @@ function register_biomes()
     biome:add_ore(blocks.stone_block, -2.0, 3.0);
     biome:add_ore(blocks.copper_ore, -0.9, -0.4);
     biomes.plains = terralistic_register_biome(biome)
-
+    
     -- HILLS
     biome = terralistic_new_biome()
     biome["min_terrain_height"] = 10
@@ -27,7 +27,7 @@ function register_biomes()
     biome:add_ore(blocks.copper_ore, -0.9, -0.4);
     biomes.hills = terralistic_register_biome(biome)
     terralistic_connect_biomes(biomes.plains, biomes.hills, 100)
-
+    
     -- MOUNTAINS
     biome = terralistic_new_biome()
     biome["min_terrain_height"] = 40
