@@ -90,6 +90,10 @@ impl Texture {
         let src_rect =
             src_rect.unwrap_or_else(|| Rect::new(gfx::FloatPos(0.0, 0.0), self.get_texture_size()));
 
+        if src_rect.size.0 <= 0 || src_rect.size.1 <= 0 {
+            return;
+        }
+
         let color = color.unwrap_or(Color {
             r: 255,
             g: 255,
