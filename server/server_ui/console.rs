@@ -1,3 +1,4 @@
+use std::ops::Deref;
 use std::sync::mpsc::Sender;
 
 use crate::libraries::graphics as gfx;
@@ -46,22 +47,28 @@ impl ConsoleLine {
     pub fn render(
         &mut self,
         graphics_context: &gfx::GraphicsContext,
-        container: &gfx::Container,
+        container: &mut gfx::Container,
         max_y: f32,
         min_y: f32,
     ) {
-        if self.sprite.pos.1 < max_y {
-            let crop = (min_y - self.sprite.pos.1 - self.sprite.texture.get_texture_size().1)
+        if true /*self.sprite.pos.1 < max_y*/ {
+            let top_crop = (min_y - self.sprite.pos.1 - self.sprite.texture.get_texture_size().1)
+                .clamp(0.0, self.sprite.texture.get_texture_size().1);
+            let bottom_crop = (self.sprite.pos.1 - max_y)
                 .clamp(0.0, self.sprite.texture.get_texture_size().1);
             let src_rect = Some(gfx::Rect::new(
-                gfx::FloatPos(0.0, crop),
+                gfx::FloatPos(0.0, top_crop),
                 gfx::FloatSize(
                     self.sprite.texture.get_texture_size().0,
-                    self.sprite.texture.get_texture_size().1 - crop,
+                    self.sprite.texture.get_texture_size().1 - top_crop - bottom_crop,
                 ),
             ));
+            container.rect.pos.1 -= bottom_crop;
+            container.update(graphics_context, None);
             self.sprite
-                .render(graphics_context, Some(container), src_rect);
+                .render(graphics_context, Some(&container), src_rect);
+            container.rect.pos.1 += bottom_crop;
+            container.update(graphics_context, None);
         }
     }
 }
@@ -138,7 +145,7 @@ impl ui_manager::ModuleTrait for Console {
         let max_y = -self.input.pos.1 - self.input.get_size().1 - gfx::SPACING / 2.0 + 1.0;
         let min_y = -self.container.rect.size.1 - max_y;
         for line in &mut self.text_lines {
-            line.render(graphics_context, &self.container, max_y, min_y);
+            line.render(graphics_context, &mut self.container, max_y, min_y);
         }
         self.input.render(graphics_context, Some(&self.container));
     }
