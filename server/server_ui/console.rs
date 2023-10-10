@@ -43,7 +43,7 @@ impl ConsoleLine {
         }
     }
 
-    pub fn render(
+    pub fn render(//TODO fix rendering, multiline sprites have less spacing than normal lines
         &mut self,
         graphics_context: &gfx::GraphicsContext,
         container: &mut gfx::Container,
