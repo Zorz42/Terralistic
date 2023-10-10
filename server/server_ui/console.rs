@@ -131,7 +131,7 @@ impl ui_manager::ModuleTrait for Console {
     }
 
     fn update(&mut self, _delta_time: f32, _graphics_context: &mut gfx::GraphicsContext) {
-        self.input.width = self.container.rect.size.0 / 2.0 - EDGE_SPACING * 2.0;
+        self.input.width = self.container.rect.size.0 / self.input.scale - EDGE_SPACING * 2.0 / self.input.scale;
     }
 
     fn render(&mut self, graphics_context: &mut gfx::GraphicsContext) {
