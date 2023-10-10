@@ -2,14 +2,14 @@ use crate::shared::blocks::BlockId;
 use crate::shared::walls::WallId;
 
 #[derive(Clone)]
-pub struct Ore {
+pub(super) struct Ore {
     pub block: BlockId,
     pub start_noise: f32,
     pub end_noise: f32,
 }
 
 #[derive(Clone)]
-pub struct Biome {
+pub(super) struct Biome {
     pub min_width: u32,
     pub max_width: u32,
     pub min_terrain_height: u32,

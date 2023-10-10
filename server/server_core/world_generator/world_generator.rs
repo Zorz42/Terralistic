@@ -3,46 +3,15 @@ use std::sync::Arc;
 use std::sync::{Mutex, PoisonError};
 
 use anyhow::{anyhow, bail, Result};
-use noise::{NoiseFn, Perlin};
+use noise::Perlin;
 use rand::{RngCore, SeedableRng};
 
 use crate::libraries::events::EventManager;
 use crate::server::server_core::world_generator::biome::Biome;
+use crate::server::server_core::world_generator::noise::{convolve, turbulence};
 use crate::shared::blocks::{BlockId, Blocks};
 use crate::shared::mod_manager::ModManager;
 use crate::shared::walls::{WallId, Walls};
-
-fn turbulence(noise: &Perlin, x: f32, y: f32) -> f32 {
-    let mut value = 0.0;
-    let mut size = 1.0;
-
-    for _ in 0..3 {
-        value += noise.get([(x / size) as f64, (y / size) as f64]) as f32 * size;
-        size /= 2.0;
-    }
-
-    value / 2.0
-}
-
-fn convolve(array: &Vec<f32>, size: i32) -> Vec<f32> {
-    let mut result = Vec::new();
-
-    for i in 0..array.len() {
-        let mut sum = 0.0;
-        let left_index = i32::max(i as i32 - size / 2, 0);
-        let right_index = i32::min(i as i32 + size / 2, array.len() as i32 - 1);
-        for j in array
-            .iter()
-            .skip(left_index as usize)
-            .take((right_index - left_index) as usize)
-        {
-            sum += j;
-        }
-        result.push(sum / (right_index - left_index) as f32);
-    }
-
-    result
-}
 
 pub struct WorldGenerator {
     pub(super) biomes: Arc<Mutex<Vec<Biome>>>,
