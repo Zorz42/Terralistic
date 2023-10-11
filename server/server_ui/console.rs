@@ -43,7 +43,8 @@ impl ConsoleLine {
         }
     }
 
-    pub fn render(//TODO fix rendering, multiline sprites have less spacing than normal lines
+    pub fn render(
+        //TODO fix rendering, multiline sprites have less spacing than normal lines
         &mut self,
         graphics_context: &gfx::GraphicsContext,
         container: &mut gfx::Container,
@@ -53,8 +54,8 @@ impl ConsoleLine {
         if self.sprite.pos.1 - self.sprite.texture.get_texture_size().1 < max_y {
             let top_crop = (min_y - self.sprite.pos.1 - self.sprite.texture.get_texture_size().1)
                 .clamp(0.0, self.sprite.texture.get_texture_size().1);
-            let bottom_crop = (self.sprite.pos.1 - max_y)
-                .clamp(0.0, self.sprite.texture.get_texture_size().1);
+            let bottom_crop =
+                (self.sprite.pos.1 - max_y).clamp(0.0, self.sprite.texture.get_texture_size().1);
             let src_rect = Some(gfx::Rect::new(
                 gfx::FloatPos(0.0, top_crop),
                 gfx::FloatSize(
@@ -137,7 +138,8 @@ impl ui_manager::ModuleTrait for Console {
     }
 
     fn update(&mut self, _delta_time: f32, _graphics_context: &mut gfx::GraphicsContext) {
-        self.input.width = self.container.rect.size.0 / self.input.scale - EDGE_SPACING * 2.0 / self.input.scale;
+        self.input.width =
+            self.container.rect.size.0 / self.input.scale - EDGE_SPACING * 2.0 / self.input.scale;
     }
 
     fn render(&mut self, graphics_context: &mut gfx::GraphicsContext) {
