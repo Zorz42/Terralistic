@@ -41,7 +41,7 @@ impl WorldGenerator {
 
     /// This function creates a array of biome ids and returns it along with the width of the world.
     /// Each biome id is for each column of the world.
-    fn generate_biome_ids(&mut self, min_width: u32) -> Result<(Vec<i32>, u32)> {
+    fn generate_biome_ids(&mut self, min_width: i32) -> Result<(Vec<i32>, i32)> {
         let mut biome_ids = Vec::new();
         let mut width = 0;
 
@@ -55,8 +55,8 @@ impl WorldGenerator {
             let biome = biomes
                 .get(curr_biome as usize)
                 .ok_or_else(|| anyhow!("Biome with id {} does not exist!", curr_biome))?;
-            let biome_width =
-                rand::random::<u32>() % (biome.max_width - biome.min_width) + biome.min_width;
+            let biome_width = (rand::random::<u32>() % (biome.max_width - biome.min_width)
+                + biome.min_width) as i32;
             for _ in 0..biome_width {
                 biome_ids.push(curr_biome);
             }
@@ -85,7 +85,7 @@ impl WorldGenerator {
     fn generate_ore_noise_parameters(
         &self,
         blocks: &Blocks,
-        width: u32,
+        width: i32,
         biome_ids: &[i32],
     ) -> Result<(HashMap<BlockId, Vec<f32>>, HashMap<BlockId, Vec<f32>>)> {
         let mut ores_start_noises = HashMap::new();
@@ -121,6 +121,7 @@ impl WorldGenerator {
         }
 
         let convolution_size = 50;
+        // convolve the noise parameters
         for block_id in blocks.get_all_block_ids() {
             for _ in 0..5 {
                 ores_start_noises.insert(
@@ -150,11 +151,11 @@ impl WorldGenerator {
     /// This function generates the heights of the terrain.
     fn generate_heights(
         rng: &mut StdRng,
-        width: u32,
-        height: u32,
+        width: i32,
+        height: i32,
         min_heights: &[f32],
         max_heights: &[f32],
-    ) -> Result<Vec<u32>> {
+    ) -> Result<Vec<i32>> {
         let terrain_noise = Perlin::new(rng.next_u32());
         let mut heights = Vec::new();
         for x in 0..width {
@@ -165,14 +166,111 @@ impl WorldGenerator {
                     - min_heights
                         .get(x as usize)
                         .ok_or_else(|| anyhow!("invalid block id"))?))
-                as u32
+                as i32
                 + *min_heights
                     .get(x as usize)
-                    .ok_or_else(|| anyhow!("invalid block id"))? as u32
+                    .ok_or_else(|| anyhow!("invalid block id"))? as i32
                 + height * 2 / 3;
             heights.push(terrain_noise_val);
         }
         Ok(heights)
+    }
+
+    /// This generates a column of world, before giving it to the mod to generate the rest of the world.
+    #[allow(clippy::too_many_arguments)]
+    fn generate_column(
+        &self,
+        height: i32,
+        x: i32,
+        heights: &[i32],
+        cave_noise: &Perlin,
+        cave_threshold: (f32, f32),
+        blocks: &Blocks,
+        walls: &Walls,
+        biome_id: i32,
+    ) -> Result<(Vec<BlockId>, Vec<WallId>)> {
+        let mut curr_block_terrain = vec![BlockId::undefined(); height as usize];
+        let mut curr_wall_terrain = vec![WallId::undefined(); height as usize];
+
+        let terrain_noise_val = *heights
+            .get(x as usize)
+            .ok_or_else(|| anyhow!("invalid x coordinate"))?;
+        let mut walls_height = *heights
+            .get(x as usize)
+            .ok_or_else(|| anyhow!("invalid x coordinate"))?;
+        if let Some(height2) = heights.get(x as usize + 1) {
+            walls_height = i32::min(walls_height, *height2);
+        }
+        if x > 0 {
+            if let Some(height2) = heights.get(x as usize - 1) {
+                walls_height = i32::min(walls_height, *height2);
+            }
+        }
+
+        for y in 0..height {
+            let terrain_height = height - y;
+
+            let cave_noise_val = f32::abs(turbulence(cave_noise, x as f32 / 80.0, y as f32 / 80.0));
+            let cave_threshold =
+                y as f32 / height as f32 * (cave_threshold.1 - cave_threshold.0) + cave_threshold.0;
+
+            let curr_block =
+                if terrain_height > terrain_noise_val || cave_threshold > cave_noise_val {
+                    blocks.air()
+                } else {
+                    self.get_biomes()
+                        .get(biome_id as usize)
+                        .ok_or_else(|| anyhow!("invalid biome id"))?
+                        .base_block
+                };
+
+            *curr_block_terrain
+                .get_mut(y as usize)
+                .ok_or_else(|| anyhow!("invalid y coordinate"))? = curr_block;
+
+            if terrain_height < walls_height {
+                *curr_wall_terrain
+                    .get_mut(y as usize)
+                    .ok_or_else(|| anyhow!("invalid y coordinate"))? = self
+                    .get_biomes()
+                    .get(biome_id as usize)
+                    .ok_or_else(|| anyhow!("invalid biome id"))?
+                    .base_wall;
+            } else {
+                *curr_wall_terrain
+                    .get_mut(y as usize)
+                    .ok_or_else(|| anyhow!("invalid y coordinate"))? = walls.clear;
+            }
+        }
+
+        Ok((curr_block_terrain, curr_wall_terrain))
+    }
+
+    /// This lets the mod finish generating terrain
+    fn call_mod_to_generate(
+        &self,
+        mods: &mut ModManager,
+        biome_id: i32,
+        mut curr_terrain: Vec<Vec<BlockId>>,
+        curr_heights: &[i32],
+        width: i32,
+        height: i32,
+    ) -> Result<Vec<Vec<BlockId>>> {
+        let biomes = self.get_biomes();
+        let curr_biome2 = biomes
+            .get(biome_id as usize)
+            .ok_or_else(|| anyhow!("invalid biome id"))?;
+        if let Some(generator_function) = &curr_biome2.generator_function {
+            curr_terrain = mods
+                .get_mod(curr_biome2.mod_id)
+                .ok_or_else(|| anyhow!("invalid mod id"))?
+                .call_function(
+                    generator_function,
+                    (curr_terrain, curr_heights.to_owned(), width, height),
+                )?;
+        }
+
+        Ok(curr_terrain)
     }
 
     #[allow(clippy::too_many_lines)] // TODO: split this function up
@@ -180,8 +278,8 @@ impl WorldGenerator {
         &mut self,
         world: (&mut Blocks, &mut Walls),
         mods: &mut ModManager,
-        min_width: u32,
-        height: u32,
+        min_width: i32,
+        height: i32,
         seed: u64,
         status_text: &Mutex<String>,
     ) -> Result<()> {
@@ -215,7 +313,7 @@ impl WorldGenerator {
 
         // tasks are for loading bar
         let mut current_task = 0;
-        let total_tasks = width * height;
+        let total_tasks = width;
 
         let mut next_task = || {
             current_task += 1;
@@ -226,10 +324,10 @@ impl WorldGenerator {
         };
 
         *status_text.lock().unwrap_or_else(PoisonError::into_inner) = "Generating world".to_owned();
-        blocks.create(width, height);
+        blocks.create(width as u32, height as u32);
 
         let mut block_terrain = vec![vec![BlockId::undefined(); height as usize]; width as usize];
-        let mut wall_terrain = vec![vec![WallId::new(); height as usize]; width as usize];
+        let mut wall_terrain = Vec::with_capacity(width as usize);
 
         // TODO: add ores generation
         let (_ores_start_noises, _ores_end_noises) =
@@ -256,89 +354,36 @@ impl WorldGenerator {
         let heights = Self::generate_heights(&mut rng, width, height, &min_heights, &max_heights)?;
 
         for x in 0..width {
-            curr_terrain.push(vec![BlockId::undefined(); height as usize]);
+            next_task();
+
             curr_heights.push(
                 *heights
                     .get(x as usize)
                     .ok_or_else(|| anyhow!("invalid x coordinate"))?,
             );
 
-            let terrain_noise_val = *heights
-                .get(x as usize)
-                .ok_or_else(|| anyhow!("invalid x coordinate"))?;
-            let mut walls_height = *heights
-                .get(x as usize)
-                .ok_or_else(|| anyhow!("invalid x coordinate"))?;
-            if let Some(height2) = heights.get(x as usize + 1) {
-                walls_height = u32::min(walls_height, *height2);
-            }
-            if x > 0 {
-                if let Some(height2) = heights.get(x as usize - 1) {
-                    walls_height = u32::min(walls_height, *height2);
-                }
-            }
-
-            for y in 0..height {
-                next_task();
-                let terrain_height = height - y;
-
-                let cave_noise_val =
-                    f32::abs(turbulence(&cave_noise, x as f32 / 80.0, y as f32 / 80.0));
-                let cave_threshold = y as f32 / height as f32
-                    * (max_cave_thresholds
+            let (block_column, wall_column) = self.generate_column(
+                height,
+                x,
+                &heights,
+                &cave_noise,
+                (
+                    *min_cave_thresholds
                         .get(x as usize)
-                        .ok_or_else(|| anyhow!("invalid x coordinate"))?
-                        - min_cave_thresholds
-                            .get(x as usize)
-                            .ok_or_else(|| anyhow!("invalid x coordinate"))?)
-                    + min_cave_thresholds
+                        .ok_or_else(|| anyhow!("invalid x coordinate"))?,
+                    *max_cave_thresholds
                         .get(x as usize)
-                        .ok_or_else(|| anyhow!("invalid x coordinate"))?;
+                        .ok_or_else(|| anyhow!("invalid x coordinate"))?,
+                ),
+                blocks,
+                walls,
+                *biome_ids
+                    .get(x as usize)
+                    .ok_or_else(|| anyhow!("invalid x coordinate"))?,
+            )?;
 
-                let curr_block =
-                    if terrain_height > terrain_noise_val || cave_threshold > cave_noise_val {
-                        blocks.air()
-                    } else {
-                        self.get_biomes()
-                            .get(
-                                *biome_ids
-                                    .get(x as usize)
-                                    .ok_or_else(|| anyhow!("invalid x coordinate"))?
-                                    as usize,
-                            )
-                            .ok_or_else(|| anyhow!("invalid biome id"))?
-                            .base_block
-                    };
-
-                *curr_terrain
-                    .get_mut((x - prev_x) as usize)
-                    .ok_or_else(|| anyhow!("invalid x coordinate"))?
-                    .get_mut(y as usize)
-                    .ok_or_else(|| anyhow!("invalid y coordinate"))? = curr_block;
-
-                if terrain_height < walls_height {
-                    *wall_terrain
-                        .get_mut(x as usize)
-                        .ok_or_else(|| anyhow!("invalid x coordinate"))?
-                        .get_mut(y as usize)
-                        .ok_or_else(|| anyhow!("invalid y coordinate"))? = self
-                        .get_biomes()
-                        .get(
-                            *biome_ids
-                                .get(x as usize)
-                                .ok_or_else(|| anyhow!("invalid x coordinate"))?
-                                as usize,
-                        )
-                        .ok_or_else(|| anyhow!("invalid biome id"))?
-                        .base_wall;
-                } else {
-                    *wall_terrain
-                        .get_mut(x as usize)
-                        .ok_or_else(|| anyhow!("invalid x coordinate"))?
-                        .get_mut(y as usize)
-                        .ok_or_else(|| anyhow!("invalid y coordinate"))? = walls.clear;
-                }
-            }
+            curr_terrain.push(block_column);
+            wall_terrain.push(wall_column);
 
             if x == width - 1
                 || biome_ids
@@ -348,24 +393,16 @@ impl WorldGenerator {
                         .get((x + 1) as usize)
                         .ok_or_else(|| anyhow!("invalid x coordinate"))?
             {
-                let biomes = self.get_biomes();
-                let curr_biome2 = biomes
-                    .get(
-                        *biome_ids
-                            .get(x as usize)
-                            .ok_or_else(|| anyhow!("invalid x coordinate"))?
-                            as usize,
-                    )
-                    .ok_or_else(|| anyhow!("invalid biome id"))?;
-                if let Some(generator_function) = &curr_biome2.generator_function {
-                    curr_terrain = mods
-                        .get_mod(curr_biome2.mod_id)
-                        .ok_or_else(|| anyhow!("invalid mod id"))?
-                        .call_function(
-                            generator_function,
-                            (curr_terrain, curr_heights.clone(), x - prev_x + 1, height),
-                        )?;
-                }
+                curr_terrain = self.call_mod_to_generate(
+                    mods,
+                    *biome_ids
+                        .get(x as usize)
+                        .ok_or_else(|| anyhow!("invalid x coordinate"))?,
+                    curr_terrain,
+                    &curr_heights,
+                    x - prev_x + 1,
+                    height,
+                )?;
 
                 for y2 in 0..height {
                     for x2 in prev_x..=x {
@@ -380,6 +417,7 @@ impl WorldGenerator {
                             .ok_or_else(|| anyhow!("invalid y coordinate"))?;
                     }
                 }
+
                 curr_terrain.clear();
                 curr_heights.clear();
                 prev_x = x + 1;

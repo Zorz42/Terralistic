@@ -14,7 +14,7 @@ impl Wall {
     #[must_use]
     pub const fn new() -> Self {
         Self {
-            id: WallId::new(),
+            id: WallId::undefined(),
             break_time: None,
             name: String::new(),
         }

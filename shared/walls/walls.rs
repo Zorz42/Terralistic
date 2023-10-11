@@ -20,7 +20,7 @@ pub struct WallId {
 
 impl WallId {
     #[must_use]
-    pub const fn new() -> Self {
+    pub const fn undefined() -> Self {
         Self { id: -1 }
     }
 }
@@ -68,7 +68,7 @@ impl Walls {
             breaking_walls: Vec::new(),
             wall_types: Arc::new(Mutex::new(Vec::new())),
 
-            clear: WallId::new(),
+            clear: WallId::undefined(),
             hammer: ToolId::new(),
         };
 
@@ -92,7 +92,7 @@ impl Walls {
     /// Creates an empty map with the given dimensions.
     pub fn create(&mut self, width: u32, height: u32) {
         self.walls_data.map = WorldMap::new(width, height);
-        self.walls_data.walls = vec![WallId::new(); (width * height) as usize];
+        self.walls_data.walls = vec![WallId::undefined(); (width * height) as usize];
     }
 
     /// # Errors

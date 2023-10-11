@@ -31,7 +31,7 @@ impl Biome {
             min_terrain_height: 0,
             max_terrain_height: 0,
             base_block: BlockId::undefined(),
-            base_wall: WallId::new(),
+            base_wall: WallId::undefined(),
             adjacent_biomes: Vec::new(),
             mod_id,
             generator_function: None,
