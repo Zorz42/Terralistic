@@ -87,13 +87,15 @@ impl WorldGenerator {
         blocks: &Blocks,
         width: i32,
         biome_ids: &[i32],
-    ) -> Result<(HashMap<BlockId, Vec<f32>>, HashMap<BlockId, Vec<f32>>)> {
-        let mut ores_start_noises = HashMap::new();
-        let mut ores_end_noises = HashMap::new();
+        rng: &mut StdRng,
+    ) -> Result<Vec<(BlockId, Perlin, f32, Vec<(f32, f32)>)>> {
+        let mut ores_start_end_noises = HashMap::new();
 
         for block_id in blocks.get_all_block_ids() {
-            ores_start_noises.insert(block_id, vec![-1.0; width as usize]);
-            ores_end_noises.insert(block_id, vec![-1.0; width as usize]);
+            ores_start_end_noises.insert(
+                block_id,
+                (vec![-1.0; width as usize], vec![-1.0; width as usize]),
+            );
         }
 
         for x in 0..width {
@@ -107,14 +109,16 @@ impl WorldGenerator {
                 )
                 .ok_or_else(|| anyhow!("invalid biome id"))?;
             for ore in &biome.ores {
-                *ores_start_noises
+                *ores_start_end_noises
                     .get_mut(&ore.block)
                     .ok_or_else(|| anyhow!("invalid block"))?
+                    .0
                     .get_mut(x as usize)
                     .ok_or_else(|| anyhow!("invalid coordinate"))? = ore.start_noise;
-                *ores_end_noises
+                *ores_start_end_noises
                     .get_mut(&ore.block)
                     .ok_or_else(|| anyhow!("invalid block"))?
+                    .1
                     .get_mut(x as usize)
                     .ok_or_else(|| anyhow!("invalid coordinate"))? = ore.end_noise;
             }
@@ -124,28 +128,53 @@ impl WorldGenerator {
         // convolve the noise parameters
         for block_id in blocks.get_all_block_ids() {
             for _ in 0..5 {
-                ores_start_noises.insert(
-                    block_id,
-                    convolve(
-                        ores_start_noises
-                            .get(&block_id)
-                            .ok_or_else(|| anyhow!("invalid block id"))?,
-                        convolution_size,
-                    ),
+                let start_noises = convolve(
+                    &ores_start_end_noises
+                        .get(&block_id)
+                        .ok_or_else(|| anyhow!("invalid block id"))?
+                        .0,
+                    convolution_size,
                 );
-                ores_end_noises.insert(
-                    block_id,
-                    convolve(
-                        ores_end_noises
-                            .get(&block_id)
-                            .ok_or_else(|| anyhow!("invalid block id"))?,
-                        convolution_size,
-                    ),
+                let end_noises = convolve(
+                    &ores_start_end_noises
+                        .get(&block_id)
+                        .ok_or_else(|| anyhow!("invalid block id"))?
+                        .1,
+                    convolution_size,
                 );
+                ores_start_end_noises.insert(block_id, (start_noises, end_noises));
             }
         }
 
-        Ok((ores_start_noises, ores_end_noises))
+        let mut ores_perlin_noises = Vec::new();
+        for (block_id, (start_noises, end_noises)) in &ores_start_end_noises {
+            let mut commonness = 0.0;
+            // commonness is the average difference between the start and end noise
+            for (start_noise, end_noise) in start_noises.iter().zip(end_noises.iter()) {
+                commonness += f32::abs(start_noise - end_noise);
+            }
+            commonness /= width as f32;
+
+            ores_perlin_noises.push((
+                *block_id,
+                Perlin::new(rng.next_u32()),
+                commonness,
+                start_noises
+                    .iter()
+                    .zip(end_noises.iter())
+                    .map(|(start_noise, end_noise)| (*start_noise, *end_noise))
+                    .collect::<Vec<_>>(),
+            ));
+        }
+
+        // sort ores by commonness, so that the most common ores are generated first
+        ores_perlin_noises.sort_by(|(_, _, commonness1, _), (_, _, commonness2, _)| {
+            commonness2
+                .partial_cmp(commonness1)
+                .unwrap_or(std::cmp::Ordering::Equal)
+        });
+
+        Ok(ores_perlin_noises)
     }
 
     /// This function generates the heights of the terrain.
@@ -188,9 +217,7 @@ impl WorldGenerator {
         blocks: &Blocks,
         walls: &Walls,
         biome_id: i32,
-        ores_start_noises: &HashMap<BlockId, Vec<f32>>,
-        ores_end_noises: &HashMap<BlockId, Vec<f32>>,
-        ores_perlin_noises: &HashMap<BlockId, Perlin>,
+        ores_noises: &Vec<(BlockId, Perlin, f32, Vec<(f32, f32)>)>,
     ) -> Result<(Vec<BlockId>, Vec<WallId>)> {
         let mut curr_block_terrain = vec![BlockId::undefined(); height as usize];
         let mut curr_wall_terrain = vec![WallId::undefined(); height as usize];
@@ -210,38 +237,61 @@ impl WorldGenerator {
             }
         }
 
+        let biome_base_block = self
+            .get_biomes()
+            .get(biome_id as usize)
+            .ok_or_else(|| anyhow!("invalid biome id"))?
+            .base_block;
+        let biome_base_wall = self
+            .get_biomes()
+            .get(biome_id as usize)
+            .ok_or_else(|| anyhow!("invalid biome id"))?
+            .base_wall;
+
         for y in 0..height {
             let terrain_height = height - y;
 
-            let cave_noise_val = f32::abs(turbulence(cave_noise, x as f32 / 80.0, y as f32 / 80.0));
-            let cave_threshold =
-                y as f32 / height as f32 * (cave_threshold.1 - cave_threshold.0) + cave_threshold.0;
+            let (cave_noise_val, cave_threshold) = {
+                if terrain_height > terrain_noise_val {
+                    (0.0, 0.0)
+                } else {
+                    (
+                        f32::abs(turbulence(cave_noise, x as f32 / 80.0, y as f32 / 80.0)),
+                        y as f32 / height as f32 * (cave_threshold.1 - cave_threshold.0)
+                            + cave_threshold.0,
+                    )
+                }
+            };
 
             let curr_block =
                 if terrain_height > terrain_noise_val || cave_threshold > cave_noise_val {
                     blocks.air()
                 } else {
                     // generate ores
-                    let mut block = self
-                        .get_biomes()
-                        .get(biome_id as usize)
-                        .ok_or_else(|| anyhow!("invalid biome id"))?
-                        .base_block;
-                    for (block_id, noise) in ores_perlin_noises {
-                        let start_noise = *ores_start_noises
-                            .get(block_id)
-                            .ok_or_else(|| anyhow!("invalid block id"))?
-                            .get(x as usize)
-                            .ok_or_else(|| anyhow!("invalid x coordinate"))?;
+                    let mut block = biome_base_block;
 
-                        let end_noise = *ores_end_noises
-                            .get(block_id)
-                            .ok_or_else(|| anyhow!("invalid block id"))?
+                    for (block_id, noise, _commonness, noise_thresholds) in ores_noises {
+                        let start_noise = noise_thresholds
                             .get(x as usize)
-                            .ok_or_else(|| anyhow!("invalid x coordinate"))?;
+                            .ok_or_else(|| anyhow!("invalid x coordinate"))?
+                            .0;
+
+                        let end_noise = noise_thresholds
+                            .get(x as usize)
+                            .ok_or_else(|| anyhow!("invalid x coordinate"))?
+                            .1;
 
                         let noise_threshold = (y as f32 / height as f32) * end_noise
                             + (1.0 - y as f32 / height as f32) * start_noise;
+
+                        if noise_threshold < -0.99 {
+                            continue;
+                        }
+
+                        if noise_threshold > 0.99 {
+                            block = *block_id;
+                            continue;
+                        }
 
                         let noise_val = turbulence(noise, x as f32 / 20.0, y as f32 / 20.0);
 
@@ -260,11 +310,7 @@ impl WorldGenerator {
             if terrain_height < walls_height {
                 *curr_wall_terrain
                     .get_mut(y as usize)
-                    .ok_or_else(|| anyhow!("invalid y coordinate"))? = self
-                    .get_biomes()
-                    .get(biome_id as usize)
-                    .ok_or_else(|| anyhow!("invalid biome id"))?
-                    .base_wall;
+                    .ok_or_else(|| anyhow!("invalid y coordinate"))? = biome_base_wall;
             } else {
                 *curr_wall_terrain
                     .get_mut(y as usize)
@@ -358,12 +404,8 @@ impl WorldGenerator {
         let mut block_terrain = vec![vec![BlockId::undefined(); height as usize]; width as usize];
         let mut wall_terrain = Vec::with_capacity(width as usize);
 
-        let (ores_start_noises, ores_end_noises) =
-            self.generate_ore_noise_parameters(blocks, width, &biome_ids)?;
-        let ores_perlin_noises = ores_start_noises
-            .keys()
-            .map(|block_id| (*block_id, Perlin::new(rng.next_u32())))
-            .collect::<HashMap<_, _>>();
+        let ores_noises =
+            self.generate_ore_noise_parameters(blocks, width, &biome_ids, &mut rng)?;
 
         let mut min_cave_thresholds = vec![0.0; width as usize];
         let mut max_cave_thresholds = vec![0.15; width as usize];
@@ -412,9 +454,7 @@ impl WorldGenerator {
                 *biome_ids
                     .get(x as usize)
                     .ok_or_else(|| anyhow!("invalid x coordinate"))?,
-                &ores_start_noises,
-                &ores_end_noises,
-                &ores_perlin_noises,
+                &ores_noises,
             )?;
 
             curr_terrain.push(block_column);
