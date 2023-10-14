@@ -19,6 +19,7 @@ pub struct ClientPlayers {
     main_player: Option<Entity>,
     main_player_name: String,
     player_texture: gfx::Texture,
+    pub controls_enabled: bool,
 }
 
 impl ClientPlayers {
@@ -27,6 +28,7 @@ impl ClientPlayers {
             main_player: None,
             main_player_name: player_name.to_owned(),
             player_texture: gfx::Texture::new(),
+            controls_enabled: true,
         }
     }
 
@@ -114,11 +116,13 @@ impl ClientPlayers {
                 Self::set_jumping(
                     networking,
                     player_component,
-                    graphics.renderer.get_key_state(gfx::Key::Space),
+                    graphics.renderer.get_key_state(gfx::Key::Space) && self.controls_enabled,
                 )?;
 
-                let key_a_pressed = graphics.renderer.get_key_state(gfx::Key::A);
-                let key_d_pressed = graphics.renderer.get_key_state(gfx::Key::D);
+                let key_a_pressed =
+                    graphics.renderer.get_key_state(gfx::Key::A) && self.controls_enabled;
+                let key_d_pressed =
+                    graphics.renderer.get_key_state(gfx::Key::D) && self.controls_enabled;
 
                 let moving_type = match (key_a_pressed, key_d_pressed) {
                     (true, false) => MovingType::MovingLeft,

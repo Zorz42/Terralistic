@@ -104,4 +104,8 @@ impl Camera {
             }
         }
     }
+
+    pub fn is_detached(&self) -> bool {
+        self.detached_camera
+    }
 }

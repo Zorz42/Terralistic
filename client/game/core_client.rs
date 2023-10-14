@@ -164,6 +164,7 @@ pub fn run_game(
 
         while framerate_measurer.has_5ms_passed() {
             camera.update_ms(graphics);
+            players.controls_enabled = !camera.is_detached();
             players.update(
                 graphics,
                 &mut entities.entities,
