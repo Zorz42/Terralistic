@@ -142,19 +142,18 @@ impl ClientChat {
             self.text_input.on_event(event, graphics, None);
 
             if let gfx::Event::KeyPress(gfx::Key::Enter, ..) = event {
-                networking.send_packet(Packet::new(ChatPacket {
-                    message: self.text_input.get_text().clone(),
-                })?)?;
+                if self.text_input.selected {
+                    networking.send_packet(Packet::new(ChatPacket {
+                        message: self.text_input.get_text().clone(),
+                    })?)?;
 
-                self.text_input.set_text(String::new());
-                self.text_input.selected = false;
-            }
-
-            if self.text_input.selected
-                && (matches!(event, gfx::Event::KeyPress(..))
-                    || matches!(event, gfx::Event::KeyRelease(..)))
-            {
+                    self.text_input.set_text(String::new());
+                    self.text_input.selected = false;
+                }
+            } else if self.text_input.selected && matches!(event, gfx::Event::KeyRelease(..)) {
                 return Ok(true);
+            } else if let gfx::Event::KeyRelease(gfx::Key::T, ..) = event {
+                self.text_input.selected = true;
             }
         } else if let Some(event) = event.downcast::<Packet>() {
             if let Some(packet) = event.try_deserialize::<ChatPacket>() {
@@ -170,7 +169,7 @@ impl ClientChat {
                 ));
             }
         }
-        Ok(false)
+        Ok(self.text_input.selected)
     }
 
     pub const fn is_selected(&self) -> bool {
