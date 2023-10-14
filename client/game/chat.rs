@@ -84,6 +84,7 @@ pub struct ClientChat {
     back_rect: gfx::RenderRect,
     text_input: gfx::TextInput,
     chat_lines: Vec<ChatLine>,
+    waiting_for_t: bool,
 }
 
 impl ClientChat {
@@ -92,6 +93,7 @@ impl ClientChat {
             text_input: gfx::TextInput::new(graphics),
             back_rect: gfx::RenderRect::new(gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, 0.0)),
             chat_lines: Vec::new(),
+            waiting_for_t: false,
         }
     }
 
@@ -139,21 +141,33 @@ impl ClientChat {
         networking: &mut ClientNetworking,
     ) -> Result<bool> {
         if let Some(event) = event.downcast::<gfx::Event>() {
+            if let gfx::Event::TextInput(..) = event {
+                if self.waiting_for_t {
+                    self.waiting_for_t = false;
+                    return Ok(true);
+                }
+            }
+
             self.text_input.on_event(event, graphics, None);
 
             if let gfx::Event::KeyPress(gfx::Key::Enter, ..) = event {
-                if self.text_input.selected {
+                if self.text_input.selected && !self.text_input.get_text().is_empty() {
                     networking.send_packet(Packet::new(ChatPacket {
                         message: self.text_input.get_text().clone(),
                     })?)?;
 
                     self.text_input.set_text(String::new());
-                    self.text_input.selected = false;
                 }
-            } else if self.text_input.selected && matches!(event, gfx::Event::KeyRelease(..)) {
-                return Ok(true);
-            } else if let gfx::Event::KeyRelease(gfx::Key::T, ..) = event {
-                self.text_input.selected = true;
+            } else if let gfx::Event::KeyPress(gfx::Key::T, ..) = event {
+                if !self.is_selected() {
+                    self.text_input.selected = true;
+                    self.waiting_for_t = true;
+                }
+            } else if let gfx::Event::KeyPress(gfx::Key::Escape, ..) = event {
+                if self.is_selected() {
+                    self.text_input.selected = false;
+                    return Ok(true);
+                }
             }
         } else if let Some(event) = event.downcast::<Packet>() {
             if let Some(packet) = event.try_deserialize::<ChatPacket>() {
@@ -169,7 +183,7 @@ impl ClientChat {
                 ));
             }
         }
-        Ok(self.text_input.selected)
+        Ok(self.is_selected())
     }
 
     pub const fn is_selected(&self) -> bool {
