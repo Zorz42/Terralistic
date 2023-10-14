@@ -188,6 +188,9 @@ impl WorldGenerator {
         blocks: &Blocks,
         walls: &Walls,
         biome_id: i32,
+        ores_start_noises: &HashMap<BlockId, Vec<f32>>,
+        ores_end_noises: &HashMap<BlockId, Vec<f32>>,
+        ores_perlin_noises: &HashMap<BlockId, Perlin>,
     ) -> Result<(Vec<BlockId>, Vec<WallId>)> {
         let mut curr_block_terrain = vec![BlockId::undefined(); height as usize];
         let mut curr_wall_terrain = vec![WallId::undefined(); height as usize];
@@ -218,10 +221,36 @@ impl WorldGenerator {
                 if terrain_height > terrain_noise_val || cave_threshold > cave_noise_val {
                     blocks.air()
                 } else {
-                    self.get_biomes()
+                    // generate ores
+                    let mut block = self
+                        .get_biomes()
                         .get(biome_id as usize)
                         .ok_or_else(|| anyhow!("invalid biome id"))?
-                        .base_block
+                        .base_block;
+                    for (block_id, noise) in ores_perlin_noises {
+                        let start_noise = *ores_start_noises
+                            .get(block_id)
+                            .ok_or_else(|| anyhow!("invalid block id"))?
+                            .get(x as usize)
+                            .ok_or_else(|| anyhow!("invalid x coordinate"))?;
+
+                        let end_noise = *ores_end_noises
+                            .get(block_id)
+                            .ok_or_else(|| anyhow!("invalid block id"))?
+                            .get(x as usize)
+                            .ok_or_else(|| anyhow!("invalid x coordinate"))?;
+
+                        let noise_threshold = (y as f32 / height as f32) * end_noise
+                            + (1.0 - y as f32 / height as f32) * start_noise;
+
+                        let noise_val = turbulence(noise, x as f32 / 20.0, y as f32 / 20.0);
+
+                        if noise_val <= noise_threshold {
+                            block = *block_id;
+                        }
+                    }
+
+                    block
                 };
 
             *curr_block_terrain
@@ -329,9 +358,12 @@ impl WorldGenerator {
         let mut block_terrain = vec![vec![BlockId::undefined(); height as usize]; width as usize];
         let mut wall_terrain = Vec::with_capacity(width as usize);
 
-        // TODO: add ores generation
-        let (_ores_start_noises, _ores_end_noises) =
+        let (ores_start_noises, ores_end_noises) =
             self.generate_ore_noise_parameters(blocks, width, &biome_ids)?;
+        let ores_perlin_noises = ores_start_noises
+            .keys()
+            .map(|block_id| (*block_id, Perlin::new(rng.next_u32())))
+            .collect::<HashMap<_, _>>();
 
         let mut min_cave_thresholds = vec![0.0; width as usize];
         let mut max_cave_thresholds = vec![0.15; width as usize];
@@ -380,6 +412,9 @@ impl WorldGenerator {
                 *biome_ids
                     .get(x as usize)
                     .ok_or_else(|| anyhow!("invalid x coordinate"))?,
+                &ores_start_noises,
+                &ores_end_noises,
+                &ores_perlin_noises,
             )?;
 
             curr_terrain.push(block_column);
