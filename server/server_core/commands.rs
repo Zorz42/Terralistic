@@ -112,6 +112,8 @@ impl CommandManager {
                 None,
             );
             let Ok(packet) = Packet::new(ChatPacket {
+                //TODO: this string contains newlines correctly and is sent to the client somehow (idk networking)
+                //if using a jetbrains ide, set a breakpoint and copy the result value and paste it into a text editor so it displays with newlines
                 message: format!("Command result: {result:?}"),
             }) else {
                 return;
