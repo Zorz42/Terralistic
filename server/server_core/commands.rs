@@ -1,7 +1,7 @@
 use std::fmt::Write;
 use std::sync::mpsc::Receiver;
 
-use anyhow::{anyhow, Error};
+use anyhow::{anyhow, Error, Result};
 
 use crate::libraries::events::{Event, EventManager};
 use crate::server::server_core::networking::PacketFromClientEvent;
@@ -28,7 +28,7 @@ pub struct CommandParameters<'a> {
     pub arguments: Vec<String>,
 }
 
-//struct that contains the command name and the function that will be executed when the command is called
+/// struct that contains the command name and the function that will be executed when the command is called
 pub struct Command {
     pub call_name: String,
     pub name: String,
@@ -36,7 +36,7 @@ pub struct Command {
     pub function: fn(&mut CommandParameters) -> anyhow::Result<String>,
 }
 
-//contains all the commands
+/// contains all the commands
 pub struct CommandManager {
     pub commands: Vec<Command>,
 }
@@ -48,12 +48,12 @@ impl CommandManager {
         }
     }
 
-    //adds a command to the command manager
+    /// adds a command to the command manager
     pub fn add_command(&mut self, command: Command) {
         self.commands.push(command);
     }
 
-    //receives an event and executes the command
+    /// receives an event and executes the command
     pub fn on_event(
         &self,
         event: &Event,
@@ -62,22 +62,22 @@ impl CommandManager {
         items: &mut items::ServerItems,
         entities: &mut entities::ServerEntities,
         event_manager: &mut EventManager,
-    ) {
+    ) -> Result<()> {
         if let Some(event) = event.downcast::<PacketFromClientEvent>() {
             let mut command = if let Some(packet_) = event.packet.try_deserialize::<ChatPacket>() {
                 packet_.message
             } else {
-                return;
+                return Ok(());
             };
 
             if !command.starts_with('/') {
-                return; //not a command
+                return Ok(());
             }
             //remove the slash
             command = command.get(1..).unwrap_or("").to_owned();
 
             let Ok(player_entity) = players.get_player_from_connection(&event.conn) else {
-                return;
+                return Ok(());
             };
             let name = if let Ok(player_c) = entities
                 .entities
@@ -86,7 +86,7 @@ impl CommandManager {
             {
                 player_c.get_name().to_owned()
             } else {
-                return;
+                return Ok(());
             };
 
             let mut output = String::new();
@@ -99,32 +99,30 @@ impl CommandManager {
                 entities,
                 event_manager,
             );
-            let _res = writeln!(output, "Player executed a command: {command}");
+            writeln!(output, "Player executed a command: {command}")?;
             let result = match result {
                 Ok(result) => result,
                 Err(e) => format!("Error: {e}"),
             };
-            let _res = writeln!(output, "Command result: {result:?}");
-            println!("{output}");
+            writeln!(output, "Command result: {result:?}")?;
             send_to_ui(
                 UiMessageType::SrvToUiConsoleMessage(ConsoleMessageType::Info(output)),
                 None,
             );
-            let Ok(packet) = Packet::new(ChatPacket {
-                //TODO: this string contains newlines correctly and is sent to the client somehow (idk networking)
-                //if using a jetbrains ide, set a breakpoint and copy the result value and paste it into a text editor so it displays with newlines
-                message: format!("Command result: {result:?}"),
-            }) else {
-                return;
+
+            let Ok(packet) = Packet::new(ChatPacket { message: result }) else {
+                return Ok(());
             };
             event_manager.push_event(Event::new(PacketFromClientEvent {
                 conn: event.conn.clone(),
                 packet,
             }));
         }
+
+        Ok(())
     }
 
-    //executes a command
+    /// executes a command
     #[allow(clippy::too_many_arguments)]
     pub fn execute_command(
         &self,
@@ -135,7 +133,7 @@ impl CommandManager {
         items: &mut items::ServerItems,
         entities: &mut entities::ServerEntities,
         event_manager: &mut EventManager,
-    ) -> anyhow::Result<String> {
+    ) -> Result<String> {
         let arguments: Vec<String> = command
             .split(' ')
             .map(std::borrow::ToOwned::to_owned)
@@ -159,8 +157,7 @@ impl CommandManager {
         Err(Error::msg("Invalid command"))
     }
 
-    //executes all commands
-    #[allow(clippy::too_many_arguments)]
+    /// executes all commands that are typed into the console
     pub fn execute_commands(
         &self,
         receiver: &Receiver<UiMessageType>,

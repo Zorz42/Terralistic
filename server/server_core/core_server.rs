@@ -323,7 +323,7 @@ impl Server {
                 &mut self.items,
                 &mut self.entities,
                 &mut self.events,
-            );
+            )?;
 
             self.mods.on_event(&event, &mut self.networking)?;
             self.blocks.on_event(
@@ -440,6 +440,17 @@ pub fn send_to_ui(data: UiMessageType, ui_event_sender: Option<Sender<UiMessageT
 
 //prints to the terminal the server was started in and sends it to the ui
 pub fn print_to_console(text: &str, warn_level: u8) {
+    if text.is_empty() {
+        return;
+    }
+
+    if text.contains('\n') {
+        for line in text.split('\n') {
+            print_to_console(line, warn_level);
+        }
+        return;
+    }
+
     let mut formatted_text;
     if warn_level == 0 {
         formatted_text = format!("[INFO] {text}");
