@@ -6,7 +6,7 @@ use super::shaders::compile_shader;
 use super::vertex_buffer::{Vertex, VertexBuffer};
 use super::Color;
 
-const VERTEX_SHADER_CODE: &str = r#"
+const VERTEX_SHADER_CODE: &str = "
 #version 330 core
 
 layout (location = 0) in vec2 vertex_position;
@@ -26,9 +26,9 @@ void main() {
 	fragment_color = global_color * vertex_color;
 	texture_coord = (texture_transform_matrix * vec3(vertex_texture_coordinate.xy, 1.f)).xy;
 }
-"#;
+";
 
-const FRAGMENT_SHADER_CODE: &str = r#"
+const FRAGMENT_SHADER_CODE: &str = "
 #version 330 core
 
 in vec4 fragment_color;
@@ -40,7 +40,7 @@ uniform int has_texture;
 void main() {
 	color = mix(vec4(1.f, 1.f, 1.f, 1.f), texture(texture_sampler, texture_coord).rgba, has_texture) * fragment_color;
 }
-"#;
+";
 
 /// Passthrough shader context struct holds shaders needed for drawing
 /// rectangles and all uniform handles. It also holds a vertex buffer

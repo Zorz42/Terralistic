@@ -6,7 +6,7 @@ use super::shaders::compile_shader;
 use super::transformation::Transformation;
 use super::Rect;
 
-const BLUR_VERTEX_SHADER_CODE: &str = r#"
+const BLUR_VERTEX_SHADER_CODE: &str = "
 #version 330 core
 
 layout(location = 0) in vec2 vertex_position;
@@ -18,9 +18,9 @@ void main() {
    gl_Position = vec4(transform_matrix * vec3(vertex_position.xy, 1), 1);
    uv = (texture_transform_matrix * vec3(vertex_position.xy, 1)).xy;
 }
-"#;
+";
 
-const BLUR_FRAGMENT_SHADER_CODE: &str = r#"
+const BLUR_FRAGMENT_SHADER_CODE: &str = "
 #version 330 core
 
 in vec2 uv;
@@ -35,7 +35,7 @@ void main() {
    for(int i = 0; i < 13; i++)
        color += texture(texture_sampler, max(min(uv + (i - 6.0) * blur_offset, vec2(limit.x, limit.y)), vec2(limit.z, limit.w))) * gauss[i];
 }
-"#;
+";
 
 /// Blur context struct holds shaders needed for blurring and
 /// all uniform handles.

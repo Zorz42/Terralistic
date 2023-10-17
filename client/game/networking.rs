@@ -170,7 +170,7 @@ impl ClientNetworking {
     }
 
     pub fn update(&mut self, events: &mut EventManager) -> Result<()> {
-        if let Some(ref receiver) = self.event_receiver {
+        if let Some(receiver) = &self.event_receiver {
             while let Ok(event) = receiver.try_recv() {
                 events.push_event(event);
             }
