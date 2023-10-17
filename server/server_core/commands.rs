@@ -64,59 +64,55 @@ impl CommandManager {
         event_manager: &mut EventManager,
     ) -> Result<()> {
         if let Some(event) = event.downcast::<PacketFromClientEvent>() {
-            let mut command = if let Some(packet_) = event.packet.try_deserialize::<ChatPacket>() {
-                packet_.message
-            } else {
-                return Ok(());
-            };
+            if let Some(packet) = event.packet.try_deserialize::<ChatPacket>() {
+                let mut command = packet.message;
 
-            if !command.starts_with('/') {
-                return Ok(());
+                if !command.starts_with('/') {
+                    return Ok(());
+                }
+
+                //remove the slash
+                command = command.get(1..).unwrap_or("").to_owned();
+
+                let player_entity = players.get_player_from_connection(&event.conn)?;
+                let name = entities
+                    .entities
+                    .ecs
+                    .get::<&mut PlayerComponent>(player_entity)?
+                    .get_name()
+                    .to_owned();
+
+                let mut output = String::new();
+                let result = self.execute_command(
+                    &command,
+                    state,
+                    Some(&name),
+                    players,
+                    items,
+                    entities,
+                    event_manager,
+                );
+
+                writeln!(output, "Player \"{name}\" executed a command: {command}")?;
+                let result = match result {
+                    Ok(result) => result,
+                    Err(e) => format!("Error: {e}"),
+                };
+
+                writeln!(output, "Command result: {result:?}")?;
+
+                send_to_ui(
+                    UiMessageType::SrvToUiConsoleMessage(ConsoleMessageType::Info(output)),
+                    None,
+                );
+
+                let packet = Packet::new(ChatPacket { message: result })?;
+
+                event_manager.push_event(Event::new(PacketFromClientEvent {
+                    conn: event.conn.clone(),
+                    packet,
+                }));
             }
-            //remove the slash
-            command = command.get(1..).unwrap_or("").to_owned();
-
-            let Ok(player_entity) = players.get_player_from_connection(&event.conn) else {
-                return Ok(());
-            };
-            let name = if let Ok(player_c) = entities
-                .entities
-                .ecs
-                .get::<&mut PlayerComponent>(player_entity)
-            {
-                player_c.get_name().to_owned()
-            } else {
-                return Ok(());
-            };
-
-            let mut output = String::new();
-            let result = self.execute_command(
-                &command,
-                state,
-                Some(&name),
-                players,
-                items,
-                entities,
-                event_manager,
-            );
-            writeln!(output, "Player executed a command: {command}")?;
-            let result = match result {
-                Ok(result) => result,
-                Err(e) => format!("Error: {e}"),
-            };
-            writeln!(output, "Command result: {result:?}")?;
-            send_to_ui(
-                UiMessageType::SrvToUiConsoleMessage(ConsoleMessageType::Info(output)),
-                None,
-            );
-
-            let Ok(packet) = Packet::new(ChatPacket { message: result }) else {
-                return Ok(());
-            };
-            event_manager.push_event(Event::new(PacketFromClientEvent {
-                conn: event.conn.clone(),
-                packet,
-            }));
         }
 
         Ok(())
@@ -188,7 +184,7 @@ impl CommandManager {
 
 //help command
 #[allow(clippy::unnecessary_wraps)] //all command functions must return the same type
-pub fn help_command(parameters: &mut CommandParameters) -> anyhow::Result<String> {
+pub fn help_command(parameters: &mut CommandParameters) -> Result<String> {
     let mut string = String::new();
     string.push_str("Commands:\n");
     for c in &parameters.command_manager.commands {
@@ -198,13 +194,13 @@ pub fn help_command(parameters: &mut CommandParameters) -> anyhow::Result<String
 }
 
 #[allow(clippy::unnecessary_wraps)] //all command functions must return the same type
-pub fn stop_command(parameters: &mut CommandParameters) -> anyhow::Result<String> {
+pub fn stop_command(parameters: &mut CommandParameters) -> Result<String> {
     *parameters.state = ServerState::Stopping;
     anyhow::Ok(String::from("Stopping server..."))
 }
 
 //this command gives an item to the player
-pub fn give_command(parameters: &mut CommandParameters) -> anyhow::Result<String> {
+pub fn give_command(parameters: &mut CommandParameters) -> Result<String> {
     let item_name = parameters
         .arguments
         .first()
