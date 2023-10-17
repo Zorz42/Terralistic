@@ -54,7 +54,6 @@ impl CommandManager {
     }
 
     //receives an event and executes the command
-    #[allow(clippy::too_many_arguments)]
     pub fn on_event(
         &self,
         event: &Event,

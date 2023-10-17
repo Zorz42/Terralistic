@@ -90,8 +90,6 @@ impl Server {
     }
 
     /// Starts the server - manual way. It only inits the server but doesn't run a loop
-    /// # Errors
-    /// A lot of server crashes are caused by mods and other stuff, so this function returns a Result
     #[allow(clippy::too_many_lines)]
     pub fn start(
         &mut self,
@@ -164,8 +162,6 @@ impl Server {
     }
 
     ///Runs the server - automated way. It starts (inits) the server, runs it until it has top be stopped, then stops it and returns
-    /// # Errors
-    /// A lot of server crashes are caused by mods and other stuff, so this function returns a Result
     pub fn run(
         &mut self,
         is_running: &AtomicBool,
@@ -200,8 +196,6 @@ impl Server {
     }
 
     ///Updates the server - manual way. It updates the server once and returns
-    ///# Errors
-    ///A lot of server crashes are caused by mods and other stuff, so this function returns a Result
     pub fn update(&mut self) -> Result<()> {
         //there's no point in outside functions knowing about the counters. Letting outside functions manage these variables could lead to bugs
         static mut MS_COUNTER: i32 = 0;
@@ -257,8 +251,6 @@ impl Server {
     }
 
     ///Stops the server - manual way. It stops the server and returns
-    ///# Errors
-    ///A lot of server crashes are caused by mods and other stuff, so this function returns a Result
     pub fn stop(&mut self, status_text: &Mutex<String>, world_path: &Path) -> Result<()> {
         if self.state == ServerState::Stopped {
             //so we don't stop it twice

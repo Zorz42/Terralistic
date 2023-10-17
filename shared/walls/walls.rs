@@ -95,8 +95,6 @@ impl Walls {
         self.walls_data.walls = vec![WallId::undefined(); (width * height) as usize];
     }
 
-    /// # Errors
-    /// Returns an error if the functions couldn't be added to the lua state.
     pub fn init(&mut self, mods: &mut ModManager) -> Result<()> {
         mods.add_global_function("new_wall_type", move |_lua, ()| Ok(Wall::new()))?;
 
@@ -147,15 +145,11 @@ impl Walls {
     }
 
     /// Returns the wall type of the wall at given x and y
-    /// # Errors
-    /// Returns an error if the coordinates are invalid.
     pub fn get_wall_type_at(&self, x: i32, y: i32) -> Result<Wall> {
         self.get_wall_type(self.get_wall(x, y)?)
     }
 
     /// Returns the wall type with the given id
-    /// # Errors
-    /// Returns an error if the id is invalid.
     pub fn get_wall_type(&self, id: WallId) -> Result<Wall> {
         let walls = self
             .wall_types
@@ -168,8 +162,6 @@ impl Walls {
     }
 
     /// This function sets the wall type on x and y and sends the `WallChangeEvent`.
-    /// # Errors
-    /// Returns an error if the coordinates are invalid.
     pub fn set_wall_type(&mut self, x: i32, y: i32, wall_id: WallId) -> Result<()> {
         let wall = self.get_wall(x, y)?;
         if wall == wall_id {
@@ -189,15 +181,11 @@ impl Walls {
     }
 
     /// Serializes walls for saving
-    /// # Errors
-    /// Returns an error if the serialization fails.
     pub fn serialize(&self) -> Result<Vec<u8>> {
         Ok(snap::raw::Encoder::new().compress_vec(&bincode::serialize(&self.walls_data)?)?)
     }
 
     /// Deserializes walls from u8 vector
-    /// # Errors
-    /// Returns an error if the deserialization fails.
     pub fn deserialize(&mut self, data: &[u8]) -> Result<()> {
         let decompressed = snap::raw::Decoder::new().decompress_vec(data)?;
         self.walls_data = bincode::deserialize(&decompressed)?;
@@ -215,8 +203,6 @@ impl Walls {
     }
 
     /// Returns a wall id type with the given name
-    /// # Errors
-    /// Returns an error if the name is invalid.
     pub fn get_wall_id_by_name(&self, name: &str) -> Result<WallId> {
         let wall_types = self
             .wall_types
@@ -232,8 +218,6 @@ impl Walls {
     }
 
     /// This function creates a world from a 2d vector of wall type ids
-    /// # Errors
-    /// Returns an error if the wall ids are invalid or the length of the rows are not the same.
     pub fn create_from_wall_ids(&mut self, wall_ids: &Vec<Vec<WallId>>) -> Result<()> {
         let width = wall_ids.len() as u32;
         let height;

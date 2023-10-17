@@ -28,8 +28,6 @@ impl BreakingWall {
 
 impl Walls {
     /// Returns the break progress of the wall at x and y
-    /// # Errors
-    /// Returns an error if the coordinates are out of bounds.
     pub fn get_break_progress(&self, x: i32, y: i32) -> Result<i32> {
         self.walls_data.map.translate_coords(x, y)?;
 
@@ -42,8 +40,6 @@ impl Walls {
     }
 
     /// Returns the break stage (for example to be used as a break texture stage) of the wall at x and y
-    /// # Errors
-    /// Returns an error if the coordinates are out of bounds.
     pub fn get_break_stage(&self, x: i32, y: i32) -> Result<i32> {
         Ok(self.get_break_progress(x, y)? * 9
             / self.get_wall_type_at(x, y)?.break_time.unwrap_or(1))
@@ -51,8 +47,6 @@ impl Walls {
 
     /// Includes the necessary steps to start breaking a wall, such as adding it to the
     /// `breaking_walls` list, setting `is_breaking` to true and sending the `WallStartedBreakingEvent`
-    /// # Errors
-    /// Returns an error if the coordinates are out of bounds.
     pub fn start_breaking_wall(&mut self, x: i32, y: i32) -> Result<()> {
         if self.get_wall_type_at(x, y)?.break_time.is_none() {
             return Ok(());
@@ -101,8 +95,6 @@ impl Walls {
 
     /// Updates breaking walls by increasing break
     /// progress and breaking walls if necessary
-    /// # Errors
-    /// Returns an error if breaking walls are out of bounds.
     pub fn update_breaking_walls(
         &mut self,
         frame_length: f32,

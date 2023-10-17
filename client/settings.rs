@@ -41,8 +41,6 @@ pub struct Settings {
 }
 
 impl Settings {
-    /// # Errors
-    /// If config file couldn't be read.
     #[must_use]
     pub fn new(config_path: PathBuf) -> Self {
         let data = fs::read_to_string(config_path.clone());
@@ -98,8 +96,6 @@ impl Settings {
         self.curr_setting_id
     }
 
-    /// # Errors
-    /// If the setting does not exist.
     pub fn remove_setting(&mut self, id: i32) -> Result<()> {
         let setting = self.settings.get(&id);
 
@@ -145,8 +141,6 @@ impl Settings {
         Ok(())
     }
 
-    /// # Errors
-    /// If id doesn't exist.
     pub fn get_setting_mut(&mut self, id: i32) -> Result<&mut Setting> {
         return self
             .settings
@@ -154,8 +148,6 @@ impl Settings {
             .ok_or_else(|| anyhow!("Invalid setting id"));
     }
 
-    /// # Errors
-    /// If id doesn't exist.
     pub fn get_setting(&self, id: i32) -> Result<&Setting> {
         return self
             .settings
@@ -163,8 +155,6 @@ impl Settings {
             .ok_or_else(|| anyhow!("Invalid setting id"));
     }
 
-    /// # Errors
-    /// If file could not be written.
     pub fn save_config(&mut self) -> Result<()> {
         if !self.settings.is_empty() {
             println!("Warning: not all settings were removed, therefore not saved!");

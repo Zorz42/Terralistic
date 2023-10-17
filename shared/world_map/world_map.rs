@@ -36,8 +36,6 @@ impl WorldMap {
     }
 
     /// Translates a x y coordinate to a single number.
-    /// # Errors
-    /// Returns an error if the coordinates are out of bounds.
     pub fn translate_coords(&self, x: i32, y: i32) -> Result<usize> {
         if x < 0 || y < 0 || x >= self.width as i32 || y >= self.height as i32 {
             bail!("Coordinates are out of bounds! x: {}, y: {}", x, y);

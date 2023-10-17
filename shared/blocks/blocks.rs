@@ -91,8 +91,6 @@ impl Blocks {
     }
 
     /// This function creates a world from a 2d vector of block type ids
-    /// # Errors
-    /// Returns an error if any of the ids are invalid or if the rows have different lengths
     pub fn create_from_block_ids(&mut self, block_ids: &Vec<Vec<BlockId>>) -> Result<()> {
         let width = block_ids.len() as u32;
         let height;
@@ -118,8 +116,6 @@ impl Blocks {
     }
 
     /// This function returns the block id at given position
-    /// # Errors
-    /// Returns an error if the position is out of bounds
     pub fn get_block(&self, x: i32, y: i32) -> Result<BlockId> {
         Ok(*self
             .block_data
@@ -129,8 +125,6 @@ impl Blocks {
     }
 
     /// This sets the type of a block from a coordinate.
-    /// # Errors
-    /// Returns an error if the position is out of bounds
     pub fn set_big_block(
         &mut self,
         events: &mut EventManager,
@@ -159,8 +153,6 @@ impl Blocks {
     }
 
     /// This sets the type of a block from a coordinate.
-    /// # Errors
-    /// Returns an error if the position is out of bounds
     pub fn set_block(
         &mut self,
         events: &mut EventManager,
@@ -172,8 +164,6 @@ impl Blocks {
     }
 
     /// This function sets x and y from main for a block. If it is 0, 0 the value is removed from the hashmap.
-    /// # Errors
-    /// Returns an error if the position is out of bounds
     pub(super) fn set_block_from_main(
         &mut self,
         x: i32,
@@ -191,8 +181,6 @@ impl Blocks {
     }
 
     /// This function gets the block from main for a block. If the value is not found, it returns 0, 0.
-    /// # Errors
-    /// Returns an error if the position is out of bounds
     pub fn get_block_from_main(&self, x: i32, y: i32) -> Result<(i32, i32)> {
         Ok(*self
             .block_data
@@ -202,8 +190,6 @@ impl Blocks {
     }
 
     /// This function sets the block data for a block. If it is empty the value is removed from the hashmap.
-    /// # Errors
-    /// Returns an error if the position is out of bounds
     pub(super) fn set_block_data(&mut self, x: i32, y: i32, data: Vec<u8>) -> Result<()> {
         let index = self.block_data.map.translate_coords(x, y)?;
         if data.is_empty() {
@@ -215,8 +201,6 @@ impl Blocks {
     }
 
     /// This function returns block data, if it is not found it returns an empty vector.
-    /// # Errors
-    /// Returns an error if the position is out of bounds
     pub fn get_block_data(&self, x: i32, y: i32) -> Result<Vec<u8>> {
         Ok(self
             .block_data
@@ -227,15 +211,11 @@ impl Blocks {
     }
 
     /// Serializes the world, used for saving the world and sending it to the client.
-    /// # Errors
-    /// Returns an error if the serialization fails
     pub fn serialize(&self) -> Result<Vec<u8>> {
         Ok(snap::raw::Encoder::new().compress_vec(&bincode::serialize(&self.block_data)?)?)
     }
 
     /// Deserializes the world, used for loading the world and receiving it from the server.
-    /// # Errors
-    /// Returns an error if the deserialization fails
     pub fn deserialize(&mut self, serial: &[u8]) -> Result<()> {
         self.block_data = bincode::deserialize(&snap::raw::Decoder::new().decompress_vec(serial)?)?;
         Ok(())
@@ -252,8 +232,6 @@ impl Blocks {
 
     /// Returns the block type that has the specified name, used
     /// with commands to get the block type from the name.
-    /// # Errors
-    /// Returns an error if the block type is not found
     pub fn get_block_id_by_name(&mut self, name: &str) -> Result<BlockId> {
         for block_type in &self.block_types {
             if block_type.name == name {
@@ -274,8 +252,6 @@ impl Blocks {
     }
 
     /// Returns the block type that has the specified id.
-    /// # Errors
-    /// Returns an error if the block type is not found
     pub fn get_block_type(&self, id: BlockId) -> Result<Block> {
         Ok(self
             .block_types
@@ -285,8 +261,6 @@ impl Blocks {
     }
 
     /// Updates the block at the specified coordinates.
-    /// # Errors
-    /// Returns an error if the coordinates are out of bounds
     pub fn update_block(&mut self, x: i32, y: i32, events: &mut EventManager) -> Result<()> {
         let block = self.get_block_type_at(x, y)?;
         if block.width != 0 || block.height != 0 {
@@ -324,8 +298,6 @@ impl Blocks {
     }
 
     /// Returns the block type at specified coordinates.
-    /// # Errors
-    /// Returns an error if the block type is not found
     pub fn get_block_type_at(&self, x: i32, y: i32) -> Result<Block> {
         self.get_block_type(self.get_block(x, y)?)
     }

@@ -26,8 +26,6 @@ impl Inventory {
         self.items = other.items;
     }
 
-    /// # Errors
-    /// if the index is out of bounds
     pub fn get_item(&self, index: usize) -> Result<Option<ItemStack>> {
         Ok(self
             .items
@@ -36,8 +34,6 @@ impl Inventory {
             .clone())
     }
 
-    /// # Errors
-    /// if the index is out of bounds
     pub fn set_item(&mut self, index: usize, mut item: Option<ItemStack>) -> Result<()> {
         if let Some(item_stack) = item.clone() {
             if item_stack.count <= 0 {
@@ -76,8 +72,6 @@ impl Inventory {
         true
     }
 
-    /// # Errors
-    /// if the recipe can't be crafted
     pub fn craft(
         &mut self,
         recipe: &Recipe,
@@ -115,8 +109,6 @@ impl Inventory {
     /// This function adds an item to the
     /// inventory. If the item can't be added
     /// it is dropped in the world.
-    /// # Errors
-    /// item stack is invalid
     pub fn give_item(
         &mut self,
         mut item: ItemStack,
@@ -184,8 +176,6 @@ impl Inventory {
             .and_then(|slot| self.items.get(slot).and_then(Clone::clone))
     }
 
-    /// # Errors
-    /// if the index is out of bounds
     pub fn swap_with_selected_item(&mut self, slot: usize) -> Result<()> {
         let selected_item = self.get_selected_item();
         let hovered_item = self.get_item(slot)?;

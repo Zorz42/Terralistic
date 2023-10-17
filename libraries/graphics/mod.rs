@@ -85,9 +85,6 @@ pub struct GraphicsContext {
 }
 
 /// Initializes the graphics context.
-/// # Errors
-/// - If the renderer fails to initialize.
-/// - If the font fails to initialize.
 pub fn init(
     window_width: u32,
     window_height: u32,

@@ -32,8 +32,6 @@ impl BreakingBlock {
 
 impl Blocks {
     /// Gets the breaking progress of a block.
-    /// # Errors
-    /// Returns an error if the coordinates are out of bounds.
     pub fn get_break_progress(&self, x: i32, y: i32) -> Result<i32> {
         self.block_data.map.translate_coords(x, y)?;
 
@@ -46,8 +44,6 @@ impl Blocks {
     }
 
     /// Sets the breaking progress of a block.
-    /// # Errors
-    /// Returns an error if the coordinates are out of bounds.
     pub fn set_break_progress(&mut self, x: i32, y: i32, progress: i32) -> Result<()> {
         self.block_data.map.translate_coords(x, y)?;
 
@@ -66,8 +62,6 @@ impl Blocks {
     }
 
     /// Gets the break stage of a block, which is usually rendered.
-    /// # Errors
-    /// Returns an error if the coordinates are out of bounds.
     pub fn get_break_stage(&self, x: i32, y: i32) -> Result<i32> {
         Ok((self.get_break_progress(x, y)? as f32
             / self.get_block_type_at(x, y)?.break_time.unwrap_or(0) as f32
@@ -75,8 +69,6 @@ impl Blocks {
     }
 
     /// Adds a block to the breaking list, which means that the block is being broken.
-    /// # Errors
-    /// Returns an error if the coordinates are out of bounds.
     pub fn start_breaking_block(
         &mut self,
         events: &mut EventManager,
@@ -131,8 +123,6 @@ impl Blocks {
     }
 
     /// Stops breaking a block.
-    /// # Errors
-    /// Returns an error if the coordinates are out of bounds.
     pub fn stop_breaking_block(&mut self, events: &mut EventManager, x: i32, y: i32) -> Result<()> {
         self.block_data.map.translate_coords(x, y)?;
 
@@ -148,8 +138,6 @@ impl Blocks {
     }
 
     /// Updates the breaking progress of all blocks that are being broken.
-    /// # Errors
-    /// Returns an error if the coordinates in the breaking blocks are out of bounds.
     pub fn update_breaking_blocks(
         &mut self,
         events: &mut EventManager,
@@ -184,8 +172,6 @@ impl Blocks {
     }
 
     /// breaks a block at the given coordinates
-    /// # Errors
-    /// Returns an error if the coordinates are out of bounds.
     pub fn break_block(&mut self, events: &mut EventManager, x: i32, y: i32) -> Result<()> {
         let transformed_x = x - self.get_block_from_main(x, y)?.0;
         let transformed_y = y - self.get_block_from_main(x, y)?.1;

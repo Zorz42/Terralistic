@@ -54,8 +54,6 @@ pub struct BlurContext {
 
 impl BlurContext {
     /// Creates a new blur context. Opengl context must be initialized.
-    /// # Errors
-    /// Returns an error if shader compilation fails.
     pub(super) fn new() -> Result<Self> {
         let blur_shader = compile_shader(BLUR_VERTEX_SHADER_CODE, BLUR_FRAGMENT_SHADER_CODE)?;
         Ok(Self {

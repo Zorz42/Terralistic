@@ -1,8 +1,6 @@
 use anyhow::{bail, Result};
 
 /// This compiles fragment and vertex shader and returns the compiled shader program
-/// Errors:
-/// This function returns an error if the vertex shader fails to compile
 pub fn compile_shader(vertex_code: &str, fragment_code: &str) -> Result<u32> {
     // Safety: This is safe because we are using the opengl api correctly
     unsafe {

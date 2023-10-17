@@ -13,8 +13,6 @@ use crate::libraries::graphics as gfx;
 use crate::server::server_core::Server;
 use crate::server::server_core::SINGLEPLAYER_PORT;
 
-/// # Errors
-/// Returns an error if the server thread panics or if the server thread returns an error.
 pub fn run_private_world(
     graphics: &mut gfx::GraphicsContext,
     menu_back: &mut dyn BackgroundRect,

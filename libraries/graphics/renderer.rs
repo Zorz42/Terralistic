@@ -45,14 +45,6 @@ pub struct Renderer {
 impl Renderer {
     /// Initializes all the values needed for rendering.
     /// It usually fails because the system doesn't support graphics.
-    /// # Errors
-    /// - This function can fail if SDL2 fails to initialize.
-    /// - This function can fail if OpenGL fails to initialize.
-    /// - This function can fail if the window fails to initialize.
-    /// - This function can fail if the passthrough shader fails to initialize.
-    /// - This function can fail if the blur context fails to initialize.
-    /// - This function can fail if the shadow context fails to initialize.
-    /// - This function can fail if the clipboard context fails to initialize.
     pub fn new(window_width: u32, window_height: u32, window_title: &str) -> Result<Self> {
         let sdl = sdl2::init();
         let sdl = sdl.map_err(|e| anyhow!(e))?;

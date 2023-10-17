@@ -28,8 +28,6 @@ pub enum MovingType {
     MovingRight,
 }
 
-/// # Errors
-/// Returns an error if the player could not be spawned
 pub fn spawn_player(
     entities: &mut Entities,
     x: f32,
@@ -145,8 +143,6 @@ pub fn update_players_ms(entities: &mut Entities, blocks: &Blocks) {
     }
 }
 
-/// # Errors
-/// Returns an error if the item could not be removed
 pub fn remove_all_picked_items(
     entities: &mut Entities,
     events: &mut EventManager,

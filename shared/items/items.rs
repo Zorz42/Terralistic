@@ -105,8 +105,6 @@ impl Items {
     }
 
     /// this function spawns an item into the world
-    /// # Errors
-    /// if the item could not be spawned
     pub fn spawn_item(
         &mut self,
         events: &mut EventManager,
@@ -140,8 +138,6 @@ impl Items {
     }
 
     /// this function returns the item type with the given id
-    /// # Errors
-    /// if the item type is not found
     pub fn get_item_type(&self, id: ItemId) -> Result<Item> {
         Ok(self
             .item_types
@@ -151,8 +147,6 @@ impl Items {
     }
 
     /// this function returns the item type with the given name
-    /// # Errors
-    /// if the item type is not found
     pub fn get_item_type_by_name(&self, name: &str) -> Result<Item> {
         for item_type in &self.item_types {
             if item_type.name == name {
@@ -174,8 +168,6 @@ impl Items {
     }
 
     /// this function returns the block drop for the given block type
-    /// # Errors
-    /// if the block drop is not found
     pub fn get_block_drop(&self, block_type: BlockId) -> Result<TileDrop> {
         Ok(self
             .block_drops
@@ -190,8 +182,6 @@ impl Items {
     }
 
     /// this function returns the wall drop for the given wall type
-    /// # Errors
-    /// if the wall drop is not found
     pub fn get_wall_drop(&self, wall_type: WallId) -> Result<&TileDrop> {
         self.wall_drops
             .get(&wall_type)
@@ -220,8 +210,6 @@ impl Items {
     }
 
     /// this function returns the recipe with the given id
-    /// # Errors
-    /// if the recipe is not found
     pub fn get_recipe(&self, id: RecipeId) -> Result<&Recipe> {
         self.recipes
             .get(id.id as usize)

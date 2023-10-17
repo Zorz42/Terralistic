@@ -24,8 +24,6 @@ impl Surface {
 
     /// Serializes the surface into a vector of bytes.
     /// It is serialized with bincode and compressed with snap.
-    /// # Errors
-    /// Returns an error if the surface cannot be serialized.
     pub fn serialize_to_bytes(&self) -> Result<Vec<u8>> {
         let mut buffer = Vec::new();
         bincode::serialize_into(&mut buffer, &self)?;
@@ -33,8 +31,6 @@ impl Surface {
     }
 
     /// Deserializes a surface from a vector of bytes the same way it was serialized.
-    /// # Errors
-    /// Returns an error if the surface cannot be deserialized.
     pub fn deserialize_from_bytes(buffer: &[u8]) -> Result<Self> {
         let decompressed = snap::raw::Decoder::new().decompress_vec(buffer)?;
         Ok(bincode::deserialize(&decompressed)?)
@@ -52,8 +48,6 @@ impl Surface {
     }
 
     /// Retrieves the pixel color on a specified location.
-    /// # Errors
-    /// Returns an error if the pixel is out of bounds.
     pub fn get_pixel(&self, pos: gfx::IntPos) -> Result<&Color> {
         let index = self.get_index(pos)?;
         self.pixels
@@ -62,8 +56,6 @@ impl Surface {
     }
 
     /// Retrieves the pixel color on a specified location.
-    /// # Errors
-    /// Returns an error if the pixel is out of bounds.
     pub fn get_pixel_mut(&mut self, pos: gfx::IntPos) -> Result<&mut Color> {
         let index = self.get_index(pos)?;
         self.pixels
@@ -77,8 +69,6 @@ impl Surface {
     }
 
     /// Copies another surface to the specified location.
-    /// # Errors
-    /// Returns an error if the surface is out of bounds.
     pub fn draw(&mut self, pos: gfx::IntPos, surface: &Self, color: Color) -> Result<()> {
         for (pos2, surface_color) in surface.iter() {
             *self.get_pixel_mut(pos + pos2)? = Color {

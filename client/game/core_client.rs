@@ -31,8 +31,6 @@ use super::networking::ClientNetworking;
 use super::walls::ClientWalls;
 
 #[allow(clippy::too_many_lines)]
-/// # Errors
-/// If the game basically crashes
 pub fn run_game(
     graphics: &mut gfx::GraphicsContext,
     menu_back: &mut dyn BackgroundRect,

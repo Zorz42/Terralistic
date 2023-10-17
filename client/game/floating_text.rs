@@ -20,8 +20,6 @@ pub struct FloatingText {
 }
 
 impl FloatingText {
-    /// # Errors
-    /// If the font couldn't be loaded.
     #[must_use]
     pub fn new(
         graphics: &gfx::GraphicsContext,

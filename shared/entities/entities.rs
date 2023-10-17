@@ -88,8 +88,6 @@ impl Entities {
         }
     }
 
-    /// # Errors
-    /// If the entity map is corrupted
     pub fn update_entities_ms(&mut self, blocks: &Blocks, events: &mut EventManager) -> Result<()> {
         let mut vec = Vec::new();
 
@@ -172,8 +170,6 @@ impl Entities {
         Ok(())
     }
 
-    /// # Errors
-    /// If id is already assigned
     pub fn assign_id(&mut self, entity: Entity, id: EntityId) -> Result<()> {
         if self.id_to_entity.contains_key(&id) {
             bail!("id already assigned");
@@ -188,8 +184,6 @@ impl Entities {
         Ok(())
     }
 
-    /// # Errors
-    /// If the id could not be found
     pub fn get_entity_from_id(&self, id: EntityId) -> Result<Entity> {
         self.id_to_entity
             .get(&id)
@@ -197,8 +191,6 @@ impl Entities {
             .copied()
     }
 
-    /// # Errors
-    /// If the entity could not be found
     pub fn get_id_from_entity(&self, entity: Entity) -> Result<EntityId> {
         self.entity_to_id
             .get(&entity)
@@ -211,8 +203,6 @@ impl Entities {
         EntityId::new(self.current_id)
     }
 
-    /// # Errors
-    /// If the entity could not be despawned
     pub fn despawn_entity(&mut self, id: EntityId, events: &mut EventManager) -> Result<()> {
         let entity_to_despawn = self.get_entity_from_id(id);
 

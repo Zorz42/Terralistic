@@ -42,8 +42,6 @@ impl Font {
     /// Loads a font from a data vector, which is deserialized into a surface.
     /// Loads all the characters in the file and stores them in a
     /// surface array. The index of the array is the ascii value.
-    /// # Errors
-    /// Returns an error if the font data is invalid.
     pub fn new(font_data: &[u8], mono: bool) -> Result<Self> {
         let mut font_surfaces = vec![];
         let font_surface = Surface::deserialize_from_bytes(font_data)?;

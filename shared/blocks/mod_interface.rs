@@ -19,8 +19,6 @@ impl rlua::UserData for BlockId {
 }
 
 /// initialize the mod interface for the blocks module
-/// # Errors
-/// if the lua context is not available
 #[allow(clippy::too_many_lines)]
 pub fn init_blocks_mod_interface(
     blocks: &Arc<Mutex<Blocks>>,
@@ -155,8 +153,6 @@ pub fn init_blocks_mod_interface(
     Ok(receiver)
 }
 
-/// # Errors
-/// if the lua context is not available
 pub fn handle_event_for_blocks_interface(mods: &mut ModManager, event: &Event) -> Result<()> {
     if let Some(event) = event.downcast::<BlockBreakEvent>() {
         for game_mod in mods.mods_iter_mut() {

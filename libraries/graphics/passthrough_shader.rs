@@ -57,8 +57,6 @@ pub struct PassthroughShader {
 
 impl PassthroughShader {
     /// Creates a new passthrough shader context. Opengl context must be initialized.
-    /// # Errors
-    /// Returns an error if the shader compilation fails.
     pub(super) fn new() -> Result<Self> {
         let passthrough_shader = compile_shader(VERTEX_SHADER_CODE, FRAGMENT_SHADER_CODE)?;
         let mut rect_vertex_buffer = VertexBuffer::new();

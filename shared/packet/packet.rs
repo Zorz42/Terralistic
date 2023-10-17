@@ -25,8 +25,6 @@ fn get_type_id<Type: 'static>() -> u64 {
 
 impl Packet {
     /// This function creates a new packet from a serializable object.
-    /// # Errors
-    /// Returns an error if the object cannot be serialized.
     pub fn new<T: serde::Serialize + 'static>(data: T) -> Result<Self> {
         let id = get_type_id::<T>();
         let data = bincode::serialize(&data)?;

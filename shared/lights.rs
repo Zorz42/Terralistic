@@ -139,8 +139,6 @@ impl Lights {
     }
 
     /// initializes sky heights
-    /// # Errors
-    /// returns an error if the block at the given coordinate is not found
     pub fn init_sky_heights(&mut self, blocks: &Blocks) -> Result<()> {
         for x in 0..self.map.get_width() {
             for y in 0..self.map.get_height() {
@@ -158,8 +156,6 @@ impl Lights {
     }
 
     /// updates the light at the given coordinate
-    /// # Errors
-    /// returns an error if the light at the given coordinate is not found
     pub fn update_light(&mut self, x: i32, y: i32, blocks: &Blocks) -> Result<()> {
         if self.get_light_mut(x, y)?.scheduled_light_update {
             self.get_light_mut(x, y)?.scheduled_light_update = false;
@@ -233,8 +229,6 @@ impl Lights {
     }
 
     /// sets the coordinates x and y to be a light source
-    /// # Errors
-    /// returns an error if the coordinates are out of bounds
     pub fn set_light_source(&mut self, x: i32, y: i32, color: LightColor) -> Result<()> {
         self.get_light_mut(x, y)?.is_source = color != LightColor::new(0, 0, 0);
         if self.get_light(x, y)?.source_color != color {
@@ -245,8 +239,6 @@ impl Lights {
     }
 
     /// schedules a light update for the given coordinate
-    /// # Errors
-    /// returns an error if the coordinates are out of bounds
     pub fn schedule_light_update(&mut self, x: i32, y: i32) -> Result<()> {
         if !self.get_light_mut(x, y)?.scheduled_light_update {
             self.get_light_mut(x, y)?.scheduled_light_update = true;
@@ -267,8 +259,6 @@ impl Lights {
     }
 
     /// updates the light emitter at the given coordinate
-    /// # Errors
-    /// returns an error if the coordinates are out of bounds
     pub fn update_light_emitter(&mut self, x: i32, y: i32, blocks: &Blocks) -> Result<()> {
         let block_type = blocks.get_block_type_at(x, y)?;
         let mut light_emission_r = block_type.light_emission_r;
@@ -289,8 +279,6 @@ impl Lights {
         Ok(())
     }
 
-    /// # Errors
-    /// returns an error if the coordinates are out of bounds in an event
     pub fn on_event(&mut self, event: &Event, blocks: &Blocks) -> Result<()> {
         if let Some(event) = event.downcast::<BlockChangeEvent>() {
             let curr_block_transparent = blocks.get_block_type_at(event.x, event.y)?.transparent;

@@ -12,8 +12,6 @@ impl rlua::UserData for ItemId {}
 
 /// this function initializes the items mod interface
 /// it adds lua functions to the lua context
-/// # Errors
-/// if the function fails to add the lua functions
 pub fn init_items_mod_interface(items: &Arc<Mutex<Items>>, mods: &mut ModManager) -> Result<()> {
     mods.add_global_function("new_item_type", move |_lua, ()| Ok(Item::new()))?;
 
