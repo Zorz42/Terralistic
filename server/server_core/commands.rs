@@ -4,7 +4,7 @@ use std::sync::mpsc::Receiver;
 use anyhow::{anyhow, Error, Result};
 
 use crate::libraries::events::{Event, EventManager};
-use crate::server::server_core::networking::PacketFromClientEvent;
+use crate::server::server_core::networking::{PacketFromClientEvent, SendTarget, ServerNetworking};
 use crate::server::server_core::{entities, players};
 use crate::server::server_core::{items, print_to_console, send_to_ui};
 use crate::server::server_ui::{ConsoleMessageType, ServerState, UiMessageType};
@@ -54,6 +54,7 @@ impl CommandManager {
     }
 
     /// receives an event and executes the command
+    #[allow(clippy::too_many_arguments)]
     pub fn on_event(
         &self,
         event: &Event,
@@ -62,6 +63,7 @@ impl CommandManager {
         items: &mut items::ServerItems,
         entities: &mut entities::ServerEntities,
         event_manager: &mut EventManager,
+        networking: &mut ServerNetworking,
     ) -> Result<()> {
         if let Some(event) = event.downcast::<PacketFromClientEvent>() {
             if let Some(packet) = event.packet.try_deserialize::<ChatPacket>() {
@@ -108,10 +110,7 @@ impl CommandManager {
 
                 let packet = Packet::new(ChatPacket { message: result })?;
 
-                event_manager.push_event(Event::new(PacketFromClientEvent {
-                    conn: event.conn.clone(),
-                    packet,
-                }));
+                networking.send_packet(&packet, SendTarget::Connection(event.conn.clone()))?;
             }
         }
 

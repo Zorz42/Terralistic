@@ -323,6 +323,7 @@ impl Server {
                 &mut self.items,
                 &mut self.entities,
                 &mut self.events,
+                &mut self.networking,
             )?;
 
             self.mods.on_event(&event, &mut self.networking)?;

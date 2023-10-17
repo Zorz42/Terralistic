@@ -170,7 +170,6 @@ impl ClientChat {
                 }
             }
         } else if let Some(event) = event.downcast::<Packet>() {
-            //TODO: this string does not contain newlines correctly
             if let Some(packet) = event.try_deserialize::<ChatPacket>() {
                 self.chat_lines.push(ChatLine::new(
                     graphics,
