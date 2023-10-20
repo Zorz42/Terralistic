@@ -80,7 +80,6 @@ impl ClientNetworking {
         Ok(())
     }
 
-    #[allow(clippy::too_many_arguments)]
     #[allow(clippy::unwrap_in_result)]
     #[allow(clippy::unwrap_used)]
     fn net_receive_loop(

@@ -206,7 +206,6 @@ impl WorldGenerator {
     }
 
     /// This generates a column of world, before giving it to the mod to generate the rest of the world.
-    #[allow(clippy::too_many_arguments)]
     fn generate_column(
         &self,
         height: i32,

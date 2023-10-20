@@ -48,7 +48,6 @@ impl ServerBlocks {
         self.blocks.lock().unwrap_or_else(PoisonError::into_inner)
     }
 
-    #[allow(clippy::too_many_arguments)]
     #[allow(clippy::too_many_lines)]
     pub fn on_event(
         &mut self,
