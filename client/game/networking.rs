@@ -80,8 +80,7 @@ impl ClientNetworking {
         Ok(())
     }
 
-    #[allow(clippy::unwrap_in_result)]
-    #[allow(clippy::unwrap_used)]
+    #[allow(clippy::expect_used)]
     fn net_receive_loop(
         event_sender: &Sender<events::Event>,
         packet_receiver: &Receiver<Packet>,
@@ -97,8 +96,7 @@ impl ClientNetworking {
         let server_addr = format!("{server_address}:{server_port}");
         let (server_endpoint, _) = handler
             .network()
-            .connect(Transport::FramedTcp, server_addr)
-            .unwrap();
+            .connect(Transport::FramedTcp, server_addr)?;
 
         Self::send_packet_internal(
             &handler,
@@ -117,7 +115,8 @@ impl ClientNetworking {
                         | NetEvent::Connected(..)
                         | NetEvent::Disconnected(..) => {}
                         NetEvent::Message(_peer, packet) => {
-                            let packet = bincode::deserialize::<Packet>(packet).unwrap();
+                            let packet = bincode::deserialize::<Packet>(packet)
+                                .expect("failed to deserialize packet");
 
                             if packet.try_deserialize::<WelcomeCompletePacket>().is_some() {
                                 is_welcoming.store(false, Ordering::Relaxed);
@@ -143,7 +142,8 @@ impl ClientNetworking {
                         | NetEvent::Accepted(..)
                         | NetEvent::Disconnected(..) => {}
                         NetEvent::Message(_peer, packet) => {
-                            let packet = bincode::deserialize::<Packet>(packet).unwrap();
+                            let packet = bincode::deserialize::<Packet>(packet)
+                                .expect("failed to deserialize packet");
 
                             event_sender.send(events::Event::new(packet)).ok();
                         }
@@ -154,7 +154,9 @@ impl ClientNetworking {
                         }
 
                         while let Ok(packet) = packet_receiver.try_recv() {
-                            Self::send_packet_internal(&handler, &packet, server_endpoint).unwrap();
+                            Self::send_packet_internal(&handler, &packet, server_endpoint).expect(
+                                "failed to send packet to server, this should never happen",
+                            );
                         }
 
                         handler

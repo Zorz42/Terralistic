@@ -1,4 +1,3 @@
-#![allow(clippy::unwrap_used)]
 #[cfg(test)]
 mod tests {
     use crate::shared::packet::{Packet, WelcomeCompletePacket};

@@ -45,7 +45,6 @@ pub struct ServerInfo {
 }
 
 impl ServerInfo {
-    #[allow(clippy::default_trait_access)]
     pub fn new(graphics_context: &gfx::GraphicsContext) -> Self {
         Self {
             player_count_sprite: gfx::Sprite::new(),

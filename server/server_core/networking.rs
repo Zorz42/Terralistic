@@ -86,7 +86,7 @@ impl ServerNetworking {
         }));
     }
 
-    #[allow(clippy::unwrap_used)]
+    #[allow(clippy::expect_used)]
     fn net_receive_loop(
         event_sender: &Sender<Event>,
         packet_receiver: &Receiver<(Vec<u8>, Connection)>,
@@ -120,7 +120,8 @@ impl ServerNetworking {
                     }
                 }
                 NetEvent::Message(peer, packet) => {
-                    let packet: Packet = bincode::deserialize(packet).unwrap();
+                    let packet: Packet =
+                        bincode::deserialize(packet).expect("Failed to deserialize");
                     if let Some(packet) = packet.try_deserialize::<NamePacket>() {
                         print_to_console(&format!("[{:?}] joined the game", packet.name), 0);
                         match event_sender.send(Event::new(NewConnectionEvent {
@@ -157,7 +158,8 @@ impl ServerNetworking {
                 }
 
                 while let Ok((packet_data, conn)) = packet_receiver.try_recv() {
-                    Self::send_packet_internal(&handler, &packet_data, &conn).unwrap();
+                    Self::send_packet_internal(&handler, &packet_data, &conn)
+                        .expect("Failed to send packet");
                 }
 
                 handler

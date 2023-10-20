@@ -272,12 +272,15 @@ fn server_main(args: &[String]) {
             ui_to_srv_event_sender,
             path_clone,
         );
-        manager.run(
+        let res = manager.run(
             &server_running,
             &loading_text,
             vec![include_bytes!("base_game/base_game.mod").to_vec()],
             &path.join("server.world"),
         );
+        if let Err(e) = res {
+            println!("Server stopped with an error: {e}");
+        }
     } else {
         let res = server.run(
             &server_running,

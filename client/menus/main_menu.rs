@@ -8,7 +8,6 @@ use super::background_rect::BackgroundRect;
 use super::{run_multiplayer_selector, run_singleplayer_selector};
 
 #[allow(clippy::too_many_lines)] // TODO: split this function up
-#[allow(clippy::if_same_then_else)]
 pub fn run_main_menu(
     graphics: &mut gfx::GraphicsContext,
     menu_back: &mut dyn BackgroundRect,

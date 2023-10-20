@@ -1,3 +1,4 @@
+use anyhow::{anyhow, Result};
 use std::path::{Path, PathBuf};
 use std::sync::atomic::AtomicBool;
 use std::sync::mpsc::{Receiver, Sender};
@@ -66,7 +67,7 @@ impl UiManager {
         status_text: &Mutex<String>,
         mods_serialized: Vec<Vec<u8>>,
         world_path: &Path,
-    ) {
+    ) -> Result<()> {
         let ms_timer = std::time::Instant::now();
         let mut num_updates = 0;
         let mut ui_last_time = std::time::Instant::now();
@@ -77,7 +78,7 @@ impl UiManager {
         //init the server
         if let Err(e) = self.server.start(status_text, mods_serialized, world_path) {
             println!("Error starting server: {e}");
-            return;
+            return Ok(());
         }
 
         let mut ui_delta_time;
@@ -118,7 +119,7 @@ impl UiManager {
             if self.window_size != self.graphics_context.renderer.get_window_size()
                 || self.module_manager.changed
             {
-                self.reposition_modules();
+                self.reposition_modules()?;
             }
             //updates the modules
             for module in &mut self.modules {
@@ -153,6 +154,8 @@ impl UiManager {
         if let Err(e) = self.server.stop(status_text, world_path) {
             println!("Error stopping server: {e}");
         }
+
+        Ok(())
     }
 
     fn should_ui_stop(&self, is_running: &Arc<AtomicBool>) -> bool {
@@ -247,7 +250,7 @@ impl UiManager {
         }
     }
 
-    fn reposition_modules(&mut self) {
+    fn reposition_modules(&mut self) -> Result<()> {
         self.module_manager.changed = false;
         self.window_size = self.graphics_context.renderer.get_window_size();
 
@@ -255,7 +258,7 @@ impl UiManager {
         let temp_1 = self.module_manager.get_root_mut();
         let temp_2 = &mut ModuleTreeNodeType::Nothing;
         core::mem::swap(temp_1, temp_2);
-        self.tile_modules(gfx::FloatPos(0.0, 0.0), self.window_size, temp_2);
+        self.tile_modules(gfx::FloatPos(0.0, 0.0), self.window_size, temp_2)?;
         let temp_1 = self.module_manager.get_root_mut();
         core::mem::swap(temp_1, temp_2);
 
@@ -265,6 +268,8 @@ impl UiManager {
                 .get_container_mut()
                 .update(&self.graphics_context, None);
         }
+
+        Ok(())
     }
 
     fn render_modules(&mut self) {
@@ -296,20 +301,22 @@ impl UiManager {
         pos: gfx::FloatPos,
         size: gfx::FloatSize,
         node: &ModuleTreeNodeType,
-    ) {
+    ) -> Result<()> {
         //recursively tile the node
         match &node {
             //node is a module. Transform it to its dedicated position and size
             ModuleTreeNodeType::Module(module_name) => {
-                self.transform_module(module_name, pos, size);
+                self.transform_module(module_name, pos, size)?;
             }
             //node is a split. Tile it
             ModuleTreeNodeType::Split(node) => {
-                self.tile_module_split(pos, size, node);
+                self.tile_module_split(pos, size, node)?;
             }
             //node is nothing. Do nothing
             ModuleTreeNodeType::Nothing => {}
         }
+
+        Ok(())
     }
 
     /// Tiles a split node
@@ -318,7 +325,7 @@ impl UiManager {
         pos: gfx::FloatPos,
         size: gfx::FloatSize,
         node: &ModuleTreeSplit,
-    ) {
+    ) -> Result<()> {
         //calculate pos and size for both sides of the split
         let (first_size, second_size, first_pos, second_pos) =
             if matches!(node.orientation, SplitType::Vertical) {
@@ -338,12 +345,19 @@ impl UiManager {
             };
 
         //tile the modules
-        self.tile_modules(first_pos, first_size, &node.first);
-        self.tile_modules(second_pos, second_size, &node.second);
+        self.tile_modules(first_pos, first_size, &node.first)?;
+        self.tile_modules(second_pos, second_size, &node.second)?;
+
+        Ok(())
     }
 
     /// Resizes and moves the module with the given name to the given position and size
-    fn transform_module(&mut self, module_name: &str, pos: gfx::FloatPos, size: gfx::FloatSize) {
+    fn transform_module(
+        &mut self,
+        module_name: &str,
+        pos: gfx::FloatPos,
+        size: gfx::FloatSize,
+    ) -> Result<()> {
         let module = if let Some(module) = self.get_module(module_name) {
             *module.get_enabled_mut() = true;
             module
@@ -353,9 +367,11 @@ impl UiManager {
                 module_name.to_owned(),
             ));
             self.modules.push(module);
-            #[allow(clippy::unwrap_used)]
             //unwrap is safe because we just pushed it to self.modules
-            let module = self.modules.last_mut().unwrap();
+            let module = self
+                .modules
+                .last_mut()
+                .ok_or_else(|| anyhow!("Unable to get the last module"))?;
             *module.get_enabled_mut() = true;
             module
         };
@@ -363,6 +379,7 @@ impl UiManager {
         module.get_container_mut().rect.size =
             size - gfx::FloatSize(EDGE_SPACING * 2.0, EDGE_SPACING * 2.0);
         module.get_container_mut().rect.pos = pos + gfx::FloatPos(EDGE_SPACING, EDGE_SPACING);
+        Ok(())
     }
 
     /// Returns a mutable reference to the module with the given name. Functions from the `ModuleTrait` can be called on the returned reference
