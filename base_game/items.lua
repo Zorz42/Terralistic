@@ -46,6 +46,15 @@ function register_items()
     item_type["tool"] = tools.hammer
     item_type["tool_power"] = 10
     items.hammer = terralistic_register_item_type(item_type)
+    
+    -- PICKAXE
+    item_type = terralistic_new_item_type()
+    item_type["name"] = "pickaxe"
+    item_type["display_name"] = "Pickaxe"
+    item_type["max_stack"] = 1
+    item_type["tool"] = tools.pickaxe
+    item_type["tool_power"] = 10
+    items.pickaxe = terralistic_register_item_type(item_type)
 
     -- BRANCH
     item_type = terralistic_new_item_type()
