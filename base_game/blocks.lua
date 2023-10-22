@@ -9,7 +9,9 @@ function register_blocks()
     block_type = terralistic_new_block_type()
     block_type["name"] = "dirt"
     block_type["can_update_states"] = true
-    block_type["break_time"] = 1000
+    block_type["break_time"] = 700
+    block_type["effective_tool"] = tools.shovel
+    block_type["required_tool_power"] = 10
     blocks.dirt = terralistic_register_block_type(block_type)
 
     -- STONE
@@ -17,13 +19,17 @@ function register_blocks()
     block_type["name"] = "stone_block"
     block_type["can_update_states"] = true
     block_type["break_time"] = 1000
+    block_type["effective_tool"] = tools.pickaxe
+    block_type["required_tool_power"] = 10
     blocks.stone_block = terralistic_register_block_type(block_type)
 
     -- COPPER ORE
     block_type = terralistic_new_block_type()
     block_type["name"] = "copper_ore"
     block_type["can_update_states"] = true
-    block_type["break_time"] = 1000
+    block_type["break_time"] = 2000
+    block_type["effective_tool"] = tools.pickaxe
+    block_type["required_tool_power"] = 10
     blocks.copper_ore = terralistic_register_block_type(block_type)
 
     -- GRASS BLOCK
@@ -39,7 +45,7 @@ function register_blocks()
     block_type = terralistic_new_block_type()
     block_type["name"] = "wood"
     block_type["can_update_states"] = true
-    block_type["break_time"] = 1000
+    block_type["break_time"] = 2000
     block_type["ghost"] = true
     block_type["transparent"] = true
     block_type["effective_tool"] = tools.axe
@@ -49,7 +55,7 @@ function register_blocks()
     -- BRANCH
     block_type = terralistic_new_block_type()
     block_type["name"] = "branch"
-    block_type["break_time"] = 1000
+    block_type["break_time"] = 1500
     block_type["ghost"] = true
     block_type["transparent"] = true
     blocks.branch = terralistic_register_block_type(block_type)
@@ -85,7 +91,7 @@ function register_blocks()
     block_type["name"] = "stone"
     block_type["ghost"] = true
     block_type["transparent"] = true
-    block_type["break_time"] = 1000
+    block_type["break_time"] = 500
     blocks.stone = terralistic_register_block_type(block_type)
 
     -- WOOD_PLANKS
@@ -103,7 +109,7 @@ function register_blocks()
     block_type["light_emission_b"] = 150
     block_type["ghost"] = true
     block_type["transparent"] = true
-    block_type["break_time"] = 1000
+    block_type["break_time"] = 300
     blocks.torch = terralistic_register_block_type(block_type)
 end
 

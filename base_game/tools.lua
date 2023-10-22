@@ -8,4 +8,6 @@ function register_tools()
     tools.hammer = terralistic_register_tool("hammer")
 
     tools.pickaxe = terralistic_register_tool("pickaxe")
+    
+    tools.shovel = terralistic_register_tool("shovel")
 end

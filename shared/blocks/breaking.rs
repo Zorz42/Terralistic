@@ -83,7 +83,7 @@ impl Blocks {
 
         if let Some(effective_tool) = self.get_block_type_at(x, y)?.effective_tool {
             if Some(effective_tool) != tool
-                && self.get_block_type_at(x, y)?.required_tool_power > tool_power
+                || self.get_block_type_at(x, y)?.required_tool_power > tool_power
             {
                 return Ok(());
             }

@@ -9,7 +9,10 @@ function register_recipes()
     
     -- PICKAXE
     terralistic_register_recipe(items.pickaxe, 1, { items.stone, items.branch, items.fiber }, { 1, 1, 2 })
-
+    
+    -- SHOVEL
+    terralistic_register_recipe(items.shovel, 1, { items.stone, items.branch, items.fiber }, { 1, 1, 2 })
+    
     -- WOOD_PLANK_WALL FROM WOOD_PLANKS
     terralistic_register_recipe(items.wood_plank_wall, 4, { items.wood_planks }, { 1 })
 

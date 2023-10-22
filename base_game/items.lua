@@ -55,6 +55,15 @@ function register_items()
     item_type["tool"] = tools.pickaxe
     item_type["tool_power"] = 10
     items.pickaxe = terralistic_register_item_type(item_type)
+    
+    -- SHOVEL
+    item_type = terralistic_new_item_type()
+    item_type["name"] = "shovel"
+    item_type["display_name"] = "Shovel"
+    item_type["max_stack"] = 1
+    item_type["tool"] = tools.shovel
+    item_type["tool_power"] = 10
+    items.shovel = terralistic_register_item_type(item_type)
 
     -- BRANCH
     item_type = terralistic_new_item_type()
@@ -89,4 +98,22 @@ function register_items()
     item_type["places_block"] = blocks.torch
     items.torch = terralistic_register_item_type(item_type)
     terralistic_set_block_drop(blocks.torch, items.torch, 1)
+    
+    -- STONE BLOCK
+    item_type = terralistic_new_item_type()
+    item_type["name"] = "stone_block"
+    item_type["display_name"] = "Stone Block"
+    item_type["max_stack"] = 99
+    item_type["places_block"] = blocks.stone_block
+    items.stone_block = terralistic_register_item_type(item_type)
+    terralistic_set_block_drop(blocks.stone_block, items.stone_block, 1)
+    
+    -- COPPER ORE
+    item_type = terralistic_new_item_type()
+    item_type["name"] = "copper_ore"
+    item_type["display_name"] = "Copper Ore"
+    item_type["max_stack"] = 99
+    item_type["places_block"] = blocks.copper_ore
+    items.copper_ore = terralistic_register_item_type(item_type)
+    terralistic_set_block_drop(blocks.copper_ore, items.copper_ore, 1)
 end
