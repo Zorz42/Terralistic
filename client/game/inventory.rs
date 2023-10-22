@@ -308,31 +308,34 @@ impl ClientInventory {
 
                 if hovered {
                     self.hovered_recipe = Some(*recipe_id);
-
-                    let num_recipes = recipe.ingredients.len() as i32;
-
-                    self.hover_back_rect.pos = graphics.renderer.get_mouse_pos();
-                    self.hover_back_rect.size.0 = num_recipes as f32
-                        * (INVENTORY_SLOT_SIZE + INVENTORY_SPACING)
-                        + INVENTORY_SPACING;
-
-                    self.hover_back_rect.render(graphics, None);
-
-                    let mut x = graphics.renderer.get_mouse_pos().0 + INVENTORY_SPACING;
-                    let y = graphics.renderer.get_mouse_pos().1 + INVENTORY_SPACING;
-
-                    for (item, count) in &recipe.ingredients {
-                        render_inventory_slot(
-                            graphics,
-                            items,
-                            gfx::FloatPos(x, y),
-                            Some(&ItemStack::new(*item, *count)),
-                        );
-                        x += INVENTORY_SLOT_SIZE + INVENTORY_SPACING;
-                    }
                 }
 
                 y += INVENTORY_SPACING + INVENTORY_SLOT_SIZE;
+            }
+        }
+
+        if let Some(recipe_id) = self.hovered_recipe {
+            let items2 = items.get_items();
+            let recipe = items2.get_recipe(recipe_id)?;
+            let num_recipes = recipe.ingredients.len() as i32;
+
+            self.hover_back_rect.pos = graphics.renderer.get_mouse_pos();
+            self.hover_back_rect.size.0 =
+                num_recipes as f32 * (INVENTORY_SLOT_SIZE + INVENTORY_SPACING) + INVENTORY_SPACING;
+
+            self.hover_back_rect.render(graphics, None);
+
+            let mut x = graphics.renderer.get_mouse_pos().0 + INVENTORY_SPACING;
+            let y = graphics.renderer.get_mouse_pos().1 + INVENTORY_SPACING;
+
+            for (item, count) in &recipe.ingredients {
+                render_inventory_slot(
+                    graphics,
+                    items,
+                    gfx::FloatPos(x, y),
+                    Some(&ItemStack::new(*item, *count)),
+                );
+                x += INVENTORY_SLOT_SIZE + INVENTORY_SPACING;
             }
         }
 
