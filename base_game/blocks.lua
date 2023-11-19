@@ -111,6 +111,15 @@ function register_blocks()
     block_type["transparent"] = true
     block_type["break_time"] = 300
     blocks.torch = terralistic_register_block_type(block_type)
+
+    block_type = terralistic_new_block_type()
+    block_type["name"] = "furnace"
+    block_type["ghost"] = true
+    block_type["transparent"] = true
+    block_type["width"] = 2
+    block_type["height"] = 2
+    block_type["break_time"] = 3000
+    blocks.furnace = terralistic_register_block_type(block_type)
 end
 
 function on_block_break(x, y, block_id)
