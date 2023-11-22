@@ -106,16 +106,38 @@ impl ServerBlocks {
                 self.get_blocks()
                     .stop_breaking_block(events, packet.x, packet.y)?;
             } else if let Some(packet) = event.packet.try_deserialize::<BlockRightClickPacket>() {
-                let block = self.get_blocks().get_block(packet.x, packet.y)?;
-                if block == self.get_blocks().air() {
-                    let player = players.get_player_from_connection(&event.conn)?;
-                    let mut player_inventory = entities.ecs.get::<&mut Inventory>(player)?;
-                    let selected_item = player_inventory.get_selected_item();
-                    if let Some(mut selected_item) = selected_item {
-                        let item_info = items.get_item_type(selected_item.item)?;
-                        if let Some(block) = item_info.places_block {
-                            self.get_blocks()
-                                .set_block(events, packet.x, packet.y, block)?;
+                let player = players.get_player_from_connection(&event.conn)?;
+                let mut player_inventory = entities.ecs.get::<&mut Inventory>(player)?;
+                let selected_item = player_inventory.get_selected_item();
+
+                if let Some(mut selected_item) = selected_item {
+                    let item_info = items.get_item_type(selected_item.item)?;
+
+                    if let Some(block) = item_info.places_block {
+                        let block_width = self.get_blocks().get_block_type(block)?.width;
+                        let block_height = self.get_blocks().get_block_type(block)?.height;
+
+                        let can_place = {
+                            let mut can_place = true;
+                            for x in 0..block_width {
+                                for y in 0..block_height {
+                                    let current_block =
+                                        self.get_blocks().get_block(packet.x + x, packet.y - y)?;
+                                    if current_block != self.get_blocks().air() {
+                                        can_place = false;
+                                    }
+                                }
+                            }
+                            can_place
+                        };
+
+                        if can_place {
+                            self.get_blocks().set_block(
+                                events,
+                                packet.x,
+                                packet.y - block_height + 1,
+                                block,
+                            )?;
                             selected_item.count -= 1;
                             let selected_slot = player_inventory.selected_slot.unwrap_or(0);
                             player_inventory.set_item(selected_slot, Some(selected_item))?;

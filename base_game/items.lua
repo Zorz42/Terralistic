@@ -116,4 +116,13 @@ function register_items()
     item_type["places_block"] = blocks.copper_ore
     items.copper_ore = terralistic_register_item_type(item_type)
     terralistic_set_block_drop(blocks.copper_ore, items.copper_ore, 1)
+    
+    -- FURNACE
+    item_type = terralistic_new_item_type()
+    item_type["name"] = "furnace"
+    item_type["display_name"] = "Furnace"
+    item_type["max_stack"] = 99
+    item_type["places_block"] = blocks.furnace
+    items.furnace = terralistic_register_item_type(item_type)
+    terralistic_set_block_drop(blocks.furnace, items.furnace, 1)
 end

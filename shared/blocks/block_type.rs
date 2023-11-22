@@ -34,8 +34,11 @@ pub struct Block {
     // if the block is only collidable by feet, for example: platforms, they have special collision
     pub feet_collidable: bool,
     // if right clicking the block sends an event
-    // this is used for example for doors or chests
+    // this is used for example: doors
     pub clickable: bool,
+    // how many inventory slots it has, like chest or furnace
+    // if it's 0, then it cannot be opened, else it can be
+    pub inventory_size: i32,
 }
 
 impl Block {
@@ -54,11 +57,12 @@ impl Block {
             light_emission_g: 0,
             light_emission_b: 0,
             id: BlockId::undefined(),
-            width: 0,
-            height: 0,
+            width: 1,
+            height: 1,
             can_update_states: false,
             feet_collidable: false,
             clickable: false,
+            inventory_size: 0,
         }
     }
 

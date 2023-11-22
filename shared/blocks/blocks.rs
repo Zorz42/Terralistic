@@ -6,6 +6,7 @@ use snap;
 
 use crate::libraries::events::{Event, EventManager};
 use crate::shared::blocks::{Block, BreakingBlock, Tool};
+use crate::shared::items::ItemStack;
 use crate::shared::world_map::WorldMap;
 
 pub const BLOCK_WIDTH: f32 = 8.0;
@@ -21,6 +22,8 @@ pub(super) struct BlocksData {
     pub block_from_main: HashMap<usize, (i32, i32)>,
     // saves the extra block data, it is mostly empty so it is stored in a hashmap
     pub block_data: HashMap<usize, Vec<u8>>,
+    // saves the block inventory slots data and it is also mostly empty
+    pub block_inventory_data: HashMap<usize, Vec<Option<ItemStack>>>,
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -53,6 +56,7 @@ impl Blocks {
                 block_from_main: HashMap::new(),
                 block_data: HashMap::new(),
                 map: WorldMap::new_empty(),
+                block_inventory_data: HashMap::new(),
             },
             breaking_blocks: vec![],
             block_types: vec![],
@@ -200,6 +204,65 @@ impl Blocks {
         Ok(())
     }
 
+    /// This function gets the number of inventory slots for a block.
+    pub fn get_block_inventory_size(&self, x: i32, y: i32) -> Result<i32> {
+        if self.get_block_from_main(x, y)? != (0, 0) {
+            return Ok(0);
+        }
+        Ok(self.get_block_type_at(x, y)?.inventory_size)
+    }
+
+    /// This function updates the inventory slots for a block.
+    fn update_block_inventory_data(&mut self, x: i32, y: i32) -> Result<()> {
+        let size = self.get_block_inventory_size(x, y)?;
+        let index = self.block_data.map.translate_coords(x, y)?;
+        if size == 0 {
+            self.block_data.block_inventory_data.remove(&index);
+        } else {
+            self.block_data
+                .block_inventory_data
+                .insert(index, vec![None; size as usize]);
+        }
+
+        Ok(())
+    }
+
+    /// This function gets inventory slots for a block. If the value is not found, it returns an empty vector.
+    pub fn get_block_inventory_data(
+        &self,
+        x: i32,
+        y: i32,
+    ) -> Result<Option<&Vec<Option<ItemStack>>>> {
+        Ok(self
+            .block_data
+            .block_inventory_data
+            .get(&self.block_data.map.translate_coords(x, y)?))
+    }
+
+    /// This function sets inventory slots for a block. If the block has no inventory slots, it returns an error.
+    pub fn set_block_inventory_data(
+        &mut self,
+        x: i32,
+        y: i32,
+        data: Vec<Option<ItemStack>>,
+    ) -> Result<()> {
+        let index = self.block_data.map.translate_coords(x, y)?;
+        let size = self.get_block_inventory_size(x, y)?;
+        if size == 0 {
+            bail!("Block has no inventory slots");
+        }
+        if size != data.len() as i32 {
+            bail!("Invalid inventory size");
+        }
+
+        if data.is_empty() {
+            self.block_data.block_inventory_data.remove(&index);
+        } else {
+            self.block_data.block_inventory_data.insert(index, data);
+        }
+        Ok(())
+    }
+
     /// This function returns block data, if it is not found it returns an empty vector.
     pub fn get_block_data(&self, x: i32, y: i32) -> Result<Vec<u8>> {
         Ok(self
@@ -262,6 +325,8 @@ impl Blocks {
 
     /// Updates the block at the specified coordinates.
     pub fn update_block(&mut self, x: i32, y: i32, events: &mut EventManager) -> Result<()> {
+        self.update_block_inventory_data(x, y)?;
+
         let block = self.get_block_type_at(x, y)?;
         if block.width != 0 || block.height != 0 {
             let from_main = self.get_block_from_main(x, y)?;

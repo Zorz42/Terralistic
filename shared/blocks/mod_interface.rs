@@ -181,6 +181,7 @@ impl rlua::UserData for Block {
                         "light_emission_b" => this.light_emission_b = value as u8,
                         "width" => this.width = value as i32,
                         "height" => this.height = value as i32,
+                        "inventory_size" => this.inventory_size = value as i32,
                         _ => {
                             return Err(rlua::Error::RuntimeError(format!(
                                 "{key} is not a valid field of BlockType for integer value"
@@ -195,6 +196,7 @@ impl rlua::UserData for Block {
                         "transparent" => this.transparent = value,
                         "can_update_states" => this.can_update_states = value,
                         "feet_collidable" => this.feet_collidable = value,
+                        "clickable" => this.clickable = value,
                         _ => {
                             return Err(rlua::Error::RuntimeError(format!(
                                 "{key} is not a valid field of BlockType for boolean value"

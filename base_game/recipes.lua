@@ -21,4 +21,7 @@ function register_recipes()
 
     -- WOOD_PLANKS TO TORCH
     terralistic_register_recipe(items.torch, 1, { items.wood_planks }, { 1 })
+    
+    -- STONE_BLOCKS TO FURNACE
+    terralistic_register_recipe(items.furnace, 1, { items.stone_block }, { 10 })
 end
