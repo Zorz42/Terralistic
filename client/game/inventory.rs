@@ -1,17 +1,26 @@
+use crate::client::game::block_selector::BlockRightClickEvent;
 use anyhow::{anyhow, Result};
 
 use crate::client::game::items::ClientItems;
 use crate::client::game::networking::ClientNetworking;
 use crate::libraries::events::Event;
 use crate::libraries::graphics as gfx;
+use crate::shared::blocks::Blocks;
 use crate::shared::inventory::{
     Inventory, InventoryCraftPacket, InventoryPacket, InventorySelectPacket, InventorySwapPacket,
 };
 use crate::shared::items::{ItemStack, RecipeId};
 use crate::shared::packet::Packet;
 
+#[derive(Clone, Copy, PartialEq, Eq)]
+enum OpenState {
+    Closed,
+    Open,
+    OpenedBlock { x: i32, y: i32 },
+}
+
 pub struct ClientInventory {
-    is_open: bool,
+    open_state: OpenState,
     back_rect: gfx::RenderRect,
     inventory: Inventory,
     open_progress: f32,
@@ -94,7 +103,7 @@ impl ClientInventory {
     #[must_use]
     pub fn new() -> Self {
         Self {
-            is_open: false,
+            open_state: OpenState::Closed,
             back_rect: gfx::RenderRect::new(gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, 0.0)),
             inventory: Inventory::new(20),
             open_progress: 0.0,
@@ -167,10 +176,14 @@ impl ClientInventory {
         items: &ClientItems,
         networking: &mut ClientNetworking,
     ) -> Result<()> {
-        let open_target = if self.is_open { 1.0 } else { 0.0 };
+        let open_target = if self.open_state == OpenState::Closed {
+            0.0
+        } else {
+            1.0
+        };
         self.open_progress += (open_target - self.open_progress) / 5.0;
 
-        if !self.is_open {
+        if self.open_state == OpenState::Closed {
             if self.inventory.selected_slot.is_none() {
                 self.select_slot(Some(0), networking)?;
             }
@@ -210,7 +223,9 @@ impl ClientInventory {
         for (i, item) in self.inventory.reverse_iter().enumerate() {
             let i = 19 - i;
             if i < 10 {
-                let item = if self.is_open && self.inventory.selected_slot == Some(i) {
+                let item = if self.open_state != OpenState::Closed
+                    && self.inventory.selected_slot == Some(i)
+                {
                     None
                 } else {
                     item.as_ref()
@@ -239,7 +254,9 @@ impl ClientInventory {
                     .get_mut(i - 10)
                     .ok_or_else(|| anyhow!("indexing error"))?;
 
-                let target_y = if self.is_open && self.open_progress > 0.07 * (i - 9) as f32 {
+                let target_y = if self.open_state != OpenState::Closed
+                    && self.open_progress > 0.07 * (i - 9) as f32
+                {
                     INVENTORY_SLOT_SIZE + INVENTORY_SPACING
                 } else {
                     0.0
@@ -247,7 +264,9 @@ impl ClientInventory {
 
                 *pos_y += (target_y - *pos_y) / 5.0;
 
-                let item = if self.is_open && self.inventory.selected_slot == Some(i) {
+                let item = if self.open_state != OpenState::Closed
+                    && self.inventory.selected_slot == Some(i)
+                {
                     None
                 } else {
                     item.as_ref()
@@ -273,7 +292,7 @@ impl ClientInventory {
             }
         }
 
-        if self.is_open {
+        if self.open_state != OpenState::Closed {
             render_item_stack(
                 graphics,
                 items,
@@ -367,6 +386,7 @@ impl ClientInventory {
         event: &Event,
         networking: &mut ClientNetworking,
         items: &ClientItems,
+        blocks: &Blocks,
     ) -> Result<()> {
         if let Some(gfx::Event::KeyPress { 0: key, .. }) = event.downcast::<gfx::Event>() {
             match *key {
@@ -397,16 +417,29 @@ impl ClientInventory {
                     }
                 }
                 gfx::Key::E => {
-                    self.is_open = !self.is_open;
+                    if self.open_state == OpenState::Closed {
+                        self.open_state = OpenState::Open;
+                    } else {
+                        self.open_state = OpenState::Closed;
+                    }
                 }
                 _ => {}
             }
-        }
-
-        if let Some(packet) = event.downcast::<Packet>() {
+        } else if let Some(packet) = event.downcast::<Packet>() {
             if let Some(packet) = packet.try_deserialize::<InventoryPacket>() {
                 self.inventory.transfer_items_from(packet.inventory);
                 self.update_craftable_recipes(items);
+            }
+        } else if let Some(event) = event.downcast::<BlockRightClickEvent>() {
+            let inventory_size = blocks.get_block_type_at(event.x, event.y)?.inventory_size;
+
+            if inventory_size != 0 {
+                let offset = blocks.get_block_from_main(event.x, event.y)?;
+
+                self.open_state = OpenState::OpenedBlock {
+                    x: event.x - offset.0,
+                    y: event.y - offset.1,
+                };
             }
         }
 

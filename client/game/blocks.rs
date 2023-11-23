@@ -3,13 +3,14 @@ use std::sync::mpsc::Receiver;
 use std::sync::Arc;
 use std::sync::{Mutex, MutexGuard, PoisonError};
 
+use crate::client::game::block_selector::BlockRightClickEvent;
 use anyhow::{anyhow, bail, Result};
 
 use crate::libraries::events::{Event, EventManager};
 use crate::libraries::graphics as gfx;
 use crate::shared::blocks::{
     handle_event_for_blocks_interface, init_blocks_mod_interface, BlockBreakStartPacket,
-    BlockBreakStopPacket, BlockChangeEvent, BlockChangePacket, BlockId,
+    BlockBreakStopPacket, BlockChangeEvent, BlockChangePacket, BlockId, BlockRightClickPacket,
 };
 use crate::shared::blocks::{
     Blocks, BlocksWelcomePacket, BLOCK_WIDTH, RENDER_BLOCK_WIDTH, RENDER_SCALE,
@@ -19,7 +20,7 @@ use crate::shared::packet::Packet;
 use crate::shared::world_map::CHUNK_SIZE;
 
 use super::camera::Camera;
-use super::networking::WelcomePacketEvent;
+use super::networking::{ClientNetworking, WelcomePacketEvent};
 
 pub struct RenderBlockChunk {
     needs_update: bool,
@@ -171,6 +172,7 @@ impl ClientBlocks {
         event: &Event,
         events: &mut EventManager,
         mods: &mut ModManager,
+        networking: &mut ClientNetworking,
     ) -> Result<()> {
         self.flush_mod_events(events);
         handle_event_for_blocks_interface(mods, event)?;
@@ -216,6 +218,12 @@ impl ClientBlocks {
                     .ok_or_else(|| anyhow!("Chunk array malformed"))?
                     .needs_update = true;
             }
+        } else if let Some(event) = event.downcast::<BlockRightClickEvent>() {
+            let packet = Packet::new(BlockRightClickPacket {
+                x: event.x,
+                y: event.y,
+            })?;
+            networking.send_packet(packet)?;
         }
         Ok(())
     }

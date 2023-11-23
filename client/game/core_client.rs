@@ -58,7 +58,7 @@ pub fn run_game(
     let loading_text2 = loading_text.clone();
 
     let init_thread = std::thread::spawn(move || {
-        let mut temp_fn = || -> Result<(ClientModManager, ClientBlocks, ClientWalls, ClientEntities, ClientItems)> {
+        let temp_fn = || -> Result<(ClientModManager, ClientBlocks, ClientWalls, ClientEntities, ClientItems, ClientNetworking)> {
             *loading_text2.lock().unwrap_or_else(PoisonError::into_inner) = "Loading mods".to_owned();
             let mut mods = ClientModManager::new();
             let mut blocks = ClientBlocks::new();
@@ -68,7 +68,7 @@ pub fn run_game(
 
             while let Some(event) = pre_events.pop_event() {
                 mods.on_event(&event)?;
-                blocks.on_event(&event, &mut pre_events, &mut mods.mod_manager)?;
+                blocks.on_event(&event, &mut pre_events, &mut mods.mod_manager, &mut networking)?;
                 walls.on_event(&event)?;
                 items.on_event(&event, &mut entities.entities, &mut pre_events)?;
             }
@@ -80,7 +80,7 @@ pub fn run_game(
             *loading_text2.lock().unwrap_or_else(PoisonError::into_inner) = "Initializing mods".to_owned();
             mods.init()?;
 
-            anyhow::Ok((mods, blocks, walls, entities, items))
+            anyhow::Ok((mods, blocks, walls, entities, items, networking))
         };
         // if the init fails, we clear the loading text so the error can be displayed
         let result = temp_fn();
@@ -104,6 +104,7 @@ pub fn run_game(
     let mut walls = result.2;
     let mut entities = result.3;
     let mut items = result.4;
+    let mut networking = result.5;
 
     let mut background = Background::new();
     let mut inventory = ClientInventory::new();
@@ -202,13 +203,13 @@ pub fn run_game(
             if chat.on_event(&event, graphics, &mut networking)? {
                 continue;
             }
-            inventory.on_event(&event, &mut networking, &items)?;
+            inventory.on_event(&event, &mut networking, &items, &blocks.get_blocks())?;
             mods.on_event(&event)?;
-            blocks.on_event(&event, &mut events, &mut mods.mod_manager)?;
+            blocks.on_event(&event, &mut events, &mut mods.mod_manager, &mut networking)?;
             walls.on_event(&event)?;
             entities.on_event(&event)?;
             items.on_event(&event, &mut entities.entities, &mut events)?;
-            block_selector.on_event(graphics, &mut networking, &camera, &event)?;
+            block_selector.on_event(graphics, &mut networking, &camera, &event, &mut events)?;
             players.on_event(&event, &mut entities.entities)?;
             lights.on_event(&event, &blocks.get_blocks())?;
             camera.on_event(&event);

@@ -1,9 +1,9 @@
 use anyhow::Result;
 
-use crate::libraries::events::Event;
+use crate::libraries::events::{Event, EventManager};
 use crate::libraries::graphics as gfx;
 use crate::shared::blocks::{
-    BlockBreakStopPacket, BlockRightClickPacket, ClientBlockBreakStartPacket, RENDER_BLOCK_WIDTH,
+    BlockBreakStopPacket, ClientBlockBreakStartPacket, RENDER_BLOCK_WIDTH,
 };
 use crate::shared::packet::Packet;
 
@@ -97,6 +97,7 @@ impl BlockSelector {
         networking: &mut ClientNetworking,
         camera: &Camera,
         event: &Event,
+        events: &mut EventManager,
     ) -> Result<()> {
         if let Some(event) = event.downcast::<gfx::Event>() {
             match event {
@@ -108,15 +109,20 @@ impl BlockSelector {
                 }
                 gfx::Event::KeyPress(gfx::Key::MouseRight, ..) => {
                     let selected_block = Self::get_selected_block(graphics, camera);
-                    let packet = Packet::new(BlockRightClickPacket {
+                    events.push_event(Event::new(BlockRightClickEvent {
                         x: selected_block.0,
                         y: selected_block.1,
-                    })?;
-                    networking.send_packet(packet)?;
+                    }));
                 }
                 _ => {}
             }
         }
         Ok(())
     }
+}
+
+/// This event is called, when the user right clicks a block
+pub struct BlockRightClickEvent {
+    pub x: i32,
+    pub y: i32,
 }
