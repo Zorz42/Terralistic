@@ -7,7 +7,7 @@ build = "build_main.rs"
 license-file = "LICENSE"
 repository = "https:://github.com/Zorz42/Terralistic"
 keywords = ["game", "terralistic"]
-categories = ["game"]
+categories = []
 
 [[bin]]
 name = "terralistic"
