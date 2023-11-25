@@ -119,7 +119,7 @@ function register_blocks()
     block_type["transparent"] = true
     block_type["width"] = 2
     block_type["height"] = 2
-    block_type["inventory_size"] = 2
+    block_type["inventory_slots"] = {{0, 150}, {0, 210}}
     block_type["break_time"] = 3000
     blocks.furnace = terralistic_register_block_type(block_type)
 end

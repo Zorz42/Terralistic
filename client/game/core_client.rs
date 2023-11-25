@@ -184,7 +184,7 @@ pub fn run_game(
         lights.render(graphics, &camera, &blocks.get_blocks(), settings)?;
         camera.render(graphics);
         block_selector.render(graphics, &mut networking, &camera)?;
-        inventory.render(graphics, &items, &mut networking)?;
+        inventory.render(graphics, &items, &mut networking, &blocks.get_blocks())?;
         health.render(graphics);
         chat.render(graphics);
 

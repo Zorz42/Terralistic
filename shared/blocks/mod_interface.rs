@@ -167,6 +167,7 @@ pub fn handle_event_for_blocks_interface(mods: &mut ModManager, event: &Event) -
 
 /// make `BlockType` Lua compatible, implement getter and setter for every field except id
 impl rlua::UserData for Block {
+    #[allow(clippy::too_many_lines)]
     fn add_methods<'lua, M: rlua::UserDataMethods<'lua, Self>>(methods: &mut M) {
         // add meta method to set fields, id and image are not accessible
         methods.add_meta_method_mut(
@@ -181,7 +182,6 @@ impl rlua::UserData for Block {
                         "light_emission_b" => this.light_emission_b = value as u8,
                         "width" => this.width = value as i32,
                         "height" => this.height = value as i32,
-                        "inventory_size" => this.inventory_size = value as i32,
                         _ => {
                             return Err(rlua::Error::RuntimeError(format!(
                                 "{key} is not a valid field of BlockType for integer value"
@@ -212,6 +212,57 @@ impl rlua::UserData for Block {
                             return Err(rlua::Error::RuntimeError(format!(
                                 "{key} is not a valid field of BlockType for string value"
                             )));
+                        }
+                    };
+                    Ok(())
+                }
+                rlua::Value::Table(value) => {
+                    match key.as_str() {
+                        "inventory_slots" => {
+                            let len = value.len()?;
+                            for curr_val in 1..=len {
+                                let element = value.get::<_, rlua::Value>(curr_val)?;
+                                if let rlua::Value::Table(element) = element {
+                                    let mut slot = (0, 0);
+                                    let len2 = element.len()?;
+                                    if len2 != 2 {
+                                        return Err(rlua::Error::RuntimeError(
+                                            "Invalid table value for inventory_slots".to_owned(),
+                                        ));
+                                    }
+
+                                    let element1 = element.get::<_, rlua::Value>(1)?;
+                                    let element2 = element.get::<_, rlua::Value>(2)?;
+
+                                    if let rlua::Value::Integer(element1) = element1 {
+                                        slot.0 = element1 as i32;
+                                    } else {
+                                        return Err(rlua::Error::RuntimeError(
+                                            "Invalid table value for inventory_slots".to_owned(),
+                                        ));
+                                    }
+
+                                    if let rlua::Value::Integer(element2) = element2 {
+                                        slot.1 = element2 as i32;
+                                    } else {
+                                        return Err(rlua::Error::RuntimeError(
+                                            "Invalid table value for inventory_slots".to_owned(),
+                                        ));
+                                    }
+
+                                    this.inventory_slots.push(slot);
+                                } else {
+                                    return Err(rlua::Error::RuntimeError(
+                                        "Invalid table value for inventory_slots".to_owned(),
+                                    ));
+                                }
+                            }
+                        }
+                        _ => {
+                            return Err(rlua::Error::RuntimeError(
+                                "{key} is not a valid field of BlockType for table value"
+                                    .to_owned(),
+                            ));
                         }
                     };
                     Ok(())

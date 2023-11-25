@@ -36,9 +36,10 @@ pub struct Block {
     // if right clicking the block sends an event
     // this is used for example: doors
     pub clickable: bool,
-    // how many inventory slots it has, like chest or furnace
-    // if it's 0, then it cannot be opened, else it can be
-    pub inventory_size: i32,
+    // where will those inventory slots be located on screen, when the inventory is opened (0, 0) is top middle
+    // the size also tells how many inventory slots it has, like chest or furnace
+    // if it's empty, then it cannot be opened, else it can be
+    pub inventory_slots: Vec<(i32, i32)>,
 }
 
 impl Block {
@@ -62,7 +63,7 @@ impl Block {
             can_update_states: false,
             feet_collidable: false,
             clickable: false,
-            inventory_size: 0,
+            inventory_slots: vec![],
         }
     }
 

@@ -169,32 +169,11 @@ impl ClientInventory {
         }
     }
 
-    #[allow(clippy::too_many_lines)]
-    pub fn render(
+    fn render_inventory(
         &mut self,
         graphics: &gfx::GraphicsContext,
         items: &ClientItems,
-        networking: &mut ClientNetworking,
     ) -> Result<()> {
-        let open_target = if self.open_state == OpenState::Closed {
-            0.0
-        } else {
-            1.0
-        };
-        self.open_progress += (open_target - self.open_progress) / 5.0;
-
-        if self.open_state == OpenState::Closed {
-            if self.inventory.selected_slot.is_none() {
-                self.select_slot(Some(0), networking)?;
-            }
-
-            if let Some(slot) = self.inventory.selected_slot {
-                if slot >= 10 {
-                    self.select_slot(Some(slot - 10), networking)?;
-                }
-            }
-        }
-
         self.back_rect.size.1 = self.open_progress
             * (3.0 * INVENTORY_SPACING + 2.0 * INVENTORY_SLOT_SIZE)
             + (1.0 - self.open_progress) * (2.0 * INVENTORY_SPACING + INVENTORY_SLOT_SIZE);
@@ -291,16 +270,14 @@ impl ClientInventory {
                 }
             }
         }
+        Ok(())
+    }
 
-        if self.open_state != OpenState::Closed {
-            render_item_stack(
-                graphics,
-                items,
-                graphics.renderer.get_mouse_pos(),
-                self.inventory.get_selected_item().as_ref(),
-            );
-        }
-
+    fn render_crafting(
+        &mut self,
+        graphics: &gfx::GraphicsContext,
+        items: &ClientItems,
+    ) -> Result<()> {
         self.hovered_recipe = None;
         if self.open_progress > 0.0 {
             self.crafting_back_rect.pos.0 = INVENTORY_SPACING * self.open_progress
@@ -357,6 +334,83 @@ impl ClientInventory {
                 x += INVENTORY_SLOT_SIZE + INVENTORY_SPACING;
             }
         }
+
+        Ok(())
+    }
+
+    fn render_mouse_item(&mut self, graphics: &gfx::GraphicsContext, items: &ClientItems) {
+        if self.open_state != OpenState::Closed {
+            render_item_stack(
+                graphics,
+                items,
+                graphics.renderer.get_mouse_pos(),
+                self.inventory.get_selected_item().as_ref(),
+            );
+        }
+    }
+
+    fn render_block_ui(
+        &mut self,
+        graphics: &gfx::GraphicsContext,
+        items: &ClientItems,
+        blocks: &Blocks,
+    ) -> Result<()> {
+        if let OpenState::OpenedBlock { x, y } = self.open_state {
+            let slots = blocks.get_block_inventory_data(x, y)?;
+            let slots_pos = blocks.get_block_type_at(x, y)?.inventory_slots;
+            if let Some(slots) = slots {
+                for (item, pos) in slots.iter().zip(slots_pos.iter()) {
+                    let item = item.as_ref();
+
+                    render_inventory_slot(
+                        graphics,
+                        items,
+                        gfx::FloatPos(
+                            pos.0 as f32 + graphics.renderer.get_window_size().0 / 2.0
+                                - INVENTORY_SLOT_SIZE / 2.0,
+                            pos.1 as f32,
+                        ),
+                        item,
+                    );
+                }
+            } else {
+                self.open_state = OpenState::Closed;
+            }
+        }
+        Ok(())
+    }
+
+    #[allow(clippy::too_many_lines)]
+    pub fn render(
+        &mut self,
+        graphics: &gfx::GraphicsContext,
+        items: &ClientItems,
+        networking: &mut ClientNetworking,
+        blocks: &Blocks,
+    ) -> Result<()> {
+        let open_target = if self.open_state == OpenState::Closed {
+            0.0
+        } else {
+            1.0
+        };
+        self.open_progress += (open_target - self.open_progress) / 5.0;
+
+        if self.open_state == OpenState::Closed {
+            if self.inventory.selected_slot.is_none() {
+                self.select_slot(Some(0), networking)?;
+            }
+
+            if let Some(slot) = self.inventory.selected_slot {
+                if slot >= 10 {
+                    self.select_slot(Some(slot - 10), networking)?;
+                }
+            }
+        }
+
+        self.render_inventory(graphics, items)?;
+        self.render_block_ui(graphics, items, blocks)?;
+        self.render_mouse_item(graphics, items);
+        self.render_crafting(graphics, items)?;
 
         Ok(())
     }
@@ -431,9 +485,12 @@ impl ClientInventory {
                 self.update_craftable_recipes(items);
             }
         } else if let Some(event) = event.downcast::<BlockRightClickEvent>() {
-            let inventory_size = blocks.get_block_type_at(event.x, event.y)?.inventory_size;
+            let has_inventory = !blocks
+                .get_block_type_at(event.x, event.y)?
+                .inventory_slots
+                .is_empty();
 
-            if inventory_size != 0 {
+            if has_inventory {
                 let offset = blocks.get_block_from_main(event.x, event.y)?;
 
                 self.open_state = OpenState::OpenedBlock {

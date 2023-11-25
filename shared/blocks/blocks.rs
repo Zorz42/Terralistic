@@ -209,7 +209,7 @@ impl Blocks {
         if self.get_block_from_main(x, y)? != (0, 0) {
             return Ok(0);
         }
-        Ok(self.get_block_type_at(x, y)?.inventory_size)
+        Ok(self.get_block_type_at(x, y)?.inventory_slots.len() as i32)
     }
 
     /// This function updates the inventory slots for a block.
