@@ -213,15 +213,22 @@ impl Blocks {
     }
 
     /// This function updates the inventory slots for a block.
-    fn update_block_inventory_data(&mut self, x: i32, y: i32) -> Result<()> {
+    fn update_block_inventory_data(
+        &mut self,
+        x: i32,
+        y: i32,
+        events: &mut EventManager,
+    ) -> Result<()> {
         let size = self.get_block_inventory_size(x, y)?;
         let index = self.block_data.map.translate_coords(x, y)?;
         if size == 0 {
-            self.block_data.block_inventory_data.remove(&index);
+            self.set_block_inventory_data(x, y, vec![], events)?;
         } else {
-            self.block_data
-                .block_inventory_data
-                .insert(index, vec![None; size as usize]);
+            if self.block_data.block_inventory_data.get(&index).is_some() {
+                return Ok(());
+            }
+
+            self.set_block_inventory_data(x, y, vec![None; size as usize], events)?;
         }
 
         Ok(())
@@ -245,20 +252,25 @@ impl Blocks {
         x: i32,
         y: i32,
         data: Vec<Option<ItemStack>>,
+        events: &mut EventManager,
     ) -> Result<()> {
         let index = self.block_data.map.translate_coords(x, y)?;
         let size = self.get_block_inventory_size(x, y)?;
-        if size == 0 {
-            bail!("Block has no inventory slots");
-        }
+
         if size != data.len() as i32 {
             bail!("Invalid inventory size");
         }
 
-        if data.is_empty() {
-            self.block_data.block_inventory_data.remove(&index);
-        } else {
-            self.block_data.block_inventory_data.insert(index, data);
+        let empty_data = &vec![];
+        let prev_data = self.get_block_inventory_data(x, y)?.unwrap_or(empty_data);
+
+        if prev_data != &data {
+            if data.is_empty() {
+                self.block_data.block_inventory_data.remove(&index);
+            } else {
+                self.block_data.block_inventory_data.insert(index, data);
+            }
+            events.push_event(Event::new(BlockInventoryUpdateEvent { x, y }));
         }
         Ok(())
     }
@@ -325,7 +337,7 @@ impl Blocks {
 
     /// Updates the block at the specified coordinates.
     pub fn update_block(&mut self, x: i32, y: i32, events: &mut EventManager) -> Result<()> {
-        self.update_block_inventory_data(x, y)?;
+        self.update_block_inventory_data(x, y, events)?;
 
         let block = self.get_block_type_at(x, y)?;
         if block.width != 0 || block.height != 0 {
@@ -383,6 +395,12 @@ pub struct BlockRandomTickEvent {
 
 /// Event that is fired when a block is updated
 pub struct BlockUpdateEvent {
+    pub x: i32,
+    pub y: i32,
+}
+
+/// Event that is fired when block inventory data is updated
+pub struct BlockInventoryUpdateEvent {
     pub x: i32,
     pub y: i32,
 }
