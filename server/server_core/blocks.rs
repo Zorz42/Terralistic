@@ -10,9 +10,9 @@ use crate::server::server_core::networking::SendTarget;
 use crate::server::server_core::players::ServerPlayers;
 use crate::shared::blocks::{
     handle_event_for_blocks_interface, init_blocks_mod_interface, BlockBreakStartPacket,
-    BlockBreakStopPacket, BlockChangeEvent, BlockChangePacket, BlockRightClickPacket,
-    BlockStartedBreakingEvent, BlockStoppedBreakingEvent, Blocks, BlocksWelcomePacket,
-    ClientBlockBreakStartPacket,
+    BlockBreakStopPacket, BlockChangeEvent, BlockChangePacket, BlockInventoryUpdateEvent,
+    BlockInventoryUpdatePacket, BlockRightClickPacket, BlockStartedBreakingEvent,
+    BlockStoppedBreakingEvent, Blocks, BlocksWelcomePacket, ClientBlockBreakStartPacket,
 };
 use crate::shared::entities::Entities;
 use crate::shared::inventory::Inventory;
@@ -188,6 +188,17 @@ impl ServerBlocks {
                     self.get_blocks().update_block(x, y, events)?;
                 }
             }
+        } else if let Some(event) = event.downcast::<BlockInventoryUpdateEvent>() {
+            let packet = Packet::new(BlockInventoryUpdatePacket {
+                x: event.x,
+                y: event.y,
+                inventory: self
+                    .get_blocks()
+                    .get_block_inventory_data(event.x, event.y)?
+                    .unwrap_or(&vec![])
+                    .clone(),
+            })?;
+            networking.send_packet(&packet, SendTarget::All)?;
         }
         Ok(())
     }

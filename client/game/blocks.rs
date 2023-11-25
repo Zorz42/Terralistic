@@ -10,7 +10,8 @@ use crate::libraries::events::{Event, EventManager};
 use crate::libraries::graphics as gfx;
 use crate::shared::blocks::{
     handle_event_for_blocks_interface, init_blocks_mod_interface, BlockBreakStartPacket,
-    BlockBreakStopPacket, BlockChangeEvent, BlockChangePacket, BlockId, BlockRightClickPacket,
+    BlockBreakStopPacket, BlockChangeEvent, BlockChangePacket, BlockId, BlockInventoryUpdatePacket,
+    BlockRightClickPacket,
 };
 use crate::shared::blocks::{
     Blocks, BlocksWelcomePacket, BLOCK_WIDTH, RENDER_BLOCK_WIDTH, RENDER_SCALE,
@@ -202,6 +203,13 @@ impl ClientBlocks {
                     packet.y,
                     packet.block,
                     (packet.from_main_x, packet.from_main_y),
+                )?;
+            } else if let Some(packet) = event.try_deserialize::<BlockInventoryUpdatePacket>() {
+                self.get_blocks().set_block_inventory_data(
+                    packet.x,
+                    packet.y,
+                    packet.inventory,
+                    events,
                 )?;
             }
         } else if let Some(event) = event.downcast::<BlockChangeEvent>() {

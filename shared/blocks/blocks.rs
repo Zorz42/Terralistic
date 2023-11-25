@@ -428,3 +428,11 @@ pub struct BlockRightClickPacket {
     pub x: i32,
     pub y: i32,
 }
+
+/// A packet that is sent to the client, when block inventory is updated.
+#[derive(Serialize, Deserialize)]
+pub struct BlockInventoryUpdatePacket {
+    pub x: i32,
+    pub y: i32,
+    pub inventory: Vec<Option<ItemStack>>,
+}
