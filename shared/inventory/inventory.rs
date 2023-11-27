@@ -193,6 +193,12 @@ impl Inventory {
         }
         Ok(())
     }
+
+    /// This function returns inventory size
+    #[must_use]
+    pub fn get_size(&self) -> usize {
+        self.items.len()
+    }
 }
 
 #[derive(Serialize, Deserialize)]

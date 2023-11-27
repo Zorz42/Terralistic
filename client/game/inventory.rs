@@ -3,7 +3,7 @@ use anyhow::{anyhow, Result};
 
 use crate::client::game::items::ClientItems;
 use crate::client::game::networking::ClientNetworking;
-use crate::libraries::events::Event;
+use crate::libraries::events::{Event, EventManager};
 use crate::libraries::graphics as gfx;
 use crate::shared::blocks::Blocks;
 use crate::shared::inventory::{
@@ -20,18 +20,24 @@ enum OpenState {
     OpenedBlock { x: i32, y: i32 },
 }
 
+enum HoveredSlot {
+    None,
+    Inventory(usize),
+    Block(usize),
+    Recipe(RecipeId),
+}
+
 pub struct ClientInventory {
     open_state: OpenState,
     back_rect: gfx::RenderRect,
     inventory: Inventory,
     open_progress: f32,
-    hovered_slot: Option<usize>,
+    hovered_slot: HoveredSlot,
     hovered_slot_rect: gfx::RenderRect,
     lower_slots_pos: [f32; 10],
     craftable_recipes: Vec<RecipeId>,
     crafting_back_rect: gfx::RenderRect,
     hover_back_rect: gfx::RenderRect,
-    hovered_recipe: Option<RecipeId>,
 }
 
 const INVENTORY_SLOT_SIZE: f32 = 50.0;
@@ -108,7 +114,7 @@ impl ClientInventory {
             back_rect: gfx::RenderRect::new(gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, 0.0)),
             inventory: Inventory::new(20),
             open_progress: 0.0,
-            hovered_slot: None,
+            hovered_slot: HoveredSlot::None,
             hovered_slot_rect: gfx::RenderRect::new(
                 gfx::FloatPos(0.0, 0.0),
                 gfx::FloatSize(0.0, 0.0),
@@ -123,7 +129,6 @@ impl ClientInventory {
                 gfx::FloatPos(0.0, 0.0),
                 gfx::FloatSize(0.0, INVENTORY_SLOT_SIZE + 2.0 * INVENTORY_SPACING),
             ),
-            hovered_recipe: None,
         }
     }
 
@@ -199,7 +204,6 @@ impl ClientInventory {
             .back_rect
             .get_container(graphics, None)
             .get_absolute_rect();
-        self.hovered_slot = None;
         for (i, item) in self.inventory.reverse_iter().enumerate() {
             let i = 19 - i;
             if i < 10 {
@@ -224,7 +228,7 @@ impl ClientInventory {
                 );
 
                 if result {
-                    self.hovered_slot = Some(i);
+                    self.hovered_slot = HoveredSlot::Inventory(i);
                 }
             }
 
@@ -266,7 +270,7 @@ impl ClientInventory {
                     );
 
                     if result {
-                        self.hovered_slot = Some(i);
+                        self.hovered_slot = HoveredSlot::Inventory(i);
                     }
                 }
             }
@@ -279,7 +283,6 @@ impl ClientInventory {
         graphics: &gfx::GraphicsContext,
         items: &ClientItems,
     ) -> Result<()> {
-        self.hovered_recipe = None;
         if self.open_progress > 0.0 {
             self.crafting_back_rect.pos.0 = INVENTORY_SPACING * self.open_progress
                 + (-self.crafting_back_rect.size.0 - INVENTORY_SPACING)
@@ -304,14 +307,14 @@ impl ClientInventory {
                     render_inventory_slot(graphics, items, gfx::FloatPos(x, y), Some(&item));
 
                 if hovered {
-                    self.hovered_recipe = Some(*recipe_id);
+                    self.hovered_slot = HoveredSlot::Recipe(*recipe_id);
                 }
 
                 y += INVENTORY_SPACING + INVENTORY_SLOT_SIZE;
             }
         }
 
-        if let Some(recipe_id) = self.hovered_recipe {
+        if let HoveredSlot::Recipe(recipe_id) = self.hovered_slot {
             let items2 = items.get_items();
             let recipe = items2.get_recipe(recipe_id)?;
             let num_recipes = recipe.ingredients.len() as i32;
@@ -360,10 +363,10 @@ impl ClientInventory {
             let slots = blocks.get_block_inventory_data(x, y)?;
             let slots_pos = blocks.get_block_type_at(x, y)?.inventory_slots;
             if let Some(slots) = slots {
-                for (item, pos) in slots.iter().zip(slots_pos.iter()) {
+                for (slot, (item, pos)) in slots.iter().zip(slots_pos.iter()).enumerate() {
                     let item = item.as_ref();
 
-                    render_inventory_slot(
+                    let hovered = render_inventory_slot(
                         graphics,
                         items,
                         gfx::FloatPos(
@@ -373,6 +376,10 @@ impl ClientInventory {
                         ),
                         item,
                     );
+
+                    if hovered {
+                        self.hovered_slot = HoveredSlot::Block(slot);
+                    }
                 }
             } else {
                 self.open_state = OpenState::Closed;
@@ -408,6 +415,7 @@ impl ClientInventory {
             }
         }
 
+        self.hovered_slot = HoveredSlot::None;
         self.render_inventory(graphics, items)?;
         self.render_block_ui(graphics, items, blocks)?;
         self.render_mouse_item(graphics, items);
@@ -443,7 +451,8 @@ impl ClientInventory {
         event: &Event,
         networking: &mut ClientNetworking,
         items: &ClientItems,
-        blocks: &Blocks,
+        blocks: &mut Blocks,
+        events: &mut EventManager,
     ) -> Result<()> {
         if let Some(gfx::Event::KeyPress { 0: key, .. }) = event.downcast::<gfx::Event>() {
             match *key {
@@ -458,19 +467,67 @@ impl ClientInventory {
                 gfx::Key::Num9 => self.select_slot(Some(8), networking)?,
                 gfx::Key::Num0 => self.select_slot(Some(9), networking)?,
                 gfx::Key::MouseLeft => {
-                    if self.inventory.selected_slot == self.hovered_slot {
-                        self.select_slot(None, networking)?;
-                    } else if let Some(hovered_slot) = self.hovered_slot {
-                        if self.inventory.get_selected_item().is_some() {
-                            self.swap_slot_with_selected_slot(hovered_slot, networking)?;
-                            self.select_slot(None, networking)?;
-                        } else {
-                            self.select_slot(self.hovered_slot, networking)?;
+                    let mut already_deselected = false;
+                    if let Some(selected_slot) = self.inventory.selected_slot {
+                        if let HoveredSlot::Inventory(hovered_slot) = self.hovered_slot {
+                            if selected_slot == hovered_slot {
+                                self.select_slot(None, networking)?;
+                                already_deselected = true;
+                            }
                         }
                     }
 
-                    if let Some(recipe) = self.hovered_recipe {
+                    if !already_deselected {
+                        if let HoveredSlot::Inventory(hovered_slot) = self.hovered_slot {
+                            if self.inventory.get_selected_item().is_some() {
+                                self.swap_slot_with_selected_slot(hovered_slot, networking)?;
+                                self.select_slot(None, networking)?;
+                            } else {
+                                self.select_slot(Some(hovered_slot), networking)?;
+                            }
+                        }
+                    }
+
+                    if let HoveredSlot::Recipe(recipe) = self.hovered_slot {
                         networking.send_packet(Packet::new(InventoryCraftPacket { recipe })?)?;
+                    }
+
+                    if let HoveredSlot::Block(slot) = self.hovered_slot {
+                        if self.inventory.selected_slot.is_none() {
+                            let mut free_slot = None;
+                            for (index, inventory_slot) in self.inventory.iter().enumerate() {
+                                if inventory_slot.is_none() {
+                                    free_slot = Some(index);
+                                    break;
+                                }
+                            }
+
+                            self.select_slot(free_slot, networking)?;
+                        }
+
+                        if let Some(selected_slot) = self.inventory.selected_slot {
+                            if let OpenState::OpenedBlock { x, y } = self.open_state {
+                                let inventory_item = self.inventory.get_item(selected_slot)?;
+                                let mut block_inventory = blocks
+                                    .get_block_inventory_data(x, y)?
+                                    .ok_or_else(|| anyhow!("no block inventory"))?
+                                    .clone();
+                                let block_item = block_inventory
+                                    .get(slot)
+                                    .ok_or_else(|| anyhow!("no block item"))?
+                                    .clone();
+                                self.inventory.set_item(selected_slot, block_item)?;
+                                *block_inventory
+                                    .get_mut(slot)
+                                    .ok_or_else(|| anyhow!("no block item"))? = inventory_item;
+                                blocks.set_block_inventory_data(x, y, block_inventory, events)?;
+
+                                let packet = InventorySwapPacket {
+                                    slot: Slot::Block(x, y, slot),
+                                };
+                                networking.send_packet(Packet::new(packet)?)?;
+                            }
+                        }
                     }
                 }
                 gfx::Key::E => {

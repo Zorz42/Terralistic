@@ -203,7 +203,13 @@ pub fn run_game(
             if chat.on_event(&event, graphics, &mut networking)? {
                 continue;
             }
-            inventory.on_event(&event, &mut networking, &items, &blocks.get_blocks())?;
+            inventory.on_event(
+                &event,
+                &mut networking,
+                &items,
+                &mut blocks.get_blocks(),
+                &mut events,
+            )?;
             mods.on_event(&event)?;
             blocks.on_event(&event, &mut events, &mut mods.mod_manager, &mut networking)?;
             walls.on_event(&event)?;
