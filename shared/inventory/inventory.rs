@@ -5,6 +5,13 @@ use crate::libraries::events::EventManager;
 use crate::shared::entities::Entities;
 use crate::shared::items::{ItemId, ItemStack, Items, Recipe, RecipeId};
 
+/// Slot can be either an inventory slot or a block and its slot
+#[derive(Clone, Serialize, Deserialize)]
+pub enum Slot {
+    Inventory(usize),
+    Block(i32, i32, usize),
+}
+
 #[derive(Clone, Serialize, Deserialize)]
 pub struct Inventory {
     items: Vec<Option<ItemStack>>,
@@ -200,7 +207,7 @@ pub struct InventorySelectPacket {
 
 #[derive(Serialize, Deserialize)]
 pub struct InventorySwapPacket {
-    pub slot: usize,
+    pub slot: Slot,
 }
 
 #[derive(Serialize, Deserialize)]

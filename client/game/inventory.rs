@@ -8,6 +8,7 @@ use crate::libraries::graphics as gfx;
 use crate::shared::blocks::Blocks;
 use crate::shared::inventory::{
     Inventory, InventoryCraftPacket, InventoryPacket, InventorySelectPacket, InventorySwapPacket,
+    Slot,
 };
 use crate::shared::items::{ItemStack, RecipeId};
 use crate::shared::packet::Packet;
@@ -431,7 +432,9 @@ impl ClientInventory {
         networking: &mut ClientNetworking,
     ) -> Result<()> {
         self.inventory.swap_with_selected_item(slot)?;
-        let packet = InventorySwapPacket { slot };
+        let packet = InventorySwapPacket {
+            slot: Slot::Inventory(slot),
+        };
         networking.send_packet(Packet::new(packet)?)
     }
 

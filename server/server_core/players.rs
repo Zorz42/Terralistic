@@ -15,6 +15,7 @@ use crate::shared::entities::{Entities, HealthChangeEvent, PhysicsComponent, Pos
 use crate::shared::entities::{HealthChangePacket, HealthComponent};
 use crate::shared::inventory::{
     Inventory, InventoryCraftPacket, InventoryPacket, InventorySelectPacket, InventorySwapPacket,
+    Slot,
 };
 use crate::shared::items::Items;
 use crate::shared::packet::Packet;
@@ -78,7 +79,7 @@ impl ServerPlayers {
         &mut self,
         event: &Event,
         entities: &mut Entities,
-        blocks: &Blocks,
+        blocks: &mut Blocks,
         networking: &mut ServerNetworking,
         events: &mut EventManager,
         items: &mut Items,
@@ -115,7 +116,37 @@ impl ServerPlayers {
             {
                 let mut inventory = entities.ecs.get::<&mut Inventory>(player_entity)?;
 
-                inventory.swap_with_selected_item(packet.slot)?;
+                if let Slot::Inventory(slot) = packet.slot {
+                    inventory.swap_with_selected_item(slot)?;
+                }
+
+                if let Slot::Block(x, y, slot) = packet.slot {
+                    let mut inventory_data = blocks
+                        .get_block_inventory_data(x, y)?
+                        .ok_or_else(|| anyhow!("Block at ({}, {}) doesn't have inventory", x, y))?
+                        .clone();
+
+                    let block_item = inventory_data
+                        .get(slot)
+                        .ok_or_else(|| {
+                            anyhow!("Block at ({}, {}) doesn't have slot {}", x, y, slot)
+                        })?
+                        .clone();
+                    let selected_item = inventory.get_selected_item();
+
+                    *inventory_data.get_mut(slot).ok_or_else(|| {
+                        anyhow!("Block at ({}, {}) doesn't have slot {}", x, y, slot)
+                    })? = selected_item;
+
+                    let selected_slot = inventory
+                        .selected_slot
+                        .ok_or_else(|| anyhow!("Player doesn't have selected slot"))?;
+
+                    inventory.set_item(selected_slot, block_item)?;
+
+                    blocks.set_block_inventory_data(x, y, inventory_data, events)?;
+                    blocks.update_block(x, y, events)?;
+                }
             } else if let Some(packet) = packet_event
                 .packet
                 .try_deserialize::<InventoryCraftPacket>()
