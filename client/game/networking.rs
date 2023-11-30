@@ -154,9 +154,8 @@ impl ClientNetworking {
                         }
 
                         while let Ok(packet) = packet_receiver.try_recv() {
-                            Self::send_packet_internal(&handler, &packet, server_endpoint).expect(
-                                "failed to send packet to server, this should never happen",
-                            );
+                            Self::send_packet_internal(&handler, &packet, server_endpoint)
+                                .expect("failed to send packet to server");
                         }
 
                         handler

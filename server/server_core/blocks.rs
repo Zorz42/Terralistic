@@ -81,24 +81,26 @@ impl ServerBlocks {
                     .insert(event.conn.clone(), (packet.x, packet.y));
 
                 let player_id = players.get_player_from_connection(&event.conn)?;
-                let held_item = entities
-                    .ecs
-                    .get::<&Inventory>(player_id)?
-                    .get_selected_item();
-                let tool = if let Some(item) = &held_item {
-                    items.get_item_type(item.item)?.tool
-                } else {
-                    None
-                };
+                if let Some(player_id) = player_id {
+                    let held_item = entities
+                        .ecs
+                        .get::<&Inventory>(player_id)?
+                        .get_selected_item();
+                    let tool = if let Some(item) = &held_item {
+                        items.get_item_type(item.item)?.tool
+                    } else {
+                        None
+                    };
 
-                let tool_power = if let Some(item) = &held_item {
-                    items.get_item_type(item.item)?.tool_power
-                } else {
-                    0
-                };
+                    let tool_power = if let Some(item) = &held_item {
+                        items.get_item_type(item.item)?.tool_power
+                    } else {
+                        0
+                    };
 
-                self.get_blocks()
-                    .start_breaking_block(events, packet.x, packet.y, tool, tool_power)?;
+                    self.get_blocks()
+                        .start_breaking_block(events, packet.x, packet.y, tool, tool_power)?;
+                }
             }
 
             if let Some(packet) = event.packet.try_deserialize::<BlockBreakStopPacket>() {
@@ -107,40 +109,43 @@ impl ServerBlocks {
                     .stop_breaking_block(events, packet.x, packet.y)?;
             } else if let Some(packet) = event.packet.try_deserialize::<BlockRightClickPacket>() {
                 let player = players.get_player_from_connection(&event.conn)?;
-                let mut player_inventory = entities.ecs.get::<&mut Inventory>(player)?;
-                let selected_item = player_inventory.get_selected_item();
+                if let Some(player) = player {
+                    let mut player_inventory = entities.ecs.get::<&mut Inventory>(player)?;
+                    let selected_item = player_inventory.get_selected_item();
 
-                if let Some(mut selected_item) = selected_item {
-                    let item_info = items.get_item_type(selected_item.item)?;
+                    if let Some(mut selected_item) = selected_item {
+                        let item_info = items.get_item_type(selected_item.item)?;
 
-                    if let Some(block) = item_info.places_block {
-                        let block_width = self.get_blocks().get_block_type(block)?.width;
-                        let block_height = self.get_blocks().get_block_type(block)?.height;
+                        if let Some(block) = item_info.places_block {
+                            let block_width = self.get_blocks().get_block_type(block)?.width;
+                            let block_height = self.get_blocks().get_block_type(block)?.height;
 
-                        let can_place = {
-                            let mut can_place = true;
-                            for x in 0..block_width {
-                                for y in 0..block_height {
-                                    let current_block =
-                                        self.get_blocks().get_block(packet.x + x, packet.y - y)?;
-                                    if current_block != self.get_blocks().air() {
-                                        can_place = false;
+                            let can_place = {
+                                let mut can_place = true;
+                                for x in 0..block_width {
+                                    for y in 0..block_height {
+                                        let current_block = self
+                                            .get_blocks()
+                                            .get_block(packet.x + x, packet.y - y)?;
+                                        if current_block != self.get_blocks().air() {
+                                            can_place = false;
+                                        }
                                     }
                                 }
-                            }
-                            can_place
-                        };
+                                can_place
+                            };
 
-                        if can_place {
-                            self.get_blocks().set_block(
-                                events,
-                                packet.x,
-                                packet.y - block_height + 1,
-                                block,
-                            )?;
-                            selected_item.count -= 1;
-                            let selected_slot = player_inventory.selected_slot.unwrap_or(0);
-                            player_inventory.set_item(selected_slot, Some(selected_item))?;
+                            if can_place {
+                                self.get_blocks().set_block(
+                                    events,
+                                    packet.x,
+                                    packet.y - block_height + 1,
+                                    block,
+                                )?;
+                                selected_item.count -= 1;
+                                let selected_slot = player_inventory.selected_slot.unwrap_or(0);
+                                player_inventory.set_item(selected_slot, Some(selected_item))?;
+                            }
                         }
                     }
                 }

@@ -76,40 +76,42 @@ impl CommandManager {
                 command = command.get(1..).unwrap_or("").to_owned();
 
                 let player_entity = players.get_player_from_connection(&event.conn)?;
-                let name = entities
-                    .entities
-                    .ecs
-                    .get::<&mut PlayerComponent>(player_entity)?
-                    .get_name()
-                    .to_owned();
+                if let Some(player_entity) = player_entity {
+                    let name = entities
+                        .entities
+                        .ecs
+                        .get::<&mut PlayerComponent>(player_entity)?
+                        .get_name()
+                        .to_owned();
 
-                let mut output = String::new();
-                let result = self.execute_command(
-                    &command,
-                    state,
-                    Some(&name),
-                    players,
-                    items,
-                    entities,
-                    event_manager,
-                );
+                    let mut output = String::new();
+                    let result = self.execute_command(
+                        &command,
+                        state,
+                        Some(&name),
+                        players,
+                        items,
+                        entities,
+                        event_manager,
+                    );
 
-                writeln!(output, "Player \"{name}\" executed a command: {command}")?;
-                let result = match result {
-                    Ok(result) => result,
-                    Err(e) => format!("Error: {e}"),
-                };
+                    writeln!(output, "Player \"{name}\" executed a command: {command}")?;
+                    let result = match result {
+                        Ok(result) => result,
+                        Err(e) => format!("Error: {e}"),
+                    };
 
-                writeln!(output, "Command result: {result:?}")?;
+                    writeln!(output, "Command result: {result:?}")?;
 
-                send_to_ui(
-                    UiMessageType::SrvToUiConsoleMessage(ConsoleMessageType::Info(output)),
-                    None,
-                );
+                    send_to_ui(
+                        UiMessageType::SrvToUiConsoleMessage(ConsoleMessageType::Info(output)),
+                        None,
+                    );
 
-                let packet = Packet::new(ChatPacket { message: result })?;
+                    let packet = Packet::new(ChatPacket { message: result })?;
 
-                networking.send_packet(&packet, SendTarget::Connection(event.conn.clone()))?;
+                    networking.send_packet(&packet, SendTarget::Connection(event.conn.clone()))?;
+                }
             }
         }
 

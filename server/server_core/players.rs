@@ -32,7 +32,7 @@ pub struct SavedPlayerData {
 }
 
 pub struct ServerPlayers {
-    conns_to_players: HashMap<Connection, Entity>,
+    conns_to_players: HashMap<Connection, Option<Entity>>,
     players_to_conns: HashMap<Entity, Connection>,
     saved_players: HashMap<String, SavedPlayerData>,
 }
@@ -74,18 +74,17 @@ impl ServerPlayers {
         (spawn_x, spawn_y)
     }
 
-    #[allow(clippy::too_many_lines)]
-    pub fn on_event(
+    pub fn handle_client_packet(
         &mut self,
-        event: &Event,
+        packet_event: &PacketFromClientEvent,
         entities: &mut Entities,
-        blocks: &mut Blocks,
         networking: &mut ServerNetworking,
+        blocks: &mut Blocks,
         events: &mut EventManager,
         items: &mut Items,
     ) -> Result<()> {
-        if let Some(packet_event) = event.downcast::<PacketFromClientEvent>() {
-            let player_entity = self.get_player_from_connection(&packet_event.conn)?;
+        let player_entity = self.get_player_from_connection(&packet_event.conn)?;
+        if let Some(player_entity) = player_entity {
             if let Some(packet) = packet_event
                 .packet
                 .try_deserialize::<PlayerMovingPacketToServer>()
@@ -162,6 +161,23 @@ impl ServerPlayers {
             }
         }
 
+        Ok(())
+    }
+
+    #[allow(clippy::too_many_lines)]
+    pub fn on_event(
+        &mut self,
+        event: &Event,
+        entities: &mut Entities,
+        blocks: &mut Blocks,
+        networking: &mut ServerNetworking,
+        events: &mut EventManager,
+        items: &mut Items,
+    ) -> Result<()> {
+        if let Some(packet_event) = event.downcast::<PacketFromClientEvent>() {
+            self.handle_client_packet(packet_event, entities, networking, blocks, events, items)?;
+        }
+
         if let Some(new_connection_event) = event.downcast::<NewConnectionWelcomedEvent>() {
             let name = networking.get_connection_name(&new_connection_event.conn);
             let player_data = self.saved_players.get(&name);
@@ -191,7 +207,7 @@ impl ServerPlayers {
             let player_id = entities.new_id();
             let player_entity = spawn_player(entities, spawn_x, spawn_y, &name, player_id)?;
             self.conns_to_players
-                .insert(new_connection_event.conn.clone(), player_entity);
+                .insert(new_connection_event.conn.clone(), Some(player_entity));
             self.players_to_conns
                 .insert(player_entity, new_connection_event.conn.clone());
 
@@ -226,18 +242,22 @@ impl ServerPlayers {
                 let name = networking.get_connection_name(&disconnect_event.conn);
                 print_to_console(format!("[\"{name}\"] left the game").as_str(), 0);
 
-                self.saved_players.insert(
-                    name,
-                    SavedPlayerData {
-                        position: (*entities.ecs.get::<&PositionComponent>(player_entity)?).clone(),
-                        inventory: (*entities.ecs.get::<&Inventory>(player_entity)?).clone(),
-                    },
-                );
+                if let Some(player_entity) = player_entity {
+                    self.saved_players.insert(
+                        name,
+                        SavedPlayerData {
+                            position: (*entities.ecs.get::<&PositionComponent>(player_entity)?)
+                                .clone(),
+                            inventory: (*entities.ecs.get::<&Inventory>(player_entity)?).clone(),
+                        },
+                    );
+
+                    self.players_to_conns.remove(&player_entity);
+                    let player_id = entities.get_id_from_entity(player_entity)?;
+                    entities.despawn_entity(player_id, events)?;
+                }
 
                 self.conns_to_players.remove(&disconnect_event.conn);
-                self.players_to_conns.remove(&player_entity);
-                let player_id = entities.get_id_from_entity(player_entity)?;
-                entities.despawn_entity(player_id, events)?;
             }
         }
 
@@ -253,6 +273,12 @@ impl ServerPlayers {
                     })?,
                     SendTarget::Connection(player_conn.clone()),
                 )?;
+
+                if health_component.health() <= 0 {
+                    entities.despawn_entity(health_change_event.entity, events)?;
+                    self.conns_to_players.insert(player_conn.clone(), None);
+                    self.players_to_conns.remove(&entity);
+                }
             }
         }
 
@@ -271,21 +297,23 @@ impl ServerPlayers {
         remove_all_picked_items(entities, events, items)?;
 
         for (conn, player) in &self.conns_to_players {
-            let mut inventory = entities.ecs.get::<&mut Inventory>(*player)?;
-            if inventory.has_changed {
-                inventory.has_changed = false;
-                networking.send_packet(
-                    &Packet::new(InventoryPacket {
-                        inventory: inventory.clone(),
-                    })?,
-                    SendTarget::Connection(conn.clone()),
-                )?;
+            if let Some(player) = player {
+                let mut inventory = entities.ecs.get::<&mut Inventory>(*player)?;
+                if inventory.has_changed {
+                    inventory.has_changed = false;
+                    networking.send_packet(
+                        &Packet::new(InventoryPacket {
+                            inventory: inventory.clone(),
+                        })?,
+                        SendTarget::Connection(conn.clone()),
+                    )?;
+                }
             }
         }
         Ok(())
     }
 
-    pub fn get_player_from_connection(&self, conn: &Connection) -> Result<Entity> {
+    pub fn get_player_from_connection(&self, conn: &Connection) -> Result<Option<Entity>> {
         self.conns_to_players
             .get(conn)
             .ok_or_else(|| anyhow!("Received PlayerMovingPacket from unknown connection"))
@@ -296,11 +324,11 @@ impl ServerPlayers {
         &mut self,
         name: &str,
         entities: &Entities,
-    ) -> Result<&mut Entity> {
-        for e in &mut self.conns_to_players {
-            let e_component = entities.ecs.get::<&mut PlayerComponent>(*e.1)?;
+    ) -> Result<&Entity> {
+        for entity in &mut self.conns_to_players.values().flatten() {
+            let e_component = entities.ecs.get::<&mut PlayerComponent>(*entity)?;
             if e_component.get_name() == name {
-                return Ok(e.1);
+                return Ok(entity);
             }
         }
         Err(anyhow!("Player not found"))

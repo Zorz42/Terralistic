@@ -6,7 +6,7 @@ use crate::client::game::networking::ClientNetworking;
 use crate::libraries::events::Event;
 use crate::libraries::graphics as gfx;
 use crate::shared::blocks::{Blocks, BLOCK_WIDTH, RENDER_BLOCK_WIDTH, RENDER_SCALE};
-use crate::shared::entities::{Entities, PhysicsComponent, PositionComponent};
+use crate::shared::entities::{Entities, EntityDespawnEvent, PhysicsComponent, PositionComponent};
 use crate::shared::mod_manager::ModManager;
 use crate::shared::packet::Packet;
 use crate::shared::players::{
@@ -185,8 +185,9 @@ impl ClientPlayers {
                 if packet.name == self.main_player_name {
                     self.main_player = Some(player);
                 }
-            }
-            if let Some(packet) = packet_event.try_deserialize::<PlayerMovingPacketToClient>() {
+            } else if let Some(packet) =
+                packet_event.try_deserialize::<PlayerMovingPacketToClient>()
+            {
                 let entity = entities.get_entity_from_id(packet.player_id)?;
                 let mut physics_component = entities
                     .ecs
@@ -204,6 +205,17 @@ impl ClientPlayers {
                 entities.ecs.insert_one(entity, physics_component)?;
             }
         }
+
+        if let Some(despawn_event) = event.downcast::<EntityDespawnEvent>() {
+            println!("got despawn event");
+            if let Some(main_player) = self.main_player {
+                let id = entities.get_id_from_entity(main_player)?;
+                if id == despawn_event.id {
+                    self.main_player = None;
+                }
+            }
+        }
+
         Ok(())
     }
 

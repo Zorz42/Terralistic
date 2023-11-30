@@ -115,7 +115,7 @@ impl ServerNetworking {
                     })) {
                         Ok(()) => {}
                         Err(e) => {
-                            println!("Failed to send disconnect event: {e}");
+                            println!("Failed to send DisconnectEvent: {e}");
                         }
                     }
                 }
@@ -131,7 +131,7 @@ impl ServerNetworking {
                             Ok(()) => {}
                             Err(e) => {
                                 print_to_console(
-                                    &format!("Failed to send new connection event: {e}"),
+                                    &format!("Failed to send NewConnectionEvent: {e}"),
                                     2,
                                 );
                             }
@@ -144,7 +144,7 @@ impl ServerNetworking {
                             Ok(()) => {}
                             Err(e) => {
                                 print_to_console(
-                                    &format!("Failed to send packet from client event: {e}"),
+                                    &format!("Failed to send PacketFromClientEvent: {e}"),
                                     2,
                                 );
                             }
@@ -159,7 +159,7 @@ impl ServerNetworking {
 
                 while let Ok((packet_data, conn)) = packet_receiver.try_recv() {
                     Self::send_packet_internal(&handler, &packet_data, &conn)
-                        .expect("Failed to send packet");
+                        .expect("Failed to send Packet");
                 }
 
                 handler
@@ -252,14 +252,14 @@ impl ServerNetworking {
                 for conn in &self.connections {
                     self.packet_sender
                         .as_mut()
-                        .ok_or_else(|| anyhow!("packet sender not constructed yet"))?
+                        .ok_or_else(|| anyhow!("packet_sender not constructed yet"))?
                         .send((packet_data.clone(), conn.clone()))?;
                 }
             }
             SendTarget::Connection(conn) => {
                 self.packet_sender
                     .as_mut()
-                    .ok_or_else(|| anyhow!("packet sender not constructed yet"))?
+                    .ok_or_else(|| anyhow!("packet_sender not constructed yet"))?
                     .send((packet_data, conn))?;
             }
             SendTarget::AllExcept(conn) => {
@@ -267,7 +267,7 @@ impl ServerNetworking {
                     if c != &conn {
                         self.packet_sender
                             .as_mut()
-                            .ok_or_else(|| anyhow!("packet sender not constructed yet"))?
+                            .ok_or_else(|| anyhow!("packet_sender not constructed yet"))?
                             .send((packet_data.clone(), c.clone()))?;
                     }
                 }

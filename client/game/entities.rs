@@ -1,6 +1,6 @@
 use anyhow::Result;
 
-use crate::libraries::events::Event;
+use crate::libraries::events::{Event, EventManager};
 use crate::shared::entities::{
     Entities, EntityDespawnPacket, EntityPositionVelocityPacket, PhysicsComponent,
     PositionComponent,
@@ -18,7 +18,7 @@ impl ClientEntities {
         }
     }
 
-    pub fn on_event(&mut self, event: &Event) -> Result<()> {
+    pub fn on_event(&mut self, event: &Event, events: &mut EventManager) -> Result<()> {
         if let Some(packet) = event.downcast::<Packet>() {
             if let Some(packet) = packet.try_deserialize::<EntityPositionVelocityPacket>() {
                 let entity = self.entities.get_entity_from_id(packet.id)?;
@@ -43,7 +43,8 @@ impl ClientEntities {
             if let Some(packet) = packet.try_deserialize::<EntityDespawnPacket>() {
                 let entity_to_despawn = self.entities.get_entity_from_id(packet.id);
                 if let Ok(entity) = entity_to_despawn {
-                    self.entities.ecs.despawn(entity)?;
+                    let entity_id = self.entities.get_id_from_entity(entity)?;
+                    self.entities.despawn_entity(entity_id, events)?;
                 }
             }
         }

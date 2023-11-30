@@ -291,6 +291,9 @@ pub struct PlayerSpawnPacket {
 }
 
 #[derive(Serialize, Deserialize)]
+pub struct RespawnPacket;
+
+#[derive(Serialize, Deserialize)]
 pub struct NamePacket {
     pub name: String,
 }

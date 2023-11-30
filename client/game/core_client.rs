@@ -213,7 +213,7 @@ pub fn run_game(
             mods.on_event(&event)?;
             blocks.on_event(&event, &mut events, &mut mods.mod_manager, &mut networking)?;
             walls.on_event(&event)?;
-            entities.on_event(&event)?;
+            entities.on_event(&event, &mut events)?;
             items.on_event(&event, &mut entities.entities, &mut events)?;
             block_selector.on_event(graphics, &mut networking, &camera, &event, &mut events)?;
             players.on_event(&event, &mut entities.entities)?;
