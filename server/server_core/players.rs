@@ -274,7 +274,7 @@ impl ServerPlayers {
                     SendTarget::Connection(player_conn.clone()),
                 )?;
 
-                if health_component.health() <= 0 {
+                if health_component.health() == 0 {
                     entities.despawn_entity(health_change_event.entity, events)?;
                     self.conns_to_players.insert(player_conn.clone(), None);
                     self.players_to_conns.remove(&entity);

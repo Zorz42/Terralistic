@@ -14,6 +14,7 @@ use crate::client::game::items::ClientItems;
 use crate::client::game::lights::ClientLights;
 use crate::client::game::pause_menu::PauseMenu;
 use crate::client::game::players::ClientPlayers;
+use crate::client::game::respawn_screen::RespawnScreen;
 use crate::client::global_settings::GlobalSettings;
 use crate::client::menus::{run_loading_screen, BackgroundRect};
 use crate::client::settings::Settings;
@@ -119,6 +120,7 @@ pub fn run_game(
     let mut chat = ClientChat::new(graphics);
     let mut health = ClientHealth::new();
     let mut floating_text = FloatingTextManager::new();
+    let mut respawn_screen = RespawnScreen::new();
 
     background.init()?;
     inventory.init();
@@ -134,6 +136,7 @@ pub fn run_game(
     pause_menu.init(graphics, settings);
     debug_menu.init();
     chat.init();
+    respawn_screen.init(graphics);
 
     // print the time it took to initialize
     println!("Game joined in {}ms", timer.elapsed().as_millis());
@@ -175,6 +178,9 @@ pub fn run_game(
                 .update_entities_ms(&blocks.get_blocks(), &mut events)?;
         }
 
+        respawn_screen.is_shown =
+            players.get_main_player().is_none() && !players.is_waiting_for_player();
+
         background.render(graphics, &camera);
         walls.render(graphics, &camera)?;
         blocks.render(graphics, &camera)?;
@@ -187,6 +193,7 @@ pub fn run_game(
         inventory.render(graphics, &items, &mut networking, &blocks.get_blocks())?;
         health.render(graphics);
         chat.render(graphics);
+        respawn_screen.render(graphics);
 
         pause_menu.render(graphics, settings, global_settings);
 
@@ -230,6 +237,7 @@ pub fn run_game(
                 break 'main_loop;
             }
             debug_menu.on_event(&event);
+            respawn_screen.on_event(&event, graphics, &mut networking)?;
         }
 
         framerate_measurer.update_post_render();

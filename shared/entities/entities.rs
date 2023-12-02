@@ -336,6 +336,7 @@ impl HealthComponent {
     }
 
     pub fn set_health(&mut self, health: i32, events: &mut EventManager, entity_id: EntityId) {
+        let health = health.clamp(0, self.max_health);
         if self.health != health {
             self.health = health;
             events.push_event(Event::new(HealthChangeEvent { entity: entity_id }));

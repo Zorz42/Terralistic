@@ -17,4 +17,5 @@ mod networking;
 mod pause_menu;
 mod players;
 pub mod private_world;
+mod respawn_screen;
 mod walls;

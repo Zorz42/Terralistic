@@ -19,6 +19,7 @@ pub struct ClientPlayers {
     main_player: Option<Entity>,
     main_player_name: String,
     player_texture: gfx::Texture,
+    waiting_for_player: bool,
     pub controls_enabled: bool,
 }
 
@@ -29,6 +30,7 @@ impl ClientPlayers {
             main_player_name: player_name.to_owned(),
             player_texture: gfx::Texture::new(),
             controls_enabled: true,
+            waiting_for_player: true,
         }
     }
 
@@ -184,6 +186,7 @@ impl ClientPlayers {
                 let player = spawn_player(entities, packet.x, packet.y, &packet.name, packet.id)?;
                 if packet.name == self.main_player_name {
                     self.main_player = Some(player);
+                    self.waiting_for_player = false;
                 }
             } else if let Some(packet) =
                 packet_event.try_deserialize::<PlayerMovingPacketToClient>()
@@ -221,5 +224,9 @@ impl ClientPlayers {
 
     pub const fn get_main_player(&self) -> Option<Entity> {
         self.main_player
+    }
+
+    pub const fn is_waiting_for_player(&self) -> bool {
+        self.waiting_for_player
     }
 }
