@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use std::ops::Deref;
 
 use anyhow::{anyhow, Result};
 use hecs::Entity;
@@ -21,14 +22,15 @@ use crate::shared::items::Items;
 use crate::shared::packet::Packet;
 use crate::shared::players::{
     remove_all_picked_items, spawn_player, update_players_ms, PlayerComponent,
-    PlayerMovingPacketToClient, PlayerMovingPacketToServer, PlayerSpawnPacket, PLAYER_HEIGHT,
-    PLAYER_WIDTH,
+    PlayerMovingPacketToClient, PlayerMovingPacketToServer, PlayerSpawnPacket, RespawnPacket,
+    PLAYER_HEIGHT, PLAYER_INVENTORY_SIZE, PLAYER_MAX_HEALTH, PLAYER_WIDTH,
 };
 
 #[derive(Serialize, Deserialize)]
 pub struct SavedPlayerData {
     pub inventory: Inventory,
     pub position: PositionComponent,
+    pub health: HealthComponent,
 }
 
 pub struct ServerPlayers {
@@ -161,6 +163,115 @@ impl ServerPlayers {
             }
         }
 
+        if packet_event
+            .packet
+            .try_deserialize::<RespawnPacket>()
+            .is_some()
+        {
+            self.spawn_player(
+                &networking.get_connection_name(&packet_event.conn),
+                blocks,
+                entities,
+                networking,
+                &packet_event.conn,
+            )?;
+        }
+
+        Ok(())
+    }
+
+    fn spawn_player(
+        &mut self,
+        name: &String,
+        blocks: &Blocks,
+        entities: &mut Entities,
+        networking: &mut ServerNetworking,
+        connection: &Connection,
+    ) -> Result<()> {
+        let player_data = self.saved_players.get(name);
+
+        let (spawn_x, spawn_y) = player_data.map_or_else(
+            || Self::get_spawn_coords(blocks),
+            |player_data| (player_data.position.x(), player_data.position.y()),
+        );
+
+        for (entity, (player, position)) in &mut entities
+            .ecs
+            .query::<(&PlayerComponent, &PositionComponent)>()
+        {
+            let id = entities.get_id_from_entity(entity)?;
+            let spawn_packet = Packet::new(PlayerSpawnPacket {
+                id,
+                x: position.x(),
+                y: position.y(),
+                name: player.get_name().to_owned(),
+            })?;
+            networking.send_packet(&spawn_packet, SendTarget::Connection(connection.clone()))?;
+        }
+
+        let health_component = player_data.map_or_else(
+            || HealthComponent::new(PLAYER_MAX_HEALTH, PLAYER_MAX_HEALTH),
+            |player_data| player_data.health.clone(),
+        );
+
+        let player_id = entities.new_id();
+        let player_entity = spawn_player(
+            entities,
+            spawn_x,
+            spawn_y,
+            name,
+            player_id,
+            health_component,
+        )?;
+        self.conns_to_players
+            .insert(connection.clone(), Some(player_entity));
+        self.players_to_conns
+            .insert(player_entity, connection.clone());
+
+        let player_spawn_packet = Packet::new(PlayerSpawnPacket {
+            id: entities.get_id_from_entity(player_entity)?,
+            x: spawn_x,
+            y: spawn_y,
+            name: name.clone(),
+        })?;
+
+        let health_component = entities.ecs.get::<&mut HealthComponent>(player_entity)?;
+        let health_packet = Packet::new(HealthChangePacket {
+            health: health_component.health(),
+            max_health: health_component.max_health(),
+        })?;
+        networking.send_packet(&health_packet, SendTarget::Connection(connection.clone()))?;
+
+        if let Some(player_data) = player_data {
+            let mut inventory = entities.ecs.get::<&mut Inventory>(player_entity)?;
+            *inventory = player_data.inventory.clone();
+            inventory.has_changed = true;
+        }
+
+        networking.send_packet(&player_spawn_packet, SendTarget::All)?;
+
+        Ok(())
+    }
+
+    fn save_player(&mut self, name: &str, entities: &Entities) -> Result<()> {
+        let player_entity = self.get_player_entity_from_name(name, entities)?;
+        let position = entities
+            .ecs
+            .get::<&PositionComponent>(*player_entity)?
+            .clone();
+        let inventory = entities.ecs.get::<&Inventory>(*player_entity)?.clone();
+        let health = entities
+            .ecs
+            .get::<&HealthComponent>(*player_entity)?
+            .clone();
+        self.saved_players.insert(
+            name.to_owned(),
+            SavedPlayerData {
+                position: position.deref().clone(),
+                inventory: inventory.deref().clone(),
+                health: health.deref().clone(),
+            },
+        );
         Ok(())
     }
 
@@ -180,61 +291,13 @@ impl ServerPlayers {
 
         if let Some(new_connection_event) = event.downcast::<NewConnectionWelcomedEvent>() {
             let name = networking.get_connection_name(&new_connection_event.conn);
-            let player_data = self.saved_players.get(&name);
-
-            let (spawn_x, spawn_y) = player_data.map_or_else(
-                || Self::get_spawn_coords(blocks),
-                |player_data| (player_data.position.x(), player_data.position.y()),
-            );
-
-            for (entity, (player, position)) in &mut entities
-                .ecs
-                .query::<(&PlayerComponent, &PositionComponent)>()
-            {
-                let id = entities.get_id_from_entity(entity)?;
-                let spawn_packet = Packet::new(PlayerSpawnPacket {
-                    id,
-                    x: position.x(),
-                    y: position.y(),
-                    name: player.get_name().to_owned(),
-                })?;
-                networking.send_packet(
-                    &spawn_packet,
-                    SendTarget::Connection(new_connection_event.conn.clone()),
-                )?;
-            }
-
-            let player_id = entities.new_id();
-            let player_entity = spawn_player(entities, spawn_x, spawn_y, &name, player_id)?;
-            self.conns_to_players
-                .insert(new_connection_event.conn.clone(), Some(player_entity));
-            self.players_to_conns
-                .insert(player_entity, new_connection_event.conn.clone());
-
-            let player_spawn_packet = Packet::new(PlayerSpawnPacket {
-                id: entities.get_id_from_entity(player_entity)?,
-                x: spawn_x,
-                y: spawn_y,
-                name: name.clone(),
-            })?;
-
-            let health_component = entities.ecs.get::<&mut HealthComponent>(player_entity)?;
-            let health_packet = Packet::new(HealthChangePacket {
-                health: health_component.health(),
-                max_health: health_component.max_health(),
-            })?;
-            networking.send_packet(
-                &health_packet,
-                SendTarget::Connection(new_connection_event.conn.clone()),
+            self.spawn_player(
+                &name,
+                blocks,
+                entities,
+                networking,
+                &new_connection_event.conn,
             )?;
-
-            if let Some(player_data) = player_data {
-                let mut inventory = entities.ecs.get::<&mut Inventory>(player_entity)?;
-                *inventory = player_data.inventory.clone();
-                inventory.has_changed = true;
-            }
-
-            networking.send_packet(&player_spawn_packet, SendTarget::All)?;
         }
 
         if let Some(disconnect_event) = event.downcast::<DisconnectEvent>() {
@@ -243,14 +306,7 @@ impl ServerPlayers {
                 print_to_console(format!("[\"{name}\"] left the game").as_str(), 0);
 
                 if let Some(player_entity) = player_entity {
-                    self.saved_players.insert(
-                        name,
-                        SavedPlayerData {
-                            position: (*entities.ecs.get::<&PositionComponent>(player_entity)?)
-                                .clone(),
-                            inventory: (*entities.ecs.get::<&Inventory>(player_entity)?).clone(),
-                        },
-                    );
+                    self.save_player(&name, entities)?;
 
                     self.players_to_conns.remove(&player_entity);
                     let player_id = entities.get_id_from_entity(player_entity)?;
@@ -263,7 +319,7 @@ impl ServerPlayers {
 
         if let Some(health_change_event) = event.downcast::<HealthChangeEvent>() {
             let entity = entities.get_entity_from_id(health_change_event.entity)?;
-            let player_conn = self.players_to_conns.get(&entity);
+            let player_conn = self.players_to_conns.get(&entity).cloned();
             if let Some(player_conn) = player_conn {
                 let health_component = entities.ecs.query_one_mut::<&HealthComponent>(entity)?;
                 networking.send_packet(
@@ -275,8 +331,19 @@ impl ServerPlayers {
                 )?;
 
                 if health_component.health() == 0 {
+                    let name = networking.get_connection_name(&player_conn);
+                    self.save_player(&name, entities)?;
+
+                    let spawn_coord = Self::get_spawn_coords(blocks);
+                    let saved_player = self
+                        .saved_players
+                        .get_mut(&name)
+                        .ok_or_else(|| anyhow!("Player not found"))?;
+                    saved_player.position = PositionComponent::new(spawn_coord.0, spawn_coord.1);
+                    saved_player.inventory = Inventory::new(PLAYER_INVENTORY_SIZE);
+
                     entities.despawn_entity(health_change_event.entity, events)?;
-                    self.conns_to_players.insert(player_conn.clone(), None);
+                    self.conns_to_players.insert(player_conn, None);
                     self.players_to_conns.remove(&entity);
                 }
             }

@@ -310,6 +310,7 @@ pub struct HealthChangePacket {
     pub max_health: i32,
 }
 
+#[derive(Serialize, Deserialize, Clone)]
 pub struct HealthComponent {
     health: i32,
     max_health: i32,

@@ -6,13 +6,15 @@ use crate::client::game::networking::ClientNetworking;
 use crate::libraries::events::Event;
 use crate::libraries::graphics as gfx;
 use crate::shared::blocks::{Blocks, BLOCK_WIDTH, RENDER_BLOCK_WIDTH, RENDER_SCALE};
-use crate::shared::entities::{Entities, EntityDespawnEvent, PhysicsComponent, PositionComponent};
+use crate::shared::entities::{
+    Entities, EntityDespawnEvent, HealthComponent, PhysicsComponent, PositionComponent,
+};
 use crate::shared::mod_manager::ModManager;
 use crate::shared::packet::Packet;
 use crate::shared::players::{
     spawn_player, update_players_ms, Direction, MovingType, PlayerComponent,
     PlayerMovingPacketToClient, PlayerMovingPacketToServer, PlayerSpawnPacket, PLAYER_HEIGHT,
-    PLAYER_WIDTH,
+    PLAYER_MAX_HEALTH, PLAYER_WIDTH,
 };
 
 pub struct ClientPlayers {
@@ -183,7 +185,14 @@ impl ClientPlayers {
     pub fn on_event(&mut self, event: &Event, entities: &mut Entities) -> Result<()> {
         if let Some(packet_event) = event.downcast::<Packet>() {
             if let Some(packet) = packet_event.try_deserialize::<PlayerSpawnPacket>() {
-                let player = spawn_player(entities, packet.x, packet.y, &packet.name, packet.id)?;
+                let player = spawn_player(
+                    entities,
+                    packet.x,
+                    packet.y,
+                    &packet.name,
+                    packet.id,
+                    HealthComponent::new(PLAYER_MAX_HEALTH, PLAYER_MAX_HEALTH),
+                )?;
                 if packet.name == self.main_player_name {
                     self.main_player = Some(player);
                     self.waiting_for_player = false;

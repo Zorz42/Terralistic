@@ -20,6 +20,7 @@ pub const PLAYER_JUMP_SPEED: f32 = 30.0;
 pub const PLAYER_PICKUP_RADIUS: f32 = 6.0;
 pub const PLAYER_PICKUP_COEFFICIENT: f32 = 0.005;
 pub const PLAYER_PICKUP_MIN_SPEED: f32 = 0.8;
+pub const PLAYER_INVENTORY_SIZE: usize = 20;
 
 #[derive(PartialEq, Eq, Copy, Clone, Serialize, Deserialize)]
 pub enum MovingType {
@@ -34,13 +35,14 @@ pub fn spawn_player(
     y: f32,
     name: &str,
     id: EntityId,
+    health_component: HealthComponent,
 ) -> Result<Entity> {
     let entity = entities.ecs.spawn((
         PositionComponent::new(x, y),
         PhysicsComponent::new(PLAYER_WIDTH, PLAYER_HEIGHT),
-        Inventory::new(20),
+        Inventory::new(PLAYER_INVENTORY_SIZE),
         PlayerComponent::new(name),
-        HealthComponent::new(PLAYER_MAX_HEALTH, PLAYER_MAX_HEALTH),
+        health_component,
     ));
 
     entities.assign_id(entity, id)?;
