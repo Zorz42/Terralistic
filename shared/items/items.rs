@@ -10,6 +10,8 @@ use crate::shared::entities::{Entities, EntityId, PhysicsComponent, PositionComp
 use crate::shared::items::Item;
 use crate::shared::walls::WallId;
 
+const VELOCITY_RANGE: f32 = 5.0;
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct ItemId {
     id: i32,
@@ -126,6 +128,27 @@ impl Items {
         events.push_event(Event::new(event));
 
         Ok(entity)
+    }
+
+    /// spawns an item with random velocity
+    pub fn drop_item(
+        &mut self,
+        events: &mut EventManager,
+        entities: &mut Entities,
+        item: ItemId,
+        x: f32,
+        y: f32,
+    ) -> Result<()> {
+        let id = entities.new_id();
+        let entity = self.spawn_item(events, entities, item, x, y, id)?;
+        let velocity_x = rand::random::<f32>() * 2.0 * VELOCITY_RANGE - VELOCITY_RANGE;
+        let velocity_y = -rand::random::<f32>() * 4.0 * VELOCITY_RANGE;
+
+        let mut physics = entities.ecs.get::<&mut PhysicsComponent>(entity)?;
+        physics.velocity_x = velocity_x;
+        physics.velocity_y = velocity_y;
+
+        Ok(())
     }
 
     /// this function registers an item type

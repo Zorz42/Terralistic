@@ -331,6 +331,16 @@ impl ServerPlayers {
                 )?;
 
                 if health_component.health() == 0 {
+                    let inventory = entities.ecs.get::<&Inventory>(entity)?.deref().clone();
+                    for item in inventory.iter().flatten() {
+                        for _ in 0..item.count {
+                            let x = entities.ecs.get::<&PositionComponent>(entity)?.x();
+                            let y = entities.ecs.get::<&PositionComponent>(entity)?.y();
+
+                            items.drop_item(events, entities, item.item, x, y)?;
+                        }
+                    }
+
                     let name = networking.get_connection_name(&player_conn);
                     self.save_player(&name, entities)?;
 

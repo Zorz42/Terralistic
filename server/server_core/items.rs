@@ -12,8 +12,6 @@ use crate::shared::items::{
 use crate::shared::mod_manager::ModManager;
 use crate::shared::packet::Packet;
 
-const VELOCITY_RANGE: f32 = 5.0;
-
 pub struct ServerItems {
     items: Arc<Mutex<Items>>,
 }
@@ -41,22 +39,14 @@ impl ServerItems {
             let drop = self.get_items().get_block_drop(broken_block);
             if let Ok(drop) = drop {
                 // spawn item at random chance. drop.chance is a float between 0 and 1
-                if rand::random::<f32>() < drop.chance {
-                    let id = entities.new_id();
-                    let entity = self.get_items().spawn_item(
+                if rand::random::<f32>() <= drop.chance {
+                    self.get_items().drop_item(
                         events,
                         entities,
                         drop.item,
                         event.x as f32,
                         event.y as f32,
-                        id,
                     )?;
-                    let velocity_x = rand::random::<f32>() * 2.0 * VELOCITY_RANGE - VELOCITY_RANGE;
-                    let velocity_y = -rand::random::<f32>() * 4.0 * VELOCITY_RANGE;
-
-                    let mut physics = entities.ecs.get::<&mut PhysicsComponent>(entity)?;
-                    physics.velocity_x = velocity_x;
-                    physics.velocity_y = velocity_y;
                 }
             }
         }
