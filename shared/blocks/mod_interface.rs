@@ -21,14 +21,81 @@ impl rlua::UserData for BlockId {
 pub fn init_blocks_mod_interface(blocks: &Arc<Mutex<Blocks>>, mods: &mut ModManager) -> Result<Receiver<Event>> {
     let (sender, receiver) = std::sync::mpsc::channel();
 
-    mods.add_global_function("new_block_type", move |_lua, ()| Ok(Block::new()))?;
-
     let mut blocks2 = blocks.clone();
-    mods.add_global_function("register_block_type", move |_lua, block_type: Block| {
-        let result = blocks2.lock().unwrap_or_else(PoisonError::into_inner).register_new_block_type(block_type);
+    mods.add_global_function(
+        "register_block_type",
+        move |_lua,
+              (
+            effective_tool,
+            required_tool_power,
+            ghost,
+            transparent,
+            name,
+            connects_to,
+            break_time,
+            light_emission_r,
+            light_emission_g,
+            light_emission_b,
+            width,
+            height,
+            can_update_states,
+            feet_collidable,
+            clickable,
+            inventory_slots,
+        ): (
+            Option<ToolId>,
+            i32,
+            bool,
+            bool,
+            String,
+            Vec<BlockId>,
+            Option<i32>,
+            u8,
+            u8,
+            u8,
+            i32,
+            i32,
+            bool,
+            bool,
+            bool,
+            Vec<Vec<i32>>,
+        )| {
+            let mut block_type = Block::new();
 
-        Ok(result)
-    })?;
+            // turn Vec<Vec<i32>> into Vec<(i32, i32)>
+            let inventory_slots = {
+                let mut inventory_slots2 = Vec::new();
+                for slot in inventory_slots {
+                    let val1 = slot.first().ok_or(rlua::Error::RuntimeError("invalid inventory slot".to_owned()))?;
+                    let val2 = slot.get(1).ok_or(rlua::Error::RuntimeError("invalid inventory slot".to_owned()))?;
+
+                    inventory_slots2.push((*val1, *val2));
+                }
+                inventory_slots2
+            };
+
+            block_type.effective_tool = effective_tool;
+            block_type.required_tool_power = required_tool_power;
+            block_type.ghost = ghost;
+            block_type.transparent = transparent;
+            block_type.name = name;
+            block_type.connects_to = connects_to;
+            block_type.break_time = break_time;
+            block_type.light_emission_r = light_emission_r;
+            block_type.light_emission_g = light_emission_g;
+            block_type.light_emission_b = light_emission_b;
+            block_type.width = width;
+            block_type.height = height;
+            block_type.can_update_states = can_update_states;
+            block_type.feet_collidable = feet_collidable;
+            block_type.clickable = clickable;
+            block_type.inventory_slots = inventory_slots;
+
+            let result = blocks2.lock().unwrap_or_else(PoisonError::into_inner).register_new_block_type(block_type);
+
+            Ok(result)
+        },
+    )?;
 
     blocks2 = blocks.clone();
     mods.add_global_function("get_block_id_by_name", move |_lua, name: String| {
@@ -126,105 +193,6 @@ pub fn handle_event_for_blocks_interface(mods: &mut ModManager, event: &Event) -
         }
     }
     Ok(())
-}
-
-/// make `BlockType` Lua compatible, implement getter and setter for every field except id
-impl rlua::UserData for Block {
-    #[allow(clippy::too_many_lines)]
-    fn add_methods<'lua, M: rlua::UserDataMethods<'lua, Self>>(methods: &mut M) {
-        // add meta method to set fields, id and image are not accessible
-        methods.add_meta_method_mut(rlua::MetaMethod::NewIndex, |_lua_ctx, this, (key, value): (String, rlua::Value)| match value {
-            rlua::Value::Integer(value) => {
-                match key.as_str() {
-                    "required_tool_power" => this.required_tool_power = value as i32,
-                    "break_time" => this.break_time = Some(value as i32),
-                    "light_emission_r" => this.light_emission_r = value as u8,
-                    "light_emission_g" => this.light_emission_g = value as u8,
-                    "light_emission_b" => this.light_emission_b = value as u8,
-                    "width" => this.width = value as i32,
-                    "height" => this.height = value as i32,
-                    _ => {
-                        return Err(rlua::Error::RuntimeError(format!("{key} is not a valid field of BlockType for integer value")));
-                    }
-                };
-                Ok(())
-            }
-            rlua::Value::Boolean(value) => {
-                match key.as_str() {
-                    "ghost" => this.ghost = value,
-                    "transparent" => this.transparent = value,
-                    "can_update_states" => this.can_update_states = value,
-                    "feet_collidable" => this.feet_collidable = value,
-                    "clickable" => this.clickable = value,
-                    _ => {
-                        return Err(rlua::Error::RuntimeError(format!("{key} is not a valid field of BlockType for boolean value")));
-                    }
-                };
-                Ok(())
-            }
-            rlua::Value::String(value) => {
-                match key.as_str() {
-                    "name" => this.name = value.to_str().unwrap_or("undefined").to_owned(),
-                    _ => {
-                        return Err(rlua::Error::RuntimeError(format!("{key} is not a valid field of BlockType for string value")));
-                    }
-                };
-                Ok(())
-            }
-            rlua::Value::Table(value) => {
-                match key.as_str() {
-                    "inventory_slots" => {
-                        let len = value.len()?;
-                        for curr_val in 1..=len {
-                            let element = value.get::<_, rlua::Value>(curr_val)?;
-                            if let rlua::Value::Table(element) = element {
-                                let mut slot = (0, 0);
-                                let len2 = element.len()?;
-                                if len2 != 2 {
-                                    return Err(rlua::Error::RuntimeError("Invalid table value for inventory_slots".to_owned()));
-                                }
-
-                                let element1 = element.get::<_, rlua::Value>(1)?;
-                                let element2 = element.get::<_, rlua::Value>(2)?;
-
-                                if let rlua::Value::Integer(element1) = element1 {
-                                    slot.0 = element1 as i32;
-                                } else {
-                                    return Err(rlua::Error::RuntimeError("Invalid table value for inventory_slots".to_owned()));
-                                }
-
-                                if let rlua::Value::Integer(element2) = element2 {
-                                    slot.1 = element2 as i32;
-                                } else {
-                                    return Err(rlua::Error::RuntimeError("Invalid table value for inventory_slots".to_owned()));
-                                }
-
-                                this.inventory_slots.push(slot);
-                            } else {
-                                return Err(rlua::Error::RuntimeError("Invalid table value for inventory_slots".to_owned()));
-                            }
-                        }
-                    }
-                    _ => {
-                        return Err(rlua::Error::RuntimeError("{key} is not a valid field of BlockType for table value".to_owned()));
-                    }
-                };
-                Ok(())
-            }
-            rlua::Value::UserData(value) => {
-                match key.as_str() {
-                    "effective_tool" => {
-                        this.effective_tool = Some(*value.borrow::<ToolId>()?);
-                    }
-                    _ => {
-                        return Err(rlua::Error::RuntimeError(format!("{key} is not a valid field of Block for userdata value")));
-                    }
-                };
-                Ok(())
-            }
-            _ => Err(rlua::Error::RuntimeError("Not a valid value type of BlockType".to_owned())),
-        });
-    }
 }
 
 /// make `ToolId` Lua compatible

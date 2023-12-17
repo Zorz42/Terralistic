@@ -6,122 +6,398 @@ function register_blocks()
     blocks.air = terralistic_get_block_id_by_name("air")
 
     -- DIRT
-    block_type = terralistic_new_block_type()
-    block_type["name"] = "dirt"
-    block_type["can_update_states"] = true
-    block_type["break_time"] = 700
-    block_type["effective_tool"] = tools.shovel
-    block_type["required_tool_power"] = 10
-    blocks.dirt = terralistic_register_block_type(block_type)
+    blocks.dirt = terralistic_register_block_type(
+            -- effective_tool
+            tools.shovel,
+            -- required_tool_power
+            10,
+            -- ghost
+            false,
+            -- transparent
+            false,
+            -- name
+            "dirt",
+            -- connects_to
+            {},
+            -- break_time
+            700,
+            -- light_emission
+            0, 0, 0,
+            -- size
+            1, 1,
+            -- can_update_states
+            true,
+            -- feet_collidable
+            false,
+            -- clickable
+            false,
+            -- inventory_slots
+            {}
+    )
 
     -- STONE
-    block_type = terralistic_new_block_type()
-    block_type["name"] = "stone_block"
-    block_type["can_update_states"] = true
-    block_type["break_time"] = 1000
-    block_type["effective_tool"] = tools.pickaxe
-    block_type["required_tool_power"] = 10
-    blocks.stone_block = terralistic_register_block_type(block_type)
+    blocks.stone_block = terralistic_register_block_type(
+            -- effective_tool
+            tools.pickaxe,
+            -- required_tool_power
+            10,
+            -- ghost
+            false,
+            -- transparent
+            false,
+            -- name
+            "stone_block",
+            -- connects_to
+            {},
+            -- break_time
+            1000,
+            -- light_emission
+            0, 0, 0,
+            -- size
+            1, 1,
+            -- can_update_states
+            true,
+            -- feet_collidable
+            false,
+            -- clickable
+            false,
+            -- inventory_slots
+            {}
+    )
 
     -- COPPER ORE
-    block_type = terralistic_new_block_type()
-    block_type["name"] = "copper_ore"
-    block_type["can_update_states"] = true
-    block_type["break_time"] = 2000
-    block_type["effective_tool"] = tools.pickaxe
-    block_type["required_tool_power"] = 10
-    blocks.copper_ore = terralistic_register_block_type(block_type)
+    blocks.copper_ore = terralistic_register_block_type(
+            -- effective_tool
+            tools.pickaxe,
+            -- required_tool_power
+            10,
+            -- ghost
+            false,
+            -- transparent
+            false,
+            -- name
+            "copper_ore",
+            -- connects_to
+            {},
+            -- break_time
+            2000,
+            -- light_emission
+            0, 0, 0,
+            -- size
+            1, 1,
+            -- can_update_states
+            true,
+            -- feet_collidable
+            false,
+            -- clickable
+            false,
+            -- inventory_slots
+            {}
+    )
 
     -- GRASS BLOCK
-    block_type = terralistic_new_block_type()
-    block_type["name"] = "grass_block"
-    block_type["can_update_states"] = true
-    block_type["break_time"] = 0
-    blocks.grass_block = terralistic_register_block_type(block_type)
+    blocks.grass_block = terralistic_register_block_type(
+            -- effective_tool
+            nil,
+            -- required_tool_power
+            0,
+            -- ghost
+            false,
+            -- transparent
+            false,
+            -- name
+            "grass_block",
+            -- connects_to
+            {},
+            -- break_time
+            0,
+            -- light_emission
+            0, 0, 0,
+            -- size
+            1, 1,
+            -- can_update_states
+            true,
+            -- feet_collidable
+            false,
+            -- clickable
+            false,
+            -- inventory_slots
+            {}
+    )
 
     terralistic_connect_blocks(blocks.dirt, blocks.grass_block)
 
     -- WOOD
-    block_type = terralistic_new_block_type()
-    block_type["name"] = "wood"
-    block_type["can_update_states"] = true
-    block_type["break_time"] = 2000
-    block_type["ghost"] = true
-    block_type["transparent"] = true
-    block_type["effective_tool"] = tools.axe
-    block_type["required_tool_power"] = 10
-    blocks.wood = terralistic_register_block_type(block_type)
+    blocks.wood = terralistic_register_block_type(
+            -- effective_tool
+            tools.axe,
+            -- required_tool_power
+            10,
+            -- ghost
+            true,
+            -- transparent
+            true,
+            -- name
+            "wood",
+            -- connects_to
+            {},
+            -- break_time
+            2000,
+            -- light_emission
+            0, 0, 0,
+            -- size
+            1, 1,
+            -- can_update_states
+            true,
+            -- feet_collidable
+            false,
+            -- clickable
+            false,
+            -- inventory_slots
+            {}
+    )
 
     -- BRANCH
-    block_type = terralistic_new_block_type()
-    block_type["name"] = "branch"
-    block_type["break_time"] = 1500
-    block_type["ghost"] = true
-    block_type["transparent"] = true
-    blocks.branch = terralistic_register_block_type(block_type)
+    blocks.branch = terralistic_register_block_type(
+            -- effective_tool
+            nil,
+            -- required_tool_power
+            0,
+            -- ghost
+            true,
+            -- transparent
+            true,
+            -- name
+            "branch",
+            -- connects_to
+            {},
+            -- break_time
+            1500,
+            -- light_emission
+            0, 0, 0,
+            -- size
+            1, 1,
+            -- can_update_states
+            false,
+            -- feet_collidable
+            false,
+            -- clickable
+            false,
+            -- inventory_slots
+            {}
+    )
 
     -- LEAVES
-    block_type = terralistic_new_block_type()
-    block_type["name"] = "leaves"
-    block_type["ghost"] = true
-    block_type["transparent"] = true
-    blocks.leaves = terralistic_register_block_type(block_type)
+    blocks.leaves = terralistic_register_block_type(
+            -- effective_tool
+            nil,
+            -- required_tool_power
+            0,
+            -- ghost
+            true,
+            -- transparent
+            true,
+            -- name
+            "leaves",
+            -- connects_to
+            {},
+            -- break_time
+            nil,
+            -- light_emission
+            0, 0, 0,
+            -- size
+            1, 1,
+            -- can_update_states
+            false,
+            -- feet_collidable
+            false,
+            -- clickable
+            false,
+            -- inventory_slots
+            {}
+    )
 
     -- CANOPY
-    block_type = terralistic_new_block_type()
-    block_type["name"] = "canopy"
-    block_type["ghost"] = true
-    block_type["transparent"] = true
-    block_type["width"] = 5
-    block_type["height"] = 5
-    blocks.canopy = terralistic_register_block_type(block_type)
+    blocks.canopy = terralistic_register_block_type(
+            -- effective_tool
+            nil,
+            -- required_tool_power
+            0,
+            -- ghost
+            true,
+            -- transparent
+            true,
+            -- name
+            "canopy",
+            -- connects_to
+            {},
+            -- break_time
+            nil,
+            -- light_emission
+            0, 0, 0,
+            -- size
+            5, 5,
+            -- can_update_states
+            false,
+            -- feet_collidable
+            false,
+            -- clickable
+            false,
+            -- inventory_slots
+            {}
+    )
 
     terralistic_connect_blocks(blocks.wood, blocks.canopy)
 
     -- GRASS
-    block_type = terralistic_new_block_type()
-    block_type["name"] = "grass"
-    block_type["ghost"] = true
-    block_type["transparent"] = true
-    block_type["break_time"] = 0
-    blocks.grass = terralistic_register_block_type(block_type)
+    blocks.grass = terralistic_register_block_type(
+            -- effective_tool
+            nil,
+            -- required_tool_power
+            0,
+            -- ghost
+            true,
+            -- transparent
+            true,
+            -- name
+            "grass",
+            -- connects_to
+            {},
+            -- break_time
+            0,
+            -- light_emission
+            0, 0, 0,
+            -- size
+            1, 1,
+            -- can_update_states
+            false,
+            -- feet_collidable
+            false,
+            -- clickable
+            false,
+            -- inventory_slots
+            {}
+    )
 
     -- STONE
-    block_type = terralistic_new_block_type()
-    block_type["name"] = "stone"
-    block_type["ghost"] = true
-    block_type["transparent"] = true
-    block_type["break_time"] = 500
-    blocks.stone = terralistic_register_block_type(block_type)
+    blocks.stone = terralistic_register_block_type(
+            -- effective_tool
+            nil,
+            -- required_tool_power
+            0,
+            -- ghost
+            true,
+            -- transparent
+            true,
+            -- name
+            "stone",
+            -- connects_to
+            {},
+            -- break_time
+            500,
+            -- light_emission
+            0, 0, 0,
+            -- size
+            1, 1,
+            -- can_update_states
+            false,
+            -- feet_collidable
+            false,
+            -- clickable
+            false,
+            -- inventory_slots
+            {}
+    )
 
     -- WOOD_PLANKS
-    block_type = terralistic_new_block_type()
-    block_type["name"] = "wood_planks"
-    block_type["can_update_states"] = true
-    block_type["break_time"] = 1000
-    blocks.wood_planks = terralistic_register_block_type(block_type)
+    blocks.wood_planks = terralistic_register_block_type(
+            -- effective_tool
+            nil,
+            -- required_tool_power
+            0,
+            -- ghost
+            false,
+            -- transparent
+            false,
+            -- name
+            "wood_planks",
+            -- connects_to
+            {},
+            -- break_time
+            1000,
+            -- light_emission
+            0, 0, 0,
+            -- size
+            1, 1,
+            -- can_update_states
+            true,
+            -- feet_collidable
+            false,
+            -- clickable
+            false,
+            -- inventory_slots
+            {}
+    )
 
     -- TORCH
-    block_type = terralistic_new_block_type()
-    block_type["name"] = "torch"
-    block_type["light_emission_r"] = 200
-    block_type["light_emission_g"] = 200
-    block_type["light_emission_b"] = 150
-    block_type["ghost"] = true
-    block_type["transparent"] = true
-    block_type["break_time"] = 300
-    blocks.torch = terralistic_register_block_type(block_type)
+    blocks.torch = terralistic_register_block_type(
+            -- effective_tool
+            nil,
+            -- required_tool_power
+            0,
+            -- ghost
+            true,
+            -- transparent
+            true,
+            -- name
+            "torch",
+            -- connects_to
+            {},
+            -- break_time
+            300,
+            -- light_emission
+            200, 200, 150,
+            -- size
+            1, 1,
+            -- can_update_states
+            false,
+            -- feet_collidable
+            false,
+            -- clickable
+            false,
+            -- inventory_slots
+            {}
+    )
     
     -- FURNACE
-    block_type = terralistic_new_block_type()
-    block_type["name"] = "furnace"
-    block_type["ghost"] = true
-    block_type["transparent"] = true
-    block_type["width"] = 2
-    block_type["height"] = 2
-    block_type["inventory_slots"] = {{0, 150}, {0, 210}}
-    block_type["break_time"] = 3000
-    blocks.furnace = terralistic_register_block_type(block_type)
+    blocks.furnace = terralistic_register_block_type(
+            -- effective_tool
+            tools.pickaxe,
+            -- required_tool_power
+            10,
+            -- ghost
+            true,
+            -- transparent
+            true,
+            -- name
+            "furnace",
+            -- connects_to
+            {},
+            -- break_time
+            3000,
+            -- light_emission
+            0, 0, 0,
+            -- size
+            2, 2,
+            -- can_update_states
+            false,
+            -- feet_collidable
+            false,
+            -- clickable
+            false,
+            -- inventory_slots
+            {{0, 150}, {0, 210}}
+    )
 end
 
 function on_block_break(x, y, block_id)

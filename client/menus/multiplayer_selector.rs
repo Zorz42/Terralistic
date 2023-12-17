@@ -275,7 +275,7 @@ fn update_elements(
                                 let game_result = run_game(graphics, menu_back, server.server_info.port, server.server_info.ip.clone(), &name, settings, global_settings);
                                 if let Err(error) = game_result {
                                     println!("Game error: {error}");
-                                    run_choice_menu(&format!("Game error: {error}"), graphics, menu_back, vec!["Ok"], None, None);
+                                    run_choice_menu(&format!("Game error: {error}"), graphics, menu_back, vec!["Ok"], None, None, true);
                                 }
                             }
                         } else if server
@@ -288,6 +288,7 @@ fn update_elements(
                                 vec!["Back", "Proceed"],
                                 Some(0),
                                 Some(1),
+                                false,
                             ) == 1
                         {
                             let pos = elements.server_list.servers.iter().position(|s| s.server_info.name == server.server_info.name);

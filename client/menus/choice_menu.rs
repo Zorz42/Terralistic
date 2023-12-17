@@ -2,7 +2,15 @@ use crate::libraries::graphics as gfx;
 
 use super::BackgroundRect;
 
-pub fn run_choice_menu(menu_title: &str, graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn BackgroundRect, buttons: Vec<&str>, esc_choice: Option<usize>, enter_choice: Option<usize>) -> usize {
+pub fn run_choice_menu(
+    menu_title: &str,
+    graphics: &mut gfx::GraphicsContext,
+    menu_back: &mut dyn BackgroundRect,
+    buttons: Vec<&str>,
+    esc_choice: Option<usize>,
+    enter_choice: Option<usize>,
+    align_left: bool,
+) -> usize {
     let text_lines_vec = menu_title.split('\n').collect::<Vec<&str>>();
 
     let mut title_lines = Vec::new();
@@ -11,13 +19,13 @@ pub fn run_choice_menu(menu_title: &str, graphics: &mut gfx::GraphicsContext, me
         let mut sprite = gfx::Sprite::new();
         sprite.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface(line, Some(200)));
         sprite.scale = 3.0;
-        sprite.orientation = gfx::TOP;
+        sprite.orientation = if align_left { gfx::TOP_LEFT } else { gfx::TOP };
         sprite.pos.1 = curr_y;
         curr_y += sprite.get_size().1 + gfx::SPACING;
         title_lines.push(sprite);
     }
 
-    let mut lines_container = gfx::Container::new(graphics, gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, 0.0), gfx::Orientation { x: 0.5, y: 0.3 }, None);
+    let mut lines_container = gfx::Container::new(graphics, gfx::FloatPos(0.0, 0.0), gfx::FloatSize(600.0, 0.0), gfx::Orientation { x: 0.5, y: 0.3 }, None);
 
     let mut buttons_container = gfx::Container::new(graphics, gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, 0.0), gfx::BOTTOM, None);
 
