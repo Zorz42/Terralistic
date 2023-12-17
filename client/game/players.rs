@@ -88,10 +88,10 @@ impl ClientPlayers {
     pub fn update(&mut self, graphics: &gfx::GraphicsContext, entities: &mut Entities, networking: &mut ClientNetworking, blocks: &Blocks) -> Result<()> {
         if let Some(main_player) = self.main_player {
             if let Ok((physics, player_component)) = entities.ecs.query_one_mut::<(&mut PhysicsComponent, &mut PlayerComponent)>(main_player) {
-                Self::set_jumping(networking, player_component, graphics.renderer.get_key_state(gfx::Key::Space) && self.controls_enabled)?;
+                Self::set_jumping(networking, player_component, graphics.get_key_state(gfx::Key::Space) && self.controls_enabled)?;
 
-                let key_a_pressed = graphics.renderer.get_key_state(gfx::Key::A) && self.controls_enabled;
-                let key_d_pressed = graphics.renderer.get_key_state(gfx::Key::D) && self.controls_enabled;
+                let key_a_pressed = graphics.get_key_state(gfx::Key::A) && self.controls_enabled;
+                let key_d_pressed = graphics.get_key_state(gfx::Key::D) && self.controls_enabled;
 
                 let moving_type = match (key_a_pressed, key_d_pressed) {
                     (true, false) => MovingType::MovingLeft,
@@ -123,8 +123,7 @@ impl ClientPlayers {
                 Direction::Right => false,
             };
 
-            self.player_texture
-                .render(&graphics.renderer, RENDER_SCALE, gfx::FloatPos(x.round(), y.round()), Some(src_rect), flipped, None);
+            self.player_texture.render(graphics, RENDER_SCALE, gfx::FloatPos(x.round(), y.round()), Some(src_rect), flipped, None);
         }
     }
 

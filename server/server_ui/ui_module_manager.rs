@@ -498,7 +498,7 @@ impl ModuleManagerRenderer {
     }
 
     fn get_pos_size(rect: &gfx::Rect, graphics_context: &gfx::GraphicsContext) -> gfx::Rect {
-        let window_size = graphics_context.renderer.get_window_size();
+        let window_size = graphics_context.get_window_size();
         let pos = gfx::FloatPos(window_size.0 * rect.pos.0, window_size.1 * rect.pos.1);
         let size = gfx::FloatSize(window_size.0 * rect.size.0, window_size.1 * rect.size.1);
         gfx::Rect::new(pos, size)

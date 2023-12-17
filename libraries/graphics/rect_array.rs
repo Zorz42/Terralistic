@@ -77,25 +77,25 @@ impl RectArray {
 
         // Safety: we are using the opengl functions correctly
         unsafe {
-            let mut transform = graphics.renderer.normalization_transform.clone();
+            let mut transform = graphics.normalization_transform.clone();
 
             transform.translate(pos);
 
-            gl::UniformMatrix3fv(graphics.renderer.passthrough_shader.transform_matrix, 1, gl::FALSE, transform.matrix.as_ptr());
+            gl::UniformMatrix3fv(graphics.passthrough_shader.transform_matrix, 1, gl::FALSE, transform.matrix.as_ptr());
 
             texture.map_or_else(
                 || {
-                    gl::Uniform1i(graphics.renderer.passthrough_shader.has_texture, 0);
+                    gl::Uniform1i(graphics.passthrough_shader.has_texture, 0);
                 },
                 |texture| {
                     transform = texture.get_normalization_transform();
-                    gl::UniformMatrix3fv(graphics.renderer.passthrough_shader.texture_transform_matrix, 1, gl::FALSE, transform.matrix.as_ptr());
-                    gl::Uniform1i(graphics.renderer.passthrough_shader.has_texture, 1);
+                    gl::UniformMatrix3fv(graphics.passthrough_shader.texture_transform_matrix, 1, gl::FALSE, transform.matrix.as_ptr());
+                    gl::Uniform1i(graphics.passthrough_shader.has_texture, 1);
                     gl::BindTexture(gl::TEXTURE_2D, texture.texture_handle);
                 },
             );
 
-            gl::Uniform4f(graphics.renderer.passthrough_shader.global_color, 1.0, 1.0, 1.0, 1.0);
+            gl::Uniform4f(graphics.passthrough_shader.global_color, 1.0, 1.0, 1.0, 1.0);
 
             self.vertex_buffer.draw(texture.is_some(), DrawMode::Triangles);
         }

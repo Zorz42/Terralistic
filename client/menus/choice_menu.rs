@@ -45,8 +45,8 @@ pub fn run_choice_menu(
     buttons_container.rect.size = gfx::FloatSize(buttons_width, max_button_height);
     buttons_container.rect.pos.1 = -gfx::SPACING;
 
-    while graphics.renderer.is_window_open() {
-        while let Some(event) = graphics.renderer.get_event() {
+    while graphics.is_window_open() {
+        while let Some(event) = graphics.get_event() {
             if let gfx::Event::KeyRelease(key, ..) = event {
                 match key {
                     gfx::Key::MouseLeft => {
@@ -85,7 +85,7 @@ pub fn run_choice_menu(
             sprite.render(graphics, Some(&buttons_container));
         }
 
-        graphics.renderer.update_window();
+        graphics.update_window();
     }
 
     0

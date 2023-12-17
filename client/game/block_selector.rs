@@ -26,8 +26,8 @@ impl BlockSelector {
 
     /// This function gets the current block that is selected.
     pub fn get_selected_block(graphics: &gfx::GraphicsContext, camera: &Camera) -> (i32, i32) {
-        let mouse_x = graphics.renderer.get_mouse_pos().0;
-        let mouse_y = graphics.renderer.get_mouse_pos().1;
+        let mouse_x = graphics.get_mouse_pos().0;
+        let mouse_y = graphics.get_mouse_pos().1;
 
         let mouse_x = mouse_x + camera.get_top_left(graphics).0 * RENDER_BLOCK_WIDTH;
         let mouse_y = mouse_y + camera.get_top_left(graphics).1 * RENDER_BLOCK_WIDTH;

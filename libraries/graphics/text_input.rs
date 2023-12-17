@@ -83,7 +83,7 @@ impl TextInput {
     pub fn is_hovered(&self, graphics: &gfx::GraphicsContext, parent_container: Option<&gfx::Container>) -> bool {
         let container = self.get_container(graphics, parent_container);
         let rect = container.get_absolute_rect();
-        let mouse_pos = graphics.renderer.get_mouse_pos();
+        let mouse_pos = graphics.get_mouse_pos();
         rect.contains(mouse_pos)
     }
 
@@ -188,7 +188,7 @@ impl TextInput {
         rect.render(graphics, color);
         rect.render_outline(graphics, border_color);
 
-        graphics.renderer.shadow_context.render(graphics, rect, self.shadow_intensity as f32 / 255.0);
+        graphics.shadow_context.render(graphics, rect, self.shadow_intensity as f32 / 255.0);
 
         let mut src_rect = gfx::Rect::new(gfx::FloatPos(0.0, 0.0), self.text_texture.get_texture_size());
         src_rect.size.0 = f32::min(src_rect.size.0, self.width - self.padding * 2.0);
@@ -198,7 +198,7 @@ impl TextInput {
         src_rect.pos.0 = self.text_texture.get_texture_size().0 - src_rect.size.0;
 
         self.hint_texture.render(
-            &graphics.renderer,
+            graphics,
             self.scale,
             gfx::FloatPos(
                 rect.pos.0 + rect.size.0 / 2.0 - self.hint_texture.get_texture_size().0 / 2.0 * self.scale,
@@ -211,7 +211,7 @@ impl TextInput {
 
         if !self.text.is_empty() {
             self.text_texture.render(
-                &graphics.renderer,
+                graphics,
                 self.scale,
                 gfx::FloatPos(
                     rect.pos.0 + self.padding * self.scale,
@@ -306,7 +306,7 @@ impl TextInput {
                             self.text.replace_range(self.get_cursor().0..self.get_cursor().1, "");
                             self.cursor.0 = self.get_cursor().0;
                         } else if self.cursor.0 > 0 {
-                            self.cursor.0 = self.find_space_left(self.cursor.0, graphics.renderer.get_key_state(gfx::Key::LeftControl));
+                            self.cursor.0 = self.find_space_left(self.cursor.0, graphics.get_key_state(gfx::Key::LeftControl));
                             self.text.replace_range(self.cursor.0..self.cursor.1, "");
                         }
                         self.cursor.1 = self.cursor.0;
@@ -318,41 +318,40 @@ impl TextInput {
                             self.cursor.0 = self.get_cursor().0;
                             self.cursor.1 = self.cursor.0;
                         } else if self.text.len() > self.cursor.0 {
-                            self.cursor.1 = self.find_space_right(self.cursor.0, graphics.renderer.get_key_state(gfx::Key::LeftControl));
+                            self.cursor.1 = self.find_space_right(self.cursor.0, graphics.get_key_state(gfx::Key::LeftControl));
                             self.text.replace_range(self.cursor.0..self.cursor.1, "");
                             self.cursor.1 = self.cursor.0;
                         }
                         self.text_changed = true;
                     }
                     gfx::Key::Left => {
-                        if graphics.renderer.get_key_state(gfx::Key::LeftShift) {
-                            self.cursor.1 = self.find_space_left(self.cursor.1, graphics.renderer.get_key_state(gfx::Key::LeftControl));
+                        if graphics.get_key_state(gfx::Key::LeftShift) {
+                            self.cursor.1 = self.find_space_left(self.cursor.1, graphics.get_key_state(gfx::Key::LeftControl));
                         } else {
                             if self.cursor.0 != self.cursor.1 {
                                 self.cursor.0 = self.get_cursor().0;
                             } else if self.cursor.0 > 0 {
-                                self.cursor.0 = self.find_space_left(self.cursor.0, graphics.renderer.get_key_state(gfx::Key::LeftControl));
+                                self.cursor.0 = self.find_space_left(self.cursor.0, graphics.get_key_state(gfx::Key::LeftControl));
                             }
 
                             self.cursor.1 = self.cursor.0;
                         }
                     }
                     gfx::Key::Right => {
-                        if graphics.renderer.get_key_state(gfx::Key::LeftShift) {
-                            self.cursor.1 = self.find_space_right(self.cursor.1, graphics.renderer.get_key_state(gfx::Key::LeftControl));
+                        if graphics.get_key_state(gfx::Key::LeftShift) {
+                            self.cursor.1 = self.find_space_right(self.cursor.1, graphics.get_key_state(gfx::Key::LeftControl));
                         } else {
                             if self.cursor.0 != self.cursor.1 {
                                 self.cursor.0 = self.get_cursor().1;
                             } else if self.cursor.0 < self.text.len() {
-                                self.cursor.0 = self.find_space_right(self.cursor.0, graphics.renderer.get_key_state(gfx::Key::LeftControl));
+                                self.cursor.0 = self.find_space_right(self.cursor.0, graphics.get_key_state(gfx::Key::LeftControl));
                             }
                             self.cursor.1 = self.cursor.0;
                         }
                     }
                     gfx::Key::C => {
-                        if graphics.renderer.get_key_state(gfx::Key::LeftControl) {
+                        if graphics.get_key_state(gfx::Key::LeftControl) {
                             graphics
-                                .renderer
                                 .clipboard_context
                                 .set_contents(self.text.get(self.get_cursor().0..self.get_cursor().1).unwrap_or("").to_owned())
                                 .unwrap_or_else(|e| {
@@ -361,8 +360,8 @@ impl TextInput {
                         }
                     }
                     gfx::Key::V => {
-                        if graphics.renderer.get_key_state(gfx::Key::LeftControl) {
-                            if let Ok(text) = graphics.renderer.clipboard_context.get_contents() {
+                        if graphics.get_key_state(gfx::Key::LeftControl) {
+                            if let Ok(text) = graphics.clipboard_context.get_contents() {
                                 if self.cursor.0 != self.cursor.1 {
                                     self.text.replace_range(self.get_cursor().0..self.get_cursor().1, ""); //add text filtering lol
                                     self.cursor.0 = self.get_cursor().0;
@@ -375,10 +374,9 @@ impl TextInput {
                         }
                     }
                     gfx::Key::X => {
-                        if graphics.renderer.get_key_state(gfx::Key::LeftControl) && self.cursor.0 != self.cursor.1 {
-                            if graphics.renderer.get_key_state(gfx::Key::LeftControl) {
+                        if graphics.get_key_state(gfx::Key::LeftControl) && self.cursor.0 != self.cursor.1 {
+                            if graphics.get_key_state(gfx::Key::LeftControl) {
                                 graphics
-                                    .renderer
                                     .clipboard_context
                                     .set_contents(self.text.get(self.get_cursor().0..self.get_cursor().1).unwrap_or("").to_owned())
                                     .unwrap_or_else(|e| {

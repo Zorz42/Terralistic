@@ -124,7 +124,7 @@ impl ShadowContext {
         }
 
         for (pos, src_rect) in elements {
-            self.shadow_texture.render(&graphics.renderer, 1.0, pos, Some(src_rect), false, Some(shadow_color));
+            self.shadow_texture.render(graphics, 1.0, pos, Some(src_rect), false, Some(shadow_color));
         }
     }
 }

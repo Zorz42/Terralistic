@@ -203,7 +203,7 @@ fn render_setting_ui(graphics: &gfx::GraphicsContext, setting: &mut SettingUi, s
             *hovered = toggle_box_rect
                 .get_container(graphics, Some(&back_rect.get_container(graphics, None)))
                 .get_absolute_rect()
-                .contains(graphics.renderer.get_mouse_pos());
+                .contains(graphics.get_mouse_pos());
 
             let inner_spacing = (TOGGLE_BOX_HEIGHT - TOGGLE_BUTTON_WIDTH) / 2.0;
 
@@ -289,10 +289,10 @@ fn render_setting_ui(graphics: &gfx::GraphicsContext, setting: &mut SettingUi, s
 
             let slider_container = slider_rect.get_container(graphics, Some(&back_rect.get_container(graphics, None)));
             let slider_absolute_rect = slider_container.get_absolute_rect();
-            *hovered = slider_absolute_rect.contains(graphics.renderer.get_mouse_pos());
+            *hovered = slider_absolute_rect.contains(graphics.get_mouse_pos());
 
             if *selected {
-                let mouse_x_in_rect = (graphics.renderer.get_mouse_pos().0 - slider_absolute_rect.pos.0).clamp(0.0, slider_absolute_rect.size.0);
+                let mouse_x_in_rect = (graphics.get_mouse_pos().0 - slider_absolute_rect.pos.0).clamp(0.0, slider_absolute_rect.size.0);
                 let slider_val = mouse_x_in_rect / slider_absolute_rect.size.0 * (slider_val_high - slider_val_low) as f32 + slider_val_low as f32;
                 if let Ok(Setting::Slider { selected, .. }) = settings.get_setting_mut(*setting_id) {
                     *selected = SliderSelection::Slider(slider_val as i32);

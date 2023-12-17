@@ -57,8 +57,8 @@ impl RenderRect {
 
         let container = self.get_container(graphics, parent_container);
         let rect = container.get_absolute_rect();
-        graphics.renderer.blur_rect(*rect, self.blur_radius);
-        graphics.renderer.shadow_context.render(graphics, rect, self.shadow_intensity as f32 / 255.0);
+        graphics.blur_rect(*rect, self.blur_radius);
+        graphics.shadow_context.render(graphics, rect, self.shadow_intensity as f32 / 255.0);
 
         rect.render(graphics, self.fill_color);
         rect.render_outline(graphics, self.border_color);

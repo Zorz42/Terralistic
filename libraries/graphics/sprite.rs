@@ -43,7 +43,6 @@ impl Sprite {
 
         let container = gfx::Container::new(graphics, self.pos, size, self.orientation, parent);
 
-        self.texture
-            .render(&graphics.renderer, self.scale, container.get_absolute_rect().pos, src_rect, self.flip, Some(self.color));
+        self.texture.render(graphics, self.scale, container.get_absolute_rect().pos, src_rect, self.flip, Some(self.color));
     }
 }

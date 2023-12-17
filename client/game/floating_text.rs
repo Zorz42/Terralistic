@@ -49,7 +49,7 @@ impl FloatingText {
         }
 
         self.text_texture.render(
-            &graphics.renderer,
+            graphics,
             self.scale,
             gfx::FloatPos(
                 (self.x - camera_pos.0) * RENDER_BLOCK_WIDTH - texture_size.0 * self.scale / 2.0,

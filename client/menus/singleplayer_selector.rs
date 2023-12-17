@@ -247,7 +247,7 @@ pub fn run_singleplayer_selector(graphics: &mut gfx::GraphicsContext, menu_back:
     };
 
     let mut top_rect_visibility = 1.0;
-    while graphics.renderer.is_window_open() {
+    while graphics.is_window_open() {
         if update_elements(graphics, menu_back, &mut elements, settings, global_settings, &mut scrollable) {
             break;
         }
@@ -263,7 +263,7 @@ fn update_elements(
     global_settings: &mut GlobalSettings,
     scrollable: &mut gfx::Scrollable,
 ) -> bool {
-    while let Some(event) = graphics.renderer.get_event() {
+    while let Some(event) = graphics.get_event() {
         scrollable.on_event(&event);
         if let gfx::Event::KeyRelease(key, ..) = event {
             match key {
@@ -329,7 +329,7 @@ fn render_elements(
 
     menu_back.render_back(graphics);
 
-    let hoverable = graphics.renderer.get_mouse_pos().1 > elements.top_height && graphics.renderer.get_mouse_pos().1 < graphics.renderer.get_window_size().1 - elements.bottom_height;
+    let hoverable = graphics.get_mouse_pos().1 > elements.top_height && graphics.get_mouse_pos().1 < graphics.get_window_size().1 - elements.bottom_height;
 
     for world in &mut elements.world_list.worlds {
         world.set_enabled(hoverable);
@@ -375,8 +375,8 @@ fn render_elements(
     elements.new_world_button.render(graphics, Some(menu_back.get_back_rect_container()));
 
     scrollable.scroll_size = elements_height;
-    scrollable.rect.size.1 = graphics.renderer.get_window_size().1 - elements.top_height - elements.bottom_height;
+    scrollable.rect.size.1 = graphics.get_window_size().1 - elements.top_height - elements.bottom_height;
     scrollable.render();
 
-    graphics.renderer.update_window();
+    graphics.update_window();
 }

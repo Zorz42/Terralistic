@@ -36,8 +36,8 @@ pub fn run_text_input_menu(menu_title: &str, graphics: &mut gfx::GraphicsContext
     input_field.orientation = gfx::CENTER;
 
     //this is where the menu is drawn
-    while graphics.renderer.is_window_open() {
-        while let Some(event) = graphics.renderer.get_event() {
+    while graphics.is_window_open() {
+        while let Some(event) = graphics.get_event() {
             input_field.on_event(&event, graphics, Some(menu_back.get_back_rect_container()));
 
             //sorts out the events
@@ -77,7 +77,7 @@ pub fn run_text_input_menu(menu_title: &str, graphics: &mut gfx::GraphicsContext
 
         input_field.render(graphics, Some(menu_back.get_back_rect_container()));
 
-        graphics.renderer.update_window();
+        graphics.update_window();
     }
 
     None

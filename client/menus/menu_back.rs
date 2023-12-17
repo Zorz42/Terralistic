@@ -41,17 +41,16 @@ impl BackgroundRect for MenuBack {
     fn render_back(&mut self, graphics: &mut gfx::GraphicsContext) {
         self.back_container = self.back_rect.get_container(graphics, None);
 
-        let scale = graphics.renderer.get_window_size().1 / self.background.get_texture_size().1;
+        let scale = graphics.get_window_size().1 / self.background.get_texture_size().1;
         let texture_width_scaled = self.background.get_texture_size().0 * scale;
         let pos = ((self.background_timer.elapsed().as_millis() as f32 * scale / 150.0) as u64 % texture_width_scaled as u64) as f32;
 
-        for i in -1..graphics.renderer.get_window_size().0 as i32 / (self.background.get_texture_size().0 * scale) as i32 + 2 {
-            self.background
-                .render(&graphics.renderer, scale, gfx::FloatPos(pos + i as f32 * texture_width_scaled, 0.0), None, false, None);
+        for i in -1..graphics.get_window_size().0 as i32 / (self.background.get_texture_size().0 * scale) as i32 + 2 {
+            self.background.render(graphics, scale, gfx::FloatPos(pos + i as f32 * texture_width_scaled, 0.0), None, false, None);
         }
 
-        if (self.back_rect.size.1 - graphics.renderer.get_window_size().1).abs() > f32::EPSILON {
-            self.back_rect.size.1 = graphics.renderer.get_window_size().1;
+        if (self.back_rect.size.1 - graphics.get_window_size().1).abs() > f32::EPSILON {
+            self.back_rect.size.1 = graphics.get_window_size().1;
             self.back_rect.jump_to_target();
         }
         self.back_rect.render(graphics, None);

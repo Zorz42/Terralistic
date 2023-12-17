@@ -111,11 +111,11 @@ pub fn run_add_server_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut 
     }));
 
     //this is where the menu is drawn
-    'render_loop: while graphics.renderer.is_window_open() {
+    'render_loop: while graphics.is_window_open() {
         add_button.disabled =
             server_name_input.get_text().is_empty() || server_ip_input.get_text().is_empty() || server_exists(server_name_input.get_text(), servers_list) || !is_valid_ip(server_ip_input.get_text());
 
-        while let Some(event) = graphics.renderer.get_event() {
+        while let Some(event) = graphics.get_event() {
             //sorts out the events
             server_name_input.on_event(&event, graphics, None);
             server_ip_input.on_event(&event, graphics, None);
@@ -164,7 +164,7 @@ pub fn run_add_server_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut 
         server_name_input.render(graphics, Some(menu_back.get_back_rect_container()));
         server_ip_input.render(graphics, Some(menu_back.get_back_rect_container()));
 
-        graphics.renderer.update_window();
+        graphics.update_window();
     }
     None
 }

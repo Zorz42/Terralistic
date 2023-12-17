@@ -44,7 +44,7 @@ impl GlobalSettings {
     pub fn update(&mut self, graphics: &mut gfx::GraphicsContext, settings: &Settings) {
         match settings.get_setting(self.blur_setting) {
             Ok(Setting::Toggle { toggled, .. }) => {
-                graphics.renderer.enable_blur(*toggled);
+                graphics.enable_blur(*toggled);
             }
             _ => {
                 println!("Error: Setting not found or is invalid enum");
@@ -54,13 +54,13 @@ impl GlobalSettings {
         match settings.get_setting(self.scale_setting) {
             Ok(Setting::Choice { selected, .. }) => match *selected {
                 0 => {
-                    graphics.renderer.scale = 0.5;
+                    graphics.scale = 0.5;
                 }
                 1 => {
-                    graphics.renderer.scale = 1.0;
+                    graphics.scale = 1.0;
                 }
                 2 => {
-                    graphics.renderer.scale = 1.5;
+                    graphics.scale = 1.5;
                 }
                 _ => {}
             },
@@ -73,18 +73,18 @@ impl GlobalSettings {
             Ok(Setting::Slider { selected, .. }) => match *selected {
                 SliderSelection::Choice(choice) => match choice {
                     0 => {
-                        graphics.renderer.disable_fps_limit();
-                        graphics.renderer.enable_vsync(true);
+                        graphics.disable_fps_limit();
+                        graphics.enable_vsync(true);
                     }
                     1 => {
-                        graphics.renderer.disable_fps_limit();
-                        graphics.renderer.enable_vsync(false);
+                        graphics.disable_fps_limit();
+                        graphics.enable_vsync(false);
                     }
                     _ => {}
                 },
                 SliderSelection::Slider(value) => {
-                    graphics.renderer.set_fps_limit(value as f32);
-                    graphics.renderer.enable_vsync(false);
+                    graphics.set_fps_limit(value as f32);
+                    graphics.enable_vsync(false);
                 }
             },
             _ => {

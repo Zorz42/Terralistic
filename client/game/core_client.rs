@@ -138,14 +138,14 @@ pub fn run_game(
     // print the time it took to initialize
     println!("Game joined in {}ms", timer.elapsed().as_millis());
 
-    'main_loop: while graphics.renderer.is_window_open() {
+    'main_loop: while graphics.is_window_open() {
         framerate_measurer.update();
 
-        while let Some(event) = graphics.renderer.get_event() {
+        while let Some(event) = graphics.get_event() {
             events.push_event(events::Event::new(event));
         }
 
-        graphics.renderer.block_key_states = chat.is_selected();
+        graphics.block_key_states = chat.is_selected();
 
         networking.update(&mut events)?;
         mods.update()?;
@@ -216,7 +216,7 @@ pub fn run_game(
 
         framerate_measurer.update_post_render();
 
-        graphics.renderer.update_window();
+        graphics.update_window();
     }
 
     lights.stop(settings)?;

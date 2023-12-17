@@ -225,7 +225,7 @@ fn server_main(args: &[String]) {
             }
         }
 
-        if graphics.renderer.set_min_window_size(graphics.renderer.get_window_size()).is_err() {
+        if graphics.set_min_window_size(graphics.get_window_size()).is_err() {
             println!("Failed to set minimum window size");
         }
         Some(graphics)
@@ -283,7 +283,7 @@ fn client_main() {
         }
     }
 
-    if graphics.renderer.set_min_window_size(gfx::FloatSize(1130.0, 700.0)).is_err() {
+    if graphics.set_min_window_size(gfx::FloatSize(1130.0, 700.0)).is_err() {
         println!("Failed to set minimum window size");
     }
 

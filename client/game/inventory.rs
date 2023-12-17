@@ -52,7 +52,7 @@ fn render_item_stack(graphics: &gfx::GraphicsContext, items: &ClientItems, pos: 
             let scale = 3.0;
             let texture = items.get_atlas().get_texture();
             let item_pos = pos + gfx::FloatPos(INVENTORY_SLOT_SIZE / 2.0 - src_rect.size.0 / 2.0 * scale, INVENTORY_SLOT_SIZE / 2.0 - src_rect.size.1 / 2.0 * scale);
-            texture.render(&graphics.renderer, scale, item_pos, Some(src_rect), false, None);
+            texture.render(graphics, scale, item_pos, Some(src_rect), false, None);
 
             if item.count > 1 {
                 let text_scale = 1.0;
@@ -67,7 +67,7 @@ fn render_item_stack(graphics: &gfx::GraphicsContext, items: &ClientItems, pos: 
 
 fn render_inventory_slot(graphics: &gfx::GraphicsContext, items: &ClientItems, pos: gfx::FloatPos, item: Option<&ItemStack>) -> bool {
     let rect = gfx::Rect::new(pos, gfx::FloatSize(INVENTORY_SLOT_SIZE, INVENTORY_SLOT_SIZE));
-    let hovered = rect.contains(graphics.renderer.get_mouse_pos());
+    let hovered = rect.contains(graphics.get_mouse_pos());
     rect.render(graphics, if hovered { gfx::GREY } else { gfx::DARK_GREY });
 
     render_item_stack(graphics, items, pos, item);
@@ -233,13 +233,13 @@ impl ClientInventory {
             let recipe = items2.get_recipe(recipe_id)?;
             let num_recipes = recipe.ingredients.len() as i32;
 
-            self.hover_back_rect.pos = graphics.renderer.get_mouse_pos();
+            self.hover_back_rect.pos = graphics.get_mouse_pos();
             self.hover_back_rect.size.0 = num_recipes as f32 * (INVENTORY_SLOT_SIZE + INVENTORY_SPACING) + INVENTORY_SPACING;
 
             self.hover_back_rect.render(graphics, None);
 
-            let mut x = graphics.renderer.get_mouse_pos().0 + INVENTORY_SPACING;
-            let y = graphics.renderer.get_mouse_pos().1 + INVENTORY_SPACING;
+            let mut x = graphics.get_mouse_pos().0 + INVENTORY_SPACING;
+            let y = graphics.get_mouse_pos().1 + INVENTORY_SPACING;
 
             for (item, count) in &recipe.ingredients {
                 render_inventory_slot(graphics, items, gfx::FloatPos(x, y), Some(&ItemStack::new(*item, *count)));
@@ -252,7 +252,7 @@ impl ClientInventory {
 
     fn render_mouse_item(&mut self, graphics: &gfx::GraphicsContext, items: &ClientItems) {
         if self.open_state != OpenState::Closed {
-            render_item_stack(graphics, items, graphics.renderer.get_mouse_pos(), self.inventory.get_selected_item().as_ref());
+            render_item_stack(graphics, items, graphics.get_mouse_pos(), self.inventory.get_selected_item().as_ref());
         }
     }
 
@@ -267,7 +267,7 @@ impl ClientInventory {
                     let hovered = render_inventory_slot(
                         graphics,
                         items,
-                        gfx::FloatPos(pos.0 as f32 + graphics.renderer.get_window_size().0 / 2.0 - INVENTORY_SLOT_SIZE / 2.0, pos.1 as f32),
+                        gfx::FloatPos(pos.0 as f32 + graphics.get_window_size().0 / 2.0 - INVENTORY_SLOT_SIZE / 2.0, pos.1 as f32),
                         item,
                     );
 

@@ -68,7 +68,7 @@ impl ClientHealth {
     }
 
     pub fn render(&mut self, graphics: &gfx::GraphicsContext) {
-        let pos_x = graphics.renderer.get_window_size().0 - 10.0 * HEART_WIDTH - gfx::SPACING;
+        let pos_x = graphics.get_window_size().0 - 10.0 * HEART_WIDTH - gfx::SPACING;
         self.hearts_rect_array.render(graphics, Some(&self.heart_texture), gfx::FloatPos(pos_x, gfx::SPACING));
     }
 

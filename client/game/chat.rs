@@ -46,8 +46,7 @@ impl ChatLine {
 
         self.back_rect.render(graphics, None);
         let pos = self.back_rect.get_container(graphics, None).rect.pos;
-        self.texture
-            .render(&graphics.renderer, 3.0, pos, None, false, Some(gfx::Color::new(255, 255, 255, self.transparency as u8)));
+        self.texture.render(graphics, 3.0, pos, None, false, Some(gfx::Color::new(255, 255, 255, self.transparency as u8)));
     }
 
     pub fn set_pos(&mut self, pos: gfx::FloatPos) {
@@ -103,7 +102,7 @@ impl ClientChat {
         self.text_input.width = self.back_rect.get_container(graphics, None).rect.size.0 / self.text_input.scale;
         self.text_input.render(graphics, None);
 
-        let mut curr_y = graphics.renderer.get_window_size().1 - gfx::SPACING - self.text_input.get_size().1;
+        let mut curr_y = graphics.get_window_size().1 - gfx::SPACING - self.text_input.get_size().1;
         for line in self.chat_lines.iter_mut().rev() {
             curr_y -= line.get_size().1;
             line.set_pos(gfx::FloatPos(gfx::SPACING, curr_y));
@@ -146,7 +145,7 @@ impl ClientChat {
                 self.chat_lines.push(ChatLine::new(
                     graphics,
                     &packet.message,
-                    gfx::FloatPos(0.0, graphics.renderer.get_window_size().1 - gfx::SPACING - self.text_input.get_size().1),
+                    gfx::FloatPos(0.0, graphics.get_window_size().1 - gfx::SPACING - self.text_input.get_size().1),
                 ));
             }
         }

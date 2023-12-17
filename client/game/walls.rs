@@ -191,7 +191,7 @@ impl ClientWalls {
             );
             let break_stage = self.walls.get_break_stage(breaking_wall.coord.0, breaking_wall.coord.1)?;
             self.breaking_texture.render(
-                &graphics.renderer,
+                graphics,
                 RENDER_SCALE,
                 gfx::FloatPos(x, y),
                 Some(gfx::Rect::new(gfx::FloatPos(0.0, break_stage as f32 * 8.0), gfx::FloatSize(8.0, 8.0))),

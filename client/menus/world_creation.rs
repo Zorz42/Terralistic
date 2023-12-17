@@ -72,7 +72,7 @@ pub fn run_world_creation(graphics: &mut gfx::GraphicsContext, menu_back: &mut d
     }));
 
     //this is where the menu is drawn
-    'render_loop: while graphics.renderer.is_window_open() {
+    'render_loop: while graphics.is_window_open() {
         let Some(base_dirs) = BaseDirs::new() else {
             println!("Failed to get base directories!");
             return;
@@ -82,7 +82,7 @@ pub fn run_world_creation(graphics: &mut gfx::GraphicsContext, menu_back: &mut d
 
         create_button.disabled = world_name_exists(worlds_list, world_name_input.get_text()) || world_name_input.get_text().is_empty();
 
-        while let Some(event) = graphics.renderer.get_event() {
+        while let Some(event) = graphics.get_event() {
             //sorts out the events
             world_name_input.on_event(&event, graphics, None);
             world_seed_input.on_event(&event, graphics, None);
@@ -136,6 +136,6 @@ pub fn run_world_creation(graphics: &mut gfx::GraphicsContext, menu_back: &mut d
         world_name_input.render(graphics, Some(menu_back.get_back_rect_container()));
         world_seed_input.render(graphics, Some(menu_back.get_back_rect_container()));
 
-        graphics.renderer.update_window();
+        graphics.update_window();
     }
 }

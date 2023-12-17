@@ -43,9 +43,9 @@ impl RespawnScreen {
 
     pub fn render(&mut self, graphics: &gfx::GraphicsContext) {
         if self.is_shown {
-            gfx::Rect::new(gfx::FloatPos(0.0, 0.0), graphics.renderer.get_window_size()).render(graphics, gfx::Color::new(255, 0, 0, 100));
+            gfx::Rect::new(gfx::FloatPos(0.0, 0.0), graphics.get_window_size()).render(graphics, gfx::Color::new(255, 0, 0, 100));
 
-            self.back_rect.size.1 = graphics.renderer.get_window_size().1;
+            self.back_rect.size.1 = graphics.get_window_size().1;
             self.back_rect.render(graphics, Some(&self.back_rect.get_container(graphics, None)));
 
             self.respawn_text.render(graphics, Some(&self.back_rect.get_container(graphics, None)), None);

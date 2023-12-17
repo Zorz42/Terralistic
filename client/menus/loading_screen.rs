@@ -29,8 +29,8 @@ pub fn run_loading_screen(graphics: &mut gfx::GraphicsContext, menu_back: &mut d
     loading_bar.fill_color = gfx::LIGHT_GREY;
     loading_bar.smooth_factor = 60.0;
 
-    while graphics.renderer.is_window_open() && !loading_text.lock().unwrap_or_else(PoisonError::into_inner).is_empty() {
-        while graphics.renderer.get_event().is_some() {}
+    while graphics.is_window_open() && !loading_text.lock().unwrap_or_else(PoisonError::into_inner).is_empty() {
+        while graphics.get_event().is_some() {}
 
         menu_back.set_back_rect_width(PROGRESS_BAR_WIDTH as f32 + 2.0 * gfx::SPACING);
 
@@ -66,7 +66,7 @@ pub fn run_loading_screen(graphics: &mut gfx::GraphicsContext, menu_back: &mut d
                     loading_back_bar.size.1 = 0.0;
                     loading_bar.size.0 = 0.0;
                     loading_bar.size.1 = 0.0;
-                    loading_bar.pos.0 = graphics.renderer.get_window_size().0 / 2.0;
+                    loading_bar.pos.0 = graphics.get_window_size().0 / 2.0;
                 } else {
                     loading_back_bar.size.0 = PROGRESS_BAR_WIDTH as f32;
                     loading_back_bar.size.1 = PROGRESS_BAR_HEIGHT as f32;
@@ -84,6 +84,6 @@ pub fn run_loading_screen(graphics: &mut gfx::GraphicsContext, menu_back: &mut d
         loading_back_bar.render(graphics, Some(menu_back.get_back_rect_container()));
         loading_bar.render(graphics, Some(menu_back.get_back_rect_container()));
 
-        graphics.renderer.update_window();
+        graphics.update_window();
     }
 }

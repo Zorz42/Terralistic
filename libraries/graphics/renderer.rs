@@ -12,9 +12,10 @@ use crate::libraries::graphics::events::sdl_event_to_gfx_event;
 use crate::libraries::graphics::passthrough_shader::PassthroughShader;
 use crate::libraries::graphics::shadow::ShadowContext;
 use crate::libraries::graphics::transformation::Transformation;
+use crate::libraries::graphics::Font;
 
 /// This stores all the values needed for rendering.
-pub struct Renderer {
+pub struct GraphicsContext {
     _gl_context: sdl2::video::GLContext,
     sdl_window: sdl2::video::Window,
     sdl_event_pump: sdl2::EventPump,
@@ -40,12 +41,14 @@ pub struct Renderer {
     frames_so_far: u32,
     ms_so_far: f32,
     prev_frame_time: std::time::Instant,
+    pub font: Font,
+    pub font_mono: Option<Font>,
 }
 
-impl Renderer {
+impl GraphicsContext {
     /// Initializes all the values needed for rendering.
     /// It usually fails because the system doesn't support graphics.
-    pub fn new(window_width: u32, window_height: u32, window_title: &str) -> Result<Self> {
+    pub fn new(window_width: u32, window_height: u32, window_title: &str, font: &[u8], font_mono: Option<&[u8]>) -> Result<Self> {
         let sdl = sdl2::init();
         let sdl = sdl.map_err(|e| anyhow!(e))?;
         let video_subsystem = sdl.video();
@@ -82,6 +85,9 @@ impl Renderer {
 
         let shadow_context = ShadowContext::new();
 
+        let font = Font::new(font, false)?;
+        let font_mono = if let Some(data) = font_mono { Some(Font::new(data, true)?) } else { None };
+
         let mut result = Self {
             _gl_context: gl_context,
             sdl_window,
@@ -107,6 +113,8 @@ impl Renderer {
             frames_so_far: 0,
             ms_so_far: 0.0,
             prev_frame_time: std::time::Instant::now(),
+            font,
+            font_mono,
         };
 
         result.handle_window_resize();
@@ -207,6 +215,7 @@ impl Renderer {
     }
 
     /// Checks if the window is open, this becomes false, when the user closes the window, or the program closes it
+    #[must_use]
     pub const fn is_window_open(&self) -> bool {
         self.window_open
     }
@@ -307,11 +316,13 @@ impl Renderer {
     }
 
     /// Get the current window size
+    #[must_use]
     pub fn get_window_size(&self) -> gfx::FloatSize {
         gfx::FloatSize(self.sdl_window.size().0 as f32 / self.real_scale, self.sdl_window.size().1 as f32 / self.real_scale)
     }
 
     /// Gets mouse position
+    #[must_use]
     pub fn get_mouse_pos(&self) -> gfx::FloatPos {
         gfx::FloatPos(
             self.sdl_event_pump.mouse_state().x() as f32 / self.real_scale,
@@ -320,6 +331,7 @@ impl Renderer {
     }
 
     /// Gets key state
+    #[must_use]
     pub fn get_key_state(&self, key: gfx::Key) -> bool {
         !self.block_key_states && *self.key_states.get(&key).unwrap_or(&false)
     }
@@ -366,7 +378,7 @@ impl Renderer {
 }
 
 /// Implement the Drop trait for the Renderer.
-impl Drop for Renderer {
+impl Drop for GraphicsContext {
     /// Closes, destroys the window and cleans up the resources.
     fn drop(&mut self) {
         // Safety: We are calling OpenGL functions safely.

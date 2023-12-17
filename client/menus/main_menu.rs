@@ -75,8 +75,8 @@ pub fn run_main_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn Ba
     let mut settings_menu = SettingsMenu::new();
     settings_menu.init(graphics, settings);
 
-    while graphics.renderer.is_window_open() {
-        while let Some(event) = graphics.renderer.get_event() {
+    while graphics.is_window_open() {
+        while let Some(event) = graphics.get_event() {
             if in_settings {
                 if settings_menu.on_event(&event, graphics, settings) {
                     in_settings = false;
@@ -95,7 +95,7 @@ pub fn run_main_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn Ba
                         in_settings = true;
                     } else if mods_button.is_hovered(graphics, Some(menu_back.get_back_rect_container())) {
                     } else if exit_button.is_hovered(graphics, Some(menu_back.get_back_rect_container())) {
-                        graphics.renderer.close_window();
+                        graphics.close_window();
                     }
                 }
             }
@@ -105,7 +105,7 @@ pub fn run_main_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn Ba
             menu_back.render_back(graphics);
             let width = settings_menu.render(graphics, settings);
             menu_back.set_back_rect_width(width);
-            graphics.renderer.update_window();
+            graphics.update_window();
             global_settings.update(graphics, settings);
             continue;
         }
@@ -131,6 +131,6 @@ pub fn run_main_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn Ba
         title.render(graphics, Some(menu_back.get_back_rect_container()), None);
         version.render(graphics, Some(menu_back.get_back_rect_container()), None);
 
-        graphics.renderer.update_window();
+        graphics.update_window();
     }
 }

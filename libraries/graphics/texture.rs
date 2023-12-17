@@ -1,6 +1,6 @@
 use crate::libraries::graphics as gfx;
 
-use super::renderer::Renderer;
+use super::renderer::GraphicsContext;
 use super::transformation::Transformation;
 use super::vertex_buffer::DrawMode;
 use super::{Color, Rect, Surface};
@@ -78,7 +78,7 @@ impl Texture {
         result
     }
 
-    pub fn render(&self, renderer: &Renderer, scale: f32, pos: gfx::FloatPos, src_rect: Option<Rect>, flipped: bool, color: Option<Color>) {
+    pub fn render(&self, graphics: &GraphicsContext, scale: f32, pos: gfx::FloatPos, src_rect: Option<Rect>, flipped: bool, color: Option<Color>) {
         let src_rect = src_rect.unwrap_or_else(|| Rect::new(gfx::FloatPos(0.0, 0.0), self.get_texture_size()));
 
         if src_rect.size.0 <= 0.0 || src_rect.size.1 <= 0.0 {
@@ -87,7 +87,7 @@ impl Texture {
 
         let color = color.unwrap_or(Color { r: 255, g: 255, b: 255, a: 255 });
 
-        let mut transform = renderer.normalization_transform.clone();
+        let mut transform = graphics.normalization_transform.clone();
 
         if flipped {
             transform.translate(gfx::FloatPos(src_rect.size.0 * scale + pos.0 * 2.0, 0.0));
@@ -99,25 +99,25 @@ impl Texture {
 
         // Safety: We are using OpenGL functions correctly.
         unsafe {
-            gl::UniformMatrix3fv(renderer.passthrough_shader.transform_matrix, 1, gl::FALSE, transform.matrix.as_ptr());
+            gl::UniformMatrix3fv(graphics.passthrough_shader.transform_matrix, 1, gl::FALSE, transform.matrix.as_ptr());
 
             transform = self.get_normalization_transform();
             transform.translate(src_rect.pos);
             transform.stretch((src_rect.size.0 + 0.1, src_rect.size.1 + 0.1));
 
-            gl::UniformMatrix3fv(renderer.passthrough_shader.texture_transform_matrix, 1, gl::FALSE, transform.matrix.as_ptr());
+            gl::UniformMatrix3fv(graphics.passthrough_shader.texture_transform_matrix, 1, gl::FALSE, transform.matrix.as_ptr());
             gl::Uniform4f(
-                renderer.passthrough_shader.global_color,
+                graphics.passthrough_shader.global_color,
                 color.r as f32 / 255.0,
                 color.g as f32 / 255.0,
                 color.b as f32 / 255.0,
                 color.a as f32 / 255.0,
             );
-            gl::Uniform1i(renderer.passthrough_shader.has_texture, 1);
+            gl::Uniform1i(graphics.passthrough_shader.has_texture, 1);
 
             gl::BindTexture(gl::TEXTURE_2D, self.texture_handle);
 
-            renderer.passthrough_shader.rect_vertex_buffer.draw(true, DrawMode::Triangles);
+            graphics.passthrough_shader.rect_vertex_buffer.draw(true, DrawMode::Triangles);
         }
     }
 }

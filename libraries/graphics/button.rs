@@ -67,7 +67,7 @@ impl Button {
 
         let container = self.get_container(graphics, parent_container);
         let rect = container.get_absolute_rect();
-        let mouse_pos = graphics.renderer.get_mouse_pos();
+        let mouse_pos = graphics.get_mouse_pos();
         rect.contains(mouse_pos)
     }
 
@@ -77,7 +77,7 @@ impl Button {
         let rect = container.get_absolute_rect();
 
         let hover_progress_target = if self.is_hovered(graphics, parent_container) {
-            if graphics.renderer.get_key_state(gfx::Key::MouseLeft) {
+            if graphics.get_key_state(gfx::Key::MouseLeft) {
                 0.8
             } else {
                 1.0
@@ -121,7 +121,7 @@ impl Button {
         let texture_scale = self.scale + self.hover_progress * 0.4;
         let x = rect.pos.0 + rect.size.0 / 2.0 - self.texture.get_texture_size().0 * texture_scale / 2.0;
         let y = rect.pos.1 + rect.size.1 / 2.0 - self.texture.get_texture_size().1 * texture_scale / 2.0;
-        self.texture.render(&graphics.renderer, texture_scale, gfx::FloatPos(x, y), None, false, None);
+        self.texture.render(graphics, texture_scale, gfx::FloatPos(x, y), None, false, None);
         if self.disabled && self.darken_on_disabled {
             rect.render(graphics, gfx::Color::new(0, 0, 0, 100));
         }

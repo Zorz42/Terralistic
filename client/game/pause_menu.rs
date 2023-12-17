@@ -64,7 +64,7 @@ impl PauseMenu {
 
     pub fn render(&mut self, graphics: &mut gfx::GraphicsContext, settings: &mut Settings, global_settings: &mut GlobalSettings) {
         if self.open && self.in_settings {
-            self.back_rect.pos.0 = graphics.renderer.get_window_size().0 / 2.0 - self.back_rect.size.0 / 2.0;
+            self.back_rect.pos.0 = graphics.get_window_size().0 / 2.0 - self.back_rect.size.0 / 2.0;
         } else if self.open {
             self.back_rect.pos.0 = 0.0;
             self.back_rect.size.0 = self.rect_width;
@@ -78,8 +78,8 @@ impl PauseMenu {
         let back_rect = *self.back_rect.get_container(graphics, None).get_absolute_rect();
         let visible = back_rect.pos.0 + back_rect.size.0 > 0.0;
 
-        if graphics.renderer.get_window_size().1 as u32 != self.back_rect.size.1 as u32 {
-            self.back_rect.size.1 = graphics.renderer.get_window_size().1;
+        if graphics.get_window_size().1 as u32 != self.back_rect.size.1 as u32 {
+            self.back_rect.size.1 = graphics.get_window_size().1;
             self.back_rect.jump_to_target();
         }
 

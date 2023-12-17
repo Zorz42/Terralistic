@@ -23,28 +23,28 @@ impl Rect {
             return;
         }
 
-        if self.pos.0 > graphics.renderer.get_window_size().0 || self.pos.1 > graphics.renderer.get_window_size().1 || self.pos.0 + self.size.0 < 0.0 || self.pos.1 + self.size.1 < 0.0 {
+        if self.pos.0 > graphics.get_window_size().0 || self.pos.1 > graphics.get_window_size().1 || self.pos.0 + self.size.0 < 0.0 || self.pos.1 + self.size.1 < 0.0 {
             return;
         }
 
-        let mut transform = graphics.renderer.normalization_transform.clone();
+        let mut transform = graphics.normalization_transform.clone();
         transform.translate(self.pos);
         transform.stretch((self.size.0, self.size.1));
 
         // Safety: We are using a valid shader.
         unsafe {
-            gl::UniformMatrix3fv(graphics.renderer.passthrough_shader.transform_matrix, 1, gl::FALSE, &transform.matrix[0]);
+            gl::UniformMatrix3fv(graphics.passthrough_shader.transform_matrix, 1, gl::FALSE, &transform.matrix[0]);
             gl::Uniform4f(
-                graphics.renderer.passthrough_shader.global_color,
+                graphics.passthrough_shader.global_color,
                 color.r as f32 / 255.0,
                 color.g as f32 / 255.0,
                 color.b as f32 / 255.0,
                 color.a as f32 / 255.0,
             );
-            gl::Uniform1i(graphics.renderer.passthrough_shader.has_texture, 0);
+            gl::Uniform1i(graphics.passthrough_shader.has_texture, 0);
         }
 
-        graphics.renderer.passthrough_shader.rect_vertex_buffer.draw(false, DrawMode::Triangles);
+        graphics.passthrough_shader.rect_vertex_buffer.draw(false, DrawMode::Triangles);
     }
 
     /// Renders the rectangle outline on the screen.
@@ -53,24 +53,24 @@ impl Rect {
             return;
         }
 
-        let mut transform = graphics.renderer.normalization_transform.clone();
+        let mut transform = graphics.normalization_transform.clone();
         transform.translate(self.pos);
         transform.stretch((self.size.0, self.size.1));
 
         // Safety: We are using a valid shader.
         unsafe {
-            gl::UniformMatrix3fv(graphics.renderer.passthrough_shader.transform_matrix, 1, gl::FALSE, &transform.matrix[0]);
+            gl::UniformMatrix3fv(graphics.passthrough_shader.transform_matrix, 1, gl::FALSE, &transform.matrix[0]);
             gl::Uniform4f(
-                graphics.renderer.passthrough_shader.global_color,
+                graphics.passthrough_shader.global_color,
                 color.r as f32 / 255.0,
                 color.g as f32 / 255.0,
                 color.b as f32 / 255.0,
                 color.a as f32 / 255.0,
             );
-            gl::Uniform1i(graphics.renderer.passthrough_shader.has_texture, 0);
+            gl::Uniform1i(graphics.passthrough_shader.has_texture, 0);
         }
 
-        graphics.renderer.passthrough_shader.rect_outline_vertex_buffer.draw(false, DrawMode::Lines);
+        graphics.passthrough_shader.rect_outline_vertex_buffer.draw(false, DrawMode::Lines);
     }
 
     #[must_use]

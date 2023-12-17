@@ -67,7 +67,7 @@ impl ClientItems {
             let top_left = camera.get_top_left(graphics);
 
             self.atlas.get_texture().render(
-                &graphics.renderer,
+                graphics,
                 RENDER_SCALE,
                 gfx::FloatPos(
                     (position.x() * RENDER_BLOCK_WIDTH - top_left.0 * RENDER_BLOCK_WIDTH + 0.5 * RENDER_BLOCK_WIDTH - src_rect.size.0 / 2.0 * RENDER_SCALE).round(),

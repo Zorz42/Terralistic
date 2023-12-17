@@ -240,7 +240,7 @@ impl ClientBlocks {
             );
             let break_stage = self.get_blocks().get_break_stage(breaking_block.coord.0, breaking_block.coord.1)?;
             self.breaking_texture.render(
-                &graphics.renderer,
+                graphics,
                 RENDER_SCALE,
                 gfx::FloatPos(x, y),
                 Some(gfx::Rect::new(gfx::FloatPos(0.0, break_stage as f32 * 8.0), gfx::FloatSize(8.0, 8.0))),

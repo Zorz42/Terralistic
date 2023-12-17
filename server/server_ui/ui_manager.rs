@@ -96,7 +96,7 @@ impl UiManager {
             }
 
             //resize the modules if the window size has changed or the module tree has changed
-            if self.window_size != self.graphics_context.renderer.get_window_size() || self.module_manager.changed {
+            if self.window_size != self.graphics_context.get_window_size() || self.module_manager.changed {
                 self.reposition_modules()?;
             }
             //updates the modules
@@ -140,7 +140,7 @@ impl UiManager {
             return true;
         }
         //stops the server if the window is closed
-        if !self.graphics_context.renderer.is_window_open() {
+        if !self.graphics_context.is_window_open() {
             is_running.store(false, std::sync::atomic::Ordering::Relaxed);
         }
         false
@@ -148,7 +148,7 @@ impl UiManager {
 
     fn render(&mut self) {
         //renders the background
-        gfx::Rect::new(gfx::FloatPos(0.0, 0.0), self.graphics_context.renderer.get_window_size()).render(&self.graphics_context, gfx::DARK_GREY);
+        gfx::Rect::new(gfx::FloatPos(0.0, 0.0), self.graphics_context.get_window_size()).render(&self.graphics_context, gfx::DARK_GREY);
 
         if self.module_edit_mode {
             self.module_manager.render_selection(&self.graphics_context);
@@ -161,8 +161,8 @@ impl UiManager {
         }
 
         //display the frame
-        self.graphics_context.renderer.update_window();
-        self.graphics_context.renderer.handle_window_resize(); //idk what this does
+        self.graphics_context.update_window();
+        self.graphics_context.handle_window_resize(); //idk what this does
     }
 
     /// Initializes the modules
@@ -195,7 +195,7 @@ impl UiManager {
     }
 
     fn relay_graphics_events(&mut self) {
-        while let Some(event) = self.graphics_context.renderer.get_event() {
+        while let Some(event) = self.graphics_context.get_event() {
             if let gfx::Event::KeyPress(key, repeat) = event {
                 if key == gfx::Key::F1 && !repeat {
                     self.module_edit_mode = !self.module_edit_mode;
@@ -214,7 +214,7 @@ impl UiManager {
 
     fn reposition_modules(&mut self) -> Result<()> {
         self.module_manager.changed = false;
-        self.window_size = self.graphics_context.renderer.get_window_size();
+        self.window_size = self.graphics_context.get_window_size();
 
         //swap the module tree with nothing to avoid double borrow
         let temp_1 = self.module_manager.get_root_mut();
