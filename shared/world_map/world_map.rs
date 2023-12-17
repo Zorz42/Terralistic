@@ -19,10 +19,7 @@ impl WorldMap {
 
     #[must_use]
     pub const fn new_empty() -> Self {
-        Self {
-            width: 0,
-            height: 0,
-        }
+        Self { width: 0, height: 0 }
     }
 
     #[must_use]
@@ -46,11 +43,7 @@ impl WorldMap {
 
     /// Same as `translate_coords` but for chunks
     pub fn translate_chunk_coords(&self, x: i32, y: i32) -> Result<usize> {
-        if x < 0
-            || y < 0
-            || x >= self.width as i32 / CHUNK_SIZE
-            || y >= self.height as i32 / CHUNK_SIZE
-        {
+        if x < 0 || y < 0 || x >= self.width as i32 / CHUNK_SIZE || y >= self.height as i32 / CHUNK_SIZE {
             bail!("Coordinates are out of bounds! x: {}, y: {}", x, y);
         }
 

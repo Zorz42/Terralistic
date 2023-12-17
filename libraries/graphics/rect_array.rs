@@ -12,9 +12,7 @@ impl RectArray {
     /// Creates a new `RectArray`.
     #[must_use]
     pub fn new() -> Self {
-        Self {
-            vertex_buffer: VertexBuffer::new(),
-        }
+        Self { vertex_buffer: VertexBuffer::new() }
     }
 
     /// Adds a rectangle to the `RectArray`.
@@ -73,12 +71,7 @@ impl RectArray {
     }
 
     /// Draws the `RectArray`.
-    pub fn render(
-        &self,
-        graphics: &gfx::GraphicsContext,
-        texture: Option<&gfx::Texture>,
-        pos: gfx::FloatPos,
-    ) {
+    pub fn render(&self, graphics: &gfx::GraphicsContext, texture: Option<&gfx::Texture>, pos: gfx::FloatPos) {
         // to avoid artifacts
         let pos = gfx::FloatPos(pos.0 + 0.01, pos.1 + 0.01);
 
@@ -88,12 +81,7 @@ impl RectArray {
 
             transform.translate(pos);
 
-            gl::UniformMatrix3fv(
-                graphics.renderer.passthrough_shader.transform_matrix,
-                1,
-                gl::FALSE,
-                transform.matrix.as_ptr(),
-            );
+            gl::UniformMatrix3fv(graphics.renderer.passthrough_shader.transform_matrix, 1, gl::FALSE, transform.matrix.as_ptr());
 
             texture.map_or_else(
                 || {
@@ -101,30 +89,15 @@ impl RectArray {
                 },
                 |texture| {
                     transform = texture.get_normalization_transform();
-                    gl::UniformMatrix3fv(
-                        graphics
-                            .renderer
-                            .passthrough_shader
-                            .texture_transform_matrix,
-                        1,
-                        gl::FALSE,
-                        transform.matrix.as_ptr(),
-                    );
+                    gl::UniformMatrix3fv(graphics.renderer.passthrough_shader.texture_transform_matrix, 1, gl::FALSE, transform.matrix.as_ptr());
                     gl::Uniform1i(graphics.renderer.passthrough_shader.has_texture, 1);
                     gl::BindTexture(gl::TEXTURE_2D, texture.texture_handle);
                 },
             );
 
-            gl::Uniform4f(
-                graphics.renderer.passthrough_shader.global_color,
-                1.0,
-                1.0,
-                1.0,
-                1.0,
-            );
+            gl::Uniform4f(graphics.renderer.passthrough_shader.global_color, 1.0, 1.0, 1.0, 1.0);
 
-            self.vertex_buffer
-                .draw(texture.is_some(), DrawMode::Triangles);
+            self.vertex_buffer.draw(texture.is_some(), DrawMode::Triangles);
         }
     }
 }

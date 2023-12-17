@@ -11,25 +11,13 @@ pub enum Event {
 /// Translates sdl type events to our event type
 pub fn sdl_event_to_gfx_event(sdl_event: &sdl2::event::Event) -> Option<Event> {
     match sdl_event {
-        sdl2::event::Event::KeyDown {
-            keycode: Some(keycode),
-            repeat,
-            ..
-        } => sdl_key_to_gfx_key(*keycode).map(|key| Event::KeyPress(key, *repeat)),
+        sdl2::event::Event::KeyDown { keycode: Some(keycode), repeat, .. } => sdl_key_to_gfx_key(*keycode).map(|key| Event::KeyPress(key, *repeat)),
 
-        sdl2::event::Event::KeyUp {
-            keycode: Some(keycode),
-            repeat,
-            ..
-        } => sdl_key_to_gfx_key(*keycode).map(|key| Event::KeyRelease(key, *repeat)),
+        sdl2::event::Event::KeyUp { keycode: Some(keycode), repeat, .. } => sdl_key_to_gfx_key(*keycode).map(|key| Event::KeyRelease(key, *repeat)),
 
         sdl2::event::Event::MouseWheel { y, .. } => Some(Event::MouseScroll(*y as f32)),
-        sdl2::event::Event::MouseButtonDown { mouse_btn, .. } => {
-            sdl_mouse_button_to_gfx_key(*mouse_btn).map(|key| Event::KeyPress(key, false))
-        }
-        sdl2::event::Event::MouseButtonUp { mouse_btn, .. } => {
-            sdl_mouse_button_to_gfx_key(*mouse_btn).map(|key| Event::KeyRelease(key, false))
-        }
+        sdl2::event::Event::MouseButtonDown { mouse_btn, .. } => sdl_mouse_button_to_gfx_key(*mouse_btn).map(|key| Event::KeyPress(key, false)),
+        sdl2::event::Event::MouseButtonUp { mouse_btn, .. } => sdl_mouse_button_to_gfx_key(*mouse_btn).map(|key| Event::KeyRelease(key, false)),
         sdl2::event::Event::TextInput { text, .. } => Some(Event::TextInput(text.clone())),
 
         _ => None,

@@ -61,44 +61,28 @@ pub struct World {
 impl World {
     pub fn new(graphics: &gfx::GraphicsContext, file_path: PathBuf) -> Self {
         let stem = file_path.file_stem();
-        let name = stem
-            .map_or("incorrect_file_path", |name_| {
-                name_.to_str().unwrap_or("invalid_text_format")
-            })
-            .to_owned();
+        let name = stem.map_or("incorrect_file_path", |name_| name_.to_str().unwrap_or("invalid_text_format")).to_owned();
 
-        let mut rect = gfx::RenderRect::new(
-            gfx::FloatPos(0.0, 0.0),
-            gfx::FloatSize(MENU_WIDTH - 2.0 * gfx::SPACING, 0.0),
-        );
+        let mut rect = gfx::RenderRect::new(gfx::FloatPos(0.0, 0.0), gfx::FloatSize(MENU_WIDTH - 2.0 * gfx::SPACING, 0.0));
         rect.orientation = gfx::TOP;
         rect.fill_color.a = 100;
 
         let mut icon = gfx::Sprite::new();
-        icon.texture = gfx::Texture::load_from_surface(
-            &gfx::Surface::deserialize_from_bytes(include_bytes!(
-                "../../Build/Resources/world_icon.opa"
-            ))
-            .unwrap_or_else(|_| gfx::Surface::new(gfx::IntSize(1, 1))),
-        );
+        icon.texture =
+            gfx::Texture::load_from_surface(&gfx::Surface::deserialize_from_bytes(include_bytes!("../../Build/Resources/world_icon.opa")).unwrap_or_else(|_| gfx::Surface::new(gfx::IntSize(1, 1))));
         rect.size.1 = icon.get_size().1 + 2.0 * gfx::SPACING;
         icon.pos.0 = gfx::SPACING;
         icon.orientation = gfx::LEFT;
 
         let mut title = gfx::Sprite::new();
-        title.texture =
-            gfx::Texture::load_from_surface(&graphics.font.create_text_surface(&name, None));
+        title.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface(&name, None));
         title.pos.0 = icon.pos.0 + icon.get_size().0 + gfx::SPACING;
         title.pos.1 = gfx::SPACING;
         title.scale = 3.0;
 
         let mut play_button = gfx::Button::new();
-        play_button.texture = gfx::Texture::load_from_surface(
-            &gfx::Surface::deserialize_from_bytes(include_bytes!(
-                "../../Build/Resources/play_button.opa"
-            ))
-            .unwrap_or_else(|_| gfx::Surface::new(gfx::IntSize(1, 1))),
-        );
+        play_button.texture =
+            gfx::Texture::load_from_surface(&gfx::Surface::deserialize_from_bytes(include_bytes!("../../Build/Resources/play_button.opa")).unwrap_or_else(|_| gfx::Surface::new(gfx::IntSize(1, 1))));
         play_button.scale = 3.0;
         play_button.padding = 5.0;
         play_button.pos.0 = icon.pos.0 + icon.get_size().0 + gfx::SPACING;
@@ -106,12 +90,8 @@ impl World {
         play_button.orientation = gfx::BOTTOM_LEFT;
 
         let mut delete_button = gfx::Button::new();
-        delete_button.texture = gfx::Texture::load_from_surface(
-            &gfx::Surface::deserialize_from_bytes(include_bytes!(
-                "../../Build/Resources/delete_button.opa"
-            ))
-            .unwrap_or_else(|_| gfx::Surface::new(gfx::IntSize(1, 1))),
-        );
+        delete_button.texture =
+            gfx::Texture::load_from_surface(&gfx::Surface::deserialize_from_bytes(include_bytes!("../../Build/Resources/delete_button.opa")).unwrap_or_else(|_| gfx::Surface::new(gfx::IntSize(1, 1))));
         delete_button.scale = 3.0;
         delete_button.padding = 5.0;
         delete_button.pos.0 = play_button.pos.0 + play_button.get_size().0 + gfx::SPACING;
@@ -119,11 +99,7 @@ impl World {
         delete_button.orientation = gfx::BOTTOM_LEFT;
 
         let mut last_modified = gfx::Sprite::new();
-        last_modified.texture =
-            gfx::Texture::load_from_surface(&graphics.font.create_text_surface(
-                get_last_modified_time(file_path.as_path().to_str().unwrap_or("")).as_str(),
-                None,
-            ));
+        last_modified.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface(get_last_modified_time(file_path.as_path().to_str().unwrap_or("")).as_str(), None));
         last_modified.color = gfx::GREY;
         last_modified.orientation = gfx::BOTTOM_RIGHT;
         last_modified.pos.0 = -gfx::SPACING;
@@ -143,12 +119,7 @@ impl World {
     }
 
     /// This function renders the world card on the x and y position.
-    pub fn render(
-        &mut self,
-        graphics: &gfx::GraphicsContext,
-        pos: gfx::FloatPos,
-        parent_container: Option<&gfx::Container>,
-    ) {
+    pub fn render(&mut self, graphics: &gfx::GraphicsContext, pos: gfx::FloatPos, parent_container: Option<&gfx::Container>) {
         self.rect.pos = pos;
         self.rect.render(graphics, parent_container);
 
@@ -157,8 +128,7 @@ impl World {
         self.title.render(graphics, Some(&rect_container), None);
         self.play_button.render(graphics, Some(&rect_container));
         self.delete_button.render(graphics, Some(&rect_container));
-        self.last_modified
-            .render(graphics, Some(&rect_container), None);
+        self.last_modified.render(graphics, Some(&rect_container), None);
     }
 
     /// This function returns height of the world card.
@@ -173,11 +143,7 @@ impl World {
     }
 
     /// This function returns the container of the world card.
-    pub fn get_container(
-        &self,
-        graphics: &gfx::GraphicsContext,
-        parent_container: Option<&gfx::Container>,
-    ) -> gfx::Container {
+    pub fn get_container(&self, graphics: &gfx::GraphicsContext, parent_container: Option<&gfx::Container>) -> gfx::Container {
         self.rect.get_container(graphics, parent_container)
     }
 
@@ -228,35 +194,24 @@ impl WorldList {
     }
 }
 
-pub fn run_singleplayer_selector(
-    graphics: &mut gfx::GraphicsContext,
-    menu_back: &mut dyn BackgroundRect,
-    settings: &mut Settings,
-    global_settings: &mut GlobalSettings,
-) {
+pub fn run_singleplayer_selector(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn BackgroundRect, settings: &mut Settings, global_settings: &mut GlobalSettings) {
     let world_list = WorldList::new(graphics);
 
     let mut title = gfx::Sprite::new();
     title.scale = 3.0;
-    title.texture = gfx::Texture::load_from_surface(
-        &graphics
-            .font
-            .create_text_surface("Select a world to play!", None),
-    );
+    title.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Select a world to play!", None));
     title.pos.1 = gfx::SPACING;
     title.orientation = gfx::TOP;
 
     let mut back_button = gfx::Button::new();
     back_button.scale = 3.0;
-    back_button.texture =
-        gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Back", None));
+    back_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Back", None));
     back_button.pos.1 = -gfx::SPACING;
     back_button.orientation = gfx::BOTTOM;
 
     let mut new_world_button = gfx::Button::new();
     new_world_button.scale = 3.0;
-    new_world_button.texture =
-        gfx::Texture::load_from_surface(&graphics.font.create_text_surface("New", None));
+    new_world_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("New", None));
     new_world_button.pos.0 = -gfx::SPACING;
     new_world_button.pos.1 = -gfx::SPACING;
     new_world_button.orientation = gfx::BOTTOM_RIGHT;
@@ -264,12 +219,10 @@ pub fn run_singleplayer_selector(
     let top_height = title.get_size().1 + 2.0 * gfx::SPACING;
     let bottom_height = back_button.get_size().1 + 2.0 * gfx::SPACING;
 
-    let mut top_rect =
-        gfx::RenderRect::new(gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, top_height));
+    let mut top_rect = gfx::RenderRect::new(gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, top_height));
     top_rect.orientation = gfx::TOP;
 
-    let mut bottom_rect =
-        gfx::RenderRect::new(gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, bottom_height));
+    let mut bottom_rect = gfx::RenderRect::new(gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, bottom_height));
     bottom_rect.fill_color.a = gfx::TRANSPARENCY / 2;
     bottom_rect.shadow_intensity = gfx::SHADOW_INTENSITY;
     bottom_rect.blur_radius = gfx::BLUR;
@@ -295,23 +248,10 @@ pub fn run_singleplayer_selector(
 
     let mut top_rect_visibility = 1.0;
     while graphics.renderer.is_window_open() {
-        if update_elements(
-            graphics,
-            menu_back,
-            &mut elements,
-            settings,
-            global_settings,
-            &mut scrollable,
-        ) {
+        if update_elements(graphics, menu_back, &mut elements, settings, global_settings, &mut scrollable) {
             break;
         }
-        render_elements(
-            graphics,
-            menu_back,
-            &mut elements,
-            &mut top_rect_visibility,
-            &mut scrollable,
-        );
+        render_elements(graphics, menu_back, &mut elements, &mut top_rect_visibility, &mut scrollable);
     }
 }
 
@@ -328,62 +268,32 @@ fn update_elements(
         if let gfx::Event::KeyRelease(key, ..) = event {
             match key {
                 gfx::Key::MouseLeft => {
-                    if elements
-                        .back_button
-                        .is_hovered(graphics, Some(menu_back.get_back_rect_container()))
-                    {
+                    if elements.back_button.is_hovered(graphics, Some(menu_back.get_back_rect_container())) {
                         return true;
                     }
-                    if elements
-                        .new_world_button
-                        .is_hovered(graphics, Some(menu_back.get_back_rect_container()))
-                    {
-                        run_world_creation(
-                            graphics,
-                            menu_back,
-                            &elements.world_list.worlds,
-                            settings,
-                            global_settings,
-                        );
+                    if elements.new_world_button.is_hovered(graphics, Some(menu_back.get_back_rect_container())) {
+                        run_world_creation(graphics, menu_back, &elements.world_list.worlds, settings, global_settings);
                         elements.world_list.refresh(graphics);
                     }
 
                     let mut needs_refresh = false;
                     for world in &mut elements.world_list.worlds {
-                        if world.play_button.is_hovered(
-                            graphics,
-                            Some(&world.get_container(
-                                graphics,
-                                Some(menu_back.get_back_rect_container()),
-                            )),
-                        ) {
-                            let game_result = run_private_world(
-                                graphics,
-                                menu_back,
-                                world.get_file_path(),
-                                settings,
-                                global_settings,
-                            );
+                        if world.play_button.is_hovered(graphics, Some(&world.get_container(graphics, Some(menu_back.get_back_rect_container())))) {
+                            let game_result = run_private_world(graphics, menu_back, world.get_file_path(), settings, global_settings);
                             if let Err(error) = game_result {
                                 println!("Game error: {error}");
                             }
-                        } else if world.delete_button.is_hovered(
-                            graphics,
-                            Some(&world.get_container(
+                        } else if world
+                            .delete_button
+                            .is_hovered(graphics, Some(&world.get_container(graphics, Some(menu_back.get_back_rect_container()))))
+                            && run_choice_menu(
+                                format!("The world \"{}\" will be deleted.\nDo you want to proceed?", world.name).as_str(),
                                 graphics,
-                                Some(menu_back.get_back_rect_container()),
-                            )),
-                        ) && run_choice_menu(
-                            format!(
-                                "The world \"{}\" will be deleted.\nDo you want to proceed?",
-                                world.name
+                                menu_back,
+                                None,
+                                None,
                             )
-                            .as_str(),
-                            graphics,
-                            menu_back,
-                            None,
-                            None,
-                        ) {
+                        {
                             let res = fs::remove_file(world.get_file_path());
                             if res.is_err() {
                                 println!("failed to delete the world");
@@ -416,36 +326,24 @@ fn render_elements(
 
     menu_back.render_back(graphics);
 
-    let hoverable = graphics.renderer.get_mouse_pos().1 > elements.top_height
-        && graphics.renderer.get_mouse_pos().1
-            < graphics.renderer.get_window_size().1 - elements.bottom_height;
+    let hoverable = graphics.renderer.get_mouse_pos().1 > elements.top_height && graphics.renderer.get_mouse_pos().1 < graphics.renderer.get_window_size().1 - elements.bottom_height;
 
     for world in &mut elements.world_list.worlds {
         world.set_enabled(hoverable);
     }
 
-    let mut current_y =
-        gfx::SPACING + scrollable.get_scroll_x(graphics, None) + elements.top_height;
+    let mut current_y = gfx::SPACING + scrollable.get_scroll_x(graphics, None) + elements.top_height;
     let mut elements_height = 0.0;
 
     for world in &mut elements.world_list.worlds {
-        world.render(
-            graphics,
-            gfx::FloatPos(0.0, current_y),
-            Some(menu_back.get_back_rect_container()),
-        );
+        world.render(graphics, gfx::FloatPos(0.0, current_y), Some(menu_back.get_back_rect_container()));
         current_y += world.get_height() + gfx::SPACING;
         elements_height += world.get_height() + gfx::SPACING;
     }
 
     elements.top_rect.size.0 = menu_back.get_back_rect_width(graphics, None);
 
-    *top_rect_visibility += ((if scrollable.get_scroll_pos() > 5.0 {
-        1.0
-    } else {
-        0.0
-    }) - *top_rect_visibility)
-        / 20.0;
+    *top_rect_visibility += ((if scrollable.get_scroll_pos() > 5.0 { 1.0 } else { 0.0 }) - *top_rect_visibility) / 20.0;
 
     if *top_rect_visibility < 0.01 {
         *top_rect_visibility = 0.0;
@@ -457,36 +355,24 @@ fn render_elements(
 
     elements.top_rect.fill_color.a = (*top_rect_visibility * gfx::TRANSPARENCY as f32 / 2.0) as u8;
     elements.top_rect.blur_radius = (*top_rect_visibility * gfx::BLUR as f32) as i32;
-    elements.top_rect.shadow_intensity =
-        (*top_rect_visibility * gfx::SHADOW_INTENSITY as f32) as i32;
+    elements.top_rect.shadow_intensity = (*top_rect_visibility * gfx::SHADOW_INTENSITY as f32) as i32;
     if *top_rect_visibility > 0.0 {
-        elements
-            .top_rect
-            .render(graphics, Some(menu_back.get_back_rect_container()));
+        elements.top_rect.render(graphics, Some(menu_back.get_back_rect_container()));
     }
 
     elements.bottom_rect.size.0 = menu_back.get_back_rect_width(graphics, None);
 
     if scrollable.scroll_size > scrollable.rect.size.1 {
-        elements
-            .bottom_rect
-            .render(graphics, Some(menu_back.get_back_rect_container()));
+        elements.bottom_rect.render(graphics, Some(menu_back.get_back_rect_container()));
     }
 
-    elements
-        .title
-        .render(graphics, Some(menu_back.get_back_rect_container()), None);
-    elements
-        .back_button
-        .render(graphics, Some(menu_back.get_back_rect_container()));
+    elements.title.render(graphics, Some(menu_back.get_back_rect_container()), None);
+    elements.back_button.render(graphics, Some(menu_back.get_back_rect_container()));
 
-    elements
-        .new_world_button
-        .render(graphics, Some(menu_back.get_back_rect_container()));
+    elements.new_world_button.render(graphics, Some(menu_back.get_back_rect_container()));
 
     scrollable.scroll_size = elements_height;
-    scrollable.rect.size.1 =
-        graphics.renderer.get_window_size().1 - elements.top_height - elements.bottom_height;
+    scrollable.rect.size.1 = graphics.renderer.get_window_size().1 - elements.top_height - elements.bottom_height;
     scrollable.render();
 
     graphics.renderer.update_window();

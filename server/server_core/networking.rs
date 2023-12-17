@@ -81,24 +81,15 @@ impl ServerNetworking {
         let is_running = self.is_running.clone();
         let server_port = self.server_port;
 
-        self.net_loop_thread = Some(std::thread::spawn(move || {
-            Self::net_receive_loop(&event_sender, &packet_receiver, &is_running, server_port)
-        }));
+        self.net_loop_thread = Some(std::thread::spawn(move || Self::net_receive_loop(&event_sender, &packet_receiver, &is_running, server_port)));
     }
 
     #[allow(clippy::expect_used)]
-    fn net_receive_loop(
-        event_sender: &Sender<Event>,
-        packet_receiver: &Receiver<(Vec<u8>, Connection)>,
-        is_running: &Arc<AtomicBool>,
-        server_port: u16,
-    ) -> Result<()> {
+    fn net_receive_loop(event_sender: &Sender<Event>, packet_receiver: &Receiver<(Vec<u8>, Connection)>, is_running: &Arc<AtomicBool>, server_port: u16) -> Result<()> {
         let (handler, listener) = node::split::<()>();
 
         let listen_addr = format!("127.0.0.1:{server_port}");
-        handler
-            .network()
-            .listen(Transport::FramedTcp, listen_addr)?;
+        handler.network().listen(Transport::FramedTcp, listen_addr)?;
 
         handler.signals().send(());
 
@@ -110,9 +101,7 @@ impl ServerNetworking {
                 }
                 NetEvent::Disconnected(peer) => {
                     print_to_console(&format!("[{peer}] disconnected"), 0);
-                    match event_sender.send(Event::new(DisconnectEvent {
-                        conn: Connection { address: peer },
-                    })) {
+                    match event_sender.send(Event::new(DisconnectEvent { conn: Connection { address: peer } })) {
                         Ok(()) => {}
                         Err(e) => {
                             println!("Failed to send DisconnectEvent: {e}");
@@ -120,8 +109,7 @@ impl ServerNetworking {
                     }
                 }
                 NetEvent::Message(peer, packet) => {
-                    let packet: Packet =
-                        bincode::deserialize(packet).expect("Failed to deserialize");
+                    let packet: Packet = bincode::deserialize(packet).expect("Failed to deserialize");
                     if let Some(packet) = packet.try_deserialize::<NamePacket>() {
                         print_to_console(&format!("[{:?}] joined the game", packet.name), 0);
                         match event_sender.send(Event::new(NewConnectionEvent {
@@ -130,10 +118,7 @@ impl ServerNetworking {
                         })) {
                             Ok(()) => {}
                             Err(e) => {
-                                print_to_console(
-                                    &format!("Failed to send NewConnectionEvent: {e}"),
-                                    2,
-                                );
+                                print_to_console(&format!("Failed to send NewConnectionEvent: {e}"), 2);
                             }
                         }
                     } else {
@@ -143,10 +128,7 @@ impl ServerNetworking {
                         })) {
                             Ok(()) => {}
                             Err(e) => {
-                                print_to_console(
-                                    &format!("Failed to send PacketFromClientEvent: {e}"),
-                                    2,
-                                );
+                                print_to_console(&format!("Failed to send PacketFromClientEvent: {e}"), 2);
                             }
                         }
                     }
@@ -158,13 +140,10 @@ impl ServerNetworking {
                 }
 
                 while let Ok((packet_data, conn)) = packet_receiver.try_recv() {
-                    Self::send_packet_internal(&handler, &packet_data, &conn)
-                        .expect("Failed to send Packet");
+                    Self::send_packet_internal(&handler, &packet_data, &conn).expect("Failed to send Packet");
                 }
 
-                handler
-                    .signals()
-                    .send_with_timer((), std::time::Duration::from_millis(1));
+                handler.signals().send_with_timer((), std::time::Duration::from_millis(1));
             }
         });
 
@@ -174,17 +153,11 @@ impl ServerNetworking {
     pub fn on_event(&mut self, event: &Event, events: &mut EventManager) -> Result<()> {
         // handle new connection event
         if let Some(event) = event.downcast::<NewConnectionEvent>() {
-            self.connection_names
-                .insert(event.conn.clone(), event.name.clone());
+            self.connection_names.insert(event.conn.clone(), event.name.clone());
 
-            self.send_packet(
-                &Packet::new(WelcomeCompletePacket {})?,
-                SendTarget::Connection(event.conn.clone()),
-            )?;
+            self.send_packet(&Packet::new(WelcomeCompletePacket {})?, SendTarget::Connection(event.conn.clone()))?;
             self.connections.push(event.conn.clone());
-            events.push_event(Event::new(NewConnectionWelcomedEvent {
-                conn: event.conn.clone(),
-            }));
+            events.push_event(Event::new(NewConnectionWelcomedEvent { conn: event.conn.clone() }));
         }
 
         if let Some(event) = event.downcast::<DisconnectEvent>() {
@@ -223,11 +196,7 @@ impl ServerNetworking {
         Ok(())
     }
 
-    fn send_packet_internal(
-        net_server: &NodeHandler<()>,
-        packet_data: &[u8],
-        conn: &Connection,
-    ) -> Result<()> {
+    fn send_packet_internal(net_server: &NodeHandler<()>, packet_data: &[u8], conn: &Connection) -> Result<()> {
         loop {
             let status = net_server.network().send(conn.address, packet_data);
             match status {
@@ -257,10 +226,7 @@ impl ServerNetworking {
                 }
             }
             SendTarget::Connection(conn) => {
-                self.packet_sender
-                    .as_mut()
-                    .ok_or_else(|| anyhow!("packet_sender not constructed yet"))?
-                    .send((packet_data, conn))?;
+                self.packet_sender.as_mut().ok_or_else(|| anyhow!("packet_sender not constructed yet"))?.send((packet_data, conn))?;
             }
             SendTarget::AllExcept(conn) => {
                 for c in &self.connections {

@@ -21,17 +21,8 @@ pub struct FloatingText {
 
 impl FloatingText {
     #[must_use]
-    pub fn new(
-        graphics: &gfx::GraphicsContext,
-        text: &str,
-        x: f32,
-        y: f32,
-        lifetime_ms: i32,
-        color: gfx::Color,
-        scale: f32,
-    ) -> Self {
-        let text_texture =
-            gfx::Texture::load_from_surface(&graphics.font.create_text_surface(text, None));
+    pub fn new(graphics: &gfx::GraphicsContext, text: &str, x: f32, y: f32, lifetime_ms: i32, color: gfx::Color, scale: f32) -> Self {
+        let text_texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface(text, None));
         Self {
             text_texture,
             x,
@@ -50,10 +41,7 @@ impl FloatingText {
         let camera_pos = camera.get_top_left(graphics);
         let texture_size = self.text_texture.get_texture_size();
 
-        let fade_progress = (self.lifetime_ms - self.spawn_time.elapsed().as_millis() as i32
-            + FADE_OUT_TIME_MS)
-            .min(FADE_OUT_TIME_MS) as f32
-            / FADE_OUT_TIME_MS as f32;
+        let fade_progress = (self.lifetime_ms - self.spawn_time.elapsed().as_millis() as i32 + FADE_OUT_TIME_MS).min(FADE_OUT_TIME_MS) as f32 / FADE_OUT_TIME_MS as f32;
 
         while self.animation_timer.frame_ready() {
             self.x += (self.target_x - self.x) / 10.0;
@@ -85,9 +73,7 @@ pub struct FloatingTextManager {
 
 impl FloatingTextManager {
     pub const fn new() -> Self {
-        Self {
-            floating_texts: Vec::new(),
-        }
+        Self { floating_texts: Vec::new() }
     }
 
     pub fn render(&mut self, graphics: &gfx::GraphicsContext, camera: &Camera) {
@@ -95,8 +81,7 @@ impl FloatingTextManager {
             floating_text.render(graphics, camera);
         }
 
-        self.floating_texts
-            .retain(|floating_text| !floating_text.is_dead());
+        self.floating_texts.retain(|floating_text| !floating_text.is_dead());
     }
 
     pub fn spawn_text(&mut self, floating_text: FloatingText) {

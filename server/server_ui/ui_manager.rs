@@ -8,9 +8,7 @@ use std::thread::sleep;
 
 use crate::libraries::graphics as gfx;
 use crate::server::server_core::Server;
-use crate::server::server_ui::ui_module_manager::{
-    ModuleManager, ModuleTreeNodeType, ModuleTreeSplit, SplitType,
-};
+use crate::server::server_ui::ui_module_manager::{ModuleManager, ModuleTreeNodeType, ModuleTreeSplit, SplitType};
 use crate::server::server_ui::{console, empty_module, player_list, server_info};
 use crate::server::server_ui::{ServerState, UiMessageType};
 
@@ -33,13 +31,7 @@ pub struct UiManager {
 impl UiManager {
     /// Creates a new `UiManager`.
     #[must_use]
-    pub fn new(
-        server: Server,
-        graphics_context: gfx::GraphicsContext,
-        event_receiver: Receiver<UiMessageType>,
-        event_sender: Sender<UiMessageType>,
-        path: PathBuf,
-    ) -> Self {
+    pub fn new(server: Server, graphics_context: gfx::GraphicsContext, event_receiver: Receiver<UiMessageType>, event_sender: Sender<UiMessageType>, path: PathBuf) -> Self {
         let module_manager = ModuleManager::from_save_file(&path);
         let mut temp = Self {
             server,
@@ -61,13 +53,7 @@ impl UiManager {
     }
 
     /// runs the UI. This function should only be called once as it runs until the window is closed or the server is stopped (one of those 2 events also triggers the other one).
-    pub fn run(
-        &mut self,
-        is_running: &Arc<AtomicBool>,
-        status_text: &Mutex<String>,
-        mods_serialized: Vec<Vec<u8>>,
-        world_path: &Path,
-    ) -> Result<()> {
+    pub fn run(&mut self, is_running: &Arc<AtomicBool>, status_text: &Mutex<String>, mods_serialized: Vec<Vec<u8>>, world_path: &Path) -> Result<()> {
         let ms_timer = std::time::Instant::now();
         let mut num_updates = 0;
         let mut ui_last_time = std::time::Instant::now();
@@ -89,12 +75,7 @@ impl UiManager {
             let mut server_mspt = None;
 
             //update the server
-            self.update_server(
-                &mut num_updates,
-                ms_timer,
-                &mut server_last_time,
-                &mut server_mspt,
-            );
+            self.update_server(&mut num_updates, ms_timer, &mut server_last_time, &mut server_mspt);
 
             self.relay_graphics_events();
 
@@ -111,14 +92,11 @@ impl UiManager {
 
             if self.module_manager.changed {
                 self.reset_modules();
-                self.module_manager
-                    .save_to_file(&self.save_path, &self.server_message_sender);
+                self.module_manager.save_to_file(&self.save_path, &self.server_message_sender);
             }
 
             //resize the modules if the window size has changed or the module tree has changed
-            if self.window_size != self.graphics_context.renderer.get_window_size()
-                || self.module_manager.changed
-            {
+            if self.window_size != self.graphics_context.renderer.get_window_size() || self.module_manager.changed {
                 self.reposition_modules()?;
             }
             //updates the modules
@@ -133,10 +111,7 @@ impl UiManager {
 
             //relays mspt changes to the module
             for module in &mut self.modules {
-                module.on_server_message(
-                    &UiMessageType::MsptUpdate((server_mspt, ui_mspt)),
-                    &mut self.graphics_context,
-                );
+                module.on_server_message(&UiMessageType::MsptUpdate((server_mspt, ui_mspt)), &mut self.graphics_context);
             }
 
             if self.should_ui_stop(is_running) {
@@ -144,8 +119,7 @@ impl UiManager {
             }
 
             //sleep
-            let sleep_time =
-                1000.0 / 120.0 /*fps limit*/ - ui_last_time.elapsed().as_secs_f32() * 1000.0;
+            let sleep_time = 1000.0 / 120.0 /*fps limit*/ - ui_last_time.elapsed().as_secs_f32() * 1000.0;
             if sleep_time > 0.0 {
                 sleep(std::time::Duration::from_secs_f32(sleep_time / 1000.0));
             }
@@ -160,8 +134,7 @@ impl UiManager {
 
     fn should_ui_stop(&self, is_running: &Arc<AtomicBool>) -> bool {
         //close the window if the server is stopped
-        if !is_running.load(std::sync::atomic::Ordering::Relaxed)
-            || self.server.state == ServerState::Stopping
+        if !is_running.load(std::sync::atomic::Ordering::Relaxed) || self.server.state == ServerState::Stopping
         //state is there so outside events can stop it
         {
             return true;
@@ -175,11 +148,7 @@ impl UiManager {
 
     fn render(&mut self) {
         //renders the background
-        gfx::Rect::new(
-            gfx::FloatPos(0.0, 0.0),
-            self.graphics_context.renderer.get_window_size(),
-        )
-        .render(&self.graphics_context, gfx::DARK_GREY);
+        gfx::Rect::new(gfx::FloatPos(0.0, 0.0), self.graphics_context.renderer.get_window_size()).render(&self.graphics_context, gfx::DARK_GREY);
 
         if self.module_edit_mode {
             self.module_manager.render_selection(&self.graphics_context);
@@ -208,13 +177,7 @@ impl UiManager {
     }
 
     /// Updates the server when needed
-    fn update_server(
-        &mut self,
-        num_updates: &mut u64,
-        ms_timer: std::time::Instant,
-        server_last_time: &mut std::time::Instant,
-        server_mspt: &mut Option<f64>,
-    ) {
+    fn update_server(&mut self, num_updates: &mut u64, ms_timer: std::time::Instant, server_last_time: &mut std::time::Instant, server_mspt: &mut Option<f64>) {
         while *num_updates //TODO: if this updates multiple times mspt will be wrong as the function is called once, but multiple ticks are processed. Fix
             < ms_timer.elapsed().as_millis() as u64 * self.server.tps_limit as u64 / 1000
         {
@@ -226,8 +189,7 @@ impl UiManager {
                 println!("Error running server: {e}");
                 break;
             }
-            *server_mspt =
-                Some((ms_timer.elapsed().as_micros() - server_tick_start) as f64 / 1000.0);
+            *server_mspt = Some((ms_timer.elapsed().as_micros() - server_tick_start) as f64 / 1000.0);
             *num_updates += 1;
         }
     }
@@ -264,9 +226,7 @@ impl UiManager {
 
         //loop through the modules and update their containers
         for module in &mut self.modules {
-            module
-                .get_container_mut()
-                .update(&self.graphics_context, None);
+            module.get_container_mut().update(&self.graphics_context, None);
         }
 
         Ok(())
@@ -278,30 +238,21 @@ impl UiManager {
                 continue;
             }
             //background
-            module
-                .get_container_mut()
-                .rect
-                .render(&self.graphics_context, gfx::GREY);
+            module.get_container_mut().rect.render(&self.graphics_context, gfx::GREY);
             module.render(&mut self.graphics_context);
         }
     }
 
     fn reset_modules(&mut self) {
         //delete all empty modules and disable all other modules
-        self.modules
-            .retain(|module| !module.get_name().starts_with("Empty"));
+        self.modules.retain(|module| !module.get_name().starts_with("Empty"));
         self.modules.iter_mut().for_each(|module| {
             *module.get_enabled_mut() = false;
         });
     }
 
     /// Moves and resizes the modules according to the config
-    fn tile_modules(
-        &mut self,
-        pos: gfx::FloatPos,
-        size: gfx::FloatSize,
-        node: &ModuleTreeNodeType,
-    ) -> Result<()> {
+    fn tile_modules(&mut self, pos: gfx::FloatPos, size: gfx::FloatSize, node: &ModuleTreeNodeType) -> Result<()> {
         //recursively tile the node
         match &node {
             //node is a module. Transform it to its dedicated position and size
@@ -320,29 +271,23 @@ impl UiManager {
     }
 
     /// Tiles a split node
-    fn tile_module_split(
-        &mut self,
-        pos: gfx::FloatPos,
-        size: gfx::FloatSize,
-        node: &ModuleTreeSplit,
-    ) -> Result<()> {
+    fn tile_module_split(&mut self, pos: gfx::FloatPos, size: gfx::FloatSize, node: &ModuleTreeSplit) -> Result<()> {
         //calculate pos and size for both sides of the split
-        let (first_size, second_size, first_pos, second_pos) =
-            if matches!(node.orientation, SplitType::Vertical) {
-                (
-                    gfx::FloatSize(size.0 * node.split_pos, size.1),
-                    gfx::FloatSize(size.0 - size.0 * node.split_pos, size.1),
-                    gfx::FloatPos(pos.0, pos.1),
-                    gfx::FloatPos(pos.0 + size.0 * node.split_pos, pos.1),
-                )
-            } else {
-                (
-                    gfx::FloatSize(size.0, size.1 * node.split_pos),
-                    gfx::FloatSize(size.0, size.1 - size.1 * node.split_pos),
-                    gfx::FloatPos(pos.0, pos.1),
-                    gfx::FloatPos(pos.0, pos.1 + size.1 * node.split_pos),
-                )
-            };
+        let (first_size, second_size, first_pos, second_pos) = if matches!(node.orientation, SplitType::Vertical) {
+            (
+                gfx::FloatSize(size.0 * node.split_pos, size.1),
+                gfx::FloatSize(size.0 - size.0 * node.split_pos, size.1),
+                gfx::FloatPos(pos.0, pos.1),
+                gfx::FloatPos(pos.0 + size.0 * node.split_pos, pos.1),
+            )
+        } else {
+            (
+                gfx::FloatSize(size.0, size.1 * node.split_pos),
+                gfx::FloatSize(size.0, size.1 - size.1 * node.split_pos),
+                gfx::FloatPos(pos.0, pos.1),
+                gfx::FloatPos(pos.0, pos.1 + size.1 * node.split_pos),
+            )
+        };
 
         //tile the modules
         self.tile_modules(first_pos, first_size, &node.first)?;
@@ -352,32 +297,20 @@ impl UiManager {
     }
 
     /// Resizes and moves the module with the given name to the given position and size
-    fn transform_module(
-        &mut self,
-        module_name: &str,
-        pos: gfx::FloatPos,
-        size: gfx::FloatSize,
-    ) -> Result<()> {
+    fn transform_module(&mut self, module_name: &str, pos: gfx::FloatPos, size: gfx::FloatSize) -> Result<()> {
         let module = if let Some(module) = self.get_module(module_name) {
             *module.get_enabled_mut() = true;
             module
         } else {
-            let module = Box::new(empty_module::EmptyModule::new(
-                &self.graphics_context,
-                module_name.to_owned(),
-            ));
+            let module = Box::new(empty_module::EmptyModule::new(&self.graphics_context, module_name.to_owned()));
             self.modules.push(module);
             //unwrap is safe because we just pushed it to self.modules
-            let module = self
-                .modules
-                .last_mut()
-                .ok_or_else(|| anyhow!("Unable to get the last module"))?;
+            let module = self.modules.last_mut().ok_or_else(|| anyhow!("Unable to get the last module"))?;
             *module.get_enabled_mut() = true;
             module
         };
 
-        module.get_container_mut().rect.size =
-            size - gfx::FloatSize(EDGE_SPACING * 2.0, EDGE_SPACING * 2.0);
+        module.get_container_mut().rect.size = size - gfx::FloatSize(EDGE_SPACING * 2.0, EDGE_SPACING * 2.0);
         module.get_container_mut().rect.pos = pos + gfx::FloatPos(EDGE_SPACING, EDGE_SPACING);
         Ok(())
     }
@@ -385,9 +318,7 @@ impl UiManager {
     /// Returns a mutable reference to the module with the given name. Functions from the `ModuleTrait` can be called on the returned reference
     /// Returns None if no module with that name exists
     fn get_module(&mut self, name: &str) -> Option<&mut Box<dyn ModuleTrait>> {
-        self.modules
-            .iter_mut()
-            .find(|module| module.get_name() == name)
+        self.modules.iter_mut().find(|module| module.get_name() == name)
     }
 
     ///returns the save path for config
@@ -404,11 +335,7 @@ pub trait ModuleTrait {
     /// renders the module
     fn render(&mut self, graphics_context: &mut gfx::GraphicsContext);
     /// relay messages from the server to the module
-    fn on_server_message(
-        &mut self,
-        message: &UiMessageType,
-        graphics_context: &mut gfx::GraphicsContext,
-    );
+    fn on_server_message(&mut self, message: &UiMessageType, graphics_context: &mut gfx::GraphicsContext);
     /// returns the mutable reference to the module's rect
     fn get_container_mut(&mut self) -> &mut gfx::Container;
     /// returns the name of the module

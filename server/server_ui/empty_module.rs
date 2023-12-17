@@ -14,13 +14,7 @@ pub struct EmptyModule {
 impl EmptyModule {
     pub fn new(graphics_context: &GraphicsContext, name: String) -> Self {
         Self {
-            container: Container::new(
-                graphics_context,
-                gfx::FloatPos(EDGE_SPACING, 0.0),
-                gfx::FloatSize(0.0, 0.0),
-                gfx::TOP_LEFT,
-                None,
-            ),
+            container: Container::new(graphics_context, gfx::FloatPos(EDGE_SPACING, 0.0), gfx::FloatSize(0.0, 0.0), gfx::TOP_LEFT, None),
             name,
             enabled: false,
         }
@@ -32,12 +26,7 @@ impl ui_manager::ModuleTrait for EmptyModule {
 
     fn render(&mut self, _graphics_context: &mut GraphicsContext) {}
 
-    fn on_server_message(
-        &mut self,
-        _message: &UiMessageType,
-        _graphics_context: &mut GraphicsContext,
-    ) {
-    }
+    fn on_server_message(&mut self, _message: &UiMessageType, _graphics_context: &mut GraphicsContext) {}
 
     fn get_container_mut(&mut self) -> &mut Container {
         &mut self.container

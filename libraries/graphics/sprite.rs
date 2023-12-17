@@ -28,49 +28,22 @@ impl Sprite {
 
     #[must_use]
     pub fn get_size(&self) -> gfx::FloatSize {
-        gfx::FloatSize(
-            self.texture.get_texture_size().0 * self.scale,
-            self.texture.get_texture_size().1 * self.scale,
-        )
+        gfx::FloatSize(self.texture.get_texture_size().0 * self.scale, self.texture.get_texture_size().1 * self.scale)
     }
 
     /// Generates containers for the sprite.
     #[must_use]
-    pub fn get_container(
-        &self,
-        graphics: &gfx::GraphicsContext,
-        parent: Option<&gfx::Container>,
-    ) -> gfx::Container {
-        gfx::Container::new(
-            graphics,
-            self.pos,
-            self.get_size(),
-            self.orientation,
-            parent,
-        )
+    pub fn get_container(&self, graphics: &gfx::GraphicsContext, parent: Option<&gfx::Container>) -> gfx::Container {
+        gfx::Container::new(graphics, self.pos, self.get_size(), self.orientation, parent)
     }
 
     /// Renders the sprite.
-    pub fn render(
-        &self,
-        graphics: &gfx::GraphicsContext,
-        parent: Option<&gfx::Container>,
-        src_rect: Option<gfx::Rect>,
-    ) {
-        let size = src_rect.map_or_else(
-            || self.get_size(),
-            |src_rect| gfx::FloatSize(src_rect.size.0 * self.scale, src_rect.size.1 * self.scale),
-        );
+    pub fn render(&self, graphics: &gfx::GraphicsContext, parent: Option<&gfx::Container>, src_rect: Option<gfx::Rect>) {
+        let size = src_rect.map_or_else(|| self.get_size(), |src_rect| gfx::FloatSize(src_rect.size.0 * self.scale, src_rect.size.1 * self.scale));
 
         let container = gfx::Container::new(graphics, self.pos, size, self.orientation, parent);
 
-        self.texture.render(
-            &graphics.renderer,
-            self.scale,
-            container.get_absolute_rect().pos,
-            src_rect,
-            self.flip,
-            Some(self.color),
-        );
+        self.texture
+            .render(&graphics.renderer, self.scale, container.get_absolute_rect().pos, src_rect, self.flip, Some(self.color));
     }
 }

@@ -11,40 +11,25 @@ const PROGRESS_BAR_Y_OFFSET: i32 = 100;
 /// Loading screen displays `back_menu` and text which describes the current loading state.
 /// The text is shared through the `SharedMut`<String> which is updated by the loading thread.
 /// When the string is empty, the loading screen is closed.
-pub fn run_loading_screen(
-    graphics: &mut gfx::GraphicsContext,
-    menu_back: &mut dyn BackgroundRect,
-    loading_text: &Mutex<String>,
-) {
+pub fn run_loading_screen(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn BackgroundRect, loading_text: &Mutex<String>) {
     let mut loading_text_sprite = gfx::Sprite::new();
     loading_text_sprite.orientation = gfx::CENTER;
     loading_text_sprite.scale = 3.0;
 
     let mut curr_text = String::new();
 
-    let mut loading_back_bar = gfx::RenderRect::new(
-        gfx::FloatPos(0.0, PROGRESS_BAR_Y_OFFSET as f32),
-        gfx::FloatSize(0.0, 0.0),
-    );
+    let mut loading_back_bar = gfx::RenderRect::new(gfx::FloatPos(0.0, PROGRESS_BAR_Y_OFFSET as f32), gfx::FloatSize(0.0, 0.0));
     loading_back_bar.orientation = gfx::CENTER;
     loading_back_bar.fill_color = gfx::BLACK;
     loading_back_bar.fill_color.a = gfx::TRANSPARENCY;
     loading_back_bar.smooth_factor = 60.0;
 
-    let mut loading_bar = gfx::RenderRect::new(
-        gfx::FloatPos(0.0, PROGRESS_BAR_Y_OFFSET as f32),
-        gfx::FloatSize(0.0, 0.0),
-    );
+    let mut loading_bar = gfx::RenderRect::new(gfx::FloatPos(0.0, PROGRESS_BAR_Y_OFFSET as f32), gfx::FloatSize(0.0, 0.0));
     loading_bar.orientation = gfx::LEFT;
     loading_bar.fill_color = gfx::LIGHT_GREY;
     loading_bar.smooth_factor = 60.0;
 
-    while graphics.renderer.is_window_open()
-        && !loading_text
-            .lock()
-            .unwrap_or_else(PoisonError::into_inner)
-            .is_empty()
-    {
+    while graphics.renderer.is_window_open() && !loading_text.lock().unwrap_or_else(PoisonError::into_inner).is_empty() {
         while graphics.renderer.get_event().is_some() {}
 
         menu_back.set_back_rect_width(PROGRESS_BAR_WIDTH as f32 + 2.0 * gfx::SPACING);
@@ -52,10 +37,7 @@ pub fn run_loading_screen(
         menu_back.render_back(graphics);
 
         if curr_text != *loading_text.lock().unwrap_or_else(PoisonError::into_inner) {
-            curr_text = loading_text
-                .lock()
-                .unwrap_or_else(PoisonError::into_inner)
-                .clone();
+            curr_text = loading_text.lock().unwrap_or_else(PoisonError::into_inner).clone();
             if !curr_text.is_empty() {
                 let mut progress_bar_progress = -1.0;
                 // let ending of the text be the back of the text until the space symbol
@@ -90,13 +72,10 @@ pub fn run_loading_screen(
                     loading_back_bar.size.1 = PROGRESS_BAR_HEIGHT as f32;
                     loading_bar.size.0 = (PROGRESS_BAR_WIDTH as f32) * progress_bar_progress;
                     loading_bar.size.1 = PROGRESS_BAR_HEIGHT as f32;
-                    loading_bar.pos.0 = menu_back.get_back_rect_width(graphics, None) / 2.0
-                        - loading_back_bar.size.0 / 2.0;
+                    loading_bar.pos.0 = menu_back.get_back_rect_width(graphics, None) / 2.0 - loading_back_bar.size.0 / 2.0;
                 }
 
-                loading_text_sprite.texture = gfx::Texture::load_from_surface(
-                    &graphics.font.create_text_surface(&curr_text, None),
-                );
+                loading_text_sprite.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface(&curr_text, None));
             }
         }
 

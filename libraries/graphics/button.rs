@@ -1,9 +1,6 @@
 use crate::libraries::graphics as gfx;
 
-use super::theme::{
-    GFX_DEFAULT_BUTTON_BORDER_COLOR, GFX_DEFAULT_BUTTON_COLOR, GFX_DEFAULT_BUTTON_PADDING,
-    GFX_DEFAULT_HOVERED_BUTTON_BORDER_COLOR, GFX_DEFAULT_HOVERED_BUTTON_COLOR,
-};
+use super::theme::{GFX_DEFAULT_BUTTON_BORDER_COLOR, GFX_DEFAULT_BUTTON_COLOR, GFX_DEFAULT_BUTTON_PADDING, GFX_DEFAULT_HOVERED_BUTTON_BORDER_COLOR, GFX_DEFAULT_HOVERED_BUTTON_COLOR};
 
 /// A Button is a rectangle with an image in it.
 /// It can be clicked and has a hover animation.
@@ -57,27 +54,13 @@ impl Button {
 
     /// Generates the container for the button.
     #[must_use]
-    pub fn get_container(
-        &self,
-        graphics: &gfx::GraphicsContext,
-        parent_container: Option<&gfx::Container>,
-    ) -> gfx::Container {
-        gfx::Container::new(
-            graphics,
-            self.pos,
-            self.get_size(),
-            self.orientation,
-            parent_container,
-        )
+    pub fn get_container(&self, graphics: &gfx::GraphicsContext, parent_container: Option<&gfx::Container>) -> gfx::Container {
+        gfx::Container::new(graphics, self.pos, self.get_size(), self.orientation, parent_container)
     }
 
     /// Checks if the button is hovered with a mouse.
     #[must_use]
-    pub fn is_hovered(
-        &self,
-        graphics: &gfx::GraphicsContext,
-        parent_container: Option<&gfx::Container>,
-    ) -> bool {
+    pub fn is_hovered(&self, graphics: &gfx::GraphicsContext, parent_container: Option<&gfx::Container>) -> bool {
         if self.disabled {
             return false;
         }
@@ -89,11 +72,7 @@ impl Button {
     }
 
     /// Renders the button.
-    pub fn render(
-        &mut self,
-        graphics: &gfx::GraphicsContext,
-        parent_container: Option<&gfx::Container>,
-    ) {
+    pub fn render(&mut self, graphics: &gfx::GraphicsContext, parent_container: Option<&gfx::Container>) {
         let container = self.get_container(graphics, parent_container);
         let rect = container.get_absolute_rect();
 
@@ -116,34 +95,23 @@ impl Button {
         }
 
         let button_color = gfx::Color::new(
-            (self.hover_color.r as f32 * self.hover_progress
-                + self.color.r as f32 * (1.0 - self.hover_progress)) as u8,
-            (self.hover_color.g as f32 * self.hover_progress
-                + self.color.g as f32 * (1.0 - self.hover_progress)) as u8,
-            (self.hover_color.b as f32 * self.hover_progress
-                + self.color.b as f32 * (1.0 - self.hover_progress)) as u8,
-            (self.hover_color.a as f32 * self.hover_progress
-                + self.color.a as f32 * (1.0 - self.hover_progress)) as u8,
+            (self.hover_color.r as f32 * self.hover_progress + self.color.r as f32 * (1.0 - self.hover_progress)) as u8,
+            (self.hover_color.g as f32 * self.hover_progress + self.color.g as f32 * (1.0 - self.hover_progress)) as u8,
+            (self.hover_color.b as f32 * self.hover_progress + self.color.b as f32 * (1.0 - self.hover_progress)) as u8,
+            (self.hover_color.a as f32 * self.hover_progress + self.color.a as f32 * (1.0 - self.hover_progress)) as u8,
         );
 
         let button_border_color = gfx::Color::new(
-            (self.hover_border_color.r as f32 * self.hover_progress
-                + self.border_color.r as f32 * (1.0 - self.hover_progress)) as u8,
-            (self.hover_border_color.g as f32 * self.hover_progress
-                + self.border_color.g as f32 * (1.0 - self.hover_progress)) as u8,
-            (self.hover_border_color.b as f32 * self.hover_progress
-                + self.border_color.b as f32 * (1.0 - self.hover_progress)) as u8,
-            (self.hover_border_color.a as f32 * self.hover_progress
-                + self.border_color.a as f32 * (1.0 - self.hover_progress)) as u8,
+            (self.hover_border_color.r as f32 * self.hover_progress + self.border_color.r as f32 * (1.0 - self.hover_progress)) as u8,
+            (self.hover_border_color.g as f32 * self.hover_progress + self.border_color.g as f32 * (1.0 - self.hover_progress)) as u8,
+            (self.hover_border_color.b as f32 * self.hover_progress + self.border_color.b as f32 * (1.0 - self.hover_progress)) as u8,
+            (self.hover_border_color.a as f32 * self.hover_progress + self.border_color.a as f32 * (1.0 - self.hover_progress)) as u8,
         );
 
         let padding = (1.0 - self.hover_progress) * 30.0;
         let hover_rect = gfx::Rect::new(
             rect.pos + gfx::FloatPos(padding, padding),
-            gfx::FloatSize(
-                f32::max(0.0, rect.size.0 - 2.0 * padding),
-                f32::max(0.0, rect.size.1 - 2.0 * padding),
-            ),
+            gfx::FloatSize(f32::max(0.0, rect.size.0 - 2.0 * padding), f32::max(0.0, rect.size.1 - 2.0 * padding)),
         );
         rect.render(graphics, self.color);
         rect.render_outline(graphics, self.border_color);
@@ -151,18 +119,9 @@ impl Button {
         hover_rect.render_outline(graphics, button_border_color);
 
         let texture_scale = self.scale + self.hover_progress * 0.4;
-        let x = rect.pos.0 + rect.size.0 / 2.0
-            - self.texture.get_texture_size().0 * texture_scale / 2.0;
-        let y = rect.pos.1 + rect.size.1 / 2.0
-            - self.texture.get_texture_size().1 * texture_scale / 2.0;
-        self.texture.render(
-            &graphics.renderer,
-            texture_scale,
-            gfx::FloatPos(x, y),
-            None,
-            false,
-            None,
-        );
+        let x = rect.pos.0 + rect.size.0 / 2.0 - self.texture.get_texture_size().0 * texture_scale / 2.0;
+        let y = rect.pos.1 + rect.size.1 / 2.0 - self.texture.get_texture_size().1 * texture_scale / 2.0;
+        self.texture.render(&graphics.renderer, texture_scale, gfx::FloatPos(x, y), None, false, None);
         if self.disabled && self.darken_on_disabled {
             rect.render(graphics, gfx::Color::new(0, 0, 0, 100));
         }

@@ -225,11 +225,7 @@ fn server_main(args: &[String]) {
             }
         }
 
-        if graphics
-            .renderer
-            .set_min_window_size(graphics.renderer.get_window_size())
-            .is_err()
-        {
+        if graphics.renderer.set_min_window_size(graphics.renderer.get_window_size()).is_err() {
             println!("Failed to set minimum window size");
         }
         Some(graphics)
@@ -255,39 +251,19 @@ fn server_main(args: &[String]) {
     let (ui_to_srv_event_sender, ui_to_srv_event_receiver) = std::sync::mpsc::channel();
 
     let mut server = if server_graphics_context.is_some() {
-        Server::new(
-            MULTIPLAYER_PORT,
-            Some(ui_to_srv_event_receiver),
-            Some(srv_to_ui_event_sender),
-        )
+        Server::new(MULTIPLAYER_PORT, Some(ui_to_srv_event_receiver), Some(srv_to_ui_event_sender))
     } else {
         Server::new(MULTIPLAYER_PORT, None, None)
     };
 
     if let Some(graphics) = server_graphics_context {
-        let mut manager = UiManager::new(
-            server,
-            graphics,
-            srv_to_ui_event_receiver,
-            ui_to_srv_event_sender,
-            path_clone,
-        );
-        let res = manager.run(
-            &server_running,
-            &loading_text,
-            vec![include_bytes!("base_game/base_game.mod").to_vec()],
-            &path.join("server.world"),
-        );
+        let mut manager = UiManager::new(server, graphics, srv_to_ui_event_receiver, ui_to_srv_event_sender, path_clone);
+        let res = manager.run(&server_running, &loading_text, vec![include_bytes!("base_game/base_game.mod").to_vec()], &path.join("server.world"));
         if let Err(e) = res {
             println!("Server stopped with an error: {e}");
         }
     } else {
-        let res = server.run(
-            &server_running,
-            &loading_text,
-            vec![include_bytes!("base_game/base_game.mod").to_vec()],
-            &path.join("server.world"),
-        );
+        let res = server.run(&server_running, &loading_text, vec![include_bytes!("base_game/base_game.mod").to_vec()], &path.join("server.world"));
         if let Err(e) = res {
             println!("Server stopped with an error: {e}");
         }
@@ -295,13 +271,7 @@ fn server_main(args: &[String]) {
 }
 
 fn client_main() {
-    let graphics_result = gfx::init(
-        1670,
-        1050,
-        "Terralistic",
-        include_bytes!("Build/Resources/font.opa"),
-        None,
-    );
+    let graphics_result = gfx::init(1670, 1050, "Terralistic", include_bytes!("Build/Resources/font.opa"), None);
 
     let mut graphics;
 
@@ -313,11 +283,7 @@ fn client_main() {
         }
     }
 
-    if graphics
-        .renderer
-        .set_min_window_size(gfx::FloatSize(1130.0, 700.0))
-        .is_err()
-    {
+    if graphics.renderer.set_min_window_size(gfx::FloatSize(1130.0, 700.0)).is_err() {
         println!("Failed to set minimum window size");
     }
 
@@ -330,23 +296,13 @@ fn client_main() {
         return;
     }
 
-    let mut settings = Settings::new(
-        base_dirs
-            .data_dir()
-            .join("Terralistic")
-            .join("settings.txt"),
-    );
+    let mut settings = Settings::new(base_dirs.data_dir().join("Terralistic").join("settings.txt"));
 
     let mut global_settings = GlobalSettings::new();
     global_settings.init(&mut settings);
     global_settings.update(&mut graphics, &settings);
 
-    run_main_menu(
-        &mut graphics,
-        &mut menu_back,
-        &mut settings,
-        &mut global_settings,
-    );
+    run_main_menu(&mut graphics, &mut menu_back, &mut settings, &mut global_settings);
 
     global_settings.stop(&mut settings);
 

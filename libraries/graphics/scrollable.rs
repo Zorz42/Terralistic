@@ -61,26 +61,12 @@ impl Scrollable {
     /// This function returns the container of the rectangle.
     /// The container has the position of render rect.
     #[must_use]
-    pub fn get_container(
-        &self,
-        graphics: &gfx::GraphicsContext,
-        parent_container: Option<&gfx::Container>,
-    ) -> gfx::Container {
-        gfx::Container::new(
-            graphics,
-            self.rect.pos,
-            self.rect.size,
-            self.orientation,
-            parent_container,
-        )
+    pub fn get_container(&self, graphics: &gfx::GraphicsContext, parent_container: Option<&gfx::Container>) -> gfx::Container {
+        gfx::Container::new(graphics, self.rect.pos, self.rect.size, self.orientation, parent_container)
     }
 
     #[must_use]
-    pub fn get_scroll_x(
-        &self,
-        graphics: &gfx::GraphicsContext,
-        parent_container: Option<&gfx::Container>,
-    ) -> f32 {
+    pub fn get_scroll_x(&self, graphics: &gfx::GraphicsContext, parent_container: Option<&gfx::Container>) -> f32 {
         let container = self.get_container(graphics, parent_container);
         container.rect.pos.0 - self.scroll_pos
     }

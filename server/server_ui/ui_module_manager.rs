@@ -101,10 +101,7 @@ impl Default for ModuleManager {
 
 impl ModuleManager {
     pub fn new(root: ModuleTreeNodeType) -> Self {
-        Self {
-            root,
-            ..Self::default()
-        }
+        Self { root, ..Self::default() }
     }
 
     /// Reads the module tree from the save file in `server_data/ui_config.json`. if the file doesn't exist or is not a valid format, use the default config
@@ -208,8 +205,7 @@ impl ModuleManager {
             gfx::Event::TextInput(text) => {
                 if self.mode == EditMode::Name {
                     self.name_buffer.push_str(text);
-                    self.renderer
-                        .update_texture(graphics_context, &self.name_buffer);
+                    self.renderer.update_texture(graphics_context, &self.name_buffer);
                 }
             }
             gfx::Event::KeyRelease(_, _) => {}
@@ -314,11 +310,7 @@ impl ModuleManager {
         let path = path.unwrap_or(&self.path);
         for &path_at_depth in path.get(0..depth).unwrap_or(&[]) {
             if let ModuleTreeNodeType::Split(split_node) = node {
-                node = if path_at_depth {
-                    &mut split_node.second
-                } else {
-                    &mut split_node.first
-                };
+                node = if path_at_depth { &mut split_node.second } else { &mut split_node.first };
             } else {
                 break;
             }
@@ -331,11 +323,7 @@ impl ModuleManager {
         let path = path.unwrap_or(&self.path);
         for &path_at_depth in path.get(0..depth).unwrap_or(&[]) {
             if let ModuleTreeNodeType::Split(split_node) = node {
-                node = if path_at_depth {
-                    &split_node.second
-                } else {
-                    &split_node.first
-                };
+                node = if path_at_depth { &split_node.second } else { &split_node.first };
             } else {
                 break;
             }
@@ -410,8 +398,7 @@ impl ModuleManager {
     }
 
     pub fn render_overlay(&self, graphics_context: &gfx::GraphicsContext) {
-        self.renderer
-            .render_overlay(graphics_context, &self.rect, &self.mode);
+        self.renderer.render_overlay(graphics_context, &self.rect, &self.mode);
     }
 
     fn recalculate_selection_rect(&mut self) {
@@ -424,11 +411,7 @@ impl ModuleManager {
         self.rect.size = coords.1;
     }
 
-    fn get_overlay_rect_coords(
-        &self,
-        node: &ModuleTreeNodeType,
-        depth: usize,
-    ) -> ((gfx::FloatPos, gfx::FloatSize), usize) {
+    fn get_overlay_rect_coords(&self, node: &ModuleTreeNodeType, depth: usize) -> ((gfx::FloatPos, gfx::FloatSize), usize) {
         if depth == self.depth {
             return ((gfx::FloatPos(0.0, 0.0), gfx::FloatSize(1.0, 1.0)), depth);
         }
@@ -436,81 +419,45 @@ impl ModuleManager {
             ModuleTreeNodeType::Split(node) => match node.orientation {
                 SplitType::Vertical => {
                     let split_factors = self.get_vertical_split_factors(node, depth);
-                    let sub_node = if *self.path.get(depth).unwrap_or(&false) {
-                        &node.second
-                    } else {
-                        &node.first
-                    };
-                    let (sub_node_factors, max_depth) =
-                        self.get_overlay_rect_coords(sub_node, depth + 1);
+                    let sub_node = if *self.path.get(depth).unwrap_or(&false) { &node.second } else { &node.first };
+                    let (sub_node_factors, max_depth) = self.get_overlay_rect_coords(sub_node, depth + 1);
 
-                    (
-                        Self::calculate_factors(split_factors, sub_node_factors),
-                        max_depth,
-                    )
+                    (Self::calculate_factors(split_factors, sub_node_factors), max_depth)
                 }
                 SplitType::Horizontal => {
                     let split_factors = self.get_horizontal_split_factors(node, depth);
-                    let sub_node = if *self.path.get(depth).unwrap_or(&false) {
-                        &node.second
-                    } else {
-                        &node.first
-                    };
-                    let (sub_node_factors, max_depth) =
-                        self.get_overlay_rect_coords(sub_node, depth + 1);
+                    let sub_node = if *self.path.get(depth).unwrap_or(&false) { &node.second } else { &node.first };
+                    let (sub_node_factors, max_depth) = self.get_overlay_rect_coords(sub_node, depth + 1);
 
-                    (
-                        Self::calculate_factors(split_factors, sub_node_factors),
-                        max_depth,
-                    )
+                    (Self::calculate_factors(split_factors, sub_node_factors), max_depth)
                 }
             },
             _ => ((gfx::FloatPos(0.0, 0.0), gfx::FloatSize(1.0, 1.0)), depth),
         }
     }
-    fn get_vertical_split_factors(
-        &self,
-        node: &ModuleTreeSplit,
-        depth: usize,
-    ) -> (gfx::FloatPos, gfx::FloatSize) {
+    fn get_vertical_split_factors(&self, node: &ModuleTreeSplit, depth: usize) -> (gfx::FloatPos, gfx::FloatSize) {
         if *self.path.get(depth).unwrap_or(&false) {
-            (
-                gfx::FloatPos(node.split_pos, 0.0),
-                gfx::FloatSize(1.0 - node.split_pos, 1.0),
-            )
+            (gfx::FloatPos(node.split_pos, 0.0), gfx::FloatSize(1.0 - node.split_pos, 1.0))
         } else {
             (gfx::FloatPos(0.0, 0.0), gfx::FloatSize(node.split_pos, 1.0))
         }
     }
 
-    fn get_horizontal_split_factors(
-        &self,
-        node: &ModuleTreeSplit,
-        depth: usize,
-    ) -> (gfx::FloatPos, gfx::FloatSize) {
+    fn get_horizontal_split_factors(&self, node: &ModuleTreeSplit, depth: usize) -> (gfx::FloatPos, gfx::FloatSize) {
         if *self.path.get(depth).unwrap_or(&false) {
-            (
-                gfx::FloatPos(0.0, node.split_pos),
-                gfx::FloatSize(1.0, 1.0 - node.split_pos),
-            )
+            (gfx::FloatPos(0.0, node.split_pos), gfx::FloatSize(1.0, 1.0 - node.split_pos))
         } else {
             (gfx::FloatPos(0.0, 0.0), gfx::FloatSize(1.0, node.split_pos))
         }
     }
 
-    fn calculate_factors(
-        split_factors: (gfx::FloatPos, gfx::FloatSize),
-        sub_node_factors: (gfx::FloatPos, gfx::FloatSize),
-    ) -> (gfx::FloatPos, gfx::FloatSize) {
+    fn calculate_factors(split_factors: (gfx::FloatPos, gfx::FloatSize), sub_node_factors: (gfx::FloatPos, gfx::FloatSize)) -> (gfx::FloatPos, gfx::FloatSize) {
         (
             gfx::FloatPos(
                 split_factors.0 .0 + sub_node_factors.0 .0 * split_factors.1 .0,
                 split_factors.0 .1 + sub_node_factors.0 .1 * split_factors.1 .1,
             ),
-            gfx::FloatSize(
-                split_factors.1 .0 * sub_node_factors.1 .0,
-                split_factors.1 .1 * sub_node_factors.1 .1,
-            ),
+            gfx::FloatSize(split_factors.1 .0 * sub_node_factors.1 .0, split_factors.1 .1 * sub_node_factors.1 .1),
         )
     }
 }
@@ -530,20 +477,14 @@ impl ModuleManagerRenderer {
 
         let mut vertical_arrow_sprite = gfx::Sprite::new();
         vertical_arrow_sprite.texture = gfx::Texture::load_from_surface(
-            &gfx::Surface::deserialize_from_bytes(include_bytes!(
-                "../../Build/Resources/vertical_resize_arrow.opa"
-            ))
-            .unwrap_or_else(|_| gfx::Surface::new(gfx::IntSize(0, 0))),
+            &gfx::Surface::deserialize_from_bytes(include_bytes!("../../Build/Resources/vertical_resize_arrow.opa")).unwrap_or_else(|_| gfx::Surface::new(gfx::IntSize(0, 0))),
         );
         vertical_arrow_sprite.orientation = gfx::CENTER;
         vertical_arrow_sprite.scale = 4.0;
 
         let mut horizontal_arrow_sprite = gfx::Sprite::new();
         horizontal_arrow_sprite.texture = gfx::Texture::load_from_surface(
-            &gfx::Surface::deserialize_from_bytes(include_bytes!(
-                "../../Build/Resources/horizontal_resize_arrow.opa"
-            ))
-            .unwrap_or_else(|_| gfx::Surface::new(gfx::IntSize(0, 0))),
+            &gfx::Surface::deserialize_from_bytes(include_bytes!("../../Build/Resources/horizontal_resize_arrow.opa")).unwrap_or_else(|_| gfx::Surface::new(gfx::IntSize(0, 0))),
         );
         horizontal_arrow_sprite.orientation = gfx::CENTER;
         horizontal_arrow_sprite.scale = 4.0;
@@ -568,12 +509,7 @@ impl ModuleManagerRenderer {
         rect.render(graphics_context, gfx::WHITE);
     }
 
-    fn render_overlay(
-        &self,
-        graphics_context: &gfx::GraphicsContext,
-        fraction_rect: &gfx::Rect,
-        edit_mode: &EditMode,
-    ) {
+    fn render_overlay(&self, graphics_context: &gfx::GraphicsContext, fraction_rect: &gfx::Rect, edit_mode: &EditMode) {
         if *edit_mode == EditMode::Select {
             return;
         }
@@ -590,21 +526,16 @@ impl ModuleManagerRenderer {
     }
 
     fn render_rename_overlay(&self, graphics_context: &gfx::GraphicsContext, rect: &gfx::Rect) {
-        let container =
-            gfx::Container::new(graphics_context, rect.pos, rect.size, gfx::TOP_LEFT, None);
-        self.name_sprite
-            .render(graphics_context, Some(&container), None);
+        let container = gfx::Container::new(graphics_context, rect.pos, rect.size, gfx::TOP_LEFT, None);
+        self.name_sprite.render(graphics_context, Some(&container), None);
     }
 
     fn render_resize_overlay(&self, graphics_context: &gfx::GraphicsContext, rect: &gfx::Rect) {
-        let container =
-            gfx::Container::new(graphics_context, rect.pos, rect.size, gfx::TOP_LEFT, None);
+        let container = gfx::Container::new(graphics_context, rect.pos, rect.size, gfx::TOP_LEFT, None);
         if self.split_orientation == SplitType::Horizontal {
-            self.vertical_arrow_sprite
-                .render(graphics_context, Some(&container), None);
+            self.vertical_arrow_sprite.render(graphics_context, Some(&container), None);
         } else {
-            self.horizontal_arrow_sprite
-                .render(graphics_context, Some(&container), None);
+            self.horizontal_arrow_sprite.render(graphics_context, Some(&container), None);
         }
     }
 

@@ -82,20 +82,10 @@ impl VertexBuffer {
             gl::BindVertexArray(self.vertex_array);
 
             gl::BindBuffer(gl::ARRAY_BUFFER, self.vertex_buffer);
-            gl::BufferData(
-                gl::ARRAY_BUFFER,
-                (self.vertices.len() * 4) as isize,
-                self.vertices.as_ptr().cast(),
-                gl::STATIC_DRAW,
-            );
+            gl::BufferData(gl::ARRAY_BUFFER, (self.vertices.len() * 4) as isize, self.vertices.as_ptr().cast(), gl::STATIC_DRAW);
 
             gl::BindBuffer(gl::ELEMENT_ARRAY_BUFFER, self.index_buffer);
-            gl::BufferData(
-                gl::ELEMENT_ARRAY_BUFFER,
-                (self.indices.len() * 4) as isize,
-                self.indices.as_ptr().cast(),
-                gl::STATIC_DRAW,
-            );
+            gl::BufferData(gl::ELEMENT_ARRAY_BUFFER, (self.indices.len() * 4) as isize, self.indices.as_ptr().cast(), gl::STATIC_DRAW);
         }
     }
 
@@ -123,12 +113,7 @@ impl VertexBuffer {
                 DrawMode::Lines => gl::LINES,
             };
 
-            gl::DrawElements(
-                gl_mode,
-                self.indices.len() as i32,
-                gl::UNSIGNED_INT,
-                std::ptr::null(),
-            );
+            gl::DrawElements(gl_mode, self.indices.len() as i32, gl::UNSIGNED_INT, std::ptr::null());
 
             gl::DisableVertexAttribArray(0);
             gl::DisableVertexAttribArray(1);

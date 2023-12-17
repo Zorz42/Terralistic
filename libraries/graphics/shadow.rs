@@ -61,59 +61,35 @@ impl ShadowContext {
         let mut elements = vec![
             (
                 rect.pos - gfx::FloatPos(200.0, 200.0),
-                gfx::Rect::new(
-                    gfx::FloatPos(0.0, 0.0),
-                    gfx::FloatSize(shadow_edge_width, 200.0),
-                ),
+                gfx::Rect::new(gfx::FloatPos(0.0, 0.0), gfx::FloatSize(shadow_edge_width, 200.0)),
             ),
             (
                 rect.pos - gfx::FloatPos(200.0, 0.0),
-                gfx::Rect::new(
-                    gfx::FloatPos(0.0, 200.0),
-                    gfx::FloatSize(200.0, shadow_edge_height - 200.0),
-                ),
+                gfx::Rect::new(gfx::FloatPos(0.0, 200.0), gfx::FloatSize(200.0, shadow_edge_height - 200.0)),
             ),
             (
                 rect.pos + gfx::FloatPos(rect.size.0 - shadow_edge_width + 200.0, -200.0),
-                gfx::Rect::new(
-                    gfx::FloatPos(700.0 - shadow_edge_width, 0.0),
-                    gfx::FloatSize(shadow_edge_width, 200.0),
-                ),
+                gfx::Rect::new(gfx::FloatPos(700.0 - shadow_edge_width, 0.0), gfx::FloatSize(shadow_edge_width, 200.0)),
             ),
             (
                 rect.pos + gfx::FloatPos(rect.size.0, 0.0),
-                gfx::Rect::new(
-                    gfx::FloatPos(500.0, 200.0),
-                    gfx::FloatSize(200.0, shadow_edge_height - 200.0),
-                ),
+                gfx::Rect::new(gfx::FloatPos(500.0, 200.0), gfx::FloatSize(200.0, shadow_edge_height - 200.0)),
             ),
             (
                 rect.pos + gfx::FloatPos(-200.0, rect.size.1 - shadow_edge_height + 200.0),
-                gfx::Rect::new(
-                    gfx::FloatPos(0.0, 700.0 - shadow_edge_height),
-                    gfx::FloatSize(200.0, shadow_edge_height - 200.0),
-                ),
+                gfx::Rect::new(gfx::FloatPos(0.0, 700.0 - shadow_edge_height), gfx::FloatSize(200.0, shadow_edge_height - 200.0)),
             ),
             (
                 rect.pos + gfx::FloatPos(-200.0, rect.size.1),
-                gfx::Rect::new(
-                    gfx::FloatPos(0.0, 500.0),
-                    gfx::FloatSize(shadow_edge_width, 200.0),
-                ),
+                gfx::Rect::new(gfx::FloatPos(0.0, 500.0), gfx::FloatSize(shadow_edge_width, 200.0)),
             ),
             (
                 rect.pos + gfx::FloatPos(rect.size.0, rect.size.1 - shadow_edge_height + 200.0),
-                gfx::Rect::new(
-                    gfx::FloatPos(500.0, 700.0 - shadow_edge_height),
-                    gfx::FloatSize(200.0, shadow_edge_height - 200.0),
-                ),
+                gfx::Rect::new(gfx::FloatPos(500.0, 700.0 - shadow_edge_height), gfx::FloatSize(200.0, shadow_edge_height - 200.0)),
             ),
             (
                 rect.pos + gfx::FloatPos(rect.size.0 - shadow_edge_width + 200.0, rect.size.1),
-                gfx::Rect::new(
-                    gfx::FloatPos(700.0 - shadow_edge_width, 500.0),
-                    gfx::FloatSize(shadow_edge_width, 200.0),
-                ),
+                gfx::Rect::new(gfx::FloatPos(700.0 - shadow_edge_width, 500.0), gfx::FloatSize(shadow_edge_width, 200.0)),
             ),
         ];
 
@@ -122,17 +98,11 @@ impl ShadowContext {
             while height_to_render > 0.0 {
                 elements.push((
                     rect.pos + gfx::FloatPos(-200.0, rect.size.1 - 150.0 - height_to_render),
-                    gfx::Rect::new(
-                        gfx::FloatPos(0.0, 300.0),
-                        gfx::FloatSize(200.0, f32::min(100.0, height_to_render)),
-                    ),
+                    gfx::Rect::new(gfx::FloatPos(0.0, 300.0), gfx::FloatSize(200.0, f32::min(100.0, height_to_render))),
                 ));
                 elements.push((
                     rect.pos + gfx::FloatPos(rect.size.0, rect.size.1 - 150.0 - height_to_render),
-                    gfx::Rect::new(
-                        gfx::FloatPos(500.0, 300.0),
-                        gfx::FloatSize(200.0, f32::min(100.0, height_to_render)),
-                    ),
+                    gfx::Rect::new(gfx::FloatPos(500.0, 300.0), gfx::FloatSize(200.0, f32::min(100.0, height_to_render))),
                 ));
                 height_to_render -= 100.0;
             }
@@ -143,31 +113,18 @@ impl ShadowContext {
             while width_to_render > 0.0 {
                 elements.push((
                     rect.pos + gfx::FloatPos(rect.size.0 - 150.0 - width_to_render, -200.0),
-                    gfx::Rect::new(
-                        gfx::FloatPos(300.0, 0.0),
-                        gfx::FloatSize(f32::min(100.0, width_to_render), 200.0),
-                    ),
+                    gfx::Rect::new(gfx::FloatPos(300.0, 0.0), gfx::FloatSize(f32::min(100.0, width_to_render), 200.0)),
                 ));
                 elements.push((
                     rect.pos + gfx::FloatPos(rect.size.0 - 150.0 - width_to_render, rect.size.1),
-                    gfx::Rect::new(
-                        gfx::FloatPos(300.0, 500.0),
-                        gfx::FloatSize(f32::min(100.0, width_to_render), 200.0),
-                    ),
+                    gfx::Rect::new(gfx::FloatPos(300.0, 500.0), gfx::FloatSize(f32::min(100.0, width_to_render), 200.0)),
                 ));
                 width_to_render -= 100.0;
             }
         }
 
         for (pos, src_rect) in elements {
-            self.shadow_texture.render(
-                &graphics.renderer,
-                1.0,
-                pos,
-                Some(src_rect),
-                false,
-                Some(shadow_color),
-            );
+            self.shadow_texture.render(&graphics.renderer, 1.0, pos, Some(src_rect), false, Some(shadow_color));
         }
     }
 }

@@ -85,10 +85,7 @@ pub fn run_game(
         };
         // if the init fails, we clear the loading text so the error can be displayed
         let result = temp_fn();
-        loading_text2
-            .lock()
-            .unwrap_or_else(PoisonError::into_inner)
-            .clear();
+        loading_text2.lock().unwrap_or_else(PoisonError::into_inner).clear();
         result
     });
 
@@ -156,10 +153,7 @@ pub fn run_game(
         walls.update(framerate_measurer.get_delta_time(), &mut events)?;
 
         if let Some(main_player) = players.get_main_player() {
-            let player_pos = entities
-                .entities
-                .ecs
-                .get::<&PositionComponent>(main_player)?;
+            let player_pos = entities.entities.ecs.get::<&PositionComponent>(main_player)?;
 
             camera.set_position(player_pos.x(), player_pos.y());
         }
@@ -167,19 +161,11 @@ pub fn run_game(
         while framerate_measurer.has_5ms_passed() {
             camera.update_ms(graphics);
             players.controls_enabled = !camera.is_detached();
-            players.update(
-                graphics,
-                &mut entities.entities,
-                &mut networking,
-                &blocks.get_blocks(),
-            )?;
-            entities
-                .entities
-                .update_entities_ms(&blocks.get_blocks(), &mut events)?;
+            players.update(graphics, &mut entities.entities, &mut networking, &blocks.get_blocks())?;
+            entities.entities.update_entities_ms(&blocks.get_blocks(), &mut events)?;
         }
 
-        respawn_screen.is_shown =
-            players.get_main_player().is_none() && !players.is_waiting_for_player();
+        respawn_screen.is_shown = players.get_main_player().is_none() && !players.is_waiting_for_player();
 
         background.render(graphics, &camera);
         walls.render(graphics, &camera)?;
@@ -210,13 +196,7 @@ pub fn run_game(
             if chat.on_event(&event, graphics, &mut networking)? {
                 continue;
             }
-            inventory.on_event(
-                &event,
-                &mut networking,
-                &items,
-                &mut blocks.get_blocks(),
-                &mut events,
-            )?;
+            inventory.on_event(&event, &mut networking, &items, &mut blocks.get_blocks(), &mut events)?;
             mods.on_event(&event)?;
             blocks.on_event(&event, &mut events, &mut mods.mod_manager, &mut networking)?;
             walls.on_event(&event)?;
@@ -226,13 +206,7 @@ pub fn run_game(
             players.on_event(&event, &mut entities.entities)?;
             lights.on_event(&event, &blocks.get_blocks())?;
             camera.on_event(&event);
-            health.on_event(
-                &event,
-                graphics,
-                &mut floating_text,
-                &players,
-                &entities.entities,
-            );
+            health.on_event(&event, graphics, &mut floating_text, &players, &entities.entities);
             if pause_menu.on_event(&event, graphics, settings) {
                 break 'main_loop;
             }

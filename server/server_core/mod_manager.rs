@@ -20,20 +20,17 @@ pub struct ServerModManager {
 impl ServerModManager {
     /// Creates a new server mod manager.
     pub fn new(mods: Vec<GameMod>) -> Self {
-        Self {
-            mod_manager: ModManager::new(mods),
-        }
+        Self { mod_manager: ModManager::new(mods) }
     }
 
     /// This function initializes the server mod manager.
     /// It adds the base game mod to the shared mod manager and initializes it.
     pub fn init(&mut self) -> Result<()> {
-        self.mod_manager
-            .add_global_function("print", |_, text: String| {
-                print_to_console(&format!("[server mod] {text}"), 0);
-                //println!("[server mod] {text}");
-                Ok(())
-            })?;
+        self.mod_manager.add_global_function("print", |_, text: String| {
+            print_to_console(&format!("[server mod] {text}"), 0);
+            //println!("[server mod] {text}");
+            Ok(())
+        })?;
 
         self.mod_manager.init()?;
         for game_mod in self.mod_manager.mods_iter_mut() {

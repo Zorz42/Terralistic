@@ -2,9 +2,7 @@ use anyhow::Result;
 
 use crate::libraries::events::{Event, EventManager};
 use crate::libraries::graphics as gfx;
-use crate::shared::blocks::{
-    BlockBreakStopPacket, ClientBlockBreakStartPacket, RENDER_BLOCK_WIDTH,
-};
+use crate::shared::blocks::{BlockBreakStopPacket, ClientBlockBreakStartPacket, RENDER_BLOCK_WIDTH};
 use crate::shared::packet::Packet;
 
 use super::camera::Camera;
@@ -41,24 +39,13 @@ impl BlockSelector {
     }
 
     /// This function is called on every frame
-    pub fn render(
-        &mut self,
-        graphics: &gfx::GraphicsContext,
-        networking: &mut ClientNetworking,
-        camera: &Camera,
-    ) -> Result<()> {
+    pub fn render(&mut self, graphics: &gfx::GraphicsContext, networking: &mut ClientNetworking, camera: &Camera) -> Result<()> {
         let selected_block = Self::get_selected_block(graphics, camera);
 
-        let x = selected_block.0 as f32 * RENDER_BLOCK_WIDTH
-            - camera.get_top_left(graphics).0 * RENDER_BLOCK_WIDTH;
-        let y = selected_block.1 as f32 * RENDER_BLOCK_WIDTH
-            - camera.get_top_left(graphics).1 * RENDER_BLOCK_WIDTH;
+        let x = selected_block.0 as f32 * RENDER_BLOCK_WIDTH - camera.get_top_left(graphics).0 * RENDER_BLOCK_WIDTH;
+        let y = selected_block.1 as f32 * RENDER_BLOCK_WIDTH - camera.get_top_left(graphics).1 * RENDER_BLOCK_WIDTH;
 
-        gfx::Rect::new(
-            gfx::FloatPos(x.round(), y.round()),
-            gfx::FloatSize(RENDER_BLOCK_WIDTH, RENDER_BLOCK_WIDTH),
-        )
-        .render_outline(graphics, gfx::Color::new(255, 0, 0, 255));
+        gfx::Rect::new(gfx::FloatPos(x.round(), y.round()), gfx::FloatSize(RENDER_BLOCK_WIDTH, RENDER_BLOCK_WIDTH)).render_outline(graphics, gfx::Color::new(255, 0, 0, 255));
 
         if self.prev_selected != selected_block {
             if self.breaking {
@@ -72,10 +59,7 @@ impl BlockSelector {
     fn start_breaking(&mut self, networking: &mut ClientNetworking, pos: (i32, i32)) -> Result<()> {
         self.breaking = true;
 
-        networking.send_packet(Packet::new(ClientBlockBreakStartPacket {
-            x: pos.0,
-            y: pos.1,
-        })?)?;
+        networking.send_packet(Packet::new(ClientBlockBreakStartPacket { x: pos.0, y: pos.1 })?)?;
         Ok(())
     }
 
@@ -91,14 +75,7 @@ impl BlockSelector {
     }
 
     /// This function is called on some event
-    pub fn on_event(
-        &mut self,
-        graphics: &gfx::GraphicsContext,
-        networking: &mut ClientNetworking,
-        camera: &Camera,
-        event: &Event,
-        events: &mut EventManager,
-    ) -> Result<()> {
+    pub fn on_event(&mut self, graphics: &gfx::GraphicsContext, networking: &mut ClientNetworking, camera: &Camera, event: &Event, events: &mut EventManager) -> Result<()> {
         if let Some(event) = event.downcast::<gfx::Event>() {
             match event {
                 gfx::Event::KeyPress(gfx::Key::MouseLeft, ..) => {

@@ -56,19 +56,10 @@ impl Renderer {
         gl_attr.set_context_profile(sdl2::video::GLProfile::Core);
         gl_attr.set_context_version(3, 3);
 
-        let sdl_window = video_subsystem
-            .window(window_title, window_width, window_height)
-            .position_centered()
-            .opengl()
-            .resizable()
-            .build()?;
+        let sdl_window = video_subsystem.window(window_title, window_width, window_height).position_centered().opengl().resizable().build()?;
 
         let gl_context = sdl_window.gl_create_context().map_err(|e| anyhow!(e))?;
-        gl::load_with(|s| {
-            video_subsystem
-                .gl_get_proc_address(s)
-                .cast::<std::ffi::c_void>()
-        });
+        gl::load_with(|s| video_subsystem.gl_get_proc_address(s).cast::<std::ffi::c_void>());
 
         // Safety: We are calling OpenGL functions safely.
         unsafe {
@@ -159,12 +150,7 @@ impl Renderer {
             gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MAG_FILTER, gl::NEAREST as i32);
             gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MIN_FILTER, gl::NEAREST as i32);
 
-            gl::Viewport(
-                0,
-                0,
-                self.sdl_window.size().0 as i32,
-                self.sdl_window.size().1 as i32,
-            );
+            gl::Viewport(0, 0, self.sdl_window.size().0 as i32, self.sdl_window.size().1 as i32);
         }
     }
 
@@ -242,23 +228,13 @@ impl Renderer {
         }
 
         self.normalization_transform = Transformation::new();
-        self.normalization_transform
-            .translate(gfx::FloatPos(-1.0, 1.0));
-        self.normalization_transform.stretch((
-            2.0 / self.get_window_size().0,
-            -2.0 / self.get_window_size().1,
-        ));
+        self.normalization_transform.translate(gfx::FloatPos(-1.0, 1.0));
+        self.normalization_transform.stretch((2.0 / self.get_window_size().0, -2.0 / self.get_window_size().1));
 
         // Safety: We are calling OpenGL functions safely.
         unsafe {
             gl::BindFramebuffer(gl::READ_FRAMEBUFFER, self.window_framebuffer);
-            gl::FramebufferTexture2D(
-                gl::READ_FRAMEBUFFER,
-                gl::COLOR_ATTACHMENT0,
-                gl::TEXTURE_2D,
-                self.window_texture,
-                0,
-            );
+            gl::FramebufferTexture2D(gl::READ_FRAMEBUFFER, gl::COLOR_ATTACHMENT0, gl::TEXTURE_2D, self.window_texture, 0);
             gl::BindFramebuffer(gl::DRAW_FRAMEBUFFER, 0);
 
             #[cfg(target_os = "windows")]
@@ -321,25 +297,18 @@ impl Renderer {
         self.ms_so_far += delta;
         self.prev_frame_time = now;
         if self.ms_so_far < self.min_ms_per_frame * self.frames_so_far as f32 {
-            std::thread::sleep(std::time::Duration::from_millis(
-                (self.min_ms_per_frame * self.frames_so_far as f32 - self.ms_so_far) as u64,
-            ));
+            std::thread::sleep(std::time::Duration::from_millis((self.min_ms_per_frame * self.frames_so_far as f32 - self.ms_so_far) as u64));
         }
     }
 
     /// Sets the minimum window size
     pub fn set_min_window_size(&mut self, size: gfx::FloatSize) -> Result<()> {
-        self.sdl_window
-            .set_minimum_size(size.0 as u32, size.1 as u32)
-            .map_err(|e| anyhow!(e))
+        self.sdl_window.set_minimum_size(size.0 as u32, size.1 as u32).map_err(|e| anyhow!(e))
     }
 
     /// Get the current window size
     pub fn get_window_size(&self) -> gfx::FloatSize {
-        gfx::FloatSize(
-            self.sdl_window.size().0 as f32 / self.real_scale,
-            self.sdl_window.size().1 as f32 / self.real_scale,
-        )
+        gfx::FloatSize(self.sdl_window.size().0 as f32 / self.real_scale, self.sdl_window.size().1 as f32 / self.real_scale)
     }
 
     /// Gets mouse position
@@ -361,23 +330,8 @@ impl Renderer {
     }
 
     /// Blurs given texture
-    pub(super) fn blur_region(
-        &self,
-        rect: gfx::Rect,
-        radius: i32,
-        gl_texture: u32,
-        back_texture: u32,
-        size: gfx::FloatSize,
-        texture_transform: &Transformation,
-    ) {
-        self.blur_context.blur_region(
-            rect,
-            radius,
-            gl_texture,
-            back_texture,
-            size,
-            texture_transform,
-        );
+    pub(super) fn blur_region(&self, rect: gfx::Rect, radius: i32, gl_texture: u32, back_texture: u32, size: gfx::FloatSize, texture_transform: &Transformation) {
+        self.blur_context.blur_region(rect, radius, gl_texture, back_texture, size, texture_transform);
         // Safety: We are calling OpenGL functions safely.
         unsafe {
             gl::UseProgram(self.passthrough_shader.passthrough_shader);
@@ -386,14 +340,7 @@ impl Renderer {
 
     /// Blurs a given rectangle on the screen
     pub(super) fn blur_rect(&self, rect: gfx::Rect, radius: i32) {
-        self.blur_region(
-            rect,
-            radius,
-            self.window_texture,
-            self.window_texture_back,
-            self.get_window_size(),
-            &self.normalization_transform,
-        );
+        self.blur_region(rect, radius, self.window_texture, self.window_texture_back, self.get_window_size(), &self.normalization_transform);
     }
 
     pub fn enable_blur(&mut self, enable: bool) {
@@ -411,11 +358,7 @@ impl Renderer {
     }
 
     pub fn enable_vsync(&mut self, enable: bool) {
-        let swap_interval = if enable {
-            SwapInterval::VSync
-        } else {
-            SwapInterval::Immediate
-        };
+        let swap_interval = if enable { SwapInterval::VSync } else { SwapInterval::Immediate };
         if let Err(error) = self.video_subsystem.gl_set_swap_interval(swap_interval) {
             println!("Error setting VSync: {error}");
         }

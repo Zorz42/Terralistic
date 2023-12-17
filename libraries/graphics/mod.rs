@@ -4,10 +4,7 @@ pub use animation_timer::AnimationTimer;
 pub use blend_mode::{set_blend_mode, BlendMode};
 pub use button::Button;
 pub use color::{interpolate_colors, Color};
-pub use container::{
-    Container, Orientation, BOTTOM, BOTTOM_LEFT, BOTTOM_RIGHT, CENTER, LEFT, RIGHT, TOP, TOP_LEFT,
-    TOP_RIGHT,
-};
+pub use container::{Container, Orientation, BOTTOM, BOTTOM_LEFT, BOTTOM_RIGHT, CENTER, LEFT, RIGHT, TOP, TOP_LEFT, TOP_RIGHT};
 pub use events::{Event, Key};
 pub use position::{FloatPos, FloatSize, IntPos, IntSize};
 pub use rect::Rect;
@@ -21,10 +18,7 @@ pub use text::Font;
 pub use text_input::TextInput;
 pub use texture::Texture;
 pub use texture_atlas::TextureAtlas;
-pub use theme::{
-    BLACK, BLUR, BORDER_COLOR, DARK_GREY, GREY, LIGHT_GREY, SHADOW_INTENSITY, SPACING,
-    TEXT_INPUT_WIDTH, TRANSPARENCY, TRANSPARENT, WHITE,
-};
+pub use theme::{BLACK, BLUR, BORDER_COLOR, DARK_GREY, GREY, LIGHT_GREY, SHADOW_INTENSITY, SPACING, TEXT_INPUT_WIDTH, TRANSPARENCY, TRANSPARENT, WHITE};
 
 mod animation_timer;
 
@@ -85,20 +79,10 @@ pub struct GraphicsContext {
 }
 
 /// Initializes the graphics context.
-pub fn init(
-    window_width: u32,
-    window_height: u32,
-    window_title: &str,
-    default_font_data: &[u8],
-    default_mono_font_data: Option<&[u8]>,
-) -> Result<GraphicsContext> {
+pub fn init(window_width: u32, window_height: u32, window_title: &str, default_font_data: &[u8], default_mono_font_data: Option<&[u8]>) -> Result<GraphicsContext> {
     Ok(GraphicsContext {
         renderer: Renderer::new(window_width, window_height, window_title)?,
         font: Font::new(default_font_data, false)?,
-        font_mono: if let Some(data) = default_mono_font_data {
-            Some(Font::new(data, true)?)
-        } else {
-            None
-        },
+        font_mono: if let Some(data) = default_mono_font_data { Some(Font::new(data, true)?) } else { None },
     })
 }

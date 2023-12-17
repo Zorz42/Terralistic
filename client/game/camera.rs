@@ -26,11 +26,7 @@ impl Camera {
     }
 
     pub fn load_resources(&mut self, graphics: &gfx::GraphicsContext) {
-        self.detached_camera_text.texture = gfx::Texture::load_from_surface(
-            &graphics
-                .font
-                .create_text_surface("Camera is detached", None),
-        );
+        self.detached_camera_text.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Camera is detached", None));
         self.detached_camera_text.orientation = gfx::BOTTOM;
         self.detached_camera_text.pos = gfx::FloatPos(0.0, -gfx::SPACING);
         self.detached_camera_text.scale = 3.0;
@@ -81,20 +77,14 @@ impl Camera {
     pub fn get_top_left(&self, graphics: &gfx::GraphicsContext) -> (f32, f32) {
         let width = graphics.renderer.get_window_size().0 / RENDER_BLOCK_WIDTH;
         let height = graphics.renderer.get_window_size().1 / RENDER_BLOCK_WIDTH;
-        (
-            self.position_x - width / 2.0,
-            self.position_y - height / 2.0,
-        )
+        (self.position_x - width / 2.0, self.position_y - height / 2.0)
     }
 
     /// This function gets the position of the bottom right corner of the screen in world coordinates.
     pub fn get_bottom_right(&self, graphics: &gfx::GraphicsContext) -> (f32, f32) {
         let width = graphics.renderer.get_window_size().0 / RENDER_BLOCK_WIDTH;
         let height = graphics.renderer.get_window_size().1 / RENDER_BLOCK_WIDTH;
-        (
-            self.position_x + width / 2.0,
-            self.position_y + height / 2.0,
-        )
+        (self.position_x + width / 2.0, self.position_y + height / 2.0)
     }
 
     pub fn on_event(&mut self, event: &Event) {

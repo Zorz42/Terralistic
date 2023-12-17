@@ -9,9 +9,7 @@ pub struct Event {
 
 impl Event {
     pub fn new<T: Any + Send>(event: T) -> Self {
-        Self {
-            event: Box::new(event),
-        }
+        Self { event: Box::new(event) }
     }
 
     #[must_use]
@@ -31,9 +29,7 @@ pub struct EventManager {
 impl EventManager {
     #[must_use]
     pub const fn new() -> Self {
-        Self {
-            event_queue: VecDeque::new(),
-        }
+        Self { event_queue: VecDeque::new() }
     }
 
     pub fn push_event(&mut self, event: Event) {

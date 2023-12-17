@@ -29,9 +29,7 @@ impl WallId {
 impl rlua::UserData for WallId {
     // implement equals comparison for BlockId
     fn add_methods<'lua, M: rlua::UserDataMethods<'lua, Self>>(methods: &mut M) {
-        methods.add_meta_method(rlua::MetaMethod::Eq, |_, this, other: Self| {
-            Ok(this.id == other.id)
-        });
+        methods.add_meta_method(rlua::MetaMethod::Eq, |_, this, other: Self| Ok(this.id == other.id));
     }
 }
 
@@ -74,13 +72,7 @@ impl Walls {
 
         let mut clear = Wall::new();
         clear.name = "clear".to_owned();
-        result.clear = Self::register_new_wall_type(
-            &mut result
-                .wall_types
-                .lock()
-                .unwrap_or_else(std::sync::PoisonError::into_inner),
-            clear,
-        );
+        result.clear = Self::register_new_wall_type(&mut result.wall_types.lock().unwrap_or_else(std::sync::PoisonError::into_inner), clear);
 
         let mut hammer = Tool::new();
         hammer.name = "hammer".to_owned();
@@ -100,20 +92,13 @@ impl Walls {
 
         let mut wall_types = self.wall_types.clone();
         mods.add_global_function("register_wall_type", move |_lua, wall_type: Wall| {
-            let result = Self::register_new_wall_type(
-                &mut wall_types
-                    .lock()
-                    .unwrap_or_else(std::sync::PoisonError::into_inner),
-                wall_type,
-            );
+            let result = Self::register_new_wall_type(&mut wall_types.lock().unwrap_or_else(std::sync::PoisonError::into_inner), wall_type);
             Ok(result)
         })?;
 
         wall_types = self.wall_types.clone();
         mods.add_global_function("get_wall_id_by_name", move |_lua, name: String| {
-            let wall_types = wall_types
-                .lock()
-                .unwrap_or_else(std::sync::PoisonError::into_inner);
+            let wall_types = wall_types.lock().unwrap_or_else(std::sync::PoisonError::into_inner);
             let iter = wall_types.iter();
             for wall_type in iter {
                 if wall_type.name == name {
@@ -151,14 +136,8 @@ impl Walls {
 
     /// Returns the wall type with the given id
     pub fn get_wall_type(&self, id: WallId) -> Result<Wall> {
-        let walls = self
-            .wall_types
-            .lock()
-            .unwrap_or_else(std::sync::PoisonError::into_inner);
-        Ok(walls
-            .get(id.id as usize)
-            .ok_or_else(|| anyhow!("Wall type not found"))?
-            .clone())
+        let walls = self.wall_types.lock().unwrap_or_else(std::sync::PoisonError::into_inner);
+        Ok(walls.get(id.id as usize).ok_or_else(|| anyhow!("Wall type not found"))?.clone())
     }
 
     /// This function sets the wall type on x and y and sends the `WallChangeEvent`.
@@ -172,8 +151,7 @@ impl Walls {
             .walls_data
             .walls
             .get_mut(self.walls_data.map.translate_coords(x, y)?)
-            .ok_or_else(|| anyhow!("Wall is accessed out of the bounds! ({}, {})", x, y))? =
-            wall_id;
+            .ok_or_else(|| anyhow!("Wall is accessed out of the bounds! ({}, {})", x, y))? = wall_id;
 
         //self.wall_change_event.send(WallChangeEvent::new(x, y));
 
@@ -204,10 +182,7 @@ impl Walls {
 
     /// Returns a wall id type with the given name
     pub fn get_wall_id_by_name(&self, name: &str) -> Result<WallId> {
-        let wall_types = self
-            .wall_types
-            .lock()
-            .unwrap_or_else(std::sync::PoisonError::into_inner);
+        let wall_types = self.wall_types.lock().unwrap_or_else(std::sync::PoisonError::into_inner);
         let iter = wall_types.iter();
         for wall_type in iter {
             if wall_type.name == name {
@@ -248,10 +223,7 @@ impl Walls {
     /// Returns all wall ids.
     pub fn get_all_wall_ids(&mut self) -> Vec<WallId> {
         let mut result = Vec::new();
-        let wall_types = self
-            .wall_types
-            .lock()
-            .unwrap_or_else(std::sync::PoisonError::into_inner);
+        let wall_types = self.wall_types.lock().unwrap_or_else(std::sync::PoisonError::into_inner);
         let iter = wall_types.iter();
         for wall_type in iter {
             result.push(wall_type.id);

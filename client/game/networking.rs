@@ -94,29 +94,18 @@ impl ClientNetworking {
         let (handler, listener) = node::split();
 
         let server_addr = format!("{server_address}:{server_port}");
-        let (server_endpoint, _) = handler
-            .network()
-            .connect(Transport::FramedTcp, server_addr)?;
+        let (server_endpoint, _) = handler.network().connect(Transport::FramedTcp, server_addr)?;
 
-        Self::send_packet_internal(
-            &handler,
-            &Packet::new(NamePacket {
-                name: player_name.to_owned(),
-            })?,
-            server_endpoint,
-        )?;
+        Self::send_packet_internal(&handler, &Packet::new(NamePacket { name: player_name.to_owned() })?, server_endpoint)?;
 
         listener.for_each(move |event| {
             if is_welcoming.load(Ordering::Relaxed) {
                 // welcoming loop
                 if let NodeEvent::Network(event) = event {
                     match event {
-                        NetEvent::Accepted(..)
-                        | NetEvent::Connected(..)
-                        | NetEvent::Disconnected(..) => {}
+                        NetEvent::Accepted(..) | NetEvent::Connected(..) | NetEvent::Disconnected(..) => {}
                         NetEvent::Message(_peer, packet) => {
-                            let packet = bincode::deserialize::<Packet>(packet)
-                                .expect("failed to deserialize packet");
+                            let packet = bincode::deserialize::<Packet>(packet).expect("failed to deserialize packet");
 
                             if packet.try_deserialize::<WelcomeCompletePacket>().is_some() {
                                 is_welcoming.store(false, Ordering::Relaxed);
@@ -128,9 +117,7 @@ impl ClientNetworking {
                             }
 
                             // send welcome packet event
-                            event_sender
-                                .send(events::Event::new(WelcomePacketEvent { packet }))
-                                .ok();
+                            event_sender.send(events::Event::new(WelcomePacketEvent { packet })).ok();
                         }
                     }
                 };
@@ -138,12 +125,9 @@ impl ClientNetworking {
                 // normal loop
                 match event {
                     NodeEvent::Network(event) => match event {
-                        NetEvent::Connected(..)
-                        | NetEvent::Accepted(..)
-                        | NetEvent::Disconnected(..) => {}
+                        NetEvent::Connected(..) | NetEvent::Accepted(..) | NetEvent::Disconnected(..) => {}
                         NetEvent::Message(_peer, packet) => {
-                            let packet = bincode::deserialize::<Packet>(packet)
-                                .expect("failed to deserialize packet");
+                            let packet = bincode::deserialize::<Packet>(packet).expect("failed to deserialize packet");
 
                             event_sender.send(events::Event::new(packet)).ok();
                         }
@@ -154,13 +138,10 @@ impl ClientNetworking {
                         }
 
                         while let Ok(packet) = packet_receiver.try_recv() {
-                            Self::send_packet_internal(&handler, &packet, server_endpoint)
-                                .expect("failed to send packet to server");
+                            Self::send_packet_internal(&handler, &packet, server_endpoint).expect("failed to send packet to server");
                         }
 
-                        handler
-                            .signals()
-                            .send_with_timer((), std::time::Duration::from_millis(1));
+                        handler.signals().send_with_timer((), std::time::Duration::from_millis(1));
                     }
                 };
             }
@@ -183,11 +164,7 @@ impl ClientNetworking {
         Ok(())
     }
 
-    fn send_packet_internal(
-        net_client: &NodeHandler<()>,
-        packet: &Packet,
-        endpoint: Endpoint,
-    ) -> Result<()> {
+    fn send_packet_internal(net_client: &NodeHandler<()>, packet: &Packet, endpoint: Endpoint) -> Result<()> {
         let packet_data = bincode::serialize(packet)?;
 
         loop {
@@ -210,10 +187,7 @@ impl ClientNetworking {
     }
 
     pub fn send_packet(&mut self, packet: Packet) -> Result<()> {
-        self.packet_sender
-            .as_mut()
-            .ok_or_else(|| anyhow!("packet sender not constructed yet"))?
-            .send(packet)?;
+        self.packet_sender.as_mut().ok_or_else(|| anyhow!("packet sender not constructed yet"))?.send(packet)?;
         Ok(())
     }
 

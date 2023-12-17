@@ -43,9 +43,7 @@ pub struct CommandManager {
 
 impl CommandManager {
     pub const fn new() -> Self {
-        Self {
-            commands: Vec::new(),
-        }
+        Self { commands: Vec::new() }
     }
 
     /// adds a command to the command manager
@@ -77,23 +75,10 @@ impl CommandManager {
 
                 let player_entity = players.get_player_from_connection(&event.conn)?;
                 if let Some(player_entity) = player_entity {
-                    let name = entities
-                        .entities
-                        .ecs
-                        .get::<&mut PlayerComponent>(player_entity)?
-                        .get_name()
-                        .to_owned();
+                    let name = entities.entities.ecs.get::<&mut PlayerComponent>(player_entity)?.get_name().to_owned();
 
                     let mut output = String::new();
-                    let result = self.execute_command(
-                        &command,
-                        state,
-                        Some(&name),
-                        players,
-                        items,
-                        entities,
-                        event_manager,
-                    );
+                    let result = self.execute_command(&command, state, Some(&name), players, items, entities, event_manager);
 
                     writeln!(output, "Player \"{name}\" executed a command: {command}")?;
                     let result = match result {
@@ -103,10 +88,7 @@ impl CommandManager {
 
                     writeln!(output, "Command result: {result:?}")?;
 
-                    send_to_ui(
-                        UiMessageType::SrvToUiConsoleMessage(ConsoleMessageType::Info(output)),
-                        None,
-                    );
+                    send_to_ui(UiMessageType::SrvToUiConsoleMessage(ConsoleMessageType::Info(output)), None);
 
                     let packet = Packet::new(ChatPacket { message: result })?;
 
@@ -129,10 +111,7 @@ impl CommandManager {
         entities: &mut entities::ServerEntities,
         event_manager: &mut EventManager,
     ) -> Result<String> {
-        let arguments: Vec<String> = command
-            .split(' ')
-            .map(std::borrow::ToOwned::to_owned)
-            .collect();
+        let arguments: Vec<String> = command.split(' ').map(std::borrow::ToOwned::to_owned).collect();
 
         for c in &self.commands {
             if c.call_name == *arguments.get(0).unwrap_or(&String::new()) {
@@ -164,15 +143,7 @@ impl CommandManager {
     ) {
         //goes through the messages received from the server
         while let Ok(UiMessageType::UiToSrvConsoleMessage(message)) = receiver.try_recv() {
-            let feedback = self.execute_command(
-                &message,
-                state,
-                None,
-                players,
-                items,
-                entities,
-                event_manager,
-            );
+            let feedback = self.execute_command(&message, state, None, players, items, entities, event_manager);
             match feedback {
                 Ok(feedback) => print_to_console(&feedback, 0),
                 Err(val) => print_to_console(&val.to_string(), 1),
@@ -200,37 +171,20 @@ pub fn stop_command(parameters: &mut CommandParameters) -> Result<String> {
 
 //this command gives an item to the player
 pub fn give_command(parameters: &mut CommandParameters) -> Result<String> {
-    let item_name = parameters
-        .arguments
-        .first()
-        .ok_or_else(|| anyhow!("no item name specified"))?;
+    let item_name = parameters.arguments.first().ok_or_else(|| anyhow!("no item name specified"))?;
     let player_name = parameters.arguments.get(1);
-    let item = parameters
-        .items
-        .get_items()
-        .get_item_type_by_name(item_name)?;
+    let item = parameters.items.get_items().get_item_type_by_name(item_name)?;
     let player;
 
     if let Some(player_name) = player_name {
-        player = parameters
-            .players
-            .get_player_entity_from_name(player_name, &parameters.entities.entities)?;
+        player = parameters.players.get_player_entity_from_name(player_name, &parameters.entities.entities)?;
     } else if let Some(executor) = parameters.executor {
-        player = parameters
-            .players
-            .get_player_entity_from_name(executor, &parameters.entities.entities)?;
+        player = parameters.players.get_player_entity_from_name(executor, &parameters.entities.entities)?;
     } else {
-        return Err(anyhow!(
-            "No player specified when the executor is a server console"
-        ));
+        return Err(anyhow!("No player specified when the executor is a server console"));
     };
 
-    let mut inventory = parameters
-        .entities
-        .entities
-        .ecs
-        .get::<&mut Inventory>(*player)?
-        .clone();
+    let mut inventory = parameters.entities.entities.ecs.get::<&mut Inventory>(*player)?.clone();
 
     inventory.give_item(
         ItemStack::new(item.get_id(), 1),
@@ -240,11 +194,7 @@ pub fn give_command(parameters: &mut CommandParameters) -> Result<String> {
         parameters.event_manager,
     )?;
 
-    *parameters
-        .entities
-        .entities
-        .ecs
-        .get::<&mut Inventory>(*player)? = inventory;
+    *parameters.entities.entities.ecs.get::<&mut Inventory>(*player)? = inventory;
 
     Ok(("Gave item to player").into())
 }

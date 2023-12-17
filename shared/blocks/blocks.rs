@@ -129,14 +129,7 @@ impl Blocks {
     }
 
     /// This sets the type of a block from a coordinate.
-    pub fn set_big_block(
-        &mut self,
-        events: &mut EventManager,
-        x: i32,
-        y: i32,
-        block_id: BlockId,
-        from_main: (i32, i32),
-    ) -> Result<()> {
+    pub fn set_big_block(&mut self, events: &mut EventManager, x: i32, y: i32, block_id: BlockId, from_main: (i32, i32)) -> Result<()> {
         if block_id != self.get_block(x, y)? || from_main != self.get_block_from_main(x, y)? {
             let prev_block = self.get_block(x, y)?;
 
@@ -157,23 +150,12 @@ impl Blocks {
     }
 
     /// This sets the type of a block from a coordinate.
-    pub fn set_block(
-        &mut self,
-        events: &mut EventManager,
-        x: i32,
-        y: i32,
-        block_id: BlockId,
-    ) -> Result<()> {
+    pub fn set_block(&mut self, events: &mut EventManager, x: i32, y: i32, block_id: BlockId) -> Result<()> {
         self.set_big_block(events, x, y, block_id, (0, 0))
     }
 
     /// This function sets x and y from main for a block. If it is 0, 0 the value is removed from the hashmap.
-    pub(super) fn set_block_from_main(
-        &mut self,
-        x: i32,
-        y: i32,
-        from_main: (i32, i32),
-    ) -> Result<()> {
+    pub(super) fn set_block_from_main(&mut self, x: i32, y: i32, from_main: (i32, i32)) -> Result<()> {
         let index = self.block_data.map.translate_coords(x, y)?;
 
         if from_main.0 == 0 && from_main.1 == 0 {
@@ -186,11 +168,7 @@ impl Blocks {
 
     /// This function gets the block from main for a block. If the value is not found, it returns 0, 0.
     pub fn get_block_from_main(&self, x: i32, y: i32) -> Result<(i32, i32)> {
-        Ok(*self
-            .block_data
-            .block_from_main
-            .get(&self.block_data.map.translate_coords(x, y)?)
-            .unwrap_or(&(0, 0)))
+        Ok(*self.block_data.block_from_main.get(&self.block_data.map.translate_coords(x, y)?).unwrap_or(&(0, 0)))
     }
 
     /// This function sets the block data for a block. If it is empty the value is removed from the hashmap.
@@ -213,12 +191,7 @@ impl Blocks {
     }
 
     /// This function updates the inventory slots for a block.
-    fn update_block_inventory_data(
-        &mut self,
-        x: i32,
-        y: i32,
-        events: &mut EventManager,
-    ) -> Result<()> {
+    fn update_block_inventory_data(&mut self, x: i32, y: i32, events: &mut EventManager) -> Result<()> {
         let size = self.get_block_inventory_size(x, y)?;
         let index = self.block_data.map.translate_coords(x, y)?;
         if size == 0 {
@@ -235,25 +208,12 @@ impl Blocks {
     }
 
     /// This function gets inventory slots for a block. If the value is not found, it returns an empty vector.
-    pub fn get_block_inventory_data(
-        &self,
-        x: i32,
-        y: i32,
-    ) -> Result<Option<&Vec<Option<ItemStack>>>> {
-        Ok(self
-            .block_data
-            .block_inventory_data
-            .get(&self.block_data.map.translate_coords(x, y)?))
+    pub fn get_block_inventory_data(&self, x: i32, y: i32) -> Result<Option<&Vec<Option<ItemStack>>>> {
+        Ok(self.block_data.block_inventory_data.get(&self.block_data.map.translate_coords(x, y)?))
     }
 
     /// This function sets inventory slots for a block. If the block has no inventory slots, it returns an error.
-    pub fn set_block_inventory_data(
-        &mut self,
-        x: i32,
-        y: i32,
-        data: Vec<Option<ItemStack>>,
-        events: &mut EventManager,
-    ) -> Result<()> {
+    pub fn set_block_inventory_data(&mut self, x: i32, y: i32, data: Vec<Option<ItemStack>>, events: &mut EventManager) -> Result<()> {
         let index = self.block_data.map.translate_coords(x, y)?;
         let size = self.get_block_inventory_size(x, y)?;
 
@@ -277,12 +237,7 @@ impl Blocks {
 
     /// This function returns block data, if it is not found it returns an empty vector.
     pub fn get_block_data(&self, x: i32, y: i32) -> Result<Vec<u8>> {
-        Ok(self
-            .block_data
-            .block_data
-            .get(&self.block_data.map.translate_coords(x, y)?)
-            .unwrap_or(&vec![])
-            .clone())
+        Ok(self.block_data.block_data.get(&self.block_data.map.translate_coords(x, y)?).unwrap_or(&vec![]).clone())
     }
 
     /// Serializes the world, used for saving the world and sending it to the client.
@@ -328,11 +283,7 @@ impl Blocks {
 
     /// Returns the block type that has the specified id.
     pub fn get_block_type(&self, id: BlockId) -> Result<Block> {
-        Ok(self
-            .block_types
-            .get(id.id as usize)
-            .ok_or_else(|| anyhow!("Block type not found"))?
-            .clone())
+        Ok(self.block_types.get(id.id as usize).ok_or_else(|| anyhow!("Block type not found"))?.clone())
     }
 
     /// Updates the block at the specified coordinates.
@@ -343,31 +294,17 @@ impl Blocks {
         if block.width != 0 || block.height != 0 {
             let from_main = self.get_block_from_main(x, y)?;
 
-            if (from_main.0 > 0 && self.get_block_type_at(x - 1, y)?.get_id() != block.get_id())
-                || (from_main.1 > 0 && self.get_block_type_at(x, y - 1)?.get_id() != block.get_id())
-            {
+            if (from_main.0 > 0 && self.get_block_type_at(x - 1, y)?.get_id() != block.get_id()) || (from_main.1 > 0 && self.get_block_type_at(x, y - 1)?.get_id() != block.get_id()) {
                 self.set_block(events, x, y, self.air)?;
                 return Ok(());
             }
 
             if from_main.0 + 1 < block.width {
-                self.set_big_block(
-                    events,
-                    x + 1,
-                    y,
-                    block.get_id(),
-                    (from_main.0 + 1, from_main.1),
-                )?;
+                self.set_big_block(events, x + 1, y, block.get_id(), (from_main.0 + 1, from_main.1))?;
             }
 
             if from_main.1 + 1 < block.height {
-                self.set_big_block(
-                    events,
-                    x,
-                    y + 1,
-                    block.get_id(),
-                    (from_main.0, from_main.1 + 1),
-                )?;
+                self.set_big_block(events, x, y + 1, block.get_id(), (from_main.0, from_main.1 + 1))?;
             }
         }
 

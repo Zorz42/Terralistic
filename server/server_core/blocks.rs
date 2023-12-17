@@ -9,10 +9,8 @@ use crate::libraries::events::{Event, EventManager};
 use crate::server::server_core::networking::SendTarget;
 use crate::server::server_core::players::ServerPlayers;
 use crate::shared::blocks::{
-    handle_event_for_blocks_interface, init_blocks_mod_interface, BlockBreakStartPacket,
-    BlockBreakStopPacket, BlockChangeEvent, BlockChangePacket, BlockInventoryUpdateEvent,
-    BlockInventoryUpdatePacket, BlockRightClickPacket, BlockStartedBreakingEvent,
-    BlockStoppedBreakingEvent, Blocks, BlocksWelcomePacket, ClientBlockBreakStartPacket,
+    handle_event_for_blocks_interface, init_blocks_mod_interface, BlockBreakStartPacket, BlockBreakStopPacket, BlockChangeEvent, BlockChangePacket, BlockInventoryUpdateEvent,
+    BlockInventoryUpdatePacket, BlockRightClickPacket, BlockStartedBreakingEvent, BlockStoppedBreakingEvent, Blocks, BlocksWelcomePacket, ClientBlockBreakStartPacket,
 };
 use crate::shared::entities::Entities;
 use crate::shared::inventory::Inventory;
@@ -63,50 +61,30 @@ impl ServerBlocks {
         handle_event_for_blocks_interface(mods, event)?;
 
         if let Some(event) = event.downcast::<NewConnectionEvent>() {
-            let welcome_packet = Packet::new(BlocksWelcomePacket {
-                data: self.get_blocks().serialize()?,
-            })?;
+            let welcome_packet = Packet::new(BlocksWelcomePacket { data: self.get_blocks().serialize()? })?;
             networking.send_packet(&welcome_packet, SendTarget::Connection(event.conn.clone()))?;
         } else if let Some(event) = event.downcast::<PacketFromClientEvent>() {
-            if let Some(packet) = event
-                .packet
-                .try_deserialize::<ClientBlockBreakStartPacket>()
-            {
+            if let Some(packet) = event.packet.try_deserialize::<ClientBlockBreakStartPacket>() {
                 if let Some(pos) = self.conns_breaking.get(&event.conn).copied() {
-                    self.get_blocks()
-                        .stop_breaking_block(events, pos.0, pos.1)?;
+                    self.get_blocks().stop_breaking_block(events, pos.0, pos.1)?;
                 }
 
-                self.conns_breaking
-                    .insert(event.conn.clone(), (packet.x, packet.y));
+                self.conns_breaking.insert(event.conn.clone(), (packet.x, packet.y));
 
                 let player_id = players.get_player_from_connection(&event.conn)?;
                 if let Some(player_id) = player_id {
-                    let held_item = entities
-                        .ecs
-                        .get::<&Inventory>(player_id)?
-                        .get_selected_item();
-                    let tool = if let Some(item) = &held_item {
-                        items.get_item_type(item.item)?.tool
-                    } else {
-                        None
-                    };
+                    let held_item = entities.ecs.get::<&Inventory>(player_id)?.get_selected_item();
+                    let tool = if let Some(item) = &held_item { items.get_item_type(item.item)?.tool } else { None };
 
-                    let tool_power = if let Some(item) = &held_item {
-                        items.get_item_type(item.item)?.tool_power
-                    } else {
-                        0
-                    };
+                    let tool_power = if let Some(item) = &held_item { items.get_item_type(item.item)?.tool_power } else { 0 };
 
-                    self.get_blocks()
-                        .start_breaking_block(events, packet.x, packet.y, tool, tool_power)?;
+                    self.get_blocks().start_breaking_block(events, packet.x, packet.y, tool, tool_power)?;
                 }
             }
 
             if let Some(packet) = event.packet.try_deserialize::<BlockBreakStopPacket>() {
                 self.conns_breaking.remove(&event.conn);
-                self.get_blocks()
-                    .stop_breaking_block(events, packet.x, packet.y)?;
+                self.get_blocks().stop_breaking_block(events, packet.x, packet.y)?;
             } else if let Some(packet) = event.packet.try_deserialize::<BlockRightClickPacket>() {
                 let player = players.get_player_from_connection(&event.conn)?;
                 if let Some(player) = player {
@@ -124,9 +102,7 @@ impl ServerBlocks {
                                 let mut can_place = true;
                                 for x in 0..block_width {
                                     for y in 0..block_height {
-                                        let current_block = self
-                                            .get_blocks()
-                                            .get_block(packet.x + x, packet.y - y)?;
+                                        let current_block = self.get_blocks().get_block(packet.x + x, packet.y - y)?;
                                         if current_block != self.get_blocks().air() {
                                             can_place = false;
                                         }
@@ -136,12 +112,7 @@ impl ServerBlocks {
                             };
 
                             if can_place {
-                                self.get_blocks().set_block(
-                                    events,
-                                    packet.x,
-                                    packet.y - block_height + 1,
-                                    block,
-                                )?;
+                                self.get_blocks().set_block(events, packet.x, packet.y - block_height + 1, block)?;
                                 selected_item.count -= 1;
                                 let selected_slot = player_inventory.selected_slot.unwrap_or(0);
                                 player_inventory.set_item(selected_slot, Some(selected_item))?;
@@ -176,20 +147,10 @@ impl ServerBlocks {
             })?;
             networking.send_packet(&packet, SendTarget::All)?;
 
-            let neighbors = [
-                (event.x, event.y),
-                (event.x - 1, event.y),
-                (event.x + 1, event.y),
-                (event.x, event.y - 1),
-                (event.x, event.y + 1),
-            ];
+            let neighbors = [(event.x, event.y), (event.x - 1, event.y), (event.x + 1, event.y), (event.x, event.y - 1), (event.x, event.y + 1)];
 
             for (x, y) in neighbors {
-                if x >= 0
-                    && y >= 0
-                    && x < self.get_blocks().get_width() as i32
-                    && y < self.get_blocks().get_height() as i32
-                {
+                if x >= 0 && y >= 0 && x < self.get_blocks().get_width() as i32 && y < self.get_blocks().get_height() as i32 {
                     self.get_blocks().update_block(x, y, events)?;
                 }
             }
@@ -197,11 +158,7 @@ impl ServerBlocks {
             let packet = Packet::new(BlockInventoryUpdatePacket {
                 x: event.x,
                 y: event.y,
-                inventory: self
-                    .get_blocks()
-                    .get_block_inventory_data(event.x, event.y)?
-                    .unwrap_or(&vec![])
-                    .clone(),
+                inventory: self.get_blocks().get_block_inventory_data(event.x, event.y)?.unwrap_or(&vec![]).clone(),
             })?;
             networking.send_packet(&packet, SendTarget::All)?;
         }
@@ -219,7 +176,6 @@ impl ServerBlocks {
     pub fn update(&mut self, events: &mut EventManager, frame_length: f32) -> Result<()> {
         self.flush_mods_events(events);
 
-        self.get_blocks()
-            .update_breaking_blocks(events, frame_length)
+        self.get_blocks().update_breaking_blocks(events, frame_length)
     }
 }

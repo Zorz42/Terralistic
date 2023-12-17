@@ -50,17 +50,13 @@ impl Surface {
     /// Retrieves the pixel color on a specified location.
     pub fn get_pixel(&self, pos: gfx::IntPos) -> Result<&Color> {
         let index = self.get_index(pos)?;
-        self.pixels
-            .get(index)
-            .ok_or_else(|| anyhow!("Pixel array malformed"))
+        self.pixels.get(index).ok_or_else(|| anyhow!("Pixel array malformed"))
     }
 
     /// Retrieves the pixel color on a specified location.
     pub fn get_pixel_mut(&mut self, pos: gfx::IntPos) -> Result<&mut Color> {
         let index = self.get_index(pos)?;
-        self.pixels
-            .get_mut(index)
-            .ok_or_else(|| anyhow!("Pixel array malformed"))
+        self.pixels.get_mut(index).ok_or_else(|| anyhow!("Pixel array malformed"))
     }
 
     #[must_use]
@@ -103,10 +99,7 @@ pub struct SurfaceIterator<'surface_lifetime> {
 
 impl<'surface_lifetime> SurfaceIterator<'surface_lifetime> {
     pub const fn new(surface: &'surface_lifetime Surface) -> Self {
-        Self {
-            surface,
-            pos: gfx::IntPos(0, 0),
-        }
+        Self { surface, pos: gfx::IntPos(0, 0) }
     }
 }
 
@@ -141,10 +134,7 @@ pub struct MutSurfaceIterator<'surface_lifetime> {
 
 impl<'surface_lifetime> MutSurfaceIterator<'surface_lifetime> {
     pub fn new(surface: &'surface_lifetime mut Surface) -> Self {
-        Self {
-            surface,
-            pos: gfx::IntPos(0, 0),
-        }
+        Self { surface, pos: gfx::IntPos(0, 0) }
     }
 }
 

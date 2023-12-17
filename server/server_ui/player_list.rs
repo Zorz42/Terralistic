@@ -20,15 +20,9 @@ pub struct PlayerCard {
 }
 
 impl PlayerCard {
-    pub fn new(
-        graphics_context: &gfx::GraphicsContext,
-        name: String,
-        connection: SocketAddr,
-    ) -> Self {
+    pub fn new(graphics_context: &gfx::GraphicsContext, name: String, connection: SocketAddr) -> Self {
         let mut name_sprite = gfx::Sprite::new();
-        name_sprite.texture = gfx::Texture::load_from_surface(
-            &graphics_context.font.create_text_surface(&name, None),
-        );
+        name_sprite.texture = gfx::Texture::load_from_surface(&graphics_context.font.create_text_surface(&name, None));
         name_sprite.scale = SCALE;
         name_sprite.orientation = gfx::LEFT;
         name_sprite.color = gfx::WHITE;
@@ -38,25 +32,14 @@ impl PlayerCard {
             name_sprite,
             _name_string: name,
             connection,
-            container: gfx::Container::new(
-                graphics_context,
-                gfx::FloatPos(EDGE_SPACING, 0.0),
-                gfx::FloatSize(0.0, 0.0),
-                gfx::TOP_LEFT,
-                None,
-            ),
+            container: gfx::Container::new(graphics_context, gfx::FloatPos(EDGE_SPACING, 0.0), gfx::FloatSize(0.0, 0.0), gfx::TOP_LEFT, None),
             target_y: 0.0,
             timer: 0.0,
         }
     }
 
-    pub fn render(
-        &mut self,
-        graphics_context: &gfx::GraphicsContext,
-        parent_container: &gfx::Container,
-    ) {
-        self.container
-            .update(graphics_context, Some(parent_container));
+    pub fn render(&mut self, graphics_context: &gfx::GraphicsContext, parent_container: &gfx::Container) {
+        self.container.update(graphics_context, Some(parent_container));
 
         //background
         let mut rect = gfx::RenderRect::new(gfx::FloatPos(0.0, 0.0), self.container.rect.size);
@@ -64,8 +47,7 @@ impl PlayerCard {
         rect.render(graphics_context, Some(&self.container));
 
         //name of the player
-        self.name_sprite
-            .render(graphics_context, Some(&self.container), None);
+        self.name_sprite.render(graphics_context, Some(&self.container), None);
 
         //if the sprite just appeared, do a smooth fade in animation by overlaying a transparent rectangle
         if self.timer < 1.0 {
@@ -92,13 +74,7 @@ impl PlayerList {
     pub fn new(graphics_context: &gfx::GraphicsContext) -> Self {
         Self {
             player_cards: Vec::new(),
-            container: gfx::Container::new(
-                graphics_context,
-                gfx::FloatPos(EDGE_SPACING, 0.0),
-                gfx::FloatSize(0.0, 0.0),
-                gfx::TOP_LEFT,
-                None,
-            ),
+            container: gfx::Container::new(graphics_context, gfx::FloatPos(EDGE_SPACING, 0.0), gfx::FloatSize(0.0, 0.0), gfx::TOP_LEFT, None),
             enabled: false,
         }
     }
@@ -139,19 +115,11 @@ impl ui_manager::ModuleTrait for PlayerList {
         }
     }
 
-    fn on_server_message(
-        &mut self,
-        message: &UiMessageType,
-        graphics_context: &mut gfx::GraphicsContext,
-    ) {
+    fn on_server_message(&mut self, message: &UiMessageType, graphics_context: &mut gfx::GraphicsContext) {
         if let UiMessageType::PlayerEvent(event) = message {
             match event {
                 PlayerEventType::Join((name, connection)) => {
-                    self.player_cards.push(PlayerCard::new(
-                        graphics_context,
-                        name.clone(),
-                        *connection,
-                    ));
+                    self.player_cards.push(PlayerCard::new(graphics_context, name.clone(), *connection));
                     if let Some(card) = self.player_cards.last_mut() {
                         card.target_y = self.container.rect.size.1;
                         card.container.rect.pos.1 = card.target_y;

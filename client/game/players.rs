@@ -6,15 +6,11 @@ use crate::client::game::networking::ClientNetworking;
 use crate::libraries::events::Event;
 use crate::libraries::graphics as gfx;
 use crate::shared::blocks::{Blocks, BLOCK_WIDTH, RENDER_BLOCK_WIDTH, RENDER_SCALE};
-use crate::shared::entities::{
-    Entities, EntityDespawnEvent, HealthComponent, PhysicsComponent, PositionComponent,
-};
+use crate::shared::entities::{Entities, EntityDespawnEvent, HealthComponent, PhysicsComponent, PositionComponent};
 use crate::shared::mod_manager::ModManager;
 use crate::shared::packet::Packet;
 use crate::shared::players::{
-    spawn_player, update_players_ms, Direction, MovingType, PlayerComponent,
-    PlayerMovingPacketToClient, PlayerMovingPacketToServer, PlayerSpawnPacket, PLAYER_HEIGHT,
-    PLAYER_MAX_HEALTH, PLAYER_WIDTH,
+    spawn_player, update_players_ms, Direction, MovingType, PlayerComponent, PlayerMovingPacketToClient, PlayerMovingPacketToServer, PlayerSpawnPacket, PLAYER_HEIGHT, PLAYER_MAX_HEALTH, PLAYER_WIDTH,
 };
 
 pub struct ClientPlayers {
@@ -38,15 +34,11 @@ impl ClientPlayers {
 
     pub fn load_resources(&mut self, mods: &ModManager) -> Result<()> {
         let mut template_surface = gfx::Surface::deserialize_from_bytes(
-            mods.get_resource("misc:skin_template.opa").ok_or_else(|| {
-                anyhow::anyhow!("Failed to load misc:skin_template.opa from mod manager")
-            })?,
+            mods.get_resource("misc:skin_template.opa")
+                .ok_or_else(|| anyhow::anyhow!("Failed to load misc:skin_template.opa from mod manager"))?,
         )?;
 
-        let player_surface = gfx::Surface::deserialize_from_bytes(
-            mods.get_resource("misc:skin.opa")
-                .ok_or_else(|| anyhow::anyhow!("Failed to load misc:skin.opa from mod manager"))?,
-        )?;
+        let player_surface = gfx::Surface::deserialize_from_bytes(mods.get_resource("misc:skin.opa").ok_or_else(|| anyhow::anyhow!("Failed to load misc:skin.opa from mod manager"))?)?;
 
         for (_, color) in template_surface.iter_mut() {
             let x = color.r as i32 / 8;
@@ -60,10 +52,7 @@ impl ClientPlayers {
         Ok(())
     }
 
-    fn send_moving_state(
-        networking: &mut ClientNetworking,
-        player_component: &PlayerComponent,
-    ) -> Result<()> {
+    fn send_moving_state(networking: &mut ClientNetworking, player_component: &PlayerComponent) -> Result<()> {
         let packet = Packet::new(PlayerMovingPacketToServer {
             moving_type: player_component.get_moving_type(),
             jumping: player_component.jumping,
@@ -73,11 +62,7 @@ impl ClientPlayers {
         Ok(())
     }
 
-    fn set_jumping(
-        networking: &mut ClientNetworking,
-        player_component: &mut PlayerComponent,
-        jumping: bool,
-    ) -> Result<()> {
+    fn set_jumping(networking: &mut ClientNetworking, player_component: &mut PlayerComponent, jumping: bool) -> Result<()> {
         if jumping == player_component.jumping {
             return Ok(());
         }
@@ -89,12 +74,7 @@ impl ClientPlayers {
         Ok(())
     }
 
-    fn set_moving_type(
-        networking: &mut ClientNetworking,
-        moving_type: MovingType,
-        player_component: &mut PlayerComponent,
-        physics: &mut PhysicsComponent,
-    ) -> Result<()> {
+    fn set_moving_type(networking: &mut ClientNetworking, moving_type: MovingType, player_component: &mut PlayerComponent, physics: &mut PhysicsComponent) -> Result<()> {
         if moving_type == player_component.get_moving_type() {
             return Ok(());
         }
@@ -105,28 +85,13 @@ impl ClientPlayers {
         Ok(())
     }
 
-    pub fn update(
-        &mut self,
-        graphics: &gfx::GraphicsContext,
-        entities: &mut Entities,
-        networking: &mut ClientNetworking,
-        blocks: &Blocks,
-    ) -> Result<()> {
+    pub fn update(&mut self, graphics: &gfx::GraphicsContext, entities: &mut Entities, networking: &mut ClientNetworking, blocks: &Blocks) -> Result<()> {
         if let Some(main_player) = self.main_player {
-            if let Ok((physics, player_component)) = entities
-                .ecs
-                .query_one_mut::<(&mut PhysicsComponent, &mut PlayerComponent)>(main_player)
-            {
-                Self::set_jumping(
-                    networking,
-                    player_component,
-                    graphics.renderer.get_key_state(gfx::Key::Space) && self.controls_enabled,
-                )?;
+            if let Ok((physics, player_component)) = entities.ecs.query_one_mut::<(&mut PhysicsComponent, &mut PlayerComponent)>(main_player) {
+                Self::set_jumping(networking, player_component, graphics.renderer.get_key_state(gfx::Key::Space) && self.controls_enabled)?;
 
-                let key_a_pressed =
-                    graphics.renderer.get_key_state(gfx::Key::A) && self.controls_enabled;
-                let key_d_pressed =
-                    graphics.renderer.get_key_state(gfx::Key::D) && self.controls_enabled;
+                let key_a_pressed = graphics.renderer.get_key_state(gfx::Key::A) && self.controls_enabled;
+                let key_d_pressed = graphics.renderer.get_key_state(gfx::Key::D) && self.controls_enabled;
 
                 let moving_type = match (key_a_pressed, key_d_pressed) {
                     (true, false) => MovingType::MovingLeft,
@@ -143,26 +108,13 @@ impl ClientPlayers {
         Ok(())
     }
 
-    pub fn render(
-        &self,
-        graphics: &gfx::GraphicsContext,
-        entities: &mut Entities,
-        camera: &Camera,
-    ) {
-        for (_, (position, player_component)) in entities
-            .ecs
-            .query_mut::<(&PositionComponent, &PlayerComponent)>()
-        {
-            let x = position.x() * RENDER_BLOCK_WIDTH
-                - camera.get_top_left(graphics).0 * RENDER_BLOCK_WIDTH;
-            let y = position.y() * RENDER_BLOCK_WIDTH
-                - camera.get_top_left(graphics).1 * RENDER_BLOCK_WIDTH;
+    pub fn render(&self, graphics: &gfx::GraphicsContext, entities: &mut Entities, camera: &Camera) {
+        for (_, (position, player_component)) in entities.ecs.query_mut::<(&PositionComponent, &PlayerComponent)>() {
+            let x = position.x() * RENDER_BLOCK_WIDTH - camera.get_top_left(graphics).0 * RENDER_BLOCK_WIDTH;
+            let y = position.y() * RENDER_BLOCK_WIDTH - camera.get_top_left(graphics).1 * RENDER_BLOCK_WIDTH;
 
             let src_rect = gfx::Rect::new(
-                gfx::FloatPos(
-                    player_component.animation_frame as f32 * PLAYER_WIDTH * BLOCK_WIDTH,
-                    0.0,
-                ),
+                gfx::FloatPos(player_component.animation_frame as f32 * PLAYER_WIDTH * BLOCK_WIDTH, 0.0),
                 gfx::FloatSize(PLAYER_WIDTH * BLOCK_WIDTH, PLAYER_HEIGHT * BLOCK_WIDTH),
             );
 
@@ -171,45 +123,24 @@ impl ClientPlayers {
                 Direction::Right => false,
             };
 
-            self.player_texture.render(
-                &graphics.renderer,
-                RENDER_SCALE,
-                gfx::FloatPos(x.round(), y.round()),
-                Some(src_rect),
-                flipped,
-                None,
-            );
+            self.player_texture
+                .render(&graphics.renderer, RENDER_SCALE, gfx::FloatPos(x.round(), y.round()), Some(src_rect), flipped, None);
         }
     }
 
     pub fn on_event(&mut self, event: &Event, entities: &mut Entities) -> Result<()> {
         if let Some(packet_event) = event.downcast::<Packet>() {
             if let Some(packet) = packet_event.try_deserialize::<PlayerSpawnPacket>() {
-                let player = spawn_player(
-                    entities,
-                    packet.x,
-                    packet.y,
-                    &packet.name,
-                    packet.id,
-                    HealthComponent::new(PLAYER_MAX_HEALTH, PLAYER_MAX_HEALTH),
-                )?;
+                let player = spawn_player(entities, packet.x, packet.y, &packet.name, packet.id, HealthComponent::new(PLAYER_MAX_HEALTH, PLAYER_MAX_HEALTH))?;
                 if packet.name == self.main_player_name {
                     self.main_player = Some(player);
                     self.waiting_for_player = false;
                 }
-            } else if let Some(packet) =
-                packet_event.try_deserialize::<PlayerMovingPacketToClient>()
-            {
+            } else if let Some(packet) = packet_event.try_deserialize::<PlayerMovingPacketToClient>() {
                 let entity = entities.get_entity_from_id(packet.player_id)?;
-                let mut physics_component = entities
-                    .ecs
-                    .query_one::<&mut PhysicsComponent>(entity)?
-                    .get()
-                    .ok_or_else(|| anyhow!("unwrap failed"))?
-                    .clone();
+                let mut physics_component = entities.ecs.query_one::<&mut PhysicsComponent>(entity)?.get().ok_or_else(|| anyhow!("unwrap failed"))?.clone();
                 {
-                    let player_component =
-                        entities.ecs.query_one_mut::<&mut PlayerComponent>(entity)?;
+                    let player_component = entities.ecs.query_one_mut::<&mut PlayerComponent>(entity)?;
                     player_component.set_moving_type(packet.moving_type, &mut physics_component);
                     player_component.jumping = packet.jumping;
                 }

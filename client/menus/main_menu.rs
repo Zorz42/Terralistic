@@ -8,73 +8,54 @@ use super::background_rect::BackgroundRect;
 use super::{run_multiplayer_selector, run_singleplayer_selector};
 
 #[allow(clippy::too_many_lines)] // TODO: split this function up
-pub fn run_main_menu(
-    graphics: &mut gfx::GraphicsContext,
-    menu_back: &mut dyn BackgroundRect,
-    settings: &mut Settings,
-    global_settings: &mut GlobalSettings,
-) {
+pub fn run_main_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn BackgroundRect, settings: &mut Settings, global_settings: &mut GlobalSettings) {
     let mut singleplayer_button = gfx::Button::new();
     singleplayer_button.scale = 3.0;
-    singleplayer_button.texture =
-        gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Singleplayer", None));
+    singleplayer_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Singleplayer", None));
     singleplayer_button.orientation = gfx::CENTER;
 
     let mut multiplayer_button = gfx::Button::new();
     multiplayer_button.scale = 3.0;
-    multiplayer_button.texture =
-        gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Multiplayer", None));
+    multiplayer_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Multiplayer", None));
     multiplayer_button.orientation = gfx::CENTER;
 
     let mut settings_button = gfx::Button::new();
     settings_button.scale = 3.0;
-    settings_button.texture =
-        gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Settings", None));
+    settings_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Settings", None));
     settings_button.orientation = gfx::CENTER;
 
     let mut mods_button = gfx::Button::new();
     mods_button.scale = 3.0;
-    mods_button.texture =
-        gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Mods", None));
+    mods_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Mods", None));
     mods_button.orientation = gfx::CENTER;
 
     let mut exit_button = gfx::Button::new();
     exit_button.scale = 3.0;
-    exit_button.texture =
-        gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Exit", None));
+    exit_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Exit", None));
     exit_button.orientation = gfx::CENTER;
 
     let mut debug_title = gfx::Sprite::new();
-    debug_title.texture =
-        gfx::Texture::load_from_surface(&graphics.font.create_text_surface("DEBUG MODE", None));
+    debug_title.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("DEBUG MODE", None));
     debug_title.color = gfx::DARK_GREY;
     debug_title.orientation = gfx::TOP;
     debug_title.scale = 2.0;
     debug_title.pos.1 = gfx::SPACING / 4.0;
 
     let mut title = gfx::Sprite::new();
-    title.texture =
-        gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Terralistic", None));
+    title.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Terralistic", None));
     title.scale = 4.0;
     title.orientation = gfx::TOP;
     title.pos.1 = debug_title.pos.1 + debug_title.get_size().1 + gfx::SPACING / 2.0;
 
     let mut version = gfx::Sprite::new();
-    version.texture =
-        gfx::Texture::load_from_surface(&graphics.font.create_text_surface(VERSION, None));
+    version.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface(VERSION, None));
     version.color = gfx::GREY;
     version.orientation = gfx::BOTTOM;
     version.scale = 2.0;
     version.pos.1 = -5.0;
 
     {
-        let buttons = [
-            &mut singleplayer_button,
-            &mut multiplayer_button,
-            &mut settings_button,
-            &mut mods_button,
-            &mut exit_button,
-        ];
+        let buttons = [&mut singleplayer_button, &mut multiplayer_button, &mut settings_button, &mut mods_button, &mut exit_button];
 
         // buttons are on top of another on the center of the screen
         // their combined height is centered on the screen
@@ -106,24 +87,14 @@ pub fn run_main_menu(
             if let gfx::Event::KeyRelease(key, ..) = event {
                 // check for every button if it was clicked with the left mouse button
                 if key == gfx::Key::MouseLeft {
-                    if singleplayer_button
-                        .is_hovered(graphics, Some(menu_back.get_back_rect_container()))
-                    {
+                    if singleplayer_button.is_hovered(graphics, Some(menu_back.get_back_rect_container())) {
                         run_singleplayer_selector(graphics, menu_back, settings, global_settings);
-                    } else if multiplayer_button
-                        .is_hovered(graphics, Some(menu_back.get_back_rect_container()))
-                    {
+                    } else if multiplayer_button.is_hovered(graphics, Some(menu_back.get_back_rect_container())) {
                         run_multiplayer_selector(graphics, menu_back, settings, global_settings);
-                    } else if settings_button
-                        .is_hovered(graphics, Some(menu_back.get_back_rect_container()))
-                    {
+                    } else if settings_button.is_hovered(graphics, Some(menu_back.get_back_rect_container())) {
                         in_settings = true;
-                    } else if mods_button
-                        .is_hovered(graphics, Some(menu_back.get_back_rect_container()))
-                    {
-                    } else if exit_button
-                        .is_hovered(graphics, Some(menu_back.get_back_rect_container()))
-                    {
+                    } else if mods_button.is_hovered(graphics, Some(menu_back.get_back_rect_container())) {
+                    } else if exit_button.is_hovered(graphics, Some(menu_back.get_back_rect_container())) {
                         graphics.renderer.close_window();
                     }
                 }
@@ -139,13 +110,7 @@ pub fn run_main_menu(
             continue;
         }
 
-        let buttons = vec![
-            &mut singleplayer_button,
-            &mut multiplayer_button,
-            &mut settings_button,
-            &mut mods_button,
-            &mut exit_button,
-        ];
+        let buttons = vec![&mut singleplayer_button, &mut multiplayer_button, &mut settings_button, &mut mods_button, &mut exit_button];
         // get maximum width of all buttons and set background width to that
         let mut max_width = 0.0;
         for button in &buttons {

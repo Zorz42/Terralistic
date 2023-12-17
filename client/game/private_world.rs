@@ -13,13 +13,7 @@ use crate::libraries::graphics as gfx;
 use crate::server::server_core::Server;
 use crate::server::server_core::SINGLEPLAYER_PORT;
 
-pub fn run_private_world(
-    graphics: &mut gfx::GraphicsContext,
-    menu_back: &mut dyn BackgroundRect,
-    world_path: &Path,
-    settings: &mut Settings,
-    global_settings: &mut GlobalSettings,
-) -> Result<()> {
+pub fn run_private_world(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn BackgroundRect, world_path: &Path, settings: &mut Settings, global_settings: &mut GlobalSettings) -> Result<()> {
     let server_running = Arc::new(AtomicBool::new(true));
     let server_running2 = server_running.clone();
 
@@ -30,18 +24,10 @@ pub fn run_private_world(
     let world_path = world_path.to_path_buf();
     let server_thread = std::thread::spawn(move || {
         let mut server = Server::new(SINGLEPLAYER_PORT, None, None);
-        let result = server.run(
-            &server_running2,
-            &loading_text2,
-            vec![include_bytes!("../../base_game/base_game.mod").to_vec()],
-            &world_path,
-        );
+        let result = server.run(&server_running2, &loading_text2, vec![include_bytes!("../../base_game/base_game.mod").to_vec()], &world_path);
 
         if result.is_err() {
-            loading_text2
-                .lock()
-                .unwrap_or_else(PoisonError::into_inner)
-                .clear();
+            loading_text2.lock().unwrap_or_else(PoisonError::into_inner).clear();
             server_running2.store(false, Ordering::Relaxed);
         }
 
@@ -51,21 +37,12 @@ pub fn run_private_world(
     run_loading_screen(graphics, menu_back, &loading_text);
 
     if server_running.load(Ordering::Relaxed) {
-        run_game(
-            graphics,
-            menu_back,
-            SINGLEPLAYER_PORT,
-            String::from("127.0.0.1"),
-            "_",
-            settings,
-            global_settings,
-        )?;
+        run_game(graphics, menu_back, SINGLEPLAYER_PORT, String::from("127.0.0.1"), "_", settings, global_settings)?;
 
         // stop server
         server_running.store(false, Ordering::Relaxed);
 
-        *loading_text.lock().unwrap_or_else(PoisonError::into_inner) =
-            "Waiting for server".to_owned();
+        *loading_text.lock().unwrap_or_else(PoisonError::into_inner) = "Waiting for server".to_owned();
         run_loading_screen(graphics, menu_back, &loading_text);
     }
 

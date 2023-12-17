@@ -19,45 +19,26 @@ fn world_name_exists(worlds_list: &Vec<World>, name: &str) -> bool {
 
 /// this function runs the world creation menu.
 #[allow(clippy::too_many_lines)] // TODO: reduce the number of lines in this function
-pub fn run_world_creation(
-    graphics: &mut gfx::GraphicsContext,
-    menu_back: &mut dyn BackgroundRect,
-    worlds_list: &Vec<World>,
-    settings: &mut Settings,
-    global_settings: &mut GlobalSettings,
-) {
+pub fn run_world_creation(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn BackgroundRect, worlds_list: &Vec<World>, settings: &mut Settings, global_settings: &mut GlobalSettings) {
     let mut title = gfx::Sprite::new();
     title.scale = 3.0;
-    title.texture = gfx::Texture::load_from_surface(
-        &graphics
-            .font
-            .create_text_surface("Create a new world:", None),
-    );
+    title.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Create a new world:", None));
     title.pos.1 = gfx::SPACING;
     title.orientation = gfx::TOP;
 
-    let mut buttons_container = gfx::Container::new(
-        graphics,
-        gfx::FloatPos(0.0, 0.0),
-        gfx::FloatSize(0.0, 0.0),
-        gfx::BOTTOM,
-        None,
-    );
+    let mut buttons_container = gfx::Container::new(graphics, gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, 0.0), gfx::BOTTOM, None);
 
     let mut back_button = gfx::Button::new();
     back_button.scale = 3.0;
-    back_button.texture =
-        gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Back", None));
+    back_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Back", None));
 
     let mut create_button = gfx::Button::new();
     create_button.scale = 3.0;
     create_button.darken_on_disabled = true;
-    create_button.texture =
-        gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Create world", None));
+    create_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Create world", None));
     create_button.pos.0 = back_button.get_size().0 + gfx::SPACING;
 
-    buttons_container.rect.size.0 =
-        back_button.get_size().0 + create_button.get_size().0 + gfx::SPACING;
+    buttons_container.rect.size.0 = back_button.get_size().0 + create_button.get_size().0 + gfx::SPACING;
     buttons_container.rect.size.1 = back_button.get_size().1;
     buttons_container.rect.pos.1 = -gfx::SPACING;
 
@@ -97,14 +78,9 @@ pub fn run_world_creation(
             return;
         };
 
-        let world_path = base_dirs
-            .data_dir()
-            .join("Terralistic")
-            .join("Worlds")
-            .join(world_name_input.get_text().clone() + ".world");
+        let world_path = base_dirs.data_dir().join("Terralistic").join("Worlds").join(world_name_input.get_text().clone() + ".world");
 
-        create_button.disabled = world_name_exists(worlds_list, world_name_input.get_text())
-            || world_name_input.get_text().is_empty();
+        create_button.disabled = world_name_exists(worlds_list, world_name_input.get_text()) || world_name_input.get_text().is_empty();
 
         while let Some(event) = graphics.renderer.get_event() {
             //sorts out the events
@@ -117,13 +93,7 @@ pub fn run_world_creation(
                             break 'render_loop;
                         }
                         if create_button.is_hovered(graphics, Some(&buttons_container)) {
-                            let game_result = run_private_world(
-                                graphics,
-                                menu_back,
-                                &world_path,
-                                settings,
-                                global_settings,
-                            );
+                            let game_result = run_private_world(graphics, menu_back, &world_path, settings, global_settings);
                             if let Err(error) = game_result {
                                 println!("Game error: {error}");
                             }
@@ -140,13 +110,7 @@ pub fn run_world_creation(
                     }
                     gfx::Key::Enter => {
                         if !create_button.disabled {
-                            let game_result = run_private_world(
-                                graphics,
-                                menu_back,
-                                &world_path,
-                                settings,
-                                global_settings,
-                            );
+                            let game_result = run_private_world(graphics, menu_back, &world_path, settings, global_settings);
                             if let Err(error) = game_result {
                                 println!("Game error: {error}");
                             }

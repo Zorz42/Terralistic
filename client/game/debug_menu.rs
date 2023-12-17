@@ -30,11 +30,7 @@ impl DebugMenu {
     }
 
     pub fn render(&mut self, graphics: &gfx::GraphicsContext, lines: &[String]) {
-        self.back_rect.pos.0 = if self.open {
-            -gfx::SPACING
-        } else {
-            self.back_rect.size.0 + 100.0
-        };
+        self.back_rect.pos.0 = if self.open { -gfx::SPACING } else { self.back_rect.size.0 + 100.0 };
         self.back_rect.render(graphics, None);
 
         if self.is_visible(graphics) {
@@ -59,10 +55,7 @@ impl DebugMenu {
                 graphics.font.render_text(
                     graphics,
                     line,
-                    gfx::FloatPos(
-                        debug_menu_rect_container.pos.0 + gfx::SPACING,
-                        debug_menu_rect_container.pos.1 + y,
-                    ),
+                    gfx::FloatPos(debug_menu_rect_container.pos.0 + gfx::SPACING, debug_menu_rect_container.pos.1 + y),
                     scale,
                 );
 
@@ -73,16 +66,12 @@ impl DebugMenu {
     }
 
     pub fn on_event(&mut self, event: &Event) {
-        if matches!(
-            event.downcast::<gfx::Event>(),
-            Some(gfx::Event::KeyPress(gfx::Key::M, false))
-        ) {
+        if matches!(event.downcast::<gfx::Event>(), Some(gfx::Event::KeyPress(gfx::Key::M, false))) {
             self.open = !self.open;
         }
     }
 
     fn is_visible(&self, graphics: &gfx::GraphicsContext) -> bool {
-        (self.back_rect.get_container(graphics, None).rect.pos.0 as i32)
-            < (graphics.renderer.get_window_size().0 as i32)
+        (self.back_rect.get_container(graphics, None).rect.pos.0 as i32) < (graphics.renderer.get_window_size().0 as i32)
     }
 }

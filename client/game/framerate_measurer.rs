@@ -56,10 +56,7 @@ impl FramerateMeasurer {
     pub fn update_post_render(&mut self) {
         self.fps_counter += 1;
         self.frame_time_counter += self.prev_time.elapsed().as_secs_f32() * 1000.0;
-        self.max_frame_time = f32::max(
-            self.max_frame_time,
-            self.prev_time.elapsed().as_secs_f32() * 1000.0,
-        );
+        self.max_frame_time = f32::max(self.max_frame_time, self.prev_time.elapsed().as_secs_f32() * 1000.0);
     }
 
     pub fn has_5ms_passed(&mut self) -> bool {

@@ -33,10 +33,7 @@ pub struct ItemStack {
 impl ItemStack {
     #[must_use]
     pub const fn new(item_type: ItemId, stack: i32) -> Self {
-        Self {
-            item: item_type,
-            count: stack,
-        }
+        Self { item: item_type, count: stack }
     }
 }
 
@@ -107,20 +104,8 @@ impl Items {
     }
 
     /// this function spawns an item into the world
-    pub fn spawn_item(
-        &mut self,
-        events: &mut EventManager,
-        entities: &mut Entities,
-        item_id: ItemId,
-        x: f32,
-        y: f32,
-        id: EntityId,
-    ) -> Result<Entity> {
-        let entity = entities.ecs.spawn((
-            PositionComponent::new(x, y),
-            PhysicsComponent::new(1.0, 1.0),
-            ItemComponent::new(item_id),
-        ));
+    pub fn spawn_item(&mut self, events: &mut EventManager, entities: &mut Entities, item_id: ItemId, x: f32, y: f32, id: EntityId) -> Result<Entity> {
+        let entity = entities.ecs.spawn((PositionComponent::new(x, y), PhysicsComponent::new(1.0, 1.0), ItemComponent::new(item_id)));
 
         entities.assign_id(entity, id)?;
 
@@ -131,14 +116,7 @@ impl Items {
     }
 
     /// spawns an item with random velocity
-    pub fn drop_item(
-        &mut self,
-        events: &mut EventManager,
-        entities: &mut Entities,
-        item: ItemId,
-        x: f32,
-        y: f32,
-    ) -> Result<()> {
+    pub fn drop_item(&mut self, events: &mut EventManager, entities: &mut Entities, item: ItemId, x: f32, y: f32) -> Result<()> {
         let id = entities.new_id();
         let entity = self.spawn_item(events, entities, item, x, y, id)?;
         let velocity_x = rand::random::<f32>() * 2.0 * VELOCITY_RANGE - VELOCITY_RANGE;
@@ -162,11 +140,7 @@ impl Items {
 
     /// this function returns the item type with the given id
     pub fn get_item_type(&self, id: ItemId) -> Result<Item> {
-        Ok(self
-            .item_types
-            .get(id.id as usize)
-            .ok_or_else(|| anyhow!("item type not found"))?
-            .clone())
+        Ok(self.item_types.get(id.id as usize).ok_or_else(|| anyhow!("item type not found"))?.clone())
     }
 
     /// this function returns the item type with the given name
@@ -192,11 +166,7 @@ impl Items {
 
     /// this function returns the block drop for the given block type
     pub fn get_block_drop(&self, block_type: BlockId) -> Result<TileDrop> {
-        Ok(self
-            .block_drops
-            .get(&block_type)
-            .ok_or_else(|| anyhow!("block drop not found"))?
-            .clone())
+        Ok(self.block_drops.get(&block_type).ok_or_else(|| anyhow!("block drop not found"))?.clone())
     }
 
     /// this function sets the wall drop for the given wall type
@@ -206,9 +176,7 @@ impl Items {
 
     /// this function returns the wall drop for the given wall type
     pub fn get_wall_drop(&self, wall_type: WallId) -> Result<&TileDrop> {
-        self.wall_drops
-            .get(&wall_type)
-            .ok_or_else(|| anyhow!("wall drop not found"))
+        self.wall_drops.get(&wall_type).ok_or_else(|| anyhow!("wall drop not found"))
     }
 
     #[must_use]
@@ -221,9 +189,7 @@ impl Items {
     }
 
     pub fn add_recipe(&mut self, mut recipe: Recipe) {
-        recipe.id = RecipeId {
-            id: self.recipes.len() as i32,
-        };
+        recipe.id = RecipeId { id: self.recipes.len() as i32 };
         self.recipes.push(recipe);
     }
 
@@ -234,9 +200,7 @@ impl Items {
 
     /// this function returns the recipe with the given id
     pub fn get_recipe(&self, id: RecipeId) -> Result<&Recipe> {
-        self.recipes
-            .get(id.id as usize)
-            .ok_or_else(|| anyhow!("recipe not found"))
+        self.recipes.get(id.id as usize).ok_or_else(|| anyhow!("recipe not found"))
     }
 }
 

@@ -63,28 +63,17 @@ impl Blocks {
 
     /// Gets the break stage of a block, which is usually rendered.
     pub fn get_break_stage(&self, x: i32, y: i32) -> Result<i32> {
-        Ok((self.get_break_progress(x, y)? as f32
-            / self.get_block_type_at(x, y)?.break_time.unwrap_or(0) as f32
-            * 8.0) as i32)
+        Ok((self.get_break_progress(x, y)? as f32 / self.get_block_type_at(x, y)?.break_time.unwrap_or(0) as f32 * 8.0) as i32)
     }
 
     /// Adds a block to the breaking list, which means that the block is being broken.
-    pub fn start_breaking_block(
-        &mut self,
-        events: &mut EventManager,
-        x: i32,
-        y: i32,
-        tool: Option<ToolId>,
-        tool_power: i32,
-    ) -> Result<()> {
+    pub fn start_breaking_block(&mut self, events: &mut EventManager, x: i32, y: i32, tool: Option<ToolId>, tool_power: i32) -> Result<()> {
         if self.get_block_type_at(x, y)?.break_time.is_none() {
             return Ok(());
         }
 
         if let Some(effective_tool) = self.get_block_type_at(x, y)?.effective_tool {
-            if Some(effective_tool) != tool
-                || self.get_block_type_at(x, y)?.required_tool_power > tool_power
-            {
+            if Some(effective_tool) != tool || self.get_block_type_at(x, y)?.required_tool_power > tool_power {
                 return Ok(());
             }
         }
@@ -103,20 +92,13 @@ impl Blocks {
             } else {
                 let new_breaking_block = BreakingBlock::new((x, y));
                 self.breaking_blocks.push(new_breaking_block);
-                self.breaking_blocks
-                    .last_mut()
-                    .ok_or_else(|| anyhow!("Failed to get last breaking block!"))?
+                self.breaking_blocks.last_mut().ok_or_else(|| anyhow!("Failed to get last breaking block!"))?
             }
         };
 
         breaking_block.is_breaking = true;
 
-        let event = BlockStartedBreakingEvent {
-            x,
-            y,
-            tool,
-            tool_power,
-        };
+        let event = BlockStartedBreakingEvent { x, y, tool, tool_power };
         events.push_event(Event::new(event));
 
         Ok(())
@@ -138,11 +120,7 @@ impl Blocks {
     }
 
     /// Updates the breaking progress of all blocks that are being broken.
-    pub fn update_breaking_blocks(
-        &mut self,
-        events: &mut EventManager,
-        frame_length: f32,
-    ) -> Result<()> {
+    pub fn update_breaking_blocks(&mut self, events: &mut EventManager, frame_length: f32) -> Result<()> {
         for breaking_block in &mut self.breaking_blocks {
             if breaking_block.is_breaking {
                 breaking_block.break_progress += frame_length as i32;
@@ -151,12 +129,7 @@ impl Blocks {
 
         let mut broken_blocks = Vec::new();
         for breaking_block in &self.breaking_blocks {
-            if breaking_block.break_progress
-                > self
-                    .get_block_type_at(breaking_block.get_coord().0, breaking_block.get_coord().1)?
-                    .break_time
-                    .unwrap_or(1)
-            {
+            if breaking_block.break_progress > self.get_block_type_at(breaking_block.get_coord().0, breaking_block.get_coord().1)?.break_time.unwrap_or(1) {
                 broken_blocks.push(breaking_block.get_coord());
             }
         }
@@ -164,8 +137,7 @@ impl Blocks {
         for broken_block in &broken_blocks {
             self.break_block(events, broken_block.0, broken_block.1)?;
 
-            self.breaking_blocks
-                .retain(|breaking_block| breaking_block.get_coord() != *broken_block);
+            self.breaking_blocks.retain(|breaking_block| breaking_block.get_coord() != *broken_block);
         }
 
         Ok(())

@@ -45,10 +45,7 @@ impl Settings {
     pub fn new(config_path: PathBuf) -> Self {
         let data = fs::read_to_string(config_path.clone());
 
-        let config_data: HashMap<String, i32> = data.map_or_else(
-            |_| HashMap::new(),
-            |data| serde_json::from_str(&data).unwrap_or_default(),
-        );
+        let config_data: HashMap<String, i32> = data.map_or_else(|_| HashMap::new(), |data| serde_json::from_str(&data).unwrap_or_default());
         Self {
             settings: HashMap::new(),
             config_path,
@@ -60,9 +57,7 @@ impl Settings {
     /// Adds a new setting, returns the id of the setting.
     pub fn register_setting(&mut self, mut setting: Setting) -> i32 {
         let config_label = match setting.clone() {
-            Setting::Toggle { config_label, .. }
-            | Setting::Choice { config_label, .. }
-            | Setting::Slider { config_label, .. } => config_label,
+            Setting::Toggle { config_label, .. } | Setting::Choice { config_label, .. } | Setting::Slider { config_label, .. } => config_label,
         };
 
         if let Some(config_value) = self.config_data.get(&config_label) {
@@ -74,18 +69,11 @@ impl Settings {
                 Setting::Choice { selected, .. } => {
                     *selected = config_value;
                 }
-                Setting::Slider {
-                    selected,
-                    choices,
-                    lower_limit,
-                    ..
-                } => {
+                Setting::Slider { selected, choices, lower_limit, .. } => {
                     if config_value < choices.len() as i32 {
                         *selected = SliderSelection::Choice(config_value);
                     } else {
-                        *selected = SliderSelection::Slider(
-                            config_value - choices.len() as i32 + *lower_limit,
-                        );
+                        *selected = SliderSelection::Slider(config_value - choices.len() as i32 + *lower_limit);
                     }
                 }
             }
@@ -101,17 +89,9 @@ impl Settings {
 
         if let Some(setting) = setting {
             let (config_label, value) = match setting {
-                Setting::Toggle {
-                    config_label,
-                    toggled,
-                    ..
-                } => (config_label.clone(), i32::from(*toggled)),
+                Setting::Toggle { config_label, toggled, .. } => (config_label.clone(), i32::from(*toggled)),
 
-                Setting::Choice {
-                    config_label,
-                    selected,
-                    ..
-                } => (config_label.clone(), *selected),
+                Setting::Choice { config_label, selected, .. } => (config_label.clone(), *selected),
 
                 Setting::Slider {
                     config_label,
@@ -121,9 +101,7 @@ impl Settings {
                     ..
                 } => {
                     let val = match selected {
-                        SliderSelection::Slider(value) => {
-                            *value + choices.len() as i32 - *lower_limit
-                        }
+                        SliderSelection::Slider(value) => *value + choices.len() as i32 - *lower_limit,
 
                         SliderSelection::Choice(value) => *value,
                     };
@@ -142,17 +120,11 @@ impl Settings {
     }
 
     pub fn get_setting_mut(&mut self, id: i32) -> Result<&mut Setting> {
-        return self
-            .settings
-            .get_mut(&id)
-            .ok_or_else(|| anyhow!("Invalid setting id"));
+        return self.settings.get_mut(&id).ok_or_else(|| anyhow!("Invalid setting id"));
     }
 
     pub fn get_setting(&self, id: i32) -> Result<&Setting> {
-        return self
-            .settings
-            .get(&id)
-            .ok_or_else(|| anyhow!("Invalid setting id"));
+        return self.settings.get(&id).ok_or_else(|| anyhow!("Invalid setting id"));
     }
 
     pub fn save_config(&mut self) -> Result<()> {

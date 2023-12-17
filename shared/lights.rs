@@ -88,16 +88,12 @@ impl Lights {
 
     /// returns the light at the given coordinate
     pub fn get_light(&self, x: i32, y: i32) -> Result<&Light> {
-        self.lights
-            .get(self.map.translate_coords(x, y)?)
-            .ok_or_else(|| anyhow!("Light not found! x: {}, y: {}", x, y))
+        self.lights.get(self.map.translate_coords(x, y)?).ok_or_else(|| anyhow!("Light not found! x: {}, y: {}", x, y))
     }
 
     /// returns mutable light at the given coordinate
     fn get_light_mut(&mut self, x: i32, y: i32) -> Result<&mut Light> {
-        self.lights
-            .get_mut(self.map.translate_coords(x, y)?)
-            .ok_or_else(|| anyhow!("Light not found! x: {}, y: {}", x, y))
+        self.lights.get_mut(self.map.translate_coords(x, y)?).ok_or_else(|| anyhow!("Light not found! x: {}, y: {}", x, y))
     }
 
     /// returns the light chunk at the given coordinate
@@ -130,10 +126,7 @@ impl Lights {
     /// creates an empty light vector
     pub fn create(&mut self, width: u32, height: u32) {
         self.lights = vec![Light::new(); (width * height) as usize];
-        self.light_chunks = vec![
-            LightChunk::new();
-            (width as i32 / CHUNK_SIZE * height as i32 / CHUNK_SIZE) as usize
-        ];
+        self.light_chunks = vec![LightChunk::new(); (width as i32 / CHUNK_SIZE * height as i32 / CHUNK_SIZE) as usize];
         self.map = WorldMap::new(width, height);
         self.sky_heights = vec![-1; width as usize];
     }
@@ -143,10 +136,7 @@ impl Lights {
         for x in 0..self.map.get_width() {
             for y in 0..self.map.get_height() {
                 if blocks.get_block_type_at(x as i32, y as i32)?.transparent {
-                    *self
-                        .sky_heights
-                        .get_mut(x as usize)
-                        .ok_or_else(|| anyhow!("sky_heights out of bounds"))? = y as i32;
+                    *self.sky_heights.get_mut(x as usize).ok_or_else(|| anyhow!("sky_heights out of bounds"))? = y as i32;
                 } else {
                     break;
                 }
@@ -159,8 +149,7 @@ impl Lights {
     pub fn update_light(&mut self, x: i32, y: i32, blocks: &Blocks) -> Result<()> {
         if self.get_light_mut(x, y)?.scheduled_light_update {
             self.get_light_mut(x, y)?.scheduled_light_update = false;
-            self.get_light_chunk_mut(x / CHUNK_SIZE, y / CHUNK_SIZE)?
-                .scheduled_light_update_count -= 1;
+            self.get_light_chunk_mut(x / CHUNK_SIZE, y / CHUNK_SIZE)?.scheduled_light_update_count -= 1;
         }
         self.update_light_emitter(x, y, blocks)?;
 
@@ -187,21 +176,11 @@ impl Lights {
         let mut color_to_be = LightColor::new(0, 0, 0);
         for neighbour in neighbours {
             if neighbour[0] != -1 {
-                let light_step = if blocks
-                    .get_block_type_at(neighbour[0], neighbour[1])?
-                    .transparent
-                {
-                    0.95
-                } else {
-                    0.7
-                };
+                let light_step = if blocks.get_block_type_at(neighbour[0], neighbour[1])?.transparent { 0.95 } else { 0.7 };
 
-                let r = (self.get_light(neighbour[0], neighbour[1])?.color.r as f32 * light_step)
-                    .floor() as u8;
-                let g = (self.get_light(neighbour[0], neighbour[1])?.color.g as f32 * light_step)
-                    .floor() as u8;
-                let b = (self.get_light(neighbour[0], neighbour[1])?.color.b as f32 * light_step)
-                    .floor() as u8;
+                let r = (self.get_light(neighbour[0], neighbour[1])?.color.r as f32 * light_step).floor() as u8;
+                let g = (self.get_light(neighbour[0], neighbour[1])?.color.g as f32 * light_step).floor() as u8;
+                let b = (self.get_light(neighbour[0], neighbour[1])?.color.b as f32 * light_step).floor() as u8;
 
                 if r > color_to_be.r {
                     color_to_be.r = r;
@@ -242,8 +221,7 @@ impl Lights {
     pub fn schedule_light_update(&mut self, x: i32, y: i32) -> Result<()> {
         if !self.get_light_mut(x, y)?.scheduled_light_update {
             self.get_light_mut(x, y)?.scheduled_light_update = true;
-            self.get_light_chunk_mut(x / CHUNK_SIZE, y / CHUNK_SIZE)?
-                .scheduled_light_update_count += 1;
+            self.get_light_chunk_mut(x / CHUNK_SIZE, y / CHUNK_SIZE)?.scheduled_light_update_count += 1;
         }
         Ok(())
     }
@@ -271,11 +249,7 @@ impl Lights {
             light_emission_b = u8::max(light_emission_b, 255);
         }
 
-        self.set_light_source(
-            x,
-            y,
-            LightColor::new(light_emission_r, light_emission_g, light_emission_b),
-        )?;
+        self.set_light_source(x, y, LightColor::new(light_emission_r, light_emission_g, light_emission_b))?;
         Ok(())
     }
 
@@ -284,29 +258,15 @@ impl Lights {
             let curr_block_transparent = blocks.get_block_type_at(event.x, event.y)?.transparent;
             let prev_block_transparent = blocks.get_block_type(event.prev_block)?.transparent;
 
-            if curr_block_transparent
-                && !prev_block_transparent
-                && *self.sky_heights.get(event.x as usize).unwrap_or(&0) == event.y - 1
-            {
+            if curr_block_transparent && !prev_block_transparent && *self.sky_heights.get(event.x as usize).unwrap_or(&0) == event.y - 1 {
                 let mut sky_height = event.y;
-                while sky_height < self.get_height() as i32
-                    && blocks.get_block_type_at(event.x, sky_height)?.transparent
-                {
+                while sky_height < self.get_height() as i32 && blocks.get_block_type_at(event.x, sky_height)?.transparent {
                     sky_height += 1;
                 }
 
-                *self
-                    .sky_heights
-                    .get_mut(event.x as usize)
-                    .ok_or_else(|| anyhow!("sky_heights out of bounds"))? = sky_height - 1;
-            } else if !curr_block_transparent
-                && prev_block_transparent
-                && *self.sky_heights.get(event.x as usize).unwrap_or(&0) >= event.y
-            {
-                *self
-                    .sky_heights
-                    .get_mut(event.x as usize)
-                    .ok_or_else(|| anyhow!("sky_heights out of bounds"))? = event.y - 1;
+                *self.sky_heights.get_mut(event.x as usize).ok_or_else(|| anyhow!("sky_heights out of bounds"))? = sky_height - 1;
+            } else if !curr_block_transparent && prev_block_transparent && *self.sky_heights.get(event.x as usize).unwrap_or(&0) >= event.y {
+                *self.sky_heights.get_mut(event.x as usize).ok_or_else(|| anyhow!("sky_heights out of bounds"))? = event.y - 1;
             }
 
             self.schedule_light_update_for_neighbours(event.x, event.y);

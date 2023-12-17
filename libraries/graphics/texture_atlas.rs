@@ -40,18 +40,10 @@ impl<KeyType: Eq + Hash + Clone> TextureAtlas<KeyType> {
 
         let mut x = 0;
         for (key, surface) in surfaces {
-            rects.insert(
-                key.clone(),
-                Rect::new(
-                    gfx::FloatPos(x as f32, 0.0),
-                    gfx::FloatSize::from(surface.get_size()),
-                ),
-            );
-            main_surface
-                .draw(gfx::IntPos(x, 0), surface, Color::new(255, 255, 255, 255))
-                .unwrap_or_else(|e| {
-                    println!("Failed to draw surface to main surface (unreachable) {e}");
-                });
+            rects.insert(key.clone(), Rect::new(gfx::FloatPos(x as f32, 0.0), gfx::FloatSize::from(surface.get_size())));
+            main_surface.draw(gfx::IntPos(x, 0), surface, Color::new(255, 255, 255, 255)).unwrap_or_else(|e| {
+                println!("Failed to draw surface to main surface (unreachable) {e}");
+            });
             x += surface.get_size().0 as i32;
         }
 

@@ -9,14 +9,7 @@ use super::ui_manager;
 fn format_timestamp(message: &String) -> String {
     let timestamp = chrono::Local::now().naive_local().timestamp();
     let timestamp = chrono::NaiveDateTime::from_timestamp_opt(timestamp, 0);
-    format!(
-        "[{}] {}",
-        timestamp.map_or_else(
-            || "???".to_owned(),
-            |time| time.format("%m-%d %H:%M:%S").to_string(),
-        ),
-        message
-    )
+    format!("[{}] {}", timestamp.map_or_else(|| "???".to_owned(), |time| time.format("%m-%d %H:%M:%S").to_string(),), message)
 }
 
 pub struct ConsoleLine {
@@ -28,19 +21,13 @@ pub struct ConsoleLine {
 impl ConsoleLine {
     pub fn new(graphics_context: &gfx::GraphicsContext, text: String) -> Self {
         let mut sprite = gfx::Sprite::new();
-        let font = graphics_context
-            .font_mono
-            .as_ref()
-            .map_or(&graphics_context.font, |mono_font| mono_font);
+        let font = graphics_context.font_mono.as_ref().map_or(&graphics_context.font, |mono_font| mono_font);
         sprite.texture = gfx::Texture::load_from_surface(&font.create_text_surface(&text, None));
         sprite.orientation = gfx::BOTTOM_LEFT;
         sprite.color = gfx::WHITE;
         sprite.pos = gfx::FloatPos(gfx::SPACING / 3.0, 0.0);
 
-        Self {
-            _text: text,
-            sprite,
-        }
+        Self { _text: text, sprite }
     }
 
     pub fn render(
@@ -52,21 +39,15 @@ impl ConsoleLine {
         min_y: f32,
     ) {
         if self.sprite.pos.1 - self.sprite.texture.get_texture_size().1 < max_y {
-            let top_crop = (min_y - self.sprite.pos.1 - self.sprite.texture.get_texture_size().1)
-                .clamp(0.0, self.sprite.texture.get_texture_size().1);
-            let bottom_crop =
-                (self.sprite.pos.1 - max_y).clamp(0.0, self.sprite.texture.get_texture_size().1);
+            let top_crop = (min_y - self.sprite.pos.1 - self.sprite.texture.get_texture_size().1).clamp(0.0, self.sprite.texture.get_texture_size().1);
+            let bottom_crop = (self.sprite.pos.1 - max_y).clamp(0.0, self.sprite.texture.get_texture_size().1);
             let src_rect = Some(gfx::Rect::new(
                 gfx::FloatPos(0.0, top_crop),
-                gfx::FloatSize(
-                    self.sprite.texture.get_texture_size().0,
-                    self.sprite.texture.get_texture_size().1 - top_crop - bottom_crop,
-                ),
+                gfx::FloatSize(self.sprite.texture.get_texture_size().0, self.sprite.texture.get_texture_size().1 - top_crop - bottom_crop),
             ));
             container.rect.pos.1 -= bottom_crop;
             container.update(graphics_context, None);
-            self.sprite
-                .render(graphics_context, Some(container), src_rect);
+            self.sprite.render(graphics_context, Some(container), src_rect);
             container.rect.pos.1 += bottom_crop;
             container.update(graphics_context, None);
         }
@@ -86,13 +67,7 @@ impl Console {
     pub fn new(graphics_context: &gfx::GraphicsContext) -> Self {
         Self {
             text_lines: Vec::new(),
-            container: gfx::Container::new(
-                graphics_context,
-                gfx::FloatPos(0.0, 0.0),
-                gfx::FloatSize(0.0, 0.0),
-                gfx::TOP_LEFT,
-                None,
-            ),
+            container: gfx::Container::new(graphics_context, gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, 0.0), gfx::TOP_LEFT, None),
             sender: None,
             input: gfx::TextInput::new(graphics_context),
             scroll: 0.0,
@@ -100,12 +75,7 @@ impl Console {
         }
     }
 
-    fn add_line(
-        &mut self,
-        message: String,
-        graphics_context: &gfx::GraphicsContext,
-        color: gfx::Color,
-    ) {
+    fn add_line(&mut self, message: String, graphics_context: &gfx::GraphicsContext, color: gfx::Color) {
         //add a line
         let mut line = ConsoleLine::new(graphics_context, message);
         line.sprite.color = color;
@@ -138,8 +108,7 @@ impl ui_manager::ModuleTrait for Console {
     }
 
     fn update(&mut self, _delta_time: f32, _graphics_context: &mut gfx::GraphicsContext) {
-        self.input.width =
-            self.container.rect.size.0 / self.input.scale - EDGE_SPACING * 2.0 / self.input.scale;
+        self.input.width = self.container.rect.size.0 / self.input.scale - EDGE_SPACING * 2.0 / self.input.scale;
     }
 
     fn render(&mut self, graphics_context: &mut gfx::GraphicsContext) {
@@ -151,11 +120,7 @@ impl ui_manager::ModuleTrait for Console {
         self.input.render(graphics_context, Some(&self.container));
     }
 
-    fn on_server_message(
-        &mut self,
-        message: &UiMessageType,
-        graphics_context: &mut gfx::GraphicsContext,
-    ) {
+    fn on_server_message(&mut self, message: &UiMessageType, graphics_context: &mut gfx::GraphicsContext) {
         if let UiMessageType::SrvToUiConsoleMessage(message) = message {
             //extract the string from the message enum and color the sprite
             let mut color = gfx::Color::new(200, 200, 200, 255);
@@ -188,15 +153,11 @@ impl ui_manager::ModuleTrait for Console {
     }
 
     fn on_event(&mut self, event: &gfx::Event, graphics_context: &mut gfx::GraphicsContext) {
-        self.input
-            .on_event(event, graphics_context, Some(&self.container));
+        self.input.on_event(event, graphics_context, Some(&self.container));
         match event {
             //move the view on mouse scroll
             gfx::Event::MouseScroll(scroll) => {
-                let offset = self.text_lines.first().map_or_else(
-                    || 0.0,
-                    |line| line.sprite.texture.get_texture_size().1 + EDGE_SPACING,
-                );
+                let offset = self.text_lines.first().map_or_else(|| 0.0, |line| line.sprite.texture.get_texture_size().1 + EDGE_SPACING);
                 self.scroll += scroll * offset;
                 self.scroll = self.scroll.min(offset * (self.text_lines.len() - 1) as f32);
                 self.scroll = self.scroll.max(0.0);
@@ -204,23 +165,10 @@ impl ui_manager::ModuleTrait for Console {
             }
             gfx::Event::KeyPress(key, _repeat) => {
                 //if enter is pressed, send the message to the server
-                if matches!(key, gfx::Key::Enter)
-                    && self.input.selected
-                    && !self.input.get_text().is_empty()
-                {
-                    send_to_srv(
-                        UiMessageType::UiToSrvConsoleMessage(self.input.get_text().clone()),
-                        self.sender.as_ref(),
-                    );
-                    let message = format_timestamp(&format!(
-                        "[console_input] {}",
-                        self.input.get_text().clone()
-                    ));
-                    self.add_line(
-                        message.clone(),
-                        graphics_context,
-                        gfx::Color::new(200, 200, 200, 255),
-                    );
+                if matches!(key, gfx::Key::Enter) && self.input.selected && !self.input.get_text().is_empty() {
+                    send_to_srv(UiMessageType::UiToSrvConsoleMessage(self.input.get_text().clone()), self.sender.as_ref());
+                    let message = format_timestamp(&format!("[console_input] {}", self.input.get_text().clone()));
+                    self.add_line(message.clone(), graphics_context, gfx::Color::new(200, 200, 200, 255));
                     println!("{message}");
                     self.input.set_text(String::new());
                 }

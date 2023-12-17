@@ -17,15 +17,8 @@ pub struct ChatLine {
 
 impl ChatLine {
     pub fn new(graphics: &gfx::GraphicsContext, text: &str, pos: gfx::FloatPos) -> Self {
-        let texture =
-            gfx::Texture::load_from_surface(&graphics.font.create_text_surface(text, None));
-        let mut back_rect = gfx::RenderRect::new(
-            pos + gfx::FloatPos(
-                -texture.get_texture_size().0 * 3.0,
-                -texture.get_texture_size().1 * 3.0,
-            ),
-            gfx::FloatSize(0.0, 0.0),
-        );
+        let texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface(text, None));
+        let mut back_rect = gfx::RenderRect::new(pos + gfx::FloatPos(-texture.get_texture_size().0 * 3.0, -texture.get_texture_size().1 * 3.0), gfx::FloatSize(0.0, 0.0));
         back_rect.smooth_factor = 60.0;
 
         Self {
@@ -37,12 +30,7 @@ impl ChatLine {
     }
 
     pub fn render(&mut self, graphics: &gfx::GraphicsContext, focused: bool) {
-        let target_transparency =
-            if focused || (self.creation_time.elapsed().as_millis() as i32) < 5000 {
-                255
-            } else {
-                0
-            };
+        let target_transparency = if focused || (self.creation_time.elapsed().as_millis() as i32) < 5000 { 255 } else { 0 };
 
         match self.transparency.cmp(&target_transparency) {
             Ordering::Greater => self.transparency -= 10,
@@ -58,14 +46,8 @@ impl ChatLine {
 
         self.back_rect.render(graphics, None);
         let pos = self.back_rect.get_container(graphics, None).rect.pos;
-        self.texture.render(
-            &graphics.renderer,
-            3.0,
-            pos,
-            None,
-            false,
-            Some(gfx::Color::new(255, 255, 255, self.transparency as u8)),
-        );
+        self.texture
+            .render(&graphics.renderer, 3.0, pos, None, false, Some(gfx::Color::new(255, 255, 255, self.transparency as u8)));
     }
 
     pub fn set_pos(&mut self, pos: gfx::FloatPos) {
@@ -73,10 +55,7 @@ impl ChatLine {
     }
 
     pub fn get_size(&self) -> gfx::FloatSize {
-        gfx::FloatSize(
-            self.texture.get_texture_size().0 * 3.0,
-            self.texture.get_texture_size().1 * 3.0,
-        )
+        gfx::FloatSize(self.texture.get_texture_size().0 * 3.0, self.texture.get_texture_size().1 * 3.0)
     }
 }
 
@@ -121,12 +100,10 @@ impl ClientChat {
 
         self.back_rect.render(graphics, None);
 
-        self.text_input.width =
-            self.back_rect.get_container(graphics, None).rect.size.0 / self.text_input.scale;
+        self.text_input.width = self.back_rect.get_container(graphics, None).rect.size.0 / self.text_input.scale;
         self.text_input.render(graphics, None);
 
-        let mut curr_y =
-            graphics.renderer.get_window_size().1 - gfx::SPACING - self.text_input.get_size().1;
+        let mut curr_y = graphics.renderer.get_window_size().1 - gfx::SPACING - self.text_input.get_size().1;
         for line in self.chat_lines.iter_mut().rev() {
             curr_y -= line.get_size().1;
             line.set_pos(gfx::FloatPos(gfx::SPACING, curr_y));
@@ -134,12 +111,7 @@ impl ClientChat {
         }
     }
 
-    pub fn on_event(
-        &mut self,
-        event: &Event,
-        graphics: &mut gfx::GraphicsContext,
-        networking: &mut ClientNetworking,
-    ) -> Result<bool> {
+    pub fn on_event(&mut self, event: &Event, graphics: &mut gfx::GraphicsContext, networking: &mut ClientNetworking) -> Result<bool> {
         if let Some(event) = event.downcast::<gfx::Event>() {
             if let gfx::Event::TextInput(..) = event {
                 if self.waiting_for_t {
@@ -174,12 +146,7 @@ impl ClientChat {
                 self.chat_lines.push(ChatLine::new(
                     graphics,
                     &packet.message,
-                    gfx::FloatPos(
-                        0.0,
-                        graphics.renderer.get_window_size().1
-                            - gfx::SPACING
-                            - self.text_input.get_size().1,
-                    ),
+                    gfx::FloatPos(0.0, graphics.renderer.get_window_size().1 - gfx::SPACING - self.text_input.get_size().1),
                 ));
             }
         }

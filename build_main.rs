@@ -27,17 +27,11 @@ fn main() {
 
     #[cfg(target_os = "windows")]
     {
-        WindowsResource::new()
-            .set_icon("resources/icon.ico")
-            .compile()
-            .unwrap();
+        WindowsResource::new().set_icon("resources/icon.ico").compile().unwrap();
     }
 
     // compile resource pack resources into Build/resources
-    compile_resource_pack(
-        std::path::PathBuf::from("resources"),
-        std::path::PathBuf::from("Build/Resources"),
-    );
+    compile_resource_pack(std::path::PathBuf::from("resources"), std::path::PathBuf::from("Build/Resources"));
 
     // compile mod base_game
     compile_mod(std::path::PathBuf::from("base_game"));

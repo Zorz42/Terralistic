@@ -15,9 +15,7 @@ pub struct ServerWalls {
 
 impl ServerWalls {
     pub fn new(blocks: &mut Blocks) -> Self {
-        Self {
-            walls: Walls::new(blocks),
-        }
+        Self { walls: Walls::new(blocks) }
     }
 
     pub fn init(&mut self, mods: &mut ModManager) -> Result<()> {
@@ -26,9 +24,7 @@ impl ServerWalls {
 
     pub fn on_event(&mut self, event: &Event, networking: &mut ServerNetworking) -> Result<()> {
         if let Some(event) = event.downcast::<NewConnectionEvent>() {
-            let welcome_packet = Packet::new(WallsWelcomePacket {
-                data: self.walls.serialize()?,
-            })?;
+            let welcome_packet = Packet::new(WallsWelcomePacket { data: self.walls.serialize()? })?;
             networking.send_packet(&welcome_packet, SendTarget::Connection(event.conn.clone()))?;
         }
         Ok(())

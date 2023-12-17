@@ -53,23 +53,13 @@ pub fn compile_mod(mod_path: PathBuf) {
     let mod_bytes = snap::raw::Encoder::new().compress_vec(&mod_bytes).unwrap();
 
     // write the mod to a file that has the same name as the mod's directory and a .mod extension
-    std::fs::write(
-        mod_path.join(format!(
-            "{}.mod",
-            mod_path.file_name().unwrap().to_str().unwrap()
-        )),
-        mod_bytes,
-    )
-    .unwrap();
+    std::fs::write(mod_path.join(format!("{}.mod", mod_path.file_name().unwrap().to_str().unwrap())), mod_bytes).unwrap();
 }
 
 /// This function takes the resources folder, goes through all of the recursively,
 /// changes the file paths to use : instead of / and adds the files to a map.
 fn generate_resources(resources_path: PathBuf, prefix: String) -> HashMap<String, Vec<u8>> {
-    println!(
-        "Generating resource pack... {}",
-        resources_path.to_str().unwrap()
-    );
+    println!("Generating resource pack... {}", resources_path.to_str().unwrap());
 
     let mut resources = HashMap::new();
 
@@ -77,10 +67,7 @@ fn generate_resources(resources_path: PathBuf, prefix: String) -> HashMap<String
         let path = entry.unwrap().path();
 
         if path.is_dir() {
-            resources.extend(generate_resources(
-                path.clone(),
-                format!("{}{}:", prefix, path.file_name().unwrap().to_str().unwrap()),
-            ));
+            resources.extend(generate_resources(path.clone(), format!("{}{}:", prefix, path.file_name().unwrap().to_str().unwrap())));
         } else {
             let (file_name, data) = process_file(path);
             resources.insert(format!("{prefix}{file_name}"), data);
@@ -123,9 +110,7 @@ fn process_template(data: Vec<u8>) -> Vec<u8> {
     for step in 0..16 {
         for y in 0..8 {
             for x in 0..8 {
-                *new_surface
-                    .get_pixel_mut(gfx::IntPos(x, y + step * 8))
-                    .unwrap() = *surface.get_pixel(gfx::IntPos(x, y)).unwrap();
+                *new_surface.get_pixel_mut(gfx::IntPos(x, y + step * 8)).unwrap() = *surface.get_pixel(gfx::IntPos(x, y)).unwrap();
             }
         }
     }
@@ -149,54 +134,33 @@ fn process_template(data: Vec<u8>) -> Vec<u8> {
 
     for step in 0..16 {
         if step & 8 == 0 && step & 1 == 0 {
-            *new_surface.get_pixel_mut(gfx::IntPos(0, step * 8)).unwrap() =
-                gfx::Color::new(0, 0, 0, 0);
+            *new_surface.get_pixel_mut(gfx::IntPos(0, step * 8)).unwrap() = gfx::Color::new(0, 0, 0, 0);
         }
 
         if step & 1 == 0 && step & 2 == 0 {
-            *new_surface.get_pixel_mut(gfx::IntPos(7, step * 8)).unwrap() =
-                gfx::Color::new(0, 0, 0, 0);
+            *new_surface.get_pixel_mut(gfx::IntPos(7, step * 8)).unwrap() = gfx::Color::new(0, 0, 0, 0);
         }
 
         if step & 2 == 0 && step & 4 == 0 {
-            *new_surface
-                .get_pixel_mut(gfx::IntPos(7, step * 8 + 7))
-                .unwrap() = gfx::Color::new(0, 0, 0, 0);
+            *new_surface.get_pixel_mut(gfx::IntPos(7, step * 8 + 7)).unwrap() = gfx::Color::new(0, 0, 0, 0);
         }
 
         if step & 4 == 0 && step & 8 == 0 {
-            *new_surface
-                .get_pixel_mut(gfx::IntPos(0, step * 8 + 7))
-                .unwrap() = gfx::Color::new(0, 0, 0, 0);
+            *new_surface.get_pixel_mut(gfx::IntPos(0, step * 8 + 7)).unwrap() = gfx::Color::new(0, 0, 0, 0);
         }
     }
 
     new_surface.serialize_to_bytes().unwrap()
 }
 
-fn copy_edge(
-    source: &gfx::Surface,
-    source_x: i32,
-    source_y: i32,
-    target: &mut gfx::Surface,
-    target_x: i32,
-    target_y: i32,
-) {
+fn copy_edge(source: &gfx::Surface, source_x: i32, source_y: i32, target: &mut gfx::Surface, target_x: i32, target_y: i32) {
     for y in 0..8 {
         for x in 0..8 {
-            let pixel = *source
-                .get_pixel(gfx::IntPos(source_x + x, source_y + y))
-                .unwrap();
+            let pixel = *source.get_pixel(gfx::IntPos(source_x + x, source_y + y)).unwrap();
             if pixel.a != 0 {
-                let applied_pixel = if pixel == gfx::Color::new(0, 255, 0, 255) {
-                    gfx::Color::new(0, 0, 0, 0)
-                } else {
-                    pixel
-                };
+                let applied_pixel = if pixel == gfx::Color::new(0, 255, 0, 255) { gfx::Color::new(0, 0, 0, 0) } else { pixel };
 
-                *target
-                    .get_pixel_mut(gfx::IntPos(target_x + x, target_y + y))
-                    .unwrap() = applied_pixel;
+                *target.get_pixel_mut(gfx::IntPos(target_x + x, target_y + y)).unwrap() = applied_pixel;
             }
         }
     }

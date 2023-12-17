@@ -13,11 +13,7 @@ pub const AIR_RESISTANCE_COEFFICIENT: f32 = 0.005;
 const DIRECTION_SIZE: f32 = 0.01;
 
 #[must_use]
-pub fn collides_with_blocks(
-    position: &PositionComponent,
-    physics: &PhysicsComponent,
-    blocks: &Blocks,
-) -> bool {
+pub fn collides_with_blocks(position: &PositionComponent, physics: &PhysicsComponent, blocks: &Blocks) -> bool {
     let block_x = position.x as i32;
     let block_y = position.y as i32;
 
@@ -39,11 +35,7 @@ pub fn collides_with_blocks(
 }
 
 #[must_use]
-pub fn is_touching_ground(
-    position: &PositionComponent,
-    physics: &PhysicsComponent,
-    blocks: &Blocks,
-) -> bool {
+pub fn is_touching_ground(position: &PositionComponent, physics: &PhysicsComponent, blocks: &Blocks) -> bool {
     collides_with_blocks(
         &PositionComponent {
             x: position.x,
@@ -91,10 +83,7 @@ impl Entities {
     pub fn update_entities_ms(&mut self, blocks: &Blocks, events: &mut EventManager) -> Result<()> {
         let mut vec = Vec::new();
 
-        for (entity, (position, physics)) in self
-            .ecs
-            .query_mut::<(&mut PositionComponent, &mut PhysicsComponent)>()
-        {
+        for (entity, (position, physics)) in self.ecs.query_mut::<(&mut PositionComponent, &mut PhysicsComponent)>() {
             let velocity_x_before = physics.velocity_x;
             let velocity_y_before = physics.velocity_y;
 
@@ -106,9 +95,7 @@ impl Entities {
 
             let direction_x = if physics.velocity_x > 0.0 { 1.0 } else { -1.0 } * DIRECTION_SIZE;
             loop {
-                if (direction_x > 0.0 && position.x > target_x + direction_x)
-                    || (direction_x < 0.0 && position.x < target_x + direction_x)
-                {
+                if (direction_x > 0.0 && position.x > target_x + direction_x) || (direction_x < 0.0 && position.x < target_x + direction_x) {
                     position.x = target_x;
                     break;
                 }
@@ -117,10 +104,7 @@ impl Entities {
 
                 if collides_with_blocks(position, physics, blocks) {
                     position.x -= direction_x;
-                    reduce_by(
-                        &mut physics.velocity_y,
-                        physics.velocity_x * FRICTION_COEFFICIENT,
-                    );
+                    reduce_by(&mut physics.velocity_y, physics.velocity_x * FRICTION_COEFFICIENT);
                     physics.velocity_x = 0.0;
                     break;
                 }
@@ -128,9 +112,7 @@ impl Entities {
 
             let direction_y = if physics.velocity_y > 0.0 { 1.0 } else { -1.0 } * DIRECTION_SIZE;
             loop {
-                if (direction_y > 0.0 && position.y > target_y + direction_y)
-                    || (direction_y < 0.0 && position.y < target_y + direction_y)
-                {
+                if (direction_y > 0.0 && position.y > target_y + direction_y) || (direction_y < 0.0 && position.y < target_y + direction_y) {
                     position.y = target_y;
                     break;
                 }
@@ -139,10 +121,7 @@ impl Entities {
 
                 if collides_with_blocks(position, physics, blocks) {
                     position.y -= direction_y;
-                    reduce_by(
-                        &mut physics.velocity_x,
-                        physics.velocity_y * FRICTION_COEFFICIENT,
-                    );
+                    reduce_by(&mut physics.velocity_x, physics.velocity_y * FRICTION_COEFFICIENT);
                     physics.velocity_y = 0.0;
                     break;
                 }
@@ -185,17 +164,11 @@ impl Entities {
     }
 
     pub fn get_entity_from_id(&self, id: EntityId) -> Result<Entity> {
-        self.id_to_entity
-            .get(&id)
-            .ok_or_else(|| anyhow!("invalid id"))
-            .copied()
+        self.id_to_entity.get(&id).ok_or_else(|| anyhow!("invalid id")).copied()
     }
 
     pub fn get_id_from_entity(&self, entity: Entity) -> Result<EntityId> {
-        self.entity_to_id
-            .get(&entity)
-            .ok_or_else(|| anyhow!("invalid entity"))
-            .copied()
+        self.entity_to_id.get(&entity).ok_or_else(|| anyhow!("invalid entity")).copied()
     }
 
     pub fn new_id(&mut self) -> EntityId {

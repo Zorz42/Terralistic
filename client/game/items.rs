@@ -8,9 +8,7 @@ use crate::libraries::events::{Event, EventManager};
 use crate::libraries::graphics as gfx;
 use crate::shared::blocks::{RENDER_BLOCK_WIDTH, RENDER_SCALE};
 use crate::shared::entities::{Entities, PhysicsComponent, PositionComponent};
-use crate::shared::items::{
-    init_items_mod_interface, ItemComponent, ItemId, ItemSpawnPacket, Items,
-};
+use crate::shared::items::{init_items_mod_interface, ItemComponent, ItemId, ItemSpawnPacket, Items};
 use crate::shared::mod_manager::ModManager;
 use crate::shared::packet::Packet;
 
@@ -49,22 +47,10 @@ impl ClientItems {
         Ok(())
     }
 
-    pub fn on_event(
-        &mut self,
-        event: &Event,
-        entities: &mut Entities,
-        events: &mut EventManager,
-    ) -> Result<()> {
+    pub fn on_event(&mut self, event: &Event, entities: &mut Entities, events: &mut EventManager) -> Result<()> {
         if let Some(packet) = event.downcast::<Packet>() {
             if let Some(packet) = packet.try_deserialize::<ItemSpawnPacket>() {
-                let item = self.get_items().spawn_item(
-                    events,
-                    entities,
-                    packet.item_type,
-                    packet.x,
-                    packet.y,
-                    packet.id,
-                )?;
+                let item = self.get_items().spawn_item(events, entities, packet.item_type, packet.x, packet.y, packet.id)?;
 
                 let mut physics = entities.ecs.get::<&mut PhysicsComponent>(item)?;
                 physics.velocity_x = packet.velocity_x;
@@ -74,20 +60,9 @@ impl ClientItems {
         Ok(())
     }
 
-    pub fn render(
-        &self,
-        graphics: &gfx::GraphicsContext,
-        camera: &Camera,
-        entities: &mut Entities,
-    ) -> Result<()> {
-        for (_entity, (position, item)) in entities
-            .ecs
-            .query_mut::<(&PositionComponent, &ItemComponent)>()
-        {
-            let mut src_rect = *self
-                .atlas
-                .get_rect(&item.get_item_type())
-                .ok_or_else(|| anyhow!("Item not found in atlas"))?;
+    pub fn render(&self, graphics: &gfx::GraphicsContext, camera: &Camera, entities: &mut Entities) -> Result<()> {
+        for (_entity, (position, item)) in entities.ecs.query_mut::<(&PositionComponent, &ItemComponent)>() {
+            let mut src_rect = *self.atlas.get_rect(&item.get_item_type()).ok_or_else(|| anyhow!("Item not found in atlas"))?;
             src_rect.size.0 /= 2.0;
             let top_left = camera.get_top_left(graphics);
 
@@ -95,14 +70,8 @@ impl ClientItems {
                 &graphics.renderer,
                 RENDER_SCALE,
                 gfx::FloatPos(
-                    (position.x() * RENDER_BLOCK_WIDTH - top_left.0 * RENDER_BLOCK_WIDTH
-                        + 0.5 * RENDER_BLOCK_WIDTH
-                        - src_rect.size.0 / 2.0 * RENDER_SCALE)
-                        .round(),
-                    (position.y() * RENDER_BLOCK_WIDTH - top_left.1 * RENDER_BLOCK_WIDTH
-                        + 0.5 * RENDER_BLOCK_WIDTH
-                        - src_rect.size.1 / 2.0 * RENDER_SCALE)
-                        .round(),
+                    (position.x() * RENDER_BLOCK_WIDTH - top_left.0 * RENDER_BLOCK_WIDTH + 0.5 * RENDER_BLOCK_WIDTH - src_rect.size.0 / 2.0 * RENDER_SCALE).round(),
+                    (position.y() * RENDER_BLOCK_WIDTH - top_left.1 * RENDER_BLOCK_WIDTH + 0.5 * RENDER_BLOCK_WIDTH - src_rect.size.1 / 2.0 * RENDER_SCALE).round(),
                 ),
                 Some(src_rect),
                 false,

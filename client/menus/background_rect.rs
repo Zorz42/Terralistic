@@ -8,10 +8,6 @@ use crate::libraries::graphics as gfx;
 pub trait BackgroundRect {
     fn render_back(&mut self, graphics: &mut gfx::GraphicsContext);
     fn set_back_rect_width(&mut self, width: f32);
-    fn get_back_rect_width(
-        &self,
-        graphics: &gfx::GraphicsContext,
-        parent_container: Option<&gfx::Container>,
-    ) -> f32;
+    fn get_back_rect_width(&self, graphics: &gfx::GraphicsContext, parent_container: Option<&gfx::Container>) -> f32;
     fn get_back_rect_container(&self) -> &gfx::Container;
 }

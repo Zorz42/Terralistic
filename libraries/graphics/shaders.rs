@@ -21,17 +21,9 @@ pub fn compile_shader(vertex_code: &str, fragment_code: &str) -> Result<u32> {
             // create a buffer with the correct size
             let mut buffer = vec![0; len as usize];
 
-            gl::GetShaderInfoLog(
-                vertex_id,
-                len,
-                std::ptr::null_mut(),
-                buffer.as_mut_ptr().cast::<i8>(),
-            );
+            gl::GetShaderInfoLog(vertex_id, len, std::ptr::null_mut(), buffer.as_mut_ptr().cast::<i8>());
 
-            bail!(
-                "Vertex shader compilation failed: {}",
-                std::str::from_utf8(&buffer)?
-            );
+            bail!("Vertex shader compilation failed: {}", std::str::from_utf8(&buffer)?);
         }
 
         temp = std::ffi::CString::new(fragment_code)?;
@@ -48,16 +40,8 @@ pub fn compile_shader(vertex_code: &str, fragment_code: &str) -> Result<u32> {
             // create a buffer with the correct size
             let mut buffer = vec![0; len as usize];
 
-            gl::GetShaderInfoLog(
-                fragment_id,
-                len,
-                std::ptr::null_mut(),
-                buffer.as_mut_ptr().cast::<i8>(),
-            );
-            bail!(
-                "Fragment shader compilation failed: {}",
-                std::str::from_utf8(&buffer)?
-            );
+            gl::GetShaderInfoLog(fragment_id, len, std::ptr::null_mut(), buffer.as_mut_ptr().cast::<i8>());
+            bail!("Fragment shader compilation failed: {}", std::str::from_utf8(&buffer)?);
         }
 
         let program_id = gl::CreateProgram();

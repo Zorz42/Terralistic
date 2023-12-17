@@ -34,11 +34,7 @@ impl Inventory {
     }
 
     pub fn get_item(&self, index: usize) -> Result<Option<ItemStack>> {
-        Ok(self
-            .items
-            .get(index)
-            .ok_or_else(|| anyhow!("no item at index"))?
-            .clone())
+        Ok(self.items.get(index).ok_or_else(|| anyhow!("no item at index"))?.clone())
     }
 
     pub fn set_item(&mut self, index: usize, mut item: Option<ItemStack>) -> Result<()> {
@@ -50,10 +46,7 @@ impl Inventory {
 
         if self.get_item(index)? != item {
             self.has_changed = true;
-            *self
-                .items
-                .get_mut(index)
-                .ok_or_else(|| anyhow!("Out of bounds"))? = item;
+            *self.items.get_mut(index).ok_or_else(|| anyhow!("Out of bounds"))? = item;
         }
         Ok(())
     }
@@ -79,14 +72,7 @@ impl Inventory {
         true
     }
 
-    pub fn craft(
-        &mut self,
-        recipe: &Recipe,
-        drop_pos: (f32, f32),
-        items: &mut Items,
-        entities: &mut Entities,
-        events: &mut EventManager,
-    ) -> Result<()> {
+    pub fn craft(&mut self, recipe: &Recipe, drop_pos: (f32, f32), items: &mut Items, entities: &mut Entities, events: &mut EventManager) -> Result<()> {
         if !self.can_craft(recipe) {
             bail!("can't craft")
         }
@@ -116,14 +102,7 @@ impl Inventory {
     /// This function adds an item to the
     /// inventory. If the item can't be added
     /// it is dropped in the world.
-    pub fn give_item(
-        &mut self,
-        mut item: ItemStack,
-        drop_pos: (f32, f32),
-        items: &mut Items,
-        entities: &mut Entities,
-        events: &mut EventManager,
-    ) -> Result<()> {
+    pub fn give_item(&mut self, mut item: ItemStack, drop_pos: (f32, f32), items: &mut Items, entities: &mut Entities, events: &mut EventManager) -> Result<()> {
         for slot in self.items.iter_mut().flatten() {
             if slot.item == item.item {
                 let max = items.get_item_type(slot.item)?.max_stack;
@@ -147,10 +126,7 @@ impl Inventory {
             if slot.is_none() {
                 let max = items.get_item_type(item.item)?.max_stack;
                 if item.count > max {
-                    *slot = Some(ItemStack {
-                        item: item.item,
-                        count: max,
-                    });
+                    *slot = Some(ItemStack { item: item.item, count: max });
                     item.count -= max;
                 } else {
                     *slot = Some(item.clone());
@@ -179,8 +155,7 @@ impl Inventory {
 
     #[must_use]
     pub fn get_selected_item(&self) -> Option<ItemStack> {
-        self.selected_slot
-            .and_then(|slot| self.items.get(slot).and_then(Clone::clone))
+        self.selected_slot.and_then(|slot| self.items.get(slot).and_then(Clone::clone))
     }
 
     pub fn swap_with_selected_item(&mut self, slot: usize) -> Result<()> {

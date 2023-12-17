@@ -6,9 +6,7 @@ use crate::libraries::events::{Event, EventManager};
 use crate::server::server_core::networking::{SendTarget, ServerNetworking};
 use crate::shared::blocks::BlockBreakEvent;
 use crate::shared::entities::{Entities, PhysicsComponent, PositionComponent};
-use crate::shared::items::{
-    init_items_mod_interface, ItemComponent, ItemSpawnEvent, ItemSpawnPacket, Items,
-};
+use crate::shared::items::{init_items_mod_interface, ItemComponent, ItemSpawnEvent, ItemSpawnPacket, Items};
 use crate::shared::mod_manager::ModManager;
 use crate::shared::packet::Packet;
 
@@ -27,26 +25,14 @@ impl ServerItems {
         init_items_mod_interface(&self.items, mods)
     }
 
-    pub fn on_event(
-        &mut self,
-        event: &Event,
-        entities: &mut Entities,
-        events: &mut EventManager,
-        networking: &mut ServerNetworking,
-    ) -> Result<()> {
+    pub fn on_event(&mut self, event: &Event, entities: &mut Entities, events: &mut EventManager, networking: &mut ServerNetworking) -> Result<()> {
         if let Some(event) = event.downcast::<BlockBreakEvent>() {
             let broken_block = event.prev_block_id;
             let drop = self.get_items().get_block_drop(broken_block);
             if let Ok(drop) = drop {
                 // spawn item at random chance. drop.chance is a float between 0 and 1
                 if rand::random::<f32>() <= drop.chance {
-                    self.get_items().drop_item(
-                        events,
-                        entities,
-                        drop.item,
-                        event.x as f32,
-                        event.y as f32,
-                    )?;
+                    self.get_items().drop_item(events, entities, drop.item, event.x as f32, event.y as f32)?;
                 }
             }
         }

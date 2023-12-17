@@ -25,11 +25,10 @@ impl ClientModManager {
     /// This function initializes the client mod manager.
     /// It adds the `base_game` mod to the shared mod manager and initializes it.
     pub fn init(&mut self) -> Result<()> {
-        self.mod_manager
-            .add_global_function("print", |_, text: String| {
-                println!("[client mod] {text}");
-                Ok(())
-            })?;
+        self.mod_manager.add_global_function("print", |_, text: String| {
+            println!("[client mod] {text}");
+            Ok(())
+        })?;
 
         self.mod_manager.init()
     }
