@@ -12,8 +12,6 @@ pub struct Item {
     pub tool: Option<ToolId>,
     pub tool_power: i32,
     pub(super) id: ItemId,
-    pub width: f32,
-    pub height: f32,
 }
 
 impl Item {
@@ -28,8 +26,6 @@ impl Item {
             tool: None,
             tool_power: 0,
             id: ItemId::new(),
-            width: 0.0,
-            height: 0.0,
         }
     }
 

@@ -13,13 +13,24 @@ impl rlua::UserData for ItemId {}
 /// this function initializes the items mod interface
 /// it adds lua functions to the lua context
 pub fn init_items_mod_interface(items: &Arc<Mutex<Items>>, mods: &mut ModManager) -> Result<()> {
-    mods.add_global_function("new_item_type", move |_lua, ()| Ok(Item::new()))?;
-
     let items_clone = items.clone();
-    mods.add_global_function("register_item_type", move |_lua, item_type: Item| {
-        let result = Items::register_new_item_type(&mut items_clone.lock().unwrap_or_else(PoisonError::into_inner).item_types, item_type);
-        Ok(result)
-    })?;
+    mods.add_global_function(
+        "register_item_type",
+        move |_lua, (name, display_name, max_stack, places_block, places_wall, tool, tool_power): (String, String, i32, Option<BlockId>, Option<WallId>, Option<ToolId>, i32)| {
+            let mut item_type = Item::new();
+
+            item_type.name = name;
+            item_type.display_name = display_name;
+            item_type.max_stack = max_stack;
+            item_type.places_block = places_block;
+            item_type.places_wall = places_wall;
+            item_type.tool = tool;
+            item_type.tool_power = tool_power;
+
+            let result = Items::register_new_item_type(&mut items_clone.lock().unwrap_or_else(PoisonError::into_inner).item_types, item_type);
+            Ok(result)
+        },
+    )?;
 
     let items_clone = items.clone();
     mods.add_global_function("get_item_id_by_name", move |_lua, name: String| {
@@ -57,54 +68,4 @@ pub fn init_items_mod_interface(items: &Arc<Mutex<Items>>, mods: &mut ModManager
     )?;
 
     Ok(())
-}
-
-// make item lua compatible
-impl rlua::UserData for Item {
-    fn add_methods<'lua, M: rlua::UserDataMethods<'lua, Self>>(methods: &mut M) {
-        methods.add_meta_method_mut(rlua::MetaMethod::NewIndex, |_, this, (key, value): (String, rlua::Value)| match value {
-            rlua::Value::Integer(value) => {
-                match key.as_str() {
-                    "max_stack" => this.max_stack = value as i32,
-                    "width" => this.width = value as f32,
-                    "height" => this.height = value as f32,
-                    "tool_power" => this.tool_power = value as i32,
-                    _ => {
-                        return Err(rlua::Error::RuntimeError(format!("{key} is not a valid field of Item for integer value")));
-                    }
-                };
-                Ok(())
-            }
-            rlua::Value::String(value) => {
-                match key.as_str() {
-                    "name" => this.name = value.to_str().unwrap_or("undefined").to_owned(),
-                    "display_name" => {
-                        this.display_name = value.to_str().unwrap_or("undefined").to_owned();
-                    }
-                    _ => {
-                        return Err(rlua::Error::RuntimeError(format!("{key} is not a valid field of Item for string value")));
-                    }
-                };
-                Ok(())
-            }
-            rlua::Value::UserData(value) => {
-                match key.as_str() {
-                    "places_block" => {
-                        this.places_block = Some(*value.borrow::<BlockId>()?);
-                    }
-                    "places_wall" => {
-                        this.places_wall = Some(*value.borrow::<WallId>()?);
-                    }
-                    "tool" => {
-                        this.tool = Some(*value.borrow::<ToolId>()?);
-                    }
-                    _ => {
-                        return Err(rlua::Error::RuntimeError(format!("{key} is not a valid field of Item for userdata value")));
-                    }
-                };
-                Ok(())
-            }
-            _ => Err(rlua::Error::RuntimeError("Not a valid value type of Item".to_owned())),
-        });
-    }
 }
