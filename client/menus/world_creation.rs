@@ -10,7 +10,7 @@ use super::singleplayer_selector::World;
 
 fn world_name_exists(worlds_list: &Vec<World>, name: &str) -> bool {
     for world in worlds_list {
-        if world.name == name {
+        if world.name.to_uppercase() == name.to_uppercase() {
             return true;
         }
     }
