@@ -282,6 +282,7 @@ fn update_elements(
                             let game_result = run_private_world(graphics, menu_back, world.get_file_path(), settings, global_settings);
                             if let Err(error) = game_result {
                                 println!("Game error: {error}");
+                                run_choice_menu(&format!("Game error: {error}"), graphics, menu_back, vec!["Ok"], None, None);
                             }
                         } else if world
                             .delete_button
@@ -290,9 +291,10 @@ fn update_elements(
                                 format!("The world \"{}\" will be deleted.\nDo you want to proceed?", world.name).as_str(),
                                 graphics,
                                 menu_back,
-                                None,
-                                None,
-                            )
+                                vec!["Back", "Proceed"],
+                                Some(0),
+                                Some(1),
+                            ) == 1
                         {
                             let res = fs::remove_file(world.get_file_path());
                             if res.is_err() {

@@ -1,7 +1,7 @@
 use std::sync::atomic::{AtomicBool, Ordering};
-use std::sync::mpsc;
 use std::sync::mpsc::{Receiver, Sender};
 use std::sync::Arc;
+use std::sync::{mpsc, Mutex, PoisonError};
 use std::thread::JoinHandle;
 
 use anyhow::{anyhow, bail, Result};
@@ -30,6 +30,7 @@ pub struct ClientNetworking {
     net_loop_thread: Option<JoinHandle<Result<()>>>,
     event_receiver: Option<Receiver<events::Event>>,
     packet_sender: Option<Sender<Packet>>,
+    receive_loop_error: Arc<Mutex<String>>,
 }
 
 impl ClientNetworking {
@@ -43,6 +44,7 @@ impl ClientNetworking {
             net_loop_thread: None,
             event_receiver: None,
             packet_sender: None,
+            receive_loop_error: Arc::new(Mutex::new(String::new())),
         }
     }
 
@@ -59,6 +61,7 @@ impl ClientNetworking {
         let should_start_receiving = self.should_start_receiving.clone();
         let server_address = self.server_address.clone();
         let server_port = self.server_port;
+        let receive_loop_error = self.receive_loop_error.clone();
 
         let net_loop_thread = std::thread::spawn(move || {
             Self::net_receive_loop(
@@ -67,6 +70,7 @@ impl ClientNetworking {
                 &is_running,
                 &is_welcoming,
                 &should_start_receiving,
+                &receive_loop_error,
                 &server_address,
                 server_port,
                 &name,
@@ -80,13 +84,13 @@ impl ClientNetworking {
         Ok(())
     }
 
-    #[allow(clippy::expect_used)]
     fn net_receive_loop(
         event_sender: &Sender<events::Event>,
         packet_receiver: &Receiver<Packet>,
         is_running: &Arc<AtomicBool>,
         is_welcoming: &Arc<AtomicBool>,
         should_start_receiving: &Arc<AtomicBool>,
+        error_returned: &Arc<Mutex<String>>,
         server_address: &str,
         server_port: u16,
         player_name: &str,
@@ -99,25 +103,43 @@ impl ClientNetworking {
         Self::send_packet_internal(&handler, &Packet::new(NamePacket { name: player_name.to_owned() })?, server_endpoint)?;
 
         listener.for_each(move |event| {
+            if !error_returned.lock().unwrap_or_else(PoisonError::into_inner).is_empty() {
+                // if there is an error, we don't want to receive any more events
+                // so we just ignore them
+                // this is to prevent the error from spamming the console
+                // and to prevent the game from crashing
+                return;
+            }
+
             if is_welcoming.load(Ordering::Relaxed) {
                 // welcoming loop
                 if let NodeEvent::Network(event) = event {
                     match event {
                         NetEvent::Accepted(..) | NetEvent::Connected(..) | NetEvent::Disconnected(..) => {}
                         NetEvent::Message(_peer, packet) => {
-                            let packet = bincode::deserialize::<Packet>(packet).expect("failed to deserialize packet");
+                            let packet = bincode::deserialize::<Packet>(packet);
 
-                            if packet.try_deserialize::<WelcomeCompletePacket>().is_some() {
-                                is_welcoming.store(false, Ordering::Relaxed);
-                                while !should_start_receiving.load(Ordering::Relaxed) {
-                                    // wait 1 ms
-                                    std::thread::sleep(std::time::Duration::from_millis(1));
-                                }
-                                handler.signals().send(());
-                            }
+                            packet.map_or_else(
+                                |error| {
+                                    error_returned.lock().unwrap_or_else(PoisonError::into_inner).push_str(&error.to_string());
+                                },
+                                |packet| {
+                                    if packet.try_deserialize::<WelcomeCompletePacket>().is_some() {
+                                        is_welcoming.store(false, Ordering::Relaxed);
+                                        while !should_start_receiving.load(Ordering::Relaxed) {
+                                            // wait 1 ms
+                                            std::thread::sleep(std::time::Duration::from_millis(1));
+                                        }
+                                        handler.signals().send(());
+                                    }
 
-                            // send welcome packet event
-                            event_sender.send(events::Event::new(WelcomePacketEvent { packet })).ok();
+                                    // send welcome packet event
+                                    let res = event_sender.send(events::Event::new(WelcomePacketEvent { packet }));
+                                    if let Err(err) = res {
+                                        error_returned.lock().unwrap_or_else(PoisonError::into_inner).push_str(&err.to_string());
+                                    }
+                                },
+                            );
                         }
                     }
                 };
@@ -127,9 +149,19 @@ impl ClientNetworking {
                     NodeEvent::Network(event) => match event {
                         NetEvent::Connected(..) | NetEvent::Accepted(..) | NetEvent::Disconnected(..) => {}
                         NetEvent::Message(_peer, packet) => {
-                            let packet = bincode::deserialize::<Packet>(packet).expect("failed to deserialize packet");
+                            let packet = bincode::deserialize::<Packet>(packet);
 
-                            event_sender.send(events::Event::new(packet)).ok();
+                            packet.map_or_else(
+                                |error| {
+                                    error_returned.lock().unwrap_or_else(PoisonError::into_inner).push_str(&error.to_string());
+                                },
+                                |packet| {
+                                    let res = event_sender.send(events::Event::new(packet));
+                                    if let Err(err) = res {
+                                        error_returned.lock().unwrap_or_else(PoisonError::into_inner).push_str(&err.to_string());
+                                    }
+                                },
+                            );
                         }
                     },
                     NodeEvent::Signal(()) => {
@@ -138,7 +170,10 @@ impl ClientNetworking {
                         }
 
                         while let Ok(packet) = packet_receiver.try_recv() {
-                            Self::send_packet_internal(&handler, &packet, server_endpoint).expect("failed to send packet to server");
+                            let res = Self::send_packet_internal(&handler, &packet, server_endpoint);
+                            if let Err(err) = res {
+                                error_returned.lock().unwrap_or_else(PoisonError::into_inner).push_str(&(err.to_string() + " (server closed)"));
+                            }
                         }
 
                         handler.signals().send_with_timer((), std::time::Duration::from_millis(1));
@@ -160,6 +195,9 @@ impl ClientNetworking {
             if net_loop_thread.is_finished() {
                 bail!("net loop thread failed");
             }
+        }
+        if !self.receive_loop_error.lock().unwrap_or_else(PoisonError::into_inner).is_empty() {
+            return Err(anyhow!(self.receive_loop_error.lock().unwrap_or_else(PoisonError::into_inner).clone()));
         }
         Ok(())
     }
