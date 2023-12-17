@@ -123,7 +123,14 @@ impl Server {
         } else {
             self.state = ServerState::GeneratingWorld;
             send_to_ui(UiMessageType::ServerState(self.state), None);
-            generator.generate((&mut *self.blocks.get_blocks(), &mut self.walls.walls), &mut self.mods.mod_manager, 4400, 1200, 423_657, status_text)?;
+            generator.generate(
+                (&mut *self.blocks.get_blocks(), &mut self.walls.get_walls()),
+                &mut self.mods.mod_manager,
+                4400,
+                1200,
+                423_657,
+                status_text,
+            )?;
         }
 
         self.state = ServerState::Running;
@@ -299,7 +306,7 @@ impl Server {
         let world: HashMap<String, Vec<u8>> = bincode::deserialize(&world_file)?;
 
         self.blocks.get_blocks().deserialize(world.get("blocks").unwrap_or(&Vec::new()))?;
-        self.walls.walls.deserialize(world.get("walls").unwrap_or(&Vec::new()))?;
+        self.walls.get_walls().deserialize(world.get("walls").unwrap_or(&Vec::new()))?;
         self.players.deserialize(world.get("players").unwrap_or(&Vec::new()))?;
         Ok(())
     }
@@ -307,7 +314,7 @@ impl Server {
     fn save_world(&self, world_path: &Path) -> Result<()> {
         let mut world = HashMap::new();
         world.insert("blocks".to_owned(), self.blocks.get_blocks().serialize()?);
-        world.insert("walls".to_owned(), self.walls.walls.serialize()?);
+        world.insert("walls".to_owned(), self.walls.get_walls().serialize()?);
         world.insert("players".to_owned(), self.players.serialize()?);
 
         let world_file = bincode::serialize(&world)?;

@@ -4,12 +4,8 @@ function register_walls()
     terralistic_print("registering walls...")
 
     -- DIRT
-    wall_type = terralistic_new_wall_type()
-    wall_type["name"] = "dirt"
-    walls.dirt = terralistic_register_wall_type(wall_type)
+    walls.dirt = terralistic_register_wall_type("dirt", 2000)
 
     -- WOOD_PLANKS
-    wall_type = terralistic_new_wall_type()
-    wall_type["name"] = "wood_planks"
-    walls.wood_planks = terralistic_register_wall_type(wall_type)
+    walls.wood_planks = terralistic_register_wall_type("wood_planks", 2000)
 end
