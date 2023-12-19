@@ -149,7 +149,6 @@ impl ClientPlayers {
         }
 
         if let Some(despawn_event) = event.downcast::<EntityDespawnEvent>() {
-            println!("got despawn event");
             if let Some(main_player) = self.main_player {
                 let id = entities.get_id_from_entity(main_player)?;
                 if id == despawn_event.id {
