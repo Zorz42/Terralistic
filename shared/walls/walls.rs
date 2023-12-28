@@ -165,7 +165,7 @@ impl Walls {
     pub fn create_from_wall_ids(&mut self, wall_ids: &Vec<Vec<WallId>>) -> Result<()> {
         let width = wall_ids.len() as u32;
         let height;
-        if let Some(row) = wall_ids.get(0) {
+        if let Some(row) = wall_ids.first() {
             height = row.len() as u32;
         } else {
             bail!("Wall ids must not be empty");
