@@ -75,6 +75,19 @@ pub fn run_main_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn Ba
     let mut settings_menu = SettingsMenu::new();
     settings_menu.init(graphics, settings);
 
+    let cloud_status_rect = gfx::Rect::new(gfx::FloatPos(10.0, 10.0), gfx::FloatSize(20.0, 20.0));
+
+    let tls_client = match crate::shared::tls_client::get_client() {
+        Err(e) => {
+            eprintln!("error getting tls client:\n{e}\n\nbacktrace:\n{}", e.backtrace());
+            None
+        }
+        Ok(mut client) => {
+            client.run();
+            Some(client)
+        }
+    };
+
     while graphics.is_window_open() {
         while let Some(event) = graphics.get_event() {
             if in_settings {
@@ -125,6 +138,12 @@ pub fn run_main_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn Ba
         for button in buttons {
             button.render(graphics, Some(menu_back.get_back_rect_container()));
         }
+
+        let color = match tls_client {
+            None => gfx::Color::new(255, 0, 0, 255),
+            Some(_) => gfx::Color::new(0, 255, 0, 255),
+        };
+        cloud_status_rect.render(graphics, color);
 
         #[cfg(debug_assertions)]
         debug_title.render(graphics, Some(menu_back.get_back_rect_container()), None);

@@ -8,6 +8,7 @@ pub mod liquids;
 pub mod mod_manager;
 pub mod packet;
 pub mod players;
+pub mod tls_client;
 pub mod versions;
 pub mod walls;
 pub mod world_map;
