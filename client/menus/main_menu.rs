@@ -93,9 +93,7 @@ pub fn run_main_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn Ba
         tls_client.as_mut().map_or_else(
             || {},
             |e| {
-                if !matches!(e.state, State::FAILED) {
-                    e.connect()
-                }
+                e.connect();
             },
         );
         while let Some(event) = graphics.get_event() {
