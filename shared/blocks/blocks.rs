@@ -98,7 +98,7 @@ impl Blocks {
     pub fn create_from_block_ids(&mut self, block_ids: &Vec<Vec<BlockId>>) -> Result<()> {
         let width = block_ids.len() as u32;
         let height;
-        if let Some(row) = block_ids.get(0) {
+        if let Some(row) = block_ids.first() {
             height = row.len() as u32;
         } else {
             bail!("Block ids must not be empty");

@@ -114,7 +114,7 @@ impl CommandManager {
         let arguments: Vec<String> = command.split(' ').map(std::borrow::ToOwned::to_owned).collect();
 
         for c in &self.commands {
-            if c.call_name == *arguments.get(0).unwrap_or(&String::new()) {
+            if c.call_name == *arguments.first().unwrap_or(&String::new()) {
                 return (c.function)(&mut CommandParameters {
                     //returns the feedback message from the command
                     command_manager: self,
