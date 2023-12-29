@@ -2,6 +2,7 @@ use crate::client::global_settings::GlobalSettings;
 use crate::client::menus::SettingsMenu;
 use crate::client::settings::Settings;
 use crate::libraries::graphics as gfx;
+use crate::shared::tls_client::{State, TlsClient};
 use crate::shared::versions::VERSION;
 
 use super::background_rect::BackgroundRect;
@@ -77,19 +78,26 @@ pub fn run_main_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn Ba
 
     let cloud_status_rect = gfx::Rect::new(gfx::FloatPos(10.0, 10.0), gfx::FloatSize(20.0, 20.0));
 
-    let tls_client = match crate::shared::tls_client::TlsClient::new() {
+    let mut tls_client = match TlsClient::new() {
         Err(e) => {
             eprintln!("error getting tls client:\n{e}\n\nbacktrace:\n{}", e.backtrace());
             None
         }
         Ok(mut client) => {
-            #[allow(clippy::let_underscore_must_use)] //only to test authentication, not actually functional
-            let _ = client.run();
+            client.connect();
             Some(client)
         }
     };
 
     while graphics.is_window_open() {
+        tls_client.as_mut().map_or_else(
+            || {},
+            |e| {
+                if !matches!(e.state, State::FAILED) {
+                    e.connect()
+                }
+            },
+        );
         while let Some(event) = graphics.get_event() {
             if in_settings {
                 if settings_menu.on_event(&event, graphics, settings) {
@@ -140,11 +148,14 @@ pub fn run_main_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn Ba
             button.render(graphics, Some(menu_back.get_back_rect_container()));
         }
 
-        let color = if tls_client.as_ref().map_or_else(|| false, |e| e.is_authenticated) {
-            gfx::Color::new(255, 0, 0, 255)
-        } else {
-            gfx::Color::new(0, 255, 0, 255)
-        };
+        let color = tls_client.as_ref().map_or_else(
+            || gfx::Color::new(255, 0, 0, 255),
+            |client| match &client.state {
+                State::CONNECTING(_) => gfx::Color::new(255, 255, 0, 255),
+                State::CONNECTED(_) => gfx::Color::new(0, 255, 0, 255),
+                _ => gfx::Color::new(255, 0, 0, 255),
+            },
+        );
         cloud_status_rect.render(graphics, color);
 
         #[cfg(debug_assertions)]

@@ -1,29 +1,85 @@
 use anyhow::Result;
 use rustls::ClientConfig;
 use std::io::{Read, Write};
-use std::net::ToSocketAddrs;
+use std::net::{TcpStream, ToSocketAddrs};
 
 const PORT: u16 = 28603;
 const ADDR: &str = "home.susko.si";
 
+pub enum State {
+    DISCONNECTED,
+    CONNECTING(std::thread::JoinHandle<Result<(rustls::ClientConnection, TcpStream)>>),
+    CONNECTED(Box<(rustls::ClientConnection, TcpStream)>),
+    FAILED,
+}
+
+impl State {
+    fn connect(&mut self) {
+        if let Self::CONNECTING(handle) = std::mem::replace(self, Self::FAILED) {
+            let handle = match handle.join() {
+                Ok(handle) => match handle {
+                    Ok(handle) => handle,
+                    Err(e) => {
+                        eprintln!("error connecting to server:\n{e}\n\nbacktrace:\n{}", e.backtrace());
+                        *self = Self::FAILED;
+                        return;
+                    }
+                },
+                Err(e) => {
+                    eprintln!("error joining handles:\n{e:?}");
+                    *self = Self::FAILED;
+                    return;
+                }
+            };
+            *self = Self::CONNECTED(Box::new(handle));
+        }
+    }
+}
+
 pub struct TlsClient {
     pub is_authenticated: bool,
+    pub state: State,
     socket: std::net::SocketAddr,
-    tls_conn: rustls::ClientConnection,
+    config: std::sync::Arc<ClientConfig>,
 }
 
 impl TlsClient {
     pub fn new() -> Result<Self> {
         Ok(Self {
             is_authenticated: false,
+            state: State::DISCONNECTED,
             socket: (ADDR, PORT).to_socket_addrs()?.next().ok_or_else(|| anyhow::anyhow!("incorrect DNS"))?,
-            tls_conn: rustls::ClientConnection::new(get_client_config(), ADDR.try_into()?)?,
+            config: get_client_config(),
         })
     }
 
+    pub fn connect(&mut self) {
+        match &self.state {
+            State::DISCONNECTED => {
+                let temp_socket = self.socket;
+                let temp_config = self.config.clone();
+                let thread = std::thread::spawn(move || -> Result<(rustls::ClientConnection, TcpStream)> {
+                    let socket = temp_socket;
+                    let tls_conn = rustls::ClientConnection::new(temp_config, ADDR.try_into()?)?;
+                    let tcp_stream = TcpStream::connect_timeout(&socket, std::time::Duration::from_millis(10000))?;
+                    Ok((tls_conn, tcp_stream))
+                });
+                self.state = State::CONNECTING(thread);
+            }
+            State::CONNECTING(handle) => {
+                if !handle.is_finished() {
+                    return;
+                }
+                self.state.connect();
+            }
+            _ => {}
+        }
+    }
+
     pub fn run(&mut self) -> Result<()> {
-        let mut tcp_stream = std::net::TcpStream::connect_timeout(&self.socket, std::time::Duration::from_millis(1000))?; //i should multithread/async this so it doesn't block the thread
-        let mut tls_stream = rustls::Stream::new(&mut self.tls_conn, &mut tcp_stream);
+        let mut tcp_stream = TcpStream::connect_timeout(&self.socket, std::time::Duration::from_millis(1000))?; //i should multithread/async this so it doesn't block the thread
+        let mut tls_conn = rustls::ClientConnection::new(self.config.clone(), ADDR.try_into()?)?;
+        let mut tls_stream = rustls::Stream::new(&mut tls_conn, &mut tcp_stream);
 
         self.is_authenticated = true;
 
