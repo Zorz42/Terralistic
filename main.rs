@@ -148,6 +148,8 @@
 #![allow(clippy::unimplemented)]
 #![allow(clippy::type_complexity)]
 #![allow(clippy::too_many_arguments)]
+#![allow(clippy::struct_field_names)]
+#![allow(clippy::iter_without_into_iter)]
 #![windows_subsystem = "windows"]
 
 use std::sync::atomic::AtomicBool;

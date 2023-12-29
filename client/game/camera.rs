@@ -9,8 +9,8 @@ pub struct Camera {
     target_position_y: f32,
     position_x: f32,
     position_y: f32,
-    detached_camera: bool,
-    detached_camera_text: gfx::Sprite,
+    detached: bool,
+    detached_text: gfx::Sprite,
 }
 
 impl Camera {
@@ -20,21 +20,21 @@ impl Camera {
             target_position_y: 0.0,
             position_x: 0.0,
             position_y: 0.0,
-            detached_camera: false,
-            detached_camera_text: gfx::Sprite::new(),
+            detached: false,
+            detached_text: gfx::Sprite::new(),
         }
     }
 
     pub fn load_resources(&mut self, graphics: &gfx::GraphicsContext) {
-        self.detached_camera_text.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Camera is detached", None));
-        self.detached_camera_text.orientation = gfx::BOTTOM;
-        self.detached_camera_text.pos = gfx::FloatPos(0.0, -gfx::SPACING);
-        self.detached_camera_text.scale = 3.0;
-        self.detached_camera_text.color = gfx::Color::new(255, 0, 0, 255);
+        self.detached_text.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Camera is detached", None));
+        self.detached_text.orientation = gfx::BOTTOM;
+        self.detached_text.pos = gfx::FloatPos(0.0, -gfx::SPACING);
+        self.detached_text.scale = 3.0;
+        self.detached_text.color = gfx::Color::new(255, 0, 0, 255);
     }
 
     pub fn set_position(&mut self, x: f32, y: f32) {
-        if !self.detached_camera {
+        if !self.detached {
             self.target_position_x = x;
             self.target_position_y = y;
         }
@@ -48,7 +48,7 @@ impl Camera {
         self.position_x += (self.target_position_x - self.position_x) * 0.03;
         self.position_y += (self.target_position_y - self.position_y) * 0.03;
 
-        if self.detached_camera {
+        if self.detached {
             if graphics.get_key_state(gfx::Key::W) {
                 self.target_position_y -= 0.5;
             }
@@ -68,8 +68,8 @@ impl Camera {
     }
 
     pub fn render(&self, graphics: &gfx::GraphicsContext) {
-        if self.detached_camera {
-            self.detached_camera_text.render(graphics, None, None);
+        if self.detached {
+            self.detached_text.render(graphics, None, None);
         }
     }
 
@@ -90,12 +90,12 @@ impl Camera {
     pub fn on_event(&mut self, event: &Event) {
         if let Some(event) = event.downcast::<gfx::Event>() {
             if matches!(event, gfx::Event::KeyPress(gfx::Key::C, false)) {
-                self.detached_camera = !self.detached_camera;
+                self.detached = !self.detached;
             }
         }
     }
 
     pub const fn is_detached(&self) -> bool {
-        self.detached_camera
+        self.detached
     }
 }
