@@ -12,8 +12,10 @@ pub struct TlsClient {
 }
 
 impl TlsClient {
-    #[allow(clippy::unnecessary_wraps)]
-    fn new(socket: std::net::SocketAddr, config: std::sync::Arc<ClientConfig>) -> Result<Self> {
+    pub fn new() -> Result<Self> {
+        let config = get_client_config();
+        let socket = (ADDR, PORT).to_socket_addrs()?.next().ok_or_else(|| anyhow::anyhow!("incorrect DNS"))?;
+
         let server_name = ADDR.try_into()?;
         Ok(Self {
             socket,
@@ -48,11 +50,4 @@ fn get_client_config() -> std::sync::Arc<ClientConfig> {
     }));
 
     std::sync::Arc::new(ClientConfig::builder().with_root_certificates(root_store).with_no_client_auth())
-}
-
-pub fn get_client() -> Result<TlsClient> {
-    let config = get_client_config();
-    let socket_addr = (ADDR, PORT).to_socket_addrs()?.next().ok_or_else(|| anyhow::anyhow!("incorrect DNS"))?;
-
-    TlsClient::new(socket_addr, config)
 }

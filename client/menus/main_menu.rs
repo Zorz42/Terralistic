@@ -77,7 +77,7 @@ pub fn run_main_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn Ba
 
     let cloud_status_rect = gfx::Rect::new(gfx::FloatPos(10.0, 10.0), gfx::FloatSize(20.0, 20.0));
 
-    let tls_client = match crate::shared::tls_client::get_client() {
+    let tls_client = match crate::shared::tls_client::TlsClient::new() {
         Err(e) => {
             eprintln!("error getting tls client:\n{e}\n\nbacktrace:\n{}", e.backtrace());
             None
