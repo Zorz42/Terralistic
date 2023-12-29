@@ -7,25 +7,25 @@ const PORT: u16 = 28603;
 const ADDR: &str = "home.susko.si";
 
 pub struct TlsClient {
+    pub is_authenticated: bool,
     socket: std::net::SocketAddr,
     tls_conn: rustls::ClientConnection,
 }
 
 impl TlsClient {
     pub fn new() -> Result<Self> {
-        let config = get_client_config();
-        let socket = (ADDR, PORT).to_socket_addrs()?.next().ok_or_else(|| anyhow::anyhow!("incorrect DNS"))?;
-
-        let server_name = ADDR.try_into()?;
         Ok(Self {
-            socket,
-            tls_conn: rustls::ClientConnection::new(config, server_name)?,
+            is_authenticated: false,
+            socket: (ADDR, PORT).to_socket_addrs()?.next().ok_or_else(|| anyhow::anyhow!("incorrect DNS"))?,
+            tls_conn: rustls::ClientConnection::new(get_client_config(), ADDR.try_into()?)?,
         })
     }
 
     pub fn run(&mut self) -> Result<()> {
         let mut tcp_stream = std::net::TcpStream::connect_timeout(&self.socket, std::time::Duration::from_millis(1000))?; //i should multithread/async this so it doesn't block the thread
         let mut tls_stream = rustls::Stream::new(&mut self.tls_conn, &mut tcp_stream);
+
+        self.is_authenticated = true;
 
         tls_stream.write_all("am i authenticated".to_owned().as_bytes())?;
         let mut buf = [0; 1024];

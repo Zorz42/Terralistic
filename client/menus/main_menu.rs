@@ -82,7 +82,11 @@ pub fn run_main_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn Ba
             eprintln!("error getting tls client:\n{e}\n\nbacktrace:\n{}", e.backtrace());
             None
         }
-        Ok(mut client) => client.run().is_ok().then_some(client),
+        Ok(mut client) => {
+            #[allow(clippy::let_underscore_must_use)] //only to test authentication, not actually functional
+            let _ = client.run();
+            Some(client)
+        }
     };
 
     while graphics.is_window_open() {
@@ -136,9 +140,10 @@ pub fn run_main_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn Ba
             button.render(graphics, Some(menu_back.get_back_rect_container()));
         }
 
-        let color = match tls_client {
-            None => gfx::Color::new(255, 0, 0, 255),
-            Some(_) => gfx::Color::new(0, 255, 0, 255),
+        let color = if tls_client.as_ref().map_or_else(|| false, |e| e.is_authenticated) {
+            gfx::Color::new(255, 0, 0, 255)
+        } else {
+            gfx::Color::new(0, 255, 0, 255)
         };
         cloud_status_rect.render(graphics, color);
 
