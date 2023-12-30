@@ -2,7 +2,7 @@ use crate::client::global_settings::GlobalSettings;
 use crate::client::menus::SettingsMenu;
 use crate::client::settings::Settings;
 use crate::libraries::graphics as gfx;
-use crate::shared::tls_client::{State, TlsClient};
+use crate::shared::tls_client::{ConnectionState, TlsClient};
 use crate::shared::versions::VERSION;
 
 use super::background_rect::BackgroundRect;
@@ -149,8 +149,8 @@ pub fn run_main_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn Ba
         let color = tls_client.as_ref().map_or_else(
             || gfx::Color::new(255, 0, 0, 255),
             |client| match &client.state {
-                State::CONNECTING(_) => gfx::Color::new(255, 255, 0, 255),
-                State::CONNECTED(_) => gfx::Color::new(0, 255, 0, 255),
+                ConnectionState::CONNECTING(_) => gfx::Color::new(255, 255, 0, 255),
+                ConnectionState::CONNECTED(_) => gfx::Color::new(0, 255, 0, 255),
                 _ => gfx::Color::new(255, 0, 0, 255),
             },
         );
