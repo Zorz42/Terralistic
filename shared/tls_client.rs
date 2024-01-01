@@ -96,14 +96,30 @@ impl TlsClient {
     }
 
     pub fn write(&mut self, message: &str) -> Result<()> {
-        if let ConnectionState::CONNECTED(connection) = self.state.borrow_mut() {
+        return if let ConnectionState::CONNECTED(connection) = self.state.borrow_mut() {
             #[allow(clippy::explicit_deref_methods)] //the solution by clippy is way uglier
             let (connection, tcp_stream) = connection.deref_mut();
             let mut tls_conn = rustls::Stream::new(connection, tcp_stream);
-            tls_conn.write_all(message.as_bytes())?;
-            return Ok(());
-        }
-        anyhow::bail!("not connected to the cloud server")
+            let mut read = 0;
+            loop {
+                if read == message.len() {
+                    break;
+                }
+                let res = tls_conn.write(&message.as_bytes()[read..]);
+                match res {
+                    Ok(n) => read += n,
+                    Err(e) => {
+                        if e.kind() == std::io::ErrorKind::WouldBlock {
+                            continue;
+                        }
+                        return Err(e.into());
+                    }
+                }
+            }
+            Ok(())
+        } else {
+            anyhow::bail!("not connected to the cloud server")
+        };
     }
 
     pub fn close(&mut self) {

@@ -63,8 +63,9 @@ impl TlsClient {
                         self.authentication_state = AuthenticationState::NO_CREDENTIALS;
                     }
                 },
-                AuthenticationState::AUTHENTICATING => {
-                    if let Ok(message) = self.read() {
+                AuthenticationState::AUTHENTICATING => match self.read() {
+                    Ok(message) => {
+                        println!("received a message");
                         if message == "auth_success" {
                             self.authentication_state = AuthenticationState::AUTHENTICATED;
                             println!("client is authenticated");
@@ -72,7 +73,10 @@ impl TlsClient {
                             self.authentication_state = AuthenticationState::FAILED;
                         }
                     }
-                }
+                    Err(e) => {
+                        eprintln!("error reading from server: {e}");
+                    }
+                },
                 _ => {}
             },
             _ => self.connect(),

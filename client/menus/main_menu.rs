@@ -94,6 +94,7 @@ pub fn run_main_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn Ba
         tls_client.as_mut().map_or_else(
             || {},
             |client| {
+                //client.print_state();
                 client.authenticate();
             },
         );
