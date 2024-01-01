@@ -3,6 +3,7 @@ use crate::shared::tls_client::ConnectionState;
 use anyhow::Result;
 
 #[allow(non_camel_case_types)] //shut up clippy
+#[derive(Debug)]
 pub enum AuthenticationState {
     NOT_AUTHENTICATED,
     AUTHENTICATING,
@@ -20,8 +21,8 @@ pub struct TlsClient {
 impl TlsClient {
     pub fn new() -> Result<Self> {
         Ok(Self {
-            user_credentials: None,
-            authentication_state: AuthenticationState::NO_CREDENTIALS, //read from file and set this to NOT_AUTHENTICATED if the password is saved
+            user_credentials: Some(("test".to_owned(), "test".to_owned())),
+            authentication_state: AuthenticationState::NOT_AUTHENTICATED, //read from file and set this to NOT_AUTHENTICATED if the password is saved or change when the user enters the password
             client: tls_client::TlsClient::new()?,
         })
     }
@@ -51,7 +52,13 @@ impl TlsClient {
             ConnectionState::CONNECTED(_) => match &self.authentication_state {
                 AuthenticationState::NOT_AUTHENTICATED => match &self.user_credentials {
                     Some((username, password)) => {
-                        self.client.write(&format!("{} {}", username, password)); //TODO handle errors
+                        println!("{username} {password}");
+                        let res = self.client.write(&format!("{username} {password}"));
+                        if let Err(e) = res {
+                            println!("error writing to server: {e}");
+                            self.authentication_state = AuthenticationState::FAILED;
+                            return;
+                        }
                         self.authentication_state = AuthenticationState::AUTHENTICATING;
                     }
                     None => {
@@ -62,6 +69,7 @@ impl TlsClient {
                     if let Ok(message) = self.client.read() {
                         if message == "auth_success" {
                             self.authentication_state = AuthenticationState::AUTHENTICATED;
+                            println!("client is authenticated");
                         } else if message == "auth_failed" {
                             self.authentication_state = AuthenticationState::FAILED;
                         }
@@ -70,6 +78,10 @@ impl TlsClient {
                 AuthenticationState::AUTHENTICATED | AuthenticationState::NO_CREDENTIALS | AuthenticationState::FAILED => {}
             },
         }
+    }
+
+    pub fn print_state(&self) {
+        println!("{:?} {:?}", self.client.get_state(), self.authentication_state);
     }
 
     #[must_use]

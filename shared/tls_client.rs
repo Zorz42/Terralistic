@@ -8,6 +8,7 @@ use std::ops::DerefMut;
 const PORT: u16 = 28603;
 const ADDR: &str = "home.susko.si";
 
+#[derive(Debug)]
 pub enum ConnectionState {
     DISCONNECTED,
     CONNECTING(std::thread::JoinHandle<Result<(rustls::ClientConnection, TcpStream)>>),
