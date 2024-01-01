@@ -253,8 +253,16 @@ impl Server {
 
     fn handle_events(&mut self) -> Result<()> {
         if let Some(receiver) = &self.ui_event_receiver {
-            self.commands
-                .execute_commands(receiver, &mut self.state, &mut self.players, &mut self.items, &mut self.entities, &mut self.events);
+            //goes through the messages received from the server
+            while let Ok(UiMessageType::UiToSrvConsoleMessage(message)) = receiver.try_recv() {
+                let feedback = self
+                    .commands
+                    .execute_command(&message, &mut self.state, None, &mut self.players, &mut self.items, &mut self.entities, &mut self.events);
+                match feedback {
+                    Ok(feedback) => print_to_console(&feedback, 0),
+                    Err(val) => print_to_console(&val.to_string(), 1),
+                };
+            }
         }
 
         while let Some(event) = self.events.pop_event() {

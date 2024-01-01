@@ -88,7 +88,7 @@ impl ClientHealth {
                             std::cmp::Ordering::Equal => (0, gfx::Color::new(255, 255, 255, 255)),
                         };
 
-                        floating_texts.spawn_text(FloatingText::new(graphics, &(val).to_string(), x, y, 3000, color, 2.0));
+                        floating_texts.spawn_text(FloatingText::new(graphics, &val.to_string(), x, y, 3000, color, 2.0));
                     }
                 }
 
