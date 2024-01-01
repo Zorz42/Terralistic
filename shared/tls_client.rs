@@ -1,6 +1,9 @@
 use anyhow::Result;
 use rustls::ClientConfig;
+use std::borrow::BorrowMut;
+use std::io::{Read, Write};
 use std::net::{TcpStream, ToSocketAddrs};
+use std::ops::DerefMut;
 
 const PORT: u16 = 28603;
 const ADDR: &str = "home.susko.si";
@@ -36,8 +39,8 @@ impl ConnectionState {
 }
 
 pub struct TlsClient {
-    pub is_authenticated: bool,
-    pub state: ConnectionState,
+    is_authenticated: bool,
+    state: ConnectionState,
     socket: std::net::SocketAddr,
     config: std::sync::Arc<ClientConfig>,
 }
@@ -60,6 +63,7 @@ impl TlsClient {
             let tls_conn = rustls::ClientConnection::new(temp_config, ADDR.try_into()?)?;
             std::thread::sleep(std::time::Duration::from_secs(2)); //artificial delay for debugging
             let tcp_stream = TcpStream::connect_timeout(&socket, std::time::Duration::from_millis(10000))?;
+            tcp_stream.set_nonblocking(true)?;
             Ok((tls_conn, tcp_stream))
         });
         self.state = ConnectionState::CONNECTING(thread);
@@ -78,6 +82,39 @@ impl TlsClient {
             }
             _ => {}
         }
+    }
+
+    pub fn read(&mut self) -> Result<String> {
+        if let ConnectionState::CONNECTED(connection) = self.state.borrow_mut() {
+            #[allow(clippy::explicit_deref_methods)] //the solution by clippy is way uglier
+            let (connection, tcp_stream) = connection.deref_mut();
+            let mut tls_conn = rustls::Stream::new(connection, tcp_stream);
+            let mut buffer = String::new();
+            tls_conn.read_to_string(&mut buffer)?;
+            return Ok(buffer);
+        }
+        anyhow::bail!("not connected to the cloud server")
+    }
+
+    pub fn write(&mut self) -> Result<()> {
+        if let ConnectionState::CONNECTED(connection) = self.state.borrow_mut() {
+            #[allow(clippy::explicit_deref_methods)] //the solution by clippy is way uglier
+            let (connection, tcp_stream) = connection.deref_mut();
+            let mut tls_conn = rustls::Stream::new(connection, tcp_stream);
+            tls_conn.write_all(b"hello world")?;
+            return Ok(());
+        }
+        anyhow::bail!("not connected to the cloud server")
+    }
+
+    #[must_use]
+    pub const fn get_state(&self) -> &ConnectionState {
+        &self.state
+    }
+
+    #[must_use]
+    pub const fn is_authenticated(&self) -> bool {
+        self.is_authenticated
     }
 }
 

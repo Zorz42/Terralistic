@@ -148,7 +148,7 @@ pub fn run_main_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn Ba
 
         let color = tls_client.as_ref().map_or_else(
             || gfx::Color::new(255, 0, 0, 255),
-            |client| match &client.state {
+            |client| match &client.get_state() {
                 ConnectionState::CONNECTING(_) => gfx::Color::new(255, 255, 0, 255),
                 ConnectionState::CONNECTED(_) => gfx::Color::new(0, 255, 0, 255),
                 _ => gfx::Color::new(255, 0, 0, 255),
