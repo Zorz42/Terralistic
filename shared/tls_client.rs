@@ -62,7 +62,7 @@ impl TlsClient {
             let tls_conn = rustls::ClientConnection::new(temp_config, ADDR.try_into()?)?;
             std::thread::sleep(std::time::Duration::from_secs(2)); //artificial delay for debugging
             let tcp_stream = TcpStream::connect_timeout(&socket, std::time::Duration::from_millis(10000))?;
-            tcp_stream.set_nonblocking(true)?;
+            tcp_stream.set_nonblocking(true)?; //TODO: this for some reason makes the connection fail, fix it
             Ok((tls_conn, tcp_stream))
         });
         self.state = ConnectionState::CONNECTING(thread);
