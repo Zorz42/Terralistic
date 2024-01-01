@@ -119,7 +119,7 @@ impl TlsClient {
     }
 
     #[must_use]
-    pub const fn get_state(&self) -> &ConnectionState {
+    pub const fn get_connection_state(&self) -> &ConnectionState {
         &self.state
     }
 }

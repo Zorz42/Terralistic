@@ -46,14 +46,12 @@ impl TlsClient {
 
     pub fn authenticate(&mut self) {
         //this is ugly lol
-        match self.client.get_state() {
-            ConnectionState::FAILED(_) => {}
-            ConnectionState::DISCONNECTED | ConnectionState::CONNECTING(_) => self.client.connect(),
+        match self.get_connection_state() {
             ConnectionState::CONNECTED(_) => match &self.authentication_state {
                 AuthenticationState::NOT_AUTHENTICATED => match &self.user_credentials {
                     Some((username, password)) => {
                         println!("{username} {password}");
-                        let res = self.client.write(&format!("{username} {password}"));
+                        let res = self.write(&format!("{username} {password}"));
                         if let Err(e) = res {
                             println!("error writing to server: {e}");
                             self.authentication_state = AuthenticationState::FAILED;
@@ -66,7 +64,7 @@ impl TlsClient {
                     }
                 },
                 AuthenticationState::AUTHENTICATING => {
-                    if let Ok(message) = self.client.read() {
+                    if let Ok(message) = self.read() {
                         if message == "auth_success" {
                             self.authentication_state = AuthenticationState::AUTHENTICATED;
                             println!("client is authenticated");
@@ -75,18 +73,19 @@ impl TlsClient {
                         }
                     }
                 }
-                AuthenticationState::AUTHENTICATED | AuthenticationState::NO_CREDENTIALS | AuthenticationState::FAILED => {}
+                _ => {}
             },
+            _ => self.connect(),
         }
     }
 
     pub fn print_state(&self) {
-        println!("{:?} {:?}", self.client.get_state(), self.authentication_state);
+        println!("{:?} {:?}", self.client.get_connection_state(), self.authentication_state);
     }
 
     #[must_use]
-    pub const fn get_state(&self) -> &ConnectionState {
-        self.client.get_state()
+    pub const fn get_connection_state(&self) -> &ConnectionState {
+        self.client.get_connection_state()
     }
 
     #[must_use]
