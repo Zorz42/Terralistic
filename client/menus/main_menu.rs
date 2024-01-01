@@ -1,8 +1,9 @@
+use crate::client::game::tls_client::TlsClient;
 use crate::client::global_settings::GlobalSettings;
 use crate::client::menus::SettingsMenu;
 use crate::client::settings::Settings;
 use crate::libraries::graphics as gfx;
-use crate::shared::tls_client::{ConnectionState, TlsClient};
+use crate::shared::tls_client::ConnectionState;
 use crate::shared::versions::VERSION;
 
 use super::background_rect::BackgroundRect;
@@ -92,8 +93,8 @@ pub fn run_main_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn Ba
     while graphics.is_window_open() {
         tls_client.as_mut().map_or_else(
             || {},
-            |e| {
-                e.connect();
+            |client| {
+                client.authenticate();
             },
         );
         while let Some(event) = graphics.get_event() {

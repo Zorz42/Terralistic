@@ -39,7 +39,6 @@ impl ConnectionState {
 }
 
 pub struct TlsClient {
-    is_authenticated: bool,
     state: ConnectionState,
     socket: std::net::SocketAddr,
     config: std::sync::Arc<ClientConfig>,
@@ -48,7 +47,6 @@ pub struct TlsClient {
 impl TlsClient {
     pub fn new() -> Result<Self> {
         Ok(Self {
-            is_authenticated: false,
             state: ConnectionState::DISCONNECTED,
             socket: (ADDR, PORT).to_socket_addrs()?.next().ok_or_else(|| anyhow::anyhow!("incorrect DNS"))?,
             config: get_client_config(),
@@ -96,25 +94,32 @@ impl TlsClient {
         anyhow::bail!("not connected to the cloud server")
     }
 
-    pub fn write(&mut self) -> Result<()> {
+    pub fn write(&mut self, message: &str) -> Result<()> {
         if let ConnectionState::CONNECTED(connection) = self.state.borrow_mut() {
             #[allow(clippy::explicit_deref_methods)] //the solution by clippy is way uglier
             let (connection, tcp_stream) = connection.deref_mut();
             let mut tls_conn = rustls::Stream::new(connection, tcp_stream);
-            tls_conn.write_all(b"hello world")?;
+            tls_conn.write_all(message.as_bytes())?;
             return Ok(());
         }
         anyhow::bail!("not connected to the cloud server")
     }
 
-    #[must_use]
-    pub const fn get_state(&self) -> &ConnectionState {
-        &self.state
+    pub fn close(&mut self) {
+        if let ConnectionState::CONNECTED(connection) = self.state.borrow_mut() {
+            #[allow(clippy::explicit_deref_methods)] //the solution by clippy is way uglier
+            let (connection, tcp_stream) = connection.deref_mut();
+            connection.send_close_notify();
+            let mut tls_conn = rustls::Stream::new(connection, tcp_stream);
+            #[allow(clippy::let_underscore_must_use)] //if it fails we don't care
+            let _ = tls_conn.write_all(b"closing connection");
+            self.state = ConnectionState::DISCONNECTED;
+        }
     }
 
     #[must_use]
-    pub const fn is_authenticated(&self) -> bool {
-        self.is_authenticated
+    pub const fn get_state(&self) -> &ConnectionState {
+        &self.state
     }
 }
 
