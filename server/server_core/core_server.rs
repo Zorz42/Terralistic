@@ -17,7 +17,7 @@ use crate::server::server_core::players::ServerPlayers;
 use crate::server::server_ui::{ConsoleMessageType, PlayerEventType, ServerState, UiMessageType};
 
 use super::blocks::ServerBlocks;
-use super::commands::{Command, CommandManager};
+use super::commands::CommandManager;
 use super::mod_manager::ServerModManager;
 use super::networking::ServerNetworking;
 use super::walls::ServerWalls;
@@ -47,25 +47,7 @@ impl Server {
         send_to_ui(UiMessageType::ServerState(ServerState::Nothing), ui_event_sender); //this is useless but sets the ui event sender
         let blocks = ServerBlocks::new();
         let walls = ServerWalls::new(&mut blocks.get_blocks());
-        let mut commands = CommandManager::new();
-        commands.add_command(Command {
-            call_name: "help".to_owned(),
-            name: "Help".to_owned(),
-            description: "Shows all commands".to_owned(),
-            function: super::commands::help_command,
-        });
-        commands.add_command(Command {
-            call_name: "stop".to_owned(),
-            name: "Stop".to_owned(),
-            description: "Stops the server".to_owned(),
-            function: super::commands::stop_command,
-        });
-        commands.add_command(Command {
-            call_name: "give".to_owned(),
-            name: "Give".to_owned(),
-            description: "Gives an item to a player".to_owned(),
-            function: super::commands::give_command,
-        });
+        let commands = CommandManager::new();
         Self {
             tps_limit: 20.0,
             state: ServerState::Nothing,
@@ -255,9 +237,7 @@ impl Server {
         if let Some(receiver) = &self.ui_event_receiver {
             //goes through the messages received from the server
             while let Ok(UiMessageType::UiToSrvConsoleMessage(message)) = receiver.try_recv() {
-                let feedback = self
-                    .commands
-                    .execute_command(&message, &mut self.state, None, &mut self.players, &mut self.items, &mut self.entities, &mut self.events);
+                let feedback = self.commands.execute_command(&message, &mut self.mods.mod_manager);
                 match feedback {
                     Ok(feedback) => print_to_console(&feedback, 0),
                     Err(val) => print_to_console(&val.to_string(), 1),
@@ -276,8 +256,7 @@ impl Server {
                 send_to_ui(event.clone(), None);
             }
 
-            self.commands
-                .on_event(&event, &mut self.state, &mut self.players, &mut self.items, &mut self.entities, &mut self.events, &mut self.networking)?;
+            self.commands.on_event(&event, &self.players, &self.entities, &mut self.networking, &mut self.mods.mod_manager)?;
 
             self.mods.on_event(&event, &mut self.networking)?;
             self.blocks.on_event(

@@ -105,7 +105,7 @@ impl TlsClient {
                 if read == message.len() {
                     break;
                 }
-                let res = tls_conn.write(&message.as_bytes()[read..]);
+                let res = tls_conn.write(message.as_bytes().get(read..).ok_or_else(|| anyhow::anyhow!("index out of bounds"))?);
                 match res {
                     Ok(n) => read += n,
                     Err(e) => {
