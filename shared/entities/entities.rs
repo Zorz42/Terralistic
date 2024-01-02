@@ -321,3 +321,6 @@ impl HealthComponent {
         self.set_health(self.health + health, events, entity_id);
     }
 }
+
+/// make `EntityId` Lua compatible
+impl rlua::UserData for EntityId {}

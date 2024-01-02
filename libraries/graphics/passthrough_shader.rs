@@ -96,13 +96,9 @@ impl PassthroughShader {
         }
         rect_outline_vertex_buffer.upload();
 
-        // Safety: We are using a null terminated string
         let has_texture = unsafe { gl::GetUniformLocation(passthrough_shader, "has_texture\0".as_ptr().cast::<i8>()) };
-        // Safety: We are using a null terminated string
         let global_color = unsafe { gl::GetUniformLocation(passthrough_shader, "global_color\0".as_ptr().cast::<i8>()) };
-        // Safety: We are using a null terminated string
         let transform_matrix = unsafe { gl::GetUniformLocation(passthrough_shader, "transform_matrix\0".as_ptr().cast::<i8>()) };
-        // Safety: We are using a null terminated string
         let texture_transform_matrix = unsafe { gl::GetUniformLocation(passthrough_shader, "texture_transform_matrix\0".as_ptr().cast::<i8>()) };
 
         Ok(Self {

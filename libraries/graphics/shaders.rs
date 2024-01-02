@@ -2,7 +2,6 @@ use anyhow::{bail, Result};
 
 /// This compiles fragment and vertex shader and returns the compiled shader program
 pub fn compile_shader(vertex_code: &str, fragment_code: &str) -> Result<u32> {
-    // Safety: This is safe because we are using the opengl api correctly
     unsafe {
         let vertex_id = gl::CreateShader(gl::VERTEX_SHADER);
         let fragment_id = gl::CreateShader(gl::FRAGMENT_SHADER);

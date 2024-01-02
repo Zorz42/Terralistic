@@ -28,7 +28,6 @@ pub struct VertexBuffer {
 
 impl Drop for VertexBuffer {
     fn drop(&mut self) {
-        // Safety: We are deleting the buffers and vertex array. They are either 0 or valid.
         unsafe {
             gl::DeleteBuffers(1, &self.vertex_buffer);
             gl::DeleteBuffers(1, &self.index_buffer);
@@ -47,7 +46,6 @@ impl VertexBuffer {
             index_buffer: 0,
             vertex_array: 0,
         };
-        // Safety: We are generating the buffers and vertex array.
         unsafe {
             gl::GenBuffers(1, &mut result.vertex_buffer);
             gl::GenBuffers(1, &mut result.index_buffer);
@@ -77,7 +75,6 @@ impl VertexBuffer {
     }
 
     pub fn upload(&self) {
-        // Safety: all handles are valid, because they are either 0 or generated in the constructor.
         unsafe {
             gl::BindVertexArray(self.vertex_array);
 
@@ -90,7 +87,6 @@ impl VertexBuffer {
     }
 
     pub fn draw(&self, has_texture: bool, mode: DrawMode) {
-        // Safety: all handles are valid, because they are either 0 or generated in the constructor.
         unsafe {
             gl::BindVertexArray(self.vertex_array);
             gl::BindBuffer(gl::ARRAY_BUFFER, self.vertex_buffer);

@@ -1,3 +1,3 @@
-function command_give(parameters)
+function command_give(arguments, executor)
     return "command executed"
 end

@@ -37,7 +37,6 @@
 #![warn(clippy::string_to_string)]
 #![warn(clippy::todo)]
 #![warn(clippy::try_err)]
-#![warn(clippy::undocumented_unsafe_blocks)]
 #![warn(clippy::unimplemented)]
 #![warn(clippy::unnecessary_self_imports)]
 #![warn(clippy::unneeded_field_pattern)]

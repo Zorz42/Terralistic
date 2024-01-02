@@ -26,7 +26,6 @@ impl Texture {
         let mut result = Self::new();
         result.size = gfx::FloatSize::from(surface.get_size());
 
-        // Safety: We are using OpenGL functions correctly.
         unsafe {
             gl::GenTextures(1, &mut result.texture_handle);
             gl::BindTexture(gl::TEXTURE_2D, result.texture_handle);
@@ -58,7 +57,6 @@ impl Texture {
     /// Deletes the current texture if it exists.
     fn free_texture(&mut self) {
         if self.texture_handle != u32::MAX {
-            // Safety: We are using OpenGL functions correctly.
             unsafe {
                 gl::DeleteTextures(1, &self.texture_handle);
             }
@@ -97,7 +95,6 @@ impl Texture {
         transform.translate(pos);
         transform.stretch((src_rect.size.0 * scale, src_rect.size.1 * scale));
 
-        // Safety: We are using OpenGL functions correctly.
         unsafe {
             gl::UniformMatrix3fv(graphics.passthrough_shader.transform_matrix, 1, gl::FALSE, transform.matrix.as_ptr());
 

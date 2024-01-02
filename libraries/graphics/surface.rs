@@ -154,7 +154,7 @@ impl<'surface_lifetime> Iterator for MutSurfaceIterator<'surface_lifetime> {
         let result = self.surface.get_pixel_mut(self.pos).ok();
         self.pos.0 += 1;
         if let Some(result) = result {
-            // Safety: We know that the result is a valid mutable reference and 'surface_lifetime
+            // We know that the result is a valid mutable reference and 'surface_lifetime
             // outlives the iterator. Apparently mutable iterators are not possible without unsafe code.
             unsafe { Some((self.pos - gfx::IntPos(1, 0), &mut *(result as *mut Color))) }
         } else {

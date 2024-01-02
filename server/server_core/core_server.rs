@@ -96,6 +96,8 @@ impl Server {
         *status_text.lock().unwrap_or_else(PoisonError::into_inner) = "Initializing mods".to_owned();
         self.mods.init()?;
 
+        self.commands.init(&mut self.mods.mod_manager);
+
         if world_path.exists() {
             self.state = ServerState::LoadingWorld;
             send_to_ui(UiMessageType::ServerState(self.state), None);
@@ -123,7 +125,7 @@ impl Server {
         Ok(())
     }
 
-    ///Runs the server - automated way. It starts (inits) the server, runs it until it has top be stopped, then stops it and returns
+    /// Runs the server - automated way. It starts (initializes) the server, runs it until it has top be stopped, then stops it and returns
     pub fn run(&mut self, is_running: &AtomicBool, status_text: &Mutex<String>, mods_serialized: Vec<Vec<u8>>, world_path: &Path) -> Result<()> {
         let mut last_time;
 
@@ -151,7 +153,7 @@ impl Server {
         Ok(())
     }
 
-    ///Updates the server - manual way. It updates the server once and returns
+    /// Updates the server - manual way. It updates the server once and returns
     pub fn update(&mut self) -> Result<()> {
         //there's no point in outside functions knowing about the counters. Letting outside functions manage these variables could lead to bugs
         static mut MS_COUNTER: i32 = 0;
@@ -159,10 +161,7 @@ impl Server {
         static mut MS_TIMER: Option<std::time::Instant> = None;
         static mut LAST_TIME: Option<std::time::Instant> = None;
 
-        let Some((ms_timer, last_time)) =
-            //Safety: safe, we're only updating and using the count without any multithreading
-            (unsafe { get_timers_from_static(&mut MS_TIMER, &mut LAST_TIME) })
-        else {
+        let Some((ms_timer, last_time)) = (unsafe { get_timers_from_static(&mut MS_TIMER, &mut LAST_TIME) }) else {
             return Ok(()); //we return early this time
         };
 
@@ -177,7 +176,6 @@ impl Server {
         // handle events
         self.handle_events()?;
 
-        //Safety: safe, we're only updating and using the count without any multithreading
         while unsafe { MS_COUNTER < ms_timer.elapsed().as_millis() as i32 } {
             self.players.update(
                 &mut self.entities.entities,
@@ -187,13 +185,11 @@ impl Server {
                 &mut self.networking,
             )?;
             self.entities.entities.update_entities_ms(&self.blocks.get_blocks(), &mut self.events)?;
-            //Safety: safe, we're only updating and using the count without any multithreading
             unsafe {
                 MS_COUNTER += 5;
             }
         }
 
-        //Safety: safe, we're only updating and using the count without any multithreading
         unsafe {
             if SECONDS_COUNTER < MS_COUNTER / 1000 {
                 self.entities.sync_entities(&mut self.networking)?;
@@ -204,7 +200,7 @@ impl Server {
         Ok(())
     }
 
-    ///Stops the server - manual way. It stops the server and returns
+    /// Stops the server - manual way. It stops the server and returns
     pub fn stop(&mut self, status_text: &Mutex<String>, world_path: &Path) -> Result<()> {
         if self.state == ServerState::Stopped {
             //so we don't stop it twice
@@ -237,7 +233,7 @@ impl Server {
         if let Some(receiver) = &self.ui_event_receiver {
             //goes through the messages received from the server
             while let Ok(UiMessageType::UiToSrvConsoleMessage(message)) = receiver.try_recv() {
-                let feedback = self.commands.execute_command(&message, &mut self.mods.mod_manager);
+                let feedback = self.commands.execute_command(&message, &mut self.mods.mod_manager, None);
                 match feedback {
                     Ok(feedback) => print_to_console(&feedback, 0),
                     Err(val) => print_to_console(&val.to_string(), 1),
@@ -334,11 +330,10 @@ unsafe fn get_timers_from_static(ms_timer_static: &mut Option<std::time::Instant
     Some((ms_timer, last_time))
 }
 
-//sends any data to the ui if the server was started without nogui flag
+/// sends any data to the ui if the server was started without nogui flag
 pub fn send_to_ui(data: UiMessageType, ui_event_sender: Option<Sender<UiMessageType>>) {
     static mut UI_EVENT_SENDER: Option<Sender<UiMessageType>> = None;
 
-    //Safety: safe becuase the server is single threaded
     unsafe {
         if UI_EVENT_SENDER.is_none() {
             UI_EVENT_SENDER = ui_event_sender;
@@ -354,7 +349,7 @@ pub fn send_to_ui(data: UiMessageType, ui_event_sender: Option<Sender<UiMessageT
     }
 }
 
-//prints to the terminal the server was started in and sends it to the ui
+/// prints to the terminal the server was started in and sends it to the ui
 pub fn print_to_console(text: &str, warn_level: u8) {
     if text.is_empty() {
         return;
@@ -385,7 +380,7 @@ pub fn print_to_console(text: &str, warn_level: u8) {
     send_to_ui(UiMessageType::SrvToUiConsoleMessage(text_with_type), None);
 }
 
-//this function formats the string to add the timestamp
+/// This function formats the string to add the timestamp
 fn format_timestamp(message: &String) -> String {
     let timestamp = chrono::Local::now().naive_local().timestamp();
     let timestamp = chrono::NaiveDateTime::from_timestamp_opt(timestamp, 0);
