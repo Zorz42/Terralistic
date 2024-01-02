@@ -2,7 +2,7 @@ use std::collections::HashMap;
 use std::path::Path;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::mpsc::{Receiver, Sender};
-use std::sync::{Mutex, PoisonError};
+use std::sync::{Arc, Mutex, PoisonError};
 use std::thread::sleep;
 use std::time::Duration;
 
@@ -28,7 +28,7 @@ pub const MULTIPLAYER_PORT: u16 = 49153;
 
 pub struct Server {
     pub tps_limit: f32,
-    pub state: ServerState,
+    pub state: Arc<Mutex<ServerState>>,
     events: EventManager,
     networking: ServerNetworking,
     mods: ServerModManager,
@@ -50,7 +50,7 @@ impl Server {
         let commands = CommandManager::new();
         Self {
             tps_limit: 20.0,
-            state: ServerState::Nothing,
+            state: Arc::new(Mutex::new(ServerState::Nothing)),
             events: EventManager::new(),
             networking: ServerNetworking::new(port),
             mods: ServerModManager::new(Vec::new()),
@@ -64,14 +64,30 @@ impl Server {
         }
     }
 
+    pub fn set_state(&mut self, server_state: ServerState) {
+        *self.state.lock().unwrap_or_else(PoisonError::into_inner) = server_state;
+        send_to_ui(UiMessageType::ServerState(server_state), None);
+    }
+
+    pub fn get_state(&self) -> ServerState {
+        *self.state.lock().unwrap_or_else(PoisonError::into_inner)
+    }
+
+    fn init_mod_interface(&mut self) -> Result<()> {
+        let state = self.state.clone();
+        self.mods.mod_manager.add_global_function("stop_server", move |_, ()| -> Result<_, rlua::Error> {
+            *state.lock().unwrap_or_else(PoisonError::into_inner) = ServerState::Stopping;
+            Ok(())
+        })
+    }
+
     /// Starts the server - manual way. It only inits the server but doesn't run a loop
     #[allow(clippy::too_many_lines)]
     pub fn start(&mut self, status_text: &Mutex<String>, mods_serialized: Vec<Vec<u8>>, world_path: &Path) -> Result<()> {
         print_to_console("Starting server...", 0);
         let timer = std::time::Instant::now();
         *status_text.lock().unwrap_or_else(PoisonError::into_inner) = "Starting server".to_owned();
-        self.state = ServerState::Starting;
-        send_to_ui(UiMessageType::ServerState(self.state), None);
+        self.set_state(ServerState::Starting);
 
         let mut mods = Vec::new();
         for game_mod in mods_serialized {
@@ -80,6 +96,8 @@ impl Server {
             mods.push(bincode::deserialize(&game_mod)?);
         }
         self.mods = ServerModManager::new(mods);
+
+        self.init_mod_interface()?;
 
         // init modules
         self.networking.init();
@@ -90,8 +108,7 @@ impl Server {
         let mut generator = WorldGenerator::new();
         generator.init(&mut self.mods.mod_manager)?;
 
-        self.state = ServerState::InitMods;
-        send_to_ui(UiMessageType::ServerState(self.state), None);
+        self.set_state(ServerState::InitMods);
         print_to_console("initializing mods", 0);
         *status_text.lock().unwrap_or_else(PoisonError::into_inner) = "Initializing mods".to_owned();
         self.mods.init()?;
@@ -99,14 +116,12 @@ impl Server {
         self.commands.init(&mut self.mods.mod_manager);
 
         if world_path.exists() {
-            self.state = ServerState::LoadingWorld;
-            send_to_ui(UiMessageType::ServerState(self.state), None);
+            self.set_state(ServerState::LoadingWorld);
             print_to_console("loading world", 0);
             *status_text.lock().unwrap_or_else(PoisonError::into_inner) = "Loading world".to_owned();
             self.load_world(world_path)?;
         } else {
-            self.state = ServerState::GeneratingWorld;
-            send_to_ui(UiMessageType::ServerState(self.state), None);
+            self.set_state(ServerState::GeneratingWorld);
             generator.generate(
                 (&mut *self.blocks.get_blocks(), &mut self.walls.get_walls()),
                 &mut self.mods.mod_manager,
@@ -117,8 +132,7 @@ impl Server {
             )?;
         }
 
-        self.state = ServerState::Running;
-        send_to_ui(UiMessageType::ServerState(self.state), None);
+        self.set_state(ServerState::Running);
 
         print_to_console(&format!("server started in {}ms", timer.elapsed().as_millis()), 0);
         status_text.lock().unwrap_or_else(PoisonError::into_inner).clear();
@@ -142,7 +156,7 @@ impl Server {
                 sleep(Duration::from_secs_f32(sleep_time / 1000.0));
             }
 
-            if !is_running.load(Ordering::Relaxed) || self.state == ServerState::Stopping {
+            if !is_running.load(Ordering::Relaxed) || self.get_state() == ServerState::Stopping {
                 //state is there so outside events can stop it
                 break;
             }
@@ -202,7 +216,7 @@ impl Server {
 
     /// Stops the server - manual way. It stops the server and returns
     pub fn stop(&mut self, status_text: &Mutex<String>, world_path: &Path) -> Result<()> {
-        if self.state == ServerState::Stopped {
+        if self.get_state() == ServerState::Stopped {
             //so we don't stop it twice
             return Ok(());
         }
@@ -211,8 +225,7 @@ impl Server {
         self.mods.stop()?;
         self.handle_events()?;
 
-        self.state = ServerState::Stopping;
-        send_to_ui(UiMessageType::ServerState(self.state), None);
+        self.set_state(ServerState::Stopping);
         print_to_console("saving world", 0);
         *status_text.lock().unwrap_or_else(PoisonError::into_inner) = "Saving world".to_owned();
 
@@ -221,8 +234,7 @@ impl Server {
         print_to_console("stopping server", 0);
         *status_text.lock().unwrap_or_else(PoisonError::into_inner) = "Stopping server".to_owned();
 
-        self.state = ServerState::Stopped;
-        send_to_ui(UiMessageType::ServerState(self.state), None);
+        self.set_state(ServerState::Stopped);
         status_text.lock().unwrap_or_else(PoisonError::into_inner).clear();
         print_to_console("server stopped.", 0);
 

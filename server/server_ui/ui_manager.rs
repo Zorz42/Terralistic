@@ -134,7 +134,7 @@ impl UiManager {
 
     fn should_ui_stop(&self, is_running: &Arc<AtomicBool>) -> bool {
         //close the window if the server is stopped
-        if !is_running.load(std::sync::atomic::Ordering::Relaxed) || self.server.state == ServerState::Stopping
+        if !is_running.load(std::sync::atomic::Ordering::Relaxed) || self.server.get_state() == ServerState::Stopping
         //state is there so outside events can stop it
         {
             return true;
