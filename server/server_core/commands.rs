@@ -35,7 +35,7 @@ impl CommandManager {
                 if global_symbol.starts_with("command_") {
                     let command_name = global_symbol.get(8..).unwrap_or("").to_owned();
                     let command_description = game_mod
-                        .call_function(&format!("command_description_{command_name}"), ())
+                        .call_function(&format!("describe_command_{command_name}"), ())
                         .unwrap_or_else(|_| "No description provided.".to_owned());
 
                     self.commands.push(Command {
@@ -109,7 +109,11 @@ impl CommandManager {
 
     fn help_command(&self, arguments: &Vec<String>) -> Result<String> {
         if arguments.is_empty() {
-            let mut result = String::new();
+            let mut result = "/help - builtin command
+/help - displays all commands and their descriptions
+/help <command> - displays a description of a specific command\n
+"
+            .to_owned();
             for command in &self.commands {
                 let help = Self::get_command_help(command);
                 writeln!(result, "{help}")?;
@@ -122,7 +126,7 @@ impl CommandManager {
             for command in &self.commands {
                 if command.name == command_name {
                     let help = Self::get_command_help(command);
-                    writeln!(result, "{help}")?;
+                    writeln!(result, "\n{help}")?;
                 }
             }
 
