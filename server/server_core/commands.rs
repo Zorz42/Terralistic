@@ -111,12 +111,11 @@ impl CommandManager {
         if arguments.is_empty() {
             let mut result = "/help - builtin command
 /help - displays all commands and their descriptions
-/help <command> - displays a description of a specific command\n
-"
-            .to_owned();
+/help <command> - displays a description of a specific command\n"
+                .to_owned();
             for command in &self.commands {
                 let help = Self::get_command_help(command);
-                writeln!(result, "{help}")?;
+                write!(result, "\n{help}\n")?;
             }
             Ok(result)
         } else if arguments.len() == 1 {
@@ -126,7 +125,7 @@ impl CommandManager {
             for command in &self.commands {
                 if command.name == command_name {
                     let help = Self::get_command_help(command);
-                    writeln!(result, "\n{help}")?;
+                    write!(result, "\n{help}\n")?;
                 }
             }
 
