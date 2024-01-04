@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use std::sync::mpsc::Receiver;
 use std::sync::{Arc, Mutex, MutexGuard, PoisonError};
 
 use anyhow::{anyhow, Result};
@@ -15,6 +16,7 @@ use crate::shared::packet::Packet;
 pub struct ClientItems {
     items: Arc<Mutex<Items>>,
     atlas: gfx::TextureAtlas<ItemId>,
+    receiver: Option<Receiver<Event>>,
 }
 
 impl ClientItems {
@@ -22,11 +24,21 @@ impl ClientItems {
         Self {
             items: Arc::new(Mutex::new(Items::new())),
             atlas: gfx::TextureAtlas::new(&HashMap::new()),
+            receiver: None,
         }
     }
 
-    pub fn init(&mut self, mods: &mut ModManager) -> Result<()> {
-        init_items_mod_interface(&self.items, mods)
+    pub fn init(&mut self, mods: &mut ModManager, entities: &Arc<Mutex<Entities>>) -> Result<()> {
+        self.receiver = Some(init_items_mod_interface(&self.items, entities, mods)?);
+        Ok(())
+    }
+
+    pub fn update(&mut self, events: &mut EventManager) {
+        if let Some(receiver) = &self.receiver {
+            if let Ok(event) = receiver.try_recv() {
+                events.push_event(event);
+            }
+        }
     }
 
     pub fn load_resources(&mut self, mods: &ModManager) -> Result<()> {

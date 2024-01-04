@@ -1,8 +1,12 @@
+use std::sync::mpsc::Receiver;
 use std::sync::{Arc, Mutex, PoisonError};
 
+use crate::libraries::events::{Event, EventManager};
 use anyhow::Result;
 
 use crate::shared::blocks::{BlockId, ToolId};
+use crate::shared::entities::{Entities, EntityId, PositionComponent};
+use crate::shared::inventory::Inventory;
 use crate::shared::items::{Item, ItemId, ItemStack, Items, Recipe, TileDrop};
 use crate::shared::mod_manager::ModManager;
 use crate::shared::walls::WallId;
@@ -12,7 +16,7 @@ impl rlua::UserData for ItemId {}
 
 /// this function initializes the items mod interface
 /// it adds lua functions to the lua context
-pub fn init_items_mod_interface(items: &Arc<Mutex<Items>>, mods: &mut ModManager) -> Result<()> {
+pub fn init_items_mod_interface(items: &Arc<Mutex<Items>>, entities: &Arc<Mutex<Entities>>, mods: &mut ModManager) -> Result<Receiver<Event>> {
     let items_clone = items.clone();
     mods.add_global_function(
         "register_item_type",
@@ -67,5 +71,55 @@ pub fn init_items_mod_interface(items: &Arc<Mutex<Items>>, mods: &mut ModManager
         },
     )?;
 
-    Ok(())
+    let (sender, receiver) = std::sync::mpsc::channel();
+
+    let items_clone = items.clone();
+    let entities_clone = entities.clone();
+    mods.add_global_function("give_item", move |_lua, (entity_id, item_id, count): (EntityId, ItemId, i32)| {
+        let entity = entities_clone.lock().unwrap_or_else(PoisonError::into_inner).get_entity_from_id(entity_id);
+        let entity = match entity {
+            Ok(entity) => entity,
+            Err(err) => return Err(rlua::Error::RuntimeError(err.to_string())),
+        };
+
+        let ecs = &mut entities_clone.lock().unwrap_or_else(PoisonError::into_inner).ecs;
+        let player_pos = {
+            let player_pos = ecs.query_one_mut::<&PositionComponent>(entity);
+            let player_pos = match player_pos {
+                Ok(player_pos) => player_pos,
+                Err(err) => return Err(rlua::Error::RuntimeError(err.to_string())),
+            };
+            player_pos.clone()
+        };
+        let mut inventory = {
+            let inventory = ecs.query_one_mut::<&mut Inventory>(entity);
+            let inventory = match inventory {
+                Ok(inventory) => inventory,
+                Err(err) => return Err(rlua::Error::RuntimeError(err.to_string())),
+            };
+            inventory.clone()
+        };
+        let mut events = EventManager::new();
+        let res = inventory.give_item(
+            ItemStack::new(item_id, count),
+            (player_pos.x(), player_pos.y()),
+            &mut items_clone.lock().unwrap_or_else(PoisonError::into_inner),
+            &mut entities_clone.lock().unwrap_or_else(PoisonError::into_inner),
+            &mut events,
+        );
+        if let Err(e) = res {
+            return Err(rlua::Error::RuntimeError(e.to_string()));
+        }
+
+        while let Some(event) = events.pop_event() {
+            let res = sender.send(event);
+            if let Err(e) = res {
+                return Err(rlua::Error::RuntimeError(e.to_string()));
+            }
+        }
+
+        Ok(())
+    })?;
+
+    Ok(receiver)
 }

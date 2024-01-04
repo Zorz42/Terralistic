@@ -322,6 +322,7 @@ impl UiManager {
     }
 
     ///returns the save path for config
+    #[must_use]
     pub const fn get_save_path(&self) -> &PathBuf {
         &self.save_path
     }

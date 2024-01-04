@@ -1,3 +1,4 @@
+use std::ops::Deref;
 use std::sync::Arc;
 use std::sync::{Mutex, PoisonError};
 
@@ -64,19 +65,19 @@ pub fn run_game(
             let mut mods = ClientModManager::new();
             let mut blocks = ClientBlocks::new();
             let mut walls = ClientWalls::new(&mut blocks.get_blocks());
-            let mut entities = ClientEntities::new();
+            let entities = ClientEntities::new();
             let mut items = ClientItems::new();
 
             while let Some(event) = pre_events.pop_event() {
                 mods.on_event(&event)?;
                 blocks.on_event(&event, &mut pre_events, &mut mods.mod_manager, &mut networking)?;
                 walls.on_event(&event)?;
-                items.on_event(&event, &mut entities.entities, &mut pre_events)?;
+                items.on_event(&event, &mut entities.get_entities(), &mut pre_events)?;
             }
 
             blocks.init(&mut mods.mod_manager)?;
             walls.init(&mut mods.mod_manager)?;
-            items.init(&mut mods.mod_manager)?;
+            items.init(&mut mods.mod_manager, &entities.get_entities_arc())?;
 
             *loading_text2.lock().unwrap_or_else(PoisonError::into_inner) = "Initializing mods".to_owned();
             mods.init()?;
@@ -153,7 +154,7 @@ pub fn run_game(
         walls.update(framerate_measurer.get_delta_time(), &mut events)?;
 
         if let Some(main_player) = players.get_main_player() {
-            let player_pos = entities.entities.ecs.get::<&PositionComponent>(main_player)?;
+            let player_pos = entities.get_entities().ecs.get::<&PositionComponent>(main_player)?.deref().clone();
 
             camera.set_position(player_pos.x(), player_pos.y());
         }
@@ -161,17 +162,19 @@ pub fn run_game(
         while framerate_measurer.has_5ms_passed() {
             camera.update_ms(graphics);
             players.controls_enabled = !camera.is_detached();
-            players.update(graphics, &mut entities.entities, &mut networking, &blocks.get_blocks())?;
-            entities.entities.update_entities_ms(&blocks.get_blocks(), &mut events)?;
+            players.update(graphics, &mut entities.get_entities(), &mut networking, &blocks.get_blocks())?;
+            entities.get_entities().update_entities_ms(&blocks.get_blocks(), &mut events)?;
         }
 
         respawn_screen.is_shown = players.get_main_player().is_none() && !players.is_waiting_for_player();
 
+        items.update(&mut events);
+
         background.render(graphics, &camera);
         walls.render(graphics, &camera)?;
         blocks.render(graphics, &camera)?;
-        players.render(graphics, &mut entities.entities, &camera);
-        items.render(graphics, &camera, &mut entities.entities)?;
+        players.render(graphics, &mut entities.get_entities(), &camera);
+        items.render(graphics, &camera, &mut entities.get_entities())?;
         floating_text.render(graphics, &camera);
         lights.render(graphics, &camera, &blocks.get_blocks(), settings)?;
         camera.render(graphics);
@@ -201,12 +204,12 @@ pub fn run_game(
             blocks.on_event(&event, &mut events, &mut mods.mod_manager, &mut networking)?;
             walls.on_event(&event)?;
             entities.on_event(&event, &mut events)?;
-            items.on_event(&event, &mut entities.entities, &mut events)?;
+            items.on_event(&event, &mut entities.get_entities(), &mut events)?;
             block_selector.on_event(graphics, &mut networking, &camera, &event, &mut events)?;
-            players.on_event(&event, &mut entities.entities)?;
+            players.on_event(&event, &mut entities.get_entities())?;
             lights.on_event(&event, &blocks.get_blocks())?;
             camera.on_event(&event);
-            health.on_event(&event, graphics, &mut floating_text, &players, &entities.entities);
+            health.on_event(&event, graphics, &mut floating_text, &players, &entities.get_entities());
             if pause_menu.on_event(&event, graphics, settings) {
                 break 'main_loop;
             }

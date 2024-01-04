@@ -1,3 +1,4 @@
+use std::sync::mpsc::Receiver;
 use std::sync::{Arc, Mutex, MutexGuard, PoisonError};
 
 use anyhow::Result;
@@ -12,17 +13,28 @@ use crate::shared::packet::Packet;
 
 pub struct ServerItems {
     items: Arc<Mutex<Items>>,
+    event_receiver: Option<Receiver<Event>>,
 }
 
 impl ServerItems {
     pub fn new() -> Self {
         Self {
             items: Arc::new(Mutex::new(Items::new())),
+            event_receiver: None,
         }
     }
 
-    pub fn init(&mut self, mods: &mut ModManager) -> Result<()> {
-        init_items_mod_interface(&self.items, mods)
+    pub fn init(&mut self, mods: &mut ModManager, entities: &Arc<Mutex<Entities>>) -> Result<()> {
+        self.event_receiver = Some(init_items_mod_interface(&self.items, entities, mods)?);
+        Ok(())
+    }
+
+    pub fn update(&mut self, events: &mut EventManager) {
+        if let Some(receiver) = &self.event_receiver {
+            if let Ok(event) = receiver.try_recv() {
+                events.push_event(event);
+            }
+        }
     }
 
     pub fn on_event(&mut self, event: &Event, entities: &mut Entities, events: &mut EventManager, networking: &mut ServerNetworking) -> Result<()> {

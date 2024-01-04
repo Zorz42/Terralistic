@@ -1,4 +1,5 @@
 use anyhow::Result;
+use std::sync::{Arc, Mutex, MutexGuard, PoisonError};
 
 use crate::libraries::events::Event;
 use crate::server::server_core::networking::{SendTarget, ServerNetworking};
@@ -6,17 +7,27 @@ use crate::shared::entities::{Entities, EntityDespawnEvent, EntityDespawnPacket,
 use crate::shared::packet::Packet;
 
 pub struct ServerEntities {
-    pub entities: Entities,
+    entities: Arc<Mutex<Entities>>,
 }
 
 impl ServerEntities {
     pub fn new() -> Self {
-        Self { entities: Entities::new() }
+        Self {
+            entities: Arc::new(Mutex::new(Entities::new())),
+        }
+    }
+
+    pub fn get_entities(&self) -> MutexGuard<Entities> {
+        self.entities.lock().unwrap_or_else(PoisonError::into_inner)
+    }
+
+    pub fn get_entities_arc(&self) -> Arc<Mutex<Entities>> {
+        self.entities.clone()
     }
 
     pub fn sync_entities(&mut self, networking: &mut ServerNetworking) -> Result<()> {
-        for (entity, (position, physics)) in &mut self.entities.ecs.query::<(&PositionComponent, &PhysicsComponent)>() {
-            let id = self.entities.get_id_from_entity(entity)?;
+        for (entity, (position, physics)) in &mut self.get_entities().ecs.query::<(&PositionComponent, &PhysicsComponent)>() {
+            let id = self.get_entities().get_id_from_entity(entity)?;
             networking.send_packet(
                 &Packet::new(EntityPositionVelocityPacket {
                     id,

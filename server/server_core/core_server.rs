@@ -103,7 +103,7 @@ impl Server {
         self.networking.init();
         self.blocks.init(&mut self.mods.mod_manager)?;
         self.walls.init(&mut self.mods.mod_manager)?;
-        self.items.init(&mut self.mods.mod_manager)?;
+        self.items.init(&mut self.mods.mod_manager, &self.entities.get_entities_arc())?;
 
         let mut generator = WorldGenerator::new();
         generator.init(&mut self.mods.mod_manager)?;
@@ -186,19 +186,20 @@ impl Server {
         self.mods.update()?;
         self.blocks.update(&mut self.events, delta_time)?;
         self.walls.update(delta_time, &mut self.events)?;
+        self.items.update(&mut self.events);
 
         // handle events
         self.handle_events()?;
 
         while unsafe { MS_COUNTER < ms_timer.elapsed().as_millis() as i32 } {
             self.players.update(
-                &mut self.entities.entities,
+                &mut self.entities.get_entities(),
                 &self.blocks.get_blocks(),
                 &mut self.events,
                 &mut self.items.get_items(),
                 &mut self.networking,
             )?;
-            self.entities.entities.update_entities_ms(&self.blocks.get_blocks(), &mut self.events)?;
+            self.entities.get_entities().update_entities_ms(&self.blocks.get_blocks(), &mut self.events)?;
             unsafe {
                 MS_COUNTER += 5;
             }
@@ -271,16 +272,16 @@ impl Server {
                 &event,
                 &mut self.events,
                 &mut self.networking,
-                &self.entities.entities,
+                &self.entities.get_entities(),
                 &self.players,
                 &self.items.get_items(),
                 &mut self.mods.mod_manager,
             )?;
             self.walls.on_event(&event, &mut self.networking)?;
-            self.items.on_event(&event, &mut self.entities.entities, &mut self.events, &mut self.networking)?;
+            self.items.on_event(&event, &mut self.entities.get_entities(), &mut self.events, &mut self.networking)?;
             self.players.on_event(
                 &event,
-                &mut self.entities.entities,
+                &mut self.entities.get_entities(),
                 &mut self.blocks.get_blocks(),
                 &mut self.networking,
                 &mut self.events,

@@ -63,8 +63,8 @@ impl CommandManager {
 
                 let player_entity = players.get_player_from_connection(&event.conn)?;
                 if let Some(player_entity) = player_entity {
-                    let name = entities.entities.ecs.get::<&mut PlayerComponent>(player_entity)?.get_name().to_owned();
-                    let player_id = entities.entities.get_id_from_entity(player_entity)?;
+                    let name = entities.get_entities().ecs.get::<&mut PlayerComponent>(player_entity)?.get_name().to_owned();
+                    let player_id = entities.get_entities().get_id_from_entity(player_entity)?;
 
                     let mut output = String::new();
                     let result = self.execute_command(&command, mod_manager, Some(player_id));

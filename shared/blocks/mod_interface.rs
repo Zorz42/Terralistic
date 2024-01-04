@@ -21,7 +21,7 @@ impl rlua::UserData for BlockId {
 pub fn init_blocks_mod_interface(blocks: &Arc<Mutex<Blocks>>, mods: &mut ModManager) -> Result<Receiver<Event>> {
     let (sender, receiver) = std::sync::mpsc::channel();
 
-    let mut blocks2 = blocks.clone();
+    let blocks_clone = blocks.clone();
     mods.add_global_function(
         "register_block_type",
         move |_lua,
@@ -91,15 +91,15 @@ pub fn init_blocks_mod_interface(blocks: &Arc<Mutex<Blocks>>, mods: &mut ModMana
             block_type.clickable = clickable;
             block_type.inventory_slots = inventory_slots;
 
-            let result = blocks2.lock().unwrap_or_else(PoisonError::into_inner).register_new_block_type(block_type);
+            let result = blocks_clone.lock().unwrap_or_else(PoisonError::into_inner).register_new_block_type(block_type);
 
             Ok(result)
         },
     )?;
 
-    blocks2 = blocks.clone();
+    let blocks_clone = blocks.clone();
     mods.add_global_function("get_block_id_by_name", move |_lua, name: String| {
-        let block_types = blocks2.lock().unwrap_or_else(PoisonError::into_inner);
+        let block_types = blocks_clone.lock().unwrap_or_else(PoisonError::into_inner);
 
         let iter = block_types.block_types.iter();
         for block_type in iter {
@@ -111,9 +111,9 @@ pub fn init_blocks_mod_interface(blocks: &Arc<Mutex<Blocks>>, mods: &mut ModMana
     })?;
 
     // a method to connect two blocks
-    blocks2 = blocks.clone();
+    let blocks_clone = blocks.clone();
     mods.add_global_function("connect_blocks", move |_lua, (block_id1, block_id2): (BlockId, BlockId)| {
-        let block_types = &mut blocks2.lock().unwrap_or_else(PoisonError::into_inner).block_types;
+        let block_types = &mut blocks_clone.lock().unwrap_or_else(PoisonError::into_inner).block_types;
         block_types
             .get_mut(block_id1.id as usize)
             .ok_or(rlua::Error::RuntimeError("block type id is invalid".to_owned()))?
@@ -128,10 +128,10 @@ pub fn init_blocks_mod_interface(blocks: &Arc<Mutex<Blocks>>, mods: &mut ModMana
     })?;
 
     // a method to break a block
-    blocks2 = blocks.clone();
-    let sender2 = sender.clone();
+    let blocks_clone = blocks.clone();
+    let sender_clone = sender.clone();
     mods.add_global_function("break_block", move |_lua, (x, y): (i32, i32)| {
-        let mut block_types = blocks2.lock().unwrap_or_else(PoisonError::into_inner);
+        let mut block_types = blocks_clone.lock().unwrap_or_else(PoisonError::into_inner);
         let mut events = EventManager::new();
         block_types
             .break_block(&mut events, x, y)
@@ -139,26 +139,26 @@ pub fn init_blocks_mod_interface(blocks: &Arc<Mutex<Blocks>>, mods: &mut ModMana
             .ok_or(rlua::Error::RuntimeError("block type id is invalid".to_owned()))?;
 
         while let Some(event) = events.pop_event() {
-            sender2.send(event).ok().ok_or(rlua::Error::RuntimeError("could not send event".to_owned()))?;
+            sender_clone.send(event).ok().ok_or(rlua::Error::RuntimeError("could not send event".to_owned()))?;
         }
         Ok(())
     })?;
 
     // a method to get block id by position
-    blocks2 = blocks.clone();
+    let blocks_clone = blocks.clone();
     mods.add_global_function("get_block", move |_lua, (x, y): (i32, i32)| {
-        let block_types = blocks2.lock().unwrap_or_else(PoisonError::into_inner);
+        let block_types = blocks_clone.lock().unwrap_or_else(PoisonError::into_inner);
         let block_id = block_types.get_block(x, y).ok().ok_or(rlua::Error::RuntimeError("coordinates out of bounds".to_owned()))?;
         Ok(block_id)
     })?;
 
     // a method to set block id by position
-    blocks2 = blocks.clone();
+    let blocks_clone = blocks.clone();
     let sender2 = sender;
     mods.add_global_function("set_block", move |_lua, (x, y, block_id): (i32, i32, BlockId)| {
         let mut events = EventManager::new();
 
-        let mut blocks = blocks2.lock().unwrap_or_else(PoisonError::into_inner);
+        let mut blocks = blocks_clone.lock().unwrap_or_else(PoisonError::into_inner);
         blocks
             .set_block(&mut events, x, y, block_id)
             .ok()
@@ -172,9 +172,9 @@ pub fn init_blocks_mod_interface(blocks: &Arc<Mutex<Blocks>>, mods: &mut ModMana
     })?;
 
     // a method to register a new tool
-    blocks2 = blocks.clone();
+    let blocks_clone = blocks.clone();
     mods.add_global_function("register_tool", move |_lua, name: String| {
-        let mut block_types = blocks2.lock().unwrap_or_else(PoisonError::into_inner);
+        let mut block_types = blocks_clone.lock().unwrap_or_else(PoisonError::into_inner);
         let mut tool = Tool::new();
         tool.name = name;
         let tool_id = block_types.register_new_tool_type(tool);
