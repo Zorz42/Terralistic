@@ -31,7 +31,7 @@ function command_give(arguments, executor)
         return "Player '" .. arguments[3] .. "' not found."
     end
     
-    terralistic_give_item(player, item_name, amount)
+    terralistic_give_item(player, item, amount)
     
     return "Gave item"
 end

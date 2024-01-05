@@ -398,6 +398,7 @@ impl ClientInventory {
             }
         } else if let Some(packet) = event.downcast::<Packet>() {
             if let Some(packet) = packet.try_deserialize::<InventoryPacket>() {
+                println!("Received inventory packet");
                 self.inventory.transfer_items_from(packet.inventory);
                 self.update_craftable_recipes(items);
             }

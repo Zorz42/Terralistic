@@ -16,6 +16,7 @@ impl rlua::UserData for ItemId {}
 
 /// this function initializes the items mod interface
 /// it adds lua functions to the lua context
+#[allow(clippy::too_many_lines)]
 pub fn init_items_mod_interface(items: &Arc<Mutex<Items>>, entities: &Arc<Mutex<Entities>>, mods: &mut ModManager) -> Result<Receiver<Event>> {
     let items_clone = items.clone();
     mods.add_global_function(
@@ -82,23 +83,28 @@ pub fn init_items_mod_interface(items: &Arc<Mutex<Items>>, entities: &Arc<Mutex<
             Err(err) => return Err(rlua::Error::RuntimeError(err.to_string())),
         };
 
-        let ecs = &mut entities_clone.lock().unwrap_or_else(PoisonError::into_inner).ecs;
-        let player_pos = {
-            let player_pos = ecs.query_one_mut::<&PositionComponent>(entity);
-            let player_pos = match player_pos {
-                Ok(player_pos) => player_pos,
-                Err(err) => return Err(rlua::Error::RuntimeError(err.to_string())),
-            };
-            player_pos.clone()
+        let (player_pos, mut inventory) = {
+            let ecs = &mut entities_clone.lock().unwrap_or_else(PoisonError::into_inner).ecs;
+            (
+                {
+                    let player_pos = ecs.query_one_mut::<&PositionComponent>(entity);
+                    let player_pos = match player_pos {
+                        Ok(player_pos) => player_pos,
+                        Err(err) => return Err(rlua::Error::RuntimeError(err.to_string())),
+                    };
+                    player_pos.clone()
+                },
+                {
+                    let inventory = ecs.query_one_mut::<&mut Inventory>(entity);
+                    let inventory = match inventory {
+                        Ok(inventory) => inventory,
+                        Err(err) => return Err(rlua::Error::RuntimeError(err.to_string())),
+                    };
+                    inventory.clone()
+                },
+            )
         };
-        let mut inventory = {
-            let inventory = ecs.query_one_mut::<&mut Inventory>(entity);
-            let inventory = match inventory {
-                Ok(inventory) => inventory,
-                Err(err) => return Err(rlua::Error::RuntimeError(err.to_string())),
-            };
-            inventory.clone()
-        };
+
         let mut events = EventManager::new();
         let res = inventory.give_item(
             ItemStack::new(item_id, count),
@@ -109,6 +115,17 @@ pub fn init_items_mod_interface(items: &Arc<Mutex<Items>>, entities: &Arc<Mutex<
         );
         if let Err(e) = res {
             return Err(rlua::Error::RuntimeError(e.to_string()));
+        }
+
+        // apply inventory back
+        {
+            let ecs = &mut entities_clone.lock().unwrap_or_else(PoisonError::into_inner).ecs;
+            let inventory2 = ecs.query_one_mut::<&mut Inventory>(entity);
+            let inventory2 = match inventory2 {
+                Ok(inventory2) => inventory2,
+                Err(err) => return Err(rlua::Error::RuntimeError(err.to_string())),
+            };
+            *inventory2 = inventory.clone();
         }
 
         while let Some(event) = events.pop_event() {
