@@ -11,7 +11,6 @@ use message_io::node::{NodeEvent, NodeHandler};
 
 use crate::libraries::events;
 use crate::libraries::events::EventManager;
-use crate::shared::inventory::InventoryPacket;
 use crate::shared::packet::{Packet, WelcomeCompletePacket};
 use crate::shared::players::NamePacket;
 
