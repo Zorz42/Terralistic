@@ -1,9 +1,8 @@
 use anyhow::Result;
 use rustls::ClientConfig;
-use std::borrow::BorrowMut;
 use std::io::{Read, Write};
 use std::net::{TcpStream, ToSocketAddrs};
-use std::ops::DerefMut;
+use std::sync::{mpsc, Arc};
 
 const PORT: u16 = 28603;
 const ADDR: &str = "home.susko.si";
@@ -12,12 +11,12 @@ const ADDR: &str = "home.susko.si";
 pub enum ConnectionState {
     DISCONNECTED,
     CONNECTING(std::thread::JoinHandle<Result<(rustls::ClientConnection, TcpStream)>>),
-    CONNECTED(Box<(rustls::ClientConnection, TcpStream)>),
+    CONNECTED(std::thread::JoinHandle<Result<()>>),
     FAILED(anyhow::Error),
 }
 
 impl ConnectionState {
-    fn connect(&mut self) {
+    fn connect(&mut self, client_to_server: mpsc::Sender<String>, server_to_client: mpsc::Receiver<String>) {
         if let Self::CONNECTING(handle) = std::mem::replace(self, Self::FAILED(anyhow::anyhow!("temp err"))) {
             let handle = match handle.join() {
                 Ok(handle) => match handle {
@@ -34,7 +33,46 @@ impl ConnectionState {
                     return;
                 }
             };
-            *self = Self::CONNECTED(Box::new(handle));
+            let handle = std::thread::spawn(move || -> Result<()> {
+                let mut client_conf = handle.0;
+                let mut tcp_stream = handle.1;
+                let receiver = server_to_client;
+                let sender = client_to_server;
+                let mut tls_stream = rustls::Stream::new(&mut client_conf, &mut tcp_stream);
+                loop {
+                    let mut buf = [0; 1024];
+                    let res = tls_stream.read(&mut buf);
+                    if let Err(e) = res {
+                        if e.kind() != std::io::ErrorKind::WouldBlock {
+                            eprintln!("error reading from server:\n{e}");
+                            return Err(e.into());
+                        }
+                    } else {
+                        let res = match String::from_utf8(buf.to_vec()) {
+                            Err(e) => {
+                                eprintln!("error converting bytes to string:\n{e}");
+                                continue;
+                            }
+                            Ok(res) => res,
+                        };
+                        if res.is_empty() {
+                            continue;
+                        }
+                        let res = sender.send(res);
+                        if res.is_err() {
+                            eprintln!("client has disconnected while the server is still sending messages");
+                            tls_stream.conn.send_close_notify();
+                            tls_stream.write_all(b"closing connection")?;
+                            return Ok(());
+                        }
+                    }
+
+                    if let Ok(message) = receiver.try_recv() {
+                        tls_stream.write_all(message.as_bytes())?;
+                    }
+                }
+            });
+            *self = Self::CONNECTED(handle);
         }
     }
 }
@@ -42,15 +80,21 @@ impl ConnectionState {
 pub struct TlsClient {
     state: ConnectionState,
     socket: std::net::SocketAddr,
-    config: std::sync::Arc<ClientConfig>,
+    config: Arc<ClientConfig>,
+    srv_to_client: mpsc::Receiver<String>,
+    client_to_srv: mpsc::Sender<String>,
 }
 
 impl TlsClient {
     pub fn new() -> Result<Self> {
+        let (sender, _) = mpsc::channel(); //temp channel to fill values
+        let (_, receiver) = mpsc::channel(); //temp channel to fill values
         Ok(Self {
             state: ConnectionState::DISCONNECTED,
             socket: (ADDR, PORT).to_socket_addrs()?.next().ok_or_else(|| anyhow::anyhow!("incorrect DNS"))?,
             config: get_client_config(),
+            srv_to_client: receiver, //both will have the other half disconnected
+            client_to_srv: sender,
         })
     }
 
@@ -62,7 +106,7 @@ impl TlsClient {
             let tls_conn = rustls::ClientConnection::new(temp_config, ADDR.try_into()?)?;
             std::thread::sleep(std::time::Duration::from_secs(2)); //artificial delay for debugging
             let tcp_stream = TcpStream::connect_timeout(&socket, std::time::Duration::from_millis(10000))?;
-            tcp_stream.set_nonblocking(true)?; //TODO: this for some reason makes the connection fail, fix it
+            tcp_stream.set_nonblocking(true)?;
             Ok((tls_conn, tcp_stream))
         });
         self.state = ConnectionState::CONNECTING(thread);
@@ -77,61 +121,35 @@ impl TlsClient {
                 if !handle.is_finished() {
                     return;
                 }
-                self.state.connect();
+                let (srv_to_cl_send, srv_to_cl_recv) = mpsc::channel();
+                let (cl_to_srv_send, cl_to_srv_recv) = mpsc::channel();
+                self.srv_to_client = srv_to_cl_recv;
+                self.client_to_srv = cl_to_srv_send;
+                self.state.connect(srv_to_cl_send, cl_to_srv_recv);
             }
             _ => {}
         }
     }
 
     pub fn read(&mut self) -> Result<String> {
-        if let ConnectionState::CONNECTED(connection) = self.state.borrow_mut() {
-            #[allow(clippy::explicit_deref_methods)] //the solution by clippy is way uglier
-            let (connection, tcp_stream) = connection.deref_mut();
-            let mut tls_conn = rustls::Stream::new(connection, tcp_stream);
-            let mut buffer = String::new();
-            tls_conn.read_to_string(&mut buffer)?;
-            return Ok(buffer);
+        let res = self.srv_to_client.try_recv();
+        match res {
+            Ok(res) => Ok(res),
+            Err(e) => Err(e.into()),
         }
-        anyhow::bail!("not connected to the cloud server")
     }
 
     pub fn write(&mut self, message: &str) -> Result<()> {
-        return if let ConnectionState::CONNECTED(connection) = self.state.borrow_mut() {
-            #[allow(clippy::explicit_deref_methods)] //the solution by clippy is way uglier
-            let (connection, tcp_stream) = connection.deref_mut();
-            let mut tls_conn = rustls::Stream::new(connection, tcp_stream);
-            let mut read = 0;
-            loop {
-                if read == message.len() {
-                    break;
-                }
-                let res = tls_conn.write(&message.as_bytes()[read..]);
-                match res {
-                    Ok(n) => read += n,
-                    Err(e) => {
-                        if e.kind() == std::io::ErrorKind::WouldBlock {
-                            continue;
-                        }
-                        return Err(e.into());
-                    }
-                }
-            }
-            Ok(())
-        } else {
-            anyhow::bail!("not connected to the cloud server")
-        };
+        self.client_to_srv.send(message.to_owned())?;
+        Ok(())
     }
 
     pub fn close(&mut self) {
-        if let ConnectionState::CONNECTED(connection) = self.state.borrow_mut() {
-            #[allow(clippy::explicit_deref_methods)] //the solution by clippy is way uglier
-            let (connection, tcp_stream) = connection.deref_mut();
-            connection.send_close_notify();
-            let mut tls_conn = rustls::Stream::new(connection, tcp_stream);
-            #[allow(clippy::let_underscore_must_use)] //if it fails we don't care
-            let _ = tls_conn.write_all(b"closing connection");
-            self.state = ConnectionState::DISCONNECTED;
-        }
+        //this function simply disconnects the client side of the channel. the thread will close when it realizes this as there is no way to properly kill a thread in rust
+        let (sender, _) = mpsc::channel(); //temp channel to fill values
+        let (_, receiver) = mpsc::channel(); //temp channel to fill values
+        self.srv_to_client = receiver;
+        self.client_to_srv = sender;
     }
 
     #[must_use]
@@ -140,7 +158,7 @@ impl TlsClient {
     }
 }
 
-fn get_client_config() -> std::sync::Arc<ClientConfig> {
+fn get_client_config() -> Arc<ClientConfig> {
     let anchors = webpki_roots::TLS_SERVER_ROOTS;
 
     let mut root_store = rustls::RootCertStore::empty();
@@ -150,5 +168,5 @@ fn get_client_config() -> std::sync::Arc<ClientConfig> {
         name_constraints: e.name_constraints.clone(),
     }));
 
-    std::sync::Arc::new(ClientConfig::builder().with_root_certificates(root_store).with_no_client_auth())
+    Arc::new(ClientConfig::builder().with_root_certificates(root_store).with_no_client_auth())
 }
