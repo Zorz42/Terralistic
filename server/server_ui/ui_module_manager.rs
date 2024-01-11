@@ -106,13 +106,10 @@ impl ModuleManager {
 
     /// Reads the module tree from the save file in `server_data/ui_config.json`. if the file doesn't exist or is not a valid format, use the default config
     pub fn from_save_file(config_path: &Path) -> Self {
-        match Self::try_from_save_file(config_path) {
-            Ok(res) => res,
-            Err(e) => {
-                eprintln!("{e}");
-                Self::default()
-            }
-        }
+        Self::try_from_save_file(config_path).unwrap_or_else(|e| {
+            eprintln!("{e}");
+            Self::default()
+        })
     }
 
     fn try_from_save_file(config_path: &Path) -> Result<Self> {

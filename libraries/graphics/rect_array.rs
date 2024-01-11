@@ -75,7 +75,6 @@ impl RectArray {
         // to avoid artifacts
         let pos = gfx::FloatPos(pos.0 + 0.01, pos.1 + 0.01);
 
-        // Safety: we are using the opengl functions correctly
         unsafe {
             let mut transform = graphics.normalization_transform.clone();
 

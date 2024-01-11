@@ -58,19 +58,13 @@ impl BlurContext {
         let blur_shader = compile_shader(BLUR_VERTEX_SHADER_CODE, BLUR_FRAGMENT_SHADER_CODE)?;
         Ok(Self {
             blur_shader,
-            // Safety: shader is valid
             transform_matrix_uniform: unsafe { gl::GetUniformLocation(blur_shader, "transform_matrix\0".as_ptr().cast::<i8>()) },
-            // Safety: shader is valid
             texture_transform_matrix_uniform: unsafe { gl::GetUniformLocation(blur_shader, "texture_transform_matrix\0".as_ptr().cast::<i8>()) },
-            // Safety: shader is valid
             texture_sampler_uniform: unsafe { gl::GetUniformLocation(blur_shader, "texture_sampler\0".as_ptr().cast::<i8>()) },
-            // Safety: shader is valid
             blur_offset_uniform: unsafe { gl::GetUniformLocation(blur_shader, "blur_offset\0".as_ptr().cast::<i8>()) },
-            // Safety: shader is valid
             limit_uniform: unsafe { gl::GetUniformLocation(blur_shader, "limit\0".as_ptr().cast::<i8>()) },
             rect_vertex_buffer: {
                 let mut buffer = 0;
-                // Safety: use of opengl functions is safe
                 unsafe {
                     gl::GenBuffers(1, &mut buffer);
 
@@ -90,7 +84,6 @@ impl BlurContext {
 
     /// Only applies blur shader pass to the given texture.
     fn blur_rect(&self, offset: gfx::FloatPos, gl_texture1: u32, gl_texture2: u32) {
-        // Safety: use of opengl functions is safe
         unsafe {
             gl::BindTexture(gl::TEXTURE_2D, gl_texture1);
             gl::FramebufferTexture(gl::FRAMEBUFFER, gl::COLOR_ATTACHMENT0, gl_texture2, 0);
@@ -123,7 +116,6 @@ impl BlurContext {
             return;
         }
 
-        // Safety: use of opengl functions is safe
         unsafe {
             gl::UseProgram(self.blur_shader);
 
@@ -135,7 +127,6 @@ impl BlurContext {
         let x2 = (rect.pos.0 + rect.size.0 - 1.0) / size.0;
         let y2 = (rect.pos.1 + rect.size.1 - 1.0) / size.1;
 
-        // Safety: use of opengl functions is safe
         unsafe {
             gl::Uniform4f(self.limit_uniform, x2, -y1, x1, -y2);
             gl::Uniform1i(self.texture_sampler_uniform, 0);
@@ -145,7 +136,6 @@ impl BlurContext {
         transform.translate(rect.pos);
         transform.stretch((rect.size.0, rect.size.1));
 
-        // Safety: use of opengl functions is safe
         unsafe {
             gl::UniformMatrix3fv(self.transform_matrix_uniform, 1, gl::FALSE, transform.matrix.as_ptr());
         }
@@ -155,7 +145,6 @@ impl BlurContext {
         transform.translate(rect.pos);
         transform.stretch((rect.size.0, rect.size.1));
 
-        // Safety: use of opengl functions is safe
         unsafe {
             gl::UniformMatrix3fv(self.texture_transform_matrix_uniform, 1, gl::FALSE, transform.matrix.as_ptr());
             gl::BindBuffer(gl::ARRAY_BUFFER, self.rect_vertex_buffer);
@@ -173,7 +162,6 @@ impl BlurContext {
             self.blur_rect(gfx::FloatPos(2.0 / size.0, 0.0), back_texture, gl_texture);
         }
 
-        // Safety: use of opengl functions is safe
         unsafe {
             gl::DisableVertexAttribArray(0);
         }
@@ -195,7 +183,6 @@ impl BlurContext {
 /// Drop function for blur context.
 impl Drop for BlurContext {
     fn drop(&mut self) {
-        // Safety: blur shader is valid or 0
         unsafe {
             gl::DeleteProgram(self.blur_shader);
         }

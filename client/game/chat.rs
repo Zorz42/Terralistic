@@ -149,7 +149,7 @@ impl ClientChat {
                 ));
             }
         }
-        Ok(self.is_selected())
+        Ok(self.is_selected() && event.downcast::<gfx::Event>().is_some())
     }
 
     pub const fn is_selected(&self) -> bool {

@@ -64,7 +64,6 @@ impl GraphicsContext {
         let gl_context = sdl_window.gl_create_context().map_err(|e| anyhow!(e))?;
         gl::load_with(|s| video_subsystem.gl_get_proc_address(s).cast::<std::ffi::c_void>());
 
-        // Safety: We are calling OpenGL functions safely.
         unsafe {
             gl::Enable(gl::BLEND);
         }
@@ -75,7 +74,6 @@ impl GraphicsContext {
         let mut window_texture_back = 0;
         let mut window_framebuffer = 0;
 
-        // Safety: We are calling OpenGL functions safely.
         unsafe {
             gl::GenTextures(1, &mut window_texture);
             gl::GenTextures(1, &mut window_texture_back);
@@ -124,7 +122,6 @@ impl GraphicsContext {
 
     /// Is called every time the window is resized.
     pub fn handle_window_resize(&mut self) {
-        // Safety: We are calling OpenGL functions safely.
         unsafe {
             gl::BindTexture(gl::TEXTURE_2D, self.window_texture);
             gl::TexImage2D(
@@ -240,7 +237,6 @@ impl GraphicsContext {
         self.normalization_transform.translate(gfx::FloatPos(-1.0, 1.0));
         self.normalization_transform.stretch((2.0 / self.get_window_size().0, -2.0 / self.get_window_size().1));
 
-        // Safety: We are calling OpenGL functions safely.
         unsafe {
             gl::BindFramebuffer(gl::READ_FRAMEBUFFER, self.window_framebuffer);
             gl::FramebufferTexture2D(gl::READ_FRAMEBUFFER, gl::COLOR_ATTACHMENT0, gl::TEXTURE_2D, self.window_texture, 0);
@@ -295,7 +291,6 @@ impl GraphicsContext {
 
         self.sdl_window.gl_swap_window();
 
-        // Safety: We are calling OpenGL functions safely.
         unsafe {
             gl::BindFramebuffer(gl::FRAMEBUFFER, self.window_framebuffer);
         }
@@ -344,7 +339,6 @@ impl GraphicsContext {
     /// Blurs given texture
     pub(super) fn blur_region(&self, rect: gfx::Rect, radius: i32, gl_texture: u32, back_texture: u32, size: gfx::FloatSize, texture_transform: &Transformation) {
         self.blur_context.blur_region(rect, radius, gl_texture, back_texture, size, texture_transform);
-        // Safety: We are calling OpenGL functions safely.
         unsafe {
             gl::UseProgram(self.passthrough_shader.passthrough_shader);
         }
@@ -381,7 +375,6 @@ impl GraphicsContext {
 impl Drop for GraphicsContext {
     /// Closes, destroys the window and cleans up the resources.
     fn drop(&mut self) {
-        // Safety: We are calling OpenGL functions safely.
         unsafe {
             gl::DeleteFramebuffers(1, &self.window_framebuffer);
             gl::DeleteTextures(1, &self.window_texture);

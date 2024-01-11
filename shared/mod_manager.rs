@@ -27,6 +27,7 @@ pub fn get_mod_id(context: Context) -> Result<i32, LuaError> {
 /// but without the `game_mod`/ prefix and instead with a / separator
 /// it has a : separator. The byte array is the contents of the file.
 pub struct GameMod {
+    name: String,
     lua_code: String,
     resources: HashMap<String, Vec<u8>>,
     lua: Lua,
@@ -35,8 +36,9 @@ pub struct GameMod {
 
 impl GameMod {
     #[must_use]
-    pub fn new(lua_code: String, resources: HashMap<String, Vec<u8>>) -> Self {
+    pub fn new(name: String, lua_code: String, resources: HashMap<String, Vec<u8>>) -> Self {
         Self {
+            name,
             lua_code,
             resources,
             lua: Lua::new(),
@@ -117,10 +119,29 @@ impl GameMod {
     fn get_resource(&self, path: &str) -> Option<&Vec<u8>> {
         self.resources.get(path)
     }
+
+    /// Returns all symbols
+    #[must_use]
+    pub fn get_all_symbols(&self) -> Vec<String> {
+        self.lua.context(|lua| {
+            let mut result = Vec::new();
+            let globals = lua.globals();
+            for (key, _value) in globals.pairs::<String, rlua::Value>().flatten() {
+                result.push(key);
+            }
+            result
+        })
+    }
+
+    #[must_use]
+    pub fn get_name(&self) -> &str {
+        &self.name
+    }
 }
 
 #[derive(serde_derive::Serialize, serde_derive::Deserialize)]
 struct GameModData {
+    name: String,
     lua_code: String,
     resources: HashMap<String, Vec<u8>>,
 }
@@ -131,6 +152,7 @@ impl Serialize for GameMod {
         S: serde::Serializer,
     {
         let data = GameModData {
+            name: self.name.clone(),
             lua_code: self.lua_code.clone(),
             resources: self.resources.clone(),
         };
@@ -145,6 +167,7 @@ impl<'de> Deserialize<'de> for GameMod {
     {
         let data = GameModData::deserialize(deserializer)?;
         Ok(Self {
+            name: data.name,
             lua_code: data.lua_code,
             resources: data.resources,
             lua: Lua::new(),

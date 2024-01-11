@@ -31,7 +31,6 @@ impl Rect {
         transform.translate(self.pos);
         transform.stretch((self.size.0, self.size.1));
 
-        // Safety: We are using a valid shader.
         unsafe {
             gl::UniformMatrix3fv(graphics.passthrough_shader.transform_matrix, 1, gl::FALSE, &transform.matrix[0]);
             gl::Uniform4f(
@@ -57,7 +56,6 @@ impl Rect {
         transform.translate(self.pos);
         transform.stretch((self.size.0, self.size.1));
 
-        // Safety: We are using a valid shader.
         unsafe {
             gl::UniformMatrix3fv(graphics.passthrough_shader.transform_matrix, 1, gl::FALSE, &transform.matrix[0]);
             gl::Uniform4f(

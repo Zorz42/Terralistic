@@ -277,6 +277,7 @@ impl ServerPlayers {
                 let mut inventory = entities.ecs.get::<&mut Inventory>(*player)?;
                 if inventory.has_changed {
                     inventory.has_changed = false;
+                    println!("Sending inventory packet");
                     networking.send_packet(&Packet::new(InventoryPacket { inventory: inventory.clone() })?, SendTarget::Connection(conn.clone()))?;
                 }
             }
