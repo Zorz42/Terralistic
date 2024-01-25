@@ -1,5 +1,3 @@
-use copypasta::ClipboardProvider;
-
 use crate::libraries::graphics as gfx;
 
 use super::theme::{
@@ -353,7 +351,7 @@ impl TextInput {
                         if graphics.get_key_state(gfx::Key::LeftControl) {
                             graphics
                                 .clipboard_context
-                                .set_contents(self.text.get(self.get_cursor().0..self.get_cursor().1).unwrap_or("").to_owned())
+                                .set_text(self.text.get(self.get_cursor().0..self.get_cursor().1).unwrap_or("").to_owned())
                                 .unwrap_or_else(|e| {
                                     println!("Error setting clipboard contents: {e}");
                                 });
@@ -361,7 +359,7 @@ impl TextInput {
                     }
                     gfx::Key::V => {
                         if graphics.get_key_state(gfx::Key::LeftControl) {
-                            if let Ok(text) = graphics.clipboard_context.get_contents() {
+                            if let Ok(text) = graphics.clipboard_context.get_text() {
                                 if self.cursor.0 != self.cursor.1 {
                                     self.text.replace_range(self.get_cursor().0..self.get_cursor().1, ""); //add text filtering lol
                                     self.cursor.0 = self.get_cursor().0;
@@ -378,7 +376,7 @@ impl TextInput {
                             if graphics.get_key_state(gfx::Key::LeftControl) {
                                 graphics
                                     .clipboard_context
-                                    .set_contents(self.text.get(self.get_cursor().0..self.get_cursor().1).unwrap_or("").to_owned())
+                                    .set_text(self.text.get(self.get_cursor().0..self.get_cursor().1).unwrap_or("").to_owned())
                                     .unwrap_or_else(|e| {
                                         println!("Failed to copy to clipboard {e}");
                                     });

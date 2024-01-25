@@ -2,8 +2,9 @@ use std::collections::HashMap;
 use std::collections::VecDeque;
 use std::mem::swap;
 
+use arboard::Clipboard;
+
 use anyhow::{anyhow, Result};
-use copypasta::ClipboardContext;
 use sdl2::video::SwapInterval;
 
 use crate::libraries::graphics as gfx;
@@ -32,7 +33,7 @@ pub struct GraphicsContext {
     key_states: HashMap<gfx::Key, bool>,
     events: Vec<gfx::Event>,
     pub(super) shadow_context: ShadowContext,
-    pub clipboard_context: ClipboardContext,
+    pub clipboard_context: Clipboard,
     pub block_key_states: bool,
     pub scale: f32,
     real_scale: f32,
@@ -102,7 +103,7 @@ impl GraphicsContext {
             shadow_context,
             events_queue: VecDeque::new(),
             window_open: true,
-            clipboard_context: ClipboardContext::new().map_err(|e| anyhow!(e))?,
+            clipboard_context: Clipboard::new()?,
             block_key_states: false,
             scale: 1.0,
             real_scale: 1.0,

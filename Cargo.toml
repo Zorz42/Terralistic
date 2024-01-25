@@ -27,7 +27,7 @@ serde_derive = { version = "1.0", default-features = false }
 serde_json = { version = "1.0", default-features = false, features = ["std"] }
 gl = { version = "0.14", default-features = false }
 snap = { version = "1.1", default-features = false }
-copypasta = { version = "0.10", default-features = false }
+arboard = "3.3"
 rand = { version = "0.8", default-features = false, features = ["std", "std_rng"] }
 noise = { version = "0.8", default-features = false }
 fnv = { version = "1.0", default-features = false }
@@ -79,7 +79,7 @@ serde = { version = "1.0", default-features = false }
 serde_derive = { version = "1.0", default-features = false }
 gl = { version = "0.14", default-features = false }
 snap = { version = "1.1", default-features = false }
-copypasta = { version = "0.10", default-features = false }
+arboard = "3.3"
 fnv = "1.0"
 darklua = "0.12"
 png = "0.17"
