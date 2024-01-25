@@ -45,12 +45,14 @@ impl TlsClient {
     }
 
     pub fn authenticate(&mut self) {
+        if matches!(self.authentication_state, AuthenticationState::AUTHENTICATED) || matches!(self.authentication_state, AuthenticationState::FAILED) {
+            return;
+        }
         //this is ugly lol
         match self.get_connection_state() {
             ConnectionState::CONNECTED(_) => match &self.authentication_state {
                 AuthenticationState::NOT_AUTHENTICATED => match &self.user_credentials {
                     Some((username, password)) => {
-                        println!("{username} {password}");
                         let res = self.write(&format!("{username} {password}"));
                         if let Err(e) = res {
                             println!("error writing to server: {e}");
@@ -69,8 +71,11 @@ impl TlsClient {
                         if message == "auth_success" {
                             self.authentication_state = AuthenticationState::AUTHENTICATED;
                             println!("client is authenticated");
+                            self.client.close();
                         } else if message == "auth_failed" {
                             self.authentication_state = AuthenticationState::FAILED;
+                            self.client.close();
+                            println!("auth failed");
                         }
                     }
                     Err(e) => {
@@ -93,7 +98,7 @@ impl TlsClient {
     }
 
     #[must_use]
-    pub const fn is_authenticated(&self) -> &AuthenticationState {
+    pub const fn get_authentication_state(&self) -> &AuthenticationState {
         &self.authentication_state
     }
 }

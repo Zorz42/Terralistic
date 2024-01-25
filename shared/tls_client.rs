@@ -2,6 +2,7 @@ use anyhow::Result;
 use rustls::ClientConfig;
 use std::io::{Read, Write};
 use std::net::{TcpStream, ToSocketAddrs};
+use std::sync::mpsc::TryRecvError;
 use std::sync::{mpsc, Arc};
 
 const PORT: u16 = 28603;
@@ -33,7 +34,8 @@ impl ConnectionState {
                     return;
                 }
             };
-            let handle = std::thread::spawn(move || -> Result<()> {
+
+            let spawn_result = std::thread::Builder::new().name("TLS connection".to_owned()).spawn(move || -> Result<()> {
                 let mut client_conf = handle.0;
                 let mut tcp_stream = handle.1;
                 let receiver = server_to_client;
@@ -48,7 +50,10 @@ impl ConnectionState {
                             return Err(e.into());
                         }
                     } else {
-                        let res = match String::from_utf8(buf.to_vec()) {
+                        #[allow(clippy::unwrap_used)] //is safe
+                        let n = res.unwrap();
+                        #[allow(clippy::unwrap_used)] //is safe
+                        let res = match String::from_utf8(buf.get(..n).unwrap().to_vec()) {
                             Err(e) => {
                                 eprintln!("error converting bytes to string:\n{e}");
                                 continue;
@@ -72,7 +77,16 @@ impl ConnectionState {
                     }
                 }
             });
-            *self = Self::CONNECTED(handle);
+
+            match spawn_result {
+                Ok(thread_handle) => {
+                    *self = Self::CONNECTED(thread_handle);
+                }
+                Err(e) => {
+                    eprintln!("error creating TLS connection init thread: {e}");
+                    *self = Self::FAILED(e.into());
+                }
+            }
         }
     }
 }
@@ -101,15 +115,25 @@ impl TlsClient {
     fn new_connection(&mut self) {
         let temp_socket = self.socket;
         let temp_config = self.config.clone();
-        let thread = std::thread::spawn(move || -> Result<(rustls::ClientConnection, TcpStream)> {
-            let socket = temp_socket;
-            let tls_conn = rustls::ClientConnection::new(temp_config, ADDR.try_into()?)?;
-            std::thread::sleep(std::time::Duration::from_secs(2)); //artificial delay for debugging
-            let tcp_stream = TcpStream::connect_timeout(&socket, std::time::Duration::from_millis(10000))?;
-            tcp_stream.set_nonblocking(true)?;
-            Ok((tls_conn, tcp_stream))
-        });
-        self.state = ConnectionState::CONNECTING(thread);
+
+        let spawn_result = std::thread::Builder::new()
+            .name("TLS connection init".to_owned())
+            .spawn(move || -> Result<(rustls::ClientConnection, TcpStream)> {
+                let socket = temp_socket;
+                let tls_conn = rustls::ClientConnection::new(temp_config, ADDR.try_into()?)?;
+                std::thread::sleep(std::time::Duration::from_secs(2)); //artificial delay for debugging
+                let tcp_stream = TcpStream::connect_timeout(&socket, std::time::Duration::from_millis(10000))?;
+                tcp_stream.set_nonblocking(true)?;
+                Ok((tls_conn, tcp_stream))
+            });
+
+        match spawn_result {
+            Ok(thread) => self.state = ConnectionState::CONNECTING(thread),
+            Err(e) => {
+                eprintln!("error creating TLS connection init thread: {e}");
+                self.state = ConnectionState::FAILED(e.into());
+            }
+        }
     }
 
     pub fn connect(&mut self) {
@@ -135,7 +159,12 @@ impl TlsClient {
         let res = self.srv_to_client.try_recv();
         match res {
             Ok(res) => Ok(res),
-            Err(e) => Err(e.into()),
+            Err(e) => {
+                if matches!(e, TryRecvError::Disconnected) {
+                    self.close();
+                }
+                Err(e.into())
+            }
         }
     }
 
@@ -150,6 +179,7 @@ impl TlsClient {
         let (_, receiver) = mpsc::channel(); //temp channel to fill values
         self.srv_to_client = receiver;
         self.client_to_srv = sender;
+        self.state = ConnectionState::DISCONNECTED;
     }
 
     #[must_use]

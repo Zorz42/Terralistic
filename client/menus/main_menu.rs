@@ -1,4 +1,4 @@
-use crate::client::game::tls_client::TlsClient;
+use crate::client::game::tls_client::{AuthenticationState, TlsClient};
 use crate::client::global_settings::GlobalSettings;
 use crate::client::menus::SettingsMenu;
 use crate::client::settings::Settings;
@@ -148,14 +148,7 @@ pub fn run_main_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn Ba
             button.render(graphics, Some(menu_back.get_back_rect_container()));
         }
 
-        let color = tls_client.as_ref().map_or_else(
-            || gfx::Color::new(255, 0, 0, 255),
-            |client| match &client.get_connection_state() {
-                ConnectionState::CONNECTING(_) => gfx::Color::new(255, 255, 0, 255),
-                ConnectionState::CONNECTED(_) => gfx::Color::new(0, 255, 0, 255),
-                _ => gfx::Color::new(255, 0, 0, 255),
-            },
-        );
+        let color = get_tls_status_color(&tls_client);
         cloud_status_rect.render(graphics, color);
 
         #[cfg(debug_assertions)]
@@ -165,4 +158,18 @@ pub fn run_main_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn Ba
 
         graphics.update_window();
     }
+}
+
+fn get_tls_status_color(tls_client: &Option<TlsClient>) -> gfx::Color {
+    tls_client.as_ref().map_or_else(
+        || gfx::Color::new(255, 0, 0, 255),
+        |client| match &client.get_connection_state() {
+            ConnectionState::CONNECTING(_) => gfx::Color::new(255, 255, 0, 255),
+            _ => match client.get_authentication_state() {
+                AuthenticationState::AUTHENTICATING => gfx::Color::new(255, 255, 0, 255),
+                AuthenticationState::AUTHENTICATED => gfx::Color::new(0, 255, 0, 255),
+                _ => gfx::Color::new(255, 0, 0, 255),
+            },
+        },
+    )
 }
