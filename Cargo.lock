@@ -16,6 +16,7 @@ dependencies = [
  "fnv",
  "gl",
  "hecs",
+ "kvptree",
  "message-io",
  "noise",
  "png",
@@ -1119,6 +1120,15 @@ checksum = "ed9625ffda8729b85e45cf04090035ac368927b8cebc34898e7c120f52e4838b"
 dependencies = [
  "bitflags 1.3.2",
  "libc",
+]
+
+[[package]]
+name = "kvptree"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2db150141154a1b97e424fb52c20eb7c20cbc8cfd41b3a28538b817da72eb62d"
+dependencies = [
+ "anyhow",
 ]
 
 [[package]]

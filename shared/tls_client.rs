@@ -1,8 +1,6 @@
 use anyhow::Result;
-use rustls::ClientConfig;
 use std::io::{Read, Write};
 use std::net::{TcpStream, ToSocketAddrs};
-use std::sync::mpsc::TryRecvError;
 use std::sync::{mpsc, Arc};
 
 const PORT: u16 = 28603;
@@ -16,8 +14,51 @@ pub enum ConnectionState {
     FAILED(anyhow::Error),
 }
 
+fn handle_connection(mut client_conf: rustls::ClientConnection, mut tcp_stream: TcpStream, receiver: &mpsc::Receiver<kvptree::ValueType>, sender: &mpsc::Sender<kvptree::ValueType>) -> Result<()> {
+    let mut tls_stream = rustls::Stream::new(&mut client_conf, &mut tcp_stream);
+    loop {
+        let mut size_buf = [0u8; 4];
+        let res = tls_stream.read_exact(&mut size_buf);
+        if let Err(e) = res {
+            if e.kind() != std::io::ErrorKind::WouldBlock {
+                eprintln!("error reading from server:\n{e}");
+                return Err(e.into());
+            }
+        } else {
+            let buf_size = u32::from_be_bytes(size_buf) as usize;
+            let mut buf = vec![0; buf_size];
+            tls_stream.sock.set_nonblocking(false)?;
+            tls_stream.read_exact(&mut buf)?;
+            tls_stream.sock.set_nonblocking(true)?;
+            #[allow(clippy::unwrap_used)] //is safe
+            #[allow(clippy::unwrap_used)] //is safe
+            let res = match kvptree::from_byte_vec(buf.clone()) {
+                Err(e) => {
+                    eprintln!("error converting bytes to kvp tree:\n{e}");
+                    continue;
+                }
+                Ok(res) => res,
+            };
+            let res = sender.send(res);
+            if res.is_err() {
+                eprintln!("client has disconnected while the server is still sending messages");
+                tls_stream.conn.send_close_notify();
+                tls_stream.write_all(b"closing connection")?;
+                return Ok(());
+            }
+        }
+
+        if let Ok(message) = receiver.try_recv() {
+            let byte_vec = kvptree::to_byte_vec(message);
+            tls_stream.write_all(&(byte_vec.len() as u32).to_be_bytes())?; //this makes an 4 byte number
+            tls_stream.write_all(&byte_vec)?;
+            tls_stream.flush()?;
+        }
+    }
+}
+
 impl ConnectionState {
-    fn connect(&mut self, client_to_server: mpsc::Sender<String>, server_to_client: mpsc::Receiver<String>) {
+    fn connect(&mut self, server_to_client: mpsc::Sender<kvptree::ValueType>, client_to_server: mpsc::Receiver<kvptree::ValueType>) {
         if let Self::CONNECTING(handle) = std::mem::replace(self, Self::FAILED(anyhow::anyhow!("temp err"))) {
             let handle = match handle.join() {
                 Ok(handle) => match handle {
@@ -36,44 +77,12 @@ impl ConnectionState {
             };
 
             let spawn_result = std::thread::Builder::new().name("TLS connection".to_owned()).spawn(move || -> Result<()> {
-                let mut client_conf = handle.0;
-                let mut tcp_stream = handle.1;
-                let receiver = server_to_client;
-                let sender = client_to_server;
-                let mut tls_stream = rustls::Stream::new(&mut client_conf, &mut tcp_stream);
-                loop {
-                    let mut buf = [0; 1024];
-                    let res = tls_stream.read(&mut buf);
-                    if let Err(e) = res {
-                        if e.kind() != std::io::ErrorKind::WouldBlock {
-                            eprintln!("error reading from server:\n{e}");
-                            return Err(e.into());
-                        }
-                    } else {
-                        #[allow(clippy::unwrap_used)] //is safe
-                        let n = res.unwrap();
-                        #[allow(clippy::unwrap_used)] //is safe
-                        let res = match String::from_utf8(buf.get(..n).unwrap().to_vec()) {
-                            Err(e) => {
-                                eprintln!("error converting bytes to string:\n{e}");
-                                continue;
-                            }
-                            Ok(res) => res,
-                        };
-                        if res.is_empty() {
-                            continue;
-                        }
-                        let res = sender.send(res);
-                        if res.is_err() {
-                            eprintln!("client has disconnected while the server is still sending messages");
-                            tls_stream.conn.send_close_notify();
-                            tls_stream.write_all(b"closing connection")?;
-                            return Ok(());
-                        }
-                    }
-
-                    if let Ok(message) = receiver.try_recv() {
-                        tls_stream.write_all(message.as_bytes())?;
+                let res = handle_connection(handle.0, handle.1, &client_to_server, &server_to_client);
+                match res {
+                    Ok(()) => Ok(()),
+                    Err(e) => {
+                        println!("error: {e}\n\nbacktrace:\n{}", e.backtrace());
+                        Err(e)
                     }
                 }
             });
@@ -94,9 +103,9 @@ impl ConnectionState {
 pub struct TlsClient {
     state: ConnectionState,
     socket: std::net::SocketAddr,
-    config: Arc<ClientConfig>,
-    srv_to_client: mpsc::Receiver<String>,
-    client_to_srv: mpsc::Sender<String>,
+    config: Arc<rustls::ClientConfig>,
+    srv_to_client: mpsc::Receiver<kvptree::ValueType>,
+    client_to_srv: mpsc::Sender<kvptree::ValueType>,
 }
 
 impl TlsClient {
@@ -121,7 +130,7 @@ impl TlsClient {
             .spawn(move || -> Result<(rustls::ClientConnection, TcpStream)> {
                 let socket = temp_socket;
                 let tls_conn = rustls::ClientConnection::new(temp_config, ADDR.try_into()?)?;
-                std::thread::sleep(std::time::Duration::from_secs(2)); //artificial delay for debugging
+                std::thread::sleep(std::time::Duration::from_secs(1)); //artificial delay for debugging
                 let tcp_stream = TcpStream::connect_timeout(&socket, std::time::Duration::from_millis(10000))?;
                 tcp_stream.set_nonblocking(true)?;
                 Ok((tls_conn, tcp_stream))
@@ -155,12 +164,12 @@ impl TlsClient {
         }
     }
 
-    pub fn read(&mut self) -> Result<String> {
+    pub fn read(&mut self) -> Result<kvptree::ValueType> {
         let res = self.srv_to_client.try_recv();
         match res {
             Ok(res) => Ok(res),
             Err(e) => {
-                if matches!(e, TryRecvError::Disconnected) {
+                if matches!(e, mpsc::TryRecvError::Disconnected) {
                     self.close();
                 }
                 Err(e.into())
@@ -168,8 +177,8 @@ impl TlsClient {
         }
     }
 
-    pub fn write(&mut self, message: &str) -> Result<()> {
-        self.client_to_srv.send(message.to_owned())?;
+    pub fn write(&mut self, message: kvptree::ValueType) -> Result<()> {
+        self.client_to_srv.send(message)?;
         Ok(())
     }
 
@@ -188,7 +197,7 @@ impl TlsClient {
     }
 }
 
-fn get_client_config() -> Arc<ClientConfig> {
+fn get_client_config() -> Arc<rustls::ClientConfig> {
     let anchors = webpki_roots::TLS_SERVER_ROOTS;
 
     let mut root_store = rustls::RootCertStore::empty();
@@ -198,5 +207,5 @@ fn get_client_config() -> Arc<ClientConfig> {
         name_constraints: e.name_constraints.clone(),
     }));
 
-    Arc::new(ClientConfig::builder().with_root_certificates(root_store).with_no_client_auth())
+    Arc::new(rustls::ClientConfig::builder().with_root_certificates(root_store).with_no_client_auth())
 }

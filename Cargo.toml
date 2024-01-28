@@ -33,6 +33,7 @@ noise = { version = "0.8", default-features = false }
 fnv = { version = "1.0", default-features = false }
 hecs = { version = "0.10", default-features = false, features = ["std"] }
 message-io = { version = "0.18", default-features = false, features = ["tcp"] }
+kvptree = "0.1"
 
 # set custom dependency for windows
 [target.'cfg(windows)'.dependencies]
@@ -87,6 +88,7 @@ hecs = { version = "0.10", default-features = false, features = ["std"] }
 message-io = { version = "0.18", default-features = false, features = ["tcp"] }
 winres = "0.1"
 rand = { version = "0.8", default-features = false, features = ["std", "std_rng"] }
+kvptree = "0.1"
 
 
 [dev-dependencies]

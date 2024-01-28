@@ -1,6 +1,7 @@
 use crate::shared::tls_client;
 use crate::shared::tls_client::ConnectionState;
 use anyhow::Result;
+use std::collections::HashMap;
 
 #[allow(non_camel_case_types)] //shut up clippy
 #[derive(Debug)]
@@ -21,7 +22,7 @@ pub struct TlsClient {
 impl TlsClient {
     pub fn new() -> Result<Self> {
         Ok(Self {
-            user_credentials: Some(("test".to_owned(), "test".to_owned())),
+            user_credentials: Some(("test".to_owned(), "test1".to_owned())),
             authentication_state: AuthenticationState::NOT_AUTHENTICATED, //read from file and set this to NOT_AUTHENTICATED if the password is saved or change when the user enters the password
             client: tls_client::TlsClient::new()?,
         })
@@ -31,11 +32,11 @@ impl TlsClient {
         self.client.connect();
     }
 
-    pub fn read(&mut self) -> Result<String> {
+    pub fn read(&mut self) -> Result<kvptree::ValueType> {
         self.client.read()
     }
 
-    pub fn write(&mut self, message: &str) -> Result<()> {
+    pub fn write(&mut self, message: kvptree::ValueType) -> Result<()> {
         self.client.write(message)
     }
 
@@ -53,7 +54,10 @@ impl TlsClient {
             ConnectionState::CONNECTED(_) => match &self.authentication_state {
                 AuthenticationState::NOT_AUTHENTICATED => match &self.user_credentials {
                     Some((username, password)) => {
-                        let res = self.write(&format!("{username} {password}"));
+                        let res = self.write(kvptree::ValueType::LIST(HashMap::from([
+                            ("username".to_owned(), kvptree::ValueType::STRING(username.to_owned())),
+                            ("password".to_owned(), kvptree::ValueType::STRING(password.to_owned())),
+                        ])));
                         if let Err(e) = res {
                             println!("error writing to server: {e}");
                             self.authentication_state = AuthenticationState::FAILED;
@@ -68,6 +72,7 @@ impl TlsClient {
                 AuthenticationState::AUTHENTICATING => match self.read() {
                     Ok(message) => {
                         println!("received a message");
+                        let message = message.get_str("result").unwrap_or_else(|_| "auth_failed".to_owned());
                         if message == "auth_success" {
                             self.authentication_state = AuthenticationState::AUTHENTICATED;
                             println!("client is authenticated");
@@ -79,7 +84,10 @@ impl TlsClient {
                         }
                     }
                     Err(e) => {
-                        eprintln!("error reading from server: {e}");
+                        if e.to_string() != *"receiving on an empty channel" {
+                            //there's probably a better way idk
+                            eprintln!("error reading from server: {e}");
+                        }
                     }
                 },
                 _ => {}
