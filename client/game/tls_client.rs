@@ -22,7 +22,7 @@ pub struct TlsClient {
 impl TlsClient {
     pub fn new() -> Result<Self> {
         Ok(Self {
-            user_credentials: Some(("test".to_owned(), "test1".to_owned())),
+            user_credentials: Some(("test".to_owned(), "test".to_owned())),
             authentication_state: AuthenticationState::NOT_AUTHENTICATED, //read from file and set this to NOT_AUTHENTICATED if the password is saved or change when the user enters the password
             client: tls_client::TlsClient::new()?,
         })
