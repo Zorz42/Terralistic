@@ -55,8 +55,14 @@ impl TlsClient {
                 AuthenticationState::NOT_AUTHENTICATED => match &self.user_credentials {
                     Some((username, password)) => {
                         let res = self.write(kvptree::ValueType::LIST(HashMap::from([
-                            ("username".to_owned(), kvptree::ValueType::STRING(username.to_owned())),
-                            ("password".to_owned(), kvptree::ValueType::STRING(password.to_owned())),
+                            ("auth_type".to_owned(), kvptree::ValueType::STRING("login".to_owned())),
+                            (
+                                "credentials".to_owned(),
+                                kvptree::ValueType::LIST(HashMap::from([
+                                    ("username".to_owned(), kvptree::ValueType::STRING(username.to_owned())),
+                                    ("password".to_owned(), kvptree::ValueType::STRING(password.to_owned())),
+                                ])),
+                            ),
                         ])));
                         if let Err(e) = res {
                             println!("error writing to server: {e}");
@@ -71,13 +77,13 @@ impl TlsClient {
                 },
                 AuthenticationState::AUTHENTICATING => match self.read() {
                     Ok(message) => {
-                        println!("received a message");
-                        let message = message.get_str("result").unwrap_or_else(|_| "auth_failed".to_owned());
-                        if message == "auth_success" {
+                        println!("received a message:\n\n{message}\n\n");
+                        let message = message.get_str("result").unwrap_or_else(|_| "login_failed".to_owned());
+                        if message == "login_successful" {
                             self.authentication_state = AuthenticationState::AUTHENTICATED;
                             println!("client is authenticated");
                             self.client.close();
-                        } else if message == "auth_failed" {
+                        } else if message == "login_failed" {
                             self.authentication_state = AuthenticationState::FAILED;
                             self.client.close();
                             println!("auth failed");
