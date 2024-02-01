@@ -31,7 +31,6 @@ fn handle_connection(mut client_conf: rustls::ClientConnection, mut tcp_stream: 
             tls_stream.read_exact(&mut buf)?;
             tls_stream.sock.set_nonblocking(true)?;
             #[allow(clippy::unwrap_used)] //is safe
-            #[allow(clippy::unwrap_used)] //is safe
             let res = match kvptree::from_byte_vec(buf.clone()) {
                 Err(e) => {
                     eprintln!("error converting bytes to kvp tree:\n{e}");
