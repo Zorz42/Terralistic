@@ -49,10 +49,12 @@ fn handle_connection(mut client_conf: rustls::ClientConnection, mut tcp_stream: 
         }
 
         if let Ok(message) = receiver.try_recv() {
+            tls_stream.sock.set_nonblocking(false)?;
             let byte_vec = kvptree::to_byte_vec(message);
             tls_stream.write_all(&(byte_vec.len() as u32).to_be_bytes())?; //this makes an 4 byte number
             tls_stream.write_all(&byte_vec)?;
             tls_stream.flush()?;
+            tls_stream.sock.set_nonblocking(true)?;
         }
     }
 }
