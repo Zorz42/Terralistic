@@ -49,56 +49,62 @@ impl TlsClient {
         if matches!(self.authentication_state, AuthenticationState::AUTHENTICATED) || matches!(self.authentication_state, AuthenticationState::FAILED) {
             return;
         }
-        //this is ugly lol
-        match self.get_connection_state() {
-            ConnectionState::CONNECTED(_) => match &self.authentication_state {
-                AuthenticationState::NOT_AUTHENTICATED => match &self.user_credentials {
-                    Some((username, password)) => {
-                        let res = self.write(kvptree::ValueType::LIST(HashMap::from([
-                            ("auth_type".to_owned(), kvptree::ValueType::STRING("login".to_owned())),
-                            (
-                                "credentials".to_owned(),
-                                kvptree::ValueType::LIST(HashMap::from([
-                                    ("username".to_owned(), kvptree::ValueType::STRING(username.to_owned())),
-                                    ("password".to_owned(), kvptree::ValueType::STRING(password.to_owned())),
-                                ])),
-                            ),
-                        ])));
-                        if let Err(e) = res {
-                            println!("error writing to server: {e}");
-                            self.authentication_state = AuthenticationState::FAILED;
-                            return;
-                        }
-                        self.authentication_state = AuthenticationState::AUTHENTICATING;
+
+        if !matches!(self.get_connection_state(), ConnectionState::CONNECTED(_)) {
+            self.connect();
+        }
+        if matches!(self.get_connection_state(), ConnectionState::CONNECTED(_)) {
+            self.inner_authenticate();
+        }
+    }
+
+    fn inner_authenticate(&mut self) {
+        match &self.authentication_state {
+            AuthenticationState::NOT_AUTHENTICATED => match &self.user_credentials {
+                Some((username, password)) => {
+                    let res = self.write(kvptree::ValueType::LIST(HashMap::from([
+                        ("auth_type".to_owned(), kvptree::ValueType::STRING("login".to_owned())),
+                        (
+                            "credentials".to_owned(),
+                            kvptree::ValueType::LIST(HashMap::from([
+                                ("username".to_owned(), kvptree::ValueType::STRING(username.to_owned())),
+                                ("password".to_owned(), kvptree::ValueType::STRING(password.to_owned())),
+                            ])),
+                        ),
+                    ])));
+                    if let Err(e) = res {
+                        println!("error writing to server: {e}");
+                        self.authentication_state = AuthenticationState::FAILED;
+                        return;
                     }
-                    None => {
-                        self.authentication_state = AuthenticationState::NO_CREDENTIALS;
-                    }
-                },
-                AuthenticationState::AUTHENTICATING => match self.read() {
-                    Ok(message) => {
-                        println!("received a message:\n\n{message}\n\n");
-                        let message = message.get_str("result").unwrap_or_else(|_| "login_failed".to_owned());
-                        if message == "login_successful" {
-                            self.authentication_state = AuthenticationState::AUTHENTICATED;
-                            println!("client is authenticated");
-                            self.client.close();
-                        } else if message == "login_failed" {
-                            self.authentication_state = AuthenticationState::FAILED;
-                            self.client.close();
-                            println!("auth failed");
-                        }
-                    }
-                    Err(e) => {
-                        if e.to_string() != *"receiving on an empty channel" {
-                            //there's probably a better way idk
-                            eprintln!("error reading from server: {e}");
-                        }
-                    }
-                },
-                _ => {}
+                    self.authentication_state = AuthenticationState::AUTHENTICATING;
+                }
+                None => {
+                    self.authentication_state = AuthenticationState::NO_CREDENTIALS;
+                }
             },
-            _ => self.connect(),
+            AuthenticationState::AUTHENTICATING => match self.read() {
+                Ok(message) => {
+                    println!("received a message:\n\n{message}\n\n");
+                    let message = message.get_str("result").unwrap_or_else(|_| "login_failed".to_owned());
+                    if message == "login_successful" {
+                        self.authentication_state = AuthenticationState::AUTHENTICATED;
+                        println!("client is authenticated");
+                        self.client.close();
+                    } else if message == "login_failed" {
+                        self.authentication_state = AuthenticationState::FAILED;
+                        self.client.close();
+                        println!("auth failed");
+                    }
+                }
+                Err(e) => {
+                    if e.to_string() != *"receiving on an empty channel" {
+                        //there's probably a better way idk
+                        eprintln!("error reading from server: {e}");
+                    }
+                }
+            },
+            _ => {}
         }
     }
 
