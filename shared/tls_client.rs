@@ -16,6 +16,7 @@ pub enum ConnectionState {
 
 fn handle_connection(mut client_conf: rustls::ClientConnection, mut tcp_stream: TcpStream, receiver: &mpsc::Receiver<kvptree::ValueType>, sender: &mpsc::Sender<kvptree::ValueType>) -> Result<()> {
     let mut tls_stream = rustls::Stream::new(&mut client_conf, &mut tcp_stream);
+    tls_stream.sock.set_nonblocking(true)?;
     loop {
         let mut size_buf = [0u8; 4];
         let res = tls_stream.read_exact(&mut size_buf);
@@ -132,8 +133,7 @@ impl TlsClient {
                 let socket = temp_socket;
                 let tls_conn = rustls::ClientConnection::new(temp_config, ADDR.try_into()?)?;
                 std::thread::sleep(std::time::Duration::from_secs(1)); //artificial delay for debugging
-                let tcp_stream = TcpStream::connect_timeout(&socket, std::time::Duration::from_millis(10000))?;
-                tcp_stream.set_nonblocking(true)?;
+                let tcp_stream = TcpStream::connect_timeout(&socket, std::time::Duration::from_secs(10))?;
                 Ok((tls_conn, tcp_stream))
             });
 
