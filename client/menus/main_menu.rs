@@ -7,7 +7,7 @@ use crate::shared::tls_client::ConnectionState;
 use crate::shared::versions::VERSION;
 
 use super::background_rect::BackgroundRect;
-use super::{run_multiplayer_selector, run_singleplayer_selector};
+use super::{run_login_menu, run_multiplayer_selector, run_singleplayer_selector};
 
 #[allow(clippy::too_many_lines)] // TODO: split this function up
 pub fn run_main_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn BackgroundRect, settings: &mut Settings, global_settings: &mut GlobalSettings) {
@@ -79,6 +79,13 @@ pub fn run_main_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn Ba
 
     let cloud_status_rect = gfx::Rect::new(gfx::FloatPos(10.0, 10.0), gfx::FloatSize(20.0, 20.0));
 
+    let mut cloud_status_button = gfx::Button::new();
+    cloud_status_button.color = gfx::GREY;
+    cloud_status_button.pos = cloud_status_rect.pos + gfx::FloatPos(cloud_status_rect.size.0 + 5.0, -10.0);
+    cloud_status_button.orientation = gfx::TOP_LEFT;
+    cloud_status_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Login", None));
+    cloud_status_button.scale = 1.5;
+
     let mut tls_client = match TlsClient::new() {
         Err(e) => {
             eprintln!("error getting tls client:\n{e}\n\nbacktrace:\n{}", e.backtrace());
@@ -118,6 +125,10 @@ pub fn run_main_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn Ba
                     } else if mods_button.is_hovered(graphics, Some(menu_back.get_back_rect_container())) {
                     } else if exit_button.is_hovered(graphics, Some(menu_back.get_back_rect_container())) {
                         graphics.close_window();
+                    } else if cloud_status_button.is_hovered(graphics, None) && run_login_menu(graphics, menu_back) {
+                        if let Some(client) = &mut tls_client {
+                            client.reset();
+                        }
                     }
                 }
             }
@@ -150,6 +161,7 @@ pub fn run_main_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn Ba
 
         let color = get_tls_status_color(&tls_client);
         cloud_status_rect.render(graphics, color);
+        cloud_status_button.render(graphics, None);
 
         #[cfg(debug_assertions)]
         debug_title.render(graphics, Some(menu_back.get_back_rect_container()), None);

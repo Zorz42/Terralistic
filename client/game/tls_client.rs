@@ -140,4 +140,34 @@ impl TlsClient {
     pub const fn get_authentication_state(&self) -> &AuthenticationState {
         &self.authentication_state
     }
+
+    pub fn reset(&mut self) {
+        self.client.reset();
+        self.authentication_state = AuthenticationState::NOT_AUTHENTICATED;
+
+        #[allow(clippy::let_underscore_must_use)]
+        let _ = self.set_credentials();
+    }
+
+    fn set_credentials(&mut self) -> Result<()> {
+        let dirs = BaseDirs::new().ok_or_else(|| anyhow::anyhow!("err"))?;
+        let user_file = dirs.data_dir().join("Terralistic").join("user.txt");
+        //if the file doesn't exist, create it
+        if !user_file.exists() {
+            std::fs::create_dir_all(user_file.parent().ok_or_else(|| anyhow::anyhow!("err"))?)?;
+            std::fs::write(user_file.clone(), "")?;
+        }
+        self.user_credentials = std::fs::read_to_string(user_file).map_or(None, |data| {
+            let mut lines = data.lines();
+            let username = lines.next();
+            let password = lines.next();
+            if let (Some(username), Some(password)) = (username, password) {
+                Some((username.to_owned(), password.to_owned()))
+            } else {
+                None
+            }
+        });
+
+        Ok(())
+    }
 }

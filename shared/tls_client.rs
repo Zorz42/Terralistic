@@ -196,6 +196,11 @@ impl TlsClient {
     pub const fn get_connection_state(&self) -> &ConnectionState {
         &self.state
     }
+
+    pub fn reset(&mut self) {
+        self.close();
+        self.state = ConnectionState::DISCONNECTED;
+    }
 }
 
 fn get_client_config() -> Arc<rustls::ClientConfig> {
