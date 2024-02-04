@@ -1,6 +1,7 @@
 use crate::shared::tls_client;
 use crate::shared::tls_client::ConnectionState;
 use anyhow::Result;
+use directories::BaseDirs;
 use std::collections::HashMap;
 
 #[allow(non_camel_case_types)] //shut up clippy
@@ -21,8 +22,26 @@ pub struct TlsClient {
 
 impl TlsClient {
     pub fn new() -> Result<Self> {
+        let dirs = BaseDirs::new().ok_or_else(|| anyhow::anyhow!("could not get base dir"))?;
+        let user_file = dirs.data_dir().join("Terralistic").join("user.txt");
+        //if the file doesn't exist, create it
+        if !user_file.exists() {
+            std::fs::create_dir_all(user_file.parent().ok_or_else(|| anyhow::anyhow!("err"))?)?;
+            std::fs::write(user_file.clone(), "")?;
+        }
+        let user_credentials = std::fs::read_to_string(user_file).map_or(None, |data| {
+            let mut lines = data.lines();
+            let username = lines.next();
+            let password = lines.next();
+            if let (Some(username), Some(password)) = (username, password) {
+                Some((username.to_owned(), password.to_owned()))
+            } else {
+                None
+            }
+        });
+
         Ok(Self {
-            user_credentials: Some(("test".to_owned(), "test".to_owned())),
+            user_credentials,
             authentication_state: AuthenticationState::NOT_AUTHENTICATED, //read from file and set this to NOT_AUTHENTICATED if the password is saved or change when the user enters the password
             client: tls_client::TlsClient::new()?,
         })
