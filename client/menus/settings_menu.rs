@@ -6,10 +6,7 @@ enum SettingUi {
     Toggle {
         setting_id: i32,
         text: gfx::Sprite,
-        toggle_progress: f32,
-        hovered_progress: f32,
-        hovered: bool,
-        animation_timer: gfx::AnimationTimer,
+        toggle: gfx::Toggle,
     },
     Choice {
         setting_id: i32,
@@ -33,9 +30,9 @@ enum SettingUi {
 
 const SETTINGS_WIDTH: f32 = 700.0;
 const SETTINGS_BOX_HEIGHT: f32 = 70.0;
-const TOGGLE_BUTTON_WIDTH: f32 = 30.0;
+const TOGGLE_BUTTON_WIDTH: f32 = 35.0;
 const TOGGLE_BOX_WIDTH: f32 = 70.0;
-const TOGGLE_BOX_HEIGHT: f32 = 40.0;
+const TOGGLE_BOX_HEIGHT: f32 = 43.0;
 const SLIDER_WIDTH: f32 = 250.0;
 const SLIDER_BUTTON_WIDTH: f32 = 10.0;
 const SLIDER_HEIGHT: f32 = 50.0;
@@ -52,14 +49,17 @@ fn setting_to_ui(graphics: &gfx::GraphicsContext, setting: &Setting, setting_id:
     text_sprite.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface(text, None));
 
     match setting {
-        Setting::Toggle { toggled, .. } => SettingUi::Toggle {
-            setting_id,
-            text: text_sprite,
-            toggle_progress: if *toggled { 1.0 } else { 0.0 },
-            hovered_progress: 0.0,
-            hovered: false,
-            animation_timer: gfx::AnimationTimer::new(10),
-        },
+        Setting::Toggle { toggled, .. } => {
+            let mut temp_toggle = gfx::Toggle::new();
+            temp_toggle.toggled = *toggled;
+            temp_toggle.size = gfx::FloatSize(TOGGLE_BOX_WIDTH, TOGGLE_BOX_HEIGHT);
+            temp_toggle.padding = (TOGGLE_BOX_HEIGHT - TOGGLE_BUTTON_WIDTH) / 2.0;
+            SettingUi::Toggle {
+                setting_id,
+                text: text_sprite,
+                toggle: temp_toggle,
+            }
+        }
         Setting::Choice { choices, .. } => {
             let mut buttons = Vec::new();
 
@@ -133,86 +133,19 @@ fn render_setting_ui(graphics: &gfx::GraphicsContext, setting: &mut SettingUi, s
     text.render(graphics, Some(&back_rect.get_container(graphics, None)), None);
 
     match setting {
-        SettingUi::Toggle {
-            hovered,
-            setting_id,
-            toggle_progress,
-            hovered_progress,
-            animation_timer,
-            ..
-        } => {
+        SettingUi::Toggle { setting_id, toggle, .. } => {
             let mut setting_toggled = false;
             if let Ok(Setting::Toggle { toggled, .. }) = settings.get_setting_mut(*setting_id) {
                 setting_toggled = *toggled;
             }
 
-            while animation_timer.frame_ready() {
-                let toggle_progress_target = if setting_toggled { 1.0 } else { 0.0 };
-                *toggle_progress += (toggle_progress_target - *toggle_progress) / 10.0;
+            toggle.pos = gfx::FloatPos(-gfx::SPACING, 0.0);
+            toggle.size = gfx::FloatSize(TOGGLE_BOX_WIDTH, TOGGLE_BOX_HEIGHT);
+            toggle.orientation = gfx::RIGHT;
 
-                let hover_progress_target = if *hovered { 1.0 } else { 0.0 };
-                *hovered_progress += (hover_progress_target - *hovered_progress) / 30.0;
-            }
+            toggle.toggled = setting_toggled;
 
-            let mut toggle_box_rect = gfx::RenderRect::new(gfx::FloatPos(-gfx::SPACING, 0.0), gfx::FloatSize(TOGGLE_BOX_WIDTH, TOGGLE_BOX_HEIGHT));
-            let color = gfx::interpolate_colors(
-                // turned off
-                gfx::interpolate_colors(
-                    // not hovered
-                    gfx::Color::new(170, 0, 0, 255),
-                    // hovered
-                    gfx::Color::new(210, 0, 0, 255),
-                    *hovered_progress,
-                ),
-                // turned on
-                gfx::interpolate_colors(
-                    // not hovered
-                    gfx::Color::new(0, 170, 0, 255),
-                    // hovered
-                    gfx::Color::new(0, 210, 0, 255),
-                    *hovered_progress,
-                ),
-                *toggle_progress,
-            );
-
-            let border_color = gfx::interpolate_colors(
-                // turned off
-                gfx::interpolate_colors(
-                    // not hovered
-                    gfx::Color::new(0, 0, 0, 0),
-                    // hovered
-                    gfx::Color::new(180, 0, 0, 255),
-                    *hovered_progress,
-                ),
-                // turned on
-                gfx::interpolate_colors(
-                    // not hovered
-                    gfx::Color::new(0, 0, 0, 0),
-                    // hovered
-                    gfx::Color::new(0, 180, 0, 255),
-                    *hovered_progress,
-                ),
-                *toggle_progress,
-            );
-
-            toggle_box_rect.fill_color = color;
-            toggle_box_rect.border_color = border_color;
-            toggle_box_rect.orientation = gfx::RIGHT;
-            toggle_box_rect.render(graphics, Some(&back_rect.get_container(graphics, None)));
-
-            *hovered = toggle_box_rect
-                .get_container(graphics, Some(&back_rect.get_container(graphics, None)))
-                .get_absolute_rect()
-                .contains(graphics.get_mouse_pos());
-
-            let inner_spacing = (TOGGLE_BOX_HEIGHT - TOGGLE_BUTTON_WIDTH) / 2.0;
-
-            let button_x = *toggle_progress * (TOGGLE_BOX_WIDTH - TOGGLE_BUTTON_WIDTH - inner_spacing) + (1.0 - *toggle_progress) * (inner_spacing);
-
-            let mut toggle_button_rect = gfx::RenderRect::new(gfx::FloatPos(button_x, 0.0), gfx::FloatSize(TOGGLE_BUTTON_WIDTH, TOGGLE_BUTTON_WIDTH));
-            toggle_button_rect.fill_color = gfx::WHITE;
-            toggle_button_rect.orientation = gfx::LEFT;
-            toggle_button_rect.render(graphics, Some(&toggle_box_rect.get_container(graphics, Some(&back_rect.get_container(graphics, None)))));
+            toggle.render(graphics, Some(&back_rect.get_container(graphics, None)));
         }
         SettingUi::Choice { buttons, setting_id, choice_rect, .. } => {
             let mut chosen_button = 0;
@@ -372,8 +305,8 @@ impl SettingsMenu {
 
             for setting in &mut self.settings {
                 match setting {
-                    SettingUi::Toggle { hovered, setting_id, .. } => {
-                        if *hovered {
+                    SettingUi::Toggle { toggle, setting_id, .. } => {
+                        if toggle.hovered {
                             if let Ok(Setting::Toggle { toggled, .. }) = settings.get_setting_mut(*setting_id) {
                                 *toggled = !*toggled;
                             }

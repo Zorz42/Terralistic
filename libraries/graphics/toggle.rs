@@ -14,6 +14,7 @@ pub struct Toggle {
     pub border_color: gfx::Color,
     pub button_color: gfx::Color,
     pub toggled: bool,
+    pub hovered: bool,
     toggle_progress: f32,
     hover_progress: f32,
     timer: std::time::Instant,
@@ -35,6 +36,7 @@ impl Toggle {
             border_color: GFX_DEFAULT_BUTTON_BORDER_COLOR,
             button_color: gfx::WHITE,
             toggled: false,
+            hovered: false,
             toggle_progress: 0.0,
             hover_progress: 0.0,
             timer: std::time::Instant::now(),
@@ -75,6 +77,7 @@ impl Toggle {
 
     /// Renders the toggle.
     pub fn render(&mut self, graphics: &gfx::GraphicsContext, parent_container: Option<&gfx::Container>) {
+        self.hovered = self.is_hovered(graphics, parent_container);
         let mut container = self.get_container(graphics, parent_container);
         let float_size_padding = gfx::FloatSize(self.padding, self.padding);
         let toggle_target = if self.toggled { 1.0 } else { 0.0 };
