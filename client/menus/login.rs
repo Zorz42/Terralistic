@@ -1,7 +1,12 @@
+use crate::client::game::tls_client;
 use crate::client::menus::background_rect::BackgroundRect;
 use crate::libraries::graphics as gfx;
+use crate::shared::tls_client::ConnectionState::CONNECTED;
+use anyhow::Result;
 use directories::BaseDirs;
+use std::collections::HashMap;
 use std::io::Write;
+use std::sync::mpsc::TryRecvError;
 
 /// this function runs the login menu.
 #[allow(clippy::too_many_lines)] // TODO: reduce the number of lines in this function
@@ -74,7 +79,7 @@ pub fn run_login_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn B
 
     username_input.text_processing = Some(Box::new(|text: char| {
         // this closure only accepts letters, numbers and _ symbol
-        if text.is_alphanumeric() || text == '_' {
+        if text.is_ascii_alphanumeric() || text == '_' {
             return Some(text);
         }
         None
@@ -82,7 +87,15 @@ pub fn run_login_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn B
 
     password_input.text_processing = Some(Box::new(|text: char| {
         // this closure only accepts letters, numbers and special symbols
-        if text.is_alphanumeric() || text.is_ascii_punctuation() {
+        if text.is_ascii_alphanumeric() || text.is_ascii_punctuation() {
+            return Some(text);
+        }
+        None
+    }));
+
+    email_input.text_processing = Some(Box::new(|text: char| {
+        // this closure only accepts symbols allowed by the email standard
+        if text.is_ascii_alphanumeric() || ['+', '-', '_', '~'].contains(&text) {
             return Some(text);
         }
         None
@@ -101,7 +114,7 @@ pub fn run_login_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn B
                 let text = if login_register_toggle.toggled { "Register" } else { "Login" };
                 confirm_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface(text, None));
                 title.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface(&(text.to_owned() + ":"), None));
-                email_shown = if login_register_toggle.toggled { true } else { false };
+                email_shown = login_register_toggle.toggled;
             }
             if let gfx::Event::KeyRelease(key, ..) = event {
                 match key {
@@ -111,6 +124,9 @@ pub fn run_login_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn B
                         }
                         if confirm_button.is_hovered(graphics, Some(&buttons_container)) {
                             save_user_data(username_input.get_text(), password_input.get_text());
+                            if login_register_toggle.toggled {
+                                eprintln!("{:?}", register(username_input.get_text(), password_input.get_text(), email_input.get_text()));
+                            }
                             return true;
                         }
                     }
@@ -125,6 +141,9 @@ pub fn run_login_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn B
                     gfx::Key::Enter => {
                         if !confirm_button.disabled {
                             save_user_data(username_input.get_text(), password_input.get_text());
+                            if login_register_toggle.toggled {
+                                eprintln!("{:?}", register(username_input.get_text(), password_input.get_text(), email_input.get_text()));
+                            }
                             return true;
                         }
                     }
@@ -177,4 +196,40 @@ fn save_user_data(username: &str, password: &str) {
     if let Err(error) = file.write_all(content.as_bytes()) {
         println!("Failed to write to file: {error}");
     }
+}
+
+fn register(username: &str, password: &str, email: &str) -> Result<()> {
+    //add menu rendering
+    let mut manager = tls_client::TlsClient::new()?;
+    while !matches!(manager.get_connection_state(), CONNECTED(_)) {
+        manager.connect();
+    }
+    manager.write(kvptree::ValueType::LIST(HashMap::from([
+        ("auth_type".to_owned(), kvptree::ValueType::STRING("register".to_owned())),
+        (
+            "credentials".to_owned(),
+            kvptree::ValueType::LIST(HashMap::from([
+                ("username".to_owned(), kvptree::ValueType::STRING(username.to_owned())),
+                ("password".to_owned(), kvptree::ValueType::STRING(password.to_owned())),
+                ("email".to_owned(), kvptree::ValueType::STRING(email.to_owned())),
+            ])),
+        ),
+    ])))?;
+    let message;
+    loop {
+        match manager.read() {
+            Err(e) => {
+                if matches!(e, TryRecvError::Disconnected) {
+                    return Err(e.into());
+                }
+            }
+            Ok(value) => {
+                message = value;
+                break;
+            }
+        }
+    }
+    eprintln!("{message}");
+
+    Ok(())
 }

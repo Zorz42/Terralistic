@@ -3,6 +3,7 @@ use crate::shared::tls_client::ConnectionState;
 use anyhow::Result;
 use directories::BaseDirs;
 use std::collections::HashMap;
+use std::sync::mpsc::TryRecvError;
 
 #[allow(non_camel_case_types)] //shut up clippy
 #[derive(Debug)]
@@ -51,7 +52,7 @@ impl TlsClient {
         self.client.connect();
     }
 
-    pub fn read(&mut self) -> Result<kvptree::ValueType> {
+    pub fn read(&mut self) -> Result<kvptree::ValueType, TryRecvError> {
         self.client.read()
     }
 

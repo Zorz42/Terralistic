@@ -1,6 +1,7 @@
 use anyhow::Result;
 use std::io::{Read, Write};
 use std::net::{TcpStream, ToSocketAddrs};
+use std::sync::mpsc::TryRecvError;
 use std::sync::{mpsc, Arc};
 
 const PORT: u16 = 28603;
@@ -165,15 +166,15 @@ impl TlsClient {
         }
     }
 
-    pub fn read(&mut self) -> Result<kvptree::ValueType> {
+    pub fn read(&mut self) -> Result<kvptree::ValueType, TryRecvError> {
         let res = self.srv_to_client.try_recv();
         match res {
             Ok(res) => Ok(res),
             Err(e) => {
-                if matches!(e, mpsc::TryRecvError::Disconnected) {
+                if matches!(e, TryRecvError::Disconnected) {
                     self.close();
                 }
-                Err(e.into())
+                Err(e)
             }
         }
     }
