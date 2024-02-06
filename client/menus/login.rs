@@ -33,13 +33,20 @@ pub fn run_login_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn B
     username_input.set_hint(graphics, "Username");
     username_input.orientation = gfx::CENTER;
     username_input.selected = true;
-    username_input.pos.1 = -(username_input.get_size().1 + gfx::SPACING) / 2.0;
+    username_input.pos.1 = -(username_input.get_size().1 + gfx::SPACING);
+    //username_input.pos.1 = -(username_input.get_size().1 + gfx::SPACING) / 2.0;
 
     let mut password_input = gfx::TextInput::new(graphics);
     password_input.scale = 3.0;
     password_input.set_hint(graphics, "Password");
     password_input.orientation = gfx::CENTER;
-    password_input.pos.1 = (password_input.get_size().1 + gfx::SPACING) / 2.0;
+    //password_input.pos.1 = (password_input.get_size().1 + gfx::SPACING) / 2.0;
+
+    let mut email_input = gfx::TextInput::new(graphics);
+    email_input.scale = 3.0;
+    email_input.set_hint(graphics, "Email");
+    email_input.orientation = gfx::CENTER;
+    email_input.pos.1 = email_input.get_size().1 + gfx::SPACING;
 
     let mut login_register_toggle = gfx::Toggle::new();
     login_register_toggle.pos = gfx::FloatPos(0.0, username_input.pos.1 - username_input.get_size().1 - gfx::SPACING);
@@ -81,6 +88,7 @@ pub fn run_login_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn B
         None
     }));
 
+    let mut email_shown = false;
     //this is where the menu is drawn
     while graphics.is_window_open() {
         confirm_button.disabled = username_input.get_text().is_empty() || password_input.get_text().is_empty();
@@ -93,6 +101,7 @@ pub fn run_login_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn B
                 let text = if login_register_toggle.toggled { "Register" } else { "Login" };
                 confirm_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface(text, None));
                 title.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface(&(text.to_owned() + ":"), None));
+                email_shown = if login_register_toggle.toggled { true } else { false };
             }
             if let gfx::Event::KeyRelease(key, ..) = event {
                 match key {
@@ -137,6 +146,9 @@ pub fn run_login_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn B
 
         username_input.render(graphics, Some(menu_back.get_back_rect_container()));
         password_input.render(graphics, Some(menu_back.get_back_rect_container()));
+        if email_shown {
+            email_input.render(graphics, Some(menu_back.get_back_rect_container()));
+        }
 
         login_register_toggle.render(graphics, Some(menu_back.get_back_rect_container()));
         login_sprite.render(graphics, Some(menu_back.get_back_rect_container()), None);
