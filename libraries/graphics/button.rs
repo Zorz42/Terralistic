@@ -118,7 +118,7 @@ impl Button {
         hover_rect.render(graphics, button_color);
         hover_rect.render_outline(graphics, button_border_color);
 
-        let texture_scale = self.scale + self.hover_progress * 0.4;
+        let texture_scale = self.scale + self.hover_progress * 0.3;
         let x = rect.pos.0 + rect.size.0 / 2.0 - self.texture.get_texture_size().0 * texture_scale / 2.0;
         let y = rect.pos.1 + rect.size.1 / 2.0 - self.texture.get_texture_size().1 * texture_scale / 2.0;
         self.texture.render(graphics, texture_scale, gfx::FloatPos(x, y), None, false, None);
