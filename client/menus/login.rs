@@ -3,7 +3,7 @@ use crate::libraries::graphics as gfx;
 use directories::BaseDirs;
 use std::io::Write;
 
-/// this function runs the world creation menu.
+/// this function runs the login menu.
 #[allow(clippy::too_many_lines)] // TODO: reduce the number of lines in this function
 pub fn run_login_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn BackgroundRect) -> bool {
     let mut title = gfx::Sprite::new();
