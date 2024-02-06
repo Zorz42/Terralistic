@@ -1,7 +1,7 @@
 use crate::client::game::tls_client;
 use crate::client::menus::background_rect::BackgroundRect;
 use crate::libraries::graphics as gfx;
-use crate::shared::tls_client::ConnectionState::CONNECTED;
+use crate::shared::tls_client::ConnectionState::{CONNECTED, FAILED};
 use anyhow::Result;
 use directories::BaseDirs;
 use std::collections::HashMap;
@@ -94,8 +94,10 @@ pub fn run_login_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn B
     }));
 
     email_input.text_processing = Some(Box::new(|text: char| {
-        // this closure only accepts symbols allowed by the email standard
-        if text.is_ascii_alphanumeric() || ['+', '-', '_', '~'].contains(&text) {
+        // this closure only accepts symbols allowed by the email standard.
+        // This should be improved by adding better checks https://en.wikipedia.org/wiki/Email_address
+
+        if text.is_ascii_alphanumeric() || "!#$%&'*+-/=?^_`{|}~.@".contains(text) {
             return Some(text);
         }
         None
@@ -110,6 +112,7 @@ pub fn run_login_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn B
             //sorts out the events
             username_input.on_event(&event, graphics, None);
             password_input.on_event(&event, graphics, None);
+            email_input.on_event(&event, graphics, None);
             if login_register_toggle.on_event(&event, graphics, Some(menu_back.get_back_rect_container())) {
                 let text = if login_register_toggle.toggled { "Register" } else { "Login" };
                 confirm_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface(text, None));
@@ -203,6 +206,9 @@ fn register(username: &str, password: &str, email: &str) -> Result<()> {
     let mut manager = tls_client::TlsClient::new()?;
     while !matches!(manager.get_connection_state(), CONNECTED(_)) {
         manager.connect();
+        if matches!(manager.get_connection_state(), FAILED(_)) {
+            return Err(anyhow::anyhow!("cloud server not available"));
+        }
     }
     manager.write(kvptree::ValueType::LIST(HashMap::from([
         ("auth_type".to_owned(), kvptree::ValueType::STRING("register".to_owned())),
