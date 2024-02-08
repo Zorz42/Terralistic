@@ -81,7 +81,14 @@ impl ServerNetworking {
         let is_running = self.is_running.clone();
         let server_port = self.server_port;
 
-        self.net_loop_thread = Some(std::thread::spawn(move || Self::net_receive_loop(&event_sender, &packet_receiver, &is_running, server_port)));
+        self.net_loop_thread = Some(
+            //this panics with normal thread creation anyway
+            #[allow(clippy::unwrap_used)]
+            std::thread::Builder::new()
+                .name("Server networking".to_owned())
+                .spawn(move || Self::net_receive_loop(&event_sender, &packet_receiver, &is_running, server_port))
+                .unwrap(),
+        );
     }
 
     #[allow(clippy::expect_used)]

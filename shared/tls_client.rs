@@ -79,26 +79,23 @@ impl ConnectionState {
                 }
             };
 
-            let spawn_result = std::thread::Builder::new().name("TLS connection".to_owned()).spawn(move || -> Result<()> {
-                let res = handle_connection(handle.0, handle.1, &client_to_server, &server_to_client);
-                match res {
-                    Ok(()) => Ok(()),
-                    Err(e) => {
-                        println!("error: {e}\n\nbacktrace:\n{}", e.backtrace());
-                        Err(e)
+            //this panics with normal thread creation anyway
+            #[allow(clippy::unwrap_used)]
+            let thread = std::thread::Builder::new()
+                .name("TLS connection".to_owned())
+                .spawn(move || -> Result<()> {
+                    let res = handle_connection(handle.0, handle.1, &client_to_server, &server_to_client);
+                    match res {
+                        Ok(()) => Ok(()),
+                        Err(e) => {
+                            println!("error: {e}\n\nbacktrace:\n{}", e.backtrace());
+                            Err(e)
+                        }
                     }
-                }
-            });
+                })
+                .unwrap();
 
-            match spawn_result {
-                Ok(thread_handle) => {
-                    *self = Self::CONNECTED(thread_handle);
-                }
-                Err(e) => {
-                    eprintln!("error creating TLS connection thread: {e}");
-                    *self = Self::FAILED(e.into());
-                }
-            }
+            *self = Self::CONNECTED(thread);
         }
     }
 }
@@ -128,7 +125,9 @@ impl TlsClient {
         let temp_socket = self.socket;
         let temp_config = self.config.clone();
 
-        let spawn_result = std::thread::Builder::new()
+        //this panics with normal thread creation anyway
+        #[allow(clippy::unwrap_used)]
+        let thread = std::thread::Builder::new()
             .name("TLS connection init".to_owned())
             .spawn(move || -> Result<(rustls::ClientConnection, TcpStream)> {
                 let socket = temp_socket;
@@ -136,15 +135,10 @@ impl TlsClient {
                 std::thread::sleep(std::time::Duration::from_secs(1)); //artificial delay for debugging
                 let tcp_stream = TcpStream::connect_timeout(&socket, std::time::Duration::from_secs(10))?;
                 Ok((tls_conn, tcp_stream))
-            });
+            })
+            .unwrap();
 
-        match spawn_result {
-            Ok(thread) => self.state = ConnectionState::CONNECTING(thread),
-            Err(e) => {
-                eprintln!("error creating TLS connection init thread: {e}");
-                self.state = ConnectionState::FAILED(e.into());
-            }
-        }
+        self.state = ConnectionState::CONNECTING(thread);
     }
 
     pub fn connect(&mut self) {

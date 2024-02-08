@@ -59,7 +59,7 @@ pub fn run_game(
     let loading_text = Arc::new(Mutex::new("Loading".to_owned()));
     let loading_text2 = loading_text.clone();
 
-    let init_thread = std::thread::spawn(move || {
+    let init_thread = std::thread::Builder::new().name("Client init".to_owned()).spawn(move || {
         let temp_fn = || -> Result<(ClientModManager, ClientBlocks, ClientWalls, ClientEntities, ClientItems, ClientNetworking)> {
             *loading_text2.lock().unwrap_or_else(PoisonError::into_inner) = "Loading mods".to_owned();
             let mut mods = ClientModManager::new();
@@ -88,7 +88,7 @@ pub fn run_game(
         let result = temp_fn();
         loading_text2.lock().unwrap_or_else(PoisonError::into_inner).clear();
         result
-    });
+    })?;
 
     run_loading_screen(graphics, menu_back, &loading_text);
 

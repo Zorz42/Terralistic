@@ -63,7 +63,7 @@ impl ClientNetworking {
         let server_port = self.server_port;
         let receive_loop_error = self.receive_loop_error.clone();
 
-        let net_loop_thread = std::thread::spawn(move || {
+        let net_loop_thread = std::thread::Builder::new().name("Client Networking".to_owned()).spawn(move || {
             Self::net_receive_loop(
                 &event_sender,
                 &packet_receiver,
@@ -75,7 +75,7 @@ impl ClientNetworking {
                 server_port,
                 &name,
             )
-        });
+        })?;
         if net_loop_thread.is_finished() {
             bail!("net loop thread failed");
         }

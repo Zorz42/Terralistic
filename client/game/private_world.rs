@@ -22,7 +22,8 @@ pub fn run_private_world(graphics: &mut gfx::GraphicsContext, menu_back: &mut dy
 
     // start server in async thread
     let world_path = world_path.to_path_buf();
-    let server_thread = std::thread::spawn(move || {
+
+    let server_thread = std::thread::Builder::new().name("Private server".to_owned()).spawn(move || {
         let mut server = Server::new(SINGLEPLAYER_PORT, None, None);
         let result = server.run(&server_running2, &loading_text2, vec![include_bytes!("../../base_game/base_game.mod").to_vec()], &world_path);
 
@@ -32,7 +33,7 @@ pub fn run_private_world(graphics: &mut gfx::GraphicsContext, menu_back: &mut dy
         }
 
         result
-    });
+    })?;
 
     run_loading_screen(graphics, menu_back, &loading_text);
 

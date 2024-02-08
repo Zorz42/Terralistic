@@ -33,6 +33,7 @@ pub fn compile_mod(mod_path: PathBuf) {
     //Use darklua to minify the mod's lua code. Use DenseLuaGenerator to generate the minified code.
     let parser = Parser::default();
     let block = std::thread::Builder::new()
+        .name("lua code parser".to_owned())
         .stack_size(100_000_000)
         .spawn(move || parser.parse(&lua_code))
         .unwrap()
