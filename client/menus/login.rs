@@ -1,6 +1,7 @@
 use crate::client::game::tls_client;
 use crate::client::menus::background_rect::BackgroundRect;
 use crate::libraries::graphics as gfx;
+use crate::libraries::graphics::GraphicsContext;
 use crate::shared::tls_client::ConnectionState::{CONNECTED, FAILED};
 use anyhow::Result;
 use directories::BaseDirs;
@@ -128,7 +129,7 @@ pub fn run_login_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn B
                         if confirm_button.is_hovered(graphics, Some(&buttons_container)) {
                             save_user_data(username_input.get_text(), password_input.get_text());
                             if login_register_toggle.toggled {
-                                eprintln!("{:?}", register(username_input.get_text(), password_input.get_text(), email_input.get_text()));
+                                eprintln!("{:?}", register(username_input.get_text(), password_input.get_text(), email_input.get_text(), graphics, menu_back));
                             }
                             return true;
                         }
@@ -145,7 +146,7 @@ pub fn run_login_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn B
                         if !confirm_button.disabled {
                             save_user_data(username_input.get_text(), password_input.get_text());
                             if login_register_toggle.toggled {
-                                eprintln!("{:?}", register(username_input.get_text(), password_input.get_text(), email_input.get_text()));
+                                eprintln!("{:?}", register(username_input.get_text(), password_input.get_text(), email_input.get_text(), graphics, menu_back));
                             }
                             return true;
                         }
@@ -201,11 +202,20 @@ fn save_user_data(username: &str, password: &str) {
     }
 }
 
-fn register(username: &str, password: &str, email: &str) -> Result<()> {
+fn register(username: &str, password: &str, email: &str, graphics: &mut GraphicsContext, menu_back: &mut dyn BackgroundRect) -> Result<()> {
+    let mut registering_text = gfx::Sprite::new();
+    registering_text.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Registering", None));
+    registering_text.orientation = gfx::CENTER;
+    registering_text.scale = 3.0;
+
     //add menu rendering
     let mut manager = tls_client::TlsClient::new()?;
     while !matches!(manager.get_connection_state(), CONNECTED(_)) {
         manager.connect();
+        menu_back.render_back(graphics);
+        registering_text.render(graphics, Some(menu_back.get_back_rect_container()), None);
+        graphics.update_window();
+
         if matches!(manager.get_connection_state(), FAILED(_)) {
             return Err(anyhow::anyhow!("cloud server not available"));
         }
@@ -223,6 +233,11 @@ fn register(username: &str, password: &str, email: &str) -> Result<()> {
     ])))?;
     let message;
     loop {
+        manager.connect();
+        menu_back.render_back(graphics);
+        registering_text.render(graphics, Some(menu_back.get_back_rect_container()), None);
+        graphics.update_window();
+
         match manager.read() {
             Err(e) => {
                 if matches!(e, TryRecvError::Disconnected) {
@@ -235,6 +250,22 @@ fn register(username: &str, password: &str, email: &str) -> Result<()> {
             }
         }
     }
+
+    if let Ok(value) = message.get_str("error") {
+        let time = std::time::Instant::now() + std::time::Duration::from_secs(5);
+        registering_text.texture = gfx::Texture::load_from_surface(
+            &graphics
+                .font
+                .create_text_surface(&format!("error:\n{value}"), Some((menu_back.get_back_rect_width(graphics, None) / 3.5) as i32)),
+        );
+        while std::time::Instant::now() < time {
+            manager.connect();
+            menu_back.render_back(graphics);
+            registering_text.render(graphics, Some(menu_back.get_back_rect_container()), None);
+            graphics.update_window();
+        }
+    }
+
     eprintln!("{message}");
 
     Ok(())
