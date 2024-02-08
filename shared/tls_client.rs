@@ -67,7 +67,7 @@ impl ConnectionState {
                 Ok(handle) => match handle {
                     Ok(handle) => handle,
                     Err(e) => {
-                        eprintln!("error connecting to server:\n{e}\n\nbacktrace:\n{}", e.backtrace());
+                        eprintln!("error connecting to server:\n{e}");
                         *self = Self::FAILED(e);
                         return;
                     }
