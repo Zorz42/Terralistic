@@ -95,7 +95,7 @@ impl ConnectionState {
                     *self = Self::CONNECTED(thread_handle);
                 }
                 Err(e) => {
-                    eprintln!("error creating TLS connection init thread: {e}");
+                    eprintln!("error creating TLS connection thread: {e}");
                     *self = Self::FAILED(e.into());
                 }
             }
