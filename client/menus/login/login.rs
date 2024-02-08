@@ -7,6 +7,7 @@ use anyhow::Result;
 use directories::BaseDirs;
 use std::collections::HashMap;
 use std::io::Write;
+use std::str::FromStr;
 use std::sync::mpsc::TryRecvError;
 
 /// this function runs the login menu.
@@ -98,7 +99,7 @@ pub fn run_login_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn B
         // this closure only accepts symbols allowed by the email standard.
         // This should be improved by adding better checks https://en.wikipedia.org/wiki/Email_address
 
-        if text.is_ascii_alphanumeric() || "!#$%&'*+-/=?^_`{|}~.@".contains(text) {
+        if text.is_ascii_alphanumeric() || "!#$%&'*+-/=?^_`{|}~.@\"[]\\ \t(),:;<>".contains(text) {
             return Some(text);
         }
         None
@@ -107,7 +108,7 @@ pub fn run_login_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn B
     let mut email_shown = false;
     //this is where the menu is drawn
     while graphics.is_window_open() {
-        confirm_button.disabled = username_input.get_text().is_empty() || password_input.get_text().is_empty();
+        confirm_button.disabled = username_input.get_text().is_empty() || password_input.get_text().is_empty() || (login_register_toggle.toggled && !is_valid_email(email_input.get_text()));
 
         while let Some(event) = graphics.get_event() {
             //sorts out the events
@@ -269,4 +270,95 @@ fn register(username: &str, password: &str, email: &str, graphics: &mut Graphics
     eprintln!("{message}");
 
     Ok(())
+}
+
+pub(super) fn is_valid_email(email: &str) -> bool {
+    let (user, domain) = email.rsplit_once('@').unwrap_or_default();
+    if user.is_empty() {
+        //empty user or unsuccessful split
+        return false;
+    }
+    if user.len() > 64 {
+        return false;
+    }
+    let user_ok = if user.starts_with('"') && user.ends_with('"') {
+        if user.len() < 2 {
+            return false;
+        }
+        let mut user = user.to_owned();
+        user.remove(0);
+        user.remove(user.as_bytes().len() - 1);
+        while let Some(n) = user.find("\\\\") {
+            user.remove(n);
+            user.remove(n);
+        }
+        while let Some(n) = user.find("\\\"") {
+            user.remove(n);
+            user.remove(n);
+        }
+        is_quoted_user_email_valid(&user)
+    } else {
+        is_user_email_valid(user)
+    };
+
+    let domain_ok = if domain.starts_with('[') && domain.ends_with(']') {
+        let mut domain = domain.to_owned();
+        domain.remove(0);
+        domain.remove(domain.as_bytes().len() - 1);
+        is_ip_email_domain_valid(domain)
+    } else {
+        is_email_domain_valid(domain)
+    };
+
+    user_ok && domain_ok
+}
+
+fn is_user_email_valid(user: &str) -> bool {
+    for c in user.chars() {
+        if !(c.is_ascii_alphanumeric() || "!#$%&'*+-/=?^_`{|}~.".contains(c)) {
+            return false;
+        }
+    }
+    let pos = user.find("..");
+    pos.is_none() //as .. is not allowed in an unquoted string
+}
+
+fn is_quoted_user_email_valid(user: &str) -> bool {
+    for c in user.chars() {
+        if (!c.is_ascii_graphic() || "\\\"".contains(c)) && !" \t".contains(c) {
+            return false;
+        }
+    }
+    true
+}
+
+fn is_email_domain_valid(domain: &str) -> bool {
+    let parts: Vec<&str> = domain.split('.').collect();
+    for part in parts {
+        let mut contains_letter = false;
+        for c in part.chars() {
+            if c.is_ascii_alphabetic() {
+                contains_letter = true;
+            }
+            if !(c.is_ascii_alphanumeric() || c == '-') {
+                return false;
+            }
+        }
+        if !contains_letter {
+            return false;
+        }
+    }
+    true
+}
+
+fn is_ip_email_domain_valid(mut domain: String) -> bool {
+    if domain.starts_with("IPv6:") {
+        domain.remove(0); //I
+        domain.remove(0); //P
+        domain.remove(0); //v
+        domain.remove(0); //6
+        domain.remove(0); //:
+    }
+    let res = std::net::IpAddr::from_str(&domain);
+    res.map_or(false, |_| true)
 }
