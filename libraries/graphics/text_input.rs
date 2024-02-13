@@ -5,7 +5,7 @@ use super::theme::{
     GFX_DEFAULT_TEXT_INPUT_SHADOW_INTENSITY, GFX_DEFAULT_TEXT_INPUT_WIDTH,
 };
 
-const SPACE_CHARACTERS: [char; 3] = [' ', '-', '_'];
+const WORD_DELIMITERS: String = String::from(" /\\()\"\'-.,:;<>~!@#$%^&*|+=[]{}~?│");
 
 pub struct TextInput {
     pub pos: gfx::FloatPos,
@@ -119,7 +119,7 @@ impl TextInput {
         }
 
         if is_ctrl_pressed {
-            while initial_pos < self.text.len() && !SPACE_CHARACTERS.contains(&self.text.chars().nth(initial_pos).unwrap_or('\0')) {
+            while initial_pos < self.text.len() && !WORD_DELIMITERS.contains(&self.text.chars().nth(initial_pos).unwrap_or('\0')) {
                 initial_pos += 1;
             }
         }
@@ -132,7 +132,7 @@ impl TextInput {
         initial_pos = initial_pos.saturating_sub(1);
 
         if is_ctrl_pressed {
-            while initial_pos > 0 && !SPACE_CHARACTERS.contains(&self.text.chars().nth(initial_pos - 1).unwrap_or('\0')) {
+            while initial_pos > 0 && !WORD_DELIMITERS.contains(&self.text.chars().nth(initial_pos - 1).unwrap_or('\0')) {
                 initial_pos -= 1;
             }
         }
