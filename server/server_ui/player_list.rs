@@ -2,6 +2,7 @@ use std::net::SocketAddr;
 
 use crate::libraries::graphics as gfx;
 use crate::server::server_ui::{PlayerEventType, UiMessageType};
+use gfx::UiElement;
 
 use super::ui_manager;
 use super::ui_manager::{EDGE_SPACING, SCALE};

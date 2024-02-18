@@ -7,6 +7,7 @@ use crate::libraries::events::Event;
 use crate::libraries::graphics as gfx;
 use crate::shared::chat::ChatPacket;
 use crate::shared::packet::Packet;
+use gfx::UiElement;
 
 pub struct ChatLine {
     texture: gfx::Texture,

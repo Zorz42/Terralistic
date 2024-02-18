@@ -1,6 +1,7 @@
 use crate::libraries::graphics as gfx;
 
 use super::background_rect::BackgroundRect;
+use gfx::UiElement;
 
 /// `MenuBack` is a struct that contains the background rectangle for
 /// the most main menus. It implements the `BackgroundRect` trait. It

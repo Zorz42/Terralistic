@@ -1,5 +1,6 @@
 use crate::libraries::events::Event;
 use crate::libraries::graphics as gfx;
+use gfx::UiElement;
 
 /// The debug menu shows useful information about the game.
 /// Like fps, time per frame, position, etc.

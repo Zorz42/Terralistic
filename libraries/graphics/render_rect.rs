@@ -45,9 +45,17 @@ impl RenderRect {
         }
     }
 
+    /// This function jumps the rectangle to the target position.
+    pub fn jump_to_target(&mut self) {
+        self.render_pos = self.pos;
+        self.render_size = self.size;
+    }
+}
+
+impl gfx::UiElement for RenderRect {
     /// This function renders the rectangle, it uses Rect class to render.
     /// It also approaches the position to the target position.
-    pub fn render(&mut self, graphics: &gfx::GraphicsContext, parent_container: Option<&gfx::Container>) {
+    fn render(&mut self, graphics: &gfx::GraphicsContext, parent_container: Option<&gfx::Container>) {
         while self.animation_timer.frame_ready() {
             self.render_pos.0 = Self::approach(self.render_pos.0, self.pos.0, self.smooth_factor);
             self.render_pos.1 = Self::approach(self.render_pos.1, self.pos.1, self.smooth_factor);
@@ -64,16 +72,18 @@ impl RenderRect {
         rect.render_outline(graphics, self.border_color);
     }
 
+    fn update(&mut self, _: &mut gfx::GraphicsContext, _: Option<&gfx::Container>) {
+        //all in render, should be fixed if it causes issues
+    }
+
+    fn on_event(&mut self, graphics: &mut gfx::GraphicsContext, _: &gfx::Event, _: Option<&gfx::Container>) {
+        //doesn't care about events
+    }
+
     /// This function returns the container of the rectangle.
     /// The container has the position of render rect.
     #[must_use]
-    pub fn get_container(&self, graphics: &gfx::GraphicsContext, parent_container: Option<&gfx::Container>) -> gfx::Container {
+    fn get_container(&self, graphics: &gfx::GraphicsContext, parent_container: Option<&gfx::Container>) -> gfx::Container {
         gfx::Container::new(graphics, self.render_pos, self.render_size, self.orientation, parent_container)
-    }
-
-    /// This function jumps the rectangle to the target position.
-    pub fn jump_to_target(&mut self) {
-        self.render_pos = self.pos;
-        self.render_size = self.size;
     }
 }

@@ -9,6 +9,7 @@ use crate::shared::blocks::Blocks;
 use crate::shared::inventory::{Inventory, InventoryCraftPacket, InventoryPacket, InventorySelectPacket, InventorySwapPacket, Slot};
 use crate::shared::items::{ItemStack, RecipeId};
 use crate::shared::packet::Packet;
+use gfx::UiElement;
 
 #[derive(Clone, Copy, PartialEq, Eq)]
 enum OpenState {
