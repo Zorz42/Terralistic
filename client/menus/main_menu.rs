@@ -1,5 +1,6 @@
 use crate::client::game::tls_client::{AuthenticationState, TlsClient};
 use crate::client::global_settings::GlobalSettings;
+use crate::client::menus::singleplayer_selector::MENU_WIDTH;
 use crate::client::menus::SettingsMenu;
 use crate::client::settings::Settings;
 use crate::libraries::graphics as gfx;
@@ -7,10 +8,21 @@ use crate::shared::tls_client::ConnectionState;
 use crate::shared::versions::VERSION;
 
 use super::background_rect::BackgroundRect;
-use super::{run_login_menu, run_multiplayer_selector, run_singleplayer_selector};
+use super::{run_login_menu, run_multiplayer_selector, SingleplayerSelector};
+
+enum MainMenuState {
+    None,
+    SingleplayerSelector(SingleplayerSelector),
+}
 
 #[allow(clippy::too_many_lines)] // TODO: split this function up
 pub fn run_main_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn BackgroundRect, settings: &mut Settings, global_settings: &mut GlobalSettings) {
+    let mut state = MainMenuState::None;
+    let mut secondary_menu_back = crate::client::menus::MenuBack::new(graphics);
+    secondary_menu_back.set_x_position(graphics.get_window_size().0);
+    secondary_menu_back.main_back_menu = false;
+    secondary_menu_back.set_back_rect_width(MENU_WIDTH);
+
     let mut singleplayer_button = gfx::Button::new();
     singleplayer_button.scale = 3.0;
     singleplayer_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Singleplayer", None));
@@ -113,11 +125,22 @@ pub fn run_main_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn Ba
                 continue;
             }
 
+            let close_secondary_menu = match state {
+                MainMenuState::None => false,
+                MainMenuState::SingleplayerSelector(ref mut menu) => menu.update_elements(graphics, &mut secondary_menu_back, settings, global_settings, &event),
+            };
+            if close_secondary_menu {
+                state = MainMenuState::None;
+            }
+
             if let gfx::Event::KeyRelease(key, ..) = event {
                 // check for every button if it was clicked with the left mouse button
                 if key == gfx::Key::MouseLeft {
                     if singleplayer_button.is_hovered(graphics, Some(menu_back.get_back_rect_container())) {
-                        run_singleplayer_selector(graphics, menu_back, settings, global_settings);
+                        if !matches!(state, MainMenuState::SingleplayerSelector(_)) {
+                            let singleplayer_menu = SingleplayerSelector::new(graphics);
+                            state = MainMenuState::SingleplayerSelector(singleplayer_menu);
+                        }
                     } else if multiplayer_button.is_hovered(graphics, Some(menu_back.get_back_rect_container())) {
                         run_multiplayer_selector(graphics, menu_back, settings, global_settings);
                     } else if settings_button.is_hovered(graphics, Some(menu_back.get_back_rect_container())) {
@@ -133,6 +156,18 @@ pub fn run_main_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn Ba
                 }
             }
         }
+
+        let max_width = MENU_WIDTH + menu_back.get_back_rect_width(graphics, None) + gfx::SPACING;
+        menu_back.set_x_position(if matches!(state, MainMenuState::None) {
+            0.0
+        } else {
+            -max_width / 2.0 + menu_back.get_back_rect_width(graphics, None) / 2.0
+        });
+        secondary_menu_back.set_x_position(if matches!(state, MainMenuState::None) {
+            graphics.get_window_size().0
+        } else {
+            max_width / 2.0 - MENU_WIDTH / 2.0
+        });
 
         if in_settings {
             menu_back.render_back(graphics);
@@ -167,6 +202,12 @@ pub fn run_main_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn Ba
         debug_title.render(graphics, Some(menu_back.get_back_rect_container()), None);
         title.render(graphics, Some(menu_back.get_back_rect_container()), None);
         version.render(graphics, Some(menu_back.get_back_rect_container()), None);
+
+        //render secondary menu
+        match state {
+            MainMenuState::None => secondary_menu_back.render_back(graphics),
+            MainMenuState::SingleplayerSelector(ref mut menu) => menu.render(graphics, &mut secondary_menu_back, settings, global_settings),
+        }
 
         graphics.update_window();
     }

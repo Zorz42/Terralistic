@@ -10,8 +10,8 @@ use crate::client::settings::Settings;
 use crate::libraries::graphics as gfx;
 
 use super::background_rect::BackgroundRect;
-use super::run_choice_menu;
 use super::world_creation::run_world_creation;
+use super::{run_choice_menu, MenuBack};
 
 pub const MENU_WIDTH: f32 = 800.0;
 
@@ -31,18 +31,6 @@ pub fn get_last_modified_time(file_path: &str) -> String {
     }
     let datetime = chrono::DateTime::<chrono::Local>::from(modified_time);
     datetime.format("%d %B %Y %H:%M").to_string()
-}
-
-/// struct to pass around the UI elements for rendering and updating.
-struct SigleplayerSelectorElements {
-    top_rect: gfx::RenderRect,
-    bottom_rect: gfx::RenderRect,
-    title: gfx::Sprite,
-    back_button: gfx::Button,
-    new_world_button: gfx::Button,
-    world_list: WorldList,
-    top_height: f32,
-    bottom_height: f32,
 }
 
 /// World is a struct that contains all information to
@@ -194,90 +182,96 @@ impl WorldList {
     }
 }
 
-pub fn run_singleplayer_selector(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn BackgroundRect, settings: &mut Settings, global_settings: &mut GlobalSettings) {
-    let world_list = WorldList::new(graphics);
-
-    let mut title = gfx::Sprite::new();
-    title.scale = 3.0;
-    title.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Select a world to play!", None));
-    title.pos.1 = gfx::SPACING;
-    title.orientation = gfx::TOP;
-
-    let mut back_button = gfx::Button::new();
-    back_button.scale = 3.0;
-    back_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Back", None));
-    back_button.pos.1 = -gfx::SPACING;
-    back_button.orientation = gfx::BOTTOM;
-
-    let mut new_world_button = gfx::Button::new();
-    new_world_button.scale = 3.0;
-    new_world_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("New", None));
-    new_world_button.pos.0 = -gfx::SPACING;
-    new_world_button.pos.1 = -gfx::SPACING;
-    new_world_button.orientation = gfx::BOTTOM_RIGHT;
-
-    let top_height = title.get_size().1 + 2.0 * gfx::SPACING;
-    let bottom_height = back_button.get_size().1 + 2.0 * gfx::SPACING;
-
-    let mut top_rect = gfx::RenderRect::new(gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, top_height));
-    top_rect.orientation = gfx::TOP;
-
-    let mut bottom_rect = gfx::RenderRect::new(gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, bottom_height));
-    bottom_rect.fill_color.a = gfx::TRANSPARENCY / 2;
-    bottom_rect.shadow_intensity = gfx::SHADOW_INTENSITY;
-    bottom_rect.blur_radius = gfx::BLUR;
-    bottom_rect.orientation = gfx::BOTTOM;
-
-    let mut scrollable = gfx::Scrollable::new();
-    scrollable.rect.pos.1 = gfx::SPACING;
-    scrollable.rect.size.0 = MENU_WIDTH;
-    scrollable.scroll_smooth_factor = 100.0;
-    scrollable.boundary_smooth_factor = 40.0;
-    scrollable.orientation = gfx::TOP;
-
-    let mut elements = SigleplayerSelectorElements {
-        top_rect,
-        bottom_rect,
-        title,
-        back_button,
-        new_world_button,
-        world_list,
-        top_height,
-        bottom_height,
-    };
-
-    let mut top_rect_visibility = 1.0;
-    while graphics.is_window_open() {
-        if update_elements(graphics, menu_back, &mut elements, settings, global_settings, &mut scrollable) {
-            break;
-        }
-        render_elements(graphics, menu_back, &mut elements, &mut top_rect_visibility, &mut scrollable);
-    }
+pub struct SingleplayerSelector {
+    world_list: WorldList,
+    title: gfx::Sprite,
+    back_button: gfx::Button,
+    new_world_button: gfx::Button,
+    top_rect: gfx::RenderRect,
+    bottom_rect: gfx::RenderRect,
+    scrollable: gfx::Scrollable,
+    top_rect_visibility: f32,
 }
 
-fn update_elements(
-    graphics: &mut gfx::GraphicsContext,
-    menu_back: &mut dyn BackgroundRect,
-    elements: &mut SigleplayerSelectorElements,
-    settings: &mut Settings,
-    global_settings: &mut GlobalSettings,
-    scrollable: &mut gfx::Scrollable,
-) -> bool {
-    while let Some(event) = graphics.get_event() {
-        scrollable.on_event(&event);
+impl SingleplayerSelector {
+    pub fn new(graphics: &gfx::GraphicsContext) -> Self {
+        let world_list = WorldList::new(graphics);
+        let mut title = gfx::Sprite::new();
+        title.scale = 3.0;
+        title.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Select a world to play!", None));
+        title.pos.1 = gfx::SPACING;
+        title.orientation = gfx::TOP;
+
+        let mut back_button = gfx::Button::new();
+        back_button.scale = 3.0;
+        back_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Back", None));
+        back_button.pos.1 = -gfx::SPACING;
+        back_button.orientation = gfx::BOTTOM;
+
+        let mut new_world_button = gfx::Button::new();
+        new_world_button.scale = 3.0;
+        new_world_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("New", None));
+        new_world_button.pos.0 = -gfx::SPACING;
+        new_world_button.pos.1 = -gfx::SPACING;
+        new_world_button.orientation = gfx::BOTTOM_RIGHT;
+
+        let top_height = title.get_size().1 + 2.0 * gfx::SPACING;
+        let bottom_height = back_button.get_size().1 + 2.0 * gfx::SPACING;
+
+        let mut top_rect = gfx::RenderRect::new(gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, top_height));
+        top_rect.orientation = gfx::TOP;
+
+        let mut bottom_rect = gfx::RenderRect::new(gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, bottom_height));
+        bottom_rect.fill_color.a = gfx::TRANSPARENCY / 2;
+        bottom_rect.shadow_intensity = gfx::SHADOW_INTENSITY;
+        bottom_rect.blur_radius = gfx::BLUR;
+        bottom_rect.orientation = gfx::BOTTOM;
+
+        let mut scrollable = gfx::Scrollable::new();
+        scrollable.rect.pos.1 = gfx::SPACING;
+        scrollable.rect.size.0 = MENU_WIDTH;
+        scrollable.scroll_smooth_factor = 100.0;
+        scrollable.boundary_smooth_factor = 40.0;
+        scrollable.orientation = gfx::TOP;
+
+        Self {
+            world_list,
+            title,
+            back_button,
+            new_world_button,
+            top_rect,
+            bottom_rect,
+            scrollable,
+            top_rect_visibility: 1.0,
+        }
+    }
+
+    pub fn render(&mut self, graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn BackgroundRect, settings: &mut Settings, global_settings: &mut GlobalSettings) {
+        self.render_elements(graphics, menu_back);
+    }
+
+    pub fn update_elements(
+        &mut self,
+        graphics: &mut gfx::GraphicsContext,
+        menu_back: &mut dyn BackgroundRect,
+        settings: &mut Settings,
+        global_settings: &mut GlobalSettings,
+        event: &gfx::Event,
+    ) -> bool {
+        self.scrollable.on_event(&event);
         if let gfx::Event::KeyRelease(key, ..) = event {
             match key {
                 gfx::Key::MouseLeft => {
-                    if elements.back_button.is_hovered(graphics, Some(menu_back.get_back_rect_container())) {
+                    if self.back_button.is_hovered(graphics, Some(menu_back.get_back_rect_container())) {
                         return true;
                     }
-                    if elements.new_world_button.is_hovered(graphics, Some(menu_back.get_back_rect_container())) {
-                        run_world_creation(graphics, menu_back, &elements.world_list.worlds, settings, global_settings);
-                        elements.world_list.refresh(graphics);
+                    if self.new_world_button.is_hovered(graphics, Some(menu_back.get_back_rect_container())) {
+                        run_world_creation(graphics, menu_back, &self.world_list.worlds, settings, global_settings);
+                        self.world_list.refresh(graphics);
                     }
 
                     let mut needs_refresh = false;
-                    for world in &mut elements.world_list.worlds {
+                    for world in &mut self.world_list.worlds {
                         if world.play_button.is_hovered(graphics, Some(&world.get_container(graphics, Some(menu_back.get_back_rect_container())))) {
                             let game_result = run_private_world(graphics, menu_back, world.get_file_path(), settings, global_settings);
                             if let Err(error) = game_result {
@@ -305,7 +299,7 @@ fn update_elements(
                         }
                     }
                     if needs_refresh {
-                        elements.world_list.refresh(graphics);
+                        self.world_list.refresh(graphics);
                     }
                 }
                 gfx::Key::Escape => {
@@ -314,69 +308,61 @@ fn update_elements(
                 _ => {}
             }
         }
-    }
-    false
-}
-
-fn render_elements(
-    graphics: &mut gfx::GraphicsContext,
-    menu_back: &mut dyn BackgroundRect,
-    elements: &mut SigleplayerSelectorElements,
-    top_rect_visibility: &mut f32,
-    scrollable: &mut gfx::Scrollable,
-) {
-    menu_back.set_back_rect_width(MENU_WIDTH);
-
-    menu_back.render_back(graphics);
-
-    let hoverable = graphics.get_mouse_pos().1 > elements.top_height && graphics.get_mouse_pos().1 < graphics.get_window_size().1 - elements.bottom_height;
-
-    for world in &mut elements.world_list.worlds {
-        world.set_enabled(hoverable);
+        false
     }
 
-    let mut current_y = gfx::SPACING + scrollable.get_scroll_x(graphics, None) + elements.top_height;
-    let mut elements_height = 0.0;
+    fn render_elements(&mut self, graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn BackgroundRect) {
+        menu_back.set_back_rect_width(MENU_WIDTH);
 
-    for world in &mut elements.world_list.worlds {
-        world.render(graphics, gfx::FloatPos(0.0, current_y), Some(menu_back.get_back_rect_container()));
-        current_y += world.get_height() + gfx::SPACING;
-        elements_height += world.get_height() + gfx::SPACING;
+        menu_back.render_back(graphics);
+
+        let hoverable = graphics.get_mouse_pos().1 > self.top_rect.size.1 && graphics.get_mouse_pos().1 < graphics.get_window_size().1 - self.bottom_rect.size.1;
+
+        for world in &mut self.world_list.worlds {
+            world.set_enabled(hoverable);
+        }
+
+        let mut current_y = gfx::SPACING + self.scrollable.get_scroll_x(graphics, None) + self.top_rect.size.1;
+        let mut elements_height = 0.0;
+
+        for world in &mut self.world_list.worlds {
+            world.render(graphics, gfx::FloatPos(0.0, current_y), Some(menu_back.get_back_rect_container()));
+            current_y += world.get_height() + gfx::SPACING;
+            elements_height += world.get_height() + gfx::SPACING;
+        }
+
+        self.top_rect.size.0 = menu_back.get_back_rect_width(graphics, None);
+
+        self.top_rect_visibility += ((if self.scrollable.get_scroll_pos() > 5.0 { 1.0 } else { 0.0 }) - self.top_rect_visibility) / 20.0;
+
+        if self.top_rect_visibility < 0.01 {
+            self.top_rect_visibility = 0.0;
+        }
+
+        if self.top_rect_visibility > 0.99 {
+            self.top_rect_visibility = 1.0;
+        }
+
+        self.top_rect.fill_color.a = (self.top_rect_visibility * gfx::TRANSPARENCY as f32 / 2.0) as u8;
+        self.top_rect.blur_radius = (self.top_rect_visibility * gfx::BLUR as f32) as i32;
+        self.top_rect.shadow_intensity = (self.top_rect_visibility * gfx::SHADOW_INTENSITY as f32) as i32;
+        if self.top_rect_visibility > 0.0 {
+            self.top_rect.render(graphics, Some(menu_back.get_back_rect_container()));
+        }
+
+        self.bottom_rect.size.0 = menu_back.get_back_rect_width(graphics, None);
+
+        if self.scrollable.scroll_size > self.scrollable.rect.size.1 {
+            self.bottom_rect.render(graphics, Some(menu_back.get_back_rect_container()));
+        }
+
+        self.title.render(graphics, Some(menu_back.get_back_rect_container()), None);
+        self.back_button.render(graphics, Some(menu_back.get_back_rect_container()));
+
+        self.new_world_button.render(graphics, Some(menu_back.get_back_rect_container()));
+
+        self.scrollable.scroll_size = elements_height;
+        self.scrollable.rect.size.1 = graphics.get_window_size().1 - self.top_rect.size.1 - self.bottom_rect.size.1;
+        self.scrollable.render();
     }
-
-    elements.top_rect.size.0 = menu_back.get_back_rect_width(graphics, None);
-
-    *top_rect_visibility += ((if scrollable.get_scroll_pos() > 5.0 { 1.0 } else { 0.0 }) - *top_rect_visibility) / 20.0;
-
-    if *top_rect_visibility < 0.01 {
-        *top_rect_visibility = 0.0;
-    }
-
-    if *top_rect_visibility > 0.99 {
-        *top_rect_visibility = 1.0;
-    }
-
-    elements.top_rect.fill_color.a = (*top_rect_visibility * gfx::TRANSPARENCY as f32 / 2.0) as u8;
-    elements.top_rect.blur_radius = (*top_rect_visibility * gfx::BLUR as f32) as i32;
-    elements.top_rect.shadow_intensity = (*top_rect_visibility * gfx::SHADOW_INTENSITY as f32) as i32;
-    if *top_rect_visibility > 0.0 {
-        elements.top_rect.render(graphics, Some(menu_back.get_back_rect_container()));
-    }
-
-    elements.bottom_rect.size.0 = menu_back.get_back_rect_width(graphics, None);
-
-    if scrollable.scroll_size > scrollable.rect.size.1 {
-        elements.bottom_rect.render(graphics, Some(menu_back.get_back_rect_container()));
-    }
-
-    elements.title.render(graphics, Some(menu_back.get_back_rect_container()), None);
-    elements.back_button.render(graphics, Some(menu_back.get_back_rect_container()));
-
-    elements.new_world_button.render(graphics, Some(menu_back.get_back_rect_container()));
-
-    scrollable.scroll_size = elements_height;
-    scrollable.rect.size.1 = graphics.get_window_size().1 - elements.top_height - elements.bottom_height;
-    scrollable.render();
-
-    graphics.update_window();
 }

@@ -10,4 +10,5 @@ pub trait BackgroundRect {
     fn set_back_rect_width(&mut self, width: f32);
     fn get_back_rect_width(&self, graphics: &gfx::GraphicsContext, parent_container: Option<&gfx::Container>) -> f32;
     fn get_back_rect_container(&self) -> &gfx::Container;
+    fn set_x_position(&mut self, center_pos: f32);
 }
