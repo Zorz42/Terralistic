@@ -259,7 +259,7 @@ impl UiElement for TextInput {
     }
 
     fn update(&mut self, _: &mut gfx::GraphicsContext, _: Option<&gfx::Container>) {
-        todo!()
+        //some update stuff in render
     }
 
     #[allow(clippy::too_many_lines)] // TODO: split this up
