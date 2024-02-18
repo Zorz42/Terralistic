@@ -130,7 +130,7 @@ pub fn run_main_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn Ba
 
             let close_secondary_menu = match state {
                 MainMenuState::None => false,
-                MainMenuState::SingleplayerSelector(ref mut menu) => menu.get_mut().update(graphics, &mut secondary_menu_back, settings, global_settings, &event),
+                MainMenuState::SingleplayerSelector(ref mut menu) => menu.get_mut().on_event(graphics, &mut secondary_menu_back, settings, global_settings, &event),
             };
             if close_secondary_menu {
                 state = MainMenuState::None;

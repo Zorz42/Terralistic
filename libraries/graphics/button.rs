@@ -70,8 +70,16 @@ impl Button {
 }
 
 impl UiElement for Button {
+    fn get_sub_elements_mut(&mut self) -> Vec<&mut dyn UiElement> {
+        Vec::new()
+    }
+
+    fn get_sub_elements(&self) -> Vec<&dyn UiElement> {
+        Vec::new()
+    }
+
     /// Renders the button.
-    fn render(&mut self, graphics: &gfx::GraphicsContext, parent_container: Option<&gfx::Container>) {
+    fn render_inner(&mut self, graphics: &gfx::GraphicsContext, parent_container: Option<&gfx::Container>) {
         let container = self.get_container(graphics, parent_container);
         let rect = container.get_absolute_rect();
 
@@ -126,7 +134,7 @@ impl UiElement for Button {
         }
     }
 
-    fn update(&mut self, _: &mut gfx::GraphicsContext, _: Option<&gfx::Container>) {
+    fn update_inner(&mut self, _: &mut gfx::GraphicsContext, _: Option<&gfx::Container>) {
         //it's all in render
     }
 

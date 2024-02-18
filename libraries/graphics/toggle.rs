@@ -64,8 +64,16 @@ impl Toggle {
 }
 
 impl UiElement for Toggle {
+    fn get_sub_elements_mut(&mut self) -> Vec<&mut dyn UiElement> {
+        Vec::new()
+    }
+
+    fn get_sub_elements(&self) -> Vec<&dyn UiElement> {
+        Vec::new()
+    }
+
     /// Renders the toggle.
-    fn render(&mut self, graphics: &gfx::GraphicsContext, parent_container: Option<&gfx::Container>) {
+    fn render_inner(&mut self, graphics: &gfx::GraphicsContext, parent_container: Option<&gfx::Container>) {
         self.hovered = self.is_hovered(graphics, parent_container);
         let mut container = self.get_container(graphics, parent_container);
         let float_size_padding = gfx::FloatSize(self.padding, self.padding);
@@ -111,8 +119,8 @@ impl UiElement for Toggle {
         button.get_absolute_rect().render(graphics, self.button_color);
     }
 
-    fn update(&mut self, _: &mut gfx::GraphicsContext, _: Option<&gfx::Container>) {
-        todo!()
+    fn update_inner(&mut self, _: &mut gfx::GraphicsContext, _: Option<&gfx::Container>) {
+        //nothing to update for now
     }
 
     fn on_event(&mut self, graphics: &mut gfx::GraphicsContext, event: &gfx::Event, parent_container: Option<&gfx::Container>) {

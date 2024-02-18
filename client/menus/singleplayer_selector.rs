@@ -248,7 +248,7 @@ impl SingleplayerSelector {
         }
     }
 
-    pub fn update(&mut self, graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn BackgroundRect, settings: &mut Settings, global_settings: &mut GlobalSettings, event: &gfx::Event) -> bool {
+    pub fn on_event(&mut self, graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn BackgroundRect, settings: &mut Settings, global_settings: &mut GlobalSettings, event: &gfx::Event) -> bool {
         self.scrollable.on_event(graphics, event, Some(menu_back.get_back_rect_container()));
         if let gfx::Event::KeyRelease(key, ..) = event {
             match key {

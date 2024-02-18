@@ -137,9 +137,17 @@ impl TextInput {
 }
 
 impl UiElement for TextInput {
+    fn get_sub_elements_mut(&mut self) -> Vec<&mut dyn UiElement> {
+        Vec::new()
+    }
+
+    fn get_sub_elements(&self) -> Vec<&dyn UiElement> {
+        Vec::new()
+    }
+
     /// renders the text input
     #[allow(clippy::too_many_lines)] // TODO: split this function up
-    fn render(&mut self, graphics: &gfx::GraphicsContext, parent_container: Option<&gfx::Container>) {
+    fn render_inner(&mut self, graphics: &gfx::GraphicsContext, parent_container: Option<&gfx::Container>) {
         let container = self.get_container(graphics, parent_container);
         let rect = container.get_absolute_rect();
 
@@ -258,7 +266,7 @@ impl UiElement for TextInput {
         self.text_changed = false;
     }
 
-    fn update(&mut self, _: &mut gfx::GraphicsContext, _: Option<&gfx::Container>) {
+    fn update_inner(&mut self, _: &mut gfx::GraphicsContext, _: Option<&gfx::Container>) {
         //some update stuff in render
     }
 

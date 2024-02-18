@@ -40,7 +40,15 @@ impl Scrollable {
 }
 
 impl UiElement for Scrollable {
-    fn render(&mut self, _: &gfx::GraphicsContext, _: Option<&gfx::Container>) {
+    fn get_sub_elements_mut(&mut self) -> Vec<&mut dyn UiElement> {
+        Vec::new()
+    }
+
+    fn get_sub_elements(&self) -> Vec<&dyn UiElement> {
+        Vec::new()
+    }
+
+    fn render_inner(&mut self, _: &gfx::GraphicsContext, _: Option<&gfx::Container>) {
         while self.animation_timer.frame_ready() {
             self.scroll_pos += self.scroll_velocity;
 
@@ -61,7 +69,7 @@ impl UiElement for Scrollable {
         }
     }
 
-    fn update(&mut self, _: &mut gfx::GraphicsContext, _: Option<&gfx::Container>) {
+    fn update_inner(&mut self, _: &mut gfx::GraphicsContext, _: Option<&gfx::Container>) {
         //the code in render should be here but i just want to get everything working si i'll leave it in render
     }
 
