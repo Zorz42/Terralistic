@@ -3,6 +3,7 @@ use std::path::PathBuf;
 use std::time::SystemTime;
 
 use directories::BaseDirs;
+use sdl2::libc::backtrace;
 
 use crate::client::game::private_world::run_private_world;
 use crate::client::global_settings::GlobalSettings;
@@ -354,6 +355,6 @@ impl SingleplayerSelector {
 
         self.scrollable.scroll_size = elements_height;
         self.scrollable.rect.size.1 = graphics.get_window_size().1 - self.top_rect.size.1 - self.bottom_rect.size.1;
-        self.scrollable.render();
+        self.scrollable.render(graphics, Some(menu_back.get_back_rect_container()));
     }
 }

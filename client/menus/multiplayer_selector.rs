@@ -367,7 +367,7 @@ fn render_elements(
 
     scrollable.scroll_size = elements_height;
     scrollable.rect.size.1 = graphics.get_window_size().1 - elements.top_height - elements.bottom_height;
-    scrollable.render();
+    scrollable.render(graphics, Some(menu_back.get_back_rect_container()));
 
     graphics.update_window();
 }

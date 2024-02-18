@@ -1,4 +1,5 @@
 use crate::libraries::graphics as gfx;
+use gfx::UiElement;
 
 pub struct Scrollable {
     pub rect: gfx::Rect,
@@ -37,7 +38,20 @@ impl Scrollable {
         }
     }
 
-    pub fn render(&mut self) {
+    #[must_use]
+    pub fn get_scroll_x(&self, graphics: &gfx::GraphicsContext, parent_container: Option<&gfx::Container>) -> f32 {
+        let container = self.get_container(graphics, parent_container);
+        container.rect.pos.0 - self.scroll_pos
+    }
+
+    #[must_use]
+    pub const fn get_scroll_pos(&self) -> f32 {
+        self.scroll_pos
+    }
+}
+
+impl UiElement for Scrollable {
+    fn render(&mut self, _: &gfx::GraphicsContext, _: Option<&gfx::Container>) {
         while self.animation_timer.frame_ready() {
             self.scroll_pos += self.scroll_velocity;
 
@@ -58,21 +72,18 @@ impl Scrollable {
         }
     }
 
+    fn update(&mut self, graphics: &mut gfx::GraphicsContext, parent_container: Option<&gfx::Container>) {
+        //the code in render should be here but i just want to get everything working si i'll leave it in render
+    }
+
+    fn on_event(&mut self, graphics: &mut gfx::GraphicsContext, event: &gfx::Event, parent_container: Option<&gfx::Container>) {
+        //doesn't care about events
+    }
+
     /// This function returns the container of the rectangle.
     /// The container has the position of render rect.
     #[must_use]
-    pub fn get_container(&self, graphics: &gfx::GraphicsContext, parent_container: Option<&gfx::Container>) -> gfx::Container {
+    fn get_container(&self, graphics: &gfx::GraphicsContext, parent_container: Option<&gfx::Container>) -> gfx::Container {
         gfx::Container::new(graphics, self.rect.pos, self.rect.size, self.orientation, parent_container)
-    }
-
-    #[must_use]
-    pub fn get_scroll_x(&self, graphics: &gfx::GraphicsContext, parent_container: Option<&gfx::Container>) -> f32 {
-        let container = self.get_container(graphics, parent_container);
-        container.rect.pos.0 - self.scroll_pos
-    }
-
-    #[must_use]
-    pub const fn get_scroll_pos(&self) -> f32 {
-        self.scroll_pos
     }
 }
