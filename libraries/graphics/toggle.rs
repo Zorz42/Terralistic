@@ -1,5 +1,6 @@
 use crate::libraries::graphics as gfx;
 use gfx::theme::GFX_DEFAULT_BUTTON_BORDER_COLOR;
+use gfx::UiElement;
 
 /// A Toggle is a rectangle with 2 states.
 /// It can be clicked to toggle between them.
@@ -19,6 +20,7 @@ pub struct Toggle {
     hover_progress: f32,
     timer: std::time::Instant,
     timer_counter: u32,
+    pub changed: bool,
 }
 
 impl Toggle {
@@ -41,6 +43,7 @@ impl Toggle {
             hover_progress: 0.0,
             timer: std::time::Instant::now(),
             timer_counter: 0,
+            changed: true,
         }
     }
 
@@ -48,12 +51,6 @@ impl Toggle {
     #[must_use]
     pub const fn get_size(&self) -> gfx::FloatSize {
         self.size
-    }
-
-    /// Generates the container for the toggle.
-    #[must_use]
-    pub fn get_container(&self, graphics: &gfx::GraphicsContext, parent_container: Option<&gfx::Container>) -> gfx::Container {
-        gfx::Container::new(graphics, self.pos, self.get_size(), self.orientation, parent_container)
     }
 
     /// Checks if the toggle is hovered with a mouse.
@@ -64,19 +61,11 @@ impl Toggle {
         let mouse_pos = graphics.get_mouse_pos();
         rect.contains(mouse_pos)
     }
+}
 
-    pub fn on_event(&mut self, event: &gfx::Event, graphics: &gfx::GraphicsContext, parent_container: Option<&gfx::Container>) -> bool {
-        if let gfx::Event::KeyRelease(gfx::Key::MouseLeft, ..) = event {
-            if self.is_hovered(graphics, parent_container) {
-                self.toggled = !self.toggled;
-                return true;
-            }
-        }
-        false
-    }
-
+impl UiElement for Toggle {
     /// Renders the toggle.
-    pub fn render(&mut self, graphics: &gfx::GraphicsContext, parent_container: Option<&gfx::Container>) {
+    fn render(&mut self, graphics: &gfx::GraphicsContext, parent_container: Option<&gfx::Container>) {
         self.hovered = self.is_hovered(graphics, parent_container);
         let mut container = self.get_container(graphics, parent_container);
         let float_size_padding = gfx::FloatSize(self.padding, self.padding);
@@ -120,5 +109,24 @@ impl Toggle {
 
         let button = gfx::container::Container::new(graphics, position, size, gfx::LEFT, Some(&container));
         button.get_absolute_rect().render(graphics, self.button_color);
+    }
+
+    fn update(&mut self, _: &mut gfx::GraphicsContext, _: Option<&gfx::Container>) {
+        todo!()
+    }
+
+    fn on_event(&mut self, graphics: &mut gfx::GraphicsContext, event: &gfx::Event, parent_container: Option<&gfx::Container>) {
+        if let gfx::Event::KeyRelease(gfx::Key::MouseLeft, ..) = event {
+            if self.is_hovered(graphics, parent_container) {
+                self.toggled = !self.toggled;
+                self.changed = true;
+            }
+        }
+    }
+
+    /// Generates the container for the toggle.
+    #[must_use]
+    fn get_container(&self, graphics: &gfx::GraphicsContext, parent_container: Option<&gfx::Container>) -> gfx::Container {
+        gfx::Container::new(graphics, self.pos, self.get_size(), self.orientation, parent_container)
     }
 }

@@ -116,11 +116,13 @@ pub fn run_login_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn B
             username_input.on_event(graphics, &event, None);
             password_input.on_event(graphics, &event, None);
             email_input.on_event(graphics, &event, None);
-            if login_register_toggle.on_event(&event, graphics, Some(menu_back.get_back_rect_container())) {
+            login_register_toggle.on_event(graphics, &event, Some(menu_back.get_back_rect_container()));
+            if login_register_toggle.changed {
                 let text = if login_register_toggle.toggled { "Register" } else { "Login" };
                 confirm_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface(text, None));
                 title.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface(&(text.to_owned() + ":"), None));
                 email_shown = login_register_toggle.toggled;
+                login_register_toggle.changed = false;
             }
             if let gfx::Event::KeyRelease(key, ..) = event {
                 match key {
