@@ -8,10 +8,11 @@ use crate::client::game::private_world::run_private_world;
 use crate::client::global_settings::GlobalSettings;
 use crate::client::settings::Settings;
 use crate::libraries::graphics as gfx;
+use gfx::UiElement;
 
 use super::background_rect::BackgroundRect;
+use super::run_choice_menu;
 use super::world_creation::run_world_creation;
-use super::{run_choice_menu, MenuBack};
 
 pub const MENU_WIDTH: f32 = 800.0;
 
@@ -68,7 +69,7 @@ impl World {
         title.pos.1 = gfx::SPACING;
         title.scale = 3.0;
 
-        let mut play_button = gfx::Button::new();
+        let mut play_button = gfx::Button::new(|| {});
         play_button.texture =
             gfx::Texture::load_from_surface(&gfx::Surface::deserialize_from_bytes(include_bytes!("../../Build/Resources/play_button.opa")).unwrap_or_else(|_| gfx::Surface::new(gfx::IntSize(1, 1))));
         play_button.scale = 3.0;
@@ -77,7 +78,7 @@ impl World {
         play_button.pos.1 = -gfx::SPACING;
         play_button.orientation = gfx::BOTTOM_LEFT;
 
-        let mut delete_button = gfx::Button::new();
+        let mut delete_button = gfx::Button::new(|| {});
         delete_button.texture =
             gfx::Texture::load_from_surface(&gfx::Surface::deserialize_from_bytes(include_bytes!("../../Build/Resources/delete_button.opa")).unwrap_or_else(|_| gfx::Surface::new(gfx::IntSize(1, 1))));
         delete_button.scale = 3.0;
@@ -194,6 +195,7 @@ pub struct SingleplayerSelector {
 }
 
 impl SingleplayerSelector {
+    #[must_use]
     pub fn new(graphics: &gfx::GraphicsContext) -> Self {
         let world_list = WorldList::new(graphics);
         let mut title = gfx::Sprite::new();
@@ -202,13 +204,13 @@ impl SingleplayerSelector {
         title.pos.1 = gfx::SPACING;
         title.orientation = gfx::TOP;
 
-        let mut back_button = gfx::Button::new();
+        let mut back_button = gfx::Button::new(|| {});
         back_button.scale = 3.0;
         back_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Back", None));
         back_button.pos.1 = -gfx::SPACING;
         back_button.orientation = gfx::BOTTOM;
 
-        let mut new_world_button = gfx::Button::new();
+        let mut new_world_button = gfx::Button::new(|| {});
         new_world_button.scale = 3.0;
         new_world_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("New", None));
         new_world_button.pos.0 = -gfx::SPACING;
@@ -246,19 +248,8 @@ impl SingleplayerSelector {
         }
     }
 
-    pub fn render(&mut self, graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn BackgroundRect, settings: &mut Settings, global_settings: &mut GlobalSettings) {
-        self.render_elements(graphics, menu_back);
-    }
-
-    pub fn update_elements(
-        &mut self,
-        graphics: &mut gfx::GraphicsContext,
-        menu_back: &mut dyn BackgroundRect,
-        settings: &mut Settings,
-        global_settings: &mut GlobalSettings,
-        event: &gfx::Event,
-    ) -> bool {
-        self.scrollable.on_event(&event);
+    pub fn update(&mut self, graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn BackgroundRect, settings: &mut Settings, global_settings: &mut GlobalSettings, event: &gfx::Event) -> bool {
+        self.scrollable.on_event(event);
         if let gfx::Event::KeyRelease(key, ..) = event {
             match key {
                 gfx::Key::MouseLeft => {
@@ -311,7 +302,7 @@ impl SingleplayerSelector {
         false
     }
 
-    fn render_elements(&mut self, graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn BackgroundRect) {
+    pub fn render(&mut self, graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn BackgroundRect) {
         menu_back.set_back_rect_width(MENU_WIDTH);
 
         menu_back.render_back(graphics);

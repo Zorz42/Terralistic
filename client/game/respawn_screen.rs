@@ -4,6 +4,7 @@ use crate::libraries::graphics as gfx;
 use crate::shared::packet::Packet;
 use crate::shared::players::RespawnPacket;
 use anyhow::Result;
+use gfx::UiElement;
 
 pub struct RespawnScreen {
     respawn_button: gfx::Button,
@@ -15,7 +16,7 @@ pub struct RespawnScreen {
 impl RespawnScreen {
     pub fn new() -> Self {
         Self {
-            respawn_button: gfx::Button::new(),
+            respawn_button: gfx::Button::new(|| {}),
             respawn_text: gfx::Sprite::new(),
             back_rect: gfx::RenderRect::new(gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, 0.0)),
             is_shown: false,

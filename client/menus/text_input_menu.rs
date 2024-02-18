@@ -1,5 +1,6 @@
 use crate::client::menus::BackgroundRect;
 use crate::libraries::graphics as gfx;
+use gfx::UiElement;
 
 pub fn run_text_input_menu(menu_title: &str, graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn BackgroundRect) -> Option<String> {
     let text_lines_vec = menu_title.split('\n').collect::<Vec<&str>>();
@@ -17,12 +18,12 @@ pub fn run_text_input_menu(menu_title: &str, graphics: &mut gfx::GraphicsContext
     let mut buttons_container = gfx::Container::new(graphics, gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, 0.0), gfx::BOTTOM, None);
 
     let back_str = "Back";
-    let mut back_button = gfx::Button::new();
+    let mut back_button = gfx::Button::new(|| {});
     back_button.scale = 3.0;
     back_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface(back_str, None));
 
     let confirm_str = "Continue";
-    let mut confirm_button = gfx::Button::new();
+    let mut confirm_button = gfx::Button::new(|| {});
     confirm_button.scale = 3.0;
     confirm_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface(confirm_str, None));
     confirm_button.pos.0 = back_button.get_size().0 + gfx::SPACING;

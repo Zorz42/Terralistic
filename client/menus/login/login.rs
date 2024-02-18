@@ -5,6 +5,7 @@ use crate::libraries::graphics::GraphicsContext;
 use crate::shared::tls_client::ConnectionState::{CONNECTED, FAILED};
 use anyhow::Result;
 use directories::BaseDirs;
+use gfx::UiElement;
 use std::collections::HashMap;
 use std::io::Write;
 use std::str::FromStr;
@@ -21,11 +22,11 @@ pub fn run_login_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn B
 
     let mut buttons_container = gfx::Container::new(graphics, gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, 0.0), gfx::BOTTOM, None);
 
-    let mut back_button = gfx::Button::new();
+    let mut back_button = gfx::Button::new(|| {});
     back_button.scale = 3.0;
     back_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Back", None));
 
-    let mut confirm_button = gfx::Button::new();
+    let mut confirm_button = gfx::Button::new(|| {});
     confirm_button.scale = 3.0;
     confirm_button.darken_on_disabled = true;
     confirm_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Login", None));

@@ -6,13 +6,15 @@ use crate::client::settings::Settings;
 use crate::libraries::graphics as gfx;
 use crate::shared::tls_client::ConnectionState;
 use crate::shared::versions::VERSION;
+use std::cell::Cell;
 
 use super::background_rect::BackgroundRect;
 use super::{run_login_menu, run_multiplayer_selector, SingleplayerSelector};
+use gfx::UiElement;
 
 enum MainMenuState {
     None,
-    SingleplayerSelector(SingleplayerSelector),
+    SingleplayerSelector(Box<Cell<SingleplayerSelector>>),
 }
 
 #[allow(clippy::too_many_lines)] // TODO: split this function up
@@ -23,27 +25,27 @@ pub fn run_main_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn Ba
     secondary_menu_back.main_back_menu = false;
     secondary_menu_back.set_back_rect_width(MENU_WIDTH);
 
-    let mut singleplayer_button = gfx::Button::new();
+    let mut singleplayer_button = gfx::Button::new(|| {});
     singleplayer_button.scale = 3.0;
     singleplayer_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Singleplayer", None));
     singleplayer_button.orientation = gfx::CENTER;
 
-    let mut multiplayer_button = gfx::Button::new();
+    let mut multiplayer_button = gfx::Button::new(|| {});
     multiplayer_button.scale = 3.0;
     multiplayer_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Multiplayer", None));
     multiplayer_button.orientation = gfx::CENTER;
 
-    let mut settings_button = gfx::Button::new();
+    let mut settings_button = gfx::Button::new(|| {});
     settings_button.scale = 3.0;
     settings_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Settings", None));
     settings_button.orientation = gfx::CENTER;
 
-    let mut mods_button = gfx::Button::new();
+    let mut mods_button = gfx::Button::new(|| {});
     mods_button.scale = 3.0;
     mods_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Mods", None));
     mods_button.orientation = gfx::CENTER;
 
-    let mut exit_button = gfx::Button::new();
+    let mut exit_button = gfx::Button::new(|| {});
     exit_button.scale = 3.0;
     exit_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Exit", None));
     exit_button.orientation = gfx::CENTER;
@@ -91,7 +93,7 @@ pub fn run_main_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn Ba
 
     let cloud_status_rect = gfx::Rect::new(gfx::FloatPos(10.0, 10.0), gfx::FloatSize(20.0, 20.0));
 
-    let mut cloud_status_button = gfx::Button::new();
+    let mut cloud_status_button = gfx::Button::new(|| {});
     cloud_status_button.color = gfx::GREY;
     cloud_status_button.pos = cloud_status_rect.pos + gfx::FloatPos(cloud_status_rect.size.0 + 5.0, -10.0);
     cloud_status_button.orientation = gfx::TOP_LEFT;
@@ -127,7 +129,7 @@ pub fn run_main_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn Ba
 
             let close_secondary_menu = match state {
                 MainMenuState::None => false,
-                MainMenuState::SingleplayerSelector(ref mut menu) => menu.update_elements(graphics, &mut secondary_menu_back, settings, global_settings, &event),
+                MainMenuState::SingleplayerSelector(ref mut menu) => menu.get_mut().update(graphics, &mut secondary_menu_back, settings, global_settings, &event),
             };
             if close_secondary_menu {
                 state = MainMenuState::None;
@@ -139,7 +141,7 @@ pub fn run_main_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn Ba
                     if singleplayer_button.is_hovered(graphics, Some(menu_back.get_back_rect_container())) {
                         if !matches!(state, MainMenuState::SingleplayerSelector(_)) {
                             let singleplayer_menu = SingleplayerSelector::new(graphics);
-                            state = MainMenuState::SingleplayerSelector(singleplayer_menu);
+                            state = MainMenuState::SingleplayerSelector(Box::new(Cell::new(singleplayer_menu)));
                         }
                     } else if multiplayer_button.is_hovered(graphics, Some(menu_back.get_back_rect_container())) {
                         run_multiplayer_selector(graphics, menu_back, settings, global_settings);
@@ -206,7 +208,7 @@ pub fn run_main_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn Ba
         //render secondary menu
         match state {
             MainMenuState::None => secondary_menu_back.render_back(graphics),
-            MainMenuState::SingleplayerSelector(ref mut menu) => menu.render(graphics, &mut secondary_menu_back, settings, global_settings),
+            MainMenuState::SingleplayerSelector(ref mut menu) => menu.get_mut().render(graphics, &mut secondary_menu_back),
         }
 
         graphics.update_window();

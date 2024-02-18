@@ -1,6 +1,7 @@
 use crate::libraries::graphics as gfx;
 
 use super::BackgroundRect;
+use gfx::UiElement;
 
 pub fn run_choice_menu(
     menu_title: &str,
@@ -33,7 +34,7 @@ pub fn run_choice_menu(
     let mut buttons_width = 0.0;
     let mut max_button_height: f32 = 0.0;
     for button_text in buttons {
-        let mut button_sprite = gfx::Button::new();
+        let mut button_sprite = gfx::Button::new(|| {});
         button_sprite.scale = 3.0;
         button_sprite.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface(button_text, None));
         button_sprite.pos.0 = buttons_width;

@@ -3,6 +3,7 @@ use crate::client::menus::SettingsMenu;
 use crate::client::settings::Settings;
 use crate::libraries::events::Event;
 use crate::libraries::graphics as gfx;
+use gfx::UiElement;
 
 /// The pause menu actually does not pause the game (ironic, I know).
 /// It just shows a menu with options to quit the world or go back to the game.
@@ -22,9 +23,9 @@ impl PauseMenu {
         Self {
             open: false,
             in_settings: false,
-            resume_button: gfx::Button::new(),
-            settings_button: gfx::Button::new(),
-            quit_button: gfx::Button::new(),
+            resume_button: gfx::Button::new(|| {}),
+            settings_button: gfx::Button::new(|| {}),
+            quit_button: gfx::Button::new(|| {}),
             back_rect: gfx::RenderRect::new(gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, 0.0)),
             settings_menu: SettingsMenu::new(),
             rect_width: 0.0,

@@ -2,6 +2,7 @@ use std::net::{IpAddr, Ipv4Addr};
 
 use crate::libraries::graphics as gfx;
 use crate::server::server_core::MULTIPLAYER_PORT;
+use gfx::UiElement;
 
 use super::background_rect::BackgroundRect;
 use super::multiplayer_selector::ServerCard;
@@ -67,11 +68,11 @@ pub fn run_add_server_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut 
 
     let mut buttons_container = gfx::Container::new(graphics, gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, 0.0), gfx::BOTTOM, None);
 
-    let mut back_button = gfx::Button::new();
+    let mut back_button = gfx::Button::new(|| {});
     back_button.scale = 3.0;
     back_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Back", None));
 
-    let mut add_button = gfx::Button::new();
+    let mut add_button = gfx::Button::new(|| {});
     add_button.scale = 3.0;
     add_button.darken_on_disabled = true;
     add_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Add server", None));

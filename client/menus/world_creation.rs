@@ -5,6 +5,7 @@ use crate::client::global_settings::GlobalSettings;
 use crate::client::menus::background_rect::BackgroundRect;
 use crate::client::settings::Settings;
 use crate::libraries::graphics as gfx;
+use gfx::UiElement;
 
 use super::singleplayer_selector::World;
 
@@ -28,11 +29,11 @@ pub fn run_world_creation(graphics: &mut gfx::GraphicsContext, menu_back: &mut d
 
     let mut buttons_container = gfx::Container::new(graphics, gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, 0.0), gfx::BOTTOM, None);
 
-    let mut back_button = gfx::Button::new();
+    let mut back_button = gfx::Button::new(|| {});
     back_button.scale = 3.0;
     back_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Back", None));
 
-    let mut create_button = gfx::Button::new();
+    let mut create_button = gfx::Button::new(|| {});
     create_button.scale = 3.0;
     create_button.darken_on_disabled = true;
     create_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Create world", None));

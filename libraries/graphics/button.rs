@@ -19,12 +19,13 @@ pub struct Button {
     pub hover_progress: f32,
     timer: std::time::Instant,
     timer_counter: u32,
+    on_click: Box<dyn Fn()>,
 }
 
 impl Button {
     /// Creates a new button.
     #[must_use]
-    pub fn new() -> Self {
+    pub fn new<F: 'static + Fn()>(closure: F) -> Self {
         Self {
             pos: gfx::FloatPos(0.0, 0.0),
             orientation: gfx::TOP_LEFT,
@@ -40,6 +41,7 @@ impl Button {
             hover_progress: 0.0,
             timer: std::time::Instant::now(),
             timer_counter: 0,
+            on_click: Box::new(closure),
         }
     }
 
@@ -70,9 +72,11 @@ impl Button {
         let mouse_pos = graphics.get_mouse_pos();
         rect.contains(mouse_pos)
     }
+}
 
+impl gfx::UiElement for Button {
     /// Renders the button.
-    pub fn render(&mut self, graphics: &gfx::GraphicsContext, parent_container: Option<&gfx::Container>) {
+    fn render(&mut self, graphics: &gfx::GraphicsContext, parent_container: Option<&gfx::Container>) {
         let container = self.get_container(graphics, parent_container);
         let rect = container.get_absolute_rect();
 
@@ -125,5 +129,27 @@ impl Button {
         if self.disabled && self.darken_on_disabled {
             rect.render(graphics, gfx::Color::new(0, 0, 0, 100));
         }
+    }
+
+    fn update(&mut self, _: &mut gfx::GraphicsContext, _: Option<&gfx::Container>) {
+        //it's all in render
+    }
+
+    ///calls on_click when clicked
+    fn on_event(&mut self, graphics: &mut gfx::GraphicsContext, event: &gfx::Event, parent_container: Option<&gfx::Container>) {
+        match event {
+            gfx::Event::KeyRelease(key, ..) => {
+                if *key == gfx::Key::MouseLeft && self.is_hovered(graphics, parent_container) {
+                    (self.on_click)()
+                }
+            }
+            _ => {}
+        }
+    }
+
+    /// Generates the container for the button.
+    #[must_use]
+    fn get_container(&self, graphics: &gfx::GraphicsContext, parent_container: Option<&gfx::Container>) -> gfx::Container {
+        gfx::Container::new(graphics, self.pos, self.get_size(), self.orientation, parent_container)
     }
 }

@@ -11,6 +11,7 @@ use crate::libraries::graphics as gfx;
 
 use super::background_rect::BackgroundRect;
 use super::{run_add_server_menu, run_choice_menu};
+use gfx::UiElement;
 
 pub const MENU_WIDTH: f32 = 800.0;
 
@@ -69,7 +70,7 @@ impl ServerCard {
         title.pos.1 = gfx::SPACING;
         title.scale = 3.0;
 
-        let mut play_button = gfx::Button::new();
+        let mut play_button = gfx::Button::new(|| {});
         play_button.texture =
             gfx::Texture::load_from_surface(&gfx::Surface::deserialize_from_bytes(include_bytes!("../../Build/Resources/join_button.opa")).unwrap_or_else(|_| gfx::Surface::new(gfx::IntSize(1, 1))));
         play_button.scale = 3.0;
@@ -78,7 +79,7 @@ impl ServerCard {
         play_button.pos.1 = -gfx::SPACING;
         play_button.orientation = gfx::BOTTOM_LEFT;
 
-        let mut delete_button = gfx::Button::new();
+        let mut delete_button = gfx::Button::new(|| {});
         delete_button.texture =
             gfx::Texture::load_from_surface(&gfx::Surface::deserialize_from_bytes(include_bytes!("../../Build/Resources/remove_button.opa")).unwrap_or_else(|_| gfx::Surface::new(gfx::IntSize(1, 1))));
         delete_button.scale = 3.0;
@@ -189,13 +190,13 @@ pub fn run_multiplayer_selector(graphics: &mut gfx::GraphicsContext, menu_back: 
     title.pos.1 = gfx::SPACING;
     title.orientation = gfx::TOP;
 
-    let mut back_button = gfx::Button::new();
+    let mut back_button = gfx::Button::new(|| {});
     back_button.scale = 3.0;
     back_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Back", None));
     back_button.pos.1 = -gfx::SPACING;
     back_button.orientation = gfx::BOTTOM;
 
-    let mut new_server_button = gfx::Button::new();
+    let mut new_server_button = gfx::Button::new(|| {});
     new_server_button.scale = 3.0;
     new_server_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("New", None));
     new_server_button.pos.1 = -gfx::SPACING;

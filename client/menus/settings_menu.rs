@@ -1,6 +1,7 @@
 use crate::client::settings::SliderSelection;
 use crate::client::settings::{Setting, Settings};
 use crate::libraries::graphics as gfx;
+use gfx::UiElement;
 
 enum SettingUi {
     Toggle {
@@ -64,7 +65,7 @@ fn setting_to_ui(graphics: &gfx::GraphicsContext, setting: &Setting, setting_id:
             let mut buttons = Vec::new();
 
             for choice in choices {
-                let mut button = gfx::Button::new();
+                let mut button = gfx::Button::new(|| {});
                 button.scale = 2.0;
                 button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface(choice, None));
                 button.orientation = gfx::RIGHT;
@@ -87,7 +88,7 @@ fn setting_to_ui(graphics: &gfx::GraphicsContext, setting: &Setting, setting_id:
             let mut buttons = Vec::new();
 
             for choice in choices {
-                let mut button = gfx::Button::new();
+                let mut button = gfx::Button::new(|| {});
                 button.scale = 2.0;
                 button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface(choice, None));
                 button.orientation = gfx::RIGHT;
@@ -263,7 +264,7 @@ impl SettingsMenu {
     #[must_use]
     pub fn new() -> Self {
         Self {
-            back_button: gfx::Button::new(),
+            back_button: gfx::Button::new(|| {}),
             settings: Vec::new(),
         }
     }

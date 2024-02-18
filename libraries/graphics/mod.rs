@@ -20,6 +20,7 @@ pub use texture::Texture;
 pub use texture_atlas::TextureAtlas;
 pub use theme::{BLACK, BLUR, BORDER_COLOR, DARK_GREY, GREY, LIGHT_GREY, SHADOW_INTENSITY, SPACING, TEXT_INPUT_WIDTH, TRANSPARENCY, TRANSPARENT, WHITE};
 pub use toggle::Toggle;
+pub use ui_element::UiElement;
 
 mod animation_timer;
 mod blend_mode;
@@ -46,6 +47,7 @@ mod texture_atlas;
 mod theme;
 mod toggle;
 mod transformation;
+mod ui_element;
 mod vertex_buffer;
 
 /// Initializes the graphics context.
