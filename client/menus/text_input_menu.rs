@@ -39,7 +39,7 @@ pub fn run_text_input_menu(menu_title: &str, graphics: &mut gfx::GraphicsContext
     //this is where the menu is drawn
     while graphics.is_window_open() {
         while let Some(event) = graphics.get_event() {
-            input_field.on_event(&event, graphics, Some(menu_back.get_back_rect_container()));
+            input_field.on_event(graphics, &event, Some(menu_back.get_back_rect_container()));
 
             //sorts out the events
             if let gfx::Event::KeyRelease(key, ..) = event {

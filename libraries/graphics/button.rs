@@ -1,4 +1,5 @@
 use crate::libraries::graphics as gfx;
+use gfx::UiElement;
 
 use super::theme::{GFX_DEFAULT_BUTTON_BORDER_COLOR, GFX_DEFAULT_BUTTON_COLOR, GFX_DEFAULT_BUTTON_PADDING, GFX_DEFAULT_HOVERED_BUTTON_BORDER_COLOR, GFX_DEFAULT_HOVERED_BUTTON_COLOR};
 
@@ -54,12 +55,6 @@ impl Button {
         )
     }
 
-    /// Generates the container for the button.
-    #[must_use]
-    pub fn get_container(&self, graphics: &gfx::GraphicsContext, parent_container: Option<&gfx::Container>) -> gfx::Container {
-        gfx::Container::new(graphics, self.pos, self.get_size(), self.orientation, parent_container)
-    }
-
     /// Checks if the button is hovered with a mouse.
     #[must_use]
     pub fn is_hovered(&self, graphics: &gfx::GraphicsContext, parent_container: Option<&gfx::Container>) -> bool {
@@ -74,7 +69,7 @@ impl Button {
     }
 }
 
-impl gfx::UiElement for Button {
+impl UiElement for Button {
     /// Renders the button.
     fn render(&mut self, graphics: &gfx::GraphicsContext, parent_container: Option<&gfx::Container>) {
         let container = self.get_container(graphics, parent_container);
@@ -135,15 +130,12 @@ impl gfx::UiElement for Button {
         //it's all in render
     }
 
-    ///calls on_click when clicked
+    ///calls `on_click` when clicked
     fn on_event(&mut self, graphics: &mut gfx::GraphicsContext, event: &gfx::Event, parent_container: Option<&gfx::Container>) {
-        match event {
-            gfx::Event::KeyRelease(key, ..) => {
-                if *key == gfx::Key::MouseLeft && self.is_hovered(graphics, parent_container) {
-                    (self.on_click)()
-                }
+        if let gfx::Event::KeyRelease(key, ..) = event {
+            if *key == gfx::Key::MouseLeft && self.is_hovered(graphics, parent_container) {
+                (self.on_click)();
             }
-            _ => {}
         }
     }
 

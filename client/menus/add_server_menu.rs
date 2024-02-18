@@ -118,8 +118,8 @@ pub fn run_add_server_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut 
 
         while let Some(event) = graphics.get_event() {
             //sorts out the events
-            server_name_input.on_event(&event, graphics, None);
-            server_ip_input.on_event(&event, graphics, None);
+            server_name_input.on_event(graphics, &event, None);
+            server_ip_input.on_event(graphics, &event, None);
             if let gfx::Event::KeyRelease(key, ..) = event {
                 match key {
                     gfx::Key::MouseLeft => {

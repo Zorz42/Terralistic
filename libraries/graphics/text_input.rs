@@ -72,11 +72,6 @@ impl TextInput {
         gfx::FloatSize((self.width) * self.scale, (self.text_texture.get_texture_size().1 + self.padding * 2.0) * self.scale)
     }
 
-    /// Generates the container for the text input. It it private, since a text input should never contain other elements.
-    fn get_container(&self, graphics: &gfx::GraphicsContext, parent_container: Option<&gfx::Container>) -> gfx::Container {
-        gfx::Container::new(graphics, self.pos, self.get_size(), self.orientation, parent_container)
-    }
-
     /// Checks if the button is hovered with a mouse
     #[must_use]
     pub fn is_hovered(&self, graphics: &gfx::GraphicsContext, parent_container: Option<&gfx::Container>) -> bool {
@@ -139,10 +134,12 @@ impl TextInput {
         }
         initial_pos
     }
+}
 
+impl UiElement for TextInput {
     /// renders the text input
     #[allow(clippy::too_many_lines)] // TODO: split this function up
-    pub fn render(&mut self, graphics: &gfx::GraphicsContext, parent_container: Option<&gfx::Container>) {
+    fn render(&mut self, graphics: &gfx::GraphicsContext, parent_container: Option<&gfx::Container>) {
         let container = self.get_container(graphics, parent_container);
         let rect = container.get_absolute_rect();
 
@@ -261,9 +258,13 @@ impl TextInput {
         self.text_changed = false;
     }
 
+    fn update(&mut self, _: &mut gfx::GraphicsContext, _: Option<&gfx::Container>) {
+        todo!()
+    }
+
     #[allow(clippy::too_many_lines)] // TODO: split this up
     #[allow(clippy::cognitive_complexity)]
-    pub fn on_event(&mut self, event: &gfx::Event, graphics: &mut gfx::GraphicsContext, parent_container: Option<&gfx::Container>) {
+    fn on_event(&mut self, graphics: &mut gfx::GraphicsContext, event: &gfx::Event, parent_container: Option<&gfx::Container>) {
         match event {
             gfx::Event::TextInput(text) => {
                 if self.selected {
@@ -393,5 +394,10 @@ impl TextInput {
             }
             _ => {}
         }
+    }
+
+    /// Generates the container for the text input. It it private, since a text input should never contain other elements.
+    fn get_container(&self, graphics: &gfx::GraphicsContext, parent_container: Option<&gfx::Container>) -> gfx::Container {
+        gfx::Container::new(graphics, self.pos, self.get_size(), self.orientation, parent_container)
     }
 }

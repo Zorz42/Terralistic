@@ -76,7 +76,7 @@ impl gfx::UiElement for RenderRect {
         //all in render, should be fixed if it causes issues
     }
 
-    fn on_event(&mut self, graphics: &mut gfx::GraphicsContext, _: &gfx::Event, _: Option<&gfx::Container>) {
+    fn on_event(&mut self, _: &mut gfx::GraphicsContext, _: &gfx::Event, _: Option<&gfx::Container>) {
         //doesn't care about events
     }
 

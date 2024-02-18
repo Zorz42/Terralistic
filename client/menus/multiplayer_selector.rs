@@ -253,7 +253,7 @@ fn update_elements(
     scrollable: &mut gfx::Scrollable,
 ) -> bool {
     while let Some(event) = graphics.get_event() {
-        scrollable.on_event(&event);
+        scrollable.on_event(graphics, &event, Some(menu_back.get_back_rect_container()));
         if let gfx::Event::KeyRelease(key, ..) = event {
             match key {
                 gfx::Key::MouseLeft => {

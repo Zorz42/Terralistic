@@ -113,9 +113,9 @@ pub fn run_login_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn B
 
         while let Some(event) = graphics.get_event() {
             //sorts out the events
-            username_input.on_event(&event, graphics, None);
-            password_input.on_event(&event, graphics, None);
-            email_input.on_event(&event, graphics, None);
+            username_input.on_event(graphics, &event, None);
+            password_input.on_event(graphics, &event, None);
+            email_input.on_event(graphics, &event, None);
             if login_register_toggle.on_event(&event, graphics, Some(menu_back.get_back_rect_container())) {
                 let text = if login_register_toggle.toggled { "Register" } else { "Login" };
                 confirm_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface(text, None));

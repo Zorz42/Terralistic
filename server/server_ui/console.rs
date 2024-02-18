@@ -2,6 +2,7 @@ use std::sync::mpsc::Sender;
 
 use crate::libraries::graphics as gfx;
 use crate::server::server_ui::{ConsoleMessageType, UiMessageType, EDGE_SPACING};
+use gfx::UiElement;
 
 use super::ui_manager;
 
@@ -153,7 +154,7 @@ impl ui_manager::ModuleTrait for Console {
     }
 
     fn on_event(&mut self, event: &gfx::Event, graphics_context: &mut gfx::GraphicsContext) {
-        self.input.on_event(event, graphics_context, Some(&self.container));
+        self.input.on_event(graphics_context, event, Some(&self.container));
         match event {
             //move the view on mouse scroll
             gfx::Event::MouseScroll(scroll) => {

@@ -120,7 +120,7 @@ impl ClientChat {
                 }
             }
 
-            self.text_input.on_event(event, graphics, None);
+            self.text_input.on_event(graphics, event, None);
 
             if let gfx::Event::KeyPress(gfx::Key::Enter, ..) = event {
                 if self.text_input.selected && !self.text_input.get_text().is_empty() {

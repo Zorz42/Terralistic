@@ -27,17 +27,6 @@ impl Scrollable {
         }
     }
 
-    pub fn on_event(&mut self, event: &gfx::Event) {
-        if let gfx::Event::MouseScroll(delta) = event {
-            let delta = -*delta * 0.8;
-            if delta > 0.0 {
-                self.scroll_velocity = f32::max(self.scroll_velocity, delta);
-            } else if delta < 0.0 {
-                self.scroll_velocity = f32::min(self.scroll_velocity, delta);
-            }
-        }
-    }
-
     #[must_use]
     pub fn get_scroll_x(&self, graphics: &gfx::GraphicsContext, parent_container: Option<&gfx::Container>) -> f32 {
         let container = self.get_container(graphics, parent_container);
@@ -72,12 +61,19 @@ impl UiElement for Scrollable {
         }
     }
 
-    fn update(&mut self, graphics: &mut gfx::GraphicsContext, parent_container: Option<&gfx::Container>) {
+    fn update(&mut self, _: &mut gfx::GraphicsContext, _: Option<&gfx::Container>) {
         //the code in render should be here but i just want to get everything working si i'll leave it in render
     }
 
-    fn on_event(&mut self, graphics: &mut gfx::GraphicsContext, event: &gfx::Event, parent_container: Option<&gfx::Container>) {
-        //doesn't care about events
+    fn on_event(&mut self, _: &mut gfx::GraphicsContext, event: &gfx::Event, _: Option<&gfx::Container>) {
+        if let gfx::Event::MouseScroll(delta) = event {
+            let delta = -*delta * 0.8;
+            if delta > 0.0 {
+                self.scroll_velocity = f32::max(self.scroll_velocity, delta);
+            } else if delta < 0.0 {
+                self.scroll_velocity = f32::min(self.scroll_velocity, delta);
+            }
+        }
     }
 
     /// This function returns the container of the rectangle.

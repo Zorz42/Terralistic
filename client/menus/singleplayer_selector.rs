@@ -3,7 +3,6 @@ use std::path::PathBuf;
 use std::time::SystemTime;
 
 use directories::BaseDirs;
-use sdl2::libc::backtrace;
 
 use crate::client::game::private_world::run_private_world;
 use crate::client::global_settings::GlobalSettings;
@@ -250,7 +249,7 @@ impl SingleplayerSelector {
     }
 
     pub fn update(&mut self, graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn BackgroundRect, settings: &mut Settings, global_settings: &mut GlobalSettings, event: &gfx::Event) -> bool {
-        self.scrollable.on_event(event);
+        self.scrollable.on_event(graphics, event, Some(menu_back.get_back_rect_container()));
         if let gfx::Event::KeyRelease(key, ..) = event {
             match key {
                 gfx::Key::MouseLeft => {

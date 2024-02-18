@@ -18,6 +18,7 @@ enum MainMenuState {
 }
 
 #[allow(clippy::too_many_lines)] // TODO: split this function up
+#[allow(clippy::cognitive_complexity)]
 pub fn run_main_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn BackgroundRect, settings: &mut Settings, global_settings: &mut GlobalSettings) {
     let mut state = MainMenuState::None;
     let mut secondary_menu_back = crate::client::menus::MenuBack::new(graphics);

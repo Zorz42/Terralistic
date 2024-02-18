@@ -85,8 +85,8 @@ pub fn run_world_creation(graphics: &mut gfx::GraphicsContext, menu_back: &mut d
 
         while let Some(event) = graphics.get_event() {
             //sorts out the events
-            world_name_input.on_event(&event, graphics, None);
-            world_seed_input.on_event(&event, graphics, None);
+            world_name_input.on_event(graphics, &event, None);
+            world_seed_input.on_event(graphics, &event, None);
             if let gfx::Event::KeyRelease(key, ..) = event {
                 match key {
                     gfx::Key::MouseLeft => {
