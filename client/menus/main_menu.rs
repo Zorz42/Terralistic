@@ -248,7 +248,7 @@ pub fn run_main_menu(
             MainMenuState::Settings(ref mut menu) => {
                 menu.get_mut().update(graphics, secondary_menu_back.get_back_rect_container());
                 menu.get_mut().render(graphics, secondary_menu_back.get_back_rect_container());
-                global_settings.borrow_mut().update(graphics, &settings)
+                global_settings.borrow_mut().update(graphics, settings);
             }
         }
 
