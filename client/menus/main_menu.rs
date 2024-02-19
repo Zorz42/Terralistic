@@ -17,6 +17,7 @@ enum MainMenuState {
     None,
     SingleplayerSelector(Box<Cell<SingleplayerSelector>>),
     MultiplayerSelector(Box<Cell<MultiplayerSelector>>),
+    Settings(Box<Cell<SettingsMenu>>),
 }
 
 #[allow(clippy::too_many_lines)] // TODO: split this function up
@@ -98,8 +99,8 @@ pub fn run_main_menu(
     }
 
     let mut in_settings = false;
-    let mut settings_menu = SettingsMenu::new();
-    settings_menu.init(graphics, settings);
+    /*let mut settings_menu = SettingsMenu::new(close_secondary_menu.clone(), settings.clone());
+    settings_menu.init(graphics);*/
 
     let cloud_status_rect = gfx::Rect::new(gfx::FloatPos(10.0, 10.0), gfx::FloatSize(20.0, 20.0));
 
@@ -130,12 +131,12 @@ pub fn run_main_menu(
             },
         );
         while let Some(event) = graphics.get_event() {
-            if in_settings {
-                if settings_menu.on_event(&event, graphics, settings) {
+            /*if in_settings {
+                if settings_menu.on_event(&event, graphics, ) {
                     in_settings = false;
                 }
                 continue;
-            }
+            }*/
 
             match state {
                 MainMenuState::None => (),
@@ -143,6 +144,9 @@ pub fn run_main_menu(
                     let _ = menu.get_mut().on_event(graphics, &event, secondary_menu_back.get_back_rect_container());
                 }
                 MainMenuState::MultiplayerSelector(ref mut menu) => {
+                    let _ = menu.get_mut().on_event(graphics, &event, secondary_menu_back.get_back_rect_container());
+                }
+                MainMenuState::Settings(ref mut menu) => {
                     let _ = menu.get_mut().on_event(graphics, &event, secondary_menu_back.get_back_rect_container());
                 }
             }
@@ -165,7 +169,11 @@ pub fn run_main_menu(
                             state = MainMenuState::MultiplayerSelector(Box::new(Cell::new(multiplayer_menu)));
                         }
                     } else if settings_button.is_hovered(graphics, menu_back.get_back_rect_container()) {
-                        in_settings = true;
+                        if !matches!(state, MainMenuState::Settings(_)) {
+                            let mut settings_menu = SettingsMenu::new(close_secondary_menu.clone(), settings.clone());
+                            settings_menu.init(graphics);
+                            state = MainMenuState::Settings(Box::new(Cell::new(settings_menu)));
+                        }
                     } else if mods_button.is_hovered(graphics, menu_back.get_back_rect_container()) {
                     } else if exit_button.is_hovered(graphics, menu_back.get_back_rect_container()) {
                         graphics.close_window();
@@ -190,14 +198,14 @@ pub fn run_main_menu(
             max_width / 2.0 - MENU_WIDTH / 2.0
         });
 
-        if in_settings {
+        /*if in_settings {
             menu_back.render_back(graphics);
             let width = settings_menu.render(graphics, settings);
             menu_back.set_back_rect_width(width);
             graphics.update_window();
             global_settings.borrow_mut().update(graphics, settings);
             continue;
-        }
+        }*/
 
         let buttons = vec![&mut singleplayer_button, &mut multiplayer_button, &mut settings_button, &mut mods_button, &mut exit_button];
         // get maximum width of all buttons and set background width to that
@@ -233,6 +241,10 @@ pub fn run_main_menu(
                 menu.get_mut().render(graphics, secondary_menu_back.get_back_rect_container());
             }
             MainMenuState::MultiplayerSelector(ref mut menu) => {
+                menu.get_mut().update(graphics, secondary_menu_back.get_back_rect_container());
+                menu.get_mut().render(graphics, secondary_menu_back.get_back_rect_container());
+            }
+            MainMenuState::Settings(ref mut menu) => {
                 menu.get_mut().update(graphics, secondary_menu_back.get_back_rect_container());
                 menu.get_mut().render(graphics, secondary_menu_back.get_back_rect_container());
             }

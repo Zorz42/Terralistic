@@ -123,18 +123,17 @@ fn setting_to_ui(graphics: &gfx::GraphicsContext, setting: &Setting, setting_id:
 }
 
 #[allow(clippy::too_many_lines)]
-fn render_setting_ui(graphics: &mut gfx::GraphicsContext, setting: &mut SettingUi, settings: &Rc<RefCell<Settings>>, y: f32) {
-    let parent_container = gfx::Container::default(graphics);
+fn render_setting_ui(graphics: &mut gfx::GraphicsContext, setting: &mut SettingUi, settings: &Rc<RefCell<Settings>>, y: f32, parent_container: &gfx::Container) {
     let mut back_rect = gfx::RenderRect::new(gfx::FloatPos(0.0, y), gfx::FloatSize(SETTINGS_WIDTH, SETTINGS_BOX_HEIGHT));
     back_rect.fill_color = gfx::BLACK.set_a(gfx::TRANSPARENCY);
     back_rect.orientation = gfx::TOP;
-    back_rect.render(graphics, &parent_container);
+    back_rect.render(graphics, parent_container);
 
     let text = match setting {
         SettingUi::Toggle { text, .. } | SettingUi::Choice { text, .. } | SettingUi::Slider { text, .. } => text,
     };
 
-    text.render(graphics, &back_rect.get_container(graphics, &parent_container));
+    text.render(graphics, &back_rect.get_container(graphics, parent_container));
 
     match setting {
         SettingUi::Toggle { setting_id, toggle, .. } => {
@@ -149,7 +148,7 @@ fn render_setting_ui(graphics: &mut gfx::GraphicsContext, setting: &mut SettingU
 
             toggle.toggled = setting_toggled;
 
-            toggle.render(graphics, &back_rect.get_container(graphics, &parent_container));
+            toggle.render(graphics, &back_rect.get_container(graphics, parent_container));
         }
         SettingUi::Choice { buttons, setting_id, choice_rect, .. } => {
             let mut chosen_button = 0;
@@ -162,14 +161,14 @@ fn render_setting_ui(graphics: &mut gfx::GraphicsContext, setting: &mut SettingU
                 choice_rect.size = button.get_size();
             }
 
-            choice_rect.render(graphics, &back_rect.get_container(graphics, &parent_container));
+            choice_rect.render(graphics, &back_rect.get_container(graphics, parent_container));
 
             let mut curr_x = -gfx::SPACING;
             for (hovered, button) in buttons {
                 button.pos = gfx::FloatPos(curr_x, 0.0);
                 curr_x -= button.get_size().0 + gfx::SPACING;
-                button.render(graphics, &back_rect.get_container(graphics, &parent_container));
-                *hovered = button.is_hovered(graphics, &back_rect.get_container(graphics, &parent_container));
+                button.render(graphics, &back_rect.get_container(graphics, parent_container));
+                *hovered = button.is_hovered(graphics, &back_rect.get_container(graphics, parent_container));
             }
         }
         SettingUi::Slider {
@@ -222,9 +221,9 @@ fn render_setting_ui(graphics: &mut gfx::GraphicsContext, setting: &mut SettingU
             slider_rect.fill_color = gfx::interpolate_colors(gfx::Color::new(0, 0, 0, gfx::TRANSPARENCY), gfx::Color::new(30, 30, 30, gfx::TRANSPARENCY), *hovered_progress);
             slider_rect.border_color = gfx::interpolate_colors(gfx::Color::new(0, 0, 0, 0), gfx::Color::new(50, 50, 50, 255), *hovered_progress);
             slider_rect.orientation = gfx::RIGHT;
-            slider_rect.render(graphics, &back_rect.get_container(graphics, &parent_container));
+            slider_rect.render(graphics, &back_rect.get_container(graphics, parent_container));
 
-            let slider_container = slider_rect.get_container(graphics, &back_rect.get_container(graphics, &parent_container));
+            let slider_container = slider_rect.get_container(graphics, &back_rect.get_container(graphics, parent_container));
             let slider_absolute_rect = slider_container.get_absolute_rect();
             *hovered = slider_absolute_rect.contains(graphics.get_mouse_pos());
 
@@ -241,18 +240,18 @@ fn render_setting_ui(graphics: &mut gfx::GraphicsContext, setting: &mut SettingU
                 *hovered_progress += (hover_progress_target - *hovered_progress) / 10.0;
             }
 
-            choice_rect.render(graphics, &back_rect.get_container(graphics, &parent_container));
+            choice_rect.render(graphics, &back_rect.get_container(graphics, parent_container));
 
             if slider_chosen {
-                slider_text.render(graphics, &slider_rect.get_container(graphics, &back_rect.get_container(graphics, &parent_container)));
+                slider_text.render(graphics, &slider_rect.get_container(graphics, &back_rect.get_container(graphics, parent_container)));
             }
 
             let mut curr_x = -2.0 * gfx::SPACING - SLIDER_WIDTH;
             for (hovered, button) in buttons {
                 button.pos = gfx::FloatPos(curr_x, 0.0);
                 curr_x -= button.get_size().0 + gfx::SPACING;
-                button.render(graphics, &back_rect.get_container(graphics, &parent_container));
-                *hovered = button.is_hovered(graphics, &back_rect.get_container(graphics, &parent_container));
+                button.render(graphics, &back_rect.get_container(graphics, parent_container));
+                *hovered = button.is_hovered(graphics, &back_rect.get_container(graphics, parent_container));
             }
         }
     }
@@ -260,59 +259,65 @@ fn render_setting_ui(graphics: &mut gfx::GraphicsContext, setting: &mut SettingU
 
 pub struct SettingsMenu {
     back_button: gfx::Button,
-    settings: Vec<SettingUi>,
+    settings_ui: Vec<SettingUi>,
+    settings: Rc<RefCell<Settings>>,
 }
 
 impl SettingsMenu {
     #[must_use]
-    pub fn new() -> Self {
+    pub fn new(close_menu: Rc<RefCell<bool>>, settings: Rc<RefCell<Settings>>) -> Self {
         Self {
-            back_button: gfx::Button::new(|| {}),
-            settings: Vec::new(),
+            back_button: gfx::Button::new(move || *close_menu.borrow_mut() = true),
+            settings_ui: Vec::new(),
+            settings,
         }
     }
 
-    pub fn init(&mut self, graphics: &gfx::GraphicsContext, settings: &Rc<RefCell<Settings>>) {
+    pub fn init(&mut self, graphics: &gfx::GraphicsContext) {
         self.back_button.scale = 3.0;
         self.back_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Back", None));
         self.back_button.pos.1 = -gfx::SPACING;
         self.back_button.orientation = gfx::BOTTOM;
 
-        let binding = settings.borrow_mut();
+        let binding = self.settings.borrow_mut();
         let mut keys: Vec<&i32> = binding.get_all_settings().keys().collect();
         keys.sort();
         for id in keys {
             if let Ok(setting) = binding.get_setting(*id) {
-                self.settings.push(setting_to_ui(graphics, setting, *id));
+                self.settings_ui.push(setting_to_ui(graphics, setting, *id));
             }
         }
+    }
+}
+
+impl UiElement for SettingsMenu {
+    fn get_sub_elements_mut(&mut self) -> Vec<&mut dyn BaseUiElement> {
+        vec![&mut self.back_button]
+    }
+
+    fn get_sub_elements(&self) -> Vec<&dyn BaseUiElement> {
+        vec![&self.back_button]
     }
 
     /// returns the required width of background container
-    pub fn render(&mut self, graphics: &mut gfx::GraphicsContext, settings: &Rc<RefCell<Settings>>) -> f32 {
-        self.back_button.render(graphics, &gfx::Container::default(graphics));
-
+    fn render_inner(&mut self, graphics: &mut gfx::GraphicsContext, parent_container: &gfx::Container) {
         let mut y = gfx::SPACING;
-        for setting in &mut self.settings {
-            render_setting_ui(graphics, setting, settings, y);
+        for setting in &mut self.settings_ui {
+            render_setting_ui(graphics, setting, &self.settings, y, parent_container);
             y += gfx::SPACING + SETTINGS_BOX_HEIGHT;
         }
 
-        SETTINGS_WIDTH + 2.0 * gfx::SPACING
+        //SETTINGS_WIDTH + 2.0 * gfx::SPACING
     }
 
     /// returns true, if settings menu has been closed
-    pub fn on_event(&mut self, event: &gfx::Event, graphics: &gfx::GraphicsContext, settings: &Rc<RefCell<Settings>>) -> bool {
+    fn on_event_inner(&mut self, _: &mut gfx::GraphicsContext, event: &gfx::Event, _: &gfx::Container) -> bool {
         if let gfx::Event::KeyRelease(gfx::Key::MouseLeft, ..) = event {
-            if self.back_button.is_hovered(graphics, &gfx::Container::default(graphics)) {
-                return true;
-            }
-
-            for setting in &mut self.settings {
+            for setting in &mut self.settings_ui {
                 match setting {
                     SettingUi::Toggle { toggle, setting_id, .. } => {
                         if toggle.hovered {
-                            if let Ok(Setting::Toggle { toggled, .. }) = settings.borrow_mut().get_setting_mut(*setting_id) {
+                            if let Ok(Setting::Toggle { toggled, .. }) = self.settings.borrow_mut().get_setting_mut(*setting_id) {
                                 *toggled = !*toggled;
                             }
                         }
@@ -320,7 +325,7 @@ impl SettingsMenu {
                     SettingUi::Choice { buttons, setting_id, .. } => {
                         for (i, (hovered, _button)) in buttons.iter().enumerate() {
                             if *hovered {
-                                if let Ok(Setting::Choice { selected, .. }) = settings.borrow_mut().get_setting_mut(*setting_id) {
+                                if let Ok(Setting::Choice { selected, .. }) = self.settings.borrow_mut().get_setting_mut(*setting_id) {
                                     *selected = i as i32;
                                 }
                             }
@@ -330,7 +335,7 @@ impl SettingsMenu {
                         *selected = false;
                         for (i, (hovered, _button)) in buttons.iter().enumerate() {
                             if *hovered {
-                                if let Ok(Setting::Slider { selected, .. }) = settings.borrow_mut().get_setting_mut(*setting_id) {
+                                if let Ok(Setting::Slider { selected, .. }) = self.settings.borrow_mut().get_setting_mut(*setting_id) {
                                     *selected = SliderSelection::Choice(i as i32);
                                 }
                             }
@@ -339,12 +344,21 @@ impl SettingsMenu {
                 }
             }
         } else if let gfx::Event::KeyPress(gfx::Key::MouseLeft, ..) = event {
-            for setting in &mut self.settings {
+            for setting in &mut self.settings_ui {
                 if let SettingUi::Slider { hovered, selected, .. } = setting {
                     *selected = *hovered;
                 }
             }
+        } else if let gfx::Event::KeyRelease(key, ..) = event {
+            if key == &gfx::Key::Escape {
+                self.back_button.press();
+                return true;
+            }
         }
         false
+    }
+
+    fn get_container(&self, graphics: &gfx::GraphicsContext, parent_container: &gfx::Container) -> gfx::Container {
+        gfx::Container::new(graphics, parent_container.rect.pos, parent_container.rect.size, parent_container.orientation, None)
     }
 }

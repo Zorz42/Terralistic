@@ -16,7 +16,7 @@ pub struct PauseMenu {
     settings_button: gfx::Button,
     quit_button: gfx::Button,
     back_rect: gfx::RenderRect,
-    settings_menu: SettingsMenu,
+    //settings_menu: SettingsMenu,
     rect_width: f32,
 }
 
@@ -29,7 +29,7 @@ impl PauseMenu {
             settings_button: gfx::Button::new(|| {}),
             quit_button: gfx::Button::new(|| {}),
             back_rect: gfx::RenderRect::new(gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, 0.0)),
-            settings_menu: SettingsMenu::new(),
+            //settings_menu: SettingsMenu::new(),
             rect_width: 0.0,
         }
     }
@@ -62,7 +62,7 @@ impl PauseMenu {
         self.back_rect.shadow_intensity = gfx::SHADOW_INTENSITY;
         self.back_rect.smooth_factor = 60.0;
 
-        self.settings_menu.init(graphics, settings);
+        //self.settings_menu.init(graphics, settings);
     }
 
     pub fn render(&mut self, graphics: &mut gfx::GraphicsContext, settings: &Rc<RefCell<Settings>>, global_settings: &Rc<RefCell<GlobalSettings>>) {
@@ -93,8 +93,8 @@ impl PauseMenu {
         }*/
 
         if self.in_settings {
-            let width = self.settings_menu.render(graphics, settings);
-            self.back_rect.size.0 = width;
+            //let width = self.settings_menu.render(graphics, settings);
+            //self.back_rect.size.0 = width;
             global_settings.borrow_mut().update(graphics, settings);
         }
     }
@@ -103,9 +103,9 @@ impl PauseMenu {
     pub fn on_event(&mut self, event: &Event, graphics: &gfx::GraphicsContext, settings: &Rc<RefCell<Settings>>) -> bool {
         if let Some(event) = event.downcast::<gfx::Event>() {
             if self.in_settings {
-                if self.settings_menu.on_event(event, graphics, settings) {
+                /*if self.settings_menu.on_event(event, graphics, settings) {
                     self.in_settings = false;
-                }
+                }*/
                 return false;
             }
 
