@@ -10,6 +10,7 @@ use crate::client::game::private_world::run_private_world;
 use crate::client::global_settings::GlobalSettings;
 use crate::client::settings::Settings;
 use crate::libraries::graphics as gfx;
+use crate::libraries::graphics::{Container, GraphicsContext};
 use gfx::{BaseUiElement, UiElement};
 
 use super::world_creation::run_world_creation;
@@ -364,7 +365,9 @@ impl UiElement for SingleplayerSelector {
             run_world_creation(graphics, &mut menu_back, &self.world_list.worlds, &self.settings, &self.global_settings);
             self.world_list.refresh(graphics);
         }
+    }
 
+    fn update_inner(&mut self, graphics: &mut GraphicsContext, parent_container: &Container) {
         let hoverable = graphics.get_mouse_pos().1 > self.top_rect.size.1 && graphics.get_mouse_pos().1 < graphics.get_window_size().1 - self.bottom_rect.size.1;
 
         for world in &mut self.world_list.worlds {
@@ -391,11 +394,6 @@ impl UiElement for SingleplayerSelector {
         self.top_rect.shadow_intensity = (self.top_rect_visibility * gfx::SHADOW_INTENSITY as f32) as i32;
 
         self.bottom_rect.size.0 = parent_container.get_absolute_rect().size.0;
-
-        //self.title.render(graphics, parent_container);
-        //self.back_button.render(graphics, parent_container);
-
-        //self.new_world_button.render(graphics, parent_container);
 
         let mut world_height = 0.0;
         if let Some(world) = self.world_list.worlds.first() {

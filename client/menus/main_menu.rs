@@ -221,7 +221,10 @@ pub fn run_main_menu(
         secondary_menu_back.render_back(graphics);
         match state {
             MainMenuState::None => {}
-            MainMenuState::SingleplayerSelector(ref mut menu) => menu.get_mut().render(graphics, secondary_menu_back.get_back_rect_container()),
+            MainMenuState::SingleplayerSelector(ref mut menu) => {
+                menu.get_mut().update(graphics, secondary_menu_back.get_back_rect_container());
+                menu.get_mut().render(graphics, secondary_menu_back.get_back_rect_container());
+            }
         }
 
         graphics.update_window();
