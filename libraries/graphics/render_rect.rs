@@ -64,7 +64,7 @@ impl gfx::UiElement for RenderRect {
 
     /// This function renders the rectangle, it uses Rect class to render.
     /// It also approaches the position to the target position.
-    fn render_inner(&mut self, graphics: &mut gfx::GraphicsContext, parent_container: Option<&gfx::Container>) {
+    fn render_inner(&mut self, graphics: &mut gfx::GraphicsContext, parent_container: &gfx::Container) {
         while self.animation_timer.frame_ready() {
             self.render_pos.0 = Self::approach(self.render_pos.0, self.pos.0, self.smooth_factor);
             self.render_pos.1 = Self::approach(self.render_pos.1, self.pos.1, self.smooth_factor);
@@ -81,19 +81,10 @@ impl gfx::UiElement for RenderRect {
         rect.render_outline(graphics, self.border_color);
     }
 
-    fn update_inner(&mut self, _: &mut gfx::GraphicsContext, _: Option<&gfx::Container>) {
-        //all in render, should be fixed if it causes issues
-    }
-
-    fn on_event_inner(&mut self, _: &mut gfx::GraphicsContext, _: &gfx::Event, _: Option<&gfx::Container>) -> bool {
-        //doesn't care about events
-        false
-    }
-
     /// This function returns the container of the rectangle.
     /// The container has the position of render rect.
     #[must_use]
-    fn get_container(&self, graphics: &gfx::GraphicsContext, parent_container: Option<&gfx::Container>) -> gfx::Container {
-        gfx::Container::new(graphics, self.render_pos, self.render_size, self.orientation, parent_container)
+    fn get_container(&self, graphics: &gfx::GraphicsContext, parent_container: &gfx::Container) -> gfx::Container {
+        gfx::Container::new(graphics, self.render_pos, self.render_size, self.orientation, Some(parent_container))
     }
 }

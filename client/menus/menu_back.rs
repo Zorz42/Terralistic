@@ -42,7 +42,8 @@ impl MenuBack {
 impl BackgroundRect for MenuBack {
     /// Renders the background.
     fn render_back(&mut self, graphics: &mut gfx::GraphicsContext) {
-        self.back_container = self.back_rect.get_container(graphics, None);
+        let parent_container = gfx::Container::default(graphics);
+        self.back_container = self.back_rect.get_container(graphics, &parent_container);
 
         if self.main_back_menu {
             let scale = graphics.get_window_size().1 / self.background.get_texture_size().1;
@@ -58,7 +59,7 @@ impl BackgroundRect for MenuBack {
             self.back_rect.size.1 = graphics.get_window_size().1;
             self.back_rect.jump_to_target();
         }
-        self.back_rect.render(graphics, None);
+        self.back_rect.render(graphics, &parent_container);
     }
 
     /// Sets the width of the background rectangle.
@@ -68,7 +69,7 @@ impl BackgroundRect for MenuBack {
 
     /// Gets the width of the background rectangle.
     fn get_back_rect_width(&self, graphics: &gfx::GraphicsContext, parent_container: Option<&gfx::Container>) -> f32 {
-        self.back_rect.get_container(graphics, parent_container).rect.size.0
+        self.back_rect.get_container(graphics, parent_container.unwrap_or(&gfx::Container::default(graphics))).rect.size.0
     }
 
     /// Gets the background rectangle's container.

@@ -136,20 +136,20 @@ impl UiElement for World {
     }
 
     /// This function renders the world card on the x and y position.
-    fn render_inner(&mut self, graphics: &mut gfx::GraphicsContext, parent_container: Option<&gfx::Container>) {
+    fn render_inner(&mut self, graphics: &mut gfx::GraphicsContext, parent_container: &gfx::Container) {
         self.rect.pos = self.pos;
         self.rect.render(graphics, parent_container);
 
         let rect_container = self.rect.get_container(graphics, parent_container);
         self.icon.render(graphics, Some(&rect_container), None);
         self.title.render(graphics, Some(&rect_container), None);
-        self.play_button.render(graphics, Some(&rect_container));
-        self.delete_button.render(graphics, Some(&rect_container));
+        self.play_button.render(graphics, &rect_container);
+        self.delete_button.render(graphics, &rect_container);
         self.last_modified.render(graphics, Some(&rect_container), None);
     }
 
     /// This function returns the container of the world card.
-    fn get_container(&self, graphics: &gfx::GraphicsContext, parent_container: Option<&gfx::Container>) -> gfx::Container {
+    fn get_container(&self, graphics: &gfx::GraphicsContext, parent_container: &gfx::Container) -> gfx::Container {
         self.rect.get_container(graphics, parent_container)
     }
 }
@@ -219,7 +219,7 @@ impl UiElement for WorldList {
         element_vec
     }
 
-    fn render_inner(&mut self, graphics: &mut gfx::GraphicsContext, parent_container: Option<&gfx::Container>) {
+    fn render_inner(&mut self, graphics: &mut gfx::GraphicsContext, parent_container: &gfx::Container) {
         let mut current_y = gfx::SPACING + self.scrolled + self.top_rect_size;
         for world in &mut self.worlds {
             world.pos = gfx::FloatPos(0.0, current_y);
@@ -228,9 +228,9 @@ impl UiElement for WorldList {
         }
     }
 
-    fn get_container(&self, graphics: &gfx::GraphicsContext, parent_container: Option<&gfx::Container>) -> gfx::Container {
-        let c1 = parent_container.unwrap();
-        gfx::Container::new(graphics, c1.rect.pos, c1.rect.size, c1.orientation, None)
+    fn get_container(&self, graphics: &gfx::GraphicsContext, parent_container: &gfx::Container) -> gfx::Container {
+        gfx::Container::new(graphics, parent_container.rect.pos, parent_container.rect.size, parent_container.orientation, None)
+        //this might benefit from having its own container
     }
 }
 
@@ -337,16 +337,14 @@ impl UiElement for SingleplayerSelector {
         elements_vec
     }
 
-    fn render_inner(&mut self, graphics: &mut gfx::GraphicsContext, parent_container: Option<&gfx::Container>) {
-        let temp_container = gfx::Container::new(graphics, gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, 0.0), gfx::CENTER, None);
-        let parent_container = parent_container.unwrap_or(&temp_container);
+    fn render_inner(&mut self, graphics: &mut gfx::GraphicsContext, parent_container: &gfx::Container) {
         let hoverable = graphics.get_mouse_pos().1 > self.top_rect.size.1 && graphics.get_mouse_pos().1 < graphics.get_window_size().1 - self.bottom_rect.size.1;
 
         for world in &mut self.world_list.worlds {
             world.set_enabled(hoverable);
         }
 
-        self.world_list.scrolled = self.scrollable.get_scroll_x(graphics, None);
+        self.world_list.scrolled = self.scrollable.get_scroll_x(graphics, parent_container);
         self.world_list.top_rect_size = self.top_rect.size.1;
 
         self.top_rect.size.0 = parent_container.get_absolute_rect().size.0;
@@ -368,9 +366,9 @@ impl UiElement for SingleplayerSelector {
         self.bottom_rect.size.0 = parent_container.get_absolute_rect().size.0;
 
         self.title.render(graphics, Some(parent_container), None);
-        self.back_button.render(graphics, Some(parent_container));
+        self.back_button.render(graphics, parent_container);
 
-        self.new_world_button.render(graphics, Some(parent_container));
+        self.new_world_button.render(graphics, parent_container);
 
         let mut world_height = 0.0;
         if let Some(world) = self.world_list.worlds.first() {
@@ -380,15 +378,12 @@ impl UiElement for SingleplayerSelector {
         self.scrollable.rect.size.1 = graphics.get_window_size().1 - self.top_rect.size.1 - self.bottom_rect.size.1;
     }
 
-    fn on_event_inner(&mut self, graphics: &mut gfx::GraphicsContext, event: &gfx::Event, parent_container: Option<&gfx::Container>) -> bool {
-        //TODO add a way to exit
-        let temp_container = gfx::Container::new(graphics, gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, 0.0), gfx::CENTER, None);
-        let parent_container = parent_container.unwrap_or(&temp_container);
-        if self.scrollable.on_event(graphics, event, Some(parent_container)) {
+    fn on_event_inner(&mut self, graphics: &mut gfx::GraphicsContext, event: &gfx::Event, parent_container: &gfx::Container) -> bool {
+        if self.scrollable.on_event(graphics, event, parent_container) {
             //this will be much nicer once we actually use the ui elements trait
             return true;
         }
-        if self.back_button.on_event(graphics, event, Some(parent_container)) {
+        if self.back_button.on_event(graphics, event, parent_container) {
             return true;
         }
         if let gfx::Event::KeyRelease(key, ..) = event {
@@ -439,11 +434,7 @@ impl UiElement for SingleplayerSelector {
         false
     }
 
-    fn get_container(&self, graphics: &gfx::GraphicsContext, parent_container: Option<&gfx::Container>) -> gfx::Container {
-        //TODO make its own container
-        parent_container.map_or_else(
-            || gfx::Container::new(graphics, gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, 0.0), gfx::CENTER, None),
-            |container| gfx::Container::new(graphics, container.rect.pos, container.rect.size, container.orientation, None),
-        )
+    fn get_container(&self, graphics: &gfx::GraphicsContext, parent_container: &gfx::Container) -> gfx::Container {
+        gfx::Container::new(graphics, parent_container.rect.pos, parent_container.rect.size, parent_container.orientation, None)
     }
 }

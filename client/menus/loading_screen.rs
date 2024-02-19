@@ -82,8 +82,8 @@ pub fn run_loading_screen(graphics: &mut gfx::GraphicsContext, menu_back: &mut d
 
         loading_text_sprite.render(graphics, Some(menu_back.get_back_rect_container()), None);
 
-        loading_back_bar.render(graphics, Some(menu_back.get_back_rect_container()));
-        loading_bar.render(graphics, Some(menu_back.get_back_rect_container()));
+        loading_back_bar.render(graphics, menu_back.get_back_rect_container());
+        loading_bar.render(graphics, menu_back.get_back_rect_container());
 
         graphics.update_window();
     }

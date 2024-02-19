@@ -74,7 +74,7 @@ impl TextInput {
 
     /// Checks if the button is hovered with a mouse
     #[must_use]
-    pub fn is_hovered(&self, graphics: &gfx::GraphicsContext, parent_container: Option<&gfx::Container>) -> bool {
+    pub fn is_hovered(&self, graphics: &gfx::GraphicsContext, parent_container: &gfx::Container) -> bool {
         let container = self.get_container(graphics, parent_container);
         let rect = container.get_absolute_rect();
         let mouse_pos = graphics.get_mouse_pos();
@@ -147,7 +147,7 @@ impl UiElement for TextInput {
 
     /// renders the text input
     #[allow(clippy::too_many_lines)] // TODO: split this function up
-    fn render_inner(&mut self, graphics: &mut gfx::GraphicsContext, parent_container: Option<&gfx::Container>) {
+    fn render_inner(&mut self, graphics: &mut gfx::GraphicsContext, parent_container: &gfx::Container) {
         let container = self.get_container(graphics, parent_container);
         let rect = container.get_absolute_rect();
 
@@ -254,25 +254,21 @@ impl UiElement for TextInput {
             self.cursor_rect.size.0 = x2 - x1;
             self.cursor_rect.size.1 = rect.size.1 - self.padding * self.scale * 2.0;
 
-            if self.cursor_rect.get_container(graphics, None).rect.pos.0 == 0.0 && self.cursor_rect.get_container(graphics, None).rect.pos.1 == 0.0 {
+            if self.cursor_rect.get_container(graphics, parent_container).rect.pos.0 == 0.0 && self.cursor_rect.get_container(graphics, parent_container).rect.pos.1 == 0.0 {
                 self.cursor_rect.jump_to_target();
             }
         }
 
         self.cursor_rect.fill_color.a = (255.0 * self.cursor_color_progress) as u8;
 
-        self.cursor_rect.render(graphics, None);
+        self.cursor_rect.render(graphics, parent_container);
 
         self.text_changed = false;
     }
 
-    fn update_inner(&mut self, _: &mut gfx::GraphicsContext, _: Option<&gfx::Container>) {
-        //some update stuff in render
-    }
-
     #[allow(clippy::too_many_lines)] // TODO: split this up
     #[allow(clippy::cognitive_complexity)]
-    fn on_event_inner(&mut self, graphics: &mut gfx::GraphicsContext, event: &gfx::Event, parent_container: Option<&gfx::Container>) -> bool {
+    fn on_event_inner(&mut self, graphics: &mut gfx::GraphicsContext, event: &gfx::Event, parent_container: &gfx::Container) -> bool {
         match event {
             gfx::Event::TextInput(text) => {
                 if self.selected {
@@ -408,7 +404,7 @@ impl UiElement for TextInput {
     }
 
     /// Generates the container for the text input. It it private, since a text input should never contain other elements.
-    fn get_container(&self, graphics: &gfx::GraphicsContext, parent_container: Option<&gfx::Container>) -> gfx::Container {
-        gfx::Container::new(graphics, self.pos, self.get_size(), self.orientation, parent_container)
+    fn get_container(&self, graphics: &gfx::GraphicsContext, parent_container: &gfx::Container) -> gfx::Container {
+        gfx::Container::new(graphics, self.pos, self.get_size(), self.orientation, Some(parent_container))
     }
 }

@@ -103,13 +103,13 @@ impl ServerCard {
     /// This function renders the server card on the x and y position.
     pub fn render(&mut self, graphics: &mut gfx::GraphicsContext, pos: gfx::FloatPos, parent_container: Option<&gfx::Container>) {
         self.rect.pos = pos;
-        self.rect.render(graphics, parent_container);
+        /*self.rect.render(graphics, parent_container);
 
         let rect_container = self.rect.get_container(graphics, parent_container);
         self.icon.render(graphics, Some(&rect_container), None);
         self.title.render(graphics, Some(&rect_container), None);
         self.play_button.render(graphics, Some(&rect_container));
-        self.delete_button.render(graphics, Some(&rect_container));
+        self.delete_button.render(graphics, Some(&rect_container));*/
     }
 
     /// This function returns height of the server card.
@@ -125,7 +125,8 @@ impl ServerCard {
 
     /// This function returns the container of the server card.
     pub fn get_container(&self, graphics: &gfx::GraphicsContext, parent_container: Option<&gfx::Container>) -> gfx::Container {
-        self.rect.get_container(graphics, parent_container)
+        //self.rect.get_container(graphics, parent_container)
+        gfx::Container::default(graphics)
     }
 }
 
@@ -255,24 +256,21 @@ fn update_elements(
     scrollable: &mut gfx::Scrollable,
 ) -> bool {
     while let Some(event) = graphics.get_event() {
-        scrollable.on_event(graphics, &event, Some(menu_back.get_back_rect_container()));
+        scrollable.on_event(graphics, &event, menu_back.get_back_rect_container());
         if let gfx::Event::KeyRelease(key, ..) = event {
             match key {
                 gfx::Key::MouseLeft => {
-                    if elements.back_button.is_hovered(graphics, Some(menu_back.get_back_rect_container())) {
+                    if elements.back_button.is_hovered(graphics, menu_back.get_back_rect_container()) {
                         return true;
                     }
-                    if elements.new_server_button.is_hovered(graphics, Some(menu_back.get_back_rect_container())) {
+                    if elements.new_server_button.is_hovered(graphics, menu_back.get_back_rect_container()) {
                         if let Some(server) = run_add_server_menu(graphics, menu_back, &elements.server_list.servers) {
                             elements.server_list.servers.push(ServerCard::new(graphics, server.name, server.ip, server.port));
                         }
                         elements.server_list.save(servers_file.to_path_buf());
                     }
                     for server in &elements.server_list.servers {
-                        if server
-                            .play_button
-                            .is_hovered(graphics, Some(&server.get_container(graphics, Some(menu_back.get_back_rect_container()))))
-                        {
+                        if server.play_button.is_hovered(graphics, &server.get_container(graphics, Some(menu_back.get_back_rect_container()))) {
                             let name = run_text_input_menu("Enter your name", graphics, menu_back);
                             if let Some(name) = name {
                                 let game_result = run_game(graphics, menu_back, server.server_info.port, server.server_info.ip.clone(), &name, settings, global_settings);
@@ -281,9 +279,7 @@ fn update_elements(
                                     run_choice_menu(&format!("Game error: {error}"), graphics, menu_back, vec!["Ok"], None, None, true);
                                 }
                             }
-                        } else if server
-                            .delete_button
-                            .is_hovered(graphics, Some(&server.get_container(graphics, Some(menu_back.get_back_rect_container()))))
+                        } else if server.delete_button.is_hovered(graphics, &server.get_container(graphics, Some(menu_back.get_back_rect_container())))
                             && run_choice_menu(
                                 format!("The server \"{}\" will be deleted.\nDo you want to proceed?", server.server_info.name).as_str(),
                                 graphics,
@@ -328,7 +324,7 @@ fn render_elements(
         server.set_enabled(hoverable);
     }
 
-    let mut current_y = gfx::SPACING + scrollable.get_scroll_x(graphics, None) + elements.top_height;
+    let mut current_y = gfx::SPACING + scrollable.get_scroll_x(graphics, menu_back.get_back_rect_container()) + elements.top_height;
     let mut elements_height = 0.0;
 
     for server in &mut elements.server_list.servers {
@@ -353,23 +349,23 @@ fn render_elements(
     elements.top_rect.blur_radius = (*top_rect_visibility * gfx::BLUR as f32) as i32;
     elements.top_rect.shadow_intensity = (*top_rect_visibility * gfx::SHADOW_INTENSITY as f32) as i32;
     if *top_rect_visibility > 0.0 {
-        elements.top_rect.render(graphics, Some(menu_back.get_back_rect_container()));
+        elements.top_rect.render(graphics, menu_back.get_back_rect_container());
     }
 
     elements.bottom_rect.size.0 = menu_back.get_back_rect_width(graphics, None);
 
     if scrollable.scroll_size > scrollable.rect.size.1 {
-        elements.bottom_rect.render(graphics, Some(menu_back.get_back_rect_container()));
+        elements.bottom_rect.render(graphics, menu_back.get_back_rect_container());
     }
 
     elements.title.render(graphics, Some(menu_back.get_back_rect_container()), None);
-    elements.back_button.render(graphics, Some(menu_back.get_back_rect_container()));
+    elements.back_button.render(graphics, menu_back.get_back_rect_container());
 
-    elements.new_server_button.render(graphics, Some(menu_back.get_back_rect_container()));
+    elements.new_server_button.render(graphics, menu_back.get_back_rect_container());
 
     scrollable.scroll_size = elements_height;
     scrollable.rect.size.1 = graphics.get_window_size().1 - elements.top_height - elements.bottom_height;
-    scrollable.render(graphics, Some(menu_back.get_back_rect_container()));
+    scrollable.render(graphics, menu_back.get_back_rect_container());
 
     graphics.update_window();
 }

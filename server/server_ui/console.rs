@@ -118,7 +118,7 @@ impl ui_manager::ModuleTrait for Console {
         for line in &mut self.text_lines {
             line.render(graphics_context, &mut self.container, max_y, min_y);
         }
-        self.input.render(graphics_context, Some(&self.container));
+        self.input.render(graphics_context, &self.container);
     }
 
     fn on_server_message(&mut self, message: &UiMessageType, graphics_context: &mut gfx::GraphicsContext) {
@@ -154,7 +154,7 @@ impl ui_manager::ModuleTrait for Console {
     }
 
     fn on_event(&mut self, event: &gfx::Event, graphics_context: &mut gfx::GraphicsContext) {
-        self.input.on_event(graphics_context, event, Some(&self.container));
+        self.input.on_event(graphics_context, event, &self.container);
         match event {
             //move the view on mouse scroll
             gfx::Event::MouseScroll(scroll) => {

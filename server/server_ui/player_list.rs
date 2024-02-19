@@ -45,7 +45,7 @@ impl PlayerCard {
         //background
         let mut rect = gfx::RenderRect::new(gfx::FloatPos(0.0, 0.0), self.container.rect.size);
         rect.fill_color = gfx::DARK_GREY;
-        rect.render(graphics_context, Some(&self.container));
+        rect.render(graphics_context, &self.container);
 
         //name of the player
         self.name_sprite.render(graphics_context, Some(&self.container), None);
@@ -57,7 +57,7 @@ impl PlayerCard {
                 a: (255.0 - self.timer * 255.0) as u8,
                 ..gfx::GREY
             };
-            rect.render(graphics_context, Some(&self.container));
+            rect.render(graphics_context, &self.container);
         }
     }
 }

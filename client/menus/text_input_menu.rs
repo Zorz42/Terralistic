@@ -39,16 +39,16 @@ pub fn run_text_input_menu(menu_title: &str, graphics: &mut gfx::GraphicsContext
     //this is where the menu is drawn
     while graphics.is_window_open() {
         while let Some(event) = graphics.get_event() {
-            input_field.on_event(graphics, &event, Some(menu_back.get_back_rect_container()));
+            input_field.on_event(graphics, &event, menu_back.get_back_rect_container());
 
             //sorts out the events
             if let gfx::Event::KeyRelease(key, ..) = event {
                 match key {
                     gfx::Key::MouseLeft => {
-                        if back_button.is_hovered(graphics, Some(&buttons_container)) {
+                        if back_button.is_hovered(graphics, &buttons_container) {
                             return None;
                         }
-                        if confirm_button.is_hovered(graphics, Some(&buttons_container)) {
+                        if confirm_button.is_hovered(graphics, &buttons_container) {
                             return Some(input_field.get_text().clone());
                         }
                     }
@@ -72,11 +72,11 @@ pub fn run_text_input_menu(menu_title: &str, graphics: &mut gfx::GraphicsContext
             sprite.render(graphics, Some(menu_back.get_back_rect_container()), None);
         }
 
-        back_button.render(graphics, Some(&buttons_container));
+        back_button.render(graphics, &buttons_container);
 
-        confirm_button.render(graphics, Some(&buttons_container));
+        confirm_button.render(graphics, &buttons_container);
 
-        input_field.render(graphics, Some(menu_back.get_back_rect_container()));
+        input_field.render(graphics, menu_back.get_back_rect_container());
 
         graphics.update_window();
     }

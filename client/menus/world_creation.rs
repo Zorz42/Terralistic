@@ -93,15 +93,15 @@ pub fn run_world_creation(
 
         while let Some(event) = graphics.get_event() {
             //sorts out the events
-            world_name_input.on_event(graphics, &event, None);
-            world_seed_input.on_event(graphics, &event, None);
+            world_name_input.on_event(graphics, &event, menu_back.get_back_rect_container());
+            world_seed_input.on_event(graphics, &event, menu_back.get_back_rect_container());
             if let gfx::Event::KeyRelease(key, ..) = event {
                 match key {
                     gfx::Key::MouseLeft => {
-                        if back_button.is_hovered(graphics, Some(&buttons_container)) {
+                        if back_button.is_hovered(graphics, &buttons_container) {
                             break 'render_loop;
                         }
-                        if create_button.is_hovered(graphics, Some(&buttons_container)) {
+                        if create_button.is_hovered(graphics, &buttons_container) {
                             let game_result = run_private_world(graphics, menu_back, &world_path, settings, global_settings);
                             if let Err(error) = game_result {
                                 println!("Game error: {error}");
@@ -138,12 +138,12 @@ pub fn run_world_creation(
         buttons_container.update(graphics, Some(menu_back.get_back_rect_container()));
 
         title.render(graphics, Some(menu_back.get_back_rect_container()), None);
-        back_button.render(graphics, Some(&buttons_container));
+        back_button.render(graphics, &buttons_container);
 
-        create_button.render(graphics, Some(&buttons_container));
+        create_button.render(graphics, &buttons_container);
 
-        world_name_input.render(graphics, Some(menu_back.get_back_rect_container()));
-        world_seed_input.render(graphics, Some(menu_back.get_back_rect_container()));
+        world_name_input.render(graphics, menu_back.get_back_rect_container());
+        world_seed_input.render(graphics, menu_back.get_back_rect_container());
 
         graphics.update_window();
     }

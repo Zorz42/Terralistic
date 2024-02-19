@@ -45,8 +45,9 @@ impl ChatLine {
             return;
         }
 
-        self.back_rect.render(graphics, None);
-        let pos = self.back_rect.get_container(graphics, None).rect.pos;
+        let parent_container = gfx::Container::new(graphics, gfx::FloatPos(0.0, 0.0), graphics.get_window_size(), gfx::TOP_LEFT, None); //TODO this doesn't make sense
+        self.back_rect.render(graphics, &parent_container);
+        let pos = self.back_rect.get_container(graphics, &parent_container).rect.pos;
         self.texture.render(graphics, 3.0, pos, None, false, Some(gfx::Color::new(255, 255, 255, self.transparency as u8)));
     }
 
@@ -92,16 +93,17 @@ impl ClientChat {
     }
 
     pub fn render(&mut self, graphics: &mut gfx::GraphicsContext) {
+        //TODO make this a UI element
         if self.text_input.selected {
             self.back_rect.size.0 = gfx::TEXT_INPUT_WIDTH * self.text_input.scale;
         } else {
             self.back_rect.size.0 = gfx::TEXT_INPUT_WIDTH * self.text_input.scale * 0.6;
         }
 
-        self.back_rect.render(graphics, None);
+        //self.back_rect.render(graphics, None);
 
-        self.text_input.width = self.back_rect.get_container(graphics, None).rect.size.0 / self.text_input.scale;
-        self.text_input.render(graphics, None);
+        //self.text_input.width = self.back_rect.get_container(graphics, None).rect.size.0 / self.text_input.scale;
+        //self.text_input.render(graphics, None);
 
         let mut curr_y = graphics.get_window_size().1 - gfx::SPACING - self.text_input.get_size().1;
         for line in self.chat_lines.iter_mut().rev() {
@@ -120,7 +122,7 @@ impl ClientChat {
                 }
             }
 
-            self.text_input.on_event(graphics, event, None);
+            //self.text_input.on_event(graphics, event, None);
 
             if let gfx::Event::KeyPress(gfx::Key::Enter, ..) = event {
                 if self.text_input.selected && !self.text_input.get_text().is_empty() {

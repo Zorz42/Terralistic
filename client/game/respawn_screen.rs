@@ -47,21 +47,21 @@ impl RespawnScreen {
             gfx::Rect::new(gfx::FloatPos(0.0, 0.0), graphics.get_window_size()).render(graphics, gfx::Color::new(255, 0, 0, 100));
 
             self.back_rect.size.1 = graphics.get_window_size().1;
-            self.back_rect.render(graphics, Some(&self.back_rect.get_container(graphics, None)));
+            /*self.back_rect.render(graphics, Some(&self.back_rect.get_container(graphics, None)));
 
             self.respawn_text.render(graphics, Some(&self.back_rect.get_container(graphics, None)), None);
 
-            self.respawn_button.render(graphics, Some(&self.back_rect.get_container(graphics, None)));
+            self.respawn_button.render(graphics, Some(&self.back_rect.get_container(graphics, None)));*///TODO UI element
         }
     }
 
     pub fn on_event(&mut self, event: &Event, graphics: &gfx::GraphicsContext, networking: &mut ClientNetworking) -> Result<()> {
         if self.is_shown {
             if let Some(gfx::Event::KeyPress(gfx::Key::MouseLeft, ..)) = event.downcast::<gfx::Event>() {
-                if self.respawn_button.is_hovered(graphics, Some(&self.back_rect.get_container(graphics, None))) {
+                /*if self.respawn_button.is_hovered(graphics, Some(&self.back_rect.get_container(graphics, None))) {
                     let packet = Packet::new(RespawnPacket {})?;
                     networking.send_packet(packet)?;
-                }
+                }*/
             }
         }
 

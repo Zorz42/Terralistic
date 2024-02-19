@@ -133,7 +133,7 @@ pub fn run_main_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn Ba
             match state {
                 MainMenuState::None => (),
                 MainMenuState::SingleplayerSelector(ref mut menu) => {
-                    let _ = menu.get_mut().on_event(graphics, &event, Some(secondary_menu_back.get_back_rect_container()));
+                    let _ = menu.get_mut().on_event(graphics, &event, secondary_menu_back.get_back_rect_container());
                 }
             }
             if *close_secondary_menu.borrow_mut() {
@@ -144,19 +144,19 @@ pub fn run_main_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn Ba
             if let gfx::Event::KeyRelease(key, ..) = event {
                 // check for every button if it was clicked with the left mouse button
                 if key == gfx::Key::MouseLeft {
-                    if singleplayer_button.is_hovered(graphics, Some(menu_back.get_back_rect_container())) {
+                    if singleplayer_button.is_hovered(graphics, menu_back.get_back_rect_container()) {
                         if !matches!(state, MainMenuState::SingleplayerSelector(_)) {
                             let singleplayer_menu = SingleplayerSelector::new(graphics, settings.clone(), global_settings.clone(), close_secondary_menu.clone());
                             state = MainMenuState::SingleplayerSelector(Box::new(Cell::new(singleplayer_menu)));
                         }
-                    } else if multiplayer_button.is_hovered(graphics, Some(menu_back.get_back_rect_container())) {
+                    } else if multiplayer_button.is_hovered(graphics, menu_back.get_back_rect_container()) {
                         //run_multiplayer_selector(graphics, menu_back, settings, global_settings);
-                    } else if settings_button.is_hovered(graphics, Some(menu_back.get_back_rect_container())) {
+                    } else if settings_button.is_hovered(graphics, menu_back.get_back_rect_container()) {
                         in_settings = true;
-                    } else if mods_button.is_hovered(graphics, Some(menu_back.get_back_rect_container())) {
-                    } else if exit_button.is_hovered(graphics, Some(menu_back.get_back_rect_container())) {
+                    } else if mods_button.is_hovered(graphics, menu_back.get_back_rect_container()) {
+                    } else if exit_button.is_hovered(graphics, menu_back.get_back_rect_container()) {
                         graphics.close_window();
-                    } else if cloud_status_button.is_hovered(graphics, None) && run_login_menu(graphics, menu_back) {
+                    } else if cloud_status_button.is_hovered(graphics, menu_back.get_back_rect_container()) && run_login_menu(graphics, menu_back) {
                         if let Some(client) = &mut tls_client {
                             client.reset();
                         }
@@ -199,12 +199,12 @@ pub fn run_main_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn Ba
         menu_back.render_back(graphics);
 
         for button in buttons {
-            button.render(graphics, Some(menu_back.get_back_rect_container()));
+            button.render(graphics, menu_back.get_back_rect_container());
         }
 
         let color = get_tls_status_color(&tls_client);
         cloud_status_rect.render(graphics, color);
-        cloud_status_button.render(graphics, None);
+        cloud_status_button.render(graphics, menu_back.get_back_rect_container());
 
         #[cfg(debug_assertions)]
         debug_title.render(graphics, Some(menu_back.get_back_rect_container()), None);
@@ -215,7 +215,7 @@ pub fn run_main_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn Ba
         secondary_menu_back.render_back(graphics);
         match state {
             MainMenuState::None => {}
-            MainMenuState::SingleplayerSelector(ref mut menu) => menu.get_mut().render(graphics, Some(secondary_menu_back.get_back_rect_container())),
+            MainMenuState::SingleplayerSelector(ref mut menu) => menu.get_mut().render(graphics, secondary_menu_back.get_back_rect_container()),
         }
 
         graphics.update_window();

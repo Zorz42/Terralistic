@@ -124,16 +124,17 @@ fn setting_to_ui(graphics: &gfx::GraphicsContext, setting: &Setting, setting_id:
 
 #[allow(clippy::too_many_lines)]
 fn render_setting_ui(graphics: &mut gfx::GraphicsContext, setting: &mut SettingUi, settings: &Rc<RefCell<Settings>>, y: f32) {
+    let parent_container = gfx::Container::default(graphics);
     let mut back_rect = gfx::RenderRect::new(gfx::FloatPos(0.0, y), gfx::FloatSize(SETTINGS_WIDTH, SETTINGS_BOX_HEIGHT));
     back_rect.fill_color = gfx::BLACK.set_a(gfx::TRANSPARENCY);
     back_rect.orientation = gfx::TOP;
-    back_rect.render(graphics, None);
+    back_rect.render(graphics, &parent_container);
 
     let text = match setting {
         SettingUi::Toggle { text, .. } | SettingUi::Choice { text, .. } | SettingUi::Slider { text, .. } => text,
     };
 
-    text.render(graphics, Some(&back_rect.get_container(graphics, None)), None);
+    text.render(graphics, Some(&back_rect.get_container(graphics, &parent_container)), None);
 
     match setting {
         SettingUi::Toggle { setting_id, toggle, .. } => {
@@ -148,7 +149,7 @@ fn render_setting_ui(graphics: &mut gfx::GraphicsContext, setting: &mut SettingU
 
             toggle.toggled = setting_toggled;
 
-            toggle.render(graphics, Some(&back_rect.get_container(graphics, None)));
+            toggle.render(graphics, &back_rect.get_container(graphics, &parent_container));
         }
         SettingUi::Choice { buttons, setting_id, choice_rect, .. } => {
             let mut chosen_button = 0;
@@ -161,14 +162,14 @@ fn render_setting_ui(graphics: &mut gfx::GraphicsContext, setting: &mut SettingU
                 choice_rect.size = button.get_size();
             }
 
-            choice_rect.render(graphics, Some(&back_rect.get_container(graphics, None)));
+            choice_rect.render(graphics, &back_rect.get_container(graphics, &parent_container));
 
             let mut curr_x = -gfx::SPACING;
             for (hovered, button) in buttons {
                 button.pos = gfx::FloatPos(curr_x, 0.0);
                 curr_x -= button.get_size().0 + gfx::SPACING;
-                button.render(graphics, Some(&back_rect.get_container(graphics, None)));
-                *hovered = button.is_hovered(graphics, Some(&back_rect.get_container(graphics, None)));
+                button.render(graphics, &back_rect.get_container(graphics, &parent_container));
+                *hovered = button.is_hovered(graphics, &back_rect.get_container(graphics, &parent_container));
             }
         }
         SettingUi::Slider {
@@ -221,9 +222,9 @@ fn render_setting_ui(graphics: &mut gfx::GraphicsContext, setting: &mut SettingU
             slider_rect.fill_color = gfx::interpolate_colors(gfx::Color::new(0, 0, 0, gfx::TRANSPARENCY), gfx::Color::new(30, 30, 30, gfx::TRANSPARENCY), *hovered_progress);
             slider_rect.border_color = gfx::interpolate_colors(gfx::Color::new(0, 0, 0, 0), gfx::Color::new(50, 50, 50, 255), *hovered_progress);
             slider_rect.orientation = gfx::RIGHT;
-            slider_rect.render(graphics, Some(&back_rect.get_container(graphics, None)));
+            slider_rect.render(graphics, &back_rect.get_container(graphics, &parent_container));
 
-            let slider_container = slider_rect.get_container(graphics, Some(&back_rect.get_container(graphics, None)));
+            let slider_container = slider_rect.get_container(graphics, &back_rect.get_container(graphics, &parent_container));
             let slider_absolute_rect = slider_container.get_absolute_rect();
             *hovered = slider_absolute_rect.contains(graphics.get_mouse_pos());
 
@@ -240,18 +241,18 @@ fn render_setting_ui(graphics: &mut gfx::GraphicsContext, setting: &mut SettingU
                 *hovered_progress += (hover_progress_target - *hovered_progress) / 10.0;
             }
 
-            choice_rect.render(graphics, Some(&back_rect.get_container(graphics, None)));
+            choice_rect.render(graphics, &back_rect.get_container(graphics, &parent_container));
 
             if slider_chosen {
-                slider_text.render(graphics, Some(&slider_rect.get_container(graphics, Some(&back_rect.get_container(graphics, None)))), None);
+                slider_text.render(graphics, Some(&slider_rect.get_container(graphics, &back_rect.get_container(graphics, &parent_container))), None);
             }
 
             let mut curr_x = -2.0 * gfx::SPACING - SLIDER_WIDTH;
             for (hovered, button) in buttons {
                 button.pos = gfx::FloatPos(curr_x, 0.0);
                 curr_x -= button.get_size().0 + gfx::SPACING;
-                button.render(graphics, Some(&back_rect.get_container(graphics, None)));
-                *hovered = button.is_hovered(graphics, Some(&back_rect.get_container(graphics, None)));
+                button.render(graphics, &back_rect.get_container(graphics, &parent_container));
+                *hovered = button.is_hovered(graphics, &back_rect.get_container(graphics, &parent_container));
             }
         }
     }
@@ -289,7 +290,7 @@ impl SettingsMenu {
 
     /// returns the required width of background container
     pub fn render(&mut self, graphics: &mut gfx::GraphicsContext, settings: &Rc<RefCell<Settings>>) -> f32 {
-        self.back_button.render(graphics, None);
+        self.back_button.render(graphics, &gfx::Container::default(graphics));
 
         let mut y = gfx::SPACING;
         for setting in &mut self.settings {
@@ -303,7 +304,7 @@ impl SettingsMenu {
     /// returns true, if settings menu has been closed
     pub fn on_event(&mut self, event: &gfx::Event, graphics: &gfx::GraphicsContext, settings: &Rc<RefCell<Settings>>) -> bool {
         if let gfx::Event::KeyRelease(gfx::Key::MouseLeft, ..) = event {
-            if self.back_button.is_hovered(graphics, None) {
+            if self.back_button.is_hovered(graphics, &gfx::Container::default(graphics)) {
                 return true;
             }
 

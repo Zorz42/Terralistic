@@ -76,21 +76,21 @@ impl PauseMenu {
             self.back_rect.size.0 = self.rect_width;
         }
 
-        self.back_rect.render(graphics, None);
+        //self.back_rect.render(graphics, None);
 
-        let back_rect = *self.back_rect.get_container(graphics, None).get_absolute_rect();
-        let visible = back_rect.pos.0 + back_rect.size.0 > 0.0;
+        /*let back_rect = *self.back_rect.get_container(graphics, None).get_absolute_rect();
+        let visible = back_rect.pos.0 + back_rect.size.0 > 0.0;*/
 
         if graphics.get_window_size().1 as u32 != self.back_rect.size.1 as u32 {
             self.back_rect.size.1 = graphics.get_window_size().1;
             self.back_rect.jump_to_target();
         }
 
-        if visible && !self.in_settings {
+        /*if visible && !self.in_settings {
             self.resume_button.render(graphics, Some(&self.back_rect.get_container(graphics, None)));
             self.settings_button.render(graphics, Some(&self.back_rect.get_container(graphics, None)));
             self.quit_button.render(graphics, Some(&self.back_rect.get_container(graphics, None)));
-        }
+        }*/
 
         if self.in_settings {
             let width = self.settings_menu.render(graphics, settings);
@@ -115,7 +115,7 @@ impl PauseMenu {
                         self.open = !self.open;
                     }
                 }
-                gfx::Event::KeyRelease(key, false) => {
+                /*gfx::Event::KeyRelease(key, false) => {
                     if *key == gfx::Key::MouseLeft && self.open {
                         if self.resume_button.is_hovered(graphics, Some(&self.back_rect.get_container(graphics, None))) {
                             self.open = false;
@@ -125,7 +125,7 @@ impl PauseMenu {
                             return true;
                         }
                     }
-                }
+                }*///TODO UI element
                 _ => {}
             }
         }

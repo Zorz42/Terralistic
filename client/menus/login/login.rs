@@ -68,7 +68,7 @@ pub fn run_login_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn B
     login_sprite.orientation = gfx::CENTER;
     login_sprite.pos = gfx::FloatPos(
         (-login_sprite.texture.get_texture_size().0 * login_sprite.scale - login_register_toggle.size.0) / 2.0 - gfx::SPACING,
-        login_register_toggle.get_container(graphics, Some(menu_back.get_back_rect_container())).rect.pos.1,
+        login_register_toggle.get_container(graphics, menu_back.get_back_rect_container()).rect.pos.1,
     );
 
     let mut register_sprite = gfx::Sprite::new();
@@ -77,7 +77,7 @@ pub fn run_login_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn B
     register_sprite.orientation = gfx::CENTER;
     register_sprite.pos = gfx::FloatPos(
         (register_sprite.texture.get_texture_size().0 * register_sprite.scale + login_register_toggle.size.0) / 2.0 + gfx::SPACING,
-        login_register_toggle.get_container(graphics, Some(menu_back.get_back_rect_container())).rect.pos.1,
+        login_register_toggle.get_container(graphics, menu_back.get_back_rect_container()).rect.pos.1,
     );
 
     username_input.text_processing = Some(Box::new(|text: char| {
@@ -113,10 +113,10 @@ pub fn run_login_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn B
 
         while let Some(event) = graphics.get_event() {
             //sorts out the events
-            username_input.on_event(graphics, &event, None);
-            password_input.on_event(graphics, &event, None);
-            email_input.on_event(graphics, &event, None);
-            login_register_toggle.on_event(graphics, &event, Some(menu_back.get_back_rect_container()));
+            username_input.on_event(graphics, &event, menu_back.get_back_rect_container());
+            password_input.on_event(graphics, &event, menu_back.get_back_rect_container());
+            email_input.on_event(graphics, &event, menu_back.get_back_rect_container());
+            login_register_toggle.on_event(graphics, &event, menu_back.get_back_rect_container());
             if login_register_toggle.changed {
                 let text = if login_register_toggle.toggled { "Register" } else { "Login" };
                 confirm_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface(text, None));
@@ -127,10 +127,10 @@ pub fn run_login_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn B
             if let gfx::Event::KeyRelease(key, ..) = event {
                 match key {
                     gfx::Key::MouseLeft => {
-                        if back_button.is_hovered(graphics, Some(&buttons_container)) {
+                        if back_button.is_hovered(graphics, &buttons_container) {
                             return false;
                         }
-                        if confirm_button.is_hovered(graphics, Some(&buttons_container)) {
+                        if confirm_button.is_hovered(graphics, &buttons_container) {
                             save_user_data(username_input.get_text(), password_input.get_text());
                             if login_register_toggle.toggled {
                                 eprintln!("{:?}", register(username_input.get_text(), password_input.get_text(), email_input.get_text(), graphics, menu_back));
@@ -168,16 +168,16 @@ pub fn run_login_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn B
 
         title.render(graphics, Some(menu_back.get_back_rect_container()), None);
 
-        back_button.render(graphics, Some(&buttons_container));
-        confirm_button.render(graphics, Some(&buttons_container));
+        back_button.render(graphics, &buttons_container);
+        confirm_button.render(graphics, &buttons_container);
 
-        username_input.render(graphics, Some(menu_back.get_back_rect_container()));
-        password_input.render(graphics, Some(menu_back.get_back_rect_container()));
+        username_input.render(graphics, menu_back.get_back_rect_container());
+        password_input.render(graphics, menu_back.get_back_rect_container());
         if email_shown {
-            email_input.render(graphics, Some(menu_back.get_back_rect_container()));
+            email_input.render(graphics, menu_back.get_back_rect_container());
         }
 
-        login_register_toggle.render(graphics, Some(menu_back.get_back_rect_container()));
+        login_register_toggle.render(graphics, menu_back.get_back_rect_container());
         login_sprite.render(graphics, Some(menu_back.get_back_rect_container()), None);
         register_sprite.render(graphics, Some(menu_back.get_back_rect_container()), None);
 

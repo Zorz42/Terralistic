@@ -118,15 +118,15 @@ pub fn run_add_server_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut 
 
         while let Some(event) = graphics.get_event() {
             //sorts out the events
-            server_name_input.on_event(graphics, &event, None);
-            server_ip_input.on_event(graphics, &event, None);
+            server_name_input.on_event(graphics, &event, menu_back.get_back_rect_container());
+            server_ip_input.on_event(graphics, &event, menu_back.get_back_rect_container());
             if let gfx::Event::KeyRelease(key, ..) = event {
                 match key {
                     gfx::Key::MouseLeft => {
-                        if back_button.is_hovered(graphics, Some(&buttons_container)) {
+                        if back_button.is_hovered(graphics, &buttons_container) {
                             break 'render_loop;
                         }
-                        if add_button.is_hovered(graphics, Some(&buttons_container)) {
+                        if add_button.is_hovered(graphics, &buttons_container) {
                             let (ip, port) = get_ip_port(server_ip_input.get_text());
                             return Some(ServerInfo::new(server_name_input.get_text().clone(), ip, port));
                         }
@@ -158,12 +158,12 @@ pub fn run_add_server_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut 
         buttons_container.update(graphics, Some(menu_back.get_back_rect_container()));
 
         title.render(graphics, Some(menu_back.get_back_rect_container()), None);
-        back_button.render(graphics, Some(&buttons_container));
+        back_button.render(graphics, &buttons_container);
 
-        add_button.render(graphics, Some(&buttons_container));
+        add_button.render(graphics, &buttons_container);
 
-        server_name_input.render(graphics, Some(menu_back.get_back_rect_container()));
-        server_ip_input.render(graphics, Some(menu_back.get_back_rect_container()));
+        server_name_input.render(graphics, menu_back.get_back_rect_container());
+        server_ip_input.render(graphics, menu_back.get_back_rect_container());
 
         graphics.update_window();
     }

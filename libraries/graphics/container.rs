@@ -40,6 +40,10 @@ impl Container {
         result
     }
 
+    pub fn default(graphics_context: &gfx::GraphicsContext) -> Self {
+        Self::new(graphics_context, gfx::FloatPos(0.0, 0.0), graphics_context.get_window_size(), TOP_LEFT, None)
+    }
+
     /// Returns the absolute rectangle of the container. Orientation
     /// is a percentage the container is offset from the top left corner
     /// of the parent container. If parent is None, the parent is the

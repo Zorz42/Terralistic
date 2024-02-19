@@ -52,7 +52,7 @@ pub fn run_choice_menu(
                 match key {
                     gfx::Key::MouseLeft => {
                         for (i, button) in &mut buttons_vec.iter().enumerate() {
-                            if button.is_hovered(graphics, Some(&buttons_container)) {
+                            if button.is_hovered(graphics, &buttons_container) {
                                 return i;
                             }
                         }
@@ -83,7 +83,7 @@ pub fn run_choice_menu(
         }
 
         for sprite in &mut buttons_vec {
-            sprite.render(graphics, Some(&buttons_container));
+            sprite.render(graphics, &buttons_container);
         }
 
         graphics.update_window();

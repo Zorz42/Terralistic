@@ -57,7 +57,7 @@ impl Button {
 
     /// Checks if the button is hovered with a mouse.
     #[must_use]
-    pub fn is_hovered(&self, graphics: &gfx::GraphicsContext, parent_container: Option<&gfx::Container>) -> bool {
+    pub fn is_hovered(&self, graphics: &gfx::GraphicsContext, parent_container: &gfx::Container) -> bool {
         if self.disabled {
             return false;
         }
@@ -83,7 +83,7 @@ impl UiElement for Button {
     }
 
     /// Renders the button.
-    fn render_inner(&mut self, graphics: &mut gfx::GraphicsContext, parent_container: Option<&gfx::Container>) {
+    fn render_inner(&mut self, graphics: &mut gfx::GraphicsContext, parent_container: &gfx::Container) {
         let container = self.get_container(graphics, parent_container);
         let rect = container.get_absolute_rect();
 
@@ -138,12 +138,8 @@ impl UiElement for Button {
         }
     }
 
-    fn update_inner(&mut self, _: &mut gfx::GraphicsContext, _: Option<&gfx::Container>) {
-        //it's all in render
-    }
-
     ///calls `on_click` when clicked
-    fn on_event_inner(&mut self, graphics: &mut gfx::GraphicsContext, event: &gfx::Event, parent_container: Option<&gfx::Container>) -> bool {
+    fn on_event_inner(&mut self, graphics: &mut gfx::GraphicsContext, event: &gfx::Event, parent_container: &gfx::Container) -> bool {
         if let gfx::Event::KeyRelease(key, ..) = event {
             if *key == gfx::Key::MouseLeft && self.is_hovered(graphics, parent_container) {
                 (self.on_click)();
@@ -155,7 +151,7 @@ impl UiElement for Button {
 
     /// Generates the container for the button.
     #[must_use]
-    fn get_container(&self, graphics: &gfx::GraphicsContext, parent_container: Option<&gfx::Container>) -> gfx::Container {
-        gfx::Container::new(graphics, self.pos, self.get_size(), self.orientation, parent_container)
+    fn get_container(&self, graphics: &gfx::GraphicsContext, parent_container: &gfx::Container) -> gfx::Container {
+        gfx::Container::new(graphics, self.pos, self.get_size(), self.orientation, Some(parent_container))
     }
 }
