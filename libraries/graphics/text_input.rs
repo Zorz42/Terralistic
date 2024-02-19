@@ -1,5 +1,5 @@
 use crate::libraries::graphics as gfx;
-use gfx::UiElement;
+use gfx::{BaseUiElement, UiElement};
 
 use super::theme::{
     GFX_DEFAULT_TEXT_INPUT_BORDER_COLOR, GFX_DEFAULT_TEXT_INPUT_COLOR, GFX_DEFAULT_TEXT_INPUT_HOVER_BORDER_COLOR, GFX_DEFAULT_TEXT_INPUT_HOVER_COLOR, GFX_DEFAULT_TEXT_INPUT_PADDING,
@@ -137,17 +137,17 @@ impl TextInput {
 }
 
 impl UiElement for TextInput {
-    fn get_sub_elements_mut(&mut self) -> Vec<&mut dyn UiElement> {
+    fn get_sub_elements_mut(&mut self) -> Vec<&mut dyn BaseUiElement> {
         Vec::new()
     }
 
-    fn get_sub_elements(&self) -> Vec<&dyn UiElement> {
+    fn get_sub_elements(&self) -> Vec<&dyn BaseUiElement> {
         Vec::new()
     }
 
     /// renders the text input
     #[allow(clippy::too_many_lines)] // TODO: split this function up
-    fn render_inner(&mut self, graphics: &gfx::GraphicsContext, parent_container: Option<&gfx::Container>) {
+    fn render_inner(&mut self, graphics: &mut gfx::GraphicsContext, parent_container: Option<&gfx::Container>) {
         let container = self.get_container(graphics, parent_container);
         let rect = container.get_absolute_rect();
 

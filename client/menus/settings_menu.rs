@@ -1,7 +1,9 @@
 use crate::client::settings::SliderSelection;
 use crate::client::settings::{Setting, Settings};
 use crate::libraries::graphics as gfx;
-use gfx::UiElement;
+use gfx::{BaseUiElement, UiElement};
+use std::cell::RefCell;
+use std::rc::Rc;
 
 enum SettingUi {
     Toggle {
@@ -121,7 +123,7 @@ fn setting_to_ui(graphics: &gfx::GraphicsContext, setting: &Setting, setting_id:
 }
 
 #[allow(clippy::too_many_lines)]
-fn render_setting_ui(graphics: &gfx::GraphicsContext, setting: &mut SettingUi, settings: &mut Settings, y: f32) {
+fn render_setting_ui(graphics: &mut gfx::GraphicsContext, setting: &mut SettingUi, settings: &Rc<RefCell<Settings>>, y: f32) {
     let mut back_rect = gfx::RenderRect::new(gfx::FloatPos(0.0, y), gfx::FloatSize(SETTINGS_WIDTH, SETTINGS_BOX_HEIGHT));
     back_rect.fill_color = gfx::BLACK.set_a(gfx::TRANSPARENCY);
     back_rect.orientation = gfx::TOP;
@@ -136,7 +138,7 @@ fn render_setting_ui(graphics: &gfx::GraphicsContext, setting: &mut SettingUi, s
     match setting {
         SettingUi::Toggle { setting_id, toggle, .. } => {
             let mut setting_toggled = false;
-            if let Ok(Setting::Toggle { toggled, .. }) = settings.get_setting_mut(*setting_id) {
+            if let Ok(Setting::Toggle { toggled, .. }) = settings.borrow_mut().get_setting_mut(*setting_id) {
                 setting_toggled = *toggled;
             }
 
@@ -150,7 +152,7 @@ fn render_setting_ui(graphics: &gfx::GraphicsContext, setting: &mut SettingUi, s
         }
         SettingUi::Choice { buttons, setting_id, choice_rect, .. } => {
             let mut chosen_button = 0;
-            if let Ok(Setting::Choice { selected, .. }) = settings.get_setting_mut(*setting_id) {
+            if let Ok(Setting::Choice { selected, .. }) = settings.borrow_mut().get_setting_mut(*setting_id) {
                 chosen_button = *selected;
             }
 
@@ -186,7 +188,7 @@ fn render_setting_ui(graphics: &gfx::GraphicsContext, setting: &mut SettingUi, s
             let mut slider_val_high = 0;
             if let Ok(Setting::Slider {
                 selected, upper_limit, lower_limit, ..
-            }) = settings.get_setting_mut(*setting_id)
+            }) = settings.borrow_mut().get_setting_mut(*setting_id)
             {
                 choice = selected.clone();
                 slider_val_low = *lower_limit;
@@ -228,7 +230,7 @@ fn render_setting_ui(graphics: &gfx::GraphicsContext, setting: &mut SettingUi, s
             if *selected {
                 let mouse_x_in_rect = (graphics.get_mouse_pos().0 - slider_absolute_rect.pos.0).clamp(0.0, slider_absolute_rect.size.0);
                 let slider_val = mouse_x_in_rect / slider_absolute_rect.size.0 * (slider_val_high - slider_val_low) as f32 + slider_val_low as f32;
-                if let Ok(Setting::Slider { selected, .. }) = settings.get_setting_mut(*setting_id) {
+                if let Ok(Setting::Slider { selected, .. }) = settings.borrow_mut().get_setting_mut(*setting_id) {
                     *selected = SliderSelection::Slider(slider_val as i32);
                 }
             }
@@ -269,23 +271,24 @@ impl SettingsMenu {
         }
     }
 
-    pub fn init(&mut self, graphics: &gfx::GraphicsContext, settings: &Settings) {
+    pub fn init(&mut self, graphics: &gfx::GraphicsContext, settings: &Rc<RefCell<Settings>>) {
         self.back_button.scale = 3.0;
         self.back_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Back", None));
         self.back_button.pos.1 = -gfx::SPACING;
         self.back_button.orientation = gfx::BOTTOM;
 
-        let mut keys: Vec<&i32> = settings.get_all_settings().keys().collect();
+        let binding = settings.borrow_mut();
+        let mut keys: Vec<&i32> = binding.get_all_settings().keys().collect();
         keys.sort();
         for id in keys {
-            if let Ok(setting) = settings.get_setting(*id) {
+            if let Ok(setting) = binding.get_setting(*id) {
                 self.settings.push(setting_to_ui(graphics, setting, *id));
             }
         }
     }
 
     /// returns the required width of background container
-    pub fn render(&mut self, graphics: &gfx::GraphicsContext, settings: &mut Settings) -> f32 {
+    pub fn render(&mut self, graphics: &mut gfx::GraphicsContext, settings: &Rc<RefCell<Settings>>) -> f32 {
         self.back_button.render(graphics, None);
 
         let mut y = gfx::SPACING;
@@ -298,7 +301,7 @@ impl SettingsMenu {
     }
 
     /// returns true, if settings menu has been closed
-    pub fn on_event(&mut self, event: &gfx::Event, graphics: &gfx::GraphicsContext, settings: &mut Settings) -> bool {
+    pub fn on_event(&mut self, event: &gfx::Event, graphics: &gfx::GraphicsContext, settings: &Rc<RefCell<Settings>>) -> bool {
         if let gfx::Event::KeyRelease(gfx::Key::MouseLeft, ..) = event {
             if self.back_button.is_hovered(graphics, None) {
                 return true;
@@ -308,7 +311,7 @@ impl SettingsMenu {
                 match setting {
                     SettingUi::Toggle { toggle, setting_id, .. } => {
                         if toggle.hovered {
-                            if let Ok(Setting::Toggle { toggled, .. }) = settings.get_setting_mut(*setting_id) {
+                            if let Ok(Setting::Toggle { toggled, .. }) = settings.borrow_mut().get_setting_mut(*setting_id) {
                                 *toggled = !*toggled;
                             }
                         }
@@ -316,7 +319,7 @@ impl SettingsMenu {
                     SettingUi::Choice { buttons, setting_id, .. } => {
                         for (i, (hovered, _button)) in buttons.iter().enumerate() {
                             if *hovered {
-                                if let Ok(Setting::Choice { selected, .. }) = settings.get_setting_mut(*setting_id) {
+                                if let Ok(Setting::Choice { selected, .. }) = settings.borrow_mut().get_setting_mut(*setting_id) {
                                     *selected = i as i32;
                                 }
                             }
@@ -326,7 +329,7 @@ impl SettingsMenu {
                         *selected = false;
                         for (i, (hovered, _button)) in buttons.iter().enumerate() {
                             if *hovered {
-                                if let Ok(Setting::Slider { selected, .. }) = settings.get_setting_mut(*setting_id) {
+                                if let Ok(Setting::Slider { selected, .. }) = settings.borrow_mut().get_setting_mut(*setting_id) {
                                     *selected = SliderSelection::Choice(i as i32);
                                 }
                             }

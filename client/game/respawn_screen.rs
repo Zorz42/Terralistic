@@ -4,7 +4,7 @@ use crate::libraries::graphics as gfx;
 use crate::shared::packet::Packet;
 use crate::shared::players::RespawnPacket;
 use anyhow::Result;
-use gfx::UiElement;
+use gfx::{BaseUiElement, UiElement};
 
 pub struct RespawnScreen {
     respawn_button: gfx::Button,
@@ -42,7 +42,7 @@ impl RespawnScreen {
         self.back_rect.shadow_intensity = gfx::SHADOW_INTENSITY;
     }
 
-    pub fn render(&mut self, graphics: &gfx::GraphicsContext) {
+    pub fn render(&mut self, graphics: &mut gfx::GraphicsContext) {
         if self.is_shown {
             gfx::Rect::new(gfx::FloatPos(0.0, 0.0), graphics.get_window_size()).render(graphics, gfx::Color::new(255, 0, 0, 100));
 

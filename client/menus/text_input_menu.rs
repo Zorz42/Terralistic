@@ -1,6 +1,6 @@
 use crate::client::menus::BackgroundRect;
 use crate::libraries::graphics as gfx;
-use gfx::UiElement;
+use gfx::{BaseUiElement, UiElement};
 
 pub fn run_text_input_menu(menu_title: &str, graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn BackgroundRect) -> Option<String> {
     let text_lines_vec = menu_title.split('\n').collect::<Vec<&str>>();

@@ -2,7 +2,7 @@ use std::sync::mpsc::Sender;
 
 use crate::libraries::graphics as gfx;
 use crate::server::server_ui::{ConsoleMessageType, UiMessageType, EDGE_SPACING};
-use gfx::UiElement;
+use gfx::{BaseUiElement, UiElement};
 
 use super::ui_manager;
 

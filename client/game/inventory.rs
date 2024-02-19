@@ -9,7 +9,7 @@ use crate::shared::blocks::Blocks;
 use crate::shared::inventory::{Inventory, InventoryCraftPacket, InventoryPacket, InventorySelectPacket, InventorySwapPacket, Slot};
 use crate::shared::items::{ItemStack, RecipeId};
 use crate::shared::packet::Packet;
-use gfx::UiElement;
+use gfx::{BaseUiElement, UiElement};
 
 #[derive(Clone, Copy, PartialEq, Eq)]
 enum OpenState {
@@ -130,7 +130,7 @@ impl ClientInventory {
         }
     }
 
-    fn render_inventory(&mut self, graphics: &gfx::GraphicsContext, items: &ClientItems) -> Result<()> {
+    fn render_inventory(&mut self, graphics: &mut gfx::GraphicsContext, items: &ClientItems) -> Result<()> {
         self.back_rect.size.1 = self.open_progress * (3.0 * INVENTORY_SPACING + 2.0 * INVENTORY_SLOT_SIZE) + (1.0 - self.open_progress) * (2.0 * INVENTORY_SPACING + INVENTORY_SLOT_SIZE);
         self.back_rect.render(graphics, None);
 
@@ -202,7 +202,7 @@ impl ClientInventory {
         Ok(())
     }
 
-    fn render_crafting(&mut self, graphics: &gfx::GraphicsContext, items: &ClientItems) -> Result<()> {
+    fn render_crafting(&mut self, graphics: &mut gfx::GraphicsContext, items: &ClientItems) -> Result<()> {
         if self.open_progress > 0.0 {
             self.crafting_back_rect.pos.0 = INVENTORY_SPACING * self.open_progress + (-self.crafting_back_rect.size.0 - INVENTORY_SPACING) * (1.0 - self.open_progress);
 
@@ -284,7 +284,7 @@ impl ClientInventory {
     }
 
     #[allow(clippy::too_many_lines)]
-    pub fn render(&mut self, graphics: &gfx::GraphicsContext, items: &ClientItems, networking: &mut ClientNetworking, blocks: &Blocks) -> Result<()> {
+    pub fn render(&mut self, graphics: &mut gfx::GraphicsContext, items: &ClientItems, networking: &mut ClientNetworking, blocks: &Blocks) -> Result<()> {
         let open_target = if self.open_state == OpenState::Closed { 0.0 } else { 1.0 };
         self.open_progress += (open_target - self.open_progress) / 5.0;
 

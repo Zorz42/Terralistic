@@ -1,5 +1,5 @@
 use crate::libraries::graphics as gfx;
-use gfx::UiElement;
+use gfx::{BaseUiElement, UiElement};
 
 pub struct Scrollable {
     pub rect: gfx::Rect,
@@ -40,15 +40,15 @@ impl Scrollable {
 }
 
 impl UiElement for Scrollable {
-    fn get_sub_elements_mut(&mut self) -> Vec<&mut dyn UiElement> {
+    fn get_sub_elements_mut(&mut self) -> Vec<&mut dyn BaseUiElement> {
         Vec::new()
     }
 
-    fn get_sub_elements(&self) -> Vec<&dyn UiElement> {
+    fn get_sub_elements(&self) -> Vec<&dyn BaseUiElement> {
         Vec::new()
     }
 
-    fn render_inner(&mut self, _: &gfx::GraphicsContext, _: Option<&gfx::Container>) {
+    fn render_inner(&mut self, _: &mut gfx::GraphicsContext, _: Option<&gfx::Container>) {
         while self.animation_timer.frame_ready() {
             self.scroll_pos += self.scroll_velocity;
 

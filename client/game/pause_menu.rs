@@ -3,7 +3,9 @@ use crate::client::menus::SettingsMenu;
 use crate::client::settings::Settings;
 use crate::libraries::events::Event;
 use crate::libraries::graphics as gfx;
-use gfx::UiElement;
+use gfx::{BaseUiElement, UiElement};
+use std::cell::RefCell;
+use std::rc::Rc;
 
 /// The pause menu actually does not pause the game (ironic, I know).
 /// It just shows a menu with options to quit the world or go back to the game.
@@ -32,7 +34,7 @@ impl PauseMenu {
         }
     }
 
-    pub fn init(&mut self, graphics: &gfx::GraphicsContext, settings: &Settings) {
+    pub fn init(&mut self, graphics: &gfx::GraphicsContext, settings: &Rc<RefCell<Settings>>) {
         self.resume_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Resume", None));
         self.resume_button.scale = 3.0;
         self.resume_button.pos.0 = -gfx::SPACING;
@@ -63,7 +65,7 @@ impl PauseMenu {
         self.settings_menu.init(graphics, settings);
     }
 
-    pub fn render(&mut self, graphics: &mut gfx::GraphicsContext, settings: &mut Settings, global_settings: &mut GlobalSettings) {
+    pub fn render(&mut self, graphics: &mut gfx::GraphicsContext, settings: &Rc<RefCell<Settings>>, global_settings: &Rc<RefCell<GlobalSettings>>) {
         if self.open && self.in_settings {
             self.back_rect.pos.0 = graphics.get_window_size().0 / 2.0 - self.back_rect.size.0 / 2.0;
         } else if self.open {
@@ -93,12 +95,12 @@ impl PauseMenu {
         if self.in_settings {
             let width = self.settings_menu.render(graphics, settings);
             self.back_rect.size.0 = width;
-            global_settings.update(graphics, settings);
+            global_settings.borrow_mut().update(graphics, settings);
         }
     }
 
     /// returns true if the game should quit
-    pub fn on_event(&mut self, event: &Event, graphics: &gfx::GraphicsContext, settings: &mut Settings) -> bool {
+    pub fn on_event(&mut self, event: &Event, graphics: &gfx::GraphicsContext, settings: &Rc<RefCell<Settings>>) -> bool {
         if let Some(event) = event.downcast::<gfx::Event>() {
             if self.in_settings {
                 if self.settings_menu.on_event(event, graphics, settings) {

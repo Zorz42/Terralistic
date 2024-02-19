@@ -5,7 +5,7 @@ use crate::libraries::graphics::GraphicsContext;
 use crate::shared::tls_client::ConnectionState::{CONNECTED, FAILED};
 use anyhow::Result;
 use directories::BaseDirs;
-use gfx::UiElement;
+use gfx::{BaseUiElement, UiElement};
 use std::collections::HashMap;
 use std::io::Write;
 use std::str::FromStr;

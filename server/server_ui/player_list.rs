@@ -2,7 +2,7 @@ use std::net::SocketAddr;
 
 use crate::libraries::graphics as gfx;
 use crate::server::server_ui::{PlayerEventType, UiMessageType};
-use gfx::UiElement;
+use gfx::BaseUiElement;
 
 use super::ui_manager;
 use super::ui_manager::{EDGE_SPACING, SCALE};
@@ -39,7 +39,7 @@ impl PlayerCard {
         }
     }
 
-    pub fn render(&mut self, graphics_context: &gfx::GraphicsContext, parent_container: &gfx::Container) {
+    pub fn render(&mut self, graphics_context: &mut gfx::GraphicsContext, parent_container: &gfx::Container) {
         self.container.update(graphics_context, Some(parent_container));
 
         //background

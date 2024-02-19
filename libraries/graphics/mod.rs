@@ -20,7 +20,7 @@ pub use texture::Texture;
 pub use texture_atlas::TextureAtlas;
 pub use theme::{BLACK, BLUR, BORDER_COLOR, DARK_GREY, GREY, LIGHT_GREY, SHADOW_INTENSITY, SPACING, TEXT_INPUT_WIDTH, TRANSPARENCY, TRANSPARENT, WHITE};
 pub use toggle::Toggle;
-pub use ui_element::UiElement;
+pub use ui_element::{BaseUiElement, UiElement};
 
 mod animation_timer;
 mod blend_mode;

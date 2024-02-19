@@ -6,11 +6,12 @@ use crate::client::settings::Settings;
 use crate::libraries::graphics as gfx;
 use crate::shared::tls_client::ConnectionState;
 use crate::shared::versions::VERSION;
-use std::cell::Cell;
+use std::cell::{Cell, RefCell};
+use std::rc::Rc;
 
 use super::background_rect::BackgroundRect;
 use super::{run_login_menu, run_multiplayer_selector, SingleplayerSelector};
-use gfx::UiElement;
+use gfx::{BaseUiElement, UiElement};
 
 enum MainMenuState {
     None,
@@ -19,7 +20,7 @@ enum MainMenuState {
 
 #[allow(clippy::too_many_lines)] // TODO: split this function up
 #[allow(clippy::cognitive_complexity)]
-pub fn run_main_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn BackgroundRect, settings: &mut Settings, global_settings: &mut GlobalSettings) {
+pub fn run_main_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn BackgroundRect, settings: &Rc<RefCell<Settings>>, global_settings: &Rc<RefCell<GlobalSettings>>) {
     let mut state = MainMenuState::None;
     let mut secondary_menu_back = crate::client::menus::MenuBack::new(graphics);
     secondary_menu_back.set_x_position(graphics.get_window_size().0);
@@ -128,24 +129,24 @@ pub fn run_main_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn Ba
                 continue;
             }
 
-            let close_secondary_menu = match state {
-                MainMenuState::None => false,
-                MainMenuState::SingleplayerSelector(ref mut menu) => menu.get_mut().on_event(graphics, &mut secondary_menu_back, settings, global_settings, &event),
-            };
-            if close_secondary_menu {
-                state = MainMenuState::None;
+            match state {
+                MainMenuState::None => (),
+                MainMenuState::SingleplayerSelector(ref mut menu) => menu.get_mut().on_event(graphics, &event, Some(menu_back.get_back_rect_container())),
             }
+            /*if close_secondary_menu {
+                state = MainMenuState::None;
+            }*/
 
             if let gfx::Event::KeyRelease(key, ..) = event {
                 // check for every button if it was clicked with the left mouse button
                 if key == gfx::Key::MouseLeft {
                     if singleplayer_button.is_hovered(graphics, Some(menu_back.get_back_rect_container())) {
                         if !matches!(state, MainMenuState::SingleplayerSelector(_)) {
-                            let singleplayer_menu = SingleplayerSelector::new(graphics);
+                            let singleplayer_menu = SingleplayerSelector::new(graphics, settings.clone(), global_settings.clone());
                             state = MainMenuState::SingleplayerSelector(Box::new(Cell::new(singleplayer_menu)));
                         }
                     } else if multiplayer_button.is_hovered(graphics, Some(menu_back.get_back_rect_container())) {
-                        run_multiplayer_selector(graphics, menu_back, settings, global_settings);
+                        //run_multiplayer_selector(graphics, menu_back, settings, global_settings);
                     } else if settings_button.is_hovered(graphics, Some(menu_back.get_back_rect_container())) {
                         in_settings = true;
                     } else if mods_button.is_hovered(graphics, Some(menu_back.get_back_rect_container())) {
@@ -177,7 +178,7 @@ pub fn run_main_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn Ba
             let width = settings_menu.render(graphics, settings);
             menu_back.set_back_rect_width(width);
             graphics.update_window();
-            global_settings.update(graphics, settings);
+            global_settings.borrow_mut().update(graphics, settings);
             continue;
         }
 
@@ -207,9 +208,10 @@ pub fn run_main_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn Ba
         version.render(graphics, Some(menu_back.get_back_rect_container()), None);
 
         //render secondary menu
+        secondary_menu_back.render_back(graphics);
         match state {
-            MainMenuState::None => secondary_menu_back.render_back(graphics),
-            MainMenuState::SingleplayerSelector(ref mut menu) => menu.get_mut().render(graphics, &mut secondary_menu_back),
+            MainMenuState::None => {}
+            MainMenuState::SingleplayerSelector(ref mut menu) => menu.get_mut().render(graphics, Some(secondary_menu_back.get_back_rect_container())),
         }
 
         graphics.update_window();

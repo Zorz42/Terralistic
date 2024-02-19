@@ -1,5 +1,5 @@
 use crate::libraries::graphics as gfx;
-use gfx::UiElement;
+use gfx::BaseUiElement;
 
 /// The struct `RenderRect` contains a container and
 /// moves smoothly visually to the saved position
@@ -54,17 +54,17 @@ impl RenderRect {
 }
 
 impl gfx::UiElement for RenderRect {
-    fn get_sub_elements_mut(&mut self) -> Vec<&mut dyn UiElement> {
+    fn get_sub_elements_mut(&mut self) -> Vec<&mut dyn BaseUiElement> {
         Vec::new()
     }
 
-    fn get_sub_elements(&self) -> Vec<&dyn UiElement> {
+    fn get_sub_elements(&self) -> Vec<&dyn BaseUiElement> {
         Vec::new()
     }
 
     /// This function renders the rectangle, it uses Rect class to render.
     /// It also approaches the position to the target position.
-    fn render_inner(&mut self, graphics: &gfx::GraphicsContext, parent_container: Option<&gfx::Container>) {
+    fn render_inner(&mut self, graphics: &mut gfx::GraphicsContext, parent_container: Option<&gfx::Container>) {
         while self.animation_timer.frame_ready() {
             self.render_pos.0 = Self::approach(self.render_pos.0, self.pos.0, self.smooth_factor);
             self.render_pos.1 = Self::approach(self.render_pos.1, self.pos.1, self.smooth_factor);

@@ -1,11 +1,13 @@
 use directories::BaseDirs;
+use std::cell::RefCell;
+use std::rc::Rc;
 
 use crate::client::game::private_world::run_private_world;
 use crate::client::global_settings::GlobalSettings;
 use crate::client::menus::background_rect::BackgroundRect;
 use crate::client::settings::Settings;
 use crate::libraries::graphics as gfx;
-use gfx::UiElement;
+use gfx::{BaseUiElement, UiElement};
 
 use super::singleplayer_selector::World;
 
@@ -20,7 +22,13 @@ fn world_name_exists(worlds_list: &Vec<World>, name: &str) -> bool {
 
 /// this function runs the world creation menu.
 #[allow(clippy::too_many_lines)] // TODO: reduce the number of lines in this function
-pub fn run_world_creation(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn BackgroundRect, worlds_list: &Vec<World>, settings: &mut Settings, global_settings: &mut GlobalSettings) {
+pub fn run_world_creation(
+    graphics: &mut gfx::GraphicsContext,
+    menu_back: &mut dyn BackgroundRect,
+    worlds_list: &Vec<World>,
+    settings: &Rc<RefCell<Settings>>,
+    global_settings: &Rc<RefCell<GlobalSettings>>,
+) {
     let mut title = gfx::Sprite::new();
     title.scale = 3.0;
     title.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Create a new world:", None));

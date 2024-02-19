@@ -1,7 +1,7 @@
 use crate::libraries::graphics as gfx;
 
 use super::BackgroundRect;
-use gfx::UiElement;
+use gfx::BaseUiElement;
 
 pub fn run_choice_menu(
     menu_title: &str,

@@ -1,4 +1,6 @@
+use std::cell::RefCell;
 use std::ops::Deref;
+use std::rc::Rc;
 use std::sync::Arc;
 use std::sync::{Mutex, PoisonError};
 
@@ -39,8 +41,8 @@ pub fn run_game(
     server_port: u16,
     server_address: String,
     player_name: &str,
-    settings: &mut Settings,
-    global_settings: &mut GlobalSettings,
+    settings: &Rc<RefCell<Settings>>,
+    global_settings: &Rc<RefCell<GlobalSettings>>,
 ) -> Result<()> {
     // load base game mod
     let mut pre_events = EventManager::new();

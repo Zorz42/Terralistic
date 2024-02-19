@@ -1,4 +1,6 @@
+use std::cell::RefCell;
 use std::path::{Path, PathBuf};
+use std::rc::Rc;
 
 use directories::BaseDirs;
 use serde_derive::{Deserialize, Serialize};
@@ -11,7 +13,7 @@ use crate::libraries::graphics as gfx;
 
 use super::background_rect::BackgroundRect;
 use super::{run_add_server_menu, run_choice_menu};
-use gfx::UiElement;
+use gfx::{BaseUiElement, UiElement};
 
 pub const MENU_WIDTH: f32 = 800.0;
 
@@ -99,7 +101,7 @@ impl ServerCard {
     }
 
     /// This function renders the server card on the x and y position.
-    pub fn render(&mut self, graphics: &gfx::GraphicsContext, pos: gfx::FloatPos, parent_container: Option<&gfx::Container>) {
+    pub fn render(&mut self, graphics: &mut gfx::GraphicsContext, pos: gfx::FloatPos, parent_container: Option<&gfx::Container>) {
         self.rect.pos = pos;
         self.rect.render(graphics, parent_container);
 
@@ -175,7 +177,7 @@ impl ServerList {
     }
 }
 
-pub fn run_multiplayer_selector(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn BackgroundRect, settings: &mut Settings, global_settings: &mut GlobalSettings) {
+pub fn run_multiplayer_selector(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn BackgroundRect, settings: &Rc<RefCell<Settings>>, global_settings: &Rc<RefCell<GlobalSettings>>) {
     let Some(base_dirs) = BaseDirs::new() else {
         println!("Failed to get base directories!");
         return;
@@ -248,8 +250,8 @@ fn update_elements(
     menu_back: &mut dyn BackgroundRect,
     elements: &mut MultiplayerSelectorElements,
     servers_file: &Path,
-    settings: &mut Settings,
-    global_settings: &mut GlobalSettings,
+    settings: &Rc<RefCell<Settings>>,
+    global_settings: &Rc<RefCell<GlobalSettings>>,
     scrollable: &mut gfx::Scrollable,
 ) -> bool {
     while let Some(event) = graphics.get_event() {

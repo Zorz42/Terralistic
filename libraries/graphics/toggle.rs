@@ -1,6 +1,6 @@
 use crate::libraries::graphics as gfx;
 use gfx::theme::GFX_DEFAULT_BUTTON_BORDER_COLOR;
-use gfx::UiElement;
+use gfx::{BaseUiElement, UiElement};
 
 /// A Toggle is a rectangle with 2 states.
 /// It can be clicked to toggle between them.
@@ -64,16 +64,16 @@ impl Toggle {
 }
 
 impl UiElement for Toggle {
-    fn get_sub_elements_mut(&mut self) -> Vec<&mut dyn UiElement> {
+    fn get_sub_elements_mut(&mut self) -> Vec<&mut dyn BaseUiElement> {
         Vec::new()
     }
 
-    fn get_sub_elements(&self) -> Vec<&dyn UiElement> {
+    fn get_sub_elements(&self) -> Vec<&dyn BaseUiElement> {
         Vec::new()
     }
 
     /// Renders the toggle.
-    fn render_inner(&mut self, graphics: &gfx::GraphicsContext, parent_container: Option<&gfx::Container>) {
+    fn render_inner(&mut self, graphics: &mut gfx::GraphicsContext, parent_container: Option<&gfx::Container>) {
         self.hovered = self.is_hovered(graphics, parent_container);
         let mut container = self.get_container(graphics, parent_container);
         let float_size_padding = gfx::FloatSize(self.padding, self.padding);

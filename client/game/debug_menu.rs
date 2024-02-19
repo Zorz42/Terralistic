@@ -1,6 +1,6 @@
 use crate::libraries::events::Event;
 use crate::libraries::graphics as gfx;
-use gfx::UiElement;
+use gfx::{BaseUiElement, UiElement};
 
 /// The debug menu shows useful information about the game.
 /// Like fps, time per frame, position, etc.
@@ -30,7 +30,7 @@ impl DebugMenu {
         self.back_rect.size.1 = 200.0;
     }
 
-    pub fn render(&mut self, graphics: &gfx::GraphicsContext, lines: &[String]) {
+    pub fn render(&mut self, graphics: &mut gfx::GraphicsContext, lines: &[String]) {
         self.back_rect.pos.0 = if self.open { -gfx::SPACING } else { self.back_rect.size.0 + 100.0 };
         self.back_rect.render(graphics, None);
 

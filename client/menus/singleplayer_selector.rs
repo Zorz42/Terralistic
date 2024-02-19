@@ -1,5 +1,7 @@
+use std::cell::RefCell;
 use std::fs;
 use std::path::PathBuf;
+use std::rc::Rc;
 use std::time::SystemTime;
 
 use directories::BaseDirs;
@@ -8,9 +10,9 @@ use crate::client::game::private_world::run_private_world;
 use crate::client::global_settings::GlobalSettings;
 use crate::client::settings::Settings;
 use crate::libraries::graphics as gfx;
-use gfx::UiElement;
+use crate::libraries::graphics::FloatSize;
+use gfx::{BaseUiElement, UiElement};
 
-use super::background_rect::BackgroundRect;
 use super::run_choice_menu;
 use super::world_creation::run_world_creation;
 
@@ -108,7 +110,7 @@ impl World {
     }
 
     /// This function renders the world card on the x and y position.
-    pub fn render(&mut self, graphics: &gfx::GraphicsContext, pos: gfx::FloatPos, parent_container: Option<&gfx::Container>) {
+    pub fn render(&mut self, graphics: &mut gfx::GraphicsContext, pos: gfx::FloatPos, parent_container: Option<&gfx::Container>) {
         self.rect.pos = pos;
         self.rect.render(graphics, parent_container);
 
@@ -192,11 +194,13 @@ pub struct SingleplayerSelector {
     bottom_rect: gfx::RenderRect,
     scrollable: gfx::Scrollable,
     top_rect_visibility: f32,
+    settings: Rc<RefCell<Settings>>,
+    global_settings: Rc<RefCell<GlobalSettings>>,
 }
 
 impl SingleplayerSelector {
     #[must_use]
-    pub fn new(graphics: &gfx::GraphicsContext) -> Self {
+    pub fn new(graphics: &gfx::GraphicsContext, settings: Rc<RefCell<Settings>>, global_settings: Rc<RefCell<GlobalSettings>>) -> Self {
         let world_list = WorldList::new(graphics);
         let mut title = gfx::Sprite::new();
         title.scale = 3.0;
@@ -245,68 +249,24 @@ impl SingleplayerSelector {
             bottom_rect,
             scrollable,
             top_rect_visibility: 1.0,
+            settings,
+            global_settings,
         }
     }
+}
 
-    pub fn on_event(&mut self, graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn BackgroundRect, settings: &mut Settings, global_settings: &mut GlobalSettings, event: &gfx::Event) -> bool {
-        self.scrollable.on_event(graphics, event, Some(menu_back.get_back_rect_container()));
-        if let gfx::Event::KeyRelease(key, ..) = event {
-            match key {
-                gfx::Key::MouseLeft => {
-                    if self.back_button.is_hovered(graphics, Some(menu_back.get_back_rect_container())) {
-                        return true;
-                    }
-                    if self.new_world_button.is_hovered(graphics, Some(menu_back.get_back_rect_container())) {
-                        run_world_creation(graphics, menu_back, &self.world_list.worlds, settings, global_settings);
-                        self.world_list.refresh(graphics);
-                    }
-
-                    let mut needs_refresh = false;
-                    for world in &mut self.world_list.worlds {
-                        if world.play_button.is_hovered(graphics, Some(&world.get_container(graphics, Some(menu_back.get_back_rect_container())))) {
-                            let game_result = run_private_world(graphics, menu_back, world.get_file_path(), settings, global_settings);
-                            if let Err(error) = game_result {
-                                println!("Game error: {error}");
-                                run_choice_menu(&format!("Game error: {error}"), graphics, menu_back, vec!["Ok"], None, None, true);
-                            }
-                        } else if world
-                            .delete_button
-                            .is_hovered(graphics, Some(&world.get_container(graphics, Some(menu_back.get_back_rect_container()))))
-                            && run_choice_menu(
-                                format!("The world \"{}\" will be deleted.\nDo you want to proceed?", world.name).as_str(),
-                                graphics,
-                                menu_back,
-                                vec!["Back", "Proceed"],
-                                Some(0),
-                                Some(1),
-                                false,
-                            ) == 1
-                        {
-                            let res = fs::remove_file(world.get_file_path());
-                            if res.is_err() {
-                                println!("failed to delete the world");
-                            }
-                            needs_refresh = true;
-                        }
-                    }
-                    if needs_refresh {
-                        self.world_list.refresh(graphics);
-                    }
-                }
-                gfx::Key::Escape => {
-                    return true;
-                }
-                _ => {}
-            }
-        }
-        false
+impl UiElement for SingleplayerSelector {
+    fn get_sub_elements_mut(&mut self) -> Vec<&mut dyn BaseUiElement> {
+        Vec::new()
     }
 
-    pub fn render(&mut self, graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn BackgroundRect) {
-        menu_back.set_back_rect_width(MENU_WIDTH);
+    fn get_sub_elements(&self) -> Vec<&dyn BaseUiElement> {
+        Vec::new()
+    }
 
-        menu_back.render_back(graphics);
-
+    fn render_inner(&mut self, graphics: &mut gfx::GraphicsContext, parent_container: Option<&gfx::Container>) {
+        let temp_container = gfx::Container::new(graphics, gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, 0.0), gfx::CENTER, None);
+        let parent_container = parent_container.unwrap_or(&temp_container);
         let hoverable = graphics.get_mouse_pos().1 > self.top_rect.size.1 && graphics.get_mouse_pos().1 < graphics.get_window_size().1 - self.bottom_rect.size.1;
 
         for world in &mut self.world_list.worlds {
@@ -317,12 +277,12 @@ impl SingleplayerSelector {
         let mut elements_height = 0.0;
 
         for world in &mut self.world_list.worlds {
-            world.render(graphics, gfx::FloatPos(0.0, current_y), Some(menu_back.get_back_rect_container()));
+            world.render(graphics, gfx::FloatPos(0.0, current_y), Some(parent_container));
             current_y += world.get_height() + gfx::SPACING;
             elements_height += world.get_height() + gfx::SPACING;
         }
 
-        self.top_rect.size.0 = menu_back.get_back_rect_width(graphics, None);
+        self.top_rect.size.0 = parent_container.get_absolute_rect().size.0;
 
         self.top_rect_visibility += ((if self.scrollable.get_scroll_pos() > 5.0 { 1.0 } else { 0.0 }) - self.top_rect_visibility) / 20.0;
 
@@ -338,22 +298,85 @@ impl SingleplayerSelector {
         self.top_rect.blur_radius = (self.top_rect_visibility * gfx::BLUR as f32) as i32;
         self.top_rect.shadow_intensity = (self.top_rect_visibility * gfx::SHADOW_INTENSITY as f32) as i32;
         if self.top_rect_visibility > 0.0 {
-            self.top_rect.render(graphics, Some(menu_back.get_back_rect_container()));
+            self.top_rect.render(graphics, Some(parent_container));
         }
 
-        self.bottom_rect.size.0 = menu_back.get_back_rect_width(graphics, None);
+        self.bottom_rect.size.0 = parent_container.get_absolute_rect().size.0;
 
         if self.scrollable.scroll_size > self.scrollable.rect.size.1 {
-            self.bottom_rect.render(graphics, Some(menu_back.get_back_rect_container()));
+            self.bottom_rect.render(graphics, Some(parent_container));
         }
 
-        self.title.render(graphics, Some(menu_back.get_back_rect_container()), None);
-        self.back_button.render(graphics, Some(menu_back.get_back_rect_container()));
+        self.title.render(graphics, Some(parent_container), None);
+        self.back_button.render(graphics, Some(parent_container));
 
-        self.new_world_button.render(graphics, Some(menu_back.get_back_rect_container()));
+        self.new_world_button.render(graphics, Some(parent_container));
 
         self.scrollable.scroll_size = elements_height;
         self.scrollable.rect.size.1 = graphics.get_window_size().1 - self.top_rect.size.1 - self.bottom_rect.size.1;
-        self.scrollable.render(graphics, Some(menu_back.get_back_rect_container()));
+        self.scrollable.render(graphics, Some(parent_container));
+    }
+
+    fn update_inner(&mut self, _: &mut gfx::GraphicsContext, _: Option<&gfx::Container>) {
+        //empty for now
+    }
+
+    fn on_event(&mut self, graphics: &mut gfx::GraphicsContext, event: &gfx::Event, parent_container: Option<&gfx::Container>) {
+        //TODO add a way to exit
+        let temp_container = gfx::Container::new(graphics, gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, 0.0), gfx::CENTER, None);
+        let parent_container = parent_container.unwrap_or(&temp_container);
+        self.scrollable.on_event(graphics, event, Some(parent_container));
+        if let gfx::Event::KeyRelease(key, ..) = event {
+            match key {
+                gfx::Key::MouseLeft => {
+                    if self.back_button.is_hovered(graphics, Some(parent_container)) {
+                        return;
+                    }
+                    /*if self.new_world_button.is_hovered(graphics, Some(parent_container)) {
+                        run_world_creation(graphics, menu_back, &self.world_list.worlds, &mut *self.settings, &mut *self.global_settings);
+                        self.world_list.refresh(graphics);
+                    }*/
+
+                    let mut needs_refresh = false;
+                    /*for world in &mut self.world_list.worlds {
+                        if world.play_button.is_hovered(graphics, Some(&world.get_container(graphics, Some(parent_container)))) {
+                            let game_result = run_private_world(graphics, menu_back, world.get_file_path(), &mut *self.settings, &mut *self.global_settings);
+                            if let Err(error) = game_result {
+                                println!("Game error: {error}");
+                                run_choice_menu(&format!("Game error: {error}"), graphics, menu_back, vec!["Ok"], None, None, true);
+                            }
+                        } /*else if world.delete_button.is_hovered(graphics, Some(&world.get_container(graphics, parent_container)))//TODO
+                            && run_choice_menu(
+                                format!("The world \"{}\" will be deleted.\nDo you want to proceed?", world.name).as_str(),
+                                graphics,
+                                menu_back,
+                                vec!["Back", "Proceed"],
+                                Some(0),
+                                Some(1),
+                                false,
+                            ) == 1
+                        {
+                            let res = fs::remove_file(world.get_file_path());
+                            if res.is_err() {
+                                println!("failed to delete the world");
+                            }
+                            needs_refresh = true;
+                        }*/
+                    }*/
+                    if needs_refresh {
+                        self.world_list.refresh(graphics);
+                    }
+                }
+                gfx::Key::Escape => {
+                    return;
+                }
+                _ => {}
+            }
+        }
+    }
+
+    fn get_container(&self, graphics: &gfx::GraphicsContext, parent_container: Option<&gfx::Container>) -> gfx::Container {
+        //TODO make its own container
+        gfx::Container::new(graphics, gfx::FloatPos(0.0, 0.0), graphics.get_window_size(), gfx::TOP_LEFT, parent_container)
     }
 }

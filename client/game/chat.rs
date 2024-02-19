@@ -7,7 +7,7 @@ use crate::libraries::events::Event;
 use crate::libraries::graphics as gfx;
 use crate::shared::chat::ChatPacket;
 use crate::shared::packet::Packet;
-use gfx::UiElement;
+use gfx::{BaseUiElement, UiElement};
 
 pub struct ChatLine {
     texture: gfx::Texture,
@@ -30,7 +30,7 @@ impl ChatLine {
         }
     }
 
-    pub fn render(&mut self, graphics: &gfx::GraphicsContext, focused: bool) {
+    pub fn render(&mut self, graphics: &mut gfx::GraphicsContext, focused: bool) {
         let target_transparency = if focused || (self.creation_time.elapsed().as_millis() as i32) < 5000 { 255 } else { 0 };
 
         match self.transparency.cmp(&target_transparency) {
@@ -91,7 +91,7 @@ impl ClientChat {
         self.back_rect.shadow_intensity = gfx::SHADOW_INTENSITY;
     }
 
-    pub fn render(&mut self, graphics: &gfx::GraphicsContext) {
+    pub fn render(&mut self, graphics: &mut gfx::GraphicsContext) {
         if self.text_input.selected {
             self.back_rect.size.0 = gfx::TEXT_INPUT_WIDTH * self.text_input.scale;
         } else {

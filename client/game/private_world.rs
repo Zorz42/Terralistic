@@ -1,4 +1,6 @@
+use std::cell::RefCell;
 use std::path::Path;
+use std::rc::Rc;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
 use std::sync::{Mutex, PoisonError};
@@ -13,7 +15,13 @@ use crate::libraries::graphics as gfx;
 use crate::server::server_core::Server;
 use crate::server::server_core::SINGLEPLAYER_PORT;
 
-pub fn run_private_world(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn BackgroundRect, world_path: &Path, settings: &mut Settings, global_settings: &mut GlobalSettings) -> Result<()> {
+pub fn run_private_world(
+    graphics: &mut gfx::GraphicsContext,
+    menu_back: &mut dyn BackgroundRect,
+    world_path: &Path,
+    settings: &Rc<RefCell<Settings>>,
+    global_settings: &Rc<RefCell<GlobalSettings>>,
+) -> Result<()> {
     let server_running = Arc::new(AtomicBool::new(true));
     let server_running2 = server_running.clone();
 
