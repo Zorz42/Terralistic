@@ -163,15 +163,15 @@ pub fn run_main_menu(
                         if !matches!(state, MainMenuState::MultiplayerSelector(_)) {
                             let multiplayer_menu = MultiplayerSelector::new(graphics, menu_back_timer, settings.clone(), global_settings.clone(), close_secondary_menu.clone());
                             state = MainMenuState::MultiplayerSelector(Box::new(Cell::new(multiplayer_menu)));
-                        } else if settings_button.is_hovered(graphics, menu_back.get_back_rect_container()) {
-                            in_settings = true;
-                        } else if mods_button.is_hovered(graphics, menu_back.get_back_rect_container()) {
-                        } else if exit_button.is_hovered(graphics, menu_back.get_back_rect_container()) {
-                            graphics.close_window();
-                        } else if cloud_status_button.is_hovered(graphics, &gfx::Container::default(graphics)) && run_login_menu(graphics, menu_back) {
-                            if let Some(client) = &mut tls_client {
-                                client.reset();
-                            }
+                        }
+                    } else if settings_button.is_hovered(graphics, menu_back.get_back_rect_container()) {
+                        in_settings = true;
+                    } else if mods_button.is_hovered(graphics, menu_back.get_back_rect_container()) {
+                    } else if exit_button.is_hovered(graphics, menu_back.get_back_rect_container()) {
+                        graphics.close_window();
+                    } else if cloud_status_button.is_hovered(graphics, &gfx::Container::default(graphics)) && run_login_menu(graphics, menu_back) {
+                        if let Some(client) = &mut tls_client {
+                            client.reset();
                         }
                     }
                 }
