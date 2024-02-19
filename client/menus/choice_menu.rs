@@ -1,93 +1,104 @@
 use crate::libraries::graphics as gfx;
+use std::cell::RefCell;
+use std::rc::Rc;
 
-use super::BackgroundRect;
 use gfx::BaseUiElement;
 
-pub fn run_choice_menu(
-    menu_title: &str,
-    graphics: &mut gfx::GraphicsContext,
-    menu_back: &mut dyn BackgroundRect,
-    buttons: Vec<&str>,
+pub struct ChoiceMenu {
+    title_container: gfx::Container,
+    button_container: gfx::Container,
     esc_choice: Option<usize>,
     enter_choice: Option<usize>,
     align_left: bool,
-) -> usize {
-    let text_lines_vec = menu_title.split('\n').collect::<Vec<&str>>();
+    button_press: Rc<RefCell<Option<usize>>>,
+}
 
-    let mut title_lines = Vec::new();
-    let mut curr_y = 0.0;
-    for line in text_lines_vec {
-        let mut sprite = gfx::Sprite::new();
-        sprite.set_texture(gfx::Texture::load_from_surface(&graphics.font.create_text_surface(line, Some(200))));
-        sprite.scale = 3.0;
-        sprite.orientation = if align_left { gfx::TOP_LEFT } else { gfx::TOP };
-        sprite.pos.1 = curr_y;
-        curr_y += sprite.get_size().1 + gfx::SPACING;
-        title_lines.push(sprite);
+impl ChoiceMenu {
+    pub fn new(
+        menu_title: &str,
+        graphics: &gfx::GraphicsContext,
+        button_texts: &[&str],
+        esc_choice: Option<usize>,
+        enter_choice: Option<usize>,
+        button_press: Rc<RefCell<Option<usize>>>,
+        align_left: bool,
+    ) -> Self {
+        let mut buttons: Vec<Box<dyn BaseUiElement>> = Vec::new();
+        let mut buttons_width = 0.0;
+        let mut max_button_height: f32 = 0.0;
+        for (index, text) in button_texts.iter().enumerate() {
+            let button_press = button_press.clone();
+            let mut button_sprite = gfx::Button::new(move || *button_press.borrow_mut() = Some(index));
+            button_sprite.scale = 3.0;
+            button_sprite.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface(text, None));
+            button_sprite.pos.0 = buttons_width;
+            buttons_width += button_sprite.get_size().0 + gfx::SPACING;
+            max_button_height = max_button_height.max(button_sprite.get_size().1);
+
+            buttons.push(Box::new(button_sprite));
+        }
+        let mut button_container = gfx::Container::new(graphics, gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, 0.0), gfx::BOTTOM, None);
+        button_container.sub_elemnts = buttons;
+        button_container.rect.size = gfx::FloatSize(buttons_width, max_button_height);
+        button_container.rect.pos.1 = -gfx::SPACING;
+
+        let text_lines_vec = menu_title.split('\n').collect::<Vec<&str>>();
+        let mut title_lines: Vec<Box<dyn BaseUiElement>> = Vec::new();
+        let mut curr_y = 0.0;
+        for line in text_lines_vec {
+            let mut sprite = gfx::Sprite::new();
+            sprite.set_texture(gfx::Texture::load_from_surface(&graphics.font.create_text_surface(line, Some(200))));
+            sprite.scale = 3.0;
+            sprite.orientation = if align_left { gfx::TOP_LEFT } else { gfx::TOP };
+            sprite.pos.1 = curr_y;
+            curr_y += sprite.get_size().1 + gfx::SPACING;
+            title_lines.push(Box::new(sprite));
+        }
+        let mut title_container = gfx::Container::new(graphics, gfx::FloatPos(0.0, 0.0), gfx::FloatSize(600.0, 0.0), gfx::Orientation { x: 0.5, y: 0.3 }, None);
+        title_container.sub_elemnts = title_lines;
+
+        Self {
+            title_container,
+            button_container,
+            esc_choice,
+            enter_choice,
+            align_left,
+            button_press,
+        }
+    }
+}
+
+impl gfx::UiElement for ChoiceMenu {
+    fn get_sub_elements_mut(&mut self) -> Vec<&mut dyn BaseUiElement> {
+        vec![&mut self.title_container, &mut self.button_container]
     }
 
-    let mut lines_container = gfx::Container::new(graphics, gfx::FloatPos(0.0, 0.0), gfx::FloatSize(600.0, 0.0), gfx::Orientation { x: 0.5, y: 0.3 }, None);
-
-    let mut buttons_container = gfx::Container::new(graphics, gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, 0.0), gfx::BOTTOM, None);
-
-    let mut buttons_vec = Vec::new();
-    let mut buttons_width = 0.0;
-    let mut max_button_height: f32 = 0.0;
-    for button_text in buttons {
-        let mut button_sprite = gfx::Button::new(|| {});
-        button_sprite.scale = 3.0;
-        button_sprite.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface(button_text, None));
-        button_sprite.pos.0 = buttons_width;
-        buttons_width += button_sprite.get_size().0 + gfx::SPACING;
-        max_button_height = max_button_height.max(button_sprite.get_size().1);
-        buttons_vec.push(button_sprite);
+    fn get_sub_elements(&self) -> Vec<&dyn BaseUiElement> {
+        vec![&self.title_container, &self.button_container]
     }
 
-    buttons_container.rect.size = gfx::FloatSize(buttons_width, max_button_height);
-    buttons_container.rect.pos.1 = -gfx::SPACING;
-
-    while graphics.is_window_open() {
-        while let Some(event) = graphics.get_event() {
-            if let gfx::Event::KeyRelease(key, ..) = event {
-                match key {
-                    gfx::Key::MouseLeft => {
-                        for (i, button) in &mut buttons_vec.iter().enumerate() {
-                            if button.is_hovered(graphics, &buttons_container) {
-                                return i;
-                            }
-                        }
+    fn on_event_inner(&mut self, _: &mut gfx::GraphicsContext, event: &gfx::Event, _: &gfx::Container) -> bool {
+        if let gfx::Event::KeyRelease(key, ..) = event {
+            match key {
+                gfx::Key::Escape => {
+                    if let Some(choice) = &self.esc_choice {
+                        *self.button_press.borrow_mut() = Some(*choice);
+                        return true;
                     }
-                    gfx::Key::Escape => {
-                        if let Some(choice) = esc_choice {
-                            return choice;
-                        }
-                    }
-                    gfx::Key::Enter => {
-                        if let Some(choice) = enter_choice {
-                            return choice;
-                        }
-                    }
-                    _ => {}
                 }
+                gfx::Key::Enter => {
+                    if let Some(choice) = &self.enter_choice {
+                        *self.button_press.borrow_mut() = Some(*choice);
+                        return true;
+                    }
+                }
+                _ => {}
             }
         }
-        menu_back.set_back_rect_width(700.0);
-
-        menu_back.render_back(graphics);
-
-        buttons_container.update(graphics, Some(menu_back.get_back_rect_container()));
-        lines_container.update(graphics, Some(menu_back.get_back_rect_container()));
-
-        for sprite in &mut title_lines {
-            sprite.render(graphics, &lines_container);
-        }
-
-        for sprite in &mut buttons_vec {
-            sprite.render(graphics, &buttons_container);
-        }
-
-        graphics.update_window();
+        false
     }
 
-    0
+    fn get_container(&self, graphics: &gfx::GraphicsContext, parent_container: &gfx::Container) -> gfx::Container {
+        gfx::Container::new(graphics, parent_container.rect.pos, parent_container.rect.size, parent_container.orientation, None)
+    }
 }

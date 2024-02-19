@@ -66,7 +66,7 @@ pub fn run_text_input_menu(menu_title: &str, graphics: &mut gfx::GraphicsContext
 
         //render input fields
 
-        buttons_container.update(graphics, Some(menu_back.get_back_rect_container()));
+        buttons_container.update(graphics, menu_back.get_back_rect_container());
 
         for sprite in &mut title_lines {
             sprite.render(graphics, menu_back.get_back_rect_container());

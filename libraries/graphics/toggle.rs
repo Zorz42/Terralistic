@@ -106,7 +106,7 @@ impl UiElement for Toggle {
 
         container.rect.render(graphics, self.border_color);
         container.rect.size = container.rect.size - float_size_padding - float_size_padding;
-        container.update(graphics, Some(parent_container));
+        container.update(graphics, parent_container);
         container.get_absolute_rect().render(graphics, fill_color);
         let size = gfx::FloatSize(container.rect.size.1 - 2.0 * self.padding, container.rect.size.1 - 2.0 * self.padding);
 

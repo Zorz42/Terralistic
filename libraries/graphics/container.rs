@@ -1,6 +1,7 @@
 use crate::libraries::graphics as gfx;
+use sdl2::libc::grantpt;
 
-use super::Rect;
+use super::{BaseUiElement, Rect, UiElement};
 
 #[derive(Clone, Copy)]
 pub struct Orientation {
@@ -25,6 +26,8 @@ pub struct Container {
     pub rect: Rect,
     abs_rect: Rect,
     pub orientation: Orientation,
+    pub sub_elemnts: Vec<Box<dyn BaseUiElement>>,
+    pub update_subelements: Box<dyn Fn()>,
 }
 
 impl Container {
@@ -35,11 +38,14 @@ impl Container {
             rect: Rect::new(pos, size),
             abs_rect: Rect::new(gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, 0.0)),
             orientation,
+            sub_elemnts: Vec::new(),
+            update_subelements: Box::new(|| {}),
         };
-        result.update(graphics, parent_container);
+        result.update_position(graphics, parent_container);
         result
     }
 
+    #[must_use]
     pub fn default(graphics_context: &gfx::GraphicsContext) -> Self {
         Self::new(graphics_context, gfx::FloatPos(0.0, 0.0), graphics_context.get_window_size(), TOP_LEFT, None)
     }
@@ -53,12 +59,38 @@ impl Container {
         &self.abs_rect
     }
 
-    /// This function gets parent container and updates the absolute values
-    pub fn update(&mut self, graphics: &gfx::GraphicsContext, parent_container: Option<&Self>) {
+    fn update_position(&mut self, graphics: &gfx::GraphicsContext, parent_container: Option<&Self>) {
         let parent_rect = parent_container.map_or_else(|| Rect::new(gfx::FloatPos(0.0, 0.0), graphics.get_window_size()), |parent| *parent.get_absolute_rect());
 
         self.abs_rect.pos = parent_rect.pos + self.rect.pos + gfx::FloatPos(parent_rect.size.0 * self.orientation.x, parent_rect.size.1 * self.orientation.y)
             - gfx::FloatPos(self.rect.size.0 * self.orientation.x, self.rect.size.1 * self.orientation.y);
         self.abs_rect.size = self.rect.size;
+    }
+}
+
+impl UiElement for Container {
+    fn get_sub_elements_mut(&mut self) -> Vec<&mut dyn BaseUiElement> {
+        let mut element_vec: Vec<&mut dyn BaseUiElement> = Vec::new();
+        for element in &mut self.sub_elemnts {
+            element_vec.push(&mut **element);
+        }
+        element_vec
+    }
+
+    fn get_sub_elements(&self) -> Vec<&dyn BaseUiElement> {
+        let mut element_vec: Vec<&dyn BaseUiElement> = Vec::new();
+        for element in &self.sub_elemnts {
+            element_vec.push(&**element);
+        }
+        element_vec
+    }
+
+    /// This function gets parent container and updates the absolute values
+    fn update_inner(&mut self, graphics: &mut gfx::GraphicsContext, parent_container: &Self) {
+        self.update_position(graphics, Some(parent_container));
+    }
+
+    fn get_container(&self, graphics: &gfx::GraphicsContext, parent_container: &Container) -> Container {
+        Self::new(graphics, self.rect.pos, self.rect.size, self.orientation, Some(parent_container))
     }
 }

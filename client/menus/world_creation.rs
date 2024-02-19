@@ -135,7 +135,7 @@ pub fn run_world_creation(
         menu_back.render_back(graphics);
 
         //render input fields
-        buttons_container.update(graphics, Some(menu_back.get_back_rect_container()));
+        buttons_container.update(graphics, menu_back.get_back_rect_container());
 
         title.render(graphics, menu_back.get_back_rect_container());
         back_button.render(graphics, &buttons_container);

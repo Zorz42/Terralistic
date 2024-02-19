@@ -164,7 +164,7 @@ pub fn run_login_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn B
         menu_back.render_back(graphics);
 
         //render input fields
-        buttons_container.update(graphics, Some(menu_back.get_back_rect_container()));
+        buttons_container.update(graphics, menu_back.get_back_rect_container());
 
         title.render(graphics, menu_back.get_back_rect_container());
 

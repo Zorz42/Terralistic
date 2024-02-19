@@ -155,7 +155,7 @@ pub fn run_add_server_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut 
 
         //render input fields
 
-        buttons_container.update(graphics, Some(menu_back.get_back_rect_container()));
+        buttons_container.update(graphics, menu_back.get_back_rect_container());
 
         title.render(graphics, menu_back.get_back_rect_container());
         back_button.render(graphics, &buttons_container);

@@ -47,11 +47,11 @@ impl ConsoleLine {
                 gfx::FloatSize(self.sprite.get_texture().get_texture_size().0, self.sprite.get_texture().get_texture_size().1 - top_crop - bottom_crop),
             );
             container.rect.pos.1 -= bottom_crop;
-            container.update(graphics_context, None);
+            container.update(graphics_context, &gfx::Container::default(graphics_context));
             self.sprite.src_rect = src_rect;
             self.sprite.render(graphics_context, container);
             container.rect.pos.1 += bottom_crop;
-            container.update(graphics_context, None);
+            container.update(graphics_context, &gfx::Container::default(graphics_context));
         }
     }
 }

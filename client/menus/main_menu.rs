@@ -10,12 +10,13 @@ use std::cell::{Cell, RefCell};
 use std::rc::Rc;
 
 use super::background_rect::BackgroundRect;
-use super::{run_login_menu, run_multiplayer_selector, SingleplayerSelector};
+use super::{run_login_menu, MultiplayerSelector, SingleplayerSelector};
 use gfx::BaseUiElement;
 
 enum MainMenuState {
     None,
     SingleplayerSelector(Box<Cell<SingleplayerSelector>>),
+    MultiplayerSelector(Box<Cell<MultiplayerSelector>>),
 }
 
 #[allow(clippy::too_many_lines)] // TODO: split this function up
@@ -141,6 +142,9 @@ pub fn run_main_menu(
                 MainMenuState::SingleplayerSelector(ref mut menu) => {
                     let _ = menu.get_mut().on_event(graphics, &event, secondary_menu_back.get_back_rect_container());
                 }
+                MainMenuState::MultiplayerSelector(ref mut menu) => {
+                    let _ = menu.get_mut().on_event(graphics, &event, secondary_menu_back.get_back_rect_container());
+                }
             }
             if *close_secondary_menu.borrow_mut() {
                 state = MainMenuState::None;
@@ -156,15 +160,18 @@ pub fn run_main_menu(
                             state = MainMenuState::SingleplayerSelector(Box::new(Cell::new(singleplayer_menu)));
                         }
                     } else if multiplayer_button.is_hovered(graphics, menu_back.get_back_rect_container()) {
-                        //run_multiplayer_selector(graphics, menu_back, settings, global_settings);
-                    } else if settings_button.is_hovered(graphics, menu_back.get_back_rect_container()) {
-                        in_settings = true;
-                    } else if mods_button.is_hovered(graphics, menu_back.get_back_rect_container()) {
-                    } else if exit_button.is_hovered(graphics, menu_back.get_back_rect_container()) {
-                        graphics.close_window();
-                    } else if cloud_status_button.is_hovered(graphics, &gfx::Container::default(graphics)) && run_login_menu(graphics, menu_back) {
-                        if let Some(client) = &mut tls_client {
-                            client.reset();
+                        if !matches!(state, MainMenuState::MultiplayerSelector(_)) {
+                            let multiplayer_menu = MultiplayerSelector::new(graphics, menu_back_timer, settings.clone(), global_settings.clone(), close_secondary_menu.clone());
+                            state = MainMenuState::MultiplayerSelector(Box::new(Cell::new(multiplayer_menu)));
+                        } else if settings_button.is_hovered(graphics, menu_back.get_back_rect_container()) {
+                            in_settings = true;
+                        } else if mods_button.is_hovered(graphics, menu_back.get_back_rect_container()) {
+                        } else if exit_button.is_hovered(graphics, menu_back.get_back_rect_container()) {
+                            graphics.close_window();
+                        } else if cloud_status_button.is_hovered(graphics, &gfx::Container::default(graphics)) && run_login_menu(graphics, menu_back) {
+                            if let Some(client) = &mut tls_client {
+                                client.reset();
+                            }
                         }
                     }
                 }
@@ -222,6 +229,10 @@ pub fn run_main_menu(
         match state {
             MainMenuState::None => {}
             MainMenuState::SingleplayerSelector(ref mut menu) => {
+                menu.get_mut().update(graphics, secondary_menu_back.get_back_rect_container());
+                menu.get_mut().render(graphics, secondary_menu_back.get_back_rect_container());
+            }
+            MainMenuState::MultiplayerSelector(ref mut menu) => {
                 menu.get_mut().update(graphics, secondary_menu_back.get_back_rect_container());
                 menu.get_mut().render(graphics, secondary_menu_back.get_back_rect_container());
             }

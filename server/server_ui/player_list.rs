@@ -40,7 +40,7 @@ impl PlayerCard {
     }
 
     pub fn render(&mut self, graphics_context: &mut gfx::GraphicsContext, parent_container: &gfx::Container) {
-        self.container.update(graphics_context, Some(parent_container));
+        self.container.update(graphics_context, parent_container);
 
         //background
         let mut rect = gfx::RenderRect::new(gfx::FloatPos(0.0, 0.0), self.container.rect.size);
