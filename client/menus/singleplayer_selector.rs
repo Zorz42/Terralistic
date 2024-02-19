@@ -322,12 +322,17 @@ impl UiElement for SingleplayerSelector {
         //empty for now
     }
 
-    fn on_event(&mut self, graphics: &mut gfx::GraphicsContext, event: &gfx::Event, parent_container: Option<&gfx::Container>) {
+    fn on_event_inner(&mut self, graphics: &mut gfx::GraphicsContext, event: &gfx::Event, parent_container: Option<&gfx::Container>) -> bool {
         //TODO add a way to exit
         let temp_container = gfx::Container::new(graphics, gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, 0.0), gfx::CENTER, None);
         let parent_container = parent_container.unwrap_or(&temp_container);
-        self.scrollable.on_event(graphics, event, Some(parent_container));
-        self.back_button.on_event(graphics, event, Some(parent_container));
+        if self.scrollable.on_event(graphics, event, Some(parent_container)) {
+            //this will be much nicer once we actually use the ui elements trait
+            return true;
+        }
+        if self.back_button.on_event(graphics, event, Some(parent_container)) {
+            return true;
+        }
         if let gfx::Event::KeyRelease(key, ..) = event {
             match key {
                 gfx::Key::MouseLeft => {
@@ -368,10 +373,12 @@ impl UiElement for SingleplayerSelector {
                 }
                 gfx::Key::Escape => {
                     self.back_button.press();
+                    return true;
                 }
                 _ => {}
             }
         }
+        false
     }
 
     fn get_container(&self, graphics: &gfx::GraphicsContext, parent_container: Option<&gfx::Container>) -> gfx::Container {

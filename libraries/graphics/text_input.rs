@@ -272,7 +272,7 @@ impl UiElement for TextInput {
 
     #[allow(clippy::too_many_lines)] // TODO: split this up
     #[allow(clippy::cognitive_complexity)]
-    fn on_event(&mut self, graphics: &mut gfx::GraphicsContext, event: &gfx::Event, parent_container: Option<&gfx::Container>) {
+    fn on_event_inner(&mut self, graphics: &mut gfx::GraphicsContext, event: &gfx::Event, parent_container: Option<&gfx::Container>) -> bool {
         match event {
             gfx::Event::TextInput(text) => {
                 if self.selected {
@@ -296,6 +296,7 @@ impl UiElement for TextInput {
                     self.cursor.0 += new_text.len();
                     self.text_changed = true;
                     self.cursor.1 = self.cursor.0;
+                    return true;
                 }
             }
 
@@ -305,7 +306,7 @@ impl UiElement for TextInput {
                 }
 
                 if !self.selected {
-                    return;
+                    return false;
                 }
 
                 match key {
@@ -399,9 +400,11 @@ impl UiElement for TextInput {
                     }
                     _ => {}
                 }
+                return true;
             }
             _ => {}
         }
+        false
     }
 
     /// Generates the container for the text input. It it private, since a text input should never contain other elements.

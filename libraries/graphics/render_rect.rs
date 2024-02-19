@@ -85,8 +85,9 @@ impl gfx::UiElement for RenderRect {
         //all in render, should be fixed if it causes issues
     }
 
-    fn on_event(&mut self, _: &mut gfx::GraphicsContext, _: &gfx::Event, _: Option<&gfx::Container>) {
+    fn on_event_inner(&mut self, _: &mut gfx::GraphicsContext, _: &gfx::Event, _: Option<&gfx::Container>) -> bool {
         //doesn't care about events
+        false
     }
 
     /// This function returns the container of the rectangle.

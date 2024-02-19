@@ -123,13 +123,15 @@ impl UiElement for Toggle {
         //nothing to update for now
     }
 
-    fn on_event(&mut self, graphics: &mut gfx::GraphicsContext, event: &gfx::Event, parent_container: Option<&gfx::Container>) {
+    fn on_event_inner(&mut self, graphics: &mut gfx::GraphicsContext, event: &gfx::Event, parent_container: Option<&gfx::Container>) -> bool {
         if let gfx::Event::KeyRelease(gfx::Key::MouseLeft, ..) = event {
             if self.is_hovered(graphics, parent_container) {
                 self.toggled = !self.toggled;
                 self.changed = true;
+                return true;
             }
         }
+        false
     }
 
     /// Generates the container for the toggle.

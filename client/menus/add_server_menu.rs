@@ -2,7 +2,7 @@ use std::net::{IpAddr, Ipv4Addr};
 
 use crate::libraries::graphics as gfx;
 use crate::server::server_core::MULTIPLAYER_PORT;
-use gfx::{BaseUiElement, UiElement};
+use gfx::BaseUiElement;
 
 use super::background_rect::BackgroundRect;
 use super::multiplayer_selector::ServerCard;

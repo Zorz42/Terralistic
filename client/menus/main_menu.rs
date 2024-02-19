@@ -11,7 +11,7 @@ use std::rc::Rc;
 
 use super::background_rect::BackgroundRect;
 use super::{run_login_menu, run_multiplayer_selector, SingleplayerSelector};
-use gfx::{BaseUiElement, UiElement};
+use gfx::BaseUiElement;
 
 enum MainMenuState {
     None,
@@ -132,7 +132,9 @@ pub fn run_main_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn Ba
 
             match state {
                 MainMenuState::None => (),
-                MainMenuState::SingleplayerSelector(ref mut menu) => menu.get_mut().on_event(graphics, &event, Some(secondary_menu_back.get_back_rect_container())),
+                MainMenuState::SingleplayerSelector(ref mut menu) => {
+                    let _ = menu.get_mut().on_event(graphics, &event, Some(secondary_menu_back.get_back_rect_container()));
+                }
             }
             if *close_secondary_menu.borrow_mut() {
                 state = MainMenuState::None;

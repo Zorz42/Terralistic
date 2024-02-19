@@ -73,7 +73,7 @@ impl UiElement for Scrollable {
         //the code in render should be here but i just want to get everything working si i'll leave it in render
     }
 
-    fn on_event(&mut self, _: &mut gfx::GraphicsContext, event: &gfx::Event, _: Option<&gfx::Container>) {
+    fn on_event_inner(&mut self, _: &mut gfx::GraphicsContext, event: &gfx::Event, _: Option<&gfx::Container>) -> bool {
         if let gfx::Event::MouseScroll(delta) = event {
             let delta = -*delta * 0.8;
             if delta > 0.0 {
@@ -82,6 +82,7 @@ impl UiElement for Scrollable {
                 self.scroll_velocity = f32::min(self.scroll_velocity, delta);
             }
         }
+        false
     }
 
     /// This function returns the container of the rectangle.
