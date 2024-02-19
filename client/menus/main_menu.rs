@@ -171,7 +171,7 @@ pub fn run_main_menu(
                     } else if settings_button.is_hovered(graphics, menu_back.get_back_rect_container()) {
                         if !matches!(state, MainMenuState::Settings(_)) {
                             let mut settings_menu = SettingsMenu::new(close_secondary_menu.clone(), settings.clone());
-                            settings_menu.init(graphics);
+                            settings_menu.init(graphics, menu_back.get_back_rect_container());
                             state = MainMenuState::Settings(Box::new(Cell::new(settings_menu)));
                         }
                     } else if mods_button.is_hovered(graphics, menu_back.get_back_rect_container()) {

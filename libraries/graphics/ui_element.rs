@@ -20,7 +20,7 @@ pub trait BaseUiElement: UiElement {
         let container = self.get_container(graphics, parent_container);
         for element in self.get_sub_elements_mut() {
             if element.on_event(graphics, event, &container) {
-                return true;
+                //return true;
             }
         }
         self.on_event_inner(graphics, event, parent_container)

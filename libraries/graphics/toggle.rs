@@ -74,7 +74,6 @@ impl UiElement for Toggle {
 
     /// Renders the toggle.
     fn render_inner(&mut self, graphics: &mut gfx::GraphicsContext, parent_container: &gfx::Container) {
-        self.hovered = self.is_hovered(graphics, parent_container);
         let mut container = self.get_container(graphics, parent_container);
         let float_size_padding = gfx::FloatSize(self.padding, self.padding);
         let toggle_target = if self.toggled { 1.0 } else { 0.0 };
@@ -119,8 +118,8 @@ impl UiElement for Toggle {
         button.get_absolute_rect().render(graphics, self.button_color);
     }
 
-    fn update_inner(&mut self, _: &mut gfx::GraphicsContext, _: &gfx::Container) {
-        //nothing to update for now
+    fn update_inner(&mut self, graphics: &mut gfx::GraphicsContext, parent_container: &gfx::Container) {
+        self.hovered = self.is_hovered(graphics, parent_container);
     }
 
     fn on_event_inner(&mut self, graphics: &mut gfx::GraphicsContext, event: &gfx::Event, parent_container: &gfx::Container) -> bool {
