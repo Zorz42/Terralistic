@@ -336,6 +336,7 @@ impl UiElement for SingleplayerSelector {
         elements_vec.push(&mut self.back_button);
         elements_vec.push(&mut self.new_world_button);
         elements_vec.push(&mut self.scrollable);
+        elements_vec.push(&mut self.title);
         elements_vec
     }
 
@@ -351,6 +352,7 @@ impl UiElement for SingleplayerSelector {
         elements_vec.push(&self.back_button);
         elements_vec.push(&self.new_world_button);
         elements_vec.push(&self.scrollable);
+        elements_vec.push(&self.title);
         elements_vec
     }
 
@@ -390,7 +392,7 @@ impl UiElement for SingleplayerSelector {
 
         self.bottom_rect.size.0 = parent_container.get_absolute_rect().size.0;
 
-        self.title.render(graphics, parent_container);
+        //self.title.render(graphics, parent_container);
         //self.back_button.render(graphics, parent_container);
 
         //self.new_world_button.render(graphics, parent_container);
