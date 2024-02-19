@@ -8,7 +8,7 @@ pub fn run_text_input_menu(menu_title: &str, graphics: &mut gfx::GraphicsContext
     let mut title_lines = Vec::new();
     for line in text_lines_vec {
         let mut sprite = gfx::Sprite::new();
-        sprite.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface(line, None));
+        sprite.set_texture(gfx::Texture::load_from_surface(&graphics.font.create_text_surface(line, None)));
         sprite.scale = 3.0;
         sprite.orientation = gfx::TOP;
         sprite.pos.1 = gfx::SPACING + title_lines.len() as f32 * (sprite.get_size().1 + gfx::SPACING);
@@ -69,7 +69,7 @@ pub fn run_text_input_menu(menu_title: &str, graphics: &mut gfx::GraphicsContext
         buttons_container.update(graphics, Some(menu_back.get_back_rect_container()));
 
         for sprite in &mut title_lines {
-            sprite.render(graphics, Some(menu_back.get_back_rect_container()), None);
+            sprite.render(graphics, menu_back.get_back_rect_container());
         }
 
         back_button.render(graphics, &buttons_container);

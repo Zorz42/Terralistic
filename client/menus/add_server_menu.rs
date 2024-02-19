@@ -62,7 +62,7 @@ fn server_exists(name: &str, servers_list: &Vec<ServerCard>) -> bool {
 pub fn run_add_server_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn BackgroundRect, servers_list: &Vec<ServerCard>) -> Option<ServerInfo> {
     let mut title = gfx::Sprite::new();
     title.scale = 3.0;
-    title.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Add a new server:", None));
+    title.set_texture(gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Add a new server:", None)));
     title.pos.1 = gfx::SPACING;
     title.orientation = gfx::TOP;
 
@@ -157,7 +157,7 @@ pub fn run_add_server_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut 
 
         buttons_container.update(graphics, Some(menu_back.get_back_rect_container()));
 
-        title.render(graphics, Some(menu_back.get_back_rect_container()), None);
+        title.render(graphics, menu_back.get_back_rect_container());
         back_button.render(graphics, &buttons_container);
 
         add_button.render(graphics, &buttons_container);

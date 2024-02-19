@@ -23,7 +23,7 @@ impl ConsoleLine {
     pub fn new(graphics_context: &gfx::GraphicsContext, text: String) -> Self {
         let mut sprite = gfx::Sprite::new();
         let font = graphics_context.font_mono.as_ref().map_or(&graphics_context.font, |mono_font| mono_font);
-        sprite.texture = gfx::Texture::load_from_surface(&font.create_text_surface(&text, None));
+        sprite.set_texture(gfx::Texture::load_from_surface(&font.create_text_surface(&text, None)));
         sprite.orientation = gfx::BOTTOM_LEFT;
         sprite.color = gfx::WHITE;
         sprite.pos = gfx::FloatPos(gfx::SPACING / 3.0, 0.0);
@@ -34,21 +34,22 @@ impl ConsoleLine {
     pub fn render(
         //TODO fix rendering, multiline sprites have less spacing than normal lines
         &mut self,
-        graphics_context: &gfx::GraphicsContext,
+        graphics_context: &mut gfx::GraphicsContext,
         container: &mut gfx::Container,
         max_y: f32,
         min_y: f32,
     ) {
-        if self.sprite.pos.1 - self.sprite.texture.get_texture_size().1 < max_y {
-            let top_crop = (min_y - self.sprite.pos.1 - self.sprite.texture.get_texture_size().1).clamp(0.0, self.sprite.texture.get_texture_size().1);
-            let bottom_crop = (self.sprite.pos.1 - max_y).clamp(0.0, self.sprite.texture.get_texture_size().1);
-            let src_rect = Some(gfx::Rect::new(
+        if self.sprite.pos.1 - self.sprite.get_texture().get_texture_size().1 < max_y {
+            let top_crop = (min_y - self.sprite.pos.1 - self.sprite.get_texture().get_texture_size().1).clamp(0.0, self.sprite.get_texture().get_texture_size().1);
+            let bottom_crop = (self.sprite.pos.1 - max_y).clamp(0.0, self.sprite.get_texture().get_texture_size().1);
+            let src_rect = gfx::Rect::new(
                 gfx::FloatPos(0.0, top_crop),
-                gfx::FloatSize(self.sprite.texture.get_texture_size().0, self.sprite.texture.get_texture_size().1 - top_crop - bottom_crop),
-            ));
+                gfx::FloatSize(self.sprite.get_texture().get_texture_size().0, self.sprite.get_texture().get_texture_size().1 - top_crop - bottom_crop),
+            );
             container.rect.pos.1 -= bottom_crop;
             container.update(graphics_context, None);
-            self.sprite.render(graphics_context, Some(container), src_rect);
+            self.sprite.src_rect = src_rect;
+            self.sprite.render(graphics_context, container);
             container.rect.pos.1 += bottom_crop;
             container.update(graphics_context, None);
         }
@@ -89,7 +90,7 @@ impl Console {
         let mut offset;
         let mut y = -self.input.pos.1 - self.input.get_size().1 - gfx::SPACING / 2.0;
         for line in self.text_lines.iter_mut().rev() {
-            offset = line.sprite.texture.get_texture_size().1 + EDGE_SPACING;
+            offset = line.sprite.get_texture().get_texture_size().1 + EDGE_SPACING;
             line.sprite.pos.1 = y + self.scroll;
             y -= offset;
         }
@@ -158,7 +159,7 @@ impl ui_manager::ModuleTrait for Console {
         match event {
             //move the view on mouse scroll
             gfx::Event::MouseScroll(scroll) => {
-                let offset = self.text_lines.first().map_or_else(|| 0.0, |line| line.sprite.texture.get_texture_size().1 + EDGE_SPACING);
+                let offset = self.text_lines.first().map_or_else(|| 0.0, |line| line.sprite.get_texture().get_texture_size().1 + EDGE_SPACING);
                 self.scroll += scroll * offset;
                 self.scroll = self.scroll.min(offset * (self.text_lines.len() - 1) as f32);
                 self.scroll = self.scroll.max(0.0);

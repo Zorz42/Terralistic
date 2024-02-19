@@ -60,20 +60,20 @@ pub fn run_main_menu(
     exit_button.orientation = gfx::CENTER;
 
     let mut debug_title = gfx::Sprite::new();
-    debug_title.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("DEBUG MODE", None));
+    debug_title.set_texture(gfx::Texture::load_from_surface(&graphics.font.create_text_surface("DEBUG MODE", None)));
     debug_title.color = gfx::DARK_GREY;
     debug_title.orientation = gfx::TOP;
     debug_title.scale = 2.0;
     debug_title.pos.1 = gfx::SPACING / 4.0;
 
     let mut title = gfx::Sprite::new();
-    title.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Terralistic", None));
+    title.set_texture(gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Terralistic", None)));
     title.scale = 4.0;
     title.orientation = gfx::TOP;
     title.pos.1 = debug_title.pos.1 + debug_title.get_size().1 + gfx::SPACING / 2.0;
 
     let mut version = gfx::Sprite::new();
-    version.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface(VERSION, None));
+    version.set_texture(gfx::Texture::load_from_surface(&graphics.font.create_text_surface(VERSION, None)));
     version.color = gfx::GREY;
     version.orientation = gfx::BOTTOM;
     version.scale = 2.0;
@@ -213,9 +213,9 @@ pub fn run_main_menu(
         cloud_status_button.render(graphics, &gfx::Container::default(graphics));
 
         #[cfg(debug_assertions)]
-        debug_title.render(graphics, Some(menu_back.get_back_rect_container()), None);
-        title.render(graphics, Some(menu_back.get_back_rect_container()), None);
-        version.render(graphics, Some(menu_back.get_back_rect_container()), None);
+        debug_title.render(graphics, menu_back.get_back_rect_container());
+        title.render(graphics, menu_back.get_back_rect_container());
+        version.render(graphics, menu_back.get_back_rect_container());
 
         //render secondary menu
         secondary_menu_back.render_back(graphics);

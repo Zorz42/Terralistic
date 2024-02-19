@@ -157,7 +157,7 @@ impl UiManager {
         self.render_modules();
 
         if self.module_edit_mode {
-            self.module_manager.render_overlay(&self.graphics_context);
+            self.module_manager.render_overlay(&mut self.graphics_context);
         }
 
         //display the frame
@@ -203,7 +203,7 @@ impl UiManager {
             }
 
             if self.module_edit_mode {
-                self.module_manager.on_event(&event, &self.graphics_context);
+                self.module_manager.on_event(&event, &mut self.graphics_context);
             } else {
                 for module in &mut self.modules {
                     module.on_event(&event, &mut self.graphics_context);

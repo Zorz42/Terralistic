@@ -76,11 +76,11 @@ pub fn run_loading_screen(graphics: &mut gfx::GraphicsContext, menu_back: &mut d
                     loading_bar.pos.0 = menu_back.get_back_rect_width(graphics, None) / 2.0 - loading_back_bar.size.0 / 2.0;
                 }
 
-                loading_text_sprite.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface(&curr_text, None));
+                loading_text_sprite.set_texture(gfx::Texture::load_from_surface(&graphics.font.create_text_surface(&curr_text, None)));
             }
         }
 
-        loading_text_sprite.render(graphics, Some(menu_back.get_back_rect_container()), None);
+        loading_text_sprite.render(graphics, menu_back.get_back_rect_container());
 
         loading_back_bar.render(graphics, menu_back.get_back_rect_container());
         loading_bar.render(graphics, menu_back.get_back_rect_container());

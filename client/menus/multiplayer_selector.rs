@@ -60,14 +60,15 @@ impl ServerCard {
         rect.fill_color.a = 100;
 
         let mut icon = gfx::Sprite::new();
-        icon.texture =
-            gfx::Texture::load_from_surface(&gfx::Surface::deserialize_from_bytes(include_bytes!("../../Build/Resources/world_icon.opa")).unwrap_or_else(|_| gfx::Surface::new(gfx::IntSize(1, 1))));
+        icon.set_texture(gfx::Texture::load_from_surface(
+            &gfx::Surface::deserialize_from_bytes(include_bytes!("../../Build/Resources/world_icon.opa")).unwrap_or_else(|_| gfx::Surface::new(gfx::IntSize(1, 1))),
+        ));
         rect.size.1 = icon.get_size().1 + 2.0 * gfx::SPACING;
         icon.pos.0 = gfx::SPACING;
         icon.orientation = gfx::LEFT;
 
         let mut title = gfx::Sprite::new();
-        title.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface(&name, None));
+        title.set_texture(gfx::Texture::load_from_surface(&graphics.font.create_text_surface(&name, None)));
         title.pos.0 = icon.pos.0 + icon.get_size().1 + gfx::SPACING;
         title.pos.1 = gfx::SPACING;
         title.scale = 3.0;
@@ -189,7 +190,7 @@ pub fn run_multiplayer_selector(graphics: &mut gfx::GraphicsContext, menu_back: 
 
     let mut title = gfx::Sprite::new();
     title.scale = 3.0;
-    title.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Select a server to play!", None));
+    title.set_texture(gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Select a server to play!", None)));
     title.pos.1 = gfx::SPACING;
     title.orientation = gfx::TOP;
 
@@ -358,7 +359,7 @@ fn render_elements(
         elements.bottom_rect.render(graphics, menu_back.get_back_rect_container());
     }
 
-    elements.title.render(graphics, Some(menu_back.get_back_rect_container()), None);
+    elements.title.render(graphics, menu_back.get_back_rect_container());
     elements.back_button.render(graphics, menu_back.get_back_rect_container());
 
     elements.new_server_button.render(graphics, menu_back.get_back_rect_container());

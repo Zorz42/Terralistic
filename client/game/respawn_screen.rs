@@ -28,7 +28,7 @@ impl RespawnScreen {
         self.respawn_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Respawn", None));
         self.respawn_button.scale = 3.0;
 
-        self.respawn_text.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("You died", None));
+        self.respawn_text.set_texture(gfx::Texture::load_from_surface(&graphics.font.create_text_surface("You died", None)));
         self.respawn_text.pos.1 = -100.0;
         self.respawn_text.orientation = gfx::CENTER;
         self.respawn_text.scale = 3.0;

@@ -23,7 +23,7 @@ pub struct PlayerCard {
 impl PlayerCard {
     pub fn new(graphics_context: &gfx::GraphicsContext, name: String, connection: SocketAddr) -> Self {
         let mut name_sprite = gfx::Sprite::new();
-        name_sprite.texture = gfx::Texture::load_from_surface(&graphics_context.font.create_text_surface(&name, None));
+        name_sprite.set_texture(gfx::Texture::load_from_surface(&graphics_context.font.create_text_surface(&name, None)));
         name_sprite.scale = SCALE;
         name_sprite.orientation = gfx::LEFT;
         name_sprite.color = gfx::WHITE;
@@ -48,7 +48,7 @@ impl PlayerCard {
         rect.render(graphics_context, &self.container);
 
         //name of the player
-        self.name_sprite.render(graphics_context, Some(&self.container), None);
+        self.name_sprite.render(graphics_context, &self.container);
 
         //if the sprite just appeared, do a smooth fade in animation by overlaying a transparent rectangle
         if self.timer < 1.0 {
@@ -91,7 +91,7 @@ impl ui_manager::ModuleTrait for PlayerList {
             //resize the card
             card.container.rect.size = gfx::FloatSize(
                 self.container.rect.size.0 - EDGE_SPACING * 2.0,
-                card.name_sprite.texture.get_texture_size().1 * SCALE + 2.0 * gfx::SPACING,
+                card.name_sprite.get_texture().get_texture_size().1 * SCALE + 2.0 * gfx::SPACING,
             );
 
             //move the card's target y to the correct position

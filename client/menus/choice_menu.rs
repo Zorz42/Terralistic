@@ -18,7 +18,7 @@ pub fn run_choice_menu(
     let mut curr_y = 0.0;
     for line in text_lines_vec {
         let mut sprite = gfx::Sprite::new();
-        sprite.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface(line, Some(200)));
+        sprite.set_texture(gfx::Texture::load_from_surface(&graphics.font.create_text_surface(line, Some(200))));
         sprite.scale = 3.0;
         sprite.orientation = if align_left { gfx::TOP_LEFT } else { gfx::TOP };
         sprite.pos.1 = curr_y;
@@ -79,7 +79,7 @@ pub fn run_choice_menu(
         lines_container.update(graphics, Some(menu_back.get_back_rect_container()));
 
         for sprite in &mut title_lines {
-            sprite.render(graphics, Some(&lines_container), None);
+            sprite.render(graphics, &lines_container);
         }
 
         for sprite in &mut buttons_vec {

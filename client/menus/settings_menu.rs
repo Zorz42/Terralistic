@@ -49,7 +49,7 @@ fn setting_to_ui(graphics: &gfx::GraphicsContext, setting: &Setting, setting_id:
     text_sprite.scale = 2.0;
     text_sprite.orientation = gfx::LEFT;
     text_sprite.pos = gfx::FloatPos(gfx::SPACING, 0.0);
-    text_sprite.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface(text, None));
+    text_sprite.set_texture(gfx::Texture::load_from_surface(&graphics.font.create_text_surface(text, None)));
 
     match setting {
         Setting::Toggle { toggled, .. } => {
@@ -134,7 +134,7 @@ fn render_setting_ui(graphics: &mut gfx::GraphicsContext, setting: &mut SettingU
         SettingUi::Toggle { text, .. } | SettingUi::Choice { text, .. } | SettingUi::Slider { text, .. } => text,
     };
 
-    text.render(graphics, Some(&back_rect.get_container(graphics, &parent_container)), None);
+    text.render(graphics, &back_rect.get_container(graphics, &parent_container));
 
     match setting {
         SettingUi::Toggle { setting_id, toggle, .. } => {
@@ -207,7 +207,7 @@ fn render_setting_ui(graphics: &mut gfx::GraphicsContext, setting: &mut SettingU
 
                     if slider_choice.to_string() != *slider_text_string {
                         *slider_text_string = slider_choice.to_string();
-                        slider_text.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface(slider_text_string, None));
+                        slider_text.set_texture(gfx::Texture::load_from_surface(&graphics.font.create_text_surface(slider_text_string, None)));
                     }
                 }
                 SliderSelection::Choice(chosen_button) => {
@@ -244,7 +244,7 @@ fn render_setting_ui(graphics: &mut gfx::GraphicsContext, setting: &mut SettingU
             choice_rect.render(graphics, &back_rect.get_container(graphics, &parent_container));
 
             if slider_chosen {
-                slider_text.render(graphics, Some(&slider_rect.get_container(graphics, &back_rect.get_container(graphics, &parent_container))), None);
+                slider_text.render(graphics, &slider_rect.get_container(graphics, &back_rect.get_container(graphics, &parent_container)));
             }
 
             let mut curr_x = -2.0 * gfx::SPACING - SLIDER_WIDTH;

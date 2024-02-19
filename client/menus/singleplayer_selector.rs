@@ -59,14 +59,15 @@ impl World {
         rect.fill_color.a = 100;
 
         let mut icon = gfx::Sprite::new();
-        icon.texture =
-            gfx::Texture::load_from_surface(&gfx::Surface::deserialize_from_bytes(include_bytes!("../../Build/Resources/world_icon.opa")).unwrap_or_else(|_| gfx::Surface::new(gfx::IntSize(1, 1))));
+        icon.set_texture(gfx::Texture::load_from_surface(
+            &gfx::Surface::deserialize_from_bytes(include_bytes!("../../Build/Resources/world_icon.opa")).unwrap_or_else(|_| gfx::Surface::new(gfx::IntSize(1, 1))),
+        ));
         rect.size.1 = icon.get_size().1 + 2.0 * gfx::SPACING;
         icon.pos.0 = gfx::SPACING;
         icon.orientation = gfx::LEFT;
 
         let mut title = gfx::Sprite::new();
-        title.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface(&name, None));
+        title.set_texture(gfx::Texture::load_from_surface(&graphics.font.create_text_surface(&name, None)));
         title.pos.0 = icon.pos.0 + icon.get_size().0 + gfx::SPACING;
         title.pos.1 = gfx::SPACING;
         title.scale = 3.0;
@@ -90,7 +91,9 @@ impl World {
         delete_button.orientation = gfx::BOTTOM_LEFT;
 
         let mut last_modified = gfx::Sprite::new();
-        last_modified.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface(get_last_modified_time(file_path.as_path().to_str().unwrap_or("")).as_str(), None));
+        last_modified.set_texture(gfx::Texture::load_from_surface(
+            &graphics.font.create_text_surface(get_last_modified_time(file_path.as_path().to_str().unwrap_or("")).as_str(), None),
+        ));
         last_modified.color = gfx::GREY;
         last_modified.orientation = gfx::BOTTOM_RIGHT;
         last_modified.pos.0 = -gfx::SPACING;
@@ -141,11 +144,11 @@ impl UiElement for World {
         self.rect.render(graphics, parent_container);
 
         let rect_container = self.rect.get_container(graphics, parent_container);
-        self.icon.render(graphics, Some(&rect_container), None);
-        self.title.render(graphics, Some(&rect_container), None);
+        self.icon.render(graphics, &rect_container);
+        self.title.render(graphics, &rect_container);
         self.play_button.render(graphics, &rect_container);
         self.delete_button.render(graphics, &rect_container);
-        self.last_modified.render(graphics, Some(&rect_container), None);
+        self.last_modified.render(graphics, &rect_container);
     }
 
     /// This function returns the container of the world card.
@@ -261,7 +264,7 @@ impl SingleplayerSelector {
         let world_list = WorldList::new(graphics);
         let mut title = gfx::Sprite::new();
         title.scale = 3.0;
-        title.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Select a world to play!", None));
+        title.set_texture(gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Select a world to play!", None)));
         title.pos.1 = gfx::SPACING;
         title.orientation = gfx::TOP;
 
@@ -323,13 +326,13 @@ impl SingleplayerSelector {
 impl UiElement for SingleplayerSelector {
     fn get_sub_elements_mut(&mut self) -> Vec<&mut dyn BaseUiElement> {
         let mut elements_vec: Vec<&mut dyn BaseUiElement> = Vec::new();
+        elements_vec.push(&mut self.world_list);
         if self.scrollable.scroll_size > self.scrollable.rect.size.1 {
             elements_vec.push(&mut self.top_rect);
         }
         if self.scrollable.scroll_size > self.scrollable.rect.size.1 {
             elements_vec.push(&mut self.bottom_rect);
         }
-        elements_vec.push(&mut self.world_list);
         elements_vec.push(&mut self.back_button);
         elements_vec.push(&mut self.new_world_button);
         elements_vec.push(&mut self.scrollable);
@@ -338,13 +341,13 @@ impl UiElement for SingleplayerSelector {
 
     fn get_sub_elements(&self) -> Vec<&dyn BaseUiElement> {
         let mut elements_vec: Vec<&dyn BaseUiElement> = Vec::new();
+        elements_vec.push(&self.world_list);
         if self.scrollable.scroll_size > self.scrollable.rect.size.1 {
             elements_vec.push(&self.top_rect);
         }
         if self.scrollable.scroll_size > self.scrollable.rect.size.1 {
             elements_vec.push(&self.bottom_rect);
         }
-        elements_vec.push(&self.world_list);
         elements_vec.push(&self.back_button);
         elements_vec.push(&self.new_world_button);
         elements_vec.push(&self.scrollable);
@@ -387,10 +390,10 @@ impl UiElement for SingleplayerSelector {
 
         self.bottom_rect.size.0 = parent_container.get_absolute_rect().size.0;
 
-        self.title.render(graphics, Some(parent_container), None);
-        self.back_button.render(graphics, parent_container);
+        self.title.render(graphics, parent_container);
+        //self.back_button.render(graphics, parent_container);
 
-        self.new_world_button.render(graphics, parent_container);
+        //self.new_world_button.render(graphics, parent_container);
 
         let mut world_height = 0.0;
         if let Some(world) = self.world_list.worlds.first() {

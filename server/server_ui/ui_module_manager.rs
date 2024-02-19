@@ -6,6 +6,7 @@ use std::sync::mpsc::Sender;
 use anyhow::{anyhow, Result};
 
 use crate::libraries::graphics as gfx;
+use crate::libraries::graphics::BaseUiElement;
 use crate::server::server_ui::UiMessageType;
 
 /// This enum indicates the type of the `ModuleTree` Node.
@@ -165,7 +166,7 @@ impl ModuleManager {
         &mut self.root
     }
 
-    pub fn on_event(&mut self, event: &gfx::Event, graphics_context: &gfx::GraphicsContext) {
+    pub fn on_event(&mut self, event: &gfx::Event, graphics_context: &mut gfx::GraphicsContext) {
         match event {
             gfx::Event::KeyPress(key, _repeat) => {
                 if *key == gfx::Key::F1 {
@@ -394,7 +395,7 @@ impl ModuleManager {
         ModuleManagerRenderer::render_selection(graphics_context, &self.rect);
     }
 
-    pub fn render_overlay(&self, graphics_context: &gfx::GraphicsContext) {
+    pub fn render_overlay(&mut self, graphics_context: &mut gfx::GraphicsContext) {
         self.renderer.render_overlay(graphics_context, &self.rect, &self.mode);
     }
 
@@ -473,16 +474,16 @@ impl ModuleManagerRenderer {
         name_sprite.scale = 3.0;
 
         let mut vertical_arrow_sprite = gfx::Sprite::new();
-        vertical_arrow_sprite.texture = gfx::Texture::load_from_surface(
+        vertical_arrow_sprite.set_texture(gfx::Texture::load_from_surface(
             &gfx::Surface::deserialize_from_bytes(include_bytes!("../../Build/Resources/vertical_resize_arrow.opa")).unwrap_or_else(|_| gfx::Surface::new(gfx::IntSize(0, 0))),
-        );
+        ));
         vertical_arrow_sprite.orientation = gfx::CENTER;
         vertical_arrow_sprite.scale = 4.0;
 
         let mut horizontal_arrow_sprite = gfx::Sprite::new();
-        horizontal_arrow_sprite.texture = gfx::Texture::load_from_surface(
+        horizontal_arrow_sprite.set_texture(gfx::Texture::load_from_surface(
             &gfx::Surface::deserialize_from_bytes(include_bytes!("../../Build/Resources/horizontal_resize_arrow.opa")).unwrap_or_else(|_| gfx::Surface::new(gfx::IntSize(0, 0))),
-        );
+        ));
         horizontal_arrow_sprite.orientation = gfx::CENTER;
         horizontal_arrow_sprite.scale = 4.0;
 
@@ -506,7 +507,7 @@ impl ModuleManagerRenderer {
         rect.render(graphics_context, gfx::WHITE);
     }
 
-    fn render_overlay(&self, graphics_context: &gfx::GraphicsContext, fraction_rect: &gfx::Rect, edit_mode: &EditMode) {
+    fn render_overlay(&mut self, graphics_context: &mut gfx::GraphicsContext, fraction_rect: &gfx::Rect, edit_mode: &EditMode) {
         if *edit_mode == EditMode::Select {
             return;
         }
@@ -522,22 +523,22 @@ impl ModuleManagerRenderer {
         }
     }
 
-    fn render_rename_overlay(&self, graphics_context: &gfx::GraphicsContext, rect: &gfx::Rect) {
+    fn render_rename_overlay(&mut self, graphics_context: &mut gfx::GraphicsContext, rect: &gfx::Rect) {
         let container = gfx::Container::new(graphics_context, rect.pos, rect.size, gfx::TOP_LEFT, None);
-        self.name_sprite.render(graphics_context, Some(&container), None);
+        self.name_sprite.render(graphics_context, &container);
     }
 
-    fn render_resize_overlay(&self, graphics_context: &gfx::GraphicsContext, rect: &gfx::Rect) {
+    fn render_resize_overlay(&mut self, graphics_context: &mut gfx::GraphicsContext, rect: &gfx::Rect) {
         let container = gfx::Container::new(graphics_context, rect.pos, rect.size, gfx::TOP_LEFT, None);
         if self.split_orientation == SplitType::Horizontal {
-            self.vertical_arrow_sprite.render(graphics_context, Some(&container), None);
+            self.vertical_arrow_sprite.render(graphics_context, &container);
         } else {
-            self.horizontal_arrow_sprite.render(graphics_context, Some(&container), None);
+            self.horizontal_arrow_sprite.render(graphics_context, &container);
         }
     }
 
-    fn update_texture(&mut self, graphics_context: &gfx::GraphicsContext, text: &str) {
+    fn update_texture(&mut self, graphics_context: &mut gfx::GraphicsContext, text: &str) {
         let text_surface = &graphics_context.font.create_text_surface(text, None);
-        self.name_sprite.texture = gfx::Texture::load_from_surface(text_surface);
+        self.name_sprite.set_texture(gfx::Texture::load_from_surface(text_surface));
     }
 }
