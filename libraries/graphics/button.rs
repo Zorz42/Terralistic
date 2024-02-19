@@ -67,6 +67,10 @@ impl Button {
         let mouse_pos = graphics.get_mouse_pos();
         rect.contains(mouse_pos)
     }
+
+    pub fn press(&self) {
+        (self.on_click)();
+    }
 }
 
 impl UiElement for Button {

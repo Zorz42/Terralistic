@@ -10,7 +10,6 @@ use crate::client::game::private_world::run_private_world;
 use crate::client::global_settings::GlobalSettings;
 use crate::client::settings::Settings;
 use crate::libraries::graphics as gfx;
-use crate::libraries::graphics::FloatSize;
 use gfx::{BaseUiElement, UiElement};
 
 use super::run_choice_menu;
@@ -200,7 +199,7 @@ pub struct SingleplayerSelector {
 
 impl SingleplayerSelector {
     #[must_use]
-    pub fn new(graphics: &gfx::GraphicsContext, settings: Rc<RefCell<Settings>>, global_settings: Rc<RefCell<GlobalSettings>>) -> Self {
+    pub fn new(graphics: &gfx::GraphicsContext, settings: Rc<RefCell<Settings>>, global_settings: Rc<RefCell<GlobalSettings>>, close_menu: Rc<RefCell<bool>>) -> Self {
         let world_list = WorldList::new(graphics);
         let mut title = gfx::Sprite::new();
         title.scale = 3.0;
@@ -208,7 +207,9 @@ impl SingleplayerSelector {
         title.pos.1 = gfx::SPACING;
         title.orientation = gfx::TOP;
 
-        let mut back_button = gfx::Button::new(|| {});
+        let mut back_button = gfx::Button::new(move || {
+            *close_menu.borrow_mut() = true;
+        });
         back_button.scale = 3.0;
         back_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Back", None));
         back_button.pos.1 = -gfx::SPACING;
@@ -326,12 +327,10 @@ impl UiElement for SingleplayerSelector {
         let temp_container = gfx::Container::new(graphics, gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, 0.0), gfx::CENTER, None);
         let parent_container = parent_container.unwrap_or(&temp_container);
         self.scrollable.on_event(graphics, event, Some(parent_container));
+        self.back_button.on_event(graphics, event, Some(parent_container));
         if let gfx::Event::KeyRelease(key, ..) = event {
             match key {
                 gfx::Key::MouseLeft => {
-                    if self.back_button.is_hovered(graphics, Some(parent_container)) {
-                        return;
-                    }
                     /*if self.new_world_button.is_hovered(graphics, Some(parent_container)) {
                         run_world_creation(graphics, menu_back, &self.world_list.worlds, &mut *self.settings, &mut *self.global_settings);
                         self.world_list.refresh(graphics);
@@ -368,7 +367,7 @@ impl UiElement for SingleplayerSelector {
                     }
                 }
                 gfx::Key::Escape => {
-                    return;
+                    self.back_button.press();
                 }
                 _ => {}
             }
@@ -377,6 +376,9 @@ impl UiElement for SingleplayerSelector {
 
     fn get_container(&self, graphics: &gfx::GraphicsContext, parent_container: Option<&gfx::Container>) -> gfx::Container {
         //TODO make its own container
-        gfx::Container::new(graphics, gfx::FloatPos(0.0, 0.0), graphics.get_window_size(), gfx::TOP_LEFT, parent_container)
+        parent_container.map_or_else(
+            || gfx::Container::new(graphics, gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, 0.0), gfx::CENTER, None),
+            |container| gfx::Container::new(graphics, container.rect.pos, container.rect.size, container.orientation, None),
+        )
     }
 }

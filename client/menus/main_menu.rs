@@ -26,6 +26,7 @@ pub fn run_main_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn Ba
     secondary_menu_back.set_x_position(graphics.get_window_size().0);
     secondary_menu_back.main_back_menu = false;
     secondary_menu_back.set_back_rect_width(MENU_WIDTH);
+    let close_secondary_menu = Rc::new(RefCell::new(false));
 
     let mut singleplayer_button = gfx::Button::new(|| {});
     singleplayer_button.scale = 3.0;
@@ -131,18 +132,19 @@ pub fn run_main_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn Ba
 
             match state {
                 MainMenuState::None => (),
-                MainMenuState::SingleplayerSelector(ref mut menu) => menu.get_mut().on_event(graphics, &event, Some(menu_back.get_back_rect_container())),
+                MainMenuState::SingleplayerSelector(ref mut menu) => menu.get_mut().on_event(graphics, &event, Some(secondary_menu_back.get_back_rect_container())),
             }
-            /*if close_secondary_menu {
+            if *close_secondary_menu.borrow_mut() {
                 state = MainMenuState::None;
-            }*/
+                *close_secondary_menu.borrow_mut() = false;
+            }
 
             if let gfx::Event::KeyRelease(key, ..) = event {
                 // check for every button if it was clicked with the left mouse button
                 if key == gfx::Key::MouseLeft {
                     if singleplayer_button.is_hovered(graphics, Some(menu_back.get_back_rect_container())) {
                         if !matches!(state, MainMenuState::SingleplayerSelector(_)) {
-                            let singleplayer_menu = SingleplayerSelector::new(graphics, settings.clone(), global_settings.clone());
+                            let singleplayer_menu = SingleplayerSelector::new(graphics, settings.clone(), global_settings.clone(), close_secondary_menu.clone());
                             state = MainMenuState::SingleplayerSelector(Box::new(Cell::new(singleplayer_menu)));
                         }
                     } else if multiplayer_button.is_hovered(graphics, Some(menu_back.get_back_rect_container())) {
