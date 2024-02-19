@@ -37,6 +37,18 @@ impl MenuBack {
             main_back_menu: true,
         }
     }
+
+    #[must_use]
+    pub fn new_synced(graphics_context: &gfx::GraphicsContext, timer: std::time::Instant) -> Self {
+        let mut temp = Self::new(graphics_context);
+        temp.background_timer = timer;
+        temp
+    }
+
+    #[must_use]
+    pub const fn get_timer(&self) -> std::time::Instant {
+        self.background_timer
+    }
 }
 
 impl BackgroundRect for MenuBack {

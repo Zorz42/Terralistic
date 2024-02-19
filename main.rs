@@ -304,8 +304,8 @@ fn client_main() {
     let global_settings = Rc::new(RefCell::new(GlobalSettings::new()));
     global_settings.borrow_mut().init(&settings);
     global_settings.borrow_mut().update(&mut graphics, &settings);
-
-    run_main_menu(&mut graphics, &mut menu_back, &settings, &global_settings);
+    let timer = menu_back.get_timer();
+    run_main_menu(&mut graphics, &mut menu_back, &settings, &global_settings, timer);
 
     global_settings.borrow_mut().stop(&settings);
 

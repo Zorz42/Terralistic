@@ -20,7 +20,13 @@ enum MainMenuState {
 
 #[allow(clippy::too_many_lines)] // TODO: split this function up
 #[allow(clippy::cognitive_complexity)]
-pub fn run_main_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn BackgroundRect, settings: &Rc<RefCell<Settings>>, global_settings: &Rc<RefCell<GlobalSettings>>) {
+pub fn run_main_menu(
+    graphics: &mut gfx::GraphicsContext,
+    menu_back: &mut dyn BackgroundRect,
+    settings: &Rc<RefCell<Settings>>,
+    global_settings: &Rc<RefCell<GlobalSettings>>,
+    menu_back_timer: std::time::Instant,
+) {
     let mut state = MainMenuState::None;
     let mut secondary_menu_back = crate::client::menus::MenuBack::new(graphics);
     secondary_menu_back.set_x_position(graphics.get_window_size().0);
@@ -146,7 +152,7 @@ pub fn run_main_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn Ba
                 if key == gfx::Key::MouseLeft {
                     if singleplayer_button.is_hovered(graphics, menu_back.get_back_rect_container()) {
                         if !matches!(state, MainMenuState::SingleplayerSelector(_)) {
-                            let singleplayer_menu = SingleplayerSelector::new(graphics, settings.clone(), global_settings.clone(), close_secondary_menu.clone());
+                            let singleplayer_menu = SingleplayerSelector::new(graphics, settings.clone(), global_settings.clone(), close_secondary_menu.clone(), menu_back_timer);
                             state = MainMenuState::SingleplayerSelector(Box::new(Cell::new(singleplayer_menu)));
                         }
                     } else if multiplayer_button.is_hovered(graphics, menu_back.get_back_rect_container()) {
