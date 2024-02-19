@@ -156,7 +156,7 @@ pub fn run_main_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn Ba
                     } else if mods_button.is_hovered(graphics, menu_back.get_back_rect_container()) {
                     } else if exit_button.is_hovered(graphics, menu_back.get_back_rect_container()) {
                         graphics.close_window();
-                    } else if cloud_status_button.is_hovered(graphics, menu_back.get_back_rect_container()) && run_login_menu(graphics, menu_back) {
+                    } else if cloud_status_button.is_hovered(graphics, &gfx::Container::default(graphics)) && run_login_menu(graphics, menu_back) {
                         if let Some(client) = &mut tls_client {
                             client.reset();
                         }
@@ -204,7 +204,7 @@ pub fn run_main_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn Ba
 
         let color = get_tls_status_color(&tls_client);
         cloud_status_rect.render(graphics, color);
-        cloud_status_button.render(graphics, menu_back.get_back_rect_container());
+        cloud_status_button.render(graphics, &gfx::Container::default(graphics));
 
         #[cfg(debug_assertions)]
         debug_title.render(graphics, Some(menu_back.get_back_rect_container()), None);

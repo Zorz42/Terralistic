@@ -138,11 +138,11 @@ impl TextInput {
 
 impl UiElement for TextInput {
     fn get_sub_elements_mut(&mut self) -> Vec<&mut dyn BaseUiElement> {
-        Vec::new()
+        vec![&mut self.cursor_rect]
     }
 
     fn get_sub_elements(&self) -> Vec<&dyn BaseUiElement> {
-        Vec::new()
+        vec![&self.cursor_rect]
     }
 
     /// renders the text input
@@ -230,7 +230,7 @@ impl UiElement for TextInput {
         if self.text_changed || self.selected {
             let texture_width = if self.text.is_empty() { 0.0 } else { self.text_texture.get_texture_size().0 * self.scale };
 
-            let text_begin_x = f32::min(rect.pos.0 + self.padding * self.scale, rect.pos.0 - self.padding * self.scale + rect.size.0 - texture_width);
+            let text_begin_x = f32::min(self.padding * self.scale, -self.padding * self.scale + rect.size.0 - texture_width);
 
             // w1 is the width of the text before the cursor.0
             let w1 = if self.get_cursor().0 == 0 {
@@ -250,7 +250,7 @@ impl UiElement for TextInput {
             let x2 = text_begin_x + w2 + 1.0;
 
             self.cursor_rect.pos.0 = x1;
-            self.cursor_rect.pos.1 = rect.pos.1 + self.padding * self.scale;
+            self.cursor_rect.pos.1 = self.padding * self.scale;
             self.cursor_rect.size.0 = x2 - x1;
             self.cursor_rect.size.1 = rect.size.1 - self.padding * self.scale * 2.0;
 
@@ -261,7 +261,7 @@ impl UiElement for TextInput {
 
         self.cursor_rect.fill_color.a = (255.0 * self.cursor_color_progress) as u8;
 
-        self.cursor_rect.render(graphics, parent_container);
+        //self.cursor_rect.render(graphics, parent_container);
 
         self.text_changed = false;
     }
