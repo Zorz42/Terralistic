@@ -32,8 +32,10 @@ impl<T: UiElement> BaseUiElement for T {}
 pub trait UiElement {
     fn get_sub_elements_mut(&mut self) -> Vec<&mut dyn BaseUiElement>;
     fn get_sub_elements(&self) -> Vec<&dyn BaseUiElement>;
-    fn render_inner(&mut self, graphics: &mut gfx::GraphicsContext, parent_container: Option<&gfx::Container>);
-    fn update_inner(&mut self, graphics: &mut gfx::GraphicsContext, parent_container: Option<&gfx::Container>);
-    fn on_event_inner(&mut self, graphics: &mut gfx::GraphicsContext, event: &gfx::Event, parent_container: Option<&gfx::Container>) -> bool;
+    fn render_inner(&mut self, _: &mut gfx::GraphicsContext, _: Option<&gfx::Container>) {}
+    fn update_inner(&mut self, _: &mut gfx::GraphicsContext, _: Option<&gfx::Container>) {}
+    fn on_event_inner(&mut self, _: &mut gfx::GraphicsContext, _: &gfx::Event, _: Option<&gfx::Container>) -> bool {
+        false
+    }
     fn get_container(&self, graphics: &gfx::GraphicsContext, parent_container: Option<&gfx::Container>) -> gfx::Container;
 }

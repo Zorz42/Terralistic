@@ -39,6 +39,7 @@ pub fn get_last_modified_time(file_path: &str) -> String {
 /// render the world in singleplayer selector.
 pub struct World {
     pub name: String,
+    pub pos: gfx::FloatPos,
     rect: gfx::RenderRect,
     play_button: gfx::Button,
     delete_button: gfx::Button,
@@ -105,20 +106,8 @@ impl World {
             title,
             icon,
             file_path,
+            pos: gfx::FloatPos(0.0, 0.0),
         }
-    }
-
-    /// This function renders the world card on the x and y position.
-    pub fn render(&mut self, graphics: &mut gfx::GraphicsContext, pos: gfx::FloatPos, parent_container: Option<&gfx::Container>) {
-        self.rect.pos = pos;
-        self.rect.render(graphics, parent_container);
-
-        let rect_container = self.rect.get_container(graphics, parent_container);
-        self.icon.render(graphics, Some(&rect_container), None);
-        self.title.render(graphics, Some(&rect_container), None);
-        self.play_button.render(graphics, Some(&rect_container));
-        self.delete_button.render(graphics, Some(&rect_container));
-        self.last_modified.render(graphics, Some(&rect_container), None);
     }
 
     /// This function returns height of the world card.
@@ -132,13 +121,36 @@ impl World {
         self.delete_button.disabled = !enabled;
     }
 
-    /// This function returns the container of the world card.
-    pub fn get_container(&self, graphics: &gfx::GraphicsContext, parent_container: Option<&gfx::Container>) -> gfx::Container {
-        self.rect.get_container(graphics, parent_container)
-    }
-
     const fn get_file_path(&self) -> &PathBuf {
         &self.file_path
+    }
+}
+
+impl UiElement for World {
+    fn get_sub_elements_mut(&mut self) -> Vec<&mut dyn BaseUiElement> {
+        Vec::new()
+    }
+
+    fn get_sub_elements(&self) -> Vec<&dyn BaseUiElement> {
+        Vec::new()
+    }
+
+    /// This function renders the world card on the x and y position.
+    fn render_inner(&mut self, graphics: &mut gfx::GraphicsContext, parent_container: Option<&gfx::Container>) {
+        self.rect.pos = self.pos;
+        self.rect.render(graphics, parent_container);
+
+        let rect_container = self.rect.get_container(graphics, parent_container);
+        self.icon.render(graphics, Some(&rect_container), None);
+        self.title.render(graphics, Some(&rect_container), None);
+        self.play_button.render(graphics, Some(&rect_container));
+        self.delete_button.render(graphics, Some(&rect_container));
+        self.last_modified.render(graphics, Some(&rect_container), None);
+    }
+
+    /// This function returns the container of the world card.
+    fn get_container(&self, graphics: &gfx::GraphicsContext, parent_container: Option<&gfx::Container>) -> gfx::Container {
+        self.rect.get_container(graphics, parent_container)
     }
 }
 
@@ -146,11 +158,17 @@ impl World {
 /// and render them in the singleplayer selector menu.
 pub struct WorldList {
     pub worlds: Vec<World>,
+    pub scrolled: f32,
+    pub top_rect_size: f32,
 }
 
 impl WorldList {
     pub fn new(graphics: &gfx::GraphicsContext) -> Self {
-        let mut world_list = Self { worlds: Vec::new() };
+        let mut world_list = Self {
+            worlds: Vec::new(),
+            scrolled: 0.0,
+            top_rect_size: 0.0,
+        };
         world_list.refresh(graphics);
         world_list
     }
@@ -181,6 +199,38 @@ impl WorldList {
                 }
             }
         }
+    }
+}
+
+impl UiElement for WorldList {
+    fn get_sub_elements_mut(&mut self) -> Vec<&mut dyn BaseUiElement> {
+        let mut element_vec: Vec<&mut dyn BaseUiElement> = Vec::new();
+        for world in &mut self.worlds {
+            element_vec.push(world);
+        }
+        element_vec
+    }
+
+    fn get_sub_elements(&self) -> Vec<&dyn BaseUiElement> {
+        let mut element_vec: Vec<&dyn BaseUiElement> = Vec::new();
+        for world in &self.worlds {
+            element_vec.push(world);
+        }
+        element_vec
+    }
+
+    fn render_inner(&mut self, graphics: &mut gfx::GraphicsContext, parent_container: Option<&gfx::Container>) {
+        let mut current_y = gfx::SPACING + self.scrolled + self.top_rect_size;
+        for world in &mut self.worlds {
+            world.pos = gfx::FloatPos(0.0, current_y);
+            world.render(graphics, parent_container);
+            current_y += world.get_height() + gfx::SPACING;
+        }
+    }
+
+    fn get_container(&self, graphics: &gfx::GraphicsContext, parent_container: Option<&gfx::Container>) -> gfx::Container {
+        let c1 = parent_container.unwrap();
+        gfx::Container::new(graphics, c1.rect.pos, c1.rect.size, c1.orientation, None)
     }
 }
 
@@ -258,11 +308,33 @@ impl SingleplayerSelector {
 
 impl UiElement for SingleplayerSelector {
     fn get_sub_elements_mut(&mut self) -> Vec<&mut dyn BaseUiElement> {
-        Vec::new()
+        let mut elements_vec: Vec<&mut dyn BaseUiElement> = Vec::new();
+        if self.scrollable.scroll_size > self.scrollable.rect.size.1 {
+            elements_vec.push(&mut self.top_rect);
+        }
+        if self.scrollable.scroll_size > self.scrollable.rect.size.1 {
+            elements_vec.push(&mut self.bottom_rect);
+        }
+        elements_vec.push(&mut self.world_list);
+        elements_vec.push(&mut self.back_button);
+        elements_vec.push(&mut self.new_world_button);
+        elements_vec.push(&mut self.scrollable);
+        elements_vec
     }
 
     fn get_sub_elements(&self) -> Vec<&dyn BaseUiElement> {
-        Vec::new()
+        let mut elements_vec: Vec<&dyn BaseUiElement> = Vec::new();
+        if self.scrollable.scroll_size > self.scrollable.rect.size.1 {
+            elements_vec.push(&self.top_rect);
+        }
+        if self.scrollable.scroll_size > self.scrollable.rect.size.1 {
+            elements_vec.push(&self.bottom_rect);
+        }
+        elements_vec.push(&self.world_list);
+        elements_vec.push(&self.back_button);
+        elements_vec.push(&self.new_world_button);
+        elements_vec.push(&self.scrollable);
+        elements_vec
     }
 
     fn render_inner(&mut self, graphics: &mut gfx::GraphicsContext, parent_container: Option<&gfx::Container>) {
@@ -274,14 +346,8 @@ impl UiElement for SingleplayerSelector {
             world.set_enabled(hoverable);
         }
 
-        let mut current_y = gfx::SPACING + self.scrollable.get_scroll_x(graphics, None) + self.top_rect.size.1;
-        let mut elements_height = 0.0;
-
-        for world in &mut self.world_list.worlds {
-            world.render(graphics, gfx::FloatPos(0.0, current_y), Some(parent_container));
-            current_y += world.get_height() + gfx::SPACING;
-            elements_height += world.get_height() + gfx::SPACING;
-        }
+        self.world_list.scrolled = self.scrollable.get_scroll_x(graphics, None);
+        self.world_list.top_rect_size = self.top_rect.size.1;
 
         self.top_rect.size.0 = parent_container.get_absolute_rect().size.0;
 
@@ -298,28 +364,20 @@ impl UiElement for SingleplayerSelector {
         self.top_rect.fill_color.a = (self.top_rect_visibility * gfx::TRANSPARENCY as f32 / 2.0) as u8;
         self.top_rect.blur_radius = (self.top_rect_visibility * gfx::BLUR as f32) as i32;
         self.top_rect.shadow_intensity = (self.top_rect_visibility * gfx::SHADOW_INTENSITY as f32) as i32;
-        if self.top_rect_visibility > 0.0 {
-            self.top_rect.render(graphics, Some(parent_container));
-        }
 
         self.bottom_rect.size.0 = parent_container.get_absolute_rect().size.0;
-
-        if self.scrollable.scroll_size > self.scrollable.rect.size.1 {
-            self.bottom_rect.render(graphics, Some(parent_container));
-        }
 
         self.title.render(graphics, Some(parent_container), None);
         self.back_button.render(graphics, Some(parent_container));
 
         self.new_world_button.render(graphics, Some(parent_container));
 
-        self.scrollable.scroll_size = elements_height;
+        let mut world_height = 0.0;
+        if let Some(world) = self.world_list.worlds.first() {
+            world_height = world.get_height();
+        }
+        self.scrollable.scroll_size = (world_height + gfx::SPACING) * self.world_list.worlds.len() as f32 - gfx::SPACING;
         self.scrollable.rect.size.1 = graphics.get_window_size().1 - self.top_rect.size.1 - self.bottom_rect.size.1;
-        self.scrollable.render(graphics, Some(parent_container));
-    }
-
-    fn update_inner(&mut self, _: &mut gfx::GraphicsContext, _: Option<&gfx::Container>) {
-        //empty for now
     }
 
     fn on_event_inner(&mut self, graphics: &mut gfx::GraphicsContext, event: &gfx::Event, parent_container: Option<&gfx::Container>) -> bool {
