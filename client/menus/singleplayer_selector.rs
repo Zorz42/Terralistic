@@ -10,7 +10,6 @@ use crate::client::game::private_world::run_private_world;
 use crate::client::global_settings::GlobalSettings;
 use crate::client::settings::Settings;
 use crate::libraries::graphics as gfx;
-use crate::libraries::graphics::{Container, GraphicsContext};
 use gfx::{BaseUiElement, UiElement};
 
 use super::world_creation::run_world_creation;
@@ -367,7 +366,7 @@ impl UiElement for SingleplayerSelector {
         }
     }
 
-    fn update_inner(&mut self, graphics: &mut GraphicsContext, parent_container: &Container) {
+    fn update_inner(&mut self, graphics: &mut gfx::GraphicsContext, parent_container: &gfx::Container) {
         let hoverable = graphics.get_mouse_pos().1 > self.top_rect.size.1 && graphics.get_mouse_pos().1 < graphics.get_window_size().1 - self.bottom_rect.size.1;
 
         for world in &mut self.world_list.worlds {
