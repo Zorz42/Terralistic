@@ -390,6 +390,7 @@ impl UiElement for SingleplayerSelector {
             run_world_creation(graphics, &mut menu_back, &self.world_list.worlds, &self.settings, &self.global_settings);
             self.world_list.refresh(graphics, &self.world_button_press);
         }
+        *self.new_world_press.borrow_mut() = false;
     }
 
     fn update_inner(&mut self, graphics: &mut gfx::GraphicsContext, parent_container: &gfx::Container) {

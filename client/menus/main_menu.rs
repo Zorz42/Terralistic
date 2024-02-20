@@ -6,7 +6,6 @@ use crate::client::settings::Settings;
 use crate::libraries::graphics as gfx;
 use crate::shared::tls_client::ConnectionState;
 use crate::shared::versions::VERSION;
-use sdl2::hint::set;
 use std::cell::{Cell, RefCell};
 use std::rc::Rc;
 
@@ -16,9 +15,131 @@ use gfx::BaseUiElement;
 
 enum MainMenuState {
     None,
-    SingleplayerSelector(Box<Cell<SingleplayerSelector>>),
-    MultiplayerSelector(Box<Cell<MultiplayerSelector>>),
-    Settings(Box<Cell<SettingsMenu>>),
+    SingleMenu((Cell<Box<dyn BaseUiElement>>, usize)),
+    Transition {
+        top_menu: (Cell<Box<dyn BaseUiElement>>, usize),
+        bottom_menu: (Cell<Box<dyn BaseUiElement>>, usize),
+        direction: bool, //true is down
+        transition_state: f32,
+        top_menu_container: gfx::Container,
+        bottom_menu_container: gfx::Container,
+    },
+}
+
+impl MainMenuState {
+    pub fn render(&mut self, graphics: &mut gfx::GraphicsContext, parent_container: &gfx::Container) {
+        match self {
+            Self::None => {}
+            Self::SingleMenu((menu, _id)) => {
+                menu.get_mut().render(graphics, parent_container);
+            }
+            Self::Transition {
+                top_menu: (top_menu, _id_top),
+                bottom_menu: (bottom_menu, _id_bot),
+                top_menu_container,
+                bottom_menu_container,
+                ..
+            } => {
+                top_menu.get_mut().render(graphics, top_menu_container);
+                bottom_menu.get_mut().render(graphics, bottom_menu_container);
+            }
+        }
+    }
+
+    pub fn update(&mut self, graphics: &mut gfx::GraphicsContext, parent_container: &gfx::Container) {
+        let mut stop_transition = false;
+        match self {
+            Self::None => {}
+            Self::SingleMenu((menu, _id)) => {
+                menu.get_mut().update(graphics, parent_container);
+            }
+            Self::Transition {
+                top_menu: (top_menu, _id_top),
+                bottom_menu: (bottom_menu, _id_bot),
+                direction,
+                transition_state,
+                top_menu_container,
+                bottom_menu_container,
+            } => {
+                *transition_state += (1.0 - *transition_state) / 15.0;
+                if *transition_state > 0.999 {
+                    stop_transition = true;
+                }
+                let offset = if *direction {
+                    -graphics.get_window_size().1 * (*transition_state)
+                } else {
+                    -graphics.get_window_size().1 * (1.0 - *transition_state)
+                };
+                top_menu_container.rect.pos.1 = parent_container.rect.pos.1 + offset;
+                bottom_menu_container.rect.pos.1 = parent_container.rect.pos.1 + offset + graphics.get_window_size().1;
+                top_menu_container.update(graphics, parent_container);
+                bottom_menu_container.update(graphics, parent_container);
+                top_menu.get_mut().update(graphics, top_menu_container);
+                bottom_menu.get_mut().update(graphics, bottom_menu_container);
+            }
+        }
+        if stop_transition {
+            if let Self::Transition { top_menu, bottom_menu, direction, .. } = std::mem::replace(self, Self::None) {
+                *self = Self::SingleMenu(if direction { bottom_menu } else { top_menu });
+            }
+        }
+    }
+
+    pub fn on_event(&mut self, graphics: &mut gfx::GraphicsContext, event: &gfx::Event, parent_container: &gfx::Container) {
+        match self {
+            Self::None => {}
+            Self::SingleMenu((menu, _id)) => {
+                menu.get_mut().on_event(graphics, event, parent_container);
+            }
+            Self::Transition {
+                top_menu: (top_menu, _id_top),
+                bottom_menu: (bottom_menu, _id_bot),
+                ..
+            } => {
+                top_menu.get_mut().on_event(graphics, event, parent_container);
+                bottom_menu.get_mut().on_event(graphics, event, parent_container);
+            }
+        }
+    }
+
+    pub fn switch_to(&mut self, new_menu: (Cell<Box<dyn BaseUiElement>>, usize), graphics: &gfx::GraphicsContext, parent_container: &gfx::Container) {
+        match std::mem::replace(self, Self::None) {
+            Self::None => {
+                *self = Self::SingleMenu(new_menu);
+            }
+            Self::SingleMenu((menu, id)) => {
+                let (top_menu, bottom_menu, direction) = if id < new_menu.1 { ((menu, id), new_menu, true) } else { (new_menu, (menu, id), false) };
+                *self = Self::Transition {
+                    top_menu,
+                    bottom_menu,
+                    transition_state: 0.0,
+                    direction,
+                    bottom_menu_container: gfx::Container::new(graphics, parent_container.rect.pos, parent_container.rect.size, parent_container.orientation, None),
+                    top_menu_container: gfx::Container::new(graphics, parent_container.rect.pos, parent_container.rect.size, parent_container.orientation, None),
+                }
+            }
+            Self::Transition { top_menu, bottom_menu, direction, .. } => {
+                let switching_to = if direction { bottom_menu } else { top_menu };
+                if new_menu.1 == switching_to.1 {
+                    *self = Self::SingleMenu(switching_to);
+                } else {
+                    let (top_menu, bottom_menu, direction) = if switching_to.1 < new_menu.1 {
+                        (switching_to, new_menu, true)
+                    } else {
+                        (new_menu, switching_to, false)
+                    };
+                    *self = Self::Transition {
+                        top_menu,
+                        bottom_menu,
+                        transition_state: 0.0,
+                        direction,
+                        bottom_menu_container: gfx::Container::new(graphics, parent_container.rect.pos, parent_container.rect.size, parent_container.orientation, None),
+                        top_menu_container: gfx::Container::new(graphics, parent_container.rect.pos, parent_container.rect.size, parent_container.orientation, None),
+                    }
+                }
+            }
+        }
+    }
 }
 
 #[allow(clippy::too_many_lines)] // TODO: split this function up
@@ -99,10 +220,6 @@ pub fn run_main_menu(
         }
     }
 
-    let mut in_settings = false;
-    /*let mut settings_menu = SettingsMenu::new(close_secondary_menu.clone(), settings.clone());
-    settings_menu.init(graphics);*/
-
     let cloud_status_rect = gfx::Rect::new(gfx::FloatPos(10.0, 10.0), gfx::FloatSize(20.0, 20.0));
 
     let mut cloud_status_button = gfx::Button::new(|| {});
@@ -127,30 +244,12 @@ pub fn run_main_menu(
         tls_client.as_mut().map_or_else(
             || {},
             |client| {
-                //client.print_state();
                 client.authenticate();
             },
         );
         while let Some(event) = graphics.get_event() {
-            /*if in_settings {
-                if settings_menu.on_event(&event, graphics, ) {
-                    in_settings = false;
-                }
-                continue;
-            }*/
-
-            match state {
-                MainMenuState::None => (),
-                MainMenuState::SingleplayerSelector(ref mut menu) => {
-                    let _ = menu.get_mut().on_event(graphics, &event, secondary_menu_back.get_back_rect_container());
-                }
-                MainMenuState::MultiplayerSelector(ref mut menu) => {
-                    let _ = menu.get_mut().on_event(graphics, &event, secondary_menu_back.get_back_rect_container());
-                }
-                MainMenuState::Settings(ref mut menu) => {
-                    let _ = menu.get_mut().on_event(graphics, &event, secondary_menu_back.get_back_rect_container());
-                }
-            }
+            state.on_event(graphics, &event, secondary_menu_back.get_back_rect_container());
+            global_settings.borrow_mut().update(graphics, settings);
             if *close_secondary_menu.borrow_mut() {
                 state = MainMenuState::None;
                 *close_secondary_menu.borrow_mut() = false;
@@ -160,20 +259,20 @@ pub fn run_main_menu(
                 // check for every button if it was clicked with the left mouse button
                 if key == gfx::Key::MouseLeft {
                     if singleplayer_button.is_hovered(graphics, menu_back.get_back_rect_container()) {
-                        if !matches!(state, MainMenuState::SingleplayerSelector(_)) {
+                        if !matches!(state, MainMenuState::SingleMenu((_, 0))) {
                             let singleplayer_menu = SingleplayerSelector::new(graphics, settings.clone(), global_settings.clone(), close_secondary_menu.clone(), menu_back_timer);
-                            state = MainMenuState::SingleplayerSelector(Box::new(Cell::new(singleplayer_menu)));
+                            state.switch_to((Cell::new(Box::new(singleplayer_menu)), 0), graphics, secondary_menu_back.get_back_rect_container());
                         }
                     } else if multiplayer_button.is_hovered(graphics, menu_back.get_back_rect_container()) {
-                        if !matches!(state, MainMenuState::MultiplayerSelector(_)) {
+                        if !matches!(state, MainMenuState::SingleMenu((_, 1))) {
                             let multiplayer_menu = MultiplayerSelector::new(graphics, menu_back_timer, settings.clone(), global_settings.clone(), close_secondary_menu.clone());
-                            state = MainMenuState::MultiplayerSelector(Box::new(Cell::new(multiplayer_menu)));
+                            state.switch_to((Cell::new(Box::new(multiplayer_menu)), 1), graphics, secondary_menu_back.get_back_rect_container());
                         }
                     } else if settings_button.is_hovered(graphics, menu_back.get_back_rect_container()) {
-                        if !matches!(state, MainMenuState::Settings(_)) {
+                        if !matches!(state, MainMenuState::SingleMenu((_, 2))) {
                             let mut settings_menu = SettingsMenu::new(close_secondary_menu.clone(), settings.clone());
                             settings_menu.init(graphics, menu_back.get_back_rect_container());
-                            state = MainMenuState::Settings(Box::new(Cell::new(settings_menu)));
+                            state.switch_to((Cell::new(Box::new(settings_menu)), 2), graphics, secondary_menu_back.get_back_rect_container());
                         }
                     } else if mods_button.is_hovered(graphics, menu_back.get_back_rect_container()) {
                     } else if exit_button.is_hovered(graphics, menu_back.get_back_rect_container()) {
@@ -198,15 +297,6 @@ pub fn run_main_menu(
         } else {
             max_width / 2.0 - MENU_WIDTH / 2.0
         });
-
-        /*if in_settings {
-            menu_back.render_back(graphics);
-            let width = settings_menu.render(graphics, settings);
-            menu_back.set_back_rect_width(width);
-            graphics.update_window();
-            global_settings.borrow_mut().update(graphics, settings);
-            continue;
-        }*/
 
         let buttons = vec![&mut singleplayer_button, &mut multiplayer_button, &mut settings_button, &mut mods_button, &mut exit_button];
         // get maximum width of all buttons and set background width to that
@@ -235,22 +325,8 @@ pub fn run_main_menu(
 
         //render secondary menu
         secondary_menu_back.render_back(graphics);
-        match state {
-            MainMenuState::None => {}
-            MainMenuState::SingleplayerSelector(ref mut menu) => {
-                menu.get_mut().update(graphics, secondary_menu_back.get_back_rect_container());
-                menu.get_mut().render(graphics, secondary_menu_back.get_back_rect_container());
-            }
-            MainMenuState::MultiplayerSelector(ref mut menu) => {
-                menu.get_mut().update(graphics, secondary_menu_back.get_back_rect_container());
-                menu.get_mut().render(graphics, secondary_menu_back.get_back_rect_container());
-            }
-            MainMenuState::Settings(ref mut menu) => {
-                menu.get_mut().update(graphics, secondary_menu_back.get_back_rect_container());
-                menu.get_mut().render(graphics, secondary_menu_back.get_back_rect_container());
-                global_settings.borrow_mut().update(graphics, settings);
-            }
-        }
+        state.update(graphics, secondary_menu_back.get_back_rect_container());
+        state.render(graphics, secondary_menu_back.get_back_rect_container());
 
         graphics.update_window();
     }
