@@ -277,9 +277,13 @@ pub fn run_main_menu(
                     } else if mods_button.is_hovered(graphics, menu_back.get_back_rect_container()) {
                     } else if exit_button.is_hovered(graphics, menu_back.get_back_rect_container()) {
                         graphics.close_window();
-                    } else if cloud_status_button.is_hovered(graphics, &gfx::Container::default(graphics)) && run_login_menu(graphics, menu_back) {
-                        if let Some(client) = &mut tls_client {
-                            client.reset();
+                    } else if cloud_status_button.is_hovered(graphics, &gfx::Container::default(graphics)) {
+                        state = MainMenuState::None;
+                        menu_back.set_x_position(0.0);
+                        if run_login_menu(graphics, menu_back) {
+                            if let Some(client) = &mut tls_client {
+                                client.reset();
+                            }
                         }
                     }
                 }
