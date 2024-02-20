@@ -255,7 +255,6 @@ pub struct SingleplayerSelector {
     global_settings: Rc<RefCell<GlobalSettings>>,
     menu_back_timer: std::time::Instant,
     new_world_press: Rc<RefCell<bool>>,
-    choice_press: Rc<RefCell<Option<usize>>>,
     world_button_press: Rc<RefCell<Option<(usize, usize)>>>,
     state: SingleplayerSelectorState,
 }
@@ -328,7 +327,6 @@ impl SingleplayerSelector {
             global_settings,
             menu_back_timer,
             new_world_press,
-            choice_press: Rc::new(RefCell::new(None)),
             world_button_press,
             state: SingleplayerSelectorState::Default,
         }
@@ -394,7 +392,8 @@ impl UiElement for SingleplayerSelector {
     }
 
     fn update_inner(&mut self, graphics: &mut gfx::GraphicsContext, parent_container: &gfx::Container) {
-        match &self.state {
+        let mut change_to_default = false;
+        match &mut self.state {
             SingleplayerSelectorState::Default => {
                 let hoverable = graphics.get_mouse_pos().1 > self.top_rect.size.1 && graphics.get_mouse_pos().1 < graphics.get_window_size().1 - self.bottom_rect.size.1;
 
@@ -438,7 +437,7 @@ impl UiElement for SingleplayerSelector {
                         let game_result = run_private_world(graphics, &mut menu_back, self.world_list.worlds[world].get_file_path(), &self.settings, &self.global_settings);
                         if let Err(error) = game_result {
                             println!("Game error: {error}");
-                            let menu = ChoiceMenu::new(&format!("Game error: {error}"), graphics, &["Ok"], Some(0), Some(0), self.choice_press.clone(), false);
+                            let menu = ChoiceMenu::new(&format!("Game error: {error}"), graphics, &["Ok"], Some(0), Some(0));
                             self.state = SingleplayerSelectorState::GameError(menu);
                         }
                     } else if action == 1 {
@@ -448,8 +447,6 @@ impl UiElement for SingleplayerSelector {
                             &["Back", "Proceed"],
                             Some(0),
                             Some(1),
-                            self.choice_press.clone(),
-                            false,
                         );
                         self.state = SingleplayerSelectorState::DeleteWorld(menu, world);
                     }
@@ -457,8 +454,8 @@ impl UiElement for SingleplayerSelector {
                 *self.world_button_press.borrow_mut() = None;
             }
             SingleplayerSelectorState::GameError(_) => {}
-            SingleplayerSelectorState::DeleteWorld(_, world) => {
-                if let Some(num) = *self.choice_press.borrow_mut() {
+            SingleplayerSelectorState::DeleteWorld(ref mut menu, world) => {
+                if let Some(num) = menu.button_press {
                     if num == 1 {
                         let res = fs::remove_file(self.world_list.worlds[*world].get_file_path());
                         if res.is_err() {
@@ -466,10 +463,13 @@ impl UiElement for SingleplayerSelector {
                         }
                         self.world_list.refresh(graphics, &self.world_button_press);
                     }
-                    self.state = SingleplayerSelectorState::Default;
+                    change_to_default = true;
                 }
-                *self.choice_press.borrow_mut() = None;
+                menu.button_press = None;
             }
+        }
+        if change_to_default {
+            self.state = SingleplayerSelectorState::Default;
         }
     }
 
