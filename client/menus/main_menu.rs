@@ -8,6 +8,7 @@ use crate::shared::tls_client::ConnectionState;
 use crate::shared::versions::VERSION;
 use std::cell::{Cell, RefCell};
 use std::rc::Rc;
+use gfx::UiElement;
 
 use super::background_rect::BackgroundRect;
 use super::{run_login_menu, MultiplayerSelector, SingleplayerSelector};
@@ -152,11 +153,14 @@ pub fn run_main_menu(
     menu_back_timer: std::time::Instant,
 ) {
     let mut state = MainMenuState::None;
-    let mut secondary_menu_back = crate::client::menus::MenuBack::new(graphics);
-    secondary_menu_back.set_x_position(graphics.get_window_size().0);
-    secondary_menu_back.main_back_menu = false;
-    secondary_menu_back.set_back_rect_width(MENU_WIDTH);
     let close_secondary_menu = Rc::new(RefCell::new(false));
+    let mut secondary_menu_back = gfx::RenderRect::new(gfx::FloatPos(graphics.get_window_size().0, 0.0), gfx::FloatSize(MENU_WIDTH, graphics.get_window_size().1));
+    secondary_menu_back.orientation = gfx::TOP;
+    secondary_menu_back.blur_radius = gfx::BLUR;
+    secondary_menu_back.smooth_factor = 60.0;
+    secondary_menu_back.shadow_intensity = gfx::SHADOW_INTENSITY;
+    secondary_menu_back.fill_color.a = gfx::TRANSPARENCY;
+    secondary_menu_back.border_color = gfx::BORDER_COLOR;
 
     let mut singleplayer_button = gfx::Button::new(|| {});
     singleplayer_button.scale = 3.0;
@@ -241,6 +245,14 @@ pub fn run_main_menu(
     };
 
     while graphics.is_window_open() {
+        let window_container = gfx::Container::new(&graphics, gfx::FloatPos(0.0, 0.0), graphics.get_window_size(), gfx::TOP_LEFT, None);
+
+        if (secondary_menu_back.size.1 - graphics.get_window_size().1).abs() > f32::EPSILON {
+            secondary_menu_back.size.1 = window_container.get_absolute_rect().size.1;
+            secondary_menu_back.jump_to_target();
+        }
+
+
         tls_client.as_mut().map_or_else(
             || {},
             |client| {
@@ -248,7 +260,7 @@ pub fn run_main_menu(
             },
         );
         while let Some(event) = graphics.get_event() {
-            state.on_event(graphics, &event, secondary_menu_back.get_back_rect_container());
+            state.on_event(graphics, &event, &secondary_menu_back.get_container(graphics, &window_container));
             global_settings.borrow_mut().update(graphics, settings);
             if *close_secondary_menu.borrow_mut() {
                 state = MainMenuState::None;
@@ -261,18 +273,18 @@ pub fn run_main_menu(
                     if singleplayer_button.is_hovered(graphics, menu_back.get_back_rect_container()) {
                         if !matches!(state, MainMenuState::SingleMenu((_, 0))) {
                             let singleplayer_menu = SingleplayerSelector::new(graphics, settings.clone(), global_settings.clone(), close_secondary_menu.clone(), menu_back_timer);
-                            state.switch_to((Cell::new(Box::new(singleplayer_menu)), 0), graphics, secondary_menu_back.get_back_rect_container());
+                            state.switch_to((Cell::new(Box::new(singleplayer_menu)), 0), graphics, &secondary_menu_back.get_container(graphics, &window_container));
                         }
                     } else if multiplayer_button.is_hovered(graphics, menu_back.get_back_rect_container()) {
                         if !matches!(state, MainMenuState::SingleMenu((_, 1))) {
                             let multiplayer_menu = MultiplayerSelector::new(graphics, menu_back_timer, settings.clone(), global_settings.clone(), close_secondary_menu.clone());
-                            state.switch_to((Cell::new(Box::new(multiplayer_menu)), 1), graphics, secondary_menu_back.get_back_rect_container());
+                            state.switch_to((Cell::new(Box::new(multiplayer_menu)), 1), graphics, &secondary_menu_back.get_container(graphics, &window_container));
                         }
                     } else if settings_button.is_hovered(graphics, menu_back.get_back_rect_container()) {
                         if !matches!(state, MainMenuState::SingleMenu((_, 2))) {
                             let mut settings_menu = SettingsMenu::new(close_secondary_menu.clone(), settings.clone());
                             settings_menu.init(graphics, menu_back.get_back_rect_container());
-                            state.switch_to((Cell::new(Box::new(settings_menu)), 2), graphics, secondary_menu_back.get_back_rect_container());
+                            state.switch_to((Cell::new(Box::new(settings_menu)), 2), graphics, &secondary_menu_back.get_container(graphics, &window_container));
                         }
                     } else if mods_button.is_hovered(graphics, menu_back.get_back_rect_container()) {
                     } else if exit_button.is_hovered(graphics, menu_back.get_back_rect_container()) {
@@ -296,11 +308,11 @@ pub fn run_main_menu(
         } else {
             -max_width / 2.0 + menu_back.get_back_rect_width(graphics, None) / 2.0
         });
-        secondary_menu_back.set_x_position(if matches!(state, MainMenuState::None) {
+        secondary_menu_back.pos.0 = if matches!(state, MainMenuState::None) {
             graphics.get_window_size().0
         } else {
             max_width / 2.0 - MENU_WIDTH / 2.0
-        });
+        };
 
         let buttons = vec![&mut singleplayer_button, &mut multiplayer_button, &mut settings_button, &mut mods_button, &mut exit_button];
         // get maximum width of all buttons and set background width to that
@@ -328,9 +340,9 @@ pub fn run_main_menu(
         version.render(graphics, menu_back.get_back_rect_container());
 
         //render secondary menu
-        secondary_menu_back.render_back(graphics);
-        state.update(graphics, secondary_menu_back.get_back_rect_container());
-        state.render(graphics, secondary_menu_back.get_back_rect_container());
+        secondary_menu_back.render(graphics, &window_container);
+        state.update(graphics, &secondary_menu_back.get_container(graphics, &window_container));
+        state.render(graphics, &secondary_menu_back.get_container(graphics, &window_container));
 
         graphics.update_window();
     }

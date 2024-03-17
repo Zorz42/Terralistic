@@ -12,7 +12,6 @@ pub struct MenuBack {
     background_timer: std::time::Instant,
     back_rect: gfx::RenderRect,
     back_container: gfx::Container,
-    pub main_back_menu: bool,
 }
 
 impl MenuBack {
@@ -34,7 +33,6 @@ impl MenuBack {
             background_timer: std::time::Instant::now(),
             back_rect,
             back_container: gfx::Container::new(graphics, gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, 0.0), gfx::TOP_LEFT, None),
-            main_back_menu: true,
         }
     }
 
@@ -57,14 +55,12 @@ impl BackgroundRect for MenuBack {
         let parent_container = gfx::Container::default(graphics);
         self.back_container = self.back_rect.get_container(graphics, &parent_container);
 
-        if self.main_back_menu {
-            let scale = graphics.get_window_size().1 / self.background.get_texture_size().1;
-            let texture_width_scaled = self.background.get_texture_size().0 * scale;
-            let pos = ((self.background_timer.elapsed().as_millis() as f32 * scale / 150.0) as u64 % texture_width_scaled as u64) as f32;
+        let scale = graphics.get_window_size().1 / self.background.get_texture_size().1;
+        let texture_width_scaled = self.background.get_texture_size().0 * scale;
+        let pos = ((self.background_timer.elapsed().as_millis() as f32 * scale / 150.0) as u64 % texture_width_scaled as u64) as f32;
 
-            for i in -1..graphics.get_window_size().0 as i32 / (self.background.get_texture_size().0 * scale) as i32 + 2 {
-                self.background.render(graphics, scale, gfx::FloatPos(pos + i as f32 * texture_width_scaled, 0.0), None, false, None);
-            }
+        for i in -1..graphics.get_window_size().0 as i32 / (self.background.get_texture_size().0 * scale) as i32 + 2 {
+            self.background.render(graphics, scale, gfx::FloatPos(pos + i as f32 * texture_width_scaled, 0.0), None, false, None);
         }
 
         if (self.back_rect.size.1 - graphics.get_window_size().1).abs() > f32::EPSILON {
