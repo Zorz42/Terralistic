@@ -68,7 +68,6 @@ impl BackgroundRect for MenuBack {
         let parent_container = gfx::Container::default(graphics);
         let new_container = self.back_rect.get_container(graphics, &parent_container);
         self.back_container.rect.size = new_container.rect.size;
-        //self.back_container.rect.pos = gfx::FloatPos(0.0, 0.0);
         self.back_container.update(graphics, &new_container);
 
         self.back_rect.render(graphics, &parent_container);

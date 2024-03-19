@@ -340,11 +340,6 @@ pub fn run_main_menu(
         cloud_status_rect.render(graphics, color);
         cloud_status_button.render(graphics, &gfx::Container::default(graphics));
 
-        //#[cfg(debug_assertions)]
-        //debug_title.render(graphics, menu_back.get_back_rect_container());
-        //title.render(graphics, menu_back.get_back_rect_container());
-        //version.render(graphics, menu_back.get_back_rect_container());
-
         //render secondary menu
         secondary_menu_back.render(graphics, &window_container);
         state.update(graphics, &secondary_menu_back.get_container(graphics, &window_container));
