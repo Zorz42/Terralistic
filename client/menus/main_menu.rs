@@ -6,9 +6,9 @@ use crate::client::settings::Settings;
 use crate::libraries::graphics as gfx;
 use crate::shared::tls_client::ConnectionState;
 use crate::shared::versions::VERSION;
+use gfx::UiElement;
 use std::cell::{Cell, RefCell};
 use std::rc::Rc;
-use gfx::UiElement;
 
 use super::background_rect::BackgroundRect;
 use super::{run_login_menu, MultiplayerSelector, SingleplayerSelector};
@@ -233,6 +233,13 @@ pub fn run_main_menu(
     cloud_status_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Login", None));
     cloud_status_button.scale = 1.5;
 
+    *menu_back.get_elements() = vec![
+        Box::new(title),
+        #[cfg(debug_assertions)]
+        Box::new(debug_title),
+        Box::new(version),
+    ];
+
     let mut tls_client = match TlsClient::new() {
         Err(e) => {
             eprintln!("error getting tls client:\n{e}\n\nbacktrace:\n{}", e.backtrace());
@@ -251,7 +258,6 @@ pub fn run_main_menu(
             secondary_menu_back.size.1 = window_container.get_absolute_rect().size.1;
             secondary_menu_back.jump_to_target();
         }
-
 
         tls_client.as_mut().map_or_else(
             || {},
@@ -334,10 +340,10 @@ pub fn run_main_menu(
         cloud_status_rect.render(graphics, color);
         cloud_status_button.render(graphics, &gfx::Container::default(graphics));
 
-        #[cfg(debug_assertions)]
-        debug_title.render(graphics, menu_back.get_back_rect_container());
-        title.render(graphics, menu_back.get_back_rect_container());
-        version.render(graphics, menu_back.get_back_rect_container());
+        //#[cfg(debug_assertions)]
+        //debug_title.render(graphics, menu_back.get_back_rect_container());
+        //title.render(graphics, menu_back.get_back_rect_container());
+        //version.render(graphics, menu_back.get_back_rect_container());
 
         //render secondary menu
         secondary_menu_back.render(graphics, &window_container);

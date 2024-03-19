@@ -52,9 +52,6 @@ impl MenuBack {
 impl BackgroundRect for MenuBack {
     /// Renders the background.
     fn render_back(&mut self, graphics: &mut gfx::GraphicsContext) {
-        let parent_container = gfx::Container::default(graphics);
-        self.back_container = self.back_rect.get_container(graphics, &parent_container);
-
         let scale = graphics.get_window_size().1 / self.background.get_texture_size().1;
         let texture_width_scaled = self.background.get_texture_size().0 * scale;
         let pos = ((self.background_timer.elapsed().as_millis() as f32 * scale / 150.0) as u64 % texture_width_scaled as u64) as f32;
@@ -67,7 +64,15 @@ impl BackgroundRect for MenuBack {
             self.back_rect.size.1 = graphics.get_window_size().1;
             self.back_rect.jump_to_target();
         }
+
+        let parent_container = gfx::Container::default(graphics);
+        let new_container = self.back_rect.get_container(graphics, &parent_container);
+        self.back_container.rect.size = new_container.rect.size;
+        //self.back_container.rect.pos = gfx::FloatPos(0.0, 0.0);
+        self.back_container.update(graphics, &new_container);
+
         self.back_rect.render(graphics, &parent_container);
+        self.back_container.render(graphics, &new_container);
     }
 
     /// Sets the width of the background rectangle.
@@ -88,5 +93,10 @@ impl BackgroundRect for MenuBack {
     ///sets the background's x position.
     fn set_x_position(&mut self, center_pos: f32) {
         self.back_rect.pos.0 = center_pos;
+    }
+
+    ///gets a mutable vector of sub elements.
+    fn get_elements(&mut self) -> &mut Vec<Box<dyn BaseUiElement>> {
+        &mut self.back_container.sub_elemnts
     }
 }
