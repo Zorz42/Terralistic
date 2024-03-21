@@ -1,5 +1,4 @@
 use crate::libraries::graphics as gfx;
-use sdl2::libc::grantpt;
 
 use super::{BaseUiElement, Rect, UiElement};
 

@@ -13,6 +13,7 @@ const PROGRESS_BAR_Y_OFFSET: i32 = 100;
 /// The text is shared through the `SharedMut`<String> which is updated by the loading thread.
 /// When the string is empty, the loading screen is closed.
 pub fn run_loading_screen(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn BackgroundRect, loading_text: &Mutex<String>) {
+    let window_container = gfx::Container::default(graphics);
     let mut loading_text_sprite = gfx::Sprite::new();
     loading_text_sprite.orientation = gfx::CENTER;
     loading_text_sprite.scale = 3.0;
@@ -80,10 +81,10 @@ pub fn run_loading_screen(graphics: &mut gfx::GraphicsContext, menu_back: &mut d
             }
         }
 
-        loading_text_sprite.render(graphics, menu_back.get_back_rect_container());
+        loading_text_sprite.render(graphics, &menu_back.get_container(graphics, &window_container));
 
-        loading_back_bar.render(graphics, menu_back.get_back_rect_container());
-        loading_bar.render(graphics, menu_back.get_back_rect_container());
+        loading_back_bar.render(graphics, &menu_back.get_container(graphics, &window_container));
+        loading_bar.render(graphics, &menu_back.get_container(graphics, &window_container));
 
         graphics.update_window();
     }

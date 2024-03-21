@@ -3,6 +3,7 @@ use crate::libraries::graphics as gfx;
 use gfx::BaseUiElement;
 
 pub fn run_text_input_menu(menu_title: &str, graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn BackgroundRect) -> Option<String> {
+    let window_container = gfx::Container::default(graphics);
     let text_lines_vec = menu_title.split('\n').collect::<Vec<&str>>();
 
     let mut title_lines = Vec::new();
@@ -39,7 +40,7 @@ pub fn run_text_input_menu(menu_title: &str, graphics: &mut gfx::GraphicsContext
     //this is where the menu is drawn
     while graphics.is_window_open() {
         while let Some(event) = graphics.get_event() {
-            input_field.on_event(graphics, &event, menu_back.get_back_rect_container());
+            input_field.on_event(graphics, &event, &menu_back.get_container(graphics, &window_container));
 
             //sorts out the events
             if let gfx::Event::KeyRelease(key, ..) = event {
@@ -66,17 +67,17 @@ pub fn run_text_input_menu(menu_title: &str, graphics: &mut gfx::GraphicsContext
 
         //render input fields
 
-        buttons_container.update(graphics, menu_back.get_back_rect_container());
+        buttons_container.update(graphics, &menu_back.get_container(graphics, &window_container));
 
         for sprite in &mut title_lines {
-            sprite.render(graphics, menu_back.get_back_rect_container());
+            sprite.render(graphics, &menu_back.get_container(graphics, &window_container));
         }
 
         back_button.render(graphics, &buttons_container);
 
         confirm_button.render(graphics, &buttons_container);
 
-        input_field.render(graphics, menu_back.get_back_rect_container());
+        input_field.render(graphics, &menu_back.get_container(graphics, &window_container));
 
         graphics.update_window();
     }

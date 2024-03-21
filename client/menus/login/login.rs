@@ -14,6 +14,8 @@ use std::sync::mpsc::TryRecvError;
 /// this function runs the login menu.
 #[allow(clippy::too_many_lines)] // TODO: reduce the number of lines in this function
 pub fn run_login_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn BackgroundRect) -> bool {
+    let window_container = gfx::Container::default(graphics);
+
     let mut title = gfx::Sprite::new();
     title.scale = 3.0;
     title.set_texture(gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Login:", None)));
@@ -68,7 +70,7 @@ pub fn run_login_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn B
     login_sprite.orientation = gfx::CENTER;
     login_sprite.pos = gfx::FloatPos(
         (-login_sprite.get_texture().get_texture_size().0 * login_sprite.scale - login_register_toggle.size.0) / 2.0 - gfx::SPACING,
-        login_register_toggle.get_container(graphics, menu_back.get_back_rect_container()).rect.pos.1,
+        login_register_toggle.get_container(graphics, &menu_back.get_container(graphics, &window_container)).rect.pos.1,
     );
 
     let mut register_sprite = gfx::Sprite::new();
@@ -77,7 +79,7 @@ pub fn run_login_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn B
     register_sprite.orientation = gfx::CENTER;
     register_sprite.pos = gfx::FloatPos(
         (register_sprite.get_texture().get_texture_size().0 * register_sprite.scale + login_register_toggle.size.0) / 2.0 + gfx::SPACING,
-        login_register_toggle.get_container(graphics, menu_back.get_back_rect_container()).rect.pos.1,
+        login_register_toggle.get_container(graphics, &menu_back.get_container(graphics, &window_container)).rect.pos.1,
     );
 
     username_input.text_processing = Some(Box::new(|text: char| {
@@ -113,10 +115,10 @@ pub fn run_login_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn B
 
         while let Some(event) = graphics.get_event() {
             //sorts out the events
-            username_input.on_event(graphics, &event, menu_back.get_back_rect_container());
-            password_input.on_event(graphics, &event, menu_back.get_back_rect_container());
-            email_input.on_event(graphics, &event, menu_back.get_back_rect_container());
-            login_register_toggle.on_event(graphics, &event, menu_back.get_back_rect_container());
+            username_input.on_event(graphics, &event, &menu_back.get_container(graphics, &window_container));
+            password_input.on_event(graphics, &event, &menu_back.get_container(graphics, &window_container));
+            email_input.on_event(graphics, &event, &menu_back.get_container(graphics, &window_container));
+            login_register_toggle.on_event(graphics, &event, &menu_back.get_container(graphics, &window_container));
             if login_register_toggle.changed {
                 let text = if login_register_toggle.toggled { "Register" } else { "Login" };
                 confirm_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface(text, None));
@@ -164,22 +166,22 @@ pub fn run_login_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn B
         menu_back.render_back(graphics);
 
         //render input fields
-        buttons_container.update(graphics, menu_back.get_back_rect_container());
+        buttons_container.update(graphics, &menu_back.get_container(graphics, &window_container));
 
-        title.render(graphics, menu_back.get_back_rect_container());
+        title.render(graphics, &menu_back.get_container(graphics, &window_container));
 
         back_button.render(graphics, &buttons_container);
         confirm_button.render(graphics, &buttons_container);
 
-        username_input.render(graphics, menu_back.get_back_rect_container());
-        password_input.render(graphics, menu_back.get_back_rect_container());
+        username_input.render(graphics, &menu_back.get_container(graphics, &window_container));
+        password_input.render(graphics, &menu_back.get_container(graphics, &window_container));
         if email_shown {
-            email_input.render(graphics, menu_back.get_back_rect_container());
+            email_input.render(graphics, &menu_back.get_container(graphics, &window_container));
         }
 
-        login_register_toggle.render(graphics, menu_back.get_back_rect_container());
-        login_sprite.render(graphics, menu_back.get_back_rect_container());
-        register_sprite.render(graphics, menu_back.get_back_rect_container());
+        login_register_toggle.render(graphics, &menu_back.get_container(graphics, &window_container));
+        login_sprite.render(graphics, &menu_back.get_container(graphics, &window_container));
+        register_sprite.render(graphics, &menu_back.get_container(graphics, &window_container));
 
         graphics.update_window();
     }
@@ -207,6 +209,7 @@ fn save_user_data(username: &str, password: &str) {
 }
 
 fn register(username: &str, password: &str, email: &str, graphics: &mut GraphicsContext, menu_back: &mut dyn BackgroundRect) -> Result<()> {
+    let window_container = gfx::Container::default(graphics);
     let mut registering_text = gfx::Sprite::new();
     registering_text.set_texture(gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Registering", None)));
     registering_text.orientation = gfx::CENTER;
@@ -217,7 +220,7 @@ fn register(username: &str, password: &str, email: &str, graphics: &mut Graphics
     while !matches!(manager.get_connection_state(), CONNECTED(_)) {
         manager.connect();
         menu_back.render_back(graphics);
-        registering_text.render(graphics, menu_back.get_back_rect_container());
+        registering_text.render(graphics, &menu_back.get_container(graphics, &window_container));
         graphics.update_window();
 
         if matches!(manager.get_connection_state(), FAILED(_)) {
@@ -239,7 +242,7 @@ fn register(username: &str, password: &str, email: &str, graphics: &mut Graphics
     loop {
         manager.connect();
         menu_back.render_back(graphics);
-        registering_text.render(graphics, menu_back.get_back_rect_container());
+        registering_text.render(graphics, &menu_back.get_container(graphics, &window_container));
         graphics.update_window();
 
         match manager.read() {
@@ -265,7 +268,7 @@ fn register(username: &str, password: &str, email: &str, graphics: &mut Graphics
         while std::time::Instant::now() < time {
             manager.connect();
             menu_back.render_back(graphics);
-            registering_text.render(graphics, menu_back.get_back_rect_container());
+            registering_text.render(graphics, &menu_back.get_container(graphics, &window_container));
             graphics.update_window();
         }
     }

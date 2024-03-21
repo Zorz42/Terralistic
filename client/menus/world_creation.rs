@@ -29,6 +29,8 @@ pub fn run_world_creation(
     settings: &Rc<RefCell<Settings>>,
     global_settings: &Rc<RefCell<GlobalSettings>>,
 ) {
+    let window_container = gfx::Container::default(graphics);
+
     let mut title = gfx::Sprite::new();
     title.scale = 3.0;
     title.set_texture(gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Create a new world:", None)));
@@ -93,8 +95,8 @@ pub fn run_world_creation(
 
         while let Some(event) = graphics.get_event() {
             //sorts out the events
-            world_name_input.on_event(graphics, &event, menu_back.get_back_rect_container());
-            world_seed_input.on_event(graphics, &event, menu_back.get_back_rect_container());
+            world_name_input.on_event(graphics, &event, &menu_back.get_container(graphics, &window_container));
+            world_seed_input.on_event(graphics, &event, &menu_back.get_container(graphics, &window_container));
             if let gfx::Event::KeyRelease(key, ..) = event {
                 match key {
                     gfx::Key::MouseLeft => {
@@ -135,15 +137,15 @@ pub fn run_world_creation(
         menu_back.render_back(graphics);
 
         //render input fields
-        buttons_container.update(graphics, menu_back.get_back_rect_container());
+        buttons_container.update(graphics, &menu_back.get_container(graphics, &window_container));
 
-        title.render(graphics, menu_back.get_back_rect_container());
+        title.render(graphics, &menu_back.get_container(graphics, &window_container));
         back_button.render(graphics, &buttons_container);
 
         create_button.render(graphics, &buttons_container);
 
-        world_name_input.render(graphics, menu_back.get_back_rect_container());
-        world_seed_input.render(graphics, menu_back.get_back_rect_container());
+        world_name_input.render(graphics, &menu_back.get_container(graphics, &window_container));
+        world_seed_input.render(graphics, &menu_back.get_container(graphics, &window_container));
 
         graphics.update_window();
     }

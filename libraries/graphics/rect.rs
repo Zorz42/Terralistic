@@ -4,7 +4,7 @@ use super::color::Color;
 use super::vertex_buffer::DrawMode;
 
 /// This is a rectangle shape.
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Debug)]
 pub struct Rect {
     pub pos: gfx::FloatPos,
     pub size: gfx::FloatSize,

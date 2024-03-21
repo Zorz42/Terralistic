@@ -32,7 +32,7 @@ impl MenuBack {
             ),
             background_timer: std::time::Instant::now(),
             back_rect,
-            back_container: gfx::Container::new(graphics, gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, 0.0), gfx::TOP_LEFT, None),
+            back_container: gfx::Container::new(graphics, gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, 0.0), gfx::CENTER, None),
         }
     }
 
@@ -49,9 +49,35 @@ impl MenuBack {
     }
 }
 
-impl BackgroundRect for MenuBack {
-    /// Renders the background.
-    fn render_back(&mut self, graphics: &mut gfx::GraphicsContext) {
+impl UiElement for MenuBack {
+    fn get_container(&self, graphics: &gfx::GraphicsContext, parent_container: &gfx::Container) -> gfx::Container {
+        gfx::Container::new(graphics, parent_container.rect.pos, parent_container.rect.size, parent_container.orientation, None)
+    }
+    fn get_sub_elements_mut(&mut self) -> Vec<&mut dyn BaseUiElement> {
+        vec![&mut self.back_container]
+    }
+    fn get_sub_elements(&self) -> Vec<&dyn BaseUiElement> {
+        vec![&self.back_container]
+    }
+    fn update_inner(&mut self, graphics: &mut gfx::GraphicsContext, parent_container: &gfx::Container) {
+        if (self.back_rect.size.1 - graphics.get_window_size().1).abs() > f32::EPSILON {
+            self.back_rect.size.1 = graphics.get_window_size().1;
+            self.back_rect.jump_to_target();
+        }
+
+        let mut max_width = 0.0;
+        for button in self.get_elements_vec_mut() {
+            if button.get_container(graphics, parent_container).rect.size.0 > max_width {
+                max_width = button.get_container(graphics, parent_container).rect.size.0;
+            }
+        }
+
+        self.set_back_rect_width(max_width + 100.0);
+
+        let new_container = self.back_rect.get_container(graphics, parent_container);
+        self.back_container.rect = new_container.rect;
+    }
+    fn render_inner(&mut self, graphics: &mut gfx::GraphicsContext, parent_container: &gfx::Container) {
         let scale = graphics.get_window_size().1 / self.background.get_texture_size().1;
         let texture_width_scaled = self.background.get_texture_size().0 * scale;
         let pos = ((self.background_timer.elapsed().as_millis() as f32 * scale / 150.0) as u64 % texture_width_scaled as u64) as f32;
@@ -60,18 +86,15 @@ impl BackgroundRect for MenuBack {
             self.background.render(graphics, scale, gfx::FloatPos(pos + i as f32 * texture_width_scaled, 0.0), None, false, None);
         }
 
-        if (self.back_rect.size.1 - graphics.get_window_size().1).abs() > f32::EPSILON {
-            self.back_rect.size.1 = graphics.get_window_size().1;
-            self.back_rect.jump_to_target();
-        }
+        self.back_rect.render(graphics, parent_container);
+    }
+}
 
+impl BackgroundRect for MenuBack {
+    /// Renders the background.
+    fn render_back(&mut self, graphics: &mut gfx::GraphicsContext) {
         let parent_container = gfx::Container::default(graphics);
-        let new_container = self.back_rect.get_container(graphics, &parent_container);
-        self.back_container.rect.size = new_container.rect.size;
-        self.back_container.update(graphics, &new_container);
-
-        self.back_rect.render(graphics, &parent_container);
-        self.back_container.render(graphics, &new_container);
+        self.render(graphics, &parent_container);
     }
 
     /// Sets the width of the background rectangle.
@@ -85,8 +108,9 @@ impl BackgroundRect for MenuBack {
     }
 
     /// Gets the background rectangle's container.
-    fn get_back_rect_container(&self) -> &gfx::Container {
-        &self.back_container
+    ///WARNING: do not use, use `get_container` instead
+    fn get_back_rect_container(&self, graphics: &mut gfx::GraphicsContext) -> gfx::Container {
+        gfx::Container::default(graphics)
     }
 
     ///sets the background's x position.
@@ -94,8 +118,18 @@ impl BackgroundRect for MenuBack {
         self.back_rect.pos.0 = center_pos;
     }
 
-    ///gets a mutable vector of sub elements.
-    fn get_elements(&mut self) -> &mut Vec<Box<dyn BaseUiElement>> {
+    ///Gets a mutable vector of sub-elements. Should only be used when adding or removing elements
+    fn get_elements_vec_mut(&mut self) -> &mut Vec<Box<dyn BaseUiElement>> {
         &mut self.back_container.sub_elemnts
+    }
+
+    ///gets a vector of sub elements.
+    fn get_sub_elements(&self) -> Vec<&dyn BaseUiElement> {
+        self.back_container.get_sub_elements()
+    }
+
+    ///gets a mutable vector of mutable sub elements.
+    fn get_sub_elements_mut(&mut self) -> Vec<&mut dyn BaseUiElement> {
+        self.back_container.get_sub_elements_mut()
     }
 }

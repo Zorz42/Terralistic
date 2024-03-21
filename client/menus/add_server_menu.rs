@@ -60,6 +60,8 @@ fn server_exists(name: &str, servers_list: &Vec<ServerCard>) -> bool {
 /// this function runs the add server menu.
 #[allow(clippy::too_many_lines)]
 pub fn run_add_server_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn BackgroundRect, servers_list: &Vec<ServerCard>) -> Option<ServerInfo> {
+    let window_container = gfx::Container::default(graphics);
+
     let mut title = gfx::Sprite::new();
     title.scale = 3.0;
     title.set_texture(gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Add a new server:", None)));
@@ -118,8 +120,8 @@ pub fn run_add_server_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut 
 
         while let Some(event) = graphics.get_event() {
             //sorts out the events
-            server_name_input.on_event(graphics, &event, menu_back.get_back_rect_container());
-            server_ip_input.on_event(graphics, &event, menu_back.get_back_rect_container());
+            server_name_input.on_event(graphics, &event, &menu_back.get_container(graphics, &window_container));
+            server_ip_input.on_event(graphics, &event, &menu_back.get_container(graphics, &window_container));
             if let gfx::Event::KeyRelease(key, ..) = event {
                 match key {
                     gfx::Key::MouseLeft => {
@@ -155,15 +157,15 @@ pub fn run_add_server_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut 
 
         //render input fields
 
-        buttons_container.update(graphics, menu_back.get_back_rect_container());
+        buttons_container.update(graphics, &menu_back.get_container(graphics, &window_container));
 
-        title.render(graphics, menu_back.get_back_rect_container());
+        title.render(graphics, &menu_back.get_container(graphics, &window_container));
         back_button.render(graphics, &buttons_container);
 
         add_button.render(graphics, &buttons_container);
 
-        server_name_input.render(graphics, menu_back.get_back_rect_container());
-        server_ip_input.render(graphics, menu_back.get_back_rect_container());
+        server_name_input.render(graphics, &menu_back.get_container(graphics, &window_container));
+        server_ip_input.render(graphics, &menu_back.get_container(graphics, &window_container));
 
         graphics.update_window();
     }

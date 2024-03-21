@@ -154,6 +154,7 @@ pub fn run_main_menu(
 ) {
     let mut state = MainMenuState::None;
     let close_secondary_menu = Rc::new(RefCell::new(false));
+    let open_menu: Rc<RefCell<Option<u8>>> = Rc::new(RefCell::new(None));
     let mut secondary_menu_back = gfx::RenderRect::new(gfx::FloatPos(graphics.get_window_size().0, 0.0), gfx::FloatSize(MENU_WIDTH, graphics.get_window_size().1));
     secondary_menu_back.orientation = gfx::TOP;
     secondary_menu_back.blur_radius = gfx::BLUR;
@@ -162,27 +163,32 @@ pub fn run_main_menu(
     secondary_menu_back.fill_color.a = gfx::TRANSPARENCY;
     secondary_menu_back.border_color = gfx::BORDER_COLOR;
 
-    let mut singleplayer_button = gfx::Button::new(|| {});
+    let copied_menu = open_menu.clone();
+    let mut singleplayer_button = gfx::Button::new(move || *copied_menu.borrow_mut() = Some(0));
     singleplayer_button.scale = 3.0;
     singleplayer_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Singleplayer", None));
     singleplayer_button.orientation = gfx::CENTER;
 
-    let mut multiplayer_button = gfx::Button::new(|| {});
+    let copied_menu = open_menu.clone();
+    let mut multiplayer_button = gfx::Button::new(move || *copied_menu.borrow_mut() = Some(1));
     multiplayer_button.scale = 3.0;
     multiplayer_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Multiplayer", None));
     multiplayer_button.orientation = gfx::CENTER;
 
-    let mut settings_button = gfx::Button::new(|| {});
+    let copied_menu = open_menu.clone();
+    let mut settings_button = gfx::Button::new(move || *copied_menu.borrow_mut() = Some(2));
     settings_button.scale = 3.0;
     settings_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Settings", None));
     settings_button.orientation = gfx::CENTER;
 
-    let mut mods_button = gfx::Button::new(|| {});
+    let copied_menu = open_menu.clone();
+    let mut mods_button = gfx::Button::new(move || *copied_menu.borrow_mut() = Some(3));
     mods_button.scale = 3.0;
     mods_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Mods", None));
     mods_button.orientation = gfx::CENTER;
 
-    let mut exit_button = gfx::Button::new(|| {});
+    let copied_menu = open_menu.clone();
+    let mut exit_button = gfx::Button::new(move || *copied_menu.borrow_mut() = Some(4));
     exit_button.scale = 3.0;
     exit_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Exit", None));
     exit_button.orientation = gfx::CENTER;
@@ -232,12 +238,26 @@ pub fn run_main_menu(
     cloud_status_button.orientation = gfx::TOP_LEFT;
     cloud_status_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Login", None));
     cloud_status_button.scale = 1.5;
-
-    *menu_back.get_elements() = vec![
+    /*
+        let buttons = vec![&mut singleplayer_button, &mut multiplayer_button, &mut settings_button, &mut mods_button, &mut exit_button];
+        // get maximum width of all buttons and set background width to that
+        let mut max_width = 0.0;
+        for button in &buttons {
+            if button.get_size().0 > max_width {
+                max_width = button.get_size().0;
+            }
+        }
+    */
+    *menu_back.get_elements_vec_mut() = vec![
         Box::new(title),
         #[cfg(debug_assertions)]
         Box::new(debug_title),
         Box::new(version),
+        Box::new(singleplayer_button),
+        Box::new(multiplayer_button),
+        Box::new(settings_button),
+        Box::new(mods_button),
+        Box::new(exit_button),
     ];
 
     let mut tls_client = match TlsClient::new() {
@@ -252,7 +272,7 @@ pub fn run_main_menu(
     };
 
     while graphics.is_window_open() {
-        let window_container = gfx::Container::new(&graphics, gfx::FloatPos(0.0, 0.0), graphics.get_window_size(), gfx::TOP_LEFT, None);
+        let window_container = gfx::Container::new(graphics, gfx::FloatPos(0.0, 0.0), graphics.get_window_size(), gfx::TOP_LEFT, None);
 
         if (secondary_menu_back.size.1 - graphics.get_window_size().1).abs() > f32::EPSILON {
             secondary_menu_back.size.1 = window_container.get_absolute_rect().size.1;
@@ -265,43 +285,55 @@ pub fn run_main_menu(
                 client.authenticate();
             },
         );
+
         while let Some(event) = graphics.get_event() {
             state.on_event(graphics, &event, &secondary_menu_back.get_container(graphics, &window_container));
+            menu_back.on_event(graphics, &event, &window_container);
             global_settings.borrow_mut().update(graphics, settings);
             if *close_secondary_menu.borrow_mut() {
                 state = MainMenuState::None;
                 *close_secondary_menu.borrow_mut() = false;
             }
-
-            if let gfx::Event::KeyRelease(key, ..) = event {
-                // check for every button if it was clicked with the left mouse button
-                if key == gfx::Key::MouseLeft {
-                    if singleplayer_button.is_hovered(graphics, menu_back.get_back_rect_container()) {
+            if let Some(i) = *open_menu.borrow() {
+                match i {
+                    0 => {
                         if !matches!(state, MainMenuState::SingleMenu((_, 0))) {
                             let singleplayer_menu = SingleplayerSelector::new(graphics, settings.clone(), global_settings.clone(), close_secondary_menu.clone(), menu_back_timer);
                             state.switch_to((Cell::new(Box::new(singleplayer_menu)), 0), graphics, &secondary_menu_back.get_container(graphics, &window_container));
                         }
-                    } else if multiplayer_button.is_hovered(graphics, menu_back.get_back_rect_container()) {
+                    }
+                    1 => {
                         if !matches!(state, MainMenuState::SingleMenu((_, 1))) {
                             let multiplayer_menu = MultiplayerSelector::new(graphics, menu_back_timer, settings.clone(), global_settings.clone(), close_secondary_menu.clone());
                             state.switch_to((Cell::new(Box::new(multiplayer_menu)), 1), graphics, &secondary_menu_back.get_container(graphics, &window_container));
                         }
-                    } else if settings_button.is_hovered(graphics, menu_back.get_back_rect_container()) {
+                    }
+                    2 => {
                         if !matches!(state, MainMenuState::SingleMenu((_, 2))) {
                             let mut settings_menu = SettingsMenu::new(close_secondary_menu.clone(), settings.clone());
-                            settings_menu.init(graphics, menu_back.get_back_rect_container());
+                            settings_menu.init(graphics, &menu_back.get_container(graphics, &window_container));
                             state.switch_to((Cell::new(Box::new(settings_menu)), 2), graphics, &secondary_menu_back.get_container(graphics, &window_container));
                         }
-                    } else if mods_button.is_hovered(graphics, menu_back.get_back_rect_container()) {
-                    } else if exit_button.is_hovered(graphics, menu_back.get_back_rect_container()) {
+                    }
+                    3 => {
+                        println!("mods menu isn't implemented yet");
+                    }
+                    4 => {
                         graphics.close_window();
-                    } else if cloud_status_button.is_hovered(graphics, &gfx::Container::default(graphics)) {
-                        state = MainMenuState::None;
-                        menu_back.set_x_position(0.0);
-                        if run_login_menu(graphics, menu_back) {
-                            if let Some(client) = &mut tls_client {
-                                client.reset();
-                            }
+                    }
+                    _ => {}
+                }
+            }
+            *open_menu.borrow_mut() = None;
+
+            if let gfx::Event::KeyRelease(key, ..) = event {
+                // check for every button if it was clicked with the left mouse button
+                if key == gfx::Key::MouseLeft && cloud_status_button.is_hovered(graphics, &gfx::Container::default(graphics)) {
+                    state = MainMenuState::None;
+                    menu_back.set_x_position(0.0);
+                    if run_login_menu(graphics, menu_back) {
+                        if let Some(client) = &mut tls_client {
+                            client.reset();
                         }
                     }
                 }
@@ -315,26 +347,14 @@ pub fn run_main_menu(
             -max_width / 2.0 + menu_back.get_back_rect_width(graphics, None) / 2.0
         });
         secondary_menu_back.pos.0 = if matches!(state, MainMenuState::None) {
-            graphics.get_window_size().0
+            (graphics.get_window_size().0 + secondary_menu_back.get_container(graphics, &window_container).rect.size.0) / 1.2
         } else {
             max_width / 2.0 - MENU_WIDTH / 2.0
         };
 
-        let buttons = vec![&mut singleplayer_button, &mut multiplayer_button, &mut settings_button, &mut mods_button, &mut exit_button];
-        // get maximum width of all buttons and set background width to that
-        let mut max_width = 0.0;
-        for button in &buttons {
-            if button.get_size().0 > max_width {
-                max_width = button.get_size().0;
-            }
-        }
         menu_back.set_back_rect_width(max_width + 100.0);
-
-        menu_back.render_back(graphics);
-
-        for button in buttons {
-            button.render(graphics, menu_back.get_back_rect_container());
-        }
+        menu_back.update(graphics, &window_container);
+        menu_back.render(graphics, &window_container);
 
         let color = get_tls_status_color(&tls_client);
         cloud_status_rect.render(graphics, color);
