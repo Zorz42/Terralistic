@@ -298,7 +298,7 @@ pub fn run_main_menu(
                     global_settings.clone(),
                     close_secondary_menu.clone(),
                     menu_back_timer,
-                    menu_back,
+                    &secondary_menu_back,
                 );
             }
             *open_menu.borrow_mut() = None;
@@ -356,7 +356,7 @@ fn open_secondary_menu(
     global_settings: Rc<RefCell<GlobalSettings>>,
     close_secondary_menu: Rc<RefCell<bool>>,
     menu_back_timer: std::time::Instant,
-    menu_back: &dyn BackgroundRect,
+    menu_back: &dyn UiElement,
 ) {
     let menu: Cell<Box<dyn BaseUiElement>> = match menu_index {
         0 => Cell::new(Box::new(SingleplayerSelector::new(graphics, settings, global_settings, close_secondary_menu, menu_back_timer))),

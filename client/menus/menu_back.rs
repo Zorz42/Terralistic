@@ -112,7 +112,7 @@ impl BackgroundRect for MenuBack {
 
     /// Gets the background rectangle's container.
     ///WARNING: do not use, use `get_container` instead
-    fn get_back_rect_container(&self, graphics: &mut gfx::GraphicsContext) -> gfx::Container {
+    fn get_back_rect_container(&self, graphics: &gfx::GraphicsContext) -> gfx::Container {
         gfx::Container::default(graphics)
     }
 

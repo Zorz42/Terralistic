@@ -10,7 +10,7 @@ pub trait BackgroundRect: BaseUiElement {
     fn render_back(&mut self, graphics: &mut gfx::GraphicsContext);
     fn set_back_rect_width(&mut self, width: f32, instant: bool);
     fn get_back_rect_width(&self, graphics: &gfx::GraphicsContext, parent_container: Option<&gfx::Container>) -> f32;
-    fn get_back_rect_container(&self, graphics: &mut gfx::GraphicsContext) -> gfx::Container;
+    fn get_back_rect_container(&self, graphics: &gfx::GraphicsContext) -> gfx::Container;
     fn set_x_position(&mut self, center_pos: f32);
     fn get_sub_elements(&self) -> Vec<&dyn BaseUiElement>;
     fn get_sub_elements_mut(&mut self) -> Vec<&mut dyn BaseUiElement>;
