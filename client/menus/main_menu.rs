@@ -331,7 +331,6 @@ pub fn run_main_menu(
             max_width / 2.0 - MENU_WIDTH / 2.0
         };
 
-        menu_back.set_back_rect_width(max_width + 100.0, false);
         menu_back.update(graphics, &window_container);
         menu_back.render(graphics, &window_container);
 
