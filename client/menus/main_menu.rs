@@ -143,26 +143,7 @@ impl MainMenuState {
     }
 }
 
-#[allow(clippy::too_many_lines)] // TODO: split this function up
-#[allow(clippy::cognitive_complexity)]
-pub fn run_main_menu(
-    graphics: &mut gfx::GraphicsContext,
-    menu_back: &mut dyn BackgroundRect,
-    settings: &Rc<RefCell<Settings>>,
-    global_settings: &Rc<RefCell<GlobalSettings>>,
-    menu_back_timer: std::time::Instant,
-) {
-    let mut state = MainMenuState::None;
-    let close_secondary_menu = Rc::new(RefCell::new(false));
-    let open_menu: Rc<RefCell<Option<u8>>> = Rc::new(RefCell::new(None));
-    let mut secondary_menu_back = gfx::RenderRect::new(gfx::FloatPos(graphics.get_window_size().0, 0.0), gfx::FloatSize(MENU_WIDTH, graphics.get_window_size().1));
-    secondary_menu_back.orientation = gfx::TOP;
-    secondary_menu_back.blur_radius = gfx::BLUR;
-    secondary_menu_back.smooth_factor = 60.0;
-    secondary_menu_back.shadow_intensity = gfx::SHADOW_INTENSITY;
-    secondary_menu_back.fill_color.a = gfx::TRANSPARENCY;
-    secondary_menu_back.border_color = gfx::BORDER_COLOR;
-
+fn main_back_menu(graphics: &gfx::GraphicsContext, menu_back: &mut dyn BackgroundRect, open_menu: &Rc<RefCell<Option<usize>>>) {
     let copied_menu = open_menu.clone();
     let mut singleplayer_button = gfx::Button::new(move || *copied_menu.borrow_mut() = Some(0));
     singleplayer_button.scale = 3.0;
@@ -230,24 +211,6 @@ pub fn run_main_menu(
         }
     }
 
-    let cloud_status_rect = gfx::Rect::new(gfx::FloatPos(10.0, 10.0), gfx::FloatSize(20.0, 20.0));
-
-    let mut cloud_status_button = gfx::Button::new(|| {});
-    cloud_status_button.color = gfx::GREY;
-    cloud_status_button.pos = cloud_status_rect.pos + gfx::FloatPos(cloud_status_rect.size.0 + 5.0, -10.0);
-    cloud_status_button.orientation = gfx::TOP_LEFT;
-    cloud_status_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Login", None));
-    cloud_status_button.scale = 1.5;
-    /*
-        let buttons = vec![&mut singleplayer_button, &mut multiplayer_button, &mut settings_button, &mut mods_button, &mut exit_button];
-        // get maximum width of all buttons and set background width to that
-        let mut max_width = 0.0;
-        for button in &buttons {
-            if button.get_size().0 > max_width {
-                max_width = button.get_size().0;
-            }
-        }
-    */
     *menu_back.get_elements_vec_mut() = vec![
         Box::new(title),
         #[cfg(debug_assertions)]
@@ -259,6 +222,38 @@ pub fn run_main_menu(
         Box::new(mods_button),
         Box::new(exit_button),
     ];
+}
+
+#[allow(clippy::too_many_lines)] // TODO: split this function up
+#[allow(clippy::cognitive_complexity)]
+pub fn run_main_menu(
+    graphics: &mut gfx::GraphicsContext,
+    menu_back: &mut dyn BackgroundRect,
+    settings: &Rc<RefCell<Settings>>,
+    global_settings: &Rc<RefCell<GlobalSettings>>,
+    menu_back_timer: std::time::Instant,
+) {
+    let open_menu: Rc<RefCell<Option<usize>>> = Rc::new(RefCell::new(None));
+    main_back_menu(graphics, menu_back, &open_menu);
+
+    let mut state = MainMenuState::None;
+    let close_secondary_menu = Rc::new(RefCell::new(false));
+    let mut secondary_menu_back = gfx::RenderRect::new(gfx::FloatPos(graphics.get_window_size().0, 0.0), gfx::FloatSize(MENU_WIDTH, graphics.get_window_size().1));
+    secondary_menu_back.orientation = gfx::TOP;
+    secondary_menu_back.blur_radius = gfx::BLUR;
+    secondary_menu_back.smooth_factor = 60.0;
+    secondary_menu_back.shadow_intensity = gfx::SHADOW_INTENSITY;
+    secondary_menu_back.fill_color.a = gfx::TRANSPARENCY;
+    secondary_menu_back.border_color = gfx::BORDER_COLOR;
+
+    let cloud_status_rect = gfx::Rect::new(gfx::FloatPos(10.0, 10.0), gfx::FloatSize(20.0, 20.0));
+
+    let mut cloud_status_button = gfx::Button::new(|| {});
+    cloud_status_button.color = gfx::GREY;
+    cloud_status_button.pos = cloud_status_rect.pos + gfx::FloatPos(cloud_status_rect.size.0 + 5.0, -10.0);
+    cloud_status_button.orientation = gfx::TOP_LEFT;
+    cloud_status_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Login", None));
+    cloud_status_button.scale = 1.5;
 
     let mut tls_client = match TlsClient::new() {
         Err(e) => {
@@ -272,7 +267,7 @@ pub fn run_main_menu(
     };
 
     while graphics.is_window_open() {
-        let window_container = gfx::Container::new(graphics, gfx::FloatPos(0.0, 0.0), graphics.get_window_size(), gfx::TOP_LEFT, None);
+        let window_container = gfx::Container::default(graphics);
 
         if (secondary_menu_back.size.1 - graphics.get_window_size().1).abs() > f32::EPSILON {
             secondary_menu_back.size.1 = window_container.get_absolute_rect().size.1;
@@ -294,49 +289,33 @@ pub fn run_main_menu(
                 state = MainMenuState::None;
                 *close_secondary_menu.borrow_mut() = false;
             }
-            if let Some(i) = *open_menu.borrow() {
-                match i {
-                    0 => {
-                        if !matches!(state, MainMenuState::SingleMenu((_, 0))) {
-                            let singleplayer_menu = SingleplayerSelector::new(graphics, settings.clone(), global_settings.clone(), close_secondary_menu.clone(), menu_back_timer);
-                            state.switch_to((Cell::new(Box::new(singleplayer_menu)), 0), graphics, &secondary_menu_back.get_container(graphics, &window_container));
-                        }
-                    }
-                    1 => {
-                        if !matches!(state, MainMenuState::SingleMenu((_, 1))) {
-                            let multiplayer_menu = MultiplayerSelector::new(graphics, menu_back_timer, settings.clone(), global_settings.clone(), close_secondary_menu.clone());
-                            state.switch_to((Cell::new(Box::new(multiplayer_menu)), 1), graphics, &secondary_menu_back.get_container(graphics, &window_container));
-                        }
-                    }
-                    2 => {
-                        if !matches!(state, MainMenuState::SingleMenu((_, 2))) {
-                            let mut settings_menu = SettingsMenu::new(close_secondary_menu.clone(), settings.clone());
-                            settings_menu.init(graphics, &menu_back.get_container(graphics, &window_container));
-                            state.switch_to((Cell::new(Box::new(settings_menu)), 2), graphics, &secondary_menu_back.get_container(graphics, &window_container));
-                        }
-                    }
-                    3 => {
-                        println!("mods menu isn't implemented yet");
-                    }
-                    4 => {
-                        graphics.close_window();
-                    }
-                    _ => {}
-                }
+            if let Some(index) = *open_menu.borrow_mut() {
+                open_secondary_menu(
+                    graphics,
+                    &mut state,
+                    index,
+                    settings.clone(),
+                    global_settings.clone(),
+                    close_secondary_menu.clone(),
+                    menu_back_timer,
+                    menu_back,
+                );
             }
             *open_menu.borrow_mut() = None;
 
-            if let gfx::Event::KeyRelease(key, ..) = event {
-                // check for every button if it was clicked with the left mouse button
-                if key == gfx::Key::MouseLeft && cloud_status_button.is_hovered(graphics, &gfx::Container::default(graphics)) {
-                    state = MainMenuState::None;
-                    menu_back.set_x_position(0.0);
-                    if run_login_menu(graphics, menu_back) {
-                        if let Some(client) = &mut tls_client {
-                            client.reset();
-                        }
+            if cloud_status_button.on_event(graphics, &event, &window_container) {
+                state = MainMenuState::None;
+                menu_back.set_x_position(0.0);
+                let mut synced_menu_back = crate::MenuBack::new_synced(graphics, menu_back_timer);
+                synced_menu_back.set_back_rect_width(menu_back.get_back_rect_width(graphics, Some(&window_container)), true);
+                synced_menu_back.update(graphics, &window_container);
+                if run_login_menu(graphics, &mut synced_menu_back) {
+                    if let Some(client) = &mut tls_client {
+                        client.reset();
                     }
                 }
+                //no clue why this doesn't work
+                menu_back.set_back_rect_width(synced_menu_back.get_back_rect_width(graphics, Some(&window_container)), true);
             }
         }
 
@@ -352,7 +331,7 @@ pub fn run_main_menu(
             max_width / 2.0 - MENU_WIDTH / 2.0
         };
 
-        menu_back.set_back_rect_width(max_width + 100.0);
+        menu_back.set_back_rect_width(max_width + 100.0, false);
         menu_back.update(graphics, &window_container);
         menu_back.render(graphics, &window_container);
 
@@ -366,6 +345,39 @@ pub fn run_main_menu(
         state.render(graphics, &secondary_menu_back.get_container(graphics, &window_container));
 
         graphics.update_window();
+    }
+}
+
+fn open_secondary_menu(
+    graphics: &mut gfx::GraphicsContext,
+    state: &mut MainMenuState,
+    menu_index: usize,
+    settings: Rc<RefCell<Settings>>,
+    global_settings: Rc<RefCell<GlobalSettings>>,
+    close_secondary_menu: Rc<RefCell<bool>>,
+    menu_back_timer: std::time::Instant,
+    menu_back: &dyn BackgroundRect,
+) {
+    let menu: Cell<Box<dyn BaseUiElement>> = match menu_index {
+        0 => Cell::new(Box::new(SingleplayerSelector::new(graphics, settings, global_settings, close_secondary_menu, menu_back_timer))),
+        1 => Cell::new(Box::new(MultiplayerSelector::new(graphics, menu_back_timer, settings, global_settings, close_secondary_menu))),
+        2 => {
+            let mut menu = SettingsMenu::new(close_secondary_menu, settings);
+            menu.init(graphics, &menu_back.get_container(graphics, &gfx::Container::default(graphics)));
+            Cell::new(Box::new(menu))
+        }
+        4 => {
+            graphics.close_window();
+            return;
+        }
+        _ => {
+            println!("menu doesn't exist");
+            return;
+        }
+    };
+
+    if !matches!(state, MainMenuState::SingleMenu((_, curr_menu_index)) if *curr_menu_index == menu_index) {
+        state.switch_to((menu, menu_index), graphics, &menu_back.get_container(graphics, &gfx::Container::default(graphics)));
     }
 }
 

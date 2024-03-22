@@ -61,7 +61,7 @@ pub fn run_text_input_menu(menu_title: &str, graphics: &mut gfx::GraphicsContext
                 }
             }
         }
-        menu_back.set_back_rect_width(700.0);
+        menu_back.set_back_rect_width(700.0, false);
 
         menu_back.render_back(graphics);
 

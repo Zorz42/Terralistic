@@ -34,7 +34,7 @@ pub fn run_loading_screen(graphics: &mut gfx::GraphicsContext, menu_back: &mut d
     while graphics.is_window_open() && !loading_text.lock().unwrap_or_else(PoisonError::into_inner).is_empty() {
         while graphics.get_event().is_some() {}
 
-        menu_back.set_back_rect_width(PROGRESS_BAR_WIDTH as f32 + 2.0 * gfx::SPACING);
+        menu_back.set_back_rect_width(PROGRESS_BAR_WIDTH as f32 + 2.0 * gfx::SPACING, false);
 
         menu_back.render_back(graphics);
 

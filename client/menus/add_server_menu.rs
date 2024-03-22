@@ -151,7 +151,7 @@ pub fn run_add_server_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut 
                 }
             }
         }
-        menu_back.set_back_rect_width(700.0);
+        menu_back.set_back_rect_width(700.0, false);
 
         menu_back.render_back(graphics);
 

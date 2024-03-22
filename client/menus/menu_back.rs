@@ -72,7 +72,7 @@ impl UiElement for MenuBack {
             }
         }
 
-        self.set_back_rect_width(max_width + 100.0);
+        self.set_back_rect_width(max_width + 100.0, false);
 
         let new_container = self.back_rect.get_container(graphics, parent_container);
         self.back_container.rect = new_container.rect;
@@ -98,8 +98,11 @@ impl BackgroundRect for MenuBack {
     }
 
     /// Sets the width of the background rectangle.
-    fn set_back_rect_width(&mut self, width: f32) {
+    fn set_back_rect_width(&mut self, width: f32, instant: bool) {
         self.back_rect.size.0 = width;
+        if instant {
+            self.back_rect.jump_to_target();
+        }
     }
 
     /// Gets the width of the background rectangle.

@@ -383,7 +383,7 @@ impl UiElement for SingleplayerSelector {
     fn render_inner(&mut self, graphics: &mut gfx::GraphicsContext, parent_container: &gfx::Container) {
         if *self.new_world_press.borrow_mut() {
             let mut menu_back = super::MenuBack::new_synced(graphics, self.menu_back_timer);
-            menu_back.set_back_rect_width(parent_container.rect.size.0);
+            menu_back.set_back_rect_width(parent_container.rect.size.0, false);
             menu_back.render_back(graphics);
             run_world_creation(graphics, &mut menu_back, &self.world_list.worlds, &self.settings, &self.global_settings);
             self.world_list.refresh(graphics, &self.world_button_press);
@@ -432,7 +432,7 @@ impl UiElement for SingleplayerSelector {
                 if let Some((world, action)) = *self.world_button_press.borrow_mut() {
                     if action == 0 {
                         let mut menu_back = super::MenuBack::new_synced(graphics, self.menu_back_timer);
-                        menu_back.set_back_rect_width(parent_container.rect.size.0);
+                        menu_back.set_back_rect_width(parent_container.rect.size.0, false);
                         menu_back.render_back(graphics);
                         let game_result = run_private_world(graphics, &mut menu_back, self.world_list.worlds[world].get_file_path(), &self.settings, &self.global_settings);
                         if let Err(error) = game_result {

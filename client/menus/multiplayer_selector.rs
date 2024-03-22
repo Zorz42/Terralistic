@@ -203,7 +203,7 @@ impl UiElement for MultiplayerSelector {
                     }
                     if self.new_server_button.is_hovered(graphics, parent_container) {
                         let mut menu_back = super::MenuBack::new_synced(graphics, self.menu_back_timer);
-                        menu_back.set_back_rect_width(parent_container.rect.size.0);
+                        menu_back.set_back_rect_width(parent_container.rect.size.0, false);
                         menu_back.render_back(graphics);
                         if let Some(server) = run_add_server_menu(graphics, &mut menu_back, &self.server_list.servers) {
                             self.server_list.servers.push(ServerCard::new(graphics, server.name, server.ip, server.port));
@@ -213,7 +213,7 @@ impl UiElement for MultiplayerSelector {
                     for server in &self.server_list.servers {
                         if server.play_button.is_hovered(graphics, &server.get_container(graphics, parent_container)) {
                             let mut menu_back = super::MenuBack::new_synced(graphics, self.menu_back_timer);
-                            menu_back.set_back_rect_width(parent_container.rect.size.0);
+                            menu_back.set_back_rect_width(parent_container.rect.size.0, false);
                             menu_back.render_back(graphics);
                             let name = run_text_input_menu("Enter your name", graphics, &mut menu_back);
                             if let Some(name) = name {
@@ -231,7 +231,7 @@ impl UiElement for MultiplayerSelector {
                                     //run_choice_menu(&format!("Game error: {error}"), graphics, menu_back, vec!["Ok"], None, None, true);
                                 }
                             }
-                        } /*else if server.delete_button.is_hovered(graphics, &server.get_container(graphics, Some(menu_back.get_back_rect_container())))
+                        } /*else if server.delete_button.is_hovered(graphics, &server.get_container(graphics, Some(menu_back.get_container())))
                               && run_choice_menu(
                                   format!("The server \"{}\" will be deleted.\nDo you want to proceed?", server.server_info.name).as_str(),
                                   graphics,

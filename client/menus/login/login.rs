@@ -161,7 +161,7 @@ pub fn run_login_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn B
                 }
             }
         }
-        menu_back.set_back_rect_width(700.0);
+        menu_back.set_back_rect_width(700.0, false);
 
         menu_back.render_back(graphics);
 

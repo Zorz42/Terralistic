@@ -132,7 +132,7 @@ pub fn run_world_creation(
                 }
             }
         }
-        menu_back.set_back_rect_width(700.0);
+        menu_back.set_back_rect_width(700.0, false);
 
         menu_back.render_back(graphics);
 
