@@ -114,7 +114,7 @@ pub fn run_game(
     let mut camera = Camera::new();
     let mut players = ClientPlayers::new(player_name);
     let mut block_selector = BlockSelector::new();
-    let mut pause_menu = PauseMenu::new();
+    let mut pause_menu = PauseMenu::new(settings.clone());
     let mut debug_menu = DebugMenu::new();
     let mut framerate_measurer = FramerateMeasurer::new();
     let mut chat = ClientChat::new(graphics);
@@ -133,7 +133,7 @@ pub fn run_game(
     players.load_resources(&mods.mod_manager)?;
     health.load_resources(&mods.mod_manager)?;
 
-    pause_menu.init(graphics, settings);
+    pause_menu.init(graphics);
     debug_menu.init();
     chat.init();
     respawn_screen.init(graphics);
@@ -212,7 +212,7 @@ pub fn run_game(
             lights.on_event(&event, &blocks.get_blocks())?;
             camera.on_event(&event);
             health.on_event(&event, graphics, &mut floating_text, &players, &entities.get_entities());
-            if pause_menu.on_event(&event, graphics, settings) {
+            if pause_menu.on_event(&event, graphics) {
                 break 'main_loop;
             }
             debug_menu.on_event(&event);

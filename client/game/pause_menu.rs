@@ -7,34 +7,38 @@ use gfx::{BaseUiElement, UiElement};
 use std::cell::RefCell;
 use std::rc::Rc;
 
+//TODO: change this into a UiElement
+
 /// The pause menu actually does not pause the game (ironic, I know).
 /// It just shows a menu with options to quit the world or go back to the game.
 pub struct PauseMenu {
     open: bool,
-    in_settings: bool,
     resume_button: gfx::Button,
     settings_button: gfx::Button,
     quit_button: gfx::Button,
     back_rect: gfx::RenderRect,
-    //settings_menu: SettingsMenu,
+    not_in_settings: Rc<RefCell<bool>>,
+    settings_menu: SettingsMenu,
     rect_width: f32,
 }
 
 impl PauseMenu {
-    pub fn new() -> Self {
+    pub fn new(settings: Rc<RefCell<Settings>>) -> Self {
+        let not_in_settings = Rc::new(RefCell::new(false));
+        let cloned_n_in_settings = not_in_settings.clone();
         Self {
             open: false,
-            in_settings: false,
+            not_in_settings: not_in_settings.clone(),
             resume_button: gfx::Button::new(|| {}),
-            settings_button: gfx::Button::new(|| {}),
+            settings_button: gfx::Button::new(move || *cloned_n_in_settings.borrow_mut() = false),
             quit_button: gfx::Button::new(|| {}),
             back_rect: gfx::RenderRect::new(gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, 0.0)),
-            //settings_menu: SettingsMenu::new(),
+            settings_menu: SettingsMenu::new(not_in_settings, settings),
             rect_width: 0.0,
         }
     }
 
-    pub fn init(&mut self, graphics: &gfx::GraphicsContext, settings: &Rc<RefCell<Settings>>) {
+    pub fn init(&mut self, graphics: &gfx::GraphicsContext) {
         self.resume_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Resume", None));
         self.resume_button.scale = 3.0;
         self.resume_button.pos.0 = -gfx::SPACING;
@@ -62,11 +66,11 @@ impl PauseMenu {
         self.back_rect.shadow_intensity = gfx::SHADOW_INTENSITY;
         self.back_rect.smooth_factor = 60.0;
 
-        //self.settings_menu.init(graphics, settings);
+        self.settings_menu.init(graphics, &self.back_rect.get_container(graphics, &gfx::Container::default(graphics)));
     }
 
     pub fn render(&mut self, graphics: &mut gfx::GraphicsContext, settings: &Rc<RefCell<Settings>>, global_settings: &Rc<RefCell<GlobalSettings>>) {
-        if self.open && self.in_settings {
+        if self.open && !*self.not_in_settings.borrow_mut() {
             self.back_rect.pos.0 = graphics.get_window_size().0 / 2.0 - self.back_rect.size.0 / 2.0;
         } else if self.open {
             self.back_rect.pos.0 = 0.0;
@@ -76,57 +80,52 @@ impl PauseMenu {
             self.back_rect.size.0 = self.rect_width;
         }
 
-        //self.back_rect.render(graphics, None);
+        let window_container = gfx::Container::default(graphics);
 
-        /*let back_rect = *self.back_rect.get_container(graphics, None).get_absolute_rect();
-        let visible = back_rect.pos.0 + back_rect.size.0 > 0.0;*/
+        self.back_rect.render(graphics, &window_container);
+
+        let back_rect = *self.back_rect.get_container(graphics, &window_container).get_absolute_rect();
+        let visible = back_rect.pos.0 + back_rect.size.0 > 0.0;
 
         if graphics.get_window_size().1 as u32 != self.back_rect.size.1 as u32 {
             self.back_rect.size.1 = graphics.get_window_size().1;
             self.back_rect.jump_to_target();
         }
 
-        /*if visible && !self.in_settings {
-            self.resume_button.render(graphics, Some(&self.back_rect.get_container(graphics, None)));
-            self.settings_button.render(graphics, Some(&self.back_rect.get_container(graphics, None)));
-            self.quit_button.render(graphics, Some(&self.back_rect.get_container(graphics, None)));
-        }*/
+        if visible && *self.not_in_settings.borrow_mut() {
+            self.resume_button.render(graphics, &self.back_rect.get_container(graphics, &window_container));
+            self.settings_button.render(graphics, &self.back_rect.get_container(graphics, &window_container));
+            self.quit_button.render(graphics, &self.back_rect.get_container(graphics, &window_container));
+        }
 
-        if self.in_settings {
-            //let width = self.settings_menu.render(graphics, settings);
-            //self.back_rect.size.0 = width;
+        if !*self.not_in_settings.borrow_mut() {
+            self.settings_menu.render(graphics, &self.back_rect.get_container(graphics, &window_container));
+            self.back_rect.size.0 = 700.0;
             global_settings.borrow_mut().update(graphics, settings);
         }
     }
 
     /// returns true if the game should quit
-    pub fn on_event(&mut self, event: &Event, graphics: &gfx::GraphicsContext, settings: &Rc<RefCell<Settings>>) -> bool {
+    pub fn on_event(&mut self, event: &Event, graphics: &mut gfx::GraphicsContext) -> bool {
+        let parent_container = self.back_rect.get_container(graphics, &gfx::Container::default(graphics));
         if let Some(event) = event.downcast::<gfx::Event>() {
-            if self.in_settings {
-                /*if self.settings_menu.on_event(event, graphics, settings) {
-                    self.in_settings = false;
-                }*/
-                return false;
+            if let gfx::Event::KeyPress(key, false) = event {
+                if *key == gfx::Key::Escape {
+                    self.open = !self.open;
+                }
             }
 
-            match event {
-                gfx::Event::KeyPress(key, false) => {
-                    if *key == gfx::Key::Escape {
-                        self.open = !self.open;
-                    }
-                }
-                /*gfx::Event::KeyRelease(key, false) => {
-                    if *key == gfx::Key::MouseLeft && self.open {
-                        if self.resume_button.is_hovered(graphics, Some(&self.back_rect.get_container(graphics, None))) {
-                            self.open = false;
-                        } else if self.settings_button.is_hovered(graphics, Some(&self.back_rect.get_container(graphics, None))) {
-                            self.in_settings = true;
-                        } else if self.quit_button.is_hovered(graphics, Some(&self.back_rect.get_container(graphics, None))) {
-                            return true;
-                        }
-                    }
-                }*///TODO UI element
-                _ => {}
+            if !self.open {
+                return false;
+            }
+            self.settings_menu.on_event(graphics, event, &parent_container);
+
+            if self.resume_button.on_event(graphics, event, &parent_container) {
+                self.open = false;
+            }
+            self.settings_button.on_event(graphics, event, &parent_container);
+            if self.quit_button.on_event(graphics, event, &parent_container) {
+                return true;
             }
         }
 

@@ -13,7 +13,7 @@ use crate::client::settings::Settings;
 use crate::libraries::graphics as gfx;
 use gfx::{BaseUiElement, UiElement};
 
-use super::world_creation::run_world_creation;
+use super::world_creation::WorldCreationMenu;
 use super::BackgroundRect;
 
 pub const MENU_WIDTH: f32 = 800.0;
@@ -240,6 +240,7 @@ enum SingleplayerSelectorState {
     Default,
     GameError(ChoiceMenu),
     DeleteWorld(ChoiceMenu, usize),
+    CreateWorld(WorldCreationMenu),
 }
 
 pub struct SingleplayerSelector {
@@ -257,6 +258,7 @@ pub struct SingleplayerSelector {
     new_world_press: Rc<RefCell<bool>>,
     world_button_press: Rc<RefCell<Option<(usize, usize)>>>,
     state: SingleplayerSelectorState,
+    close_world_creation_menu: Rc<RefCell<bool>>,
 }
 
 impl SingleplayerSelector {
@@ -329,6 +331,7 @@ impl SingleplayerSelector {
             new_world_press,
             world_button_press,
             state: SingleplayerSelectorState::Default,
+            close_world_creation_menu: Rc::new(RefCell::new(false)),
         }
     }
 }
@@ -354,6 +357,9 @@ impl UiElement for SingleplayerSelector {
                 elements_vec.push(&mut self.scrollable);
                 elements_vec
             }
+            SingleplayerSelectorState::CreateWorld(menu) => {
+                vec![menu]
+            }
         }
     }
 
@@ -377,21 +383,24 @@ impl UiElement for SingleplayerSelector {
                 elements_vec.push(&self.title);
                 elements_vec
             }
+            SingleplayerSelectorState::CreateWorld(menu) => {
+                vec![menu]
+            }
         }
-    }
-
-    fn render_inner(&mut self, graphics: &mut gfx::GraphicsContext, parent_container: &gfx::Container) {
-        if *self.new_world_press.borrow_mut() {
-            let mut menu_back = super::MenuBack::new_synced(graphics, self.menu_back_timer);
-            menu_back.set_back_rect_width(parent_container.rect.size.0, false);
-            menu_back.render_back(graphics);
-            run_world_creation(graphics, &mut menu_back, &self.world_list.worlds, &self.settings, &self.global_settings);
-            self.world_list.refresh(graphics, &self.world_button_press);
-        }
-        *self.new_world_press.borrow_mut() = false;
     }
 
     fn update_inner(&mut self, graphics: &mut gfx::GraphicsContext, parent_container: &gfx::Container) {
+        if *self.new_world_press.borrow_mut() {
+            let mut names_vec = Vec::new();
+            for world in &self.world_list.worlds {
+                names_vec.push(world.name.clone());
+            }
+            if let Ok(world_creation_menu) = WorldCreationMenu::new(graphics, names_vec, self.settings.clone(), self.global_settings.clone(), self.close_world_creation_menu.clone()) {
+                self.state = SingleplayerSelectorState::CreateWorld(world_creation_menu);
+            }
+        }
+        *self.new_world_press.borrow_mut() = false;
+
         let mut change_to_default = false;
         match &mut self.state {
             SingleplayerSelectorState::Default => {
@@ -467,9 +476,12 @@ impl UiElement for SingleplayerSelector {
                 }
                 menu.button_press = None;
             }
+            SingleplayerSelectorState::CreateWorld(_) => {}
         }
-        if change_to_default {
+        if change_to_default || *self.close_world_creation_menu.borrow_mut() {
             self.state = SingleplayerSelectorState::Default;
+            *self.close_world_creation_menu.borrow_mut() = false;
+            self.world_list.refresh(graphics, &self.world_button_press);
         }
     }
 
