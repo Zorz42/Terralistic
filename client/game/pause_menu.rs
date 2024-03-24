@@ -1,5 +1,6 @@
 use crate::client::global_settings::GlobalSettings;
 use crate::client::menus::SettingsMenu;
+use crate::client::menus::MENU_WIDTH;
 use crate::client::settings::Settings;
 use crate::libraries::events::Event;
 use crate::libraries::graphics as gfx;
@@ -18,13 +19,15 @@ pub struct PauseMenu {
     quit_button: gfx::Button,
     back_rect: gfx::RenderRect,
     not_in_settings: Rc<RefCell<bool>>,
+    settings: Rc<RefCell<Settings>>,
+    global_settings: Rc<RefCell<GlobalSettings>>,
     settings_menu: SettingsMenu,
     rect_width: f32,
 }
 
 impl PauseMenu {
-    pub fn new(settings: Rc<RefCell<Settings>>) -> Self {
-        let not_in_settings = Rc::new(RefCell::new(false));
+    pub fn new(settings: Rc<RefCell<Settings>>, global_settings: Rc<RefCell<GlobalSettings>>) -> Self {
+        let not_in_settings = Rc::new(RefCell::new(true));
         let cloned_n_in_settings = not_in_settings.clone();
         Self {
             open: false,
@@ -32,9 +35,11 @@ impl PauseMenu {
             resume_button: gfx::Button::new(|| {}),
             settings_button: gfx::Button::new(move || *cloned_n_in_settings.borrow_mut() = false),
             quit_button: gfx::Button::new(|| {}),
-            back_rect: gfx::RenderRect::new(gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, 0.0)),
-            settings_menu: SettingsMenu::new(not_in_settings, settings),
+            back_rect: gfx::RenderRect::new(gfx::FloatPos(-1000.0, 0.0), gfx::FloatSize(0.0, 0.0)),
+            settings_menu: SettingsMenu::new(not_in_settings, settings.clone()),
             rect_width: 0.0,
+            settings,
+            global_settings,
         }
     }
 
@@ -69,8 +74,12 @@ impl PauseMenu {
         self.settings_menu.init(graphics, &self.back_rect.get_container(graphics, &gfx::Container::default(graphics)));
     }
 
-    pub fn render(&mut self, graphics: &mut gfx::GraphicsContext, settings: &Rc<RefCell<Settings>>, global_settings: &Rc<RefCell<GlobalSettings>>) {
+    pub fn render(&mut self, graphics: &mut gfx::GraphicsContext) {
+        let parent_container = self.back_rect.get_container(graphics, &gfx::Container::default(graphics));
+        self.settings_menu.update(graphics, &parent_container);
+
         if self.open && !*self.not_in_settings.borrow_mut() {
+            self.back_rect.size.0 = MENU_WIDTH;
             self.back_rect.pos.0 = graphics.get_window_size().0 / 2.0 - self.back_rect.size.0 / 2.0;
         } else if self.open {
             self.back_rect.pos.0 = 0.0;
@@ -100,8 +109,6 @@ impl PauseMenu {
 
         if !*self.not_in_settings.borrow_mut() {
             self.settings_menu.render(graphics, &self.back_rect.get_container(graphics, &window_container));
-            self.back_rect.size.0 = 700.0;
-            global_settings.borrow_mut().update(graphics, settings);
         }
     }
 
@@ -118,8 +125,11 @@ impl PauseMenu {
             if !self.open {
                 return false;
             }
-            self.settings_menu.on_event(graphics, event, &parent_container);
-
+            if !*self.not_in_settings.borrow() {
+                if self.settings_menu.on_event(graphics, event, &parent_container) {
+                    self.global_settings.borrow_mut().update(graphics, &self.settings)
+                }
+            }
             if self.resume_button.on_event(graphics, event, &parent_container) {
                 self.open = false;
             }

@@ -17,13 +17,14 @@ pub trait BaseUiElement: UiElement {
         }
     }
     fn on_event(&mut self, graphics: &mut gfx::GraphicsContext, event: &gfx::Event, parent_container: &gfx::Container) -> bool {
+        let mut event_detected = false;
         let container = self.get_container(graphics, parent_container);
         for element in self.get_sub_elements_mut() {
             if element.on_event(graphics, event, &container) {
-                //return true;
+                event_detected |= true;
             }
         }
-        self.on_event_inner(graphics, event, parent_container)
+        self.on_event_inner(graphics, event, parent_container) || event_detected
     }
 }
 

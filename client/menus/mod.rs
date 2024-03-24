@@ -7,6 +7,7 @@ pub use menu_back::MenuBack;
 pub use multiplayer_selector::MultiplayerSelector;
 pub use settings_menu::SettingsMenu;
 pub use singleplayer_selector::SingleplayerSelector;
+pub use singleplayer_selector::MENU_WIDTH;
 pub use text_input_menu::run_text_input_menu;
 
 mod background_rect;

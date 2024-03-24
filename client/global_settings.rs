@@ -93,6 +93,8 @@ impl GlobalSettings {
                 println!("Error: Setting not found or is invalid enum");
             }
         }
+
+        println!("updated");
     }
 
     pub fn stop(&mut self, settings: &Rc<RefCell<Settings>>) {

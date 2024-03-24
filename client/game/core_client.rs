@@ -114,7 +114,7 @@ pub fn run_game(
     let mut camera = Camera::new();
     let mut players = ClientPlayers::new(player_name);
     let mut block_selector = BlockSelector::new();
-    let mut pause_menu = PauseMenu::new(settings.clone());
+    let mut pause_menu = PauseMenu::new(settings.clone(), global_settings.clone());
     let mut debug_menu = DebugMenu::new();
     let mut framerate_measurer = FramerateMeasurer::new();
     let mut chat = ClientChat::new(graphics);
@@ -186,7 +186,7 @@ pub fn run_game(
         chat.render(graphics);
         respawn_screen.render(graphics);
 
-        pause_menu.render(graphics, settings, global_settings);
+        pause_menu.render(graphics);
 
         debug_menu.render(
             graphics,
