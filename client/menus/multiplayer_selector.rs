@@ -208,7 +208,7 @@ impl UiElement for MultiplayerSelector {
                         if let Some(server) = run_add_server_menu(graphics, &mut menu_back, &self.server_list.servers) {
                             self.server_list.servers.push(ServerCard::new(graphics, server.name, server.ip, server.port));
                         }
-                        self.server_list.save(self.servers_file.to_path_buf());
+                        self.server_list.save(self.servers_file.clone());
                     }
                     for server in &self.server_list.servers {
                         if server.play_button.is_hovered(graphics, &server.get_container(graphics, parent_container)) {

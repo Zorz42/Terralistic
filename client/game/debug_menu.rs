@@ -32,8 +32,9 @@ impl DebugMenu {
 
     pub fn render(&mut self, graphics: &mut gfx::GraphicsContext, lines: &[String]) {
         //TODO UI element
+        let window_container = gfx::Container::default(graphics);
         self.back_rect.pos.0 = if self.open { -gfx::SPACING } else { self.back_rect.size.0 + 100.0 };
-        //self.back_rect.render(graphics, None);
+        self.back_rect.render(graphics, &window_container);
 
         if self.is_visible(graphics) {
             let scale = 3.0;
@@ -51,7 +52,7 @@ impl DebugMenu {
             self.back_rect.size.1 = height + 2.0 * gfx::SPACING;
 
             let mut y = gfx::SPACING;
-            /*let debug_menu_rect_container = self.back_rect.get_container(graphics, None);
+            let debug_menu_rect_container = self.back_rect.get_container(graphics, &window_container);
             let debug_menu_rect_container = debug_menu_rect_container.get_absolute_rect();
             for line in lines {
                 graphics.font.render_text(
@@ -63,7 +64,7 @@ impl DebugMenu {
 
                 let size = graphics.font.get_text_size_scaled(line, scale, None);
                 y += size.1;
-            }*/
+            }
         }
     }
 
@@ -75,7 +76,6 @@ impl DebugMenu {
 
     fn is_visible(&self, graphics: &gfx::GraphicsContext) -> bool {
         //TODO UI element
-        //(self.back_rect.get_container(graphics, None).rect.pos.0 as i32) < (graphics.get_window_size().0 as i32)
-        true
+        (self.back_rect.get_container(graphics, &gfx::Container::default(graphics)).rect.pos.0 as i32) < (graphics.get_window_size().0 as i32)
     }
 }
