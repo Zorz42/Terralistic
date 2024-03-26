@@ -194,7 +194,7 @@ impl UiElement for MultiplayerSelector {
     }
 
     fn on_event_inner(&mut self, graphics: &mut gfx::GraphicsContext, event: &gfx::Event, parent_container: &gfx::Container) -> bool {
-        self.scrollable.on_event(graphics, &event, parent_container);
+        self.scrollable.on_event(graphics, event, parent_container);
         if let gfx::Event::KeyRelease(key, ..) = event {
             match key {
                 gfx::Key::MouseLeft => {
@@ -214,6 +214,7 @@ impl UiElement for MultiplayerSelector {
                         if server.play_button.is_hovered(graphics, &server.get_container(graphics, parent_container)) {
                             let mut menu_back = super::MenuBack::new_synced(graphics, self.menu_back_timer);
                             menu_back.set_back_rect_width(parent_container.rect.size.0, false);
+                            menu_back.update(graphics, &gfx::Container::default(graphics));
                             menu_back.render_back(graphics);
                             let name = run_text_input_menu("Enter your name", graphics, &mut menu_back);
                             if let Some(name) = name {

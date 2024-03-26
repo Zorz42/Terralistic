@@ -442,6 +442,7 @@ impl UiElement for SingleplayerSelector {
                     if action == 0 {
                         let mut menu_back = super::MenuBack::new_synced(graphics, self.menu_back_timer);
                         menu_back.set_back_rect_width(parent_container.rect.size.0, false);
+                        menu_back.update(graphics, &gfx::Container::default(graphics));
                         menu_back.render_back(graphics);
                         let game_result = run_private_world(graphics, &mut menu_back, self.world_list.worlds[world].get_file_path(), &self.settings, &self.global_settings);
                         if let Err(error) = game_result {
