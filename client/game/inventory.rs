@@ -211,7 +211,6 @@ impl ClientInventory {
             self.crafting_back_rect.size.1 = INVENTORY_SPACING * (self.craftable_recipes.len() as f32 + 1.0) + INVENTORY_SLOT_SIZE * self.craftable_recipes.len() as f32;
 
             if !self.craftable_recipes.is_empty() {
-                //TODO UI element
                 self.crafting_back_rect.render(graphics, &window_container);
             }
 

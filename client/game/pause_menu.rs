@@ -117,7 +117,7 @@ impl PauseMenu {
         let parent_container = self.back_rect.get_container(graphics, &gfx::Container::default(graphics));
         if let Some(event) = event.downcast::<gfx::Event>() {
             if let gfx::Event::KeyPress(key, false) = event {
-                if *key == gfx::Key::Escape {
+                if *key == gfx::Key::Escape && *self.not_in_settings.borrow() {
                     self.open = !self.open;
                 }
             }
@@ -126,13 +126,16 @@ impl PauseMenu {
                 return false;
             }
             if !*self.not_in_settings.borrow() {
-                if self.settings_menu.on_event(graphics, event, &parent_container) {
-                    self.global_settings.borrow_mut().update(graphics, &self.settings)
+                let updated = self.settings_menu.on_event(graphics, event, &parent_container);
+                if updated {
+                    self.global_settings.borrow_mut().update(graphics, &self.settings);
                 }
+                return false;
             }
             if self.resume_button.on_event(graphics, event, &parent_container) {
                 self.open = false;
             }
+
             self.settings_button.on_event(graphics, event, &parent_container);
             if self.quit_button.on_event(graphics, event, &parent_container) {
                 return true;
