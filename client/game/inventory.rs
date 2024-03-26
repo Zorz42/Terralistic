@@ -131,22 +131,23 @@ impl ClientInventory {
     }
 
     fn render_inventory(&mut self, graphics: &mut gfx::GraphicsContext, items: &ClientItems) -> Result<()> {
+        let window_container = gfx::Container::default(graphics);
         self.back_rect.size.1 = self.open_progress * (3.0 * INVENTORY_SPACING + 2.0 * INVENTORY_SLOT_SIZE) + (1.0 - self.open_progress) * (2.0 * INVENTORY_SPACING + INVENTORY_SLOT_SIZE);
-        /*self.back_rect.render(graphics, None);
+        self.back_rect.render(graphics, &window_container);
 
         if let Some(slot) = self.inventory.selected_slot {
             let x = slot % 10;
             let y = slot / 10;
 
-            let back_rect = *self.back_rect.get_container(graphics, None).get_absolute_rect();
+            let back_rect = *self.back_rect.get_container(graphics, &window_container).get_absolute_rect();
             self.hovered_slot_rect.pos = gfx::FloatPos(
                 back_rect.pos.0 + x as f32 * (INVENTORY_SLOT_SIZE + INVENTORY_SPACING),
                 back_rect.pos.1 + y as f32 * (INVENTORY_SLOT_SIZE + INVENTORY_SPACING),
             );
-            self.hovered_slot_rect.render(graphics, None);
+            self.hovered_slot_rect.render(graphics, &window_container);
         }
 
-        let rect = *self.back_rect.get_container(graphics, None).get_absolute_rect();*/
+        let rect = *self.back_rect.get_container(graphics, &window_container).get_absolute_rect();
         for (i, item) in self.inventory.reverse_iter().enumerate() {
             let i = 19 - i;
             if i < 10 {
@@ -156,7 +157,7 @@ impl ClientInventory {
                     item.as_ref()
                 };
 
-                /*let result = render_inventory_slot(
+                let result = render_inventory_slot(
                     graphics,
                     items,
                     rect.pos + gfx::FloatPos(i as f32 * (INVENTORY_SLOT_SIZE + INVENTORY_SPACING) + INVENTORY_SPACING, INVENTORY_SPACING),
@@ -165,7 +166,7 @@ impl ClientInventory {
 
                 if result {
                     self.hovered_slot = HoveredSlot::Inventory(i);
-                }*/
+                }
             }
 
             if i >= 10 {
@@ -185,7 +186,7 @@ impl ClientInventory {
                     item.as_ref()
                 };
 
-                /*if *pos_y > 0.0 {
+                if *pos_y > 0.0 {
                     let result = render_inventory_slot(
                         graphics,
                         items,
@@ -196,21 +197,23 @@ impl ClientInventory {
                     if result {
                         self.hovered_slot = HoveredSlot::Inventory(i);
                     }
-                }*///TODO UI element
+                } //TODO ui element
             }
         }
         Ok(())
     }
 
     fn render_crafting(&mut self, graphics: &mut gfx::GraphicsContext, items: &ClientItems) -> Result<()> {
+        let window_container = gfx::Container::default(graphics);
         if self.open_progress > 0.0 {
             self.crafting_back_rect.pos.0 = INVENTORY_SPACING * self.open_progress + (-self.crafting_back_rect.size.0 - INVENTORY_SPACING) * (1.0 - self.open_progress);
 
             self.crafting_back_rect.size.1 = INVENTORY_SPACING * (self.craftable_recipes.len() as f32 + 1.0) + INVENTORY_SLOT_SIZE * self.craftable_recipes.len() as f32;
 
-            /*if !self.craftable_recipes.is_empty() {//TODO UI element
-                self.crafting_back_rect.render(graphics, None);
-            }*/
+            if !self.craftable_recipes.is_empty() {
+                //TODO UI element
+                self.crafting_back_rect.render(graphics, &window_container);
+            }
 
             let x = self.crafting_back_rect.pos.0 + INVENTORY_SPACING;
             let mut y = self.crafting_back_rect.pos.1 + INVENTORY_SPACING;
@@ -237,7 +240,7 @@ impl ClientInventory {
             self.hover_back_rect.pos = graphics.get_mouse_pos();
             self.hover_back_rect.size.0 = num_recipes as f32 * (INVENTORY_SLOT_SIZE + INVENTORY_SPACING) + INVENTORY_SPACING;
 
-            //self.hover_back_rect.render(graphics, None);
+            self.hover_back_rect.render(graphics, &window_container);
 
             let mut x = graphics.get_mouse_pos().0 + INVENTORY_SPACING;
             let y = graphics.get_mouse_pos().1 + INVENTORY_SPACING;

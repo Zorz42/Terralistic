@@ -67,6 +67,7 @@ pub struct ClientChat {
     waiting_for_t: bool,
 }
 
+//TODO make this a UI element
 impl ClientChat {
     pub fn new(graphics: &gfx::GraphicsContext) -> Self {
         Self {
@@ -93,17 +94,17 @@ impl ClientChat {
     }
 
     pub fn render(&mut self, graphics: &mut gfx::GraphicsContext) {
-        //TODO make this a UI element
+        let window_container = gfx::Container::default(graphics);
         if self.text_input.selected {
             self.back_rect.size.0 = gfx::TEXT_INPUT_WIDTH * self.text_input.scale;
         } else {
             self.back_rect.size.0 = gfx::TEXT_INPUT_WIDTH * self.text_input.scale * 0.6;
         }
 
-        //self.back_rect.render(graphics, None);
+        self.back_rect.render(graphics, &window_container);
 
-        //self.text_input.width = self.back_rect.get_container(graphics, None).rect.size.0 / self.text_input.scale;
-        //self.text_input.render(graphics, None);
+        self.text_input.width = self.back_rect.get_container(graphics, &window_container).rect.size.0 / self.text_input.scale;
+        self.text_input.render(graphics, &window_container);
 
         let mut curr_y = graphics.get_window_size().1 - gfx::SPACING - self.text_input.get_size().1;
         for line in self.chat_lines.iter_mut().rev() {
@@ -122,7 +123,7 @@ impl ClientChat {
                 }
             }
 
-            //self.text_input.on_event(graphics, event, None);
+            self.text_input.on_event(graphics, event, &gfx::Container::default(graphics));
 
             if let gfx::Event::KeyPress(gfx::Key::Enter, ..) = event {
                 if self.text_input.selected && !self.text_input.get_text().is_empty() {
