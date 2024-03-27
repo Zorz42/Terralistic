@@ -34,7 +34,7 @@ impl ServerInfo {
 enum MultiplayerSelectorState {
     Default,
     GameError(ChoiceMenu),
-    DeleteServer(ChoiceMenu, usize),
+    DeleteWorld(ChoiceMenu, usize),
     AddServer(),
 }
 
@@ -162,13 +162,24 @@ impl MultiplayerSelector {
 
         elements_vec
     }
+}
 
-    fn default_update_inner(&mut self, graphics: &gfx::GraphicsContext, parent_container: &gfx::Container) {
-        let elements_height = self.update_server_list(graphics, parent_container);
-        self.update_top_bottom_rects(graphics, parent_container, elements_height);
+impl UiElement for MultiplayerSelector {
+    fn get_sub_elements_mut(&mut self) -> Vec<&mut dyn BaseUiElement> {
+        match self.state {
+            MultiplayerSelectorState::Default => self.default_get_sub_elements_mut(),
+            _ => vec![],
+        }
     }
 
-    fn update_server_list(&mut self, graphics: &gfx::GraphicsContext, parent_container: &gfx::Container) -> f32 {
+    fn get_sub_elements(&self) -> Vec<&dyn BaseUiElement> {
+        match self.state {
+            MultiplayerSelectorState::Default => self.default_get_sub_elements_mut(),
+            _ => vec![],
+        }
+    }
+
+    fn update_inner(&mut self, graphics: &mut gfx::GraphicsContext, parent_container: &gfx::Container) {
         let hoverable = graphics.get_mouse_pos().1 > self.top_height && graphics.get_mouse_pos().1 < graphics.get_window_size().1 - self.bottom_height;
 
         for server in &mut self.server_list.servers {
@@ -183,10 +194,7 @@ impl MultiplayerSelector {
             current_y += server.get_height() + gfx::SPACING;
             elements_height += server.get_height() + gfx::SPACING;
         }
-        elements_height
-    }
 
-    fn update_top_bottom_rects(&mut self, graphics: &gfx::GraphicsContext, parent_container: &gfx::Container, elements_height: f32) {
         self.top_rect.size.0 = parent_container.rect.size.0;
 
         self.top_rect_visibility += ((if self.scrollable.get_scroll_pos() > 5.0 { 1.0 } else { 0.0 }) - self.top_rect_visibility) / 20.0;
@@ -209,105 +217,68 @@ impl MultiplayerSelector {
         self.scrollable.rect.size.1 = graphics.get_window_size().1 - self.top_height - self.bottom_height;
     }
 
-    fn default_on_event_inner(&mut self, graphics: &mut gfx::GraphicsContext, event: &gfx::Event, parent_container: &gfx::Container) -> bool {
-        let inner_container = self.get_container(graphics, parent_container);
-        if self.new_server_button.on_event(graphics, event, &inner_container) {
-            let mut menu_back = super::MenuBack::new_synced(graphics, self.menu_back_timer);
-            menu_back.set_back_rect_width(parent_container.rect.size.0, false);
-            menu_back.render_back(graphics);
-            if let Some(server) = run_add_server_menu(graphics, &mut menu_back, &self.server_list.servers) {
-                self.server_list.servers.push(ServerCard::new(graphics, server.name, server.ip, server.port));
-            }
-            self.server_list.save(self.servers_file.clone());
-        }
-
-        for (i, server) in self.server_list.servers.iter_mut().enumerate() {
-            if server.play_button.on_event(graphics, event, &server.get_container(graphics, &inner_container)) {
-                let mut menu_back = super::MenuBack::new_synced(graphics, self.menu_back_timer);
-                menu_back.set_back_rect_width(parent_container.rect.size.0, false);
-                menu_back.update(graphics, &gfx::Container::default(graphics));
-                menu_back.render_back(graphics);
-                let name = run_text_input_menu("Enter your name", graphics, &mut menu_back);
-                if let Some(name) = name {
-                    let game_result = run_game(
-                        graphics,
-                        &mut menu_back,
-                        server.server_info.port,
-                        server.server_info.ip.clone(),
-                        &name,
-                        &self.settings,
-                        &self.global_settings,
-                    );
-                    if let Err(error) = game_result {
-                        println!("Game error: {error}");
-                        self.state = MultiplayerSelectorState::GameError(ChoiceMenu::new(&format!("Game error: {error}"), graphics, &["Ok"], None, None));
-                    }
-                }
-            }
-            if server.delete_button.on_event(graphics, event, &server.get_container(graphics, &inner_container)) {
-                self.state = MultiplayerSelectorState::DeleteServer(
-                    ChoiceMenu::new(
-                        format!("The server \"{}\" will be deleted.\nDo you want to proceed?", server.server_info.name).as_str(),
-                        graphics,
-                        &["Back", "Proceed"],
-                        Some(0),
-                        Some(1),
-                    ),
-                    i,
-                );
-            }
-        }
-        false
-    }
-}
-
-impl UiElement for MultiplayerSelector {
-    fn get_sub_elements_mut(&mut self) -> Vec<&mut dyn BaseUiElement> {
-        //has to be separate because of multiple mut borrows
-        if matches!(self.state, MultiplayerSelectorState::Default) {
-            return self.default_get_sub_elements_mut();
-        }
-        match &mut self.state {
-            MultiplayerSelectorState::GameError(menu) | MultiplayerSelectorState::DeleteServer(menu, _) => vec![menu],
-            MultiplayerSelectorState::AddServer() => vec![],
-            _ => vec![], //actually unused
-        }
-    }
-
-    fn get_sub_elements(&self) -> Vec<&dyn BaseUiElement> {
-        match &self.state {
-            MultiplayerSelectorState::Default => self.default_get_sub_elements(),
-            MultiplayerSelectorState::GameError(menu) | MultiplayerSelectorState::DeleteServer(menu, _) => vec![menu],
-            MultiplayerSelectorState::AddServer() => vec![],
-        }
-    }
-
-    fn update_inner(&mut self, graphics: &mut gfx::GraphicsContext, parent_container: &gfx::Container) {
-        if matches!(self.state, MultiplayerSelectorState::Default) {
-            self.default_update_inner(graphics, parent_container);
-        }
-    }
-
     fn on_event_inner(&mut self, graphics: &mut gfx::GraphicsContext, event: &gfx::Event, parent_container: &gfx::Container) -> bool {
-        if matches!(self.state, MultiplayerSelectorState::Default) {
-            return self.default_on_event_inner(graphics, event, parent_container);
-        }
-        let mut switch_to_default = false;
-        match self.state {
-            MultiplayerSelectorState::DeleteServer(ref mut menu, world) => {
-                if let Some(num) = menu.button_press {
-                    if num == 1 {
-                        self.server_list.servers.remove(world);
+        self.scrollable.on_event(graphics, event, parent_container);
+        if let gfx::Event::KeyRelease(key, ..) = event {
+            match key {
+                gfx::Key::MouseLeft => {
+                    if self.back_button.is_hovered(graphics, parent_container) {
+                        return true;
+                    }
+                    if self.new_server_button.is_hovered(graphics, parent_container) {
+                        let mut menu_back = super::MenuBack::new_synced(graphics, self.menu_back_timer);
+                        menu_back.set_back_rect_width(parent_container.rect.size.0, false);
+                        menu_back.render_back(graphics);
+                        if let Some(server) = run_add_server_menu(graphics, &mut menu_back, &self.server_list.servers) {
+                            self.server_list.servers.push(ServerCard::new(graphics, server.name, server.ip, server.port));
+                        }
                         self.server_list.save(self.servers_file.clone());
                     }
-                    switch_to_default = true;
+                    for server in &self.server_list.servers {
+                        if server.play_button.is_hovered(graphics, &server.get_container(graphics, parent_container)) {
+                            let mut menu_back = super::MenuBack::new_synced(graphics, self.menu_back_timer);
+                            menu_back.set_back_rect_width(parent_container.rect.size.0, false);
+                            menu_back.update(graphics, &gfx::Container::default(graphics));
+                            menu_back.render_back(graphics);
+                            let name = run_text_input_menu("Enter your name", graphics, &mut menu_back);
+                            if let Some(name) = name {
+                                let game_result = run_game(
+                                    graphics,
+                                    &mut menu_back,
+                                    server.server_info.port,
+                                    server.server_info.ip.clone(),
+                                    &name,
+                                    &self.settings,
+                                    &self.global_settings,
+                                );
+                                if let Err(error) = game_result {
+                                    println!("Game error: {error}");
+                                    self.state = MultiplayerSelectorState::GameError(ChoiceMenu::new(&format!("Game error: {error}"), graphics, &["Ok"], None, None));
+                                }
+                            }
+                        } /*else if server.delete_button.is_hovered(graphics, &server.get_container(graphics, Some(menu_back.get_container())))
+                              && run_choice_menu(
+                                  format!("The server \"{}\" will be deleted.\nDo you want to proceed?", server.server_info.name).as_str(),
+                                  graphics,
+                                  menu_back,
+                                  vec!["Back", "Proceed"],
+                                  Some(0),
+                                  Some(1),
+                                  false,
+                              ) == 1
+                          {
+                              let pos = elements.server_list.servers.iter().position(|s| s.server_info.name == server.server_info.name);
+                              if let Some(pos) = pos {
+                                  elements.server_list.servers.remove(pos);
+                                  elements.server_list.save(servers_file.to_path_buf());
+                              }
+                              break;
+                          }*/
+                    }
                 }
-                menu.button_press = None;
+                gfx::Key::Escape => self.back_button.press(),
+                _ => {}
             }
-            _ => {}
-        }
-        if switch_to_default {
-            self.state = MultiplayerSelectorState::Default;
         }
         false
     }
@@ -480,3 +451,5 @@ impl UiElement for ServerList {
         gfx::Container::new(graphics, parent_container.rect.pos, parent_container.rect.size, parent_container.orientation, None)
     }
 }
+
+fn render_elements(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn BackgroundRect, elements: &mut MultiplayerSelector, top_rect_visibility: &mut f32) {}

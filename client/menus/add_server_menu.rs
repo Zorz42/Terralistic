@@ -57,6 +57,10 @@ fn server_exists(name: &str, servers_list: &Vec<ServerCard>) -> bool {
     false
 }
 
+pub struct AddServerMenu {
+    title: gfx::Sprite,
+}
+
 /// this function runs the add server menu.
 #[allow(clippy::too_many_lines)]
 pub fn run_add_server_menu(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn BackgroundRect, servers_list: &Vec<ServerCard>) -> Option<ServerInfo> {
