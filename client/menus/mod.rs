@@ -1,4 +1,4 @@
-pub use add_server_menu::run_add_server_menu;
+pub use add_server_menu::AddServerMenu;
 pub use background_rect::BackgroundRect;
 pub use loading_screen::run_loading_screen;
 pub use login::LoginMenu;

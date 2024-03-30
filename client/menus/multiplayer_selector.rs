@@ -12,8 +12,9 @@ use crate::client::menus::run_text_input_menu;
 use crate::client::settings::Settings;
 use crate::libraries::graphics as gfx;
 
+use super::AddServerMenu;
+
 use super::background_rect::BackgroundRect;
-use super::run_add_server_menu;
 use gfx::{BaseUiElement, UiElement};
 
 pub const MENU_WIDTH: f32 = 800.0;
@@ -35,7 +36,7 @@ enum MultiplayerSelectorState {
     Default,
     GameError(ChoiceMenu),
     DeleteServer(ChoiceMenu, usize),
-    AddServer(),
+    AddServer(AddServerMenu),
 }
 
 /// struct to pass around UI elements for rendering and updating
@@ -212,13 +213,7 @@ impl MultiplayerSelector {
     fn default_on_event_inner(&mut self, graphics: &mut gfx::GraphicsContext, event: &gfx::Event, parent_container: &gfx::Container) -> bool {
         let inner_container = self.get_container(graphics, parent_container);
         if self.new_server_button.on_event(graphics, event, &inner_container) {
-            let mut menu_back = super::MenuBack::new_synced(graphics, self.menu_back_timer);
-            menu_back.set_back_rect_width(parent_container.rect.size.0, false);
-            menu_back.render_back(graphics);
-            if let Some(server) = run_add_server_menu(graphics, &mut menu_back, &self.server_list.servers) {
-                self.server_list.servers.push(ServerCard::new(graphics, server.name, server.ip, server.port));
-            }
-            self.server_list.save(self.servers_file.clone());
+            self.state = MultiplayerSelectorState::AddServer(AddServerMenu::new(graphics, self.servers_file.clone()));
         }
 
         for (i, server) in self.server_list.servers.iter_mut().enumerate() {
@@ -269,7 +264,7 @@ impl UiElement for MultiplayerSelector {
         }
         match &mut self.state {
             MultiplayerSelectorState::GameError(menu) | MultiplayerSelectorState::DeleteServer(menu, _) => vec![menu],
-            MultiplayerSelectorState::AddServer() => vec![],
+            MultiplayerSelectorState::AddServer(menu) => vec![menu],
             _ => vec![], //actually unused
         }
     }
@@ -278,7 +273,7 @@ impl UiElement for MultiplayerSelector {
         match &self.state {
             MultiplayerSelectorState::Default => self.default_get_sub_elements(),
             MultiplayerSelectorState::GameError(menu) | MultiplayerSelectorState::DeleteServer(menu, _) => vec![menu],
-            MultiplayerSelectorState::AddServer() => vec![],
+            MultiplayerSelectorState::AddServer(menu) => vec![menu],
         }
     }
 
@@ -304,10 +299,16 @@ impl UiElement for MultiplayerSelector {
                 }
                 menu.button_press = None;
             }
+            MultiplayerSelectorState::AddServer(ref menu) => {
+                if menu.close {
+                    switch_to_default = true;
+                }
+            }
             _ => {}
         }
         if switch_to_default {
             self.state = MultiplayerSelectorState::Default;
+            self.server_list.refresh(graphics, self.servers_file.clone());
         }
         false
     }

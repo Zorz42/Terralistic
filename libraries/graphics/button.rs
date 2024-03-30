@@ -141,7 +141,7 @@ impl UiElement for Button {
     ///calls `on_click` when clicked
     fn on_event_inner(&mut self, graphics: &mut gfx::GraphicsContext, event: &gfx::Event, parent_container: &gfx::Container) -> bool {
         if let gfx::Event::KeyRelease(key, ..) = event {
-            if *key == gfx::Key::MouseLeft && self.is_hovered(graphics, parent_container) {
+            if *key == gfx::Key::MouseLeft && self.is_hovered(graphics, parent_container) && !self.disabled {
                 (self.on_click)();
                 return true;
             }
