@@ -132,12 +132,12 @@ impl UiElement for LoginMenu {
         let mut elements_vec: Vec<&mut dyn BaseUiElement> = vec![
             &mut self.title,
             &mut self.back_button,
-            &mut self.confirm_button,
+            /*&mut self.confirm_button,
             &mut self.username_input,
             &mut self.password_input,
             &mut self.login_register_toggle,
             &mut self.login_sprite,
-            &mut self.register_sprite,
+            &mut self.register_sprite,*/
         ];
 
         if email_shown {
@@ -151,12 +151,12 @@ impl UiElement for LoginMenu {
         let mut elements_vec: Vec<&dyn BaseUiElement> = vec![
             &self.title,
             &self.back_button,
-            &self.confirm_button,
+            /*&self.confirm_button,
             &self.username_input,
             &self.password_input,
             &self.login_register_toggle,
             &self.login_sprite,
-            &self.register_sprite,
+            &self.register_sprite,*/
         ];
 
         if self.login_register_toggle.toggled {
@@ -225,6 +225,14 @@ impl UiElement for LoginMenu {
             }
         }
         false
+    }
+
+    fn render_inner(&mut self, graphics: &mut gfx::GraphicsContext, parent_container: &gfx::Container) {
+        let mut texture = gfx::Sprite::new();
+        texture.set_texture(gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Not yet implemented", None)));
+        texture.orientation = gfx::CENTER;
+        texture.scale = 5.0;
+        texture.render(graphics, parent_container);
     }
 
     fn get_container(&self, graphics: &gfx::GraphicsContext, parent_container: &gfx::Container) -> gfx::Container {

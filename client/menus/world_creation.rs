@@ -5,9 +5,12 @@ use std::rc::Rc;
 
 use crate::client::game::private_world::run_private_world;
 use crate::client::global_settings::GlobalSettings;
+use crate::client::menus::BackgroundRect;
 use crate::client::settings::Settings;
 use crate::libraries::graphics as gfx;
 use gfx::{BaseUiElement, UiElement};
+
+use super::MENU_WIDTH;
 
 fn world_name_exists(worlds_list: &Vec<String>, name: &str) -> bool {
     for world_name in worlds_list {
@@ -131,6 +134,7 @@ impl UiElement for WorldCreationMenu {
     fn on_event_inner(&mut self, graphics: &mut gfx::GraphicsContext, event: &gfx::Event, parent_container: &gfx::Container) -> bool {
         if self.create_button.on_event(graphics, event, &self.get_container(graphics, parent_container)) {
             let mut menu_back = crate::MenuBack::new(graphics);
+            menu_back.set_back_rect_width(MENU_WIDTH, true);
             let game_result = run_private_world(graphics, &mut menu_back, &self.world_path.borrow_mut().clone(), &self.settings, &self.global_settings);
             if let Err(error) = game_result {
                 println!("Game error: {error}");

@@ -265,7 +265,7 @@ impl UiElement for MultiplayerSelector {
         match &mut self.state {
             MultiplayerSelectorState::GameError(menu) | MultiplayerSelectorState::DeleteServer(menu, _) => vec![menu],
             MultiplayerSelectorState::AddServer(menu) => vec![menu],
-            _ => vec![], //actually unused
+            MultiplayerSelectorState::Default => vec![], //actually unused
         }
     }
 

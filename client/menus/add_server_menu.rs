@@ -6,7 +6,6 @@ use crate::libraries::graphics as gfx;
 use crate::server::server_core::MULTIPLAYER_PORT;
 use gfx::{BaseUiElement, UiElement};
 
-use super::background_rect::BackgroundRect;
 use super::multiplayer_selector::ServerCard;
 use super::multiplayer_selector::ServerInfo;
 
@@ -26,33 +25,9 @@ fn get_ip_port(server_ip_input: &str) -> (String, u16) {
     (ip, port)
 }
 
-fn is_valid_ip(ip_: &str) -> bool {
-    if ip_.contains(':') && ip_.contains('.') {
-        //port specified
-        let ip_port: Vec<&str> = ip_.split(':').collect();
-        if ip_port.len() != 2 {
-            return false;
-        }
-        let Some(ip) = ip_port.first() else {
-            return false;
-        };
-        let Some(port) = ip_port.get(1) else {
-            return false;
-        };
-        if port.parse::<u16>().is_err() {
-            return false;
-        }
-        if ip.parse::<Ipv4Addr>().is_err() {
-            return false;
-        }
-        return true;
-    }
-    ip_.parse::<IpAddr>().is_ok()
-}
-
-fn server_exists(name: &str, servers_list: &Vec<ServerCard>) -> bool {
+fn server_exists(name: &str, servers_list: &Vec<ServerInfo>) -> bool {
     for server in servers_list {
-        if server.server_info.name == name {
+        if server.name == name {
             return true;
         }
     }
@@ -67,10 +42,15 @@ pub struct AddServerMenu {
     server_ip_input: gfx::TextInput,
     server_file: PathBuf,
     pub close: bool,
+    servers: Vec<ServerInfo>,
 }
 
 impl AddServerMenu {
+    #[must_use]
     pub fn new(graphics: &gfx::GraphicsContext, server_file: PathBuf) -> Self {
+        let file = std::fs::read_to_string(server_file.clone()).unwrap_or_else(|_| String::new());
+        let servers: Vec<ServerInfo> = serde_json::from_str(&file).unwrap_or_else(|_| Vec::new());
+
         let mut title = gfx::Sprite::new();
         title.scale = 3.0;
         title.set_texture(gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Add a new server:", None)));
@@ -135,16 +115,15 @@ impl AddServerMenu {
             server_ip_input,
             server_file,
             close: false,
+            servers,
         }
     }
 
-    fn add_server(&self) {
+    fn add_server(&mut self) {
         let (ip, port) = get_ip_port(self.server_ip_input.get_text());
-        let file = std::fs::read_to_string(self.server_file.clone()).unwrap_or_else(|_| String::new());
-        let mut servers: Vec<ServerInfo> = serde_json::from_str(&file).unwrap_or_else(|_| Vec::new());
-        servers.push(ServerInfo::new(self.server_name_input.get_text().to_string(), ip, port));
-        let file = serde_json::to_string(&servers).unwrap_or_else(|_| String::new());
-        std::fs::write(self.server_file.clone(), file);
+        self.servers.push(ServerInfo::new(self.server_name_input.get_text().to_string(), ip, port));
+        let file = serde_json::to_string(&self.servers).unwrap_or_else(|_| String::new());
+        let _ = std::fs::write(self.server_file.clone(), file);
     }
 }
 
@@ -158,7 +137,8 @@ impl UiElement for AddServerMenu {
     }
 
     fn update_inner(&mut self, _grpahics: &mut gfx::GraphicsContext, _parent_container: &gfx::Container) {
-        self.add_button.disabled = self.server_name_input.get_text().is_empty() || std::net::IpAddr::from_str(self.server_ip_input.get_text()).is_err();
+        let (ip, _port) = get_ip_port(self.server_ip_input.get_text());
+        self.add_button.disabled = self.server_name_input.get_text().is_empty() || std::net::IpAddr::from_str(&ip).is_err() || server_exists(self.server_name_input.get_text(), &self.servers);
     }
 
     fn on_event_inner(&mut self, graphics: &mut gfx::GraphicsContext, event: &gfx::Event, parent_container: &gfx::Container) -> bool {
