@@ -1,6 +1,6 @@
 use std::sync::{Mutex, PoisonError};
 
-use crate::libraries::graphics as gfx;
+use crate::libraries::graphics::{self as gfx, UiElement};
 
 use super::background_rect::BackgroundRect;
 use gfx::BaseUiElement;
@@ -14,6 +14,8 @@ const PROGRESS_BAR_Y_OFFSET: i32 = 100;
 /// When the string is empty, the loading screen is closed.
 pub fn run_loading_screen(graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn BackgroundRect, loading_text: &Mutex<String>) {
     let window_container = gfx::Container::default(graphics);
+    menu_back.update(graphics, &window_container);
+
     let mut loading_text_sprite = gfx::Sprite::new();
     loading_text_sprite.orientation = gfx::CENTER;
     loading_text_sprite.scale = 3.0;
@@ -26,7 +28,7 @@ pub fn run_loading_screen(graphics: &mut gfx::GraphicsContext, menu_back: &mut d
     loading_back_bar.fill_color.a = gfx::TRANSPARENCY;
     loading_back_bar.smooth_factor = 60.0;
 
-    let mut loading_bar = gfx::RenderRect::new(gfx::FloatPos(0.0, PROGRESS_BAR_Y_OFFSET as f32), gfx::FloatSize(0.0, 0.0));
+    let mut loading_bar = gfx::RenderRect::new(gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, 0.0));
     loading_bar.orientation = gfx::LEFT;
     loading_bar.fill_color = gfx::LIGHT_GREY;
     loading_bar.smooth_factor = 60.0;
@@ -68,13 +70,11 @@ pub fn run_loading_screen(graphics: &mut gfx::GraphicsContext, menu_back: &mut d
                     loading_back_bar.size.1 = 0.0;
                     loading_bar.size.0 = 0.0;
                     loading_bar.size.1 = 0.0;
-                    loading_bar.pos.0 = graphics.get_window_size().0 / 2.0;
                 } else {
                     loading_back_bar.size.0 = PROGRESS_BAR_WIDTH as f32;
                     loading_back_bar.size.1 = PROGRESS_BAR_HEIGHT as f32;
                     loading_bar.size.0 = (PROGRESS_BAR_WIDTH as f32) * progress_bar_progress;
                     loading_bar.size.1 = PROGRESS_BAR_HEIGHT as f32;
-                    loading_bar.pos.0 = menu_back.get_back_rect_width(graphics, None) / 2.0 - loading_back_bar.size.0 / 2.0;
                 }
 
                 loading_text_sprite.set_texture(gfx::Texture::load_from_surface(&graphics.font.create_text_surface(&curr_text, None)));
@@ -84,7 +84,7 @@ pub fn run_loading_screen(graphics: &mut gfx::GraphicsContext, menu_back: &mut d
         loading_text_sprite.render(graphics, &menu_back.get_container(graphics, &window_container));
 
         loading_back_bar.render(graphics, &menu_back.get_container(graphics, &window_container));
-        loading_bar.render(graphics, &menu_back.get_container(graphics, &window_container));
+        loading_bar.render(graphics, &loading_back_bar.get_container(graphics, &menu_back.get_container(graphics, &window_container)));
 
         graphics.update_window();
     }

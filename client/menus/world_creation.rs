@@ -135,6 +135,7 @@ impl UiElement for WorldCreationMenu {
         if self.create_button.on_event(graphics, event, &self.get_container(graphics, parent_container)) {
             let mut menu_back = crate::MenuBack::new(graphics);
             menu_back.set_back_rect_width(MENU_WIDTH, true);
+            menu_back.update(graphics, &gfx::Container::default(graphics));
             let game_result = run_private_world(graphics, &mut menu_back, &self.world_path.borrow_mut().clone(), &self.settings, &self.global_settings);
             if let Err(error) = game_result {
                 println!("Game error: {error}");
