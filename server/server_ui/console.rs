@@ -8,8 +8,8 @@ use super::ui_manager;
 
 //this function formats the string to add the timestamp
 fn format_timestamp(message: &String) -> String {
-    let timestamp = chrono::Local::now().naive_local().timestamp();
-    let timestamp = chrono::NaiveDateTime::from_timestamp_opt(timestamp, 0);
+    let timestamp = chrono::Local::now().naive_local().and_utc().timestamp();
+    let timestamp = chrono::DateTime::from_timestamp(timestamp, 0);
     format!("[{}] {}", timestamp.map_or_else(|| "???".to_owned(), |time| time.format("%m-%d %H:%M:%S").to_string(),), message)
 }
 

@@ -361,7 +361,14 @@ fn open_secondary_menu(
     let menu: Cell<Box<dyn BaseUiElement>> = match menu_index {
         0 => Cell::new(Box::new(LoginMenu::new(graphics, close_secondary_menu))),
         1 => Cell::new(Box::new(SingleplayerSelector::new(graphics, settings, global_settings, close_secondary_menu, menu_back_timer))),
-        2 => Cell::new(Box::new(MultiplayerSelector::new(graphics, menu_back_timer, settings, global_settings, close_secondary_menu))),
+        2 => {
+            let res = MultiplayerSelector::new(graphics, menu_back_timer, settings, global_settings, close_secondary_menu);
+            if let Ok(menu) = res {
+                Cell::new(Box::new(menu))
+            } else {
+                return;
+            }
+        }
         3 => {
             let mut menu = SettingsMenu::new(close_secondary_menu, settings);
             menu.init(graphics, &menu_back.get_container(graphics, &gfx::Container::default(graphics)));

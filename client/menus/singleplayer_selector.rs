@@ -236,6 +236,8 @@ impl UiElement for WorldList {
     }
 }
 
+//only one exists in the whole game so it's fine
+#[allow(clippy::large_enum_variant)]
 enum SingleplayerSelectorState {
     Default,
     GameError(ChoiceMenu),
@@ -333,6 +335,32 @@ impl SingleplayerSelector {
             state: SingleplayerSelectorState::Default,
             close_world_creation_menu: Rc::new(RefCell::new(false)),
         }
+    }
+
+    fn do_world_action(&mut self, graphics: &mut gfx::GraphicsContext, world: usize, action: usize, parent_container: &gfx::Container) -> Option<()> {
+        if action == 0 {
+            let mut menu_back = super::MenuBack::new_synced(graphics, self.menu_back_timer);
+            menu_back.set_back_rect_width(parent_container.rect.size.0, false);
+            menu_back.update(graphics, &gfx::Container::default(graphics));
+            menu_back.render_back(graphics);
+            let game_result = run_private_world(graphics, &mut menu_back, self.world_list.worlds.get(world)?.get_file_path(), &self.settings, &self.global_settings);
+            if let Err(error) = game_result {
+                println!("Game error: {error}");
+                let menu = ChoiceMenu::new(&format!("Game error: {error}"), graphics, &["Ok"], Some(0), Some(0));
+                self.state = SingleplayerSelectorState::GameError(menu);
+            }
+        } else if action == 1 {
+            let menu = ChoiceMenu::new(
+                &format!("The world \"{}\" will be deleted.\nDo you want to proceed?", self.world_list.worlds.get(world)?.name),
+                graphics,
+                &["Back", "Proceed"],
+                Some(0),
+                Some(1),
+            );
+            self.state = SingleplayerSelectorState::DeleteWorld(menu, world);
+        }
+
+        Some(())
     }
 }
 
@@ -438,46 +466,22 @@ impl UiElement for SingleplayerSelector {
                 self.scrollable.scroll_size = (world_height + gfx::SPACING) * self.world_list.worlds.len() as f32 - gfx::SPACING;
                 self.scrollable.rect.size.1 = graphics.get_window_size().1 - self.top_rect.size.1 - self.bottom_rect.size.1;
 
-                if let Some((world, action)) = *self.world_button_press.borrow_mut() {
-                    if action == 0 {
-                        let mut menu_back = super::MenuBack::new_synced(graphics, self.menu_back_timer);
-                        menu_back.set_back_rect_width(parent_container.rect.size.0, false);
-                        menu_back.update(graphics, &gfx::Container::default(graphics));
-                        menu_back.render_back(graphics);
-                        let game_result = run_private_world(graphics, &mut menu_back, self.world_list.worlds[world].get_file_path(), &self.settings, &self.global_settings);
-                        if let Err(error) = game_result {
-                            println!("Game error: {error}");
-                            let menu = ChoiceMenu::new(&format!("Game error: {error}"), graphics, &["Ok"], Some(0), Some(0));
-                            self.state = SingleplayerSelectorState::GameError(menu);
-                        }
-                    } else if action == 1 {
-                        let menu = ChoiceMenu::new(
-                            &format!("The world \"{}\" will be deleted.\nDo you want to proceed?", self.world_list.worlds[world].name),
-                            graphics,
-                            &["Back", "Proceed"],
-                            Some(0),
-                            Some(1),
-                        );
-                        self.state = SingleplayerSelectorState::DeleteWorld(menu, world);
-                    }
+                let res = *self.world_button_press.borrow_mut();
+                if let Some((world, action)) = res {
+                    self.do_world_action(graphics, world, action, parent_container);
                 }
                 *self.world_button_press.borrow_mut() = None;
             }
-            SingleplayerSelectorState::GameError(_) => {}
             SingleplayerSelectorState::DeleteWorld(ref mut menu, world) => {
                 if let Some(num) = menu.button_press {
                     if num == 1 {
-                        let res = fs::remove_file(self.world_list.worlds[*world].get_file_path());
-                        if res.is_err() {
-                            println!("failed to delete the world");
-                        }
-                        self.world_list.refresh(graphics, &self.world_button_press);
+                        delete_world(graphics, &mut self.world_list, *world, &self.world_button_press);
                     }
                     change_to_default = true;
                 }
                 menu.button_press = None;
             }
-            SingleplayerSelectorState::CreateWorld(_) => {}
+            _ => {}
         }
         if change_to_default || *self.close_world_creation_menu.borrow_mut() {
             self.state = SingleplayerSelectorState::Default;
@@ -502,4 +506,13 @@ impl UiElement for SingleplayerSelector {
     fn get_container(&self, graphics: &gfx::GraphicsContext, parent_container: &gfx::Container) -> gfx::Container {
         gfx::Container::new(graphics, parent_container.rect.pos, parent_container.rect.size, parent_container.orientation, None)
     }
+}
+
+fn delete_world(graphics: &gfx::GraphicsContext, world_list: &mut WorldList, world: usize, button_press: &Rc<RefCell<Option<(usize, usize)>>>) -> Option<()> {
+    let res = fs::remove_file(world_list.worlds.get(world)?.get_file_path());
+    if res.is_err() {
+        println!("failed to delete the world");
+    }
+    world_list.refresh(graphics, button_press);
+    Some(())
 }

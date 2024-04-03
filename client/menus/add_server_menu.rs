@@ -1,12 +1,10 @@
-use std::net::{IpAddr, Ipv4Addr};
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 use std::str::FromStr;
 
 use crate::libraries::graphics as gfx;
 use crate::server::server_core::MULTIPLAYER_PORT;
 use gfx::{BaseUiElement, UiElement};
 
-use super::multiplayer_selector::ServerCard;
 use super::multiplayer_selector::ServerInfo;
 
 fn get_ip_port(server_ip_input: &str) -> (String, u16) {
@@ -123,7 +121,10 @@ impl AddServerMenu {
         let (ip, port) = get_ip_port(self.server_ip_input.get_text());
         self.servers.push(ServerInfo::new(self.server_name_input.get_text().to_string(), ip, port));
         let file = serde_json::to_string(&self.servers).unwrap_or_else(|_| String::new());
-        let _ = std::fs::write(self.server_file.clone(), file);
+        let res = std::fs::write(self.server_file.clone(), file);
+        if let Err(e) = res {
+            eprintln!("error saving servers: {e}");
+        }
     }
 }
 

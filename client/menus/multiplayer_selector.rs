@@ -1,6 +1,7 @@
 use crate::client::menus::choice_menu::ChoiceMenu;
+use anyhow::Result;
 use std::cell::RefCell;
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 use std::rc::Rc;
 
 use directories::BaseDirs;
@@ -32,6 +33,8 @@ impl ServerInfo {
     }
 }
 
+//only one exists in the whole game so it's fine
+#[allow(clippy::large_enum_variant)]
 enum MultiplayerSelectorState {
     Default,
     GameError(ChoiceMenu),
@@ -65,10 +68,8 @@ impl MultiplayerSelector {
         settings: Rc<RefCell<Settings>>,
         global_settings: Rc<RefCell<GlobalSettings>>,
         close_menu: Rc<RefCell<bool>>,
-    ) -> Self {
-        let Some(base_dirs) = BaseDirs::new() else {
-            panic!("Failed to get base directories!");
-        };
+    ) -> Result<Self> {
+        let base_dirs = BaseDirs::new().ok_or_else(|| anyhow::anyhow!("error getting base dirs"))?;
         let servers_file = base_dirs.data_dir().join("Terralistic").join("servers.txt");
 
         let server_list = ServerList::new(graphics, servers_file.clone());
@@ -111,7 +112,7 @@ impl MultiplayerSelector {
         scrollable.boundary_smooth_factor = 40.0;
         scrollable.orientation = gfx::TOP;
 
-        Self {
+        Ok(Self {
             top_rect,
             bottom_rect,
             title,
@@ -127,7 +128,7 @@ impl MultiplayerSelector {
             global_settings,
             top_rect_visibility: 0.0,
             state: MultiplayerSelectorState::Default,
-        }
+        })
     }
 
     fn default_get_sub_elements_mut(&mut self) -> Vec<&mut dyn BaseUiElement> {
@@ -299,6 +300,8 @@ impl UiElement for MultiplayerSelector {
                 }
                 menu.button_press = None;
             }
+            #[allow(clippy::ref_patterns)] //clippy misunderstands code, there's no nicer way to do
+            //this
             MultiplayerSelectorState::AddServer(ref menu) => {
                 if menu.close {
                     switch_to_default = true;

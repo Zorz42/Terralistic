@@ -1,5 +1,5 @@
 use std::cell::RefCell;
-use std::path::PathBuf;
+use std::path::Path;
 use std::rc::Rc;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
@@ -18,7 +18,7 @@ use crate::server::server_core::SINGLEPLAYER_PORT;
 pub fn run_private_world(
     graphics: &mut gfx::GraphicsContext,
     menu_back: &mut dyn BackgroundRect,
-    world_path: &PathBuf,
+    world_path: &Path,
     settings: &Rc<RefCell<Settings>>,
     global_settings: &Rc<RefCell<GlobalSettings>>,
 ) -> Result<()> {

@@ -166,7 +166,7 @@ impl ModuleManager {
         &mut self.root
     }
 
-    pub fn on_event(&mut self, event: &gfx::Event, graphics_context: &mut gfx::GraphicsContext) {
+    pub fn on_event(&mut self, event: &gfx::Event, graphics_context: &gfx::GraphicsContext) {
         match event {
             gfx::Event::KeyPress(key, _repeat) => {
                 if *key == gfx::Key::F1 {
@@ -537,7 +537,7 @@ impl ModuleManagerRenderer {
         }
     }
 
-    fn update_texture(&mut self, graphics_context: &mut gfx::GraphicsContext, text: &str) {
+    fn update_texture(&mut self, graphics_context: &gfx::GraphicsContext, text: &str) {
         let text_surface = &graphics_context.font.create_text_surface(text, None);
         self.name_sprite.set_texture(gfx::Texture::load_from_surface(text_surface));
     }

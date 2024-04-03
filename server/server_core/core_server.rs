@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 use std::path::Path;
+use std::ptr::{addr_of, addr_of_mut};
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::mpsc::{Receiver, Sender};
 use std::sync::{Arc, Mutex, PoisonError};
@@ -175,7 +176,7 @@ impl Server {
         static mut MS_TIMER: Option<std::time::Instant> = None;
         static mut LAST_TIME: Option<std::time::Instant> = None;
 
-        let Some((ms_timer, last_time)) = (unsafe { get_timers_from_static(&mut MS_TIMER, &mut LAST_TIME) }) else {
+        let Some((ms_timer, last_time)) = (unsafe { get_timers_from_static(addr_of_mut!(MS_TIMER), addr_of_mut!(LAST_TIME)) }) else {
             return Ok(()); //we return early this time
         };
 
@@ -322,18 +323,14 @@ impl Server {
     }
 }
 
-unsafe fn get_timers_from_static(ms_timer_static: &mut Option<std::time::Instant>, last_time_static: &mut Option<std::time::Instant>) -> Option<(std::time::Instant, std::time::Instant)> {
-    let ms_timer = if let Some(timer) = ms_timer_static {
-        *timer
-    } else {
+unsafe fn get_timers_from_static(ms_timer_static: *mut Option<std::time::Instant>, last_time_static: *mut Option<std::time::Instant>) -> Option<(std::time::Instant, std::time::Instant)> {
+    let Some(ms_timer) = *ms_timer_static else {
         *ms_timer_static = Some(std::time::Instant::now());
         *last_time_static = *ms_timer_static;
         return None; //we skip this time
     };
 
-    let last_time = if let Some(instant) = last_time_static {
-        *instant
-    } else {
+    let Some(last_time) = *last_time_static else {
         *last_time_static = Some(std::time::Instant::now());
         return None; //we skip this time
     };
@@ -352,7 +349,7 @@ pub fn send_to_ui(data: UiMessageType, ui_event_sender: Option<Sender<UiMessageT
             UI_EVENT_SENDER = ui_event_sender;
         }
 
-        if let Some(sender) = &UI_EVENT_SENDER {
+        if let Some(sender) = &*addr_of!(UI_EVENT_SENDER) {
             let result = sender.send(data);
 
             if let Err(_e) = result {
@@ -395,7 +392,7 @@ pub fn print_to_console(text: &str, warn_level: u8) {
 
 /// This function formats the string to add the timestamp
 fn format_timestamp(message: &String) -> String {
-    let timestamp = chrono::Local::now().naive_local().timestamp();
-    let timestamp = chrono::NaiveDateTime::from_timestamp_opt(timestamp, 0);
+    let timestamp = chrono::Local::now().naive_local().and_utc().timestamp();
+    let timestamp = chrono::DateTime::from_timestamp(timestamp, 0);
     format!("[{}] {}", timestamp.map_or_else(|| "???".to_owned(), |time| time.format("%m-%d %H:%M:%S").to_string(),), message)
 }

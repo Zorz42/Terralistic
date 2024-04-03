@@ -35,7 +35,8 @@ impl Sprite {
         self.src_rect.pos = gfx::FloatPos(0.0, 0.0);
     }
 
-    pub fn get_texture(&self) -> &gfx::Texture {
+    #[must_use]
+    pub const fn get_texture(&self) -> &gfx::Texture {
         &self.texture
     }
 
