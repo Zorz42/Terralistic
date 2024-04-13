@@ -6,10 +6,8 @@ use crate::shared::tls_client::ConnectionState::{CONNECTED, FAILED};
 use anyhow::Result;
 use directories::BaseDirs;
 use gfx::{BaseUiElement, UiElement};
-use std::cell::RefCell;
 use std::collections::HashMap;
 use std::io::Write;
-use std::rc::Rc;
 use std::str::FromStr;
 use std::sync::mpsc::TryRecvError;
 
@@ -23,20 +21,19 @@ pub struct LoginMenu {
     login_register_toggle: gfx::Toggle,
     login_sprite: gfx::Sprite,
     register_sprite: gfx::Sprite,
+    close_self: bool,
 }
 
 impl LoginMenu {
     #[must_use]
-    pub fn new(graphics: &GraphicsContext, close_menu: Rc<RefCell<bool>>) -> Self {
+    pub fn new(graphics: &GraphicsContext) -> Self {
         let mut title = gfx::Sprite::new();
         title.scale = 3.0;
         title.set_texture(gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Login:", None)));
         title.pos.1 = gfx::SPACING;
         title.orientation = gfx::TOP;
 
-        let mut back_button = gfx::Button::new(move || {
-            *close_menu.borrow_mut() = true;
-        });
+        let mut back_button = gfx::Button::new(|| {});
         back_button.scale = 3.0;
         back_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Back", None));
         back_button.orientation = gfx::BOTTOM;
@@ -122,6 +119,7 @@ impl LoginMenu {
             login_register_toggle,
             login_sprite,
             register_sprite,
+            close_self: false,
         }
     }
 }
@@ -192,25 +190,14 @@ impl UiElement for LoginMenu {
     fn on_event_inner(&mut self, graphics: &mut gfx::GraphicsContext, event: &gfx::Event, parent_container: &gfx::Container) -> bool {
         if let gfx::Event::KeyRelease(key, ..) = event {
             match key {
-                gfx::Key::MouseLeft => {
-                    if self.back_button.is_hovered(graphics, parent_container) {
-                        return false;
-                    }
-                    if self.confirm_button.is_hovered(graphics, parent_container) {
-                        save_user_data(self.username_input.get_text(), self.password_input.get_text());
-                        if self.login_register_toggle.toggled {
-                            eprintln!("{:?}", register(self.username_input.get_text(), self.password_input.get_text(), self.email_input.get_text(), graphics));
-                        }
-                        return true;
-                    }
-                }
                 gfx::Key::Escape => {
                     if self.username_input.selected || self.password_input.selected {
                         self.username_input.selected = false;
                         self.password_input.selected = false;
                     } else {
-                        return false;
+                        self.close_self = true;
                     }
+                    return true;
                 }
                 gfx::Key::Enter => {
                     if !self.confirm_button.disabled {
@@ -223,6 +210,17 @@ impl UiElement for LoginMenu {
                 }
                 _ => {}
             }
+        }
+        if self.confirm_button.on_event(graphics, event, parent_container) {
+            save_user_data(self.username_input.get_text(), self.password_input.get_text());
+            if self.login_register_toggle.toggled {
+                eprintln!("{:?}", register(self.username_input.get_text(), self.password_input.get_text(), self.email_input.get_text(), graphics));
+            }
+            return true;
+        }
+        if self.back_button.on_event(graphics, event, &self.get_container(graphics, parent_container)) {
+            self.close_self = true;
+            return true;
         }
         false
     }
@@ -237,6 +235,12 @@ impl UiElement for LoginMenu {
 
     fn get_container(&self, graphics: &gfx::GraphicsContext, parent_container: &gfx::Container) -> gfx::Container {
         gfx::Container::new(graphics, parent_container.rect.pos, parent_container.rect.size, parent_container.orientation, None)
+    }
+}
+
+impl crate::client::menus::Menu for LoginMenu {
+    fn should_close(&self) -> bool {
+        self.close_self
     }
 }
 

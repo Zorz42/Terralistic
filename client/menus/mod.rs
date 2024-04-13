@@ -3,6 +3,7 @@ pub use background_rect::BackgroundRect;
 pub use loading_screen::run_loading_screen;
 pub use login::LoginMenu;
 pub use main_menu::run_main_menu;
+pub use menu::Menu;
 pub use menu_back::MenuBack;
 pub use multiplayer_selector::MultiplayerSelector;
 pub use settings_menu::SettingsMenu;
@@ -33,3 +34,5 @@ mod text_input_menu;
 mod login;
 
 mod settings_menu;
+
+mod menu;

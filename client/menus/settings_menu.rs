@@ -355,15 +355,17 @@ pub struct SettingsMenu {
     back_button: gfx::Button,
     settings_ui: Vec<SettingUi>,
     settings: Rc<RefCell<Settings>>,
+    close_self: bool,
 }
 
 impl SettingsMenu {
     #[must_use]
-    pub fn new(close_menu: Rc<RefCell<bool>>, settings: Rc<RefCell<Settings>>) -> Self {
+    pub fn new(settings: Rc<RefCell<Settings>>) -> Self {
         Self {
-            back_button: gfx::Button::new(move || *close_menu.borrow_mut() = true),
+            back_button: gfx::Button::new(|| {}),
             settings_ui: Vec::new(),
             settings,
+            close_self: false,
         }
     }
 
@@ -449,14 +451,24 @@ impl UiElement for SettingsMenu {
             }
         } else if let gfx::Event::KeyRelease(key, ..) = event {
             if key == &gfx::Key::Escape {
-                self.back_button.press();
+                self.close_self = true;
                 return true;
             }
+        }
+        if self.back_button.on_event(graphics, event, parent_container) {
+            self.close_self = true;
+            return true;
         }
         false
     }
 
     fn get_container(&self, graphics: &gfx::GraphicsContext, parent_container: &gfx::Container) -> gfx::Container {
         gfx::Container::new(graphics, parent_container.rect.pos, parent_container.rect.size, parent_container.orientation, None)
+    }
+}
+
+impl super::Menu for SettingsMenu {
+    fn should_close(&self) -> bool {
+        self.close_self
     }
 }

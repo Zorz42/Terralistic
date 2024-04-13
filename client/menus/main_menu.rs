@@ -1,25 +1,24 @@
 use crate::client::game::tls_client::{AuthenticationState, TlsClient};
 use crate::client::global_settings::GlobalSettings;
 use crate::client::menus::singleplayer_selector::MENU_WIDTH;
-use crate::client::menus::SettingsMenu;
+use crate::client::menus::{Menu, SettingsMenu};
 use crate::client::settings::Settings;
 use crate::libraries::graphics as gfx;
 use crate::shared::tls_client::ConnectionState;
 use crate::shared::versions::VERSION;
-use gfx::UiElement;
-use std::cell::{Cell, RefCell};
+use gfx::{BaseUiElement, UiElement};
+use std::cell::RefCell;
 use std::rc::Rc;
 
 use super::background_rect::BackgroundRect;
 use super::{LoginMenu, MultiplayerSelector, SingleplayerSelector};
-use gfx::BaseUiElement;
 
 enum MainMenuState {
     None,
-    SingleMenu((Cell<Box<dyn BaseUiElement>>, usize)),
+    SingleMenu((RefCell<Box<dyn Menu>>, usize)),
     Transition {
-        top_menu: (Cell<Box<dyn BaseUiElement>>, usize),
-        bottom_menu: (Cell<Box<dyn BaseUiElement>>, usize),
+        top_menu: (RefCell<Box<dyn Menu>>, usize),
+        bottom_menu: (RefCell<Box<dyn Menu>>, usize),
         direction: bool, //true is down
         transition_state: f32,
         top_menu_container: gfx::Container,
@@ -103,7 +102,7 @@ impl MainMenuState {
         }
     }
 
-    pub fn switch_to(&mut self, new_menu: (Cell<Box<dyn BaseUiElement>>, usize), graphics: &gfx::GraphicsContext, parent_container: &gfx::Container) {
+    pub fn switch_to(&mut self, new_menu: (RefCell<Box<dyn Menu>>, usize), graphics: &gfx::GraphicsContext, parent_container: &gfx::Container) {
         match std::mem::replace(self, Self::None) {
             Self::None => {
                 *self = Self::SingleMenu(new_menu);
@@ -141,35 +140,43 @@ impl MainMenuState {
             }
         }
     }
+
+    fn should_close(&self) -> bool {
+        match self {
+            Self::None => false,
+            Self::SingleMenu((menu, _id)) => menu.borrow_mut().should_close(),
+            Self::Transition { top_menu, bottom_menu, .. } => top_menu.0.borrow_mut().should_close() || bottom_menu.0.borrow_mut().should_close(),
+        }
+    }
 }
 
 fn main_back_menu(graphics: &gfx::GraphicsContext, menu_back: &mut dyn BackgroundRect, open_menu: &Rc<RefCell<Option<usize>>>) {
     let copied_menu = open_menu.clone();
-    let mut singleplayer_button = gfx::Button::new(move || *copied_menu.borrow_mut() = Some(1));
+    let mut singleplayer_button = gfx::Button::new(move || *RefCell::borrow_mut(&copied_menu) = Some(1));
     singleplayer_button.scale = 3.0;
     singleplayer_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Singleplayer", None));
     singleplayer_button.orientation = gfx::CENTER;
 
     let copied_menu = open_menu.clone();
-    let mut multiplayer_button = gfx::Button::new(move || *copied_menu.borrow_mut() = Some(2));
+    let mut multiplayer_button = gfx::Button::new(move || *RefCell::borrow_mut(&copied_menu) = Some(2));
     multiplayer_button.scale = 3.0;
     multiplayer_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Multiplayer", None));
     multiplayer_button.orientation = gfx::CENTER;
 
     let copied_menu = open_menu.clone();
-    let mut settings_button = gfx::Button::new(move || *copied_menu.borrow_mut() = Some(3));
+    let mut settings_button = gfx::Button::new(move || *RefCell::borrow_mut(&copied_menu) = Some(3));
     settings_button.scale = 3.0;
     settings_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Settings", None));
     settings_button.orientation = gfx::CENTER;
 
     let copied_menu = open_menu.clone();
-    let mut mods_button = gfx::Button::new(move || *copied_menu.borrow_mut() = Some(4));
+    let mut mods_button = gfx::Button::new(move || *RefCell::borrow_mut(&copied_menu) = Some(4));
     mods_button.scale = 3.0;
     mods_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Mods", None));
     mods_button.orientation = gfx::CENTER;
 
     let copied_menu = open_menu.clone();
-    let mut exit_button = gfx::Button::new(move || *copied_menu.borrow_mut() = Some(5));
+    let mut exit_button = gfx::Button::new(move || *RefCell::borrow_mut(&copied_menu) = Some(5));
     exit_button.scale = 3.0;
     exit_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Exit", None));
     exit_button.orientation = gfx::CENTER;
@@ -237,7 +244,6 @@ pub fn run_main_menu(
     main_back_menu(graphics, menu_back, &open_menu);
 
     let mut state = MainMenuState::None;
-    let close_secondary_menu = Rc::new(RefCell::new(false));
     let mut secondary_menu_back = gfx::RenderRect::new(gfx::FloatPos(graphics.get_window_size().0, 0.0), gfx::FloatSize(MENU_WIDTH, graphics.get_window_size().1));
     secondary_menu_back.orientation = gfx::TOP;
     secondary_menu_back.blur_radius = gfx::BLUR;
@@ -248,7 +254,7 @@ pub fn run_main_menu(
 
     let cloud_status_rect = gfx::Rect::new(gfx::FloatPos(10.0, 10.0), gfx::FloatSize(20.0, 20.0));
     let copied_open_menu = open_menu.clone();
-    let mut cloud_status_button = gfx::Button::new(move || *copied_open_menu.borrow_mut() = Some(0));
+    let mut cloud_status_button = gfx::Button::new(move || *RefCell::borrow_mut(&copied_open_menu) = Some(0));
     cloud_status_button.color = gfx::GREY;
     cloud_status_button.pos = cloud_status_rect.pos + gfx::FloatPos(cloud_status_rect.size.0 + 5.0, -10.0);
     cloud_status_button.orientation = gfx::TOP_LEFT;
@@ -286,23 +292,13 @@ pub fn run_main_menu(
             menu_back.on_event(graphics, &event, &window_container);
             global_settings.borrow_mut().update(graphics, settings);
             cloud_status_button.on_event(graphics, &event, &window_container);
-            if *close_secondary_menu.borrow_mut() {
+            if state.should_close() {
                 state = MainMenuState::None;
-                *close_secondary_menu.borrow_mut() = false;
             }
-            if let Some(index) = *open_menu.borrow_mut() {
-                open_secondary_menu(
-                    graphics,
-                    &mut state,
-                    index,
-                    settings.clone(),
-                    global_settings.clone(),
-                    close_secondary_menu.clone(),
-                    menu_back_timer,
-                    &secondary_menu_back,
-                );
+            if let Some(index) = *RefCell::borrow(&open_menu) {
+                open_secondary_menu(graphics, &mut state, index, settings.clone(), global_settings.clone(), menu_back_timer, &secondary_menu_back);
             }
-            *open_menu.borrow_mut() = None;
+            *RefCell::borrow_mut(&open_menu) = None;
 
             /*if cloud_status_button.on_event(graphics, &event, &window_container) {//TODO
                 state = MainMenuState::None;
@@ -354,25 +350,24 @@ fn open_secondary_menu(
     menu_index: usize,
     settings: Rc<RefCell<Settings>>,
     global_settings: Rc<RefCell<GlobalSettings>>,
-    close_secondary_menu: Rc<RefCell<bool>>,
     menu_back_timer: std::time::Instant,
     menu_back: &dyn UiElement,
 ) {
-    let menu: Cell<Box<dyn BaseUiElement>> = match menu_index {
-        0 => Cell::new(Box::new(LoginMenu::new(graphics, close_secondary_menu))),
-        1 => Cell::new(Box::new(SingleplayerSelector::new(graphics, settings, global_settings, close_secondary_menu, menu_back_timer))),
+    let menu: RefCell<Box<dyn Menu>> = match menu_index {
+        0 => RefCell::new(Box::new(LoginMenu::new(graphics))),
+        1 => RefCell::new(Box::new(SingleplayerSelector::new(graphics, settings, global_settings, menu_back_timer))),
         2 => {
-            let res = MultiplayerSelector::new(graphics, menu_back_timer, settings, global_settings, close_secondary_menu);
+            let res = MultiplayerSelector::new(graphics, menu_back_timer, settings, global_settings);
             if let Ok(menu) = res {
-                Cell::new(Box::new(menu))
+                RefCell::new(Box::new(menu))
             } else {
                 return;
             }
         }
         3 => {
-            let mut menu = SettingsMenu::new(close_secondary_menu, settings);
+            let mut menu = SettingsMenu::new(settings);
             menu.init(graphics, &menu_back.get_container(graphics, &gfx::Container::default(graphics)));
-            Cell::new(Box::new(menu))
+            RefCell::new(Box::new(menu))
         }
         5 => {
             graphics.close_window();

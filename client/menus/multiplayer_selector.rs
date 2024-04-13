@@ -59,16 +59,11 @@ pub struct MultiplayerSelector {
     global_settings: Rc<RefCell<GlobalSettings>>,
     top_rect_visibility: f32,
     state: MultiplayerSelectorState,
+    close_self: bool,
 }
 
 impl MultiplayerSelector {
-    pub fn new(
-        graphics: &gfx::GraphicsContext,
-        menu_back_timer: std::time::Instant,
-        settings: Rc<RefCell<Settings>>,
-        global_settings: Rc<RefCell<GlobalSettings>>,
-        close_menu: Rc<RefCell<bool>>,
-    ) -> Result<Self> {
+    pub fn new(graphics: &gfx::GraphicsContext, menu_back_timer: std::time::Instant, settings: Rc<RefCell<Settings>>, global_settings: Rc<RefCell<GlobalSettings>>) -> Result<Self> {
         let base_dirs = BaseDirs::new().ok_or_else(|| anyhow::anyhow!("error getting base dirs"))?;
         let servers_file = base_dirs.data_dir().join("Terralistic").join("servers.txt");
 
@@ -80,7 +75,7 @@ impl MultiplayerSelector {
         title.pos.1 = gfx::SPACING;
         title.orientation = gfx::TOP;
 
-        let mut back_button = gfx::Button::new(move || *close_menu.borrow_mut() = true);
+        let mut back_button = gfx::Button::new(|| {});
         back_button.scale = 3.0;
         back_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Back", None));
         back_button.pos.1 = -gfx::SPACING;
@@ -128,6 +123,7 @@ impl MultiplayerSelector {
             global_settings,
             top_rect_visibility: 0.0,
             state: MultiplayerSelectorState::Default,
+            close_self: false,
         })
     }
 
@@ -213,6 +209,16 @@ impl MultiplayerSelector {
 
     fn default_on_event_inner(&mut self, graphics: &mut gfx::GraphicsContext, event: &gfx::Event, parent_container: &gfx::Container) -> bool {
         let inner_container = self.get_container(graphics, parent_container);
+        if self.back_button.on_event(graphics, event, parent_container) {
+            self.close_self = true;
+            return true;
+        }
+        if let gfx::Event::KeyRelease(key, ..) = event {
+            if key == &gfx::Key::Escape {
+                self.close_self = true;
+                return true;
+            }
+        }
         if self.new_server_button.on_event(graphics, event, &inner_container) {
             self.state = MultiplayerSelectorState::AddServer(AddServerMenu::new(graphics, self.servers_file.clone()));
         }
@@ -318,6 +324,12 @@ impl UiElement for MultiplayerSelector {
 
     fn get_container(&self, graphics: &gfx::GraphicsContext, parent_container: &gfx::Container) -> gfx::Container {
         gfx::Container::new(graphics, parent_container.rect.pos, parent_container.rect.size, parent_container.orientation, None)
+    }
+}
+
+impl super::Menu for MultiplayerSelector {
+    fn should_close(&self) -> bool {
+        self.close_self
     }
 }
 

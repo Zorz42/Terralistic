@@ -261,17 +261,12 @@ pub struct SingleplayerSelector {
     world_button_press: Rc<RefCell<Option<(usize, usize)>>>,
     state: SingleplayerSelectorState,
     close_world_creation_menu: Rc<RefCell<bool>>,
+    close_self: bool,
 }
 
 impl SingleplayerSelector {
     #[must_use]
-    pub fn new(
-        graphics: &gfx::GraphicsContext,
-        settings: Rc<RefCell<Settings>>,
-        global_settings: Rc<RefCell<GlobalSettings>>,
-        close_menu: Rc<RefCell<bool>>,
-        menu_back_timer: std::time::Instant,
-    ) -> Self {
+    pub fn new(graphics: &gfx::GraphicsContext, settings: Rc<RefCell<Settings>>, global_settings: Rc<RefCell<GlobalSettings>>, menu_back_timer: std::time::Instant) -> Self {
         let world_button_press = Rc::new(RefCell::new(None));
         let world_list = WorldList::new(graphics, &world_button_press);
         let mut title = gfx::Sprite::new();
@@ -280,9 +275,7 @@ impl SingleplayerSelector {
         title.pos.1 = gfx::SPACING;
         title.orientation = gfx::TOP;
 
-        let mut back_button = gfx::Button::new(move || {
-            *close_menu.borrow_mut() = true;
-        });
+        let mut back_button = gfx::Button::new(|| {});
         back_button.scale = 3.0;
         back_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Back", None));
         back_button.pos.1 = -gfx::SPACING;
@@ -334,6 +327,7 @@ impl SingleplayerSelector {
             world_button_press,
             state: SingleplayerSelectorState::Default,
             close_world_creation_menu: Rc::new(RefCell::new(false)),
+            close_self: false,
         }
     }
 
@@ -490,21 +484,31 @@ impl UiElement for SingleplayerSelector {
         }
     }
 
-    fn on_event_inner(&mut self, _: &mut gfx::GraphicsContext, event: &gfx::Event, _: &gfx::Container) -> bool {
+    fn on_event_inner(&mut self, graphics: &mut gfx::GraphicsContext, event: &gfx::Event, parent_container: &gfx::Container) -> bool {
         if !matches!(self.state, SingleplayerSelectorState::Default) {
             return false;
         }
         if let gfx::Event::KeyRelease(key, ..) = event {
             if key == &gfx::Key::Escape {
-                self.back_button.press();
+                self.close_self = true;
                 return true;
             }
+        }
+        if self.back_button.on_event(graphics, event, parent_container) {
+            self.close_self = true;
+            return true;
         }
         false
     }
 
     fn get_container(&self, graphics: &gfx::GraphicsContext, parent_container: &gfx::Container) -> gfx::Container {
         gfx::Container::new(graphics, parent_container.rect.pos, parent_container.rect.size, parent_container.orientation, None)
+    }
+}
+
+impl super::menu::Menu for SingleplayerSelector {
+    fn should_close(&self) -> bool {
+        self.close_self
     }
 }
 
