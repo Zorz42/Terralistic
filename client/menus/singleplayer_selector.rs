@@ -14,7 +14,7 @@ use crate::libraries::graphics as gfx;
 use gfx::{BaseUiElement, UiElement};
 
 use super::world_creation::WorldCreationMenu;
-use super::BackgroundRect;
+use super::{BackgroundRect, Menu};
 
 pub const MENU_WIDTH: f32 = 800.0;
 
@@ -260,7 +260,6 @@ pub struct SingleplayerSelector {
     new_world_press: Rc<RefCell<bool>>,
     world_button_press: Rc<RefCell<Option<(usize, usize)>>>,
     state: SingleplayerSelectorState,
-    close_world_creation_menu: Rc<RefCell<bool>>,
     close_self: bool,
 }
 
@@ -326,7 +325,6 @@ impl SingleplayerSelector {
             new_world_press,
             world_button_press,
             state: SingleplayerSelectorState::Default,
-            close_world_creation_menu: Rc::new(RefCell::new(false)),
             close_self: false,
         }
     }
@@ -417,7 +415,7 @@ impl UiElement for SingleplayerSelector {
             for world in &self.world_list.worlds {
                 names_vec.push(world.name.clone());
             }
-            if let Ok(world_creation_menu) = WorldCreationMenu::new(graphics, names_vec, self.settings.clone(), self.global_settings.clone(), self.close_world_creation_menu.clone()) {
+            if let Ok(world_creation_menu) = WorldCreationMenu::new(graphics, names_vec, self.settings.clone(), self.global_settings.clone()) {
                 self.state = SingleplayerSelectorState::CreateWorld(world_creation_menu);
             }
         }
@@ -475,11 +473,13 @@ impl UiElement for SingleplayerSelector {
                 }
                 menu.button_press = None;
             }
-            _ => {}
+            SingleplayerSelectorState::CreateWorld(menu) => {
+                change_to_default |= menu.should_close();
+            }
+            SingleplayerSelectorState::GameError(..) => {}
         }
-        if change_to_default || *self.close_world_creation_menu.borrow_mut() {
+        if change_to_default {
             self.state = SingleplayerSelectorState::Default;
-            *self.close_world_creation_menu.borrow_mut() = false;
             self.world_list.refresh(graphics, &self.world_button_press);
         }
     }

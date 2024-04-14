@@ -30,11 +30,11 @@ impl PauseMenu {
     pub fn new(settings: Rc<RefCell<Settings>>, global_settings: Rc<RefCell<GlobalSettings>>) -> Self {
         Self {
             open: false,
-            in_settings: true,
+            in_settings: false,
             resume_button: gfx::Button::new(|| {}),
             settings_button: gfx::Button::new(|| {}),
             quit_button: gfx::Button::new(|| {}),
-            back_rect: gfx::RenderRect::new(gfx::FloatPos(-1000.0, 0.0), gfx::FloatSize(0.0, 0.0)),
+            back_rect: gfx::RenderRect::new(gfx::FloatPos(-10000.0, 0.0), gfx::FloatSize(0.0, 0.0)),
             settings_menu: SettingsMenu::new(settings.clone()),
             rect_width: 0.0,
             settings,
@@ -74,13 +74,14 @@ impl PauseMenu {
     }
 
     pub fn render(&mut self, graphics: &mut gfx::GraphicsContext) {
+        self.in_settings &= self.open;
         let parent_container = self.back_rect.get_container(graphics, &gfx::Container::default(graphics));
         self.settings_menu.update(graphics, &parent_container);
         if self.settings_menu.should_close() {
             self.in_settings = false;
         }
 
-        if self.open && self.in_settings {
+        if self.in_settings {
             self.back_rect.size.0 = MENU_WIDTH;
             self.back_rect.pos.0 = graphics.get_window_size().0 / 2.0 - self.back_rect.size.0 / 2.0;
         } else if self.open {

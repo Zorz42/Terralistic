@@ -13,7 +13,7 @@ use crate::client::menus::run_text_input_menu;
 use crate::client::settings::Settings;
 use crate::libraries::graphics as gfx;
 
-use super::AddServerMenu;
+use super::{AddServerMenu, Menu};
 
 use super::background_rect::BackgroundRect;
 use gfx::{BaseUiElement, UiElement};
@@ -309,7 +309,7 @@ impl UiElement for MultiplayerSelector {
             #[allow(clippy::ref_patterns)] //clippy misunderstands code, there's no nicer way to do
             //this
             MultiplayerSelectorState::AddServer(ref menu) => {
-                if menu.close {
+                if menu.should_close() {
                     switch_to_default = true;
                 }
             }

@@ -32,16 +32,11 @@ pub struct WorldCreationMenu {
     settings: Rc<RefCell<Settings>>,
     global_settings: Rc<RefCell<GlobalSettings>>,
     world_path: Rc<RefCell<std::path::PathBuf>>,
+    close_self: bool,
 }
 
 impl WorldCreationMenu {
-    pub fn new(
-        graphics: &gfx::GraphicsContext,
-        worlds_list: Vec<String>,
-        settings: Rc<RefCell<Settings>>,
-        global_settings: Rc<RefCell<GlobalSettings>>,
-        close_menu: Rc<RefCell<bool>>,
-    ) -> Result<Self> {
+    pub fn new(graphics: &gfx::GraphicsContext, worlds_list: Vec<String>, settings: Rc<RefCell<Settings>>, global_settings: Rc<RefCell<GlobalSettings>>) -> Result<Self> {
         let base_dirs = BaseDirs::new().ok_or_else(|| anyhow::anyhow!("Failed to get base directories"))?;
         let world_path = base_dirs.data_dir().to_path_buf();
         let mut title = gfx::Sprite::new();
@@ -52,13 +47,12 @@ impl WorldCreationMenu {
 
         let mut buttons_container = gfx::Container::new(graphics, gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, 0.0), gfx::BOTTOM, None);
 
-        let cloned_close_menu = close_menu.clone();
-        let mut back_button = gfx::Button::new(move || *close_menu.borrow_mut() = true);
+        let mut back_button = gfx::Button::new(|| {});
         back_button.scale = 3.0;
         back_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Back", None));
         back_button.orientation = gfx::BOTTOM;
 
-        let mut create_button = gfx::Button::new(move || *cloned_close_menu.borrow_mut() = true);
+        let mut create_button = gfx::Button::new(|| {});
         create_button.scale = 3.0;
         create_button.darken_on_disabled = true;
         create_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Create world", None));
@@ -112,7 +106,19 @@ impl WorldCreationMenu {
             settings,
             global_settings,
             world_path: Rc::new(RefCell::new(world_path)),
+            close_self: false,
         })
+    }
+
+    fn create_world(&mut self, graphics: &mut gfx::GraphicsContext) {
+        let mut menu_back = crate::MenuBack::new(graphics);
+        menu_back.set_back_rect_width(MENU_WIDTH, true);
+        menu_back.update(graphics, &gfx::Container::default(graphics));
+        let game_result = run_private_world(graphics, &mut menu_back, &self.world_path.borrow_mut().clone(), &self.settings, &self.global_settings);
+        if let Err(error) = game_result {
+            println!("Game error: {error}");
+        }
+        self.close_self = true;
     }
 }
 
@@ -133,13 +139,12 @@ impl UiElement for WorldCreationMenu {
 
     fn on_event_inner(&mut self, graphics: &mut gfx::GraphicsContext, event: &gfx::Event, parent_container: &gfx::Container) -> bool {
         if self.create_button.on_event(graphics, event, &self.get_container(graphics, parent_container)) {
-            let mut menu_back = crate::MenuBack::new(graphics);
-            menu_back.set_back_rect_width(MENU_WIDTH, true);
-            menu_back.update(graphics, &gfx::Container::default(graphics));
-            let game_result = run_private_world(graphics, &mut menu_back, &self.world_path.borrow_mut().clone(), &self.settings, &self.global_settings);
-            if let Err(error) = game_result {
-                println!("Game error: {error}");
-            }
+            self.create_world(graphics);
+            return true;
+        }
+        if self.back_button.on_event(graphics, event, parent_container) {
+            self.close_self = true;
+            return true;
         }
         if let gfx::Event::KeyRelease(key, ..) = event {
             match key {
@@ -148,22 +153,30 @@ impl UiElement for WorldCreationMenu {
                         self.world_name_input.selected = false;
                         self.world_seed_input.selected = false;
                     } else {
-                        self.back_button.press();
+                        self.close_self = true;
+                        return true;
                     }
                 }
                 gfx::Key::Enter => {
                     if !self.create_button.disabled {
-                        self.create_button.press();
-                        self.back_button.press();
+                        self.create_world(graphics);
+                        return true;
                     }
                 }
                 _ => {}
             }
         }
+
         false
     }
 
     fn get_container(&self, graphics: &gfx::GraphicsContext, parent_container: &gfx::Container) -> gfx::Container {
         gfx::Container::new(graphics, parent_container.rect.pos, parent_container.rect.size, parent_container.orientation, None)
+    }
+}
+
+impl super::Menu for WorldCreationMenu {
+    fn should_close(&self) -> bool {
+        self.close_self
     }
 }

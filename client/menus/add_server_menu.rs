@@ -39,7 +39,7 @@ pub struct AddServerMenu {
     server_name_input: gfx::TextInput,
     server_ip_input: gfx::TextInput,
     server_file: PathBuf,
-    pub close: bool,
+    close_self: bool,
     servers: Vec<ServerInfo>,
 }
 
@@ -112,7 +112,7 @@ impl AddServerMenu {
             server_name_input,
             server_ip_input,
             server_file,
-            close: false,
+            close_self: false,
             servers,
         }
     }
@@ -145,10 +145,10 @@ impl UiElement for AddServerMenu {
     fn on_event_inner(&mut self, graphics: &mut gfx::GraphicsContext, event: &gfx::Event, parent_container: &gfx::Container) -> bool {
         if self.add_button.on_event(graphics, event, &self.get_container(graphics, parent_container)) {
             self.add_server();
-            self.close = true;
+            self.close_self = true;
         }
         if self.back_button.on_event(graphics, event, &self.get_container(graphics, parent_container)) {
-            self.close = true;
+            self.close_self = true;
         }
         if let gfx::Event::KeyRelease(key, ..) = event {
             match key {
@@ -157,13 +157,13 @@ impl UiElement for AddServerMenu {
                         self.server_ip_input.selected = false;
                         self.server_name_input.selected = false;
                     } else {
-                        self.close = true;
+                        self.close_self = true;
                     }
                 }
                 gfx::Key::Enter => {
                     if !self.add_button.disabled {
                         self.add_server();
-                        self.close = true;
+                        self.close_self = true;
                     }
                 }
                 _ => {}
@@ -174,5 +174,11 @@ impl UiElement for AddServerMenu {
 
     fn get_container(&self, graphics: &gfx::GraphicsContext, parent_container: &gfx::Container) -> gfx::Container {
         gfx::Container::new(graphics, parent_container.rect.pos, parent_container.rect.size, parent_container.orientation, None)
+    }
+}
+
+impl super::Menu for AddServerMenu {
+    fn should_close(&self) -> bool {
+        self.close_self
     }
 }
