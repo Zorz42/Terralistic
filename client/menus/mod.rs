@@ -10,6 +10,7 @@ pub use settings_menu::SettingsMenu;
 pub use singleplayer_selector::SingleplayerSelector;
 pub use singleplayer_selector::MENU_WIDTH;
 pub use text_input_menu::run_text_input_menu;
+pub use title_screen_renderer::run_title_screen;
 
 mod background_rect;
 
@@ -36,3 +37,5 @@ mod login;
 mod settings_menu;
 
 mod menu;
+
+mod title_screen_renderer;

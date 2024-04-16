@@ -34,7 +34,7 @@ impl PauseMenu {
             resume_button: gfx::Button::new(|| {}),
             settings_button: gfx::Button::new(|| {}),
             quit_button: gfx::Button::new(|| {}),
-            back_rect: gfx::RenderRect::new(gfx::FloatPos(-10000.0, 0.0), gfx::FloatSize(0.0, 0.0)),
+            back_rect: gfx::RenderRect::new(gfx::FloatPos(-1000.0, 0.0), gfx::FloatSize(0.0, 0.0)),
             settings_menu: SettingsMenu::new(settings.clone()),
             rect_width: 0.0,
             settings,

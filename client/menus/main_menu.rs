@@ -13,7 +13,7 @@ use std::rc::Rc;
 use super::background_rect::BackgroundRect;
 use super::{LoginMenu, MultiplayerSelector, SingleplayerSelector};
 
-enum MainMenuState {
+pub enum MainMenuState {
     None,
     SingleMenu((RefCell<Box<dyn Menu>>, usize)),
     Transition {
@@ -85,20 +85,15 @@ impl MainMenuState {
         }
     }
 
-    pub fn on_event(&mut self, graphics: &mut gfx::GraphicsContext, event: &gfx::Event, parent_container: &gfx::Container) {
+    pub fn on_event(&mut self, graphics: &mut gfx::GraphicsContext, event: &gfx::Event, parent_container: &gfx::Container) -> bool {
         match self {
-            Self::None => {}
-            Self::SingleMenu((menu, _id)) => {
-                menu.get_mut().on_event(graphics, event, parent_container);
-            }
+            Self::None => false,
+            Self::SingleMenu((menu, _id)) => menu.get_mut().on_event(graphics, event, parent_container),
             Self::Transition {
                 top_menu: (top_menu, _id_top),
                 bottom_menu: (bottom_menu, _id_bot),
                 ..
-            } => {
-                top_menu.get_mut().on_event(graphics, event, parent_container);
-                bottom_menu.get_mut().on_event(graphics, event, parent_container);
-            }
+            } => top_menu.get_mut().on_event(graphics, event, parent_container) || bottom_menu.get_mut().on_event(graphics, event, parent_container),
         }
     }
 
@@ -150,85 +145,130 @@ impl MainMenuState {
     }
 }
 
-fn main_back_menu(graphics: &gfx::GraphicsContext, menu_back: &mut dyn BackgroundRect, open_menu: &Rc<RefCell<Option<usize>>>) {
-    let copied_menu = open_menu.clone();
-    let mut singleplayer_button = gfx::Button::new(move || *RefCell::borrow_mut(&copied_menu) = Some(1));
-    singleplayer_button.scale = 3.0;
-    singleplayer_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Singleplayer", None));
-    singleplayer_button.orientation = gfx::CENTER;
+pub struct MainMenu {
+    title: gfx::Sprite,
+    debug_title: gfx::Sprite,
+    version: gfx::Sprite,
+    singleplayer_button: gfx::Button,
+    multiplayer_button: gfx::Button,
+    settings_button: gfx::Button,
+    mods_button: gfx::Button,
+    exit_button: gfx::Button,
+}
 
-    let copied_menu = open_menu.clone();
-    let mut multiplayer_button = gfx::Button::new(move || *RefCell::borrow_mut(&copied_menu) = Some(2));
-    multiplayer_button.scale = 3.0;
-    multiplayer_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Multiplayer", None));
-    multiplayer_button.orientation = gfx::CENTER;
+impl MainMenu {
+    pub fn new(graphics: &gfx::GraphicsContext, open_menu: &Rc<RefCell<Option<usize>>>) -> Self {
+        let copied_menu = open_menu.clone();
+        let mut singleplayer_button = gfx::Button::new(move || *RefCell::borrow_mut(&copied_menu) = Some(1));
+        singleplayer_button.scale = 3.0;
+        singleplayer_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Singleplayer", None));
+        singleplayer_button.orientation = gfx::CENTER;
 
-    let copied_menu = open_menu.clone();
-    let mut settings_button = gfx::Button::new(move || *RefCell::borrow_mut(&copied_menu) = Some(3));
-    settings_button.scale = 3.0;
-    settings_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Settings", None));
-    settings_button.orientation = gfx::CENTER;
+        let copied_menu = open_menu.clone();
+        let mut multiplayer_button = gfx::Button::new(move || *RefCell::borrow_mut(&copied_menu) = Some(2));
+        multiplayer_button.scale = 3.0;
+        multiplayer_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Multiplayer", None));
+        multiplayer_button.orientation = gfx::CENTER;
 
-    let copied_menu = open_menu.clone();
-    let mut mods_button = gfx::Button::new(move || *RefCell::borrow_mut(&copied_menu) = Some(4));
-    mods_button.scale = 3.0;
-    mods_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Mods", None));
-    mods_button.orientation = gfx::CENTER;
+        let copied_menu = open_menu.clone();
+        let mut settings_button = gfx::Button::new(move || *RefCell::borrow_mut(&copied_menu) = Some(3));
+        settings_button.scale = 3.0;
+        settings_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Settings", None));
+        settings_button.orientation = gfx::CENTER;
 
-    let copied_menu = open_menu.clone();
-    let mut exit_button = gfx::Button::new(move || *RefCell::borrow_mut(&copied_menu) = Some(5));
-    exit_button.scale = 3.0;
-    exit_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Exit", None));
-    exit_button.orientation = gfx::CENTER;
+        let copied_menu = open_menu.clone();
+        let mut mods_button = gfx::Button::new(move || *RefCell::borrow_mut(&copied_menu) = Some(4));
+        mods_button.scale = 3.0;
+        mods_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Mods", None));
+        mods_button.orientation = gfx::CENTER;
 
-    let mut debug_title = gfx::Sprite::new();
-    debug_title.set_texture(gfx::Texture::load_from_surface(&graphics.font.create_text_surface("DEBUG MODE", None)));
-    debug_title.color = gfx::DARK_GREY;
-    debug_title.orientation = gfx::TOP;
-    debug_title.scale = 2.0;
-    debug_title.pos.1 = gfx::SPACING / 4.0;
+        let copied_menu = open_menu.clone();
+        let mut exit_button = gfx::Button::new(move || *RefCell::borrow_mut(&copied_menu) = Some(usize::MAX));
+        exit_button.scale = 3.0;
+        exit_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Exit", None));
+        exit_button.orientation = gfx::CENTER;
 
-    let mut title = gfx::Sprite::new();
-    title.set_texture(gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Terralistic", None)));
-    title.scale = 4.0;
-    title.orientation = gfx::TOP;
-    title.pos.1 = debug_title.pos.1 + debug_title.get_size().1 + gfx::SPACING / 2.0;
+        let mut debug_title = gfx::Sprite::new();
+        debug_title.set_texture(gfx::Texture::load_from_surface(&graphics.font.create_text_surface("DEBUG MODE", None)));
+        debug_title.color = gfx::DARK_GREY;
+        debug_title.orientation = gfx::TOP;
+        debug_title.scale = 2.0;
+        debug_title.pos.1 = gfx::SPACING / 4.0;
 
-    let mut version = gfx::Sprite::new();
-    version.set_texture(gfx::Texture::load_from_surface(&graphics.font.create_text_surface(VERSION, None)));
-    version.color = gfx::GREY;
-    version.orientation = gfx::BOTTOM;
-    version.scale = 2.0;
-    version.pos.1 = -5.0;
+        let mut title = gfx::Sprite::new();
+        title.set_texture(gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Terralistic", None)));
+        title.scale = 4.0;
+        title.orientation = gfx::TOP;
+        title.pos.1 = debug_title.pos.1 + debug_title.get_size().1 + gfx::SPACING / 2.0;
 
-    {
-        let buttons = [&mut singleplayer_button, &mut multiplayer_button, &mut settings_button, &mut mods_button, &mut exit_button];
+        let mut version = gfx::Sprite::new();
+        version.set_texture(gfx::Texture::load_from_surface(&graphics.font.create_text_surface(VERSION, None)));
+        version.color = gfx::GREY;
+        version.orientation = gfx::BOTTOM;
+        version.scale = 2.0;
+        version.pos.1 = -5.0;
 
-        // buttons are on top of another on the center of the screen
-        // their combined height is centered on the screen
+        {
+            let buttons = [&mut singleplayer_button, &mut multiplayer_button, &mut settings_button, &mut mods_button, &mut exit_button];
 
-        let mut total_height = 0.0;
-        for button in &buttons {
-            total_height += button.get_size().1;
+            // buttons are on top of another on the center of the screen
+            // their combined height is centered on the screen
+
+            let mut total_height = 0.0;
+            for button in &buttons {
+                total_height += button.get_size().1;
+            }
+            let mut current_y = -total_height / 2.0 + buttons[0].get_size().1;
+            for button in buttons {
+                button.pos.1 = current_y;
+                current_y += button.get_size().1;
+            }
         }
-        let mut current_y = -total_height / 2.0 + buttons[0].get_size().1;
-        for button in buttons {
-            button.pos.1 = current_y;
-            current_y += button.get_size().1;
+        Self {
+            title,
+            debug_title,
+            version,
+            singleplayer_button,
+            multiplayer_button,
+            settings_button,
+            mods_button,
+            exit_button,
         }
     }
+}
 
-    *menu_back.get_elements_vec_mut() = vec![
-        Box::new(title),
-        #[cfg(debug_assertions)]
-        Box::new(debug_title),
-        Box::new(version),
-        Box::new(singleplayer_button),
-        Box::new(multiplayer_button),
-        Box::new(settings_button),
-        Box::new(mods_button),
-        Box::new(exit_button),
-    ];
+impl UiElement for MainMenu {
+    fn get_sub_elements(&self) -> Vec<&dyn BaseUiElement> {
+        vec![
+            &self.title,
+            #[cfg(debug_assertions)]
+            &self.debug_title,
+            &self.version,
+            &self.singleplayer_button,
+            &self.multiplayer_button,
+            &self.settings_button,
+            &self.mods_button,
+            &self.exit_button,
+        ]
+    }
+
+    fn get_sub_elements_mut(&mut self) -> Vec<&mut dyn BaseUiElement> {
+        vec![
+            &mut self.title,
+            #[cfg(debug_assertions)]
+            &mut self.debug_title,
+            &mut self.version,
+            &mut self.singleplayer_button,
+            &mut self.multiplayer_button,
+            &mut self.settings_button,
+            &mut self.mods_button,
+            &mut self.exit_button,
+        ]
+    }
+
+    fn get_container(&self, graphics: &gfx::GraphicsContext, parent_container: &gfx::Container) -> gfx::Container {
+        gfx::Container::new(graphics, parent_container.rect.pos, parent_container.rect.size, parent_container.orientation, None)
+    }
 }
 
 #[allow(clippy::too_many_lines)] // TODO: split this function up
@@ -241,7 +281,7 @@ pub fn run_main_menu(
     menu_back_timer: std::time::Instant,
 ) {
     let open_menu: Rc<RefCell<Option<usize>>> = Rc::new(RefCell::new(None));
-    main_back_menu(graphics, menu_back, &open_menu);
+    //create_main_back_menu(graphics, menu_back, &open_menu);
 
     let mut state = MainMenuState::None;
     let mut secondary_menu_back = gfx::RenderRect::new(gfx::FloatPos(graphics.get_window_size().0, 0.0), gfx::FloatSize(MENU_WIDTH, graphics.get_window_size().1));

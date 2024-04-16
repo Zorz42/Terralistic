@@ -160,7 +160,7 @@ use std::sync::Mutex;
 use directories::BaseDirs;
 
 use crate::client::global_settings::GlobalSettings;
-use crate::client::menus::{run_main_menu, MenuBack};
+use crate::client::menus::{run_main_menu, run_title_screen, MenuBack};
 use crate::client::settings::Settings;
 use crate::libraries::graphics as gfx;
 use crate::server::server_core::{Server, MULTIPLAYER_PORT};
@@ -305,7 +305,8 @@ fn client_main() {
     global_settings.borrow_mut().init(&settings);
     global_settings.borrow_mut().update(&mut graphics, &settings);
     let timer = menu_back.get_timer();
-    run_main_menu(&mut graphics, &mut menu_back, &settings, &global_settings, timer);
+    run_title_screen(&mut graphics, &settings, &global_settings);
+    //run_main_menu(&mut graphics, &mut menu_back, &settings, &global_settings, timer);
 
     global_settings.borrow_mut().stop(&settings);
 
