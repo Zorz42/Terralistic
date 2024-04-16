@@ -1,7 +1,9 @@
+use crate::client::global_settings::GlobalSettings;
 use crate::client::settings::SliderSelection;
 use crate::client::settings::{Setting, Settings};
 use crate::libraries::graphics as gfx;
 use gfx::{BaseUiElement, UiElement};
+use std::borrow::Borrow;
 use std::cell::RefCell;
 use std::rc::Rc;
 
@@ -355,16 +357,18 @@ pub struct SettingsMenu {
     back_button: gfx::Button,
     settings_ui: Vec<SettingUi>,
     settings: Rc<RefCell<Settings>>,
+    global_settings: Rc<RefCell<GlobalSettings>>,
     close_self: bool,
 }
 
 impl SettingsMenu {
     #[must_use]
-    pub fn new(settings: Rc<RefCell<Settings>>) -> Self {
+    pub fn new(settings: Rc<RefCell<Settings>>, global_settings: Rc<RefCell<GlobalSettings>>) -> Self {
         Self {
             back_button: gfx::Button::new(|| {}),
             settings_ui: Vec::new(),
             settings,
+            global_settings,
             close_self: false,
         }
     }
@@ -459,6 +463,9 @@ impl UiElement for SettingsMenu {
             self.close_self = true;
             return true;
         }
+
+        self.global_settings.borrow_mut().update(graphics, self.settings.borrow());
+
         false
     }
 

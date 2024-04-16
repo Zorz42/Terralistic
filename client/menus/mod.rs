@@ -2,7 +2,7 @@ pub use add_server_menu::AddServerMenu;
 pub use background_rect::BackgroundRect;
 pub use loading_screen::run_loading_screen;
 pub use login::LoginMenu;
-pub use main_menu::run_main_menu;
+pub use main_menu::{MainMenu, SecondaryMenu};
 pub use menu::Menu;
 pub use menu_back::MenuBack;
 pub use multiplayer_selector::MultiplayerSelector;

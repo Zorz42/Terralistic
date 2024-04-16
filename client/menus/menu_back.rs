@@ -51,7 +51,13 @@ impl MenuBack {
 
 impl UiElement for MenuBack {
     fn get_container(&self, graphics: &gfx::GraphicsContext, parent_container: &gfx::Container) -> gfx::Container {
-        gfx::Container::new(graphics, parent_container.rect.pos, parent_container.rect.size, parent_container.orientation, None)
+        gfx::Container::new(
+            graphics,
+            self.back_container.rect.pos,
+            self.back_container.rect.size,
+            self.back_container.orientation,
+            Some(parent_container),
+        )
     }
     fn get_sub_elements_mut(&mut self) -> Vec<&mut dyn BaseUiElement> {
         vec![&mut self.back_container]
@@ -64,15 +70,6 @@ impl UiElement for MenuBack {
             self.back_rect.size.1 = graphics.get_window_size().1;
             self.back_rect.jump_to_target();
         }
-
-        let mut max_width = 0.0;
-        for button in self.get_elements_vec_mut() {
-            if button.get_container(graphics, parent_container).rect.size.0 > max_width {
-                max_width = button.get_container(graphics, parent_container).rect.size.0;
-            }
-        }
-
-        self.set_back_rect_width(max_width + 100.0, false);
 
         let new_container = self.back_rect.get_container(graphics, parent_container);
         self.back_container.rect = new_container.rect;
