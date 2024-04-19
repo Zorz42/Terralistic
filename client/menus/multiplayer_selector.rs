@@ -306,9 +306,7 @@ impl UiElement for MultiplayerSelector {
                 }
                 menu.button_press = None;
             }
-            #[allow(clippy::ref_patterns)] //clippy misunderstands code, there's no nicer way to do
-            //this
-            MultiplayerSelectorState::AddServer(ref menu) => {
+            MultiplayerSelectorState::AddServer(ref mut menu) => {
                 if menu.should_close() {
                     switch_to_default = true;
                 }
@@ -328,8 +326,10 @@ impl UiElement for MultiplayerSelector {
 }
 
 impl super::Menu for MultiplayerSelector {
-    fn should_close(&self) -> bool {
-        self.close_self
+    fn should_close(&mut self) -> bool {
+        let ret_val = self.close_self;
+        self.close_self = false;
+        ret_val
     }
 }
 

@@ -51,6 +51,11 @@ impl RenderRect {
         self.render_pos = self.pos;
         self.render_size = self.size;
     }
+
+    #[must_use]
+    pub fn is_at_target(&self) -> bool {
+        self.pos == self.render_pos
+    }
 }
 
 impl gfx::UiElement for RenderRect {

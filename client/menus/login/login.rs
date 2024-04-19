@@ -239,8 +239,10 @@ impl UiElement for LoginMenu {
 }
 
 impl crate::client::menus::Menu for LoginMenu {
-    fn should_close(&self) -> bool {
-        self.close_self
+    fn should_close(&mut self) -> bool {
+        let ret_val = self.close_self;
+        self.close_self = false;
+        ret_val
     }
 }
 

@@ -1,9 +1,7 @@
-use crate::client::game::tls_client::{AuthenticationState, TlsClient};
 use crate::client::global_settings::GlobalSettings;
 use crate::client::menus::{Menu, SettingsMenu};
 use crate::client::settings::Settings;
 use crate::libraries::graphics as gfx;
-use crate::shared::tls_client::ConnectionState;
 use crate::shared::versions::VERSION;
 use gfx::{BaseUiElement, UiElement};
 use std::cell::RefCell;
@@ -174,30 +172,15 @@ impl SecondaryMenu {
             }
             _ => {
                 println!("menu doesn't exist");
-                *self = Self::None;
                 return false;
             }
         };
 
-        if !matches!(self, SecondaryMenu::SingleMenu((_, curr_menu_index)) if *curr_menu_index == menu_index) {
+        if !matches!(self, Self::SingleMenu((_, curr_menu_index)) if *curr_menu_index == menu_index) {
             self.switch_to((menu, menu_index), graphics, &menu_back.get_container(graphics, &gfx::Container::default(graphics)));
         }
 
         return true;
-    }
-
-    fn get_tls_status_color(tls_client: &Option<TlsClient>) -> gfx::Color {
-        tls_client.as_ref().map_or_else(
-            || gfx::Color::new(255, 0, 0, 255),
-            |client| match &client.get_connection_state() {
-                ConnectionState::CONNECTING(_) => gfx::Color::new(255, 255, 0, 255),
-                _ => match client.get_authentication_state() {
-                    AuthenticationState::AUTHENTICATING => gfx::Color::new(255, 255, 0, 255),
-                    AuthenticationState::AUTHENTICATED => gfx::Color::new(0, 255, 0, 255),
-                    _ => gfx::Color::new(255, 0, 0, 255),
-                },
-            },
-        )
     }
 }
 

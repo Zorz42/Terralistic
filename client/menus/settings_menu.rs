@@ -475,7 +475,9 @@ impl UiElement for SettingsMenu {
 }
 
 impl super::Menu for SettingsMenu {
-    fn should_close(&self) -> bool {
-        self.close_self
+    fn should_close(&mut self) -> bool {
+        let ret_val = self.close_self;
+        self.close_self = false;
+        ret_val
     }
 }

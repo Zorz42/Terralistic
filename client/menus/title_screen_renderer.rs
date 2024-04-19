@@ -119,10 +119,12 @@ pub fn run_title_screen(graphics: &mut gfx::GraphicsContext, settings: &Rc<RefCe
                 .open_secondary_menu(graphics, i, settings.clone(), global_settings.clone(), main_back_rect.get_timer(), &secondary_back_rect)
             {
                 menus.state = TitleScreenState::BothMenus;
-            } else {
-                menus.state = TitleScreenState::MainMenu;
             }
         }
+        if matches!(menus.state, TitleScreenState::MainMenu) && secondary_back_container.get_absolute_rect().pos.0 > graphics.get_window_size().0 {
+            menus.secondary_menu = SecondaryMenu::None;
+        }
+
         *open_secondary_menu.borrow_mut() = None;
 
         if menus.secondary_menu.should_close() {

@@ -176,7 +176,8 @@ impl UiElement for WorldCreationMenu {
 }
 
 impl super::Menu for WorldCreationMenu {
-    fn should_close(&self) -> bool {
-        self.close_self
+    fn should_close(&mut self) -> bool {
+        self.close_self = !self.close_self;
+        !self.close_self
     }
 }
