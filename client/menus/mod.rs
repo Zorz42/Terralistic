@@ -2,10 +2,11 @@ pub use add_server_menu::AddServerMenu;
 pub use background_rect::BackgroundRect;
 pub use loading_screen::run_loading_screen;
 pub use login::LoginMenu;
-pub use main_menu::{MainMenu, SecondaryMenu};
+pub use main_menu::MainMenu;
 pub use menu::Menu;
 pub use menu_back::MenuBack;
 pub use multiplayer_selector::MultiplayerSelector;
+pub use secondary_menu::SecondaryMenu;
 pub use settings_menu::SettingsMenu;
 pub use singleplayer_selector::SingleplayerSelector;
 pub use singleplayer_selector::MENU_WIDTH;
@@ -39,3 +40,5 @@ mod settings_menu;
 mod menu;
 
 mod title_screen_renderer;
+
+mod secondary_menu;

@@ -1,18 +1,15 @@
-use super::main_menu::{MainMenu, SecondaryMenu};
 use crate::client::game::tls_client::{AuthenticationState, TlsClient};
 use crate::client::global_settings::GlobalSettings;
 use crate::client::menus::singleplayer_selector::MENU_WIDTH;
-use crate::client::menus::{Menu, SettingsMenu};
+use crate::client::menus::{MainMenu, SecondaryMenu};
 use crate::client::settings::Settings;
 use crate::libraries::graphics as gfx;
 use crate::shared::tls_client::ConnectionState;
-use crate::shared::versions::VERSION;
 use gfx::{BaseUiElement, UiElement};
 use std::cell::RefCell;
 use std::rc::Rc;
 
 use super::background_rect::BackgroundRect;
-use super::{LoginMenu, MultiplayerSelector, SingleplayerSelector};
 
 enum TitleScreenState {
     MainMenu,
