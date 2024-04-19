@@ -139,7 +139,9 @@ impl PauseMenu {
                 self.open = false;
             }
 
-            self.settings_button.on_event(graphics, event, &parent_container);
+            if self.settings_button.on_event(graphics, event, &parent_container) {
+                self.in_settings = true;
+            }
             if self.quit_button.on_event(graphics, event, &parent_container) {
                 return true;
             }
