@@ -1,4 +1,7 @@
+use super::Menu;
 use crate::libraries::graphics as gfx;
+use std::cell::RefCell;
+use std::rc::Rc;
 
 use gfx::BaseUiElement;
 
@@ -7,16 +10,21 @@ pub struct ChoiceMenu {
     button_container: gfx::Container,
     esc_choice: Option<usize>,
     enter_choice: Option<usize>,
-    pub button_press: Option<usize>,
+    close: Rc<RefCell<bool>>,
 }
 
 impl ChoiceMenu {
-    pub fn new(menu_title: &str, graphics: &gfx::GraphicsContext, button_texts: &[&str], esc_choice: Option<usize>, enter_choice: Option<usize>) -> Self {
+    pub fn new(menu_title: &str, graphics: &gfx::GraphicsContext, buttons_properties: Vec<(&str, Box<dyn Fn()>)>, esc_choice: Option<usize>, enter_choice: Option<usize>) -> Self {
         let mut buttons: Vec<Box<dyn BaseUiElement>> = Vec::new();
         let mut buttons_width = 0.0;
         let mut max_button_height: f32 = 0.0;
-        for text in button_texts {
-            let mut button_sprite = gfx::Button::new(|| {});
+        let close = Rc::new(RefCell::new(false));
+        for (text, function) in buttons_properties {
+            let close_cloned = close.clone();
+            let mut button_sprite = gfx::Button::new(move || {
+                function();
+                *close_cloned.borrow_mut() = true;
+            });
             button_sprite.scale = 3.0;
             button_sprite.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface(text, None));
             button_sprite.pos.0 = buttons_width;
@@ -50,7 +58,7 @@ impl ChoiceMenu {
             button_container,
             esc_choice,
             enter_choice,
-            button_press: None,
+            close,
         }
     }
 }
@@ -67,28 +75,15 @@ impl gfx::UiElement for ChoiceMenu {
     fn on_event_inner(&mut self, graphics: &mut gfx::GraphicsContext, event: &gfx::Event, parent_container: &gfx::Container) -> bool {
         if let gfx::Event::KeyRelease(key, ..) = event {
             match key {
-                gfx::Key::Escape => {
-                    self.button_press = self.esc_choice;
+                /*gfx::Key::Escape => {
+                    *self.button_press.borrow_mut() = self.esc_choice;
                     return true;
                 }
                 gfx::Key::Enter => {
-                    self.button_press = self.enter_choice;
+                    *self.button_press.borrow_mut() = self.enter_choice;
                     return true;
-                }
-                gfx::Key::MouseLeft => {
-                    let container = gfx::Container::new(
-                        graphics,
-                        self.button_container.rect.pos,
-                        self.button_container.rect.size,
-                        self.button_container.orientation,
-                        Some(parent_container),
-                    );
-                    for (index, button) in self.button_container.sub_elemnts.iter_mut().enumerate() {
-                        if button.on_event_inner(graphics, event, &container) {
-                            self.button_press = Some(index);
-                        }
-                    }
-                }
+                }*///temporarily disabled
+                gfx::Key::MouseLeft => {}
                 _ => {}
             }
         }
@@ -97,5 +92,15 @@ impl gfx::UiElement for ChoiceMenu {
 
     fn get_container(&self, graphics: &gfx::GraphicsContext, parent_container: &gfx::Container) -> gfx::Container {
         gfx::Container::new(graphics, parent_container.rect.pos, parent_container.rect.size, parent_container.orientation, None)
+    }
+}
+
+impl Menu for ChoiceMenu {
+    fn open_menu(&mut self) -> Option<Box<dyn Menu>> {
+        None
+    }
+
+    fn should_close(&mut self) -> bool {
+        *self.close.borrow()
     }
 }

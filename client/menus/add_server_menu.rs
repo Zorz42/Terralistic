@@ -183,4 +183,8 @@ impl super::Menu for AddServerMenu {
         self.close_self = false;
         ret_val
     }
+
+    fn open_menu(&mut self) -> Option<Box<dyn super::Menu>> {
+        None
+    }
 }

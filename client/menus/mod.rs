@@ -5,6 +5,7 @@ pub use login::LoginMenu;
 pub use main_menu::MainMenu;
 pub use menu::Menu;
 pub use menu_back::MenuBack;
+pub use menu_stack::MenuStack;
 pub use multiplayer_selector::MultiplayerSelector;
 pub use secondary_menu::SecondaryMenu;
 pub use settings_menu::SettingsMenu;
@@ -42,3 +43,5 @@ mod menu;
 mod title_screen_renderer;
 
 mod secondary_menu;
+
+mod menu_stack;

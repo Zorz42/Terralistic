@@ -236,15 +236,6 @@ impl UiElement for WorldList {
     }
 }
 
-//only one exists in the whole game so it's fine
-#[allow(clippy::large_enum_variant)]
-enum SingleplayerSelectorState {
-    Default,
-    GameError(ChoiceMenu),
-    DeleteWorld(ChoiceMenu, usize),
-    CreateWorld(WorldCreationMenu),
-}
-
 pub struct SingleplayerSelector {
     world_list: WorldList,
     title: gfx::Sprite,
@@ -259,8 +250,8 @@ pub struct SingleplayerSelector {
     menu_back_timer: std::time::Instant,
     new_world_press: Rc<RefCell<bool>>,
     world_button_press: Rc<RefCell<Option<(usize, usize)>>>,
-    state: SingleplayerSelectorState,
     close_self: bool,
+    open_menu: Option<Box<dyn Menu>>,
 }
 
 impl SingleplayerSelector {
@@ -324,8 +315,8 @@ impl SingleplayerSelector {
             menu_back_timer,
             new_world_press,
             world_button_press,
-            state: SingleplayerSelectorState::Default,
             close_self: false,
+            open_menu: None,
         }
     }
 
@@ -338,18 +329,27 @@ impl SingleplayerSelector {
             let game_result = run_private_world(graphics, &mut menu_back, self.world_list.worlds.get(world)?.get_file_path(), &self.settings, &self.global_settings);
             if let Err(error) = game_result {
                 println!("Game error: {error}");
-                let menu = ChoiceMenu::new(&format!("Game error: {error}"), graphics, &["Ok"], Some(0), Some(0));
-                self.state = SingleplayerSelectorState::GameError(menu);
+                let menu = ChoiceMenu::new(&format!("Game error: {error}"), graphics, vec![("Ok", Box::new(|| {}))], Some(0), Some(0));
+                self.open_menu = Some(Box::new(menu));
             }
         } else if action == 1 {
+            let path = self.world_list.worlds.get(world)?.get_file_path().clone();
             let menu = ChoiceMenu::new(
                 &format!("The world \"{}\" will be deleted.\nDo you want to proceed?", self.world_list.worlds.get(world)?.name),
                 graphics,
-                &["Back", "Proceed"],
+                vec![
+                    ("Back", Box::new(|| {})),
+                    (
+                        "Proceed",
+                        Box::new(move || {
+                            let _ = fs::remove_file(path.clone());
+                        }),
+                    ),
+                ],
                 Some(0),
                 Some(1),
             );
-            self.state = SingleplayerSelectorState::DeleteWorld(menu, world);
+            self.open_menu = Some(Box::new(menu));
         }
 
         Some(())
@@ -358,55 +358,35 @@ impl SingleplayerSelector {
 
 impl UiElement for SingleplayerSelector {
     fn get_sub_elements_mut(&mut self) -> Vec<&mut dyn BaseUiElement> {
-        match &mut self.state {
-            SingleplayerSelectorState::GameError(menu) | SingleplayerSelectorState::DeleteWorld(menu, _) => {
-                vec![menu]
-            }
-            SingleplayerSelectorState::Default => {
-                let mut elements_vec: Vec<&mut dyn BaseUiElement> = Vec::new();
-                elements_vec.push(&mut self.world_list);
-                if self.top_rect_visibility > 0.0 {
-                    elements_vec.push(&mut self.top_rect);
-                }
-                if self.scrollable.scroll_size > self.scrollable.rect.size.1 {
-                    elements_vec.push(&mut self.bottom_rect);
-                }
-                elements_vec.push(&mut self.title);
-                elements_vec.push(&mut self.back_button);
-                elements_vec.push(&mut self.new_world_button);
-                elements_vec.push(&mut self.scrollable);
-                elements_vec
-            }
-            SingleplayerSelectorState::CreateWorld(menu) => {
-                vec![menu]
-            }
+        let mut elements_vec: Vec<&mut dyn BaseUiElement> = Vec::new();
+        elements_vec.push(&mut self.world_list);
+        if self.top_rect_visibility > 0.0 {
+            elements_vec.push(&mut self.top_rect);
         }
+        if self.scrollable.scroll_size > self.scrollable.rect.size.1 {
+            elements_vec.push(&mut self.bottom_rect);
+        }
+        elements_vec.push(&mut self.title);
+        elements_vec.push(&mut self.back_button);
+        elements_vec.push(&mut self.new_world_button);
+        elements_vec.push(&mut self.scrollable);
+        elements_vec
     }
 
     fn get_sub_elements(&self) -> Vec<&dyn BaseUiElement> {
-        match &self.state {
-            SingleplayerSelectorState::GameError(menu) | SingleplayerSelectorState::DeleteWorld(menu, _) => {
-                vec![menu]
-            }
-            SingleplayerSelectorState::Default => {
-                let mut elements_vec: Vec<&dyn BaseUiElement> = Vec::new();
-                elements_vec.push(&self.world_list);
-                if self.top_rect_visibility > 0.0 {
-                    elements_vec.push(&self.top_rect);
-                }
-                if self.scrollable.scroll_size > self.scrollable.rect.size.1 {
-                    elements_vec.push(&self.bottom_rect);
-                }
-                elements_vec.push(&self.back_button);
-                elements_vec.push(&self.new_world_button);
-                elements_vec.push(&self.scrollable);
-                elements_vec.push(&self.title);
-                elements_vec
-            }
-            SingleplayerSelectorState::CreateWorld(menu) => {
-                vec![menu]
-            }
+        let mut elements_vec: Vec<&dyn BaseUiElement> = Vec::new();
+        elements_vec.push(&self.world_list);
+        if self.top_rect_visibility > 0.0 {
+            elements_vec.push(&self.top_rect);
         }
+        if self.scrollable.scroll_size > self.scrollable.rect.size.1 {
+            elements_vec.push(&self.bottom_rect);
+        }
+        elements_vec.push(&self.back_button);
+        elements_vec.push(&self.new_world_button);
+        elements_vec.push(&self.scrollable);
+        elements_vec.push(&self.title);
+        elements_vec
     }
 
     fn update_inner(&mut self, graphics: &mut gfx::GraphicsContext, parent_container: &gfx::Container) {
@@ -416,78 +396,53 @@ impl UiElement for SingleplayerSelector {
                 names_vec.push(world.name.clone());
             }
             if let Ok(world_creation_menu) = WorldCreationMenu::new(graphics, names_vec, self.settings.clone(), self.global_settings.clone()) {
-                self.state = SingleplayerSelectorState::CreateWorld(world_creation_menu);
+                self.open_menu = Some(Box::new(world_creation_menu));
             }
         }
         *self.new_world_press.borrow_mut() = false;
 
-        let mut change_to_default = false;
-        match &mut self.state {
-            SingleplayerSelectorState::Default => {
-                let hoverable = graphics.get_mouse_pos().1 > self.top_rect.size.1 && graphics.get_mouse_pos().1 < graphics.get_window_size().1 - self.bottom_rect.size.1;
+        let hoverable = graphics.get_mouse_pos().1 > self.top_rect.size.1 && graphics.get_mouse_pos().1 < graphics.get_window_size().1 - self.bottom_rect.size.1;
 
-                for world in &mut self.world_list.worlds {
-                    world.set_enabled(hoverable);
-                }
-
-                self.world_list.scrolled = self.scrollable.get_scroll_x(graphics, parent_container);
-                self.world_list.top_rect_size = self.top_rect.size.1;
-
-                self.top_rect.size.0 = parent_container.get_absolute_rect().size.0;
-
-                self.top_rect_visibility += ((if self.scrollable.get_scroll_pos() > 5.0 { 1.0 } else { 0.0 }) - self.top_rect_visibility) / 20.0;
-
-                if self.top_rect_visibility < 0.01 {
-                    self.top_rect_visibility = 0.0;
-                }
-
-                if self.top_rect_visibility > 0.99 {
-                    self.top_rect_visibility = 1.0;
-                }
-
-                self.top_rect.fill_color.a = (self.top_rect_visibility * gfx::TRANSPARENCY as f32 / 2.0) as u8;
-                self.top_rect.blur_radius = (self.top_rect_visibility * gfx::BLUR as f32) as i32;
-                self.top_rect.shadow_intensity = (self.top_rect_visibility * gfx::SHADOW_INTENSITY as f32) as i32;
-
-                self.bottom_rect.size.0 = parent_container.get_absolute_rect().size.0;
-
-                let mut world_height = 0.0;
-                if let Some(world) = self.world_list.worlds.first() {
-                    world_height = world.get_height();
-                }
-                self.scrollable.scroll_size = (world_height + gfx::SPACING) * self.world_list.worlds.len() as f32 - gfx::SPACING;
-                self.scrollable.rect.size.1 = graphics.get_window_size().1 - self.top_rect.size.1 - self.bottom_rect.size.1;
-
-                let res = *self.world_button_press.borrow_mut();
-                if let Some((world, action)) = res {
-                    self.do_world_action(graphics, world, action, parent_container);
-                }
-                *self.world_button_press.borrow_mut() = None;
-            }
-            SingleplayerSelectorState::DeleteWorld(ref mut menu, world) => {
-                if let Some(num) = menu.button_press {
-                    if num == 1 {
-                        delete_world(graphics, &mut self.world_list, *world, &self.world_button_press);
-                    }
-                    change_to_default = true;
-                }
-                menu.button_press = None;
-            }
-            SingleplayerSelectorState::CreateWorld(menu) => {
-                change_to_default |= menu.should_close();
-            }
-            SingleplayerSelectorState::GameError(..) => {}
+        for world in &mut self.world_list.worlds {
+            world.set_enabled(hoverable);
         }
-        if change_to_default {
-            self.state = SingleplayerSelectorState::Default;
-            self.world_list.refresh(graphics, &self.world_button_press);
+
+        self.world_list.scrolled = self.scrollable.get_scroll_x(graphics, parent_container);
+        self.world_list.top_rect_size = self.top_rect.size.1;
+
+        self.top_rect.size.0 = parent_container.get_absolute_rect().size.0;
+
+        self.top_rect_visibility += ((if self.scrollable.get_scroll_pos() > 5.0 { 1.0 } else { 0.0 }) - self.top_rect_visibility) / 20.0;
+
+        if self.top_rect_visibility < 0.01 {
+            self.top_rect_visibility = 0.0;
         }
+
+        if self.top_rect_visibility > 0.99 {
+            self.top_rect_visibility = 1.0;
+        }
+
+        self.top_rect.fill_color.a = (self.top_rect_visibility * gfx::TRANSPARENCY as f32 / 2.0) as u8;
+        self.top_rect.blur_radius = (self.top_rect_visibility * gfx::BLUR as f32) as i32;
+        self.top_rect.shadow_intensity = (self.top_rect_visibility * gfx::SHADOW_INTENSITY as f32) as i32;
+
+        self.bottom_rect.size.0 = parent_container.get_absolute_rect().size.0;
+
+        let mut world_height = 0.0;
+        if let Some(world) = self.world_list.worlds.first() {
+            world_height = world.get_height();
+        }
+        self.scrollable.scroll_size = (world_height + gfx::SPACING) * self.world_list.worlds.len() as f32 - gfx::SPACING;
+        self.scrollable.rect.size.1 = graphics.get_window_size().1 - self.top_rect.size.1 - self.bottom_rect.size.1;
+
+        let res = *self.world_button_press.borrow_mut();
+        if let Some((world, action)) = res {
+            self.do_world_action(graphics, world, action, parent_container);
+        }
+        *self.world_button_press.borrow_mut() = None;
     }
 
     fn on_event_inner(&mut self, graphics: &mut gfx::GraphicsContext, event: &gfx::Event, parent_container: &gfx::Container) -> bool {
-        if !matches!(self.state, SingleplayerSelectorState::Default) {
-            return false;
-        }
         if let gfx::Event::KeyRelease(key, ..) = event {
             if key == &gfx::Key::Escape {
                 self.close_self = true;
@@ -512,13 +467,11 @@ impl super::menu::Menu for SingleplayerSelector {
         self.close_self = false;
         ret_val
     }
-}
-
-fn delete_world(graphics: &gfx::GraphicsContext, world_list: &mut WorldList, world: usize, button_press: &Rc<RefCell<Option<(usize, usize)>>>) -> Option<()> {
-    let res = fs::remove_file(world_list.worlds.get(world)?.get_file_path());
-    if res.is_err() {
-        println!("failed to delete the world");
+    fn open_menu(&mut self) -> Option<Box<dyn Menu>> {
+        self.open_menu.take()
     }
-    world_list.refresh(graphics, button_press);
-    Some(())
+
+    fn on_focus(&mut self, graphics: &gfx::GraphicsContext) {
+        self.world_list.refresh(graphics, &self.world_button_press);
+    }
 }

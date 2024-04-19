@@ -1,3 +1,4 @@
+use super::MenuStack;
 use crate::client::global_settings::GlobalSettings;
 use crate::client::menus::{Menu, SettingsMenu};
 use crate::client::settings::Settings;
@@ -10,10 +11,10 @@ use super::{LoginMenu, MultiplayerSelector, SingleplayerSelector};
 
 pub enum SecondaryMenu {
     None,
-    SingleMenu((RefCell<Box<dyn Menu>>, usize)),
+    SingleMenu((MenuStack, usize)),
     Transition {
-        top_menu: (RefCell<Box<dyn Menu>>, usize),
-        bottom_menu: (RefCell<Box<dyn Menu>>, usize),
+        top_menu: (MenuStack, usize),
+        bottom_menu: (MenuStack, usize),
         direction: bool, //true is down
         transition_state: f32,
         top_menu_container: gfx::Container,
@@ -26,7 +27,7 @@ impl SecondaryMenu {
         match self {
             Self::None => {}
             Self::SingleMenu((menu, _id)) => {
-                menu.get_mut().render(graphics, parent_container);
+                menu.render(graphics, parent_container);
             }
             Self::Transition {
                 top_menu: (top_menu, _id_top),
@@ -35,8 +36,8 @@ impl SecondaryMenu {
                 bottom_menu_container,
                 ..
             } => {
-                top_menu.get_mut().render(graphics, top_menu_container);
-                bottom_menu.get_mut().render(graphics, bottom_menu_container);
+                top_menu.render(graphics, top_menu_container);
+                bottom_menu.render(graphics, bottom_menu_container);
             }
         }
     }
@@ -46,7 +47,7 @@ impl SecondaryMenu {
         match self {
             Self::None => {}
             Self::SingleMenu((menu, _id)) => {
-                menu.get_mut().update(graphics, parent_container);
+                menu.update(graphics, parent_container);
             }
             Self::Transition {
                 top_menu: (top_menu, _id_top),
@@ -69,8 +70,8 @@ impl SecondaryMenu {
                 bottom_menu_container.rect.pos.1 = parent_container.rect.pos.1 + offset + graphics.get_window_size().1;
                 top_menu_container.update(graphics, parent_container);
                 bottom_menu_container.update(graphics, parent_container);
-                top_menu.get_mut().update(graphics, top_menu_container);
-                bottom_menu.get_mut().update(graphics, bottom_menu_container);
+                top_menu.update(graphics, top_menu_container);
+                bottom_menu.update(graphics, bottom_menu_container);
             }
         }
         if stop_transition {
@@ -83,22 +84,32 @@ impl SecondaryMenu {
     pub fn on_event(&mut self, graphics: &mut gfx::GraphicsContext, event: &gfx::Event, parent_container: &gfx::Container) -> bool {
         match self {
             Self::None => false,
-            Self::SingleMenu((menu, _id)) => menu.get_mut().on_event(graphics, event, parent_container),
+            Self::SingleMenu((menu, _id)) => menu.on_event(graphics, event, parent_container),
             Self::Transition {
                 top_menu: (top_menu, _id_top),
                 bottom_menu: (bottom_menu, _id_bot),
                 ..
-            } => top_menu.get_mut().on_event(graphics, event, parent_container) || bottom_menu.get_mut().on_event(graphics, event, parent_container),
+            } => top_menu.on_event(graphics, event, parent_container) || bottom_menu.on_event(graphics, event, parent_container),
         }
     }
 
-    pub fn switch_to(&mut self, new_menu: (RefCell<Box<dyn Menu>>, usize), graphics: &gfx::GraphicsContext, parent_container: &gfx::Container) {
+    pub fn switch_to(&mut self, new_menu: (Box<dyn Menu>, usize), graphics: &gfx::GraphicsContext, parent_container: &gfx::Container) {
         match std::mem::replace(self, Self::None) {
             Self::None => {
-                *self = Self::SingleMenu(new_menu);
+                let mut stack = MenuStack::new();
+                stack.add_menu(new_menu.0);
+                *self = Self::SingleMenu((stack, new_menu.1));
             }
             Self::SingleMenu((menu, id)) => {
-                let (top_menu, bottom_menu, direction) = if id < new_menu.1 { ((menu, id), new_menu, true) } else { (new_menu, (menu, id), false) };
+                let (top_menu, bottom_menu, direction) = if id < new_menu.1 {
+                    let mut stack = MenuStack::new();
+                    stack.add_menu(new_menu.0);
+                    ((menu, id), (stack, new_menu.1), true)
+                } else {
+                    let mut stack = MenuStack::new();
+                    stack.add_menu(new_menu.0);
+                    ((stack, new_menu.1), (menu, id), false)
+                };
                 *self = Self::Transition {
                     top_menu,
                     bottom_menu,
@@ -114,9 +125,13 @@ impl SecondaryMenu {
                     *self = Self::SingleMenu(switching_to);
                 } else {
                     let (top_menu, bottom_menu, direction) = if switching_to.1 < new_menu.1 {
-                        (switching_to, new_menu, true)
+                        let mut stack = MenuStack::new();
+                        stack.add_menu(new_menu.0);
+                        (switching_to, (stack, new_menu.1), true)
                     } else {
-                        (new_menu, switching_to, false)
+                        let mut stack = MenuStack::new();
+                        stack.add_menu(new_menu.0);
+                        ((stack, new_menu.1), switching_to, false)
                     };
                     *self = Self::Transition {
                         top_menu,
@@ -131,11 +146,11 @@ impl SecondaryMenu {
         }
     }
 
-    pub fn should_close(&self) -> bool {
+    pub fn should_close(&mut self) -> bool {
         match self {
             Self::None => false,
-            Self::SingleMenu((menu, _id)) => menu.borrow_mut().should_close(),
-            Self::Transition { top_menu, bottom_menu, .. } => top_menu.0.borrow_mut().should_close() || bottom_menu.0.borrow_mut().should_close(),
+            Self::SingleMenu((menu, _id)) => menu.should_close(),
+            Self::Transition { top_menu, bottom_menu, .. } => top_menu.0.should_close() || bottom_menu.0.should_close(),
         }
     }
 
@@ -148,13 +163,13 @@ impl SecondaryMenu {
         menu_back_timer: std::time::Instant,
         menu_back: &dyn UiElement,
     ) -> bool {
-        let menu: RefCell<Box<dyn Menu>> = match menu_index {
-            0 => RefCell::new(Box::new(LoginMenu::new(graphics))),
-            1 => RefCell::new(Box::new(SingleplayerSelector::new(graphics, settings, global_settings, menu_back_timer))),
+        let menu: Box<dyn Menu> = match menu_index {
+            0 => Box::new(LoginMenu::new(graphics)),
+            1 => Box::new(SingleplayerSelector::new(graphics, settings, global_settings, menu_back_timer)),
             2 => {
                 let res = MultiplayerSelector::new(graphics, menu_back_timer, settings, global_settings);
                 if let Ok(menu) = res {
-                    RefCell::new(Box::new(menu))
+                    Box::new(menu)
                 } else {
                     *self = Self::None;
                     return false;
@@ -163,7 +178,7 @@ impl SecondaryMenu {
             3 => {
                 let mut menu = SettingsMenu::new(settings, global_settings);
                 menu.init(graphics, &menu_back.get_container(graphics, &gfx::Container::default(graphics)));
-                RefCell::new(Box::new(menu))
+                Box::new(menu)
             }
             usize::MAX => {
                 graphics.close_window();

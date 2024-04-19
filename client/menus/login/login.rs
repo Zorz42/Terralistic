@@ -244,6 +244,10 @@ impl crate::client::menus::Menu for LoginMenu {
         self.close_self = false;
         ret_val
     }
+
+    fn open_menu(&mut self) -> Option<Box<dyn crate::client::menus::Menu>> {
+        None
+    }
 }
 
 fn save_user_data(username: &str, password: &str) {

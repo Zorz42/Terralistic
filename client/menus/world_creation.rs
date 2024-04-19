@@ -177,7 +177,11 @@ impl UiElement for WorldCreationMenu {
 
 impl super::Menu for WorldCreationMenu {
     fn should_close(&mut self) -> bool {
-        self.close_self = !self.close_self;
-        !self.close_self
+        let close = self.close_self;
+        self.close_self = false;
+        close
+    }
+    fn open_menu(&mut self) -> Option<Box<dyn super::Menu>> {
+        None
     }
 }

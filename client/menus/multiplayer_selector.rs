@@ -242,7 +242,7 @@ impl MultiplayerSelector {
                     );
                     if let Err(error) = game_result {
                         println!("Game error: {error}");
-                        self.state = MultiplayerSelectorState::GameError(ChoiceMenu::new(&format!("Game error: {error}"), graphics, &["Ok"], None, None));
+                        self.state = MultiplayerSelectorState::GameError(ChoiceMenu::new(&format!("Game error: {error}"), graphics, vec![("Ok", Box::new(|| {}))], None, None));
                     }
                 }
             }
@@ -251,7 +251,7 @@ impl MultiplayerSelector {
                     ChoiceMenu::new(
                         format!("The server \"{}\" will be deleted.\nDo you want to proceed?", server.server_info.name).as_str(),
                         graphics,
-                        &["Back", "Proceed"],
+                        vec![("Back", Box::new(|| {})), ("Proceed", Box::new(|| {}))],
                         Some(0),
                         Some(1),
                     ),
@@ -297,14 +297,14 @@ impl UiElement for MultiplayerSelector {
         let mut switch_to_default = false;
         match self.state {
             MultiplayerSelectorState::DeleteServer(ref mut menu, world) => {
-                if let Some(num) = menu.button_press {
+                /*if let Some(num) = menu.button_press {
                     if num == 1 {
                         self.server_list.servers.remove(world);
                         self.server_list.save(self.servers_file.clone());
                     }
                     switch_to_default = true;
                 }
-                menu.button_press = None;
+                menu.button_press = None;*/
             }
             MultiplayerSelectorState::AddServer(ref mut menu) => {
                 if menu.should_close() {
@@ -330,6 +330,10 @@ impl super::Menu for MultiplayerSelector {
         let ret_val = self.close_self;
         self.close_self = false;
         ret_val
+    }
+
+    fn open_menu(&mut self) -> Option<Box<dyn Menu>> {
+        None
     }
 }
 

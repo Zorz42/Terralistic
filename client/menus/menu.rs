@@ -1,5 +1,8 @@
-use crate::gfx::{BaseUiElement, UiElement};
+use crate::libraries::graphics as gfx;
+use gfx::{BaseUiElement, UiElement};
 
 pub trait Menu: UiElement + BaseUiElement {
     fn should_close(&mut self) -> bool;
+    fn open_menu(&mut self) -> Option<Box<dyn Menu>>;
+    fn on_focus(&mut self, _: &gfx::GraphicsContext) {}
 }
