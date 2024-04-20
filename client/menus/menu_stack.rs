@@ -19,33 +19,26 @@ impl MenuStack {
 
 impl UiElement for MenuStack {
     fn get_container(&self, graphics: &gfx::GraphicsContext, parent_container: &gfx::Container) -> gfx::Container {
-        if let Some(element) = self.stack.last() {
-            element.get_container(graphics, parent_container)
-        } else {
-            gfx::Container::new(
-                graphics,
-                parent_container.get_absolute_rect().pos,
-                parent_container.get_absolute_rect().size,
-                parent_container.orientation,
-                None,
-            )
-        }
+        self.stack.last().map_or_else(
+            || {
+                gfx::Container::new(
+                    graphics,
+                    parent_container.get_absolute_rect().pos,
+                    parent_container.get_absolute_rect().size,
+                    parent_container.orientation,
+                    None,
+                )
+            },
+            |element| element.get_container(graphics, parent_container),
+        )
     }
 
     fn get_sub_elements(&self) -> Vec<&dyn gfx::BaseUiElement> {
-        if let Some(element) = self.stack.last() {
-            element.get_sub_elements()
-        } else {
-            vec![]
-        }
+        self.stack.last().map_or_else(Vec::new, |element| element.get_sub_elements())
     }
 
     fn get_sub_elements_mut(&mut self) -> Vec<&mut dyn gfx::BaseUiElement> {
-        if let Some(element) = self.stack.last_mut() {
-            element.get_sub_elements_mut()
-        } else {
-            vec![]
-        }
+        self.stack.last_mut().map_or_else(Vec::new, |element| element.get_sub_elements_mut())
     }
 
     fn update_inner(&mut self, graphics: &mut gfx::GraphicsContext, parent_container: &gfx::Container) {
