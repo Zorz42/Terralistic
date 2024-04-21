@@ -245,21 +245,7 @@ impl UiElement for MultiplayerSelector {
                 self.open_menu = Some(Box::new(ChoiceMenu::new(
                     format!("The server \"{}\" will be deleted.\nDo you want to proceed?", server.server_info.name).as_str(),
                     graphics,
-                    vec![
-                        ("Back", Box::new(|| {})),
-                        (
-                            "Proceed",
-                            Box::new(move || {
-                                let path = path.clone();
-
-                                let file = std::fs::read_to_string(&path).unwrap_or_else(|_| String::new());
-                                let mut temp_servers: Vec<ServerInfo> = serde_json::from_str(&file).unwrap_or_else(|_| Vec::new());
-                                temp_servers.retain(|server| server.name != name_to_delete);
-                                let serialized = serde_json::to_string(&temp_servers).unwrap_or_default();
-                                let _result = std::fs::write(path, serialized);
-                            }),
-                        ),
-                    ],
+                    vec![("Back", Box::new(|| {})), ("Proceed", Box::new(move || remove_server_by_name(&name_to_delete.clone(), path.clone())))],
                     Some(0),
                     Some(1),
                 )));
@@ -271,6 +257,14 @@ impl UiElement for MultiplayerSelector {
     fn get_container(&self, graphics: &gfx::GraphicsContext, parent_container: &gfx::Container) -> gfx::Container {
         gfx::Container::new(graphics, parent_container.rect.pos, parent_container.rect.size, parent_container.orientation, None)
     }
+}
+
+fn remove_server_by_name(name: &str, file_path: PathBuf) {
+    let file = std::fs::read_to_string(&file_path).unwrap_or_else(|_| String::new());
+    let mut temp_servers: Vec<ServerInfo> = serde_json::from_str(&file).unwrap_or_else(|_| Vec::new());
+    temp_servers.retain(|server| server.name != name);
+    let serialized = serde_json::to_string(&temp_servers).unwrap_or_default();
+    let _result = std::fs::write(file_path, serialized);
 }
 
 impl super::Menu for MultiplayerSelector {
