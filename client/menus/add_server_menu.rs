@@ -78,14 +78,14 @@ impl AddServerMenu {
 
         let mut server_name_input = gfx::TextInput::new(graphics);
         server_name_input.scale = 3.0;
-        server_name_input.set_hint(graphics, "World name");
+        server_name_input.set_hint(graphics, "Server name");
         server_name_input.orientation = gfx::CENTER;
         server_name_input.selected = true;
         server_name_input.pos.1 = -(server_name_input.get_size().1 + gfx::SPACING) / 2.0;
 
         let mut server_ip_input = gfx::TextInput::new(graphics);
         server_ip_input.scale = 3.0;
-        server_ip_input.set_hint(graphics, "World seed");
+        server_ip_input.set_hint(graphics, "Server ip");
         server_ip_input.orientation = gfx::CENTER;
         server_ip_input.pos.1 = (server_ip_input.get_size().1 + gfx::SPACING) / 2.0;
 

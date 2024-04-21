@@ -102,7 +102,25 @@ pub fn run_title_screen(graphics: &mut gfx::GraphicsContext, settings: &Rc<RefCe
     };
 
     while graphics.is_window_open() {
+        let max_width = main_back_rect.get_back_rect_width() + gfx::SPACING + secondary_back_rect.render_size.0;
+        match menus.state {
+            TitleScreenState::MainMenu => {
+                main_back_rect.set_x_position(0.0);
+                secondary_back_rect.pos.0 = graphics.get_window_size().0 + secondary_back_rect.size.0;
+            }
+            TitleScreenState::BothMenus => {
+                main_back_rect.set_x_position(-max_width / 2.0 + main_back_rect.get_back_rect_width() / 2.0);
+                secondary_back_rect.pos.0 = max_width / 2.0 - secondary_back_rect.render_size.0 / 2.0;
+            }
+            TitleScreenState::SecondaryMenu => {
+                main_back_rect.set_x_position(-(graphics.get_window_size().0 + main_back_rect.get_back_rect_width()));
+                secondary_back_rect.pos.0 = 0.0;
+            }
+        }
+
         let window_container = gfx::Container::default(graphics);
+        main_back_rect.update(graphics, &window_container);
+        secondary_back_rect.update(graphics, &window_container);
         let main_back_container = main_back_rect.get_container(graphics, &window_container);
         let secondary_back_container = secondary_back_rect.get_container(graphics, &window_container);
 
@@ -133,8 +151,6 @@ pub fn run_title_screen(graphics: &mut gfx::GraphicsContext, settings: &Rc<RefCe
             secondary_back_rect.jump_to_target();
         }
 
-        main_back_rect.update(graphics, &window_container);
-        secondary_back_rect.update(graphics, &window_container);
         menus.update(graphics, &main_back_container, &secondary_back_container);
 
         main_back_rect.render(graphics, &window_container);
@@ -144,22 +160,6 @@ pub fn run_title_screen(graphics: &mut gfx::GraphicsContext, settings: &Rc<RefCe
         let color = get_tls_status_color(&tls_client);
         cloud_status_rect.render(graphics, color);
         cloud_status_button.render(graphics, &gfx::Container::default(graphics));
-
-        let max_width = main_back_container.rect.size.0 + gfx::SPACING + secondary_back_container.rect.size.0;
-        match menus.state {
-            TitleScreenState::MainMenu => {
-                main_back_rect.set_x_position(0.0);
-                secondary_back_rect.pos.0 = graphics.get_window_size().0 + secondary_back_rect.size.0;
-            }
-            TitleScreenState::BothMenus => {
-                main_back_rect.set_x_position(-max_width / 2.0 + main_back_container.rect.size.0 / 2.0);
-                secondary_back_rect.pos.0 = max_width / 2.0 - secondary_back_container.rect.size.0 / 2.0;
-            }
-            TitleScreenState::SecondaryMenu => {
-                main_back_rect.set_x_position(-(graphics.get_window_size().0 + main_back_container.rect.size.0));
-                secondary_back_rect.pos.0 = 0.0;
-            }
-        }
 
         graphics.update_window();
     }

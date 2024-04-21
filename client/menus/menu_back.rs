@@ -71,6 +71,7 @@ impl UiElement for MenuBack {
             self.back_rect.jump_to_target();
         }
 
+        self.back_rect.update(graphics, parent_container);
         let new_container = self.back_rect.get_container(graphics, parent_container);
         self.back_container.rect = new_container.rect;
     }
@@ -103,8 +104,8 @@ impl BackgroundRect for MenuBack {
     }
 
     /// Gets the width of the background rectangle.
-    fn get_back_rect_width(&self, graphics: &gfx::GraphicsContext, parent_container: Option<&gfx::Container>) -> f32 {
-        self.back_rect.get_container(graphics, parent_container.unwrap_or(&gfx::Container::default(graphics))).rect.size.0
+    fn get_back_rect_width(&self) -> f32 {
+        self.back_rect.render_size.0
     }
 
     /// Gets the background rectangle's container.

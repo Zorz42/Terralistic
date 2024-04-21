@@ -323,9 +323,7 @@ fn register(username: &str, password: &str, email: &str, graphics: &mut Graphics
     if let Ok(value) = message.get_str("error") {
         let time = std::time::Instant::now() + std::time::Duration::from_secs(5);
         registering_text.set_texture(gfx::Texture::load_from_surface(
-            &graphics
-                .font
-                .create_text_surface(&format!("error:\n{value}"), Some((menu_back.get_back_rect_width(graphics, None) / 3.5) as i32)),
+            &graphics.font.create_text_surface(&format!("error:\n{value}"), Some((menu_back.get_back_rect_width() / 3.5) as i32)),
         ));
         while std::time::Instant::now() < time {
             manager.connect();

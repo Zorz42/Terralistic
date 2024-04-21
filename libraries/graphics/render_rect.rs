@@ -67,16 +67,18 @@ impl gfx::UiElement for RenderRect {
         Vec::new()
     }
 
-    /// This function renders the rectangle, it uses Rect class to render.
-    /// It also approaches the position to the target position.
-    fn render_inner(&mut self, graphics: &mut gfx::GraphicsContext, parent_container: &gfx::Container) {
+    fn update_inner(&mut self, _: &mut gfx::GraphicsContext, _: &gfx::Container) {
         while self.animation_timer.frame_ready() {
             self.render_pos.0 = Self::approach(self.render_pos.0, self.pos.0, self.smooth_factor);
             self.render_pos.1 = Self::approach(self.render_pos.1, self.pos.1, self.smooth_factor);
             self.render_size.0 = Self::approach(self.render_size.0, self.size.0, self.smooth_factor);
             self.render_size.1 = Self::approach(self.render_size.1, self.size.1, self.smooth_factor);
         }
+    }
 
+    /// This function renders the rectangle, it uses Rect class to render.
+    /// It also approaches the position to the target position.
+    fn render_inner(&mut self, graphics: &mut gfx::GraphicsContext, parent_container: &gfx::Container) {
         let container = self.get_container(graphics, parent_container);
         let rect = container.get_absolute_rect();
         graphics.blur_rect(*rect, self.blur_radius);
