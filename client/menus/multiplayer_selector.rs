@@ -216,7 +216,7 @@ impl UiElement for MultiplayerSelector {
             self.open_menu = Some(Box::new(AddServerMenu::new(graphics, self.servers_file.clone())));
         }
 
-        for (_i, server) in self.server_list.servers.iter_mut().enumerate() {
+        for server in &mut self.server_list.servers {
             if server.play_button.on_event(graphics, event, &server.get_container(graphics, &inner_container)) {
                 let mut menu_back = super::MenuBack::new_synced(graphics, self.menu_back_timer);
                 menu_back.set_back_rect_width(parent_container.rect.size.0, false);
