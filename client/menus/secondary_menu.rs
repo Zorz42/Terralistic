@@ -194,6 +194,6 @@ impl SecondaryMenu {
             self.switch_to((menu, menu_index), graphics, &menu_back.get_container(graphics, &gfx::Container::default(graphics)));
         }
 
-        return true;
+        true
     }
 }

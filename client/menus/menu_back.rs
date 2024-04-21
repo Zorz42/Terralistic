@@ -59,12 +59,15 @@ impl UiElement for MenuBack {
             Some(parent_container),
         )
     }
+
     fn get_sub_elements_mut(&mut self) -> Vec<&mut dyn BaseUiElement> {
         vec![&mut self.back_container]
     }
+
     fn get_sub_elements(&self) -> Vec<&dyn BaseUiElement> {
         vec![&self.back_container]
     }
+
     fn update_inner(&mut self, graphics: &mut gfx::GraphicsContext, parent_container: &gfx::Container) {
         if (self.back_rect.size.1 - graphics.get_window_size().1).abs() > f32::EPSILON {
             self.back_rect.size.1 = graphics.get_window_size().1;
@@ -75,6 +78,7 @@ impl UiElement for MenuBack {
         let new_container = self.back_rect.get_container(graphics, parent_container);
         self.back_container.rect = new_container.rect;
     }
+
     fn render_inner(&mut self, graphics: &mut gfx::GraphicsContext, parent_container: &gfx::Container) {
         let scale = graphics.get_window_size().1 / self.background.get_texture_size().1;
         let texture_width_scaled = self.background.get_texture_size().0 * scale;

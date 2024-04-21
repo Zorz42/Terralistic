@@ -144,9 +144,13 @@ impl UiElement for World {
         vec![&self.last_modified, &self.delete_button, &self.play_button, &self.title, &self.icon]
     }
 
+    fn update_inner(&mut self, graphics: &mut gfx::GraphicsContext, parent_container: &gfx::Container) {
+        self.rect.pos = self.pos;
+        self.rect.update(graphics, parent_container);
+    }
+
     /// This function renders the world card on the x and y position.
     fn render_inner(&mut self, graphics: &mut gfx::GraphicsContext, parent_container: &gfx::Container) {
-        self.rect.pos = self.pos;
         self.rect.render(graphics, parent_container);
     }
 
@@ -221,11 +225,10 @@ impl UiElement for WorldList {
         element_vec
     }
 
-    fn render_inner(&mut self, graphics: &mut gfx::GraphicsContext, parent_container: &gfx::Container) {
+    fn update_inner(&mut self, _: &mut gfx::GraphicsContext, _: &gfx::Container) {
         let mut current_y = gfx::SPACING + self.scrolled + self.top_rect_size;
         for world in &mut self.worlds {
             world.pos = gfx::FloatPos(0.0, current_y);
-            world.render(graphics, parent_container);
             current_y += world.get_height() + gfx::SPACING;
         }
     }
@@ -342,7 +345,9 @@ impl SingleplayerSelector {
                     (
                         "Proceed",
                         Box::new(move || {
-                            let _ = fs::remove_file(path.clone());
+                            if let Err(e) = fs::remove_file(path.clone()) {
+                                println!("{e}");
+                            }
                         }),
                     ),
                 ],
