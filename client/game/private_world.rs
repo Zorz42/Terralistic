@@ -15,21 +15,14 @@ use crate::libraries::graphics as gfx;
 use crate::server::server_core::Server;
 use crate::server::server_core::SINGLEPLAYER_PORT;
 
-pub fn run_private_world(
-    graphics: &mut gfx::GraphicsContext,
-    menu_back: &mut dyn BackgroundRect,
-    world_path: &Path,
-    settings: &Rc<RefCell<Settings>>,
-    global_settings: &Rc<RefCell<GlobalSettings>>,
-) -> Result<()> {
+pub fn start_private_world_server(world_path: &Path) -> Result<(std::thread::JoinHandle<std::result::Result<(), anyhow::Error>>, Arc<AtomicBool>, Arc<Mutex<String>>)> {
     let server_running = Arc::new(AtomicBool::new(true));
     let server_running2 = server_running.clone();
 
     let loading_text = Arc::new(Mutex::new("Loading".to_owned()));
     let loading_text2 = loading_text.clone();
 
-    // start server in async thread
-    let world_path = world_path.to_path_buf();
+    let world_path = world_path.to_owned();
 
     let server_thread = std::thread::Builder::new().name("Private server".to_owned()).spawn(move || {
         let mut server = Server::new(SINGLEPLAYER_PORT, None, None);
@@ -42,6 +35,41 @@ pub fn run_private_world(
 
         result
     })?;
+
+    Ok((server_thread, server_running, loading_text))
+}
+
+struct PrivateWorld {
+    server_thread: std::thread::JoinHandle<std::result::Result<(), anyhow::Error>>,
+    server_running: Arc<AtomicBool>,
+    loading_text: Arc<Mutex<String>>,
+}
+
+impl PrivateWorld {
+    pub fn new(
+        graphics: &mut gfx::GraphicsContext,
+        menu_back: &mut dyn BackgroundRect,
+        world_path: &Path,
+        settings: &Rc<RefCell<Settings>>,
+        global_settings: &Rc<RefCell<GlobalSettings>>,
+    ) -> Result<Self> {
+        let (server_thread, server_running, loading_text) = start_private_world_server(world_path)?;
+        Ok(Self {
+            server_thread,
+            server_running,
+            loading_text,
+        })
+    }
+}
+
+pub fn run_private_world(
+    graphics: &mut gfx::GraphicsContext,
+    menu_back: &mut dyn BackgroundRect,
+    world_path: &Path,
+    settings: &Rc<RefCell<Settings>>,
+    global_settings: &Rc<RefCell<GlobalSettings>>,
+) -> Result<()> {
+    let (server_thread, server_running, loading_text) = start_private_world_server(world_path)?;
 
     run_loading_screen(graphics, menu_back, &loading_text);
 

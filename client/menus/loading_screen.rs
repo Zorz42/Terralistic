@@ -1,9 +1,8 @@
 use std::sync::{Mutex, PoisonError};
 
-use crate::libraries::graphics::{self as gfx, UiElement};
+use crate::libraries::graphics::{self as gfx, BaseUiElement, UiElement};
 
 use super::background_rect::BackgroundRect;
-use gfx::BaseUiElement;
 
 const PROGRESS_BAR_WIDTH: i32 = 400;
 const PROGRESS_BAR_HEIGHT: i32 = 50;
