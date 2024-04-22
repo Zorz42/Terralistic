@@ -19,7 +19,7 @@ use crate::client::game::pause_menu::PauseMenu;
 use crate::client::game::players::ClientPlayers;
 use crate::client::game::respawn_screen::RespawnScreen;
 use crate::client::global_settings::GlobalSettings;
-use crate::client::menus::{run_loading_screen, BackgroundRect};
+use crate::client::menus::BackgroundRect;
 use crate::client::settings::Settings;
 use crate::libraries::events;
 use crate::libraries::events::EventManager;
@@ -37,7 +37,6 @@ use super::walls::ClientWalls;
 #[allow(clippy::too_many_lines)]
 pub fn run_game(
     graphics: &mut gfx::GraphicsContext,
-    menu_back: &mut dyn BackgroundRect,
     server_port: u16,
     server_address: String,
     player_name: &str,
@@ -92,7 +91,7 @@ pub fn run_game(
         result
     })?;
 
-    run_loading_screen(graphics, menu_back, &loading_text);
+    //run_loading_screen(graphics, menu_back, &loading_text);
 
     let result = init_thread.join();
     let Ok(result) = result else {

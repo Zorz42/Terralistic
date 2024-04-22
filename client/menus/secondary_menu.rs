@@ -160,14 +160,13 @@ impl SecondaryMenu {
         menu_index: usize,
         settings: Rc<RefCell<Settings>>,
         global_settings: Rc<RefCell<GlobalSettings>>,
-        menu_back_timer: std::time::Instant,
         menu_back: &dyn UiElement,
     ) -> bool {
         let menu: Box<dyn Menu> = match menu_index {
             0 => Box::new(LoginMenu::new(graphics)),
-            1 => Box::new(SingleplayerSelector::new(graphics, settings, global_settings, menu_back_timer)),
+            1 => Box::new(SingleplayerSelector::new(graphics, settings, global_settings)),
             2 => {
-                let res = MultiplayerSelector::new(graphics, menu_back_timer, settings, global_settings);
+                let res = MultiplayerSelector::new(graphics, settings, global_settings);
                 if let Ok(menu) = res {
                     Box::new(menu)
                 } else {

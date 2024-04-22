@@ -245,7 +245,7 @@ impl crate::client::menus::Menu for LoginMenu {
         ret_val
     }
 
-    fn open_menu(&mut self) -> Option<Box<dyn crate::client::menus::Menu>> {
+    fn open_menu(&mut self, _: &mut gfx::GraphicsContext) -> Option<Box<dyn crate::client::menus::Menu>> {
         None
     }
 }

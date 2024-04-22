@@ -9,9 +9,9 @@ use anyhow::Result;
 
 use crate::client::game::core_client::run_game;
 use crate::client::global_settings::GlobalSettings;
-use crate::client::menus::{run_loading_screen, BackgroundRect};
+use crate::client::menus::{BackgroundRect, LoadingScreen, Menu};
 use crate::client::settings::Settings;
-use crate::libraries::graphics as gfx;
+use crate::libraries::graphics::{self as gfx, Container, UiElement};
 use crate::server::server_core::Server;
 use crate::server::server_core::SINGLEPLAYER_PORT;
 
@@ -39,10 +39,22 @@ pub fn start_private_world_server(world_path: &Path) -> Result<(std::thread::Joi
     Ok((server_thread, server_running, loading_text))
 }
 
+#[derive(Clone, Copy)]
+enum PrivateWorldState {
+    StartingServer,
+    Loading,
+    Playing,
+    StoppingServer,
+    Stopped,
+}
+
 struct PrivateWorld {
     server_thread: std::thread::JoinHandle<std::result::Result<(), anyhow::Error>>,
     server_running: Arc<AtomicBool>,
     loading_text: Arc<Mutex<String>>,
+    state: PrivateWorldState,
+    settings: Rc<RefCell<Settings>>,
+    global_settings: Rc<RefCell<GlobalSettings>>,
 }
 
 impl PrivateWorld {
@@ -50,18 +62,67 @@ impl PrivateWorld {
         graphics: &mut gfx::GraphicsContext,
         menu_back: &mut dyn BackgroundRect,
         world_path: &Path,
-        settings: &Rc<RefCell<Settings>>,
-        global_settings: &Rc<RefCell<GlobalSettings>>,
+        settings: Rc<RefCell<Settings>>,
+        global_settings: Rc<RefCell<GlobalSettings>>,
     ) -> Result<Self> {
         let (server_thread, server_running, loading_text) = start_private_world_server(world_path)?;
         Ok(Self {
             server_thread,
             server_running,
             loading_text,
+            state: PrivateWorldState::StartingServer,
+            settings,
+            global_settings,
         })
     }
 }
 
+impl UiElement for PrivateWorld {
+    fn get_sub_elements(&self) -> Vec<&dyn gfx::BaseUiElement> {
+        vec![]
+    }
+
+    fn get_sub_elements_mut(&mut self) -> Vec<&mut dyn gfx::BaseUiElement> {
+        vec![]
+    }
+
+    fn get_container(&self, graphics: &gfx::GraphicsContext, parent_container: &gfx::Container) -> gfx::Container {
+        Container::default(graphics)
+    }
+}
+
+impl Menu for PrivateWorld {
+    fn open_menu(&mut self, graphics: &mut gfx::GraphicsContext) -> Option<Box<dyn Menu>> {
+        let state = self.state;
+        match state {
+            PrivateWorldState::StartingServer => {
+                self.state = PrivateWorldState::Loading;
+                Some(Box::new(LoadingScreen::new(graphics, self.loading_text.clone())))
+            }
+            PrivateWorldState::Loading => {
+                self.state = PrivateWorldState::Playing;
+                if self.server_running.load(Ordering::Relaxed) {
+                    let res = run_game(graphics, SINGLEPLAYER_PORT, String::from("127.0.0.1"), "_", &self.settings, &self.global_settings);
+
+                    // stop server
+                    //server_running.store(false, Ordering::Relaxed);
+
+                    //*loading_text.lock().unwrap_or_else(PoisonError::into_inner) = "Waiting for server".to_owned();
+                    //run_loading_screen(graphics, menu_back, &loading_text);
+                }
+                None
+            }
+            _ => None,
+        }
+    }
+
+    fn on_focus(&mut self, _: &gfx::GraphicsContext) {}
+
+    fn should_close(&mut self) -> bool {
+        matches!(self.state, PrivateWorldState::Stopped)
+    }
+}
+/*
 pub fn run_private_world(
     graphics: &mut gfx::GraphicsContext,
     menu_back: &mut dyn BackgroundRect,
@@ -87,4 +148,4 @@ pub fn run_private_world(
     thread_result.unwrap_or_else(|_| Err(anyhow::anyhow!("Server thread panicked")))?;
 
     Ok(())
-}
+}*/

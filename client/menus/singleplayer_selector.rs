@@ -6,7 +6,6 @@ use std::time::SystemTime;
 
 use directories::BaseDirs;
 
-use crate::client::game::private_world::run_private_world;
 use crate::client::global_settings::GlobalSettings;
 use crate::client::menus::choice_menu::ChoiceMenu;
 use crate::client::settings::Settings;
@@ -250,7 +249,6 @@ pub struct SingleplayerSelector {
     top_rect_visibility: f32,
     settings: Rc<RefCell<Settings>>,
     global_settings: Rc<RefCell<GlobalSettings>>,
-    menu_back_timer: std::time::Instant,
     new_world_press: Rc<RefCell<bool>>,
     world_button_press: Rc<RefCell<Option<(usize, usize)>>>,
     close_self: bool,
@@ -259,7 +257,7 @@ pub struct SingleplayerSelector {
 
 impl SingleplayerSelector {
     #[must_use]
-    pub fn new(graphics: &gfx::GraphicsContext, settings: Rc<RefCell<Settings>>, global_settings: Rc<RefCell<GlobalSettings>>, menu_back_timer: std::time::Instant) -> Self {
+    pub fn new(graphics: &gfx::GraphicsContext, settings: Rc<RefCell<Settings>>, global_settings: Rc<RefCell<GlobalSettings>>) -> Self {
         let world_button_press = Rc::new(RefCell::new(None));
         let world_list = WorldList::new(graphics, &world_button_press);
         let mut title = gfx::Sprite::new();
@@ -315,7 +313,6 @@ impl SingleplayerSelector {
             top_rect_visibility: 0.0,
             settings,
             global_settings,
-            menu_back_timer,
             new_world_press,
             world_button_press,
             close_self: false,
@@ -325,16 +322,16 @@ impl SingleplayerSelector {
 
     fn do_world_action(&mut self, graphics: &mut gfx::GraphicsContext, world: usize, action: usize, parent_container: &gfx::Container) -> Option<()> {
         if action == 0 {
-            let mut menu_back = super::MenuBack::new_synced(graphics, self.menu_back_timer);
+            let mut menu_back = super::MenuBack::new(graphics);
             menu_back.set_back_rect_width(parent_container.rect.size.0, false);
             menu_back.update(graphics, &gfx::Container::default(graphics));
             menu_back.render_back(graphics);
-            let game_result = run_private_world(graphics, &mut menu_back, self.world_list.worlds.get(world)?.get_file_path(), &self.settings, &self.global_settings);
-            if let Err(error) = game_result {
+            //let game_result = run_private_world(graphics, &mut menu_back, self.world_list.worlds.get(world)?.get_file_path(), &self.settings, &self.global_settings);
+            /*if let Err(error) = game_result {
                 println!("Game error: {error}");
                 let menu = ChoiceMenu::new(&format!("Game error: {error}"), graphics, vec![("Ok", Box::new(|| {}))], Some(0), Some(0));
                 self.open_menu = Some(Box::new(menu));
-            }
+            }*/
         } else if action == 1 {
             let path = self.world_list.worlds.get(world)?.get_file_path().clone();
             let menu = ChoiceMenu::new(
@@ -472,7 +469,7 @@ impl super::menu::Menu for SingleplayerSelector {
         self.close_self = false;
         ret_val
     }
-    fn open_menu(&mut self) -> Option<Box<dyn Menu>> {
+    fn open_menu(&mut self, _: &mut gfx::GraphicsContext) -> Option<Box<dyn Menu>> {
         self.open_menu.take()
     }
 

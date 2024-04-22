@@ -9,7 +9,6 @@ use gfx::{BaseUiElement, UiElement};
 /// scrolled to the left.
 pub struct MenuBack {
     background: gfx::Texture,
-    background_timer: std::time::Instant,
     back_rect: gfx::RenderRect,
     back_container: gfx::Container,
 }
@@ -30,22 +29,9 @@ impl MenuBack {
             background: gfx::Texture::load_from_surface(
                 &gfx::Surface::deserialize_from_bytes(include_bytes!("../../Build/Resources/background.opa")).unwrap_or_else(|_| gfx::Surface::new(gfx::IntSize(1, 1))),
             ),
-            background_timer: std::time::Instant::now(),
             back_rect,
             back_container: gfx::Container::new(graphics, gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, 0.0), gfx::CENTER, None),
         }
-    }
-
-    #[must_use]
-    pub fn new_synced(graphics_context: &gfx::GraphicsContext, timer: std::time::Instant) -> Self {
-        let mut temp = Self::new(graphics_context);
-        temp.background_timer = timer;
-        temp
-    }
-
-    #[must_use]
-    pub const fn get_timer(&self) -> std::time::Instant {
-        self.background_timer
     }
 }
 
@@ -82,7 +68,7 @@ impl UiElement for MenuBack {
     fn render_inner(&mut self, graphics: &mut gfx::GraphicsContext, parent_container: &gfx::Container) {
         let scale = graphics.get_window_size().1 / self.background.get_texture_size().1;
         let texture_width_scaled = self.background.get_texture_size().0 * scale;
-        let pos = ((self.background_timer.elapsed().as_millis() as f32 * scale / 150.0) as u64 % texture_width_scaled as u64) as f32;
+        let pos = ((std::time::UNIX_EPOCH.elapsed().unwrap_or_default().as_millis() as f64 * scale as f64 / 150.0) % texture_width_scaled as f64) as f32;
 
         for i in -1..graphics.get_window_size().0 as i32 / (self.background.get_texture_size().0 * scale) as i32 + 2 {
             self.background.render(graphics, scale, gfx::FloatPos(pos + i as f32 * texture_width_scaled, 0.0), None, false, None);

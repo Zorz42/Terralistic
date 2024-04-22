@@ -46,7 +46,7 @@ impl UiElement for MenuStack {
         if let Some(top_menu) = self.stack.last_mut() {
             top_menu.update_inner(graphics, parent_container);
             close = top_menu.should_close();
-            if let Some(mut new_menu) = top_menu.open_menu() {
+            if let Some(mut new_menu) = top_menu.open_menu(graphics) {
                 new_menu.update_inner(graphics, parent_container);
                 self.stack.push(new_menu);
             }
@@ -78,7 +78,7 @@ impl Menu for MenuStack {
         self.stack.is_empty()
     }
 
-    fn open_menu(&mut self) -> Option<Box<dyn Menu>> {
+    fn open_menu(&mut self, _: &mut gfx::GraphicsContext) -> Option<Box<dyn Menu>> {
         None
     }
 }

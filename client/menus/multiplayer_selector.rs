@@ -45,7 +45,6 @@ pub struct MultiplayerSelector {
     bottom_height: f32,
     servers_file: PathBuf,
     scrollable: gfx::Scrollable,
-    menu_back_timer: std::time::Instant,
     settings: Rc<RefCell<Settings>>,
     global_settings: Rc<RefCell<GlobalSettings>>,
     top_rect_visibility: f32,
@@ -54,7 +53,7 @@ pub struct MultiplayerSelector {
 }
 
 impl MultiplayerSelector {
-    pub fn new(graphics: &gfx::GraphicsContext, menu_back_timer: std::time::Instant, settings: Rc<RefCell<Settings>>, global_settings: Rc<RefCell<GlobalSettings>>) -> Result<Self> {
+    pub fn new(graphics: &gfx::GraphicsContext, settings: Rc<RefCell<Settings>>, global_settings: Rc<RefCell<GlobalSettings>>) -> Result<Self> {
         let base_dirs = BaseDirs::new().ok_or_else(|| anyhow::anyhow!("error getting base dirs"))?;
         let servers_file = base_dirs.data_dir().join("Terralistic").join("servers.txt");
 
@@ -109,7 +108,6 @@ impl MultiplayerSelector {
             bottom_height,
             servers_file,
             scrollable,
-            menu_back_timer,
             settings,
             global_settings,
             top_rect_visibility: 0.0,
@@ -218,21 +216,13 @@ impl UiElement for MultiplayerSelector {
 
         for server in &mut self.server_list.servers {
             if server.play_button.on_event(graphics, event, &server.get_container(graphics, &inner_container)) {
-                let mut menu_back = super::MenuBack::new_synced(graphics, self.menu_back_timer);
+                let mut menu_back = super::MenuBack::new(graphics);
                 menu_back.set_back_rect_width(parent_container.rect.size.0, false);
                 menu_back.update(graphics, &gfx::Container::default(graphics));
                 menu_back.render_back(graphics);
                 let name = run_text_input_menu("Enter your name", graphics, &mut menu_back);
                 if let Some(name) = name {
-                    let game_result = run_game(
-                        graphics,
-                        &mut menu_back,
-                        server.server_info.port,
-                        server.server_info.ip.clone(),
-                        &name,
-                        &self.settings,
-                        &self.global_settings,
-                    );
+                    let game_result = run_game(graphics, server.server_info.port, server.server_info.ip.clone(), &name, &self.settings, &self.global_settings);
                     if let Err(error) = game_result {
                         println!("Game error: {error}");
                         self.open_menu = Some(Box::new(ChoiceMenu::new(&format!("Game error: {error}"), graphics, vec![("Ok", Box::new(|| {}))], None, None)));
@@ -274,7 +264,7 @@ impl super::Menu for MultiplayerSelector {
         ret_val
     }
 
-    fn open_menu(&mut self) -> Option<Box<dyn Menu>> {
+    fn open_menu(&mut self, _: &mut gfx::GraphicsContext) -> Option<Box<dyn Menu>> {
         self.open_menu.take()
     }
 

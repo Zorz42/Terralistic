@@ -96,7 +96,7 @@ impl gfx::UiElement for ChoiceMenu {
 }
 
 impl Menu for ChoiceMenu {
-    fn open_menu(&mut self) -> Option<Box<dyn Menu>> {
+    fn open_menu(&mut self, _: &mut gfx::GraphicsContext) -> Option<Box<dyn Menu>> {
         None
     }
 

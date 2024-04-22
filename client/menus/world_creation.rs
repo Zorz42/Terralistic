@@ -3,7 +3,6 @@ use directories::BaseDirs;
 use std::cell::RefCell;
 use std::rc::Rc;
 
-use crate::client::game::private_world::run_private_world;
 use crate::client::global_settings::GlobalSettings;
 use crate::client::menus::BackgroundRect;
 use crate::client::settings::Settings;
@@ -114,10 +113,10 @@ impl WorldCreationMenu {
         let mut menu_back = crate::MenuBack::new(graphics);
         menu_back.set_back_rect_width(MENU_WIDTH, true);
         menu_back.update(graphics, &gfx::Container::default(graphics));
-        let game_result = run_private_world(graphics, &mut menu_back, &self.world_path.borrow_mut().clone(), &self.settings, &self.global_settings);
-        if let Err(error) = game_result {
-            println!("Game error: {error}");
-        }
+        //let game_result = run_private_world(graphics, &mut menu_back, &self.world_path.borrow_mut().clone(), &self.settings, &self.global_settings);
+        //if let Err(error) = game_result {
+        //    println!("Game error: {error}");
+        //}
         self.close_self = true;
     }
 }
@@ -181,7 +180,7 @@ impl super::Menu for WorldCreationMenu {
         self.close_self = false;
         close
     }
-    fn open_menu(&mut self) -> Option<Box<dyn super::Menu>> {
+    fn open_menu(&mut self, _: &mut gfx::GraphicsContext) -> Option<Box<dyn super::Menu>> {
         None
     }
 }
