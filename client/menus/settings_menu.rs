@@ -481,7 +481,7 @@ impl super::Menu for SettingsMenu {
         ret_val
     }
 
-    fn open_menu(&mut self, _: &mut gfx::GraphicsContext) -> Option<Box<dyn super::Menu>> {
+    fn open_menu(&mut self, _: &mut gfx::GraphicsContext) -> Option<(Box<dyn super::Menu>, String)> {
         None
     }
 }

@@ -49,7 +49,7 @@ pub struct MultiplayerSelector {
     global_settings: Rc<RefCell<GlobalSettings>>,
     top_rect_visibility: f32,
     close_self: bool,
-    open_menu: Option<Box<dyn Menu>>,
+    open_menu: Option<(Box<dyn Menu>, String)>,
 }
 
 impl MultiplayerSelector {
@@ -211,7 +211,7 @@ impl UiElement for MultiplayerSelector {
             }
         }
         if self.new_server_button.on_event(graphics, event, &inner_container) {
-            self.open_menu = Some(Box::new(AddServerMenu::new(graphics, self.servers_file.clone())));
+            self.open_menu = Some((Box::new(AddServerMenu::new(graphics, self.servers_file.clone())), "AddServer".to_owned()));
         }
 
         for server in &mut self.server_list.servers {
@@ -225,20 +225,26 @@ impl UiElement for MultiplayerSelector {
                     let game_result = run_game(graphics, server.server_info.port, server.server_info.ip.clone(), &name, &self.settings, &self.global_settings);
                     if let Err(error) = game_result {
                         println!("Game error: {error}");
-                        self.open_menu = Some(Box::new(ChoiceMenu::new(&format!("Game error: {error}"), graphics, vec![("Ok", Box::new(|| {}))], None, None)));
+                        self.open_menu = Some((
+                            Box::new(ChoiceMenu::new(&format!("Game error: {error}"), graphics, vec![("Ok", Box::new(|| {}))], None, None)),
+                            "GameError".to_owned(),
+                        ));
                     }
                 }
             }
             if server.delete_button.on_event(graphics, event, &server.get_container(graphics, &inner_container)) {
                 let path = self.servers_file.clone();
                 let name_to_delete = server.server_info.name.clone();
-                self.open_menu = Some(Box::new(ChoiceMenu::new(
-                    format!("The server \"{}\" will be deleted.\nDo you want to proceed?", server.server_info.name).as_str(),
-                    graphics,
-                    vec![("Back", Box::new(|| {})), ("Proceed", Box::new(move || remove_server_by_name(&name_to_delete.clone(), path.clone())))],
-                    Some(0),
-                    Some(1),
-                )));
+                self.open_menu = Some((
+                    Box::new(ChoiceMenu::new(
+                        format!("The server \"{}\" will be deleted.\nDo you want to proceed?", server.server_info.name).as_str(),
+                        graphics,
+                        vec![("Back", Box::new(|| {})), ("Proceed", Box::new(move || remove_server_by_name(&name_to_delete.clone(), path.clone())))],
+                        Some(0),
+                        Some(1),
+                    )),
+                    "DeleteServer".to_owned(),
+                ));
             }
         }
         false
@@ -264,7 +270,7 @@ impl super::Menu for MultiplayerSelector {
         ret_val
     }
 
-    fn open_menu(&mut self, _: &mut gfx::GraphicsContext) -> Option<Box<dyn Menu>> {
+    fn open_menu(&mut self, _: &mut gfx::GraphicsContext) -> Option<(Box<dyn Menu>, String)> {
         self.open_menu.take()
     }
 

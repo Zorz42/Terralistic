@@ -93,7 +93,7 @@ impl SecondaryMenu {
         }
     }
 
-    pub fn switch_to(&mut self, new_menu: (Box<dyn Menu>, usize), graphics: &gfx::GraphicsContext, parent_container: &gfx::Container) {
+    pub fn switch_to(&mut self, new_menu: ((Box<dyn Menu>, String), usize), graphics: &gfx::GraphicsContext, parent_container: &gfx::Container) {
         match std::mem::replace(self, Self::None) {
             Self::None => {
                 let mut stack = MenuStack::new();
@@ -162,13 +162,13 @@ impl SecondaryMenu {
         global_settings: Rc<RefCell<GlobalSettings>>,
         menu_back: &dyn UiElement,
     ) -> bool {
-        let menu: Box<dyn Menu> = match menu_index {
-            0 => Box::new(LoginMenu::new(graphics)),
-            1 => Box::new(SingleplayerSelector::new(graphics, settings, global_settings)),
+        let menu: (Box<dyn Menu>, String) = match menu_index {
+            0 => (Box::new(LoginMenu::new(graphics)), "LoginMenu".to_owned()),
+            1 => (Box::new(SingleplayerSelector::new(graphics, settings, global_settings)), "SingleplayerSelector".to_owned()),
             2 => {
                 let res = MultiplayerSelector::new(graphics, settings, global_settings);
                 if let Ok(menu) = res {
-                    Box::new(menu)
+                    (Box::new(menu), "MultiplayerSelector".to_owned())
                 } else {
                     *self = Self::None;
                     return false;
@@ -177,7 +177,7 @@ impl SecondaryMenu {
             3 => {
                 let mut menu = SettingsMenu::new(settings, global_settings);
                 menu.init(graphics, &menu_back.get_container(graphics, &gfx::Container::default(graphics)));
-                Box::new(menu)
+                (Box::new(menu), "Settings".to_owned())
             }
             usize::MAX => {
                 graphics.close_window();

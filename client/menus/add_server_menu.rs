@@ -184,7 +184,7 @@ impl super::Menu for AddServerMenu {
         ret_val
     }
 
-    fn open_menu(&mut self, _: &mut gfx::GraphicsContext) -> Option<Box<dyn super::Menu>> {
+    fn open_menu(&mut self, _: &mut gfx::GraphicsContext) -> Option<(Box<dyn super::Menu>, String)> {
         None
     }
 }

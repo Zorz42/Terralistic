@@ -103,7 +103,7 @@ impl UiElement for LoadingScreen {
 }
 
 impl Menu for LoadingScreen {
-    fn open_menu(&mut self, _: &mut gfx::GraphicsContext) -> Option<Box<dyn Menu>> {
+    fn open_menu(&mut self, _: &mut gfx::GraphicsContext) -> Option<(Box<dyn Menu>, String)> {
         None
     }
 

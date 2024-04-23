@@ -9,13 +9,13 @@ use anyhow::Result;
 
 use crate::client::game::core_client::run_game;
 use crate::client::global_settings::GlobalSettings;
-use crate::client::menus::{BackgroundRect, LoadingScreen, Menu};
+use crate::client::menus::{LoadingScreen, Menu};
 use crate::client::settings::Settings;
 use crate::libraries::graphics::{self as gfx, Container, UiElement};
 use crate::server::server_core::Server;
 use crate::server::server_core::SINGLEPLAYER_PORT;
 
-pub fn start_private_world_server(world_path: &Path) -> Result<(std::thread::JoinHandle<std::result::Result<(), anyhow::Error>>, Arc<AtomicBool>, Arc<Mutex<String>>)> {
+fn start_private_world_server(world_path: &Path) -> Result<(std::thread::JoinHandle<std::result::Result<(), anyhow::Error>>, Arc<AtomicBool>, Arc<Mutex<String>>)> {
     let server_running = Arc::new(AtomicBool::new(true));
     let server_running2 = server_running.clone();
 
@@ -48,7 +48,7 @@ enum PrivateWorldState {
     Stopped,
 }
 
-struct PrivateWorld {
+pub struct PrivateWorld {
     server_thread: std::thread::JoinHandle<std::result::Result<(), anyhow::Error>>,
     server_running: Arc<AtomicBool>,
     loading_text: Arc<Mutex<String>>,
@@ -58,13 +58,7 @@ struct PrivateWorld {
 }
 
 impl PrivateWorld {
-    pub fn new(
-        graphics: &mut gfx::GraphicsContext,
-        menu_back: &mut dyn BackgroundRect,
-        world_path: &Path,
-        settings: Rc<RefCell<Settings>>,
-        global_settings: Rc<RefCell<GlobalSettings>>,
-    ) -> Result<Self> {
+    pub fn new(world_path: &Path, settings: Rc<RefCell<Settings>>, global_settings: Rc<RefCell<GlobalSettings>>) -> Result<Self> {
         let (server_thread, server_running, loading_text) = start_private_world_server(world_path)?;
         Ok(Self {
             server_thread,
@@ -92,12 +86,12 @@ impl UiElement for PrivateWorld {
 }
 
 impl Menu for PrivateWorld {
-    fn open_menu(&mut self, graphics: &mut gfx::GraphicsContext) -> Option<Box<dyn Menu>> {
+    fn open_menu(&mut self, graphics: &mut gfx::GraphicsContext) -> Option<(Box<dyn Menu>, String)> {
         let state = self.state;
         match state {
             PrivateWorldState::StartingServer => {
                 self.state = PrivateWorldState::Loading;
-                Some(Box::new(LoadingScreen::new(graphics, self.loading_text.clone())))
+                Some((Box::new(LoadingScreen::new(graphics, self.loading_text.clone())), "f LoadingScreen".to_owned()))
             }
             PrivateWorldState::Loading => {
                 self.state = PrivateWorldState::Playing;

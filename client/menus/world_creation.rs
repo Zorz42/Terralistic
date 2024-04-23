@@ -1,8 +1,11 @@
 use anyhow::Result;
+
+use super::{LoadingScreen, Menu};
 use directories::BaseDirs;
 use std::cell::RefCell;
 use std::rc::Rc;
 
+use crate::client::game::private_world::PrivateWorld;
 use crate::client::global_settings::GlobalSettings;
 use crate::client::menus::BackgroundRect;
 use crate::client::settings::Settings;
@@ -32,6 +35,7 @@ pub struct WorldCreationMenu {
     global_settings: Rc<RefCell<GlobalSettings>>,
     world_path: Rc<RefCell<std::path::PathBuf>>,
     close_self: bool,
+    open_menu: Option<(Box<dyn Menu>, String)>,
 }
 
 impl WorldCreationMenu {
@@ -106,6 +110,7 @@ impl WorldCreationMenu {
             global_settings,
             world_path: Rc::new(RefCell::new(world_path)),
             close_self: false,
+            open_menu: None,
         })
     }
 
@@ -113,10 +118,11 @@ impl WorldCreationMenu {
         let mut menu_back = crate::MenuBack::new(graphics);
         menu_back.set_back_rect_width(MENU_WIDTH, true);
         menu_back.update(graphics, &gfx::Container::default(graphics));
-        //let game_result = run_private_world(graphics, &mut menu_back, &self.world_path.borrow_mut().clone(), &self.settings, &self.global_settings);
-        //if let Err(error) = game_result {
-        //    println!("Game error: {error}");
-        //}
+
+        if let Ok(menu) = PrivateWorld::new(&self.world_path.clone().take(), self.settings.clone(), self.global_settings.clone()) {
+            self.open_menu = Some((Box::new(menu), "f LoadingScreen".to_owned()));
+        }
+
         self.close_self = true;
     }
 }
@@ -180,7 +186,7 @@ impl super::Menu for WorldCreationMenu {
         self.close_self = false;
         close
     }
-    fn open_menu(&mut self, _: &mut gfx::GraphicsContext) -> Option<Box<dyn super::Menu>> {
-        None
+    fn open_menu(&mut self, _: &mut gfx::GraphicsContext) -> Option<(Box<dyn super::Menu>, String)> {
+        self.open_menu.take()
     }
 }

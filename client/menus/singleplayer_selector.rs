@@ -252,7 +252,7 @@ pub struct SingleplayerSelector {
     new_world_press: Rc<RefCell<bool>>,
     world_button_press: Rc<RefCell<Option<(usize, usize)>>>,
     close_self: bool,
-    open_menu: Option<Box<dyn Menu>>,
+    open_menu: Option<(Box<dyn Menu>, String)>,
 }
 
 impl SingleplayerSelector {
@@ -351,7 +351,7 @@ impl SingleplayerSelector {
                 Some(0),
                 Some(1),
             );
-            self.open_menu = Some(Box::new(menu));
+            self.open_menu = Some((Box::new(menu), "DeleteWorld".to_owned()));
         }
 
         Some(())
@@ -398,7 +398,7 @@ impl UiElement for SingleplayerSelector {
                 names_vec.push(world.name.clone());
             }
             if let Ok(world_creation_menu) = WorldCreationMenu::new(graphics, names_vec, self.settings.clone(), self.global_settings.clone()) {
-                self.open_menu = Some(Box::new(world_creation_menu));
+                self.open_menu = Some((Box::new(world_creation_menu), "CreateWorld".to_owned()));
             }
         }
         *self.new_world_press.borrow_mut() = false;
@@ -469,7 +469,7 @@ impl super::menu::Menu for SingleplayerSelector {
         self.close_self = false;
         ret_val
     }
-    fn open_menu(&mut self, _: &mut gfx::GraphicsContext) -> Option<Box<dyn Menu>> {
+    fn open_menu(&mut self, _: &mut gfx::GraphicsContext) -> Option<(Box<dyn Menu>, String)> {
         self.open_menu.take()
     }
 
