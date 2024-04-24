@@ -49,7 +49,7 @@ enum PrivateWorldState {
 }
 
 pub struct PrivateWorld {
-    server_thread: std::thread::JoinHandle<std::result::Result<(), anyhow::Error>>,
+    server_thread: Option<std::thread::JoinHandle<std::result::Result<(), anyhow::Error>>>,
     server_running: Arc<AtomicBool>,
     loading_text: Arc<Mutex<String>>,
     state: PrivateWorldState,
@@ -61,7 +61,7 @@ impl PrivateWorld {
     pub fn new(world_path: &Path, settings: Rc<RefCell<Settings>>, global_settings: Rc<RefCell<GlobalSettings>>) -> Result<Self> {
         let (server_thread, server_running, loading_text) = start_private_world_server(world_path)?;
         Ok(Self {
-            server_thread,
+            server_thread: Some(server_thread),
             server_running,
             loading_text,
             state: PrivateWorldState::StartingServer,
@@ -80,7 +80,7 @@ impl UiElement for PrivateWorld {
         vec![]
     }
 
-    fn get_container(&self, graphics: &gfx::GraphicsContext, parent_container: &gfx::Container) -> gfx::Container {
+    fn get_container(&self, graphics: &gfx::GraphicsContext, _: &gfx::Container) -> gfx::Container {
         Container::default(graphics)
     }
 }
@@ -89,6 +89,9 @@ impl Menu for PrivateWorld {
     fn open_menu(&mut self, graphics: &mut gfx::GraphicsContext) -> Option<(Box<dyn Menu>, String)> {
         let state = self.state;
         match state {
+            //every time we advance the state by one. This is because this won't be called
+            //when loading menus are open and we know things are ready to advance when
+            //they close
             PrivateWorldState::StartingServer => {
                 self.state = PrivateWorldState::Loading;
                 Some((Box::new(LoadingScreen::new(graphics, self.loading_text.clone())), "f LoadingScreen".to_owned()))
@@ -98,11 +101,34 @@ impl Menu for PrivateWorld {
                 if self.server_running.load(Ordering::Relaxed) {
                     let res = run_game(graphics, SINGLEPLAYER_PORT, String::from("127.0.0.1"), "_", &self.settings, &self.global_settings);
 
-                    // stop server
-                    //server_running.store(false, Ordering::Relaxed);
+                    if let Err(e) = res {
+                        println!("{e}");
+                    }
 
-                    //*loading_text.lock().unwrap_or_else(PoisonError::into_inner) = "Waiting for server".to_owned();
-                    //run_loading_screen(graphics, menu_back, &loading_text);
+                    // stop server
+                    self.server_running.store(false, Ordering::Relaxed);
+
+                    *self.loading_text.lock().unwrap_or_else(PoisonError::into_inner) = "Waiting for server".to_owned();
+                    self.state = PrivateWorldState::StoppingServer;
+                    return Some((Box::new(LoadingScreen::new(graphics, self.loading_text.clone())), "f LoadingScreen".to_owned()));
+                }
+                self.state = PrivateWorldState::StoppingServer;
+                None
+            }
+            PrivateWorldState::StoppingServer => {
+                if let Some(thread) = self.server_thread.take() {
+                    let thread_result = thread.join();
+
+                    match thread_result {
+                        Err(e) => println!("{e:?}"),
+                        Ok(res) => {
+                            if let Err(e) = res {
+                                println!("{e}");
+                            }
+                        }
+                    }
+
+                    self.state = PrivateWorldState::Stopped;
                 }
                 None
             }
@@ -116,30 +142,3 @@ impl Menu for PrivateWorld {
         matches!(self.state, PrivateWorldState::Stopped)
     }
 }
-/*
-pub fn run_private_world(
-    graphics: &mut gfx::GraphicsContext,
-    menu_back: &mut dyn BackgroundRect,
-    world_path: &Path,
-    settings: &Rc<RefCell<Settings>>,
-    global_settings: &Rc<RefCell<GlobalSettings>>,
-) -> Result<()> {
-    let (server_thread, server_running, loading_text) = start_private_world_server(world_path)?;
-
-    run_loading_screen(graphics, menu_back, &loading_text);
-
-    if server_running.load(Ordering::Relaxed) {
-        run_game(graphics, menu_back, SINGLEPLAYER_PORT, String::from("127.0.0.1"), "_", settings, global_settings)?;
-
-        // stop server
-        server_running.store(false, Ordering::Relaxed);
-
-        *loading_text.lock().unwrap_or_else(PoisonError::into_inner) = "Waiting for server".to_owned();
-        run_loading_screen(graphics, menu_back, &loading_text);
-    }
-
-    let thread_result = server_thread.join();
-    thread_result.unwrap_or_else(|_| Err(anyhow::anyhow!("Server thread panicked")))?;
-
-    Ok(())
-}*/

@@ -4,6 +4,7 @@ use std::path::PathBuf;
 use std::rc::Rc;
 use std::time::SystemTime;
 
+use crate::client::game::private_world::PrivateWorld;
 use directories::BaseDirs;
 
 use crate::client::global_settings::GlobalSettings;
@@ -326,12 +327,9 @@ impl SingleplayerSelector {
             menu_back.set_back_rect_width(parent_container.rect.size.0, false);
             menu_back.update(graphics, &gfx::Container::default(graphics));
             menu_back.render_back(graphics);
-            //let game_result = run_private_world(graphics, &mut menu_back, self.world_list.worlds.get(world)?.get_file_path(), &self.settings, &self.global_settings);
-            /*if let Err(error) = game_result {
-                println!("Game error: {error}");
-                let menu = ChoiceMenu::new(&format!("Game error: {error}"), graphics, vec![("Ok", Box::new(|| {}))], Some(0), Some(0));
-                self.open_menu = Some(Box::new(menu));
-            }*/
+            if let Ok(menu) = PrivateWorld::new(self.world_list.worlds.get(world)?.get_file_path(), self.settings.clone(), self.global_settings.clone()) {
+                self.open_menu = Some((Box::new(menu), "f LoadingScreen".to_owned()));
+            }
         } else if action == 1 {
             let path = self.world_list.worlds.get(world)?.get_file_path().clone();
             let menu = ChoiceMenu::new(

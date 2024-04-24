@@ -16,6 +16,7 @@ impl MenuStack {
         self.stack.push(menu);
     }
 
+    #[must_use]
     pub fn get_top_menu(&self) -> Option<&(Box<dyn Menu>, String)> {
         self.stack.last()
     }

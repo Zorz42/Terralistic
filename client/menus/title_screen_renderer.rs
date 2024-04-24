@@ -137,15 +137,14 @@ pub fn run_title_screen(graphics: &mut gfx::GraphicsContext, settings: &Rc<RefCe
             menus.secondary_menu = SecondaryMenu::None;
         }
 
-        match &menus.secondary_menu {
-            SecondaryMenu::SingleMenu(menu_stack_) => {
-                if let Some(menu) = menu_stack_.0.get_top_menu() {
-                    if menu.1.starts_with('f') {
-                        menus.state = TitleScreenState::SecondaryMenu;
-                    }
+        if let SecondaryMenu::SingleMenu(menu_stack_) = &menus.secondary_menu {
+            if let Some(menu) = menu_stack_.0.get_top_menu() {
+                if menu.1.starts_with("f ") {
+                    menus.state = TitleScreenState::SecondaryMenu;
+                } else if matches!(menus.state, TitleScreenState::SecondaryMenu) {
+                    menus.state = TitleScreenState::BothMenus;
                 }
             }
-            _ => {}
         }
 
         *open_secondary_menu.borrow_mut() = None;
