@@ -230,7 +230,7 @@ impl UiElement for LoginMenu {
         texture.set_texture(gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Not yet implemented", None)));
         texture.orientation = gfx::CENTER;
         texture.scale = 5.0;
-        texture.render(graphics, parent_container);
+        texture.render(graphics, &self.get_container(graphics, parent_container));
     }
 
     fn get_container(&self, graphics: &gfx::GraphicsContext, parent_container: &gfx::Container) -> gfx::Container {

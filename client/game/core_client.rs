@@ -121,7 +121,7 @@ pub fn run_game(
     let mut respawn_screen = RespawnScreen::new();
 
     background.init()?;
-    inventory.init();
+    inventory.init(graphics);
     lights.init(&blocks.get_blocks(), settings)?;
 
     blocks.load_resources(&mods.mod_manager)?;

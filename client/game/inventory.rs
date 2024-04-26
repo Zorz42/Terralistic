@@ -93,7 +93,7 @@ impl ClientInventory {
         }
     }
 
-    pub fn init(&mut self) {
+    pub fn init(&mut self, graphics: &mut gfx::GraphicsContext) {
         self.back_rect.orientation = gfx::TOP;
         self.back_rect.pos = gfx::FloatPos(0.0, INVENTORY_SPACING);
         self.back_rect.size = gfx::FloatSize(10.0 * (INVENTORY_SLOT_SIZE + INVENTORY_SPACING) + INVENTORY_SPACING, 2.0 * INVENTORY_SPACING + INVENTORY_SLOT_SIZE);
@@ -101,6 +101,7 @@ impl ClientInventory {
         self.back_rect.fill_color.a = gfx::TRANSPARENCY;
         self.back_rect.blur_radius = gfx::BLUR / 2;
         self.back_rect.shadow_intensity = gfx::SHADOW_INTENSITY / 2;
+        self.back_rect.update(graphics, &gfx::Container::default(graphics));
 
         self.hovered_slot_rect.size = gfx::FloatSize(INVENTORY_SLOT_SIZE + 2.0 * INVENTORY_SPACING, INVENTORY_SLOT_SIZE + 2.0 * INVENTORY_SPACING);
         self.hovered_slot_rect.fill_color = gfx::BLACK.set_a(gfx::TRANSPARENCY);
@@ -133,6 +134,7 @@ impl ClientInventory {
     fn render_inventory(&mut self, graphics: &mut gfx::GraphicsContext, items: &ClientItems) -> Result<()> {
         let window_container = gfx::Container::default(graphics);
         self.back_rect.size.1 = self.open_progress * (3.0 * INVENTORY_SPACING + 2.0 * INVENTORY_SLOT_SIZE) + (1.0 - self.open_progress) * (2.0 * INVENTORY_SPACING + INVENTORY_SLOT_SIZE);
+        self.back_rect.update(graphics, &window_container);
         self.back_rect.render(graphics, &window_container);
 
         if let Some(slot) = self.inventory.selected_slot {

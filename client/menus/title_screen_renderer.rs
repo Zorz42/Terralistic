@@ -10,6 +10,7 @@ use std::cell::RefCell;
 use std::rc::Rc;
 
 use super::background_rect::BackgroundRect;
+use super::MenuBack;
 
 enum TitleScreenState {
     MainMenu,
@@ -63,7 +64,7 @@ pub fn run_title_screen(graphics: &mut gfx::GraphicsContext, settings: &Rc<RefCe
         state: TitleScreenState::MainMenu,
     };
 
-    let mut main_back_rect = super::MenuBack::new(graphics);
+    let mut main_back_rect = MenuBack::new(graphics);
 
     let mut max_width = 0.0;
     for button in menus.main_menu.get_sub_elements() {
@@ -102,21 +103,7 @@ pub fn run_title_screen(graphics: &mut gfx::GraphicsContext, settings: &Rc<RefCe
     };
 
     while graphics.is_window_open() {
-        let max_width = main_back_rect.get_back_rect_width() + gfx::SPACING + secondary_back_rect.render_size.0;
-        match menus.state {
-            TitleScreenState::MainMenu => {
-                main_back_rect.set_x_position(0.0);
-                secondary_back_rect.pos.0 = (graphics.get_window_size().0 + secondary_back_rect.size.0) / 2.0;
-            }
-            TitleScreenState::BothMenus => {
-                main_back_rect.set_x_position(-max_width / 2.0 + main_back_rect.get_back_rect_width() / 2.0);
-                secondary_back_rect.pos.0 = max_width / 2.0 - secondary_back_rect.render_size.0 / 2.0;
-            }
-            TitleScreenState::SecondaryMenu => {
-                main_back_rect.set_x_position(-(graphics.get_window_size().0 + main_back_rect.get_back_rect_width()) / 2.0);
-                secondary_back_rect.pos.0 = 0.0;
-            }
-        }
+        position_back_menus(graphics, &menus.state, &mut main_back_rect, &mut secondary_back_rect);
 
         let window_container = gfx::Container::default(graphics);
         main_back_rect.update(graphics, &window_container);
@@ -125,6 +112,11 @@ pub fn run_title_screen(graphics: &mut gfx::GraphicsContext, settings: &Rc<RefCe
         let secondary_back_container = secondary_back_rect.get_container(graphics, &window_container);
 
         while let Some(event) = graphics.get_event() {
+            cloud_status_button.disabled = matches!(menus.state, TitleScreenState::SecondaryMenu);
+            if cloud_status_button.on_event(graphics, &event, &gfx::Container::default(graphics)) {
+                *open_secondary_menu.borrow_mut() = Some(0);
+            }
+
             menus.on_event(graphics, &event, &main_back_container, &secondary_back_container);
         }
 
@@ -164,11 +156,31 @@ pub fn run_title_screen(graphics: &mut gfx::GraphicsContext, settings: &Rc<RefCe
         secondary_back_rect.render(graphics, &window_container);
         menus.render(graphics, &main_back_container, &secondary_back_container);
 
-        let color = get_tls_status_color(&tls_client);
-        cloud_status_rect.render(graphics, color);
-        cloud_status_button.render(graphics, &gfx::Container::default(graphics));
+        if !matches!(menus.state, TitleScreenState::SecondaryMenu) {
+            let color = get_tls_status_color(&tls_client);
+            cloud_status_rect.render(graphics, color);
+            cloud_status_button.render(graphics, &gfx::Container::default(graphics));
+        }
 
         graphics.update_window();
+    }
+}
+
+fn position_back_menus(graphics: &gfx::GraphicsContext, state: &TitleScreenState, main_back_rect: &mut MenuBack, secondary_back_rect: &mut gfx::RenderRect) {
+    let max_width = main_back_rect.get_back_rect_width() + gfx::SPACING + secondary_back_rect.render_size.0;
+    match state {
+        TitleScreenState::MainMenu => {
+            main_back_rect.set_x_position(0.0);
+            secondary_back_rect.pos.0 = (graphics.get_window_size().0 + secondary_back_rect.size.0) / 2.0;
+        }
+        TitleScreenState::BothMenus => {
+            main_back_rect.set_x_position(-max_width / 2.0 + main_back_rect.get_back_rect_width() / 2.0);
+            secondary_back_rect.pos.0 = max_width / 2.0 - secondary_back_rect.render_size.0 / 2.0;
+        }
+        TitleScreenState::SecondaryMenu => {
+            main_back_rect.set_x_position(-(graphics.get_window_size().0 + main_back_rect.get_back_rect_width()) / 2.0);
+            secondary_back_rect.pos.0 = 0.0;
+        }
     }
 }
 
