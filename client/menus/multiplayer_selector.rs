@@ -9,22 +9,22 @@ use serde_derive::{Deserialize, Serialize};
 
 use crate::client::game::core_client::run_game;
 use crate::client::global_settings::GlobalSettings;
-use crate::client::menus::run_text_input_menu;
+use crate::client::menus::TextInputMenu;
 use crate::client::settings::Settings;
 use crate::libraries::graphics as gfx;
 
-use super::{AddServerMenu, Menu};
+use super::{AddServerMenu, Menu, StartMultiplayer};
 
 use super::background_rect::BackgroundRect;
 use gfx::{BaseUiElement, UiElement};
 
 pub const MENU_WIDTH: f32 = 800.0;
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 pub struct ServerInfo {
     pub name: String,
-    ip: String,
-    port: u16,
+    pub ip: String,
+    pub port: u16,
 }
 
 impl ServerInfo {
@@ -220,17 +220,10 @@ impl UiElement for MultiplayerSelector {
                 menu_back.set_back_rect_width(parent_container.rect.size.0, false);
                 menu_back.update(graphics, &gfx::Container::default(graphics));
                 menu_back.render_back(graphics);
-                let name = run_text_input_menu("Enter your name", graphics, &mut menu_back);
-                if let Some(name) = name {
-                    let game_result = run_game(graphics, server.server_info.port, server.server_info.ip.clone(), &name, &self.settings, &self.global_settings);
-                    if let Err(error) = game_result {
-                        println!("Game error: {error}");
-                        self.open_menu = Some((
-                            Box::new(ChoiceMenu::new(&format!("Game error: {error}"), graphics, vec![("Ok", Box::new(|| {}))], None, None)),
-                            "GameError".to_owned(),
-                        ));
-                    }
-                }
+                self.open_menu = Some((
+                    Box::new(StartMultiplayer::new(server.server_info.clone(), self.settings.clone(), self.global_settings.clone())),
+                    "f StartMultiplayer".to_owned(),
+                ));
             }
             if server.delete_button.on_event(graphics, event, &server.get_container(graphics, &inner_container)) {
                 let path = self.servers_file.clone();

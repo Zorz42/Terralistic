@@ -11,7 +11,8 @@ pub use secondary_menu::SecondaryMenu;
 pub use settings_menu::SettingsMenu;
 pub use singleplayer_selector::SingleplayerSelector;
 pub use singleplayer_selector::MENU_WIDTH;
-pub use text_input_menu::run_text_input_menu;
+pub use start_multiplayer::StartMultiplayer;
+pub use text_input_menu::TextInputMenu;
 pub use title_screen_renderer::run_title_screen;
 
 mod background_rect;
@@ -45,3 +46,5 @@ mod title_screen_renderer;
 mod secondary_menu;
 
 mod menu_stack;
+
+mod start_multiplayer;

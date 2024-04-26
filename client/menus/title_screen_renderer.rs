@@ -106,14 +106,14 @@ pub fn run_title_screen(graphics: &mut gfx::GraphicsContext, settings: &Rc<RefCe
         match menus.state {
             TitleScreenState::MainMenu => {
                 main_back_rect.set_x_position(0.0);
-                secondary_back_rect.pos.0 = graphics.get_window_size().0 + secondary_back_rect.size.0;
+                secondary_back_rect.pos.0 = (graphics.get_window_size().0 + secondary_back_rect.size.0) / 2.0;
             }
             TitleScreenState::BothMenus => {
                 main_back_rect.set_x_position(-max_width / 2.0 + main_back_rect.get_back_rect_width() / 2.0);
                 secondary_back_rect.pos.0 = max_width / 2.0 - secondary_back_rect.render_size.0 / 2.0;
             }
             TitleScreenState::SecondaryMenu => {
-                main_back_rect.set_x_position(-(graphics.get_window_size().0 + main_back_rect.get_back_rect_width()));
+                main_back_rect.set_x_position(-(graphics.get_window_size().0 + main_back_rect.get_back_rect_width()) / 2.0);
                 secondary_back_rect.pos.0 = 0.0;
             }
         }
@@ -133,7 +133,7 @@ pub fn run_title_screen(graphics: &mut gfx::GraphicsContext, settings: &Rc<RefCe
                 menus.state = TitleScreenState::BothMenus;
             }
         }
-        if matches!(menus.state, TitleScreenState::MainMenu) && secondary_back_container.get_absolute_rect().pos.0 > graphics.get_window_size().0 {
+        if matches!(menus.state, TitleScreenState::MainMenu) && secondary_back_container.get_absolute_rect().pos.0 > graphics.get_window_size().0 - gfx::SPACING {
             menus.secondary_menu = SecondaryMenu::None;
         }
 

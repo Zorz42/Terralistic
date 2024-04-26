@@ -94,7 +94,7 @@ impl Menu for PrivateWorld {
             //they close
             PrivateWorldState::StartingServer => {
                 self.state = PrivateWorldState::Loading;
-                Some((Box::new(LoadingScreen::new(graphics, self.loading_text.clone())), "f LoadingScreen".to_owned()))
+                Some((Box::new(LoadingScreen::new(self.loading_text.clone())), "f LoadingScreen".to_owned()))
             }
             PrivateWorldState::Loading => {
                 self.state = PrivateWorldState::Playing;
@@ -110,7 +110,7 @@ impl Menu for PrivateWorld {
 
                     *self.loading_text.lock().unwrap_or_else(PoisonError::into_inner) = "Waiting for server".to_owned();
                     self.state = PrivateWorldState::StoppingServer;
-                    return Some((Box::new(LoadingScreen::new(graphics, self.loading_text.clone())), "f LoadingScreen".to_owned()));
+                    return Some((Box::new(LoadingScreen::new(self.loading_text.clone())), "f LoadingScreen".to_owned()));
                 }
                 self.state = PrivateWorldState::StoppingServer;
                 None

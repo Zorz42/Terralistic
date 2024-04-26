@@ -17,12 +17,12 @@ pub struct LoadingScreen {
 }
 
 impl LoadingScreen {
-    pub fn new(graphics: &mut gfx::GraphicsContext, loading_text: Arc<Mutex<String>>) -> Self {
+    pub fn new(loading_text: Arc<Mutex<String>>) -> Self {
         let mut loading_text_sprite = gfx::Sprite::new();
         loading_text_sprite.orientation = gfx::CENTER;
         loading_text_sprite.scale = 3.0;
 
-        let mut curr_text = String::new();
+        let curr_text = String::new();
 
         let mut loading_back_bar = gfx::RenderRect::new(gfx::FloatPos(0.0, PROGRESS_BAR_Y_OFFSET as f32), gfx::FloatSize(0.0, 0.0));
         loading_back_bar.orientation = gfx::CENTER;
@@ -30,8 +30,8 @@ impl LoadingScreen {
         loading_back_bar.fill_color.a = gfx::TRANSPARENCY;
         loading_back_bar.smooth_factor = 60.0;
 
-        let mut loading_bar = gfx::RenderRect::new(gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, 0.0));
-        loading_bar.orientation = gfx::LEFT;
+        let mut loading_bar = gfx::RenderRect::new(gfx::FloatPos(0.0, PROGRESS_BAR_Y_OFFSET as f32), gfx::FloatSize(0.0, 0.0));
+        loading_bar.orientation = gfx::CENTER;
         loading_bar.fill_color = gfx::LIGHT_GREY;
         loading_bar.smooth_factor = 60.0;
 
@@ -92,6 +92,7 @@ impl UiElement for LoadingScreen {
                     self.loading_back_bar.size.0 = PROGRESS_BAR_WIDTH as f32;
                     self.loading_back_bar.size.1 = PROGRESS_BAR_HEIGHT as f32;
                     self.loading_bar.size.0 = (PROGRESS_BAR_WIDTH as f32) * progress_bar_progress;
+                    self.loading_bar.pos.0 = (-PROGRESS_BAR_WIDTH as f32 + self.loading_bar.size.0) / 2.0;
                     self.loading_bar.size.1 = PROGRESS_BAR_HEIGHT as f32;
                 }
 
