@@ -290,8 +290,6 @@ fn client_main() {
         println!("Failed to set minimum window size");
     }
 
-    let mut menu_back = MenuBack::new(&graphics);
-
     let base_dirs;
     if let Some(base_dirs_) = BaseDirs::new() {
         base_dirs = base_dirs_;
@@ -305,7 +303,6 @@ fn client_main() {
     global_settings.borrow_mut().init(&settings);
     global_settings.borrow_mut().update(&mut graphics, &settings);
     run_title_screen(&mut graphics, &settings, &global_settings);
-    //run_main_menu(&mut graphics, &mut menu_back, &settings, &global_settings, timer);
 
     global_settings.borrow_mut().stop(&settings);
 

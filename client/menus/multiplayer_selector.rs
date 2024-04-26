@@ -7,9 +7,7 @@ use std::rc::Rc;
 use directories::BaseDirs;
 use serde_derive::{Deserialize, Serialize};
 
-use crate::client::game::core_client::run_game;
 use crate::client::global_settings::GlobalSettings;
-use crate::client::menus::TextInputMenu;
 use crate::client::settings::Settings;
 use crate::libraries::graphics as gfx;
 
