@@ -1,6 +1,6 @@
 use anyhow::Result;
 
-use super::{LoadingScreen, Menu};
+use super::Menu;
 use directories::BaseDirs;
 use std::cell::RefCell;
 use std::rc::Rc;
@@ -33,7 +33,7 @@ pub struct WorldCreationMenu {
     worlds_list: Vec<String>,
     settings: Rc<RefCell<Settings>>,
     global_settings: Rc<RefCell<GlobalSettings>>,
-    world_path: Rc<RefCell<std::path::PathBuf>>,
+    world_path: std::path::PathBuf,
     close_self: bool,
     open_menu: Option<(Box<dyn Menu>, String)>,
 }
@@ -108,7 +108,7 @@ impl WorldCreationMenu {
             worlds_list,
             settings,
             global_settings,
-            world_path: Rc::new(RefCell::new(world_path)),
+            world_path,
             close_self: false,
             open_menu: None,
         })
@@ -119,7 +119,7 @@ impl WorldCreationMenu {
         menu_back.set_back_rect_width(MENU_WIDTH, true);
         menu_back.update(graphics, &gfx::Container::default(graphics));
 
-        if let Ok(menu) = PrivateWorld::new(&self.world_path.clone().take(), self.settings.clone(), self.global_settings.clone()) {
+        if let Ok(menu) = PrivateWorld::new(&self.world_path.clone(), self.settings.clone(), self.global_settings.clone()) {
             self.open_menu = Some((Box::new(menu), "f LoadingScreen".to_owned()));
         }
 
@@ -137,7 +137,7 @@ impl UiElement for WorldCreationMenu {
     }
 
     fn update_inner(&mut self, _grpahics: &mut gfx::GraphicsContext, _parent_container: &gfx::Container) {
-        *self.world_path.borrow_mut() = self.base_dirs.data_dir().join("Terralistic").join("Worlds").join(self.world_name_input.get_text().clone() + ".world");
+        self.world_path = self.base_dirs.data_dir().join("Terralistic").join("Worlds").join(self.world_name_input.get_text().clone() + ".world");
 
         self.create_button.disabled = world_name_exists(&self.worlds_list, self.world_name_input.get_text()) || self.world_name_input.get_text().is_empty();
     }
