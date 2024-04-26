@@ -1,7 +1,7 @@
 use crate::libraries::graphics as gfx;
 use crate::shared::versions::VERSION;
 use gfx::{BaseUiElement, UiElement};
-use std::cell::RefCell;
+use std::cell::Cell;
 use std::rc::Rc;
 
 pub struct MainMenu {
@@ -16,33 +16,33 @@ pub struct MainMenu {
 }
 
 impl MainMenu {
-    pub fn new(graphics: &gfx::GraphicsContext, open_menu: &Rc<RefCell<Option<usize>>>) -> Self {
+    pub fn new(graphics: &gfx::GraphicsContext, open_menu: &Rc<Cell<Option<usize>>>) -> Self {
         let copied_menu = open_menu.clone();
-        let mut singleplayer_button = gfx::Button::new(move || *RefCell::borrow_mut(&copied_menu) = Some(1));
+        let mut singleplayer_button = gfx::Button::new(move || copied_menu.set(Some(1)));
         singleplayer_button.scale = 3.0;
         singleplayer_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Singleplayer", None));
         singleplayer_button.orientation = gfx::CENTER;
 
         let copied_menu = open_menu.clone();
-        let mut multiplayer_button = gfx::Button::new(move || *RefCell::borrow_mut(&copied_menu) = Some(2));
+        let mut multiplayer_button = gfx::Button::new(move || copied_menu.set(Some(2)));
         multiplayer_button.scale = 3.0;
         multiplayer_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Multiplayer", None));
         multiplayer_button.orientation = gfx::CENTER;
 
         let copied_menu = open_menu.clone();
-        let mut settings_button = gfx::Button::new(move || *RefCell::borrow_mut(&copied_menu) = Some(3));
+        let mut settings_button = gfx::Button::new(move || copied_menu.set(Some(3)));
         settings_button.scale = 3.0;
         settings_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Settings", None));
         settings_button.orientation = gfx::CENTER;
 
         let copied_menu = open_menu.clone();
-        let mut mods_button = gfx::Button::new(move || *RefCell::borrow_mut(&copied_menu) = Some(4));
+        let mut mods_button = gfx::Button::new(move || copied_menu.set(Some(4)));
         mods_button.scale = 3.0;
         mods_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Mods", None));
         mods_button.orientation = gfx::CENTER;
 
         let copied_menu = open_menu.clone();
-        let mut exit_button = gfx::Button::new(move || *RefCell::borrow_mut(&copied_menu) = Some(usize::MAX));
+        let mut exit_button = gfx::Button::new(move || copied_menu.set(Some(usize::MAX)));
         exit_button.scale = 3.0;
         exit_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Exit", None));
         exit_button.orientation = gfx::CENTER;

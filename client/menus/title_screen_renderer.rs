@@ -6,6 +6,7 @@ use crate::client::settings::Settings;
 use crate::libraries::graphics as gfx;
 use crate::shared::tls_client::ConnectionState;
 use gfx::{BaseUiElement, UiElement};
+use std::cell::Cell;
 use std::cell::RefCell;
 use std::rc::Rc;
 
@@ -57,7 +58,7 @@ impl MenuRenderer {
 }
 
 pub fn run_title_screen(graphics: &mut gfx::GraphicsContext, settings: &Rc<RefCell<Settings>>, global_settings: &Rc<RefCell<GlobalSettings>>) {
-    let open_secondary_menu: Rc<RefCell<Option<usize>>> = Rc::new(RefCell::new(None));
+    let open_secondary_menu: Rc<Cell<Option<usize>>> = Rc::new(Cell::new(None));
     let mut menus = MenuRenderer {
         main_menu: MainMenu::new(graphics, &open_secondary_menu),
         secondary_menu: SecondaryMenu::None,
@@ -84,7 +85,7 @@ pub fn run_title_screen(graphics: &mut gfx::GraphicsContext, settings: &Rc<RefCe
 
     let cloud_status_rect = gfx::Rect::new(gfx::FloatPos(10.0, 10.0), gfx::FloatSize(20.0, 20.0));
     let copied_open_secondary_menu = open_secondary_menu.clone();
-    let mut cloud_status_button = gfx::Button::new(move || *RefCell::borrow_mut(&copied_open_secondary_menu) = Some(0));
+    let mut cloud_status_button = gfx::Button::new(move || copied_open_secondary_menu.set(Some(0)));
     cloud_status_button.color = gfx::GREY;
     cloud_status_button.pos = cloud_status_rect.pos + gfx::FloatPos(cloud_status_rect.size.0 + 5.0, -10.0);
     cloud_status_button.orientation = gfx::TOP_LEFT;
@@ -114,13 +115,13 @@ pub fn run_title_screen(graphics: &mut gfx::GraphicsContext, settings: &Rc<RefCe
         while let Some(event) = graphics.get_event() {
             cloud_status_button.disabled = matches!(menus.state, TitleScreenState::SecondaryMenu);
             if cloud_status_button.on_event(graphics, &event, &gfx::Container::default(graphics)) {
-                *open_secondary_menu.borrow_mut() = Some(0);
+                open_secondary_menu.set(Some(0));
             }
 
             menus.on_event(graphics, &event, &main_back_container, &secondary_back_container);
         }
 
-        if let Some(i) = *open_secondary_menu.borrow() {
+        if let Some(i) = open_secondary_menu.get() {
             if menus.secondary_menu.open_secondary_menu(graphics, i, settings.clone(), global_settings.clone(), &secondary_back_rect) {
                 menus.state = TitleScreenState::BothMenus;
             }
@@ -139,7 +140,7 @@ pub fn run_title_screen(graphics: &mut gfx::GraphicsContext, settings: &Rc<RefCe
             }
         }
 
-        *open_secondary_menu.borrow_mut() = None;
+        open_secondary_menu.set(None);
 
         if menus.secondary_menu.should_close() {
             menus.state = TitleScreenState::MainMenu;

@@ -1,6 +1,6 @@
 use super::Menu;
 use crate::libraries::graphics as gfx;
-use std::cell::RefCell;
+use std::cell::Cell;
 use std::rc::Rc;
 
 use gfx::BaseUiElement;
@@ -12,7 +12,7 @@ pub struct ChoiceMenu {
     title_lines: Vec<gfx::Sprite>,
     esc_choice: Option<usize>,
     enter_choice: Option<usize>,
-    close: Rc<RefCell<bool>>,
+    close: Rc<Cell<bool>>,
 }
 
 impl ChoiceMenu {
@@ -20,12 +20,12 @@ impl ChoiceMenu {
         let mut buttons: Vec<gfx::Button> = Vec::new();
         let mut buttons_width = 0.0;
         let mut max_button_height: f32 = 0.0;
-        let close = Rc::new(RefCell::new(false));
+        let close = Rc::new(Cell::new(false));
         for (text, function) in buttons_properties {
             let close_cloned = close.clone();
             let mut button_sprite = gfx::Button::new(move || {
                 function();
-                *close_cloned.borrow_mut() = true;
+                close_cloned.set(true);
             });
             button_sprite.scale = 3.0;
             button_sprite.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface(text, None));
@@ -129,6 +129,6 @@ impl Menu for ChoiceMenu {
     }
 
     fn should_close(&mut self) -> bool {
-        *self.close.borrow()
+        self.close.get()
     }
 }
