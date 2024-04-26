@@ -1,7 +1,6 @@
 use std::cell::RefCell;
 use std::rc::Rc;
 
-use crate::client::menus::BackgroundRect;
 use crate::libraries::graphics::{self as gfx, UiElement};
 use gfx::BaseUiElement;
 
@@ -22,12 +21,18 @@ impl TextInputMenu {
         let mut back_button = gfx::Button::new(|| {});
         back_button.scale = 3.0;
         back_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface(back_str, None));
+        back_button.orientation = gfx::BOTTOM;
 
         let confirm_str = "Continue";
         let mut confirm_button = gfx::Button::new(|| {});
         confirm_button.scale = 3.0;
         confirm_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface(confirm_str, None));
         confirm_button.pos.0 = back_button.get_size().0 + gfx::SPACING;
+        confirm_button.orientation = gfx::BOTTOM;
+
+        back_button.pos = gfx::FloatPos(-confirm_button.get_size().0 / 2.0 - gfx::SPACING, -gfx::SPACING);
+        confirm_button.pos = gfx::FloatPos(back_button.get_size().0 / 2.0 + gfx::SPACING, -gfx::SPACING);
+
         let mut input_field = gfx::TextInput::new(graphics);
         input_field.scale = 3.0;
         input_field.orientation = gfx::CENTER;

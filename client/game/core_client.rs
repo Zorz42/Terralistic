@@ -19,7 +19,6 @@ use crate::client::game::pause_menu::PauseMenu;
 use crate::client::game::players::ClientPlayers;
 use crate::client::game::respawn_screen::RespawnScreen;
 use crate::client::global_settings::GlobalSettings;
-use crate::client::menus::BackgroundRect;
 use crate::client::settings::Settings;
 use crate::libraries::events;
 use crate::libraries::events::EventManager;
@@ -58,7 +57,7 @@ pub fn run_game(
     let timer = std::time::Instant::now();
 
     let loading_text = Arc::new(Mutex::new("Loading".to_owned()));
-    let loading_text2 = loading_text.clone();
+    let loading_text2 = loading_text;
 
     let init_thread = std::thread::Builder::new().name("Client init".to_owned()).spawn(move || {
         let temp_fn = || -> Result<(ClientModManager, ClientBlocks, ClientWalls, ClientEntities, ClientItems, ClientNetworking)> {
@@ -113,7 +112,7 @@ pub fn run_game(
     let mut camera = Camera::new();
     let mut players = ClientPlayers::new(player_name);
     let mut block_selector = BlockSelector::new();
-    let mut pause_menu = PauseMenu::new(settings.clone(), global_settings.clone());
+    let mut pause_menu = PauseMenu::new(graphics, settings.clone(), global_settings.clone());
     let mut debug_menu = DebugMenu::new();
     let mut framerate_measurer = FramerateMeasurer::new();
     let mut chat = ClientChat::new(graphics);
