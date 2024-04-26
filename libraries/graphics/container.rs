@@ -25,7 +25,6 @@ pub struct Container {
     pub rect: Rect,
     abs_rect: Rect,
     pub orientation: Orientation,
-    pub sub_elemnts: Vec<Box<dyn BaseUiElement>>,
     pub update_subelements: Box<dyn Fn()>,
 }
 
@@ -37,7 +36,6 @@ impl Container {
             rect: Rect::new(pos, size),
             abs_rect: Rect::new(gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, 0.0)),
             orientation,
-            sub_elemnts: Vec::new(),
             update_subelements: Box::new(|| {}),
         };
         result.update_position(graphics, parent_container);
@@ -69,19 +67,11 @@ impl Container {
 
 impl UiElement for Container {
     fn get_sub_elements_mut(&mut self) -> Vec<&mut dyn BaseUiElement> {
-        let mut element_vec: Vec<&mut dyn BaseUiElement> = Vec::new();
-        for element in &mut self.sub_elemnts {
-            element_vec.push(&mut **element);
-        }
-        element_vec
+        vec![]
     }
 
     fn get_sub_elements(&self) -> Vec<&dyn BaseUiElement> {
-        let mut element_vec: Vec<&dyn BaseUiElement> = Vec::new();
-        for element in &self.sub_elemnts {
-            element_vec.push(&**element);
-        }
-        element_vec
+        vec![]
     }
 
     /// This function gets parent container and updates the absolute values

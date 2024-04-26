@@ -109,11 +109,6 @@ impl BackgroundRect for MenuBack {
         self.back_rect.pos.0 = center_pos;
     }
 
-    ///Gets a mutable vector of sub-elements. Should only be used when adding or removing elements
-    fn get_elements_vec_mut(&mut self) -> &mut Vec<Box<dyn BaseUiElement>> {
-        &mut self.back_container.sub_elemnts
-    }
-
     ///gets a vector of sub elements.
     fn get_sub_elements(&self) -> Vec<&dyn BaseUiElement> {
         self.back_container.get_sub_elements()

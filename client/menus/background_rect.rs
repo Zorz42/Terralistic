@@ -14,5 +14,4 @@ pub trait BackgroundRect: BaseUiElement {
     fn set_x_position(&mut self, center_pos: f32);
     fn get_sub_elements(&self) -> Vec<&dyn BaseUiElement>;
     fn get_sub_elements_mut(&mut self) -> Vec<&mut dyn BaseUiElement>;
-    fn get_elements_vec_mut(&mut self) -> &mut Vec<Box<dyn BaseUiElement>>;
 }
