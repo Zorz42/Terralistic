@@ -354,6 +354,7 @@ impl UiElement for SettingUi {
 }
 
 pub struct SettingsMenu {
+    title: gfx::Sprite,
     back_button: gfx::Button,
     settings_ui: Vec<SettingUi>,
     settings: Rc<RefCell<Settings>>,
@@ -363,8 +364,15 @@ pub struct SettingsMenu {
 
 impl SettingsMenu {
     #[must_use]
-    pub fn new(settings: Rc<RefCell<Settings>>, global_settings: Rc<RefCell<GlobalSettings>>) -> Self {
+    pub fn new(graphics: &gfx::GraphicsContext, settings: Rc<RefCell<Settings>>, global_settings: Rc<RefCell<GlobalSettings>>) -> Self {
+        let mut title = gfx::Sprite::new();
+        title.scale = 3.0;
+        title.set_texture(gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Settings", None)));
+        title.pos.1 = gfx::SPACING;
+        title.orientation = gfx::TOP;
+
         Self {
+            title,
             back_button: gfx::Button::new(|| {}),
             settings_ui: Vec::new(),
             settings,
@@ -392,7 +400,7 @@ impl SettingsMenu {
 
 impl UiElement for SettingsMenu {
     fn get_sub_elements_mut(&mut self) -> Vec<&mut dyn BaseUiElement> {
-        let mut elements_vec: Vec<&mut dyn BaseUiElement> = vec![&mut self.back_button];
+        let mut elements_vec: Vec<&mut dyn BaseUiElement> = vec![&mut self.back_button, &mut self.title];
         for element in &mut self.settings_ui {
             elements_vec.push(element);
         }
@@ -400,7 +408,7 @@ impl UiElement for SettingsMenu {
     }
 
     fn get_sub_elements(&self) -> Vec<&dyn BaseUiElement> {
-        let mut elements_vec: Vec<&dyn BaseUiElement> = vec![&self.back_button];
+        let mut elements_vec: Vec<&dyn BaseUiElement> = vec![&self.back_button, &self.title];
         for element in &self.settings_ui {
             elements_vec.push(element);
         }

@@ -67,7 +67,7 @@ impl PauseMenu {
             settings_button,
             quit_button,
             back_rect,
-            settings_menu: SettingsMenu::new(settings.clone(), global_settings.clone()),
+            settings_menu: SettingsMenu::new(graphics, settings.clone(), global_settings.clone()),
             rect_width,
             settings,
             global_settings,

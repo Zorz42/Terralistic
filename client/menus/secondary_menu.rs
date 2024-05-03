@@ -175,7 +175,7 @@ impl SecondaryMenu {
                 }
             }
             3 => {
-                let mut menu = SettingsMenu::new(settings, global_settings);
+                let mut menu = SettingsMenu::new(graphics, settings, global_settings);
                 menu.init(graphics, &menu_back.get_container(graphics, &gfx::Container::default(graphics)));
                 (Box::new(menu), "Settings".to_owned())
             }
