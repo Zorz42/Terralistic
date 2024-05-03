@@ -119,19 +119,43 @@ impl SecondaryMenu {
                     top_menu_container: gfx::Container::new(graphics, parent_container.rect.pos, parent_container.rect.size, parent_container.orientation, None),
                 }
             }
-            Self::Transition { top_menu, bottom_menu, direction, .. } => {
-                let switching_to = if direction { bottom_menu } else { top_menu };
-                if new_menu.1 == switching_to.1 {
-                    *self = Self::SingleMenu(switching_to);
+            Self::Transition {
+                top_menu,
+                bottom_menu,
+                direction,
+                transition_state,
+                top_menu_container,
+                bottom_menu_container,
+            } => {
+                let switching_to = if direction { bottom_menu.1 } else { top_menu.1 };
+                let switching_from = if direction { top_menu.1 } else { bottom_menu.1 };
+                if new_menu.1 == switching_to {
+                    *self = Self::Transition {
+                        top_menu,
+                        bottom_menu,
+                        transition_state,
+                        direction,
+                        bottom_menu_container,
+                        top_menu_container,
+                    }
+                } else if new_menu.1 == switching_from {
+                    *self = Self::Transition {
+                        top_menu,
+                        bottom_menu,
+                        transition_state: 1.0 - transition_state,
+                        direction: !direction,
+                        bottom_menu_container,
+                        top_menu_container,
+                    }
                 } else {
-                    let (top_menu, bottom_menu, direction) = if switching_to.1 < new_menu.1 {
+                    let (top_menu, bottom_menu, direction) = if switching_to < new_menu.1 {
                         let mut stack = MenuStack::new();
                         stack.add_menu(new_menu.0);
-                        (switching_to, (stack, new_menu.1), true)
+                        (if direction { bottom_menu } else { top_menu }, (stack, new_menu.1), true)
                     } else {
                         let mut stack = MenuStack::new();
                         stack.add_menu(new_menu.0);
-                        ((stack, new_menu.1), switching_to, false)
+                        ((stack, new_menu.1), if direction { bottom_menu } else { top_menu }, false)
                     };
                     *self = Self::Transition {
                         top_menu,
