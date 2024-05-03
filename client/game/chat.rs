@@ -45,9 +45,10 @@ impl ChatLine {
             return;
         }
 
-        let parent_container = gfx::Container::new(graphics, gfx::FloatPos(0.0, 0.0), graphics.get_window_size(), gfx::TOP_LEFT, None); //TODO this doesn't make sense
-        self.back_rect.render(graphics, &parent_container);
-        let pos = self.back_rect.get_container(graphics, &parent_container).rect.pos;
+        let window_container = gfx::Container::default(graphics); //TODO this doesn't make sense
+        self.back_rect.update(graphics, &window_container);
+        self.back_rect.render(graphics, &window_container);
+        let pos = self.back_rect.get_container(graphics, &window_container).rect.pos;
         self.texture.render(graphics, 3.0, pos, None, false, Some(gfx::Color::new(255, 255, 255, self.transparency as u8)));
     }
 
@@ -101,9 +102,11 @@ impl ClientChat {
             self.back_rect.size.0 = gfx::TEXT_INPUT_WIDTH * self.text_input.scale * 0.6;
         }
 
+        self.back_rect.update(graphics, &window_container);
         self.back_rect.render(graphics, &window_container);
 
         self.text_input.width = self.back_rect.get_container(graphics, &window_container).rect.size.0 / self.text_input.scale;
+        self.text_input.update(graphics, &window_container);
         self.text_input.render(graphics, &window_container);
 
         let mut curr_y = graphics.get_window_size().1 - gfx::SPACING - self.text_input.get_size().1;

@@ -34,6 +34,7 @@ impl DebugMenu {
         //TODO UI element
         let window_container = gfx::Container::default(graphics);
         self.back_rect.pos.0 = if self.open { -gfx::SPACING } else { self.back_rect.size.0 + 100.0 };
+        self.back_rect.update(graphics, &window_container);
         self.back_rect.render(graphics, &window_container);
 
         if self.is_visible(graphics) {
