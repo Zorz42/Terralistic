@@ -151,6 +151,8 @@
 #![allow(clippy::iter_without_into_iter)]
 #![windows_subsystem = "windows"]
 
+use std::cell::RefCell;
+use std::rc::Rc;
 use std::sync::atomic::AtomicBool;
 use std::sync::Arc;
 use std::sync::Mutex;
@@ -158,7 +160,7 @@ use std::sync::Mutex;
 use directories::BaseDirs;
 
 use crate::client::global_settings::GlobalSettings;
-use crate::client::menus::{run_main_menu, MenuBack};
+use crate::client::menus::{run_title_screen, MenuBack};
 use crate::client::settings::Settings;
 use crate::libraries::graphics as gfx;
 use crate::server::server_core::{Server, MULTIPLAYER_PORT};
@@ -288,8 +290,6 @@ fn client_main() {
         println!("Failed to set minimum window size");
     }
 
-    let mut menu_back = MenuBack::new(&graphics);
-
     let base_dirs;
     if let Some(base_dirs_) = BaseDirs::new() {
         base_dirs = base_dirs_;
@@ -297,17 +297,16 @@ fn client_main() {
         return;
     }
 
-    let mut settings = Settings::new(base_dirs.data_dir().join("Terralistic").join("settings.txt"));
+    let settings = Rc::new(RefCell::new(Settings::new(base_dirs.data_dir().join("Terralistic").join("settings.txt"))));
 
-    let mut global_settings = GlobalSettings::new();
-    global_settings.init(&mut settings);
-    global_settings.update(&mut graphics, &settings);
+    let global_settings = Rc::new(RefCell::new(GlobalSettings::new()));
+    global_settings.borrow_mut().init(&settings);
+    global_settings.borrow_mut().update(&mut graphics, &settings);
+    run_title_screen(&mut graphics, &settings, &global_settings);
 
-    run_main_menu(&mut graphics, &mut menu_back, &mut settings, &mut global_settings);
+    global_settings.borrow_mut().stop(&settings);
 
-    global_settings.stop(&mut settings);
-
-    if let Err(error) = settings.save_config() {
+    if let Err(error) = settings.borrow_mut().save_config() {
         println!("Failed to save settings to config file: {error}");
-    }
+    };
 }

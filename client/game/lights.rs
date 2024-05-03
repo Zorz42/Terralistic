@@ -1,4 +1,6 @@
 use anyhow::{anyhow, bail, Result};
+use std::cell::RefCell;
+use std::rc::Rc;
 
 use crate::client::game::camera::Camera;
 use crate::client::settings::{Setting, Settings};
@@ -86,7 +88,7 @@ impl ClientLights {
         Ok((x + y * (self.lights.get_width() as i32 / CHUNK_SIZE)) as usize)
     }
 
-    pub fn init(&mut self, blocks: &Blocks, settings: &mut Settings) -> Result<()> {
+    pub fn init(&mut self, blocks: &Blocks, settings: &Rc<RefCell<Settings>>) -> Result<()> {
         self.lights.create(blocks.get_width(), blocks.get_height());
         self.lights.init_sky_heights(blocks)?;
 
@@ -103,13 +105,13 @@ impl ClientLights {
             toggled: true,
         };
 
-        self.lights_setting = settings.register_setting(lights_settings);
+        self.lights_setting = settings.borrow_mut().register_setting(lights_settings);
 
         Ok(())
     }
 
-    pub fn render(&mut self, graphics: &gfx::GraphicsContext, camera: &Camera, blocks: &Blocks, settings: &Settings) -> Result<()> {
-        if let Setting::Toggle { toggled, .. } = settings.get_setting(self.lights_setting)? {
+    pub fn render(&mut self, graphics: &gfx::GraphicsContext, camera: &Camera, blocks: &Blocks, settings: &Rc<RefCell<Settings>>) -> Result<()> {
+        if let Setting::Toggle { toggled, .. } = settings.borrow_mut().get_setting(self.lights_setting)? {
             if !toggled {
                 return Ok(());
             }
@@ -175,7 +177,7 @@ impl ClientLights {
         self.lights.on_event(event, blocks)
     }
 
-    pub fn stop(&self, settings: &mut Settings) -> Result<()> {
-        settings.remove_setting(self.lights_setting)
+    pub fn stop(&self, settings: &Rc<RefCell<Settings>>) -> Result<()> {
+        settings.borrow_mut().remove_setting(self.lights_setting)
     }
 }

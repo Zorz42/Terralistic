@@ -12,7 +12,7 @@ pub(super) fn turbulence(noise: &Perlin, x: f32, y: f32) -> f32 {
     value / 2.0
 }
 
-pub(super) fn convolve(array: &Vec<f32>, size: i32) -> Vec<f32> {
+pub(super) fn convolve(array: &[f32], size: i32) -> Vec<f32> {
     let mut result = Vec::new();
 
     let mut sum = 0.0;

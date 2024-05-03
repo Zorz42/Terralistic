@@ -1,4 +1,6 @@
+use std::cell::RefCell;
 use std::ops::Deref;
+use std::rc::Rc;
 use std::sync::Arc;
 use std::sync::{Mutex, PoisonError};
 
@@ -17,7 +19,6 @@ use crate::client::game::pause_menu::PauseMenu;
 use crate::client::game::players::ClientPlayers;
 use crate::client::game::respawn_screen::RespawnScreen;
 use crate::client::global_settings::GlobalSettings;
-use crate::client::menus::{run_loading_screen, BackgroundRect};
 use crate::client::settings::Settings;
 use crate::libraries::events;
 use crate::libraries::events::EventManager;
@@ -35,12 +36,11 @@ use super::walls::ClientWalls;
 #[allow(clippy::too_many_lines)]
 pub fn run_game(
     graphics: &mut gfx::GraphicsContext,
-    menu_back: &mut dyn BackgroundRect,
     server_port: u16,
     server_address: String,
     player_name: &str,
-    settings: &mut Settings,
-    global_settings: &mut GlobalSettings,
+    settings: &Rc<RefCell<Settings>>,
+    global_settings: &Rc<RefCell<GlobalSettings>>,
 ) -> Result<()> {
     // load base game mod
     let mut pre_events = EventManager::new();
@@ -57,7 +57,7 @@ pub fn run_game(
     let timer = std::time::Instant::now();
 
     let loading_text = Arc::new(Mutex::new("Loading".to_owned()));
-    let loading_text2 = loading_text.clone();
+    let loading_text2 = loading_text;
 
     let init_thread = std::thread::Builder::new().name("Client init".to_owned()).spawn(move || {
         let temp_fn = || -> Result<(ClientModManager, ClientBlocks, ClientWalls, ClientEntities, ClientItems, ClientNetworking)> {
@@ -90,7 +90,7 @@ pub fn run_game(
         result
     })?;
 
-    run_loading_screen(graphics, menu_back, &loading_text);
+    //run_loading_screen(graphics, menu_back, &loading_text);
 
     let result = init_thread.join();
     let Ok(result) = result else {
@@ -112,7 +112,7 @@ pub fn run_game(
     let mut camera = Camera::new();
     let mut players = ClientPlayers::new(player_name);
     let mut block_selector = BlockSelector::new();
-    let mut pause_menu = PauseMenu::new();
+    let mut pause_menu = PauseMenu::new(graphics, settings.clone(), global_settings.clone());
     let mut debug_menu = DebugMenu::new();
     let mut framerate_measurer = FramerateMeasurer::new();
     let mut chat = ClientChat::new(graphics);
@@ -121,7 +121,7 @@ pub fn run_game(
     let mut respawn_screen = RespawnScreen::new();
 
     background.init()?;
-    inventory.init();
+    inventory.init(graphics);
     lights.init(&blocks.get_blocks(), settings)?;
 
     blocks.load_resources(&mods.mod_manager)?;
@@ -131,7 +131,7 @@ pub fn run_game(
     players.load_resources(&mods.mod_manager)?;
     health.load_resources(&mods.mod_manager)?;
 
-    pause_menu.init(graphics, settings);
+    pause_menu.init(graphics);
     debug_menu.init();
     chat.init();
     respawn_screen.init(graphics);
@@ -184,7 +184,7 @@ pub fn run_game(
         chat.render(graphics);
         respawn_screen.render(graphics);
 
-        pause_menu.render(graphics, settings, global_settings);
+        pause_menu.render(graphics);
 
         debug_menu.render(
             graphics,
@@ -210,7 +210,7 @@ pub fn run_game(
             lights.on_event(&event, &blocks.get_blocks())?;
             camera.on_event(&event);
             health.on_event(&event, graphics, &mut floating_text, &players, &entities.get_entities());
-            if pause_menu.on_event(&event, graphics, settings) {
+            if pause_menu.on_event(&event, graphics) {
                 break 'main_loop;
             }
             debug_menu.on_event(&event);

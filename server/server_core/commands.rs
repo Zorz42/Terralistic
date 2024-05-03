@@ -107,7 +107,7 @@ impl CommandManager {
         Ok(format!("Unknown command: \"{command_name}\""))
     }
 
-    fn help_command(&self, arguments: &Vec<String>) -> Result<String> {
+    fn help_command(&self, arguments: &[String]) -> Result<String> {
         if arguments.is_empty() {
             let mut result = "/help - builtin command
 /help - displays all commands and their descriptions

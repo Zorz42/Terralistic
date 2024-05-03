@@ -1,5 +1,6 @@
 use crate::libraries::events::Event;
 use crate::libraries::graphics as gfx;
+use crate::libraries::graphics::BaseUiElement;
 use crate::shared::blocks::RENDER_BLOCK_WIDTH;
 
 /// Camera is a struct that handles the camera position.
@@ -26,7 +27,8 @@ impl Camera {
     }
 
     pub fn load_resources(&mut self, graphics: &gfx::GraphicsContext) {
-        self.detached_text.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Camera is detached", None));
+        self.detached_text
+            .set_texture(gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Camera is detached", None)));
         self.detached_text.orientation = gfx::BOTTOM;
         self.detached_text.pos = gfx::FloatPos(0.0, -gfx::SPACING);
         self.detached_text.scale = 3.0;
@@ -67,9 +69,9 @@ impl Camera {
         }
     }
 
-    pub fn render(&self, graphics: &gfx::GraphicsContext) {
+    pub fn render(&mut self, graphics: &mut gfx::GraphicsContext) {
         if self.detached {
-            self.detached_text.render(graphics, None, None);
+            self.detached_text.render(graphics, &gfx::Container::default(graphics));
         }
     }
 

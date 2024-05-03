@@ -1,14 +1,19 @@
-pub use add_server_menu::run_add_server_menu;
+pub use add_server_menu::AddServerMenu;
 pub use background_rect::BackgroundRect;
-pub use choice_menu::run_choice_menu;
-pub use loading_screen::run_loading_screen;
-pub use login::run_login_menu;
-pub use main_menu::run_main_menu;
+pub use loading_screen::LoadingScreen;
+pub use login::LoginMenu;
+pub use main_menu::MainMenu;
+pub use menu::Menu;
 pub use menu_back::MenuBack;
-pub use multiplayer_selector::run_multiplayer_selector;
+pub use menu_stack::MenuStack;
+pub use multiplayer_selector::MultiplayerSelector;
+pub use secondary_menu::SecondaryMenu;
 pub use settings_menu::SettingsMenu;
-pub use singleplayer_selector::run_singleplayer_selector;
-pub use text_input_menu::run_text_input_menu;
+pub use singleplayer_selector::SingleplayerSelector;
+pub use singleplayer_selector::MENU_WIDTH;
+pub use start_multiplayer::StartMultiplayer;
+pub use text_input_menu::TextInputMenu;
+pub use title_screen_renderer::run_title_screen;
 
 mod background_rect;
 
@@ -33,3 +38,13 @@ mod text_input_menu;
 mod login;
 
 mod settings_menu;
+
+mod menu;
+
+mod title_screen_renderer;
+
+mod secondary_menu;
+
+mod menu_stack;
+
+mod start_multiplayer;

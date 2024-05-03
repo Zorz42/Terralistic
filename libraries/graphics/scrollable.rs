@@ -1,4 +1,5 @@
 use crate::libraries::graphics as gfx;
+use gfx::{BaseUiElement, UiElement};
 
 pub struct Scrollable {
     pub rect: gfx::Rect,
@@ -26,18 +27,28 @@ impl Scrollable {
         }
     }
 
-    pub fn on_event(&mut self, event: &gfx::Event) {
-        if let gfx::Event::MouseScroll(delta) = event {
-            let delta = -*delta * 0.8;
-            if delta > 0.0 {
-                self.scroll_velocity = f32::max(self.scroll_velocity, delta);
-            } else if delta < 0.0 {
-                self.scroll_velocity = f32::min(self.scroll_velocity, delta);
-            }
-        }
+    #[must_use]
+    pub fn get_scroll_x(&self, graphics: &gfx::GraphicsContext, parent_container: &gfx::Container) -> f32 {
+        let container = self.get_container(graphics, parent_container);
+        container.rect.pos.0 - self.scroll_pos
     }
 
-    pub fn render(&mut self) {
+    #[must_use]
+    pub const fn get_scroll_pos(&self) -> f32 {
+        self.scroll_pos
+    }
+}
+
+impl UiElement for Scrollable {
+    fn get_sub_elements_mut(&mut self) -> Vec<&mut dyn BaseUiElement> {
+        Vec::new()
+    }
+
+    fn get_sub_elements(&self) -> Vec<&dyn BaseUiElement> {
+        Vec::new()
+    }
+
+    fn render_inner(&mut self, _: &mut gfx::GraphicsContext, _: &gfx::Container) {
         while self.animation_timer.frame_ready() {
             self.scroll_pos += self.scroll_velocity;
 
@@ -58,21 +69,22 @@ impl Scrollable {
         }
     }
 
+    fn on_event_inner(&mut self, _: &mut gfx::GraphicsContext, event: &gfx::Event, _: &gfx::Container) -> bool {
+        if let gfx::Event::MouseScroll(delta) = event {
+            let delta = -*delta * 0.8;
+            if delta > 0.0 {
+                self.scroll_velocity = f32::max(self.scroll_velocity, delta);
+            } else if delta < 0.0 {
+                self.scroll_velocity = f32::min(self.scroll_velocity, delta);
+            }
+        }
+        false
+    }
+
     /// This function returns the container of the rectangle.
     /// The container has the position of render rect.
     #[must_use]
-    pub fn get_container(&self, graphics: &gfx::GraphicsContext, parent_container: Option<&gfx::Container>) -> gfx::Container {
-        gfx::Container::new(graphics, self.rect.pos, self.rect.size, self.orientation, parent_container)
-    }
-
-    #[must_use]
-    pub fn get_scroll_x(&self, graphics: &gfx::GraphicsContext, parent_container: Option<&gfx::Container>) -> f32 {
-        let container = self.get_container(graphics, parent_container);
-        container.rect.pos.0 - self.scroll_pos
-    }
-
-    #[must_use]
-    pub const fn get_scroll_pos(&self) -> f32 {
-        self.scroll_pos
+    fn get_container(&self, graphics: &gfx::GraphicsContext, parent_container: &gfx::Container) -> gfx::Container {
+        gfx::Container::new(graphics, self.rect.pos, self.rect.size, self.orientation, Some(parent_container))
     }
 }

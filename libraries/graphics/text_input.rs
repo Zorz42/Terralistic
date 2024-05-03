@@ -1,4 +1,5 @@
 use crate::libraries::graphics as gfx;
+use gfx::{BaseUiElement, UiElement};
 
 use super::theme::{
     GFX_DEFAULT_TEXT_INPUT_BORDER_COLOR, GFX_DEFAULT_TEXT_INPUT_COLOR, GFX_DEFAULT_TEXT_INPUT_HOVER_BORDER_COLOR, GFX_DEFAULT_TEXT_INPUT_HOVER_COLOR, GFX_DEFAULT_TEXT_INPUT_PADDING,
@@ -71,14 +72,9 @@ impl TextInput {
         gfx::FloatSize((self.width) * self.scale, (self.text_texture.get_texture_size().1 + self.padding * 2.0) * self.scale)
     }
 
-    /// Generates the container for the text input. It it private, since a text input should never contain other elements.
-    fn get_container(&self, graphics: &gfx::GraphicsContext, parent_container: Option<&gfx::Container>) -> gfx::Container {
-        gfx::Container::new(graphics, self.pos, self.get_size(), self.orientation, parent_container)
-    }
-
     /// Checks if the button is hovered with a mouse
     #[must_use]
-    pub fn is_hovered(&self, graphics: &gfx::GraphicsContext, parent_container: Option<&gfx::Container>) -> bool {
+    pub fn is_hovered(&self, graphics: &gfx::GraphicsContext, parent_container: &gfx::Container) -> bool {
         let container = self.get_container(graphics, parent_container);
         let rect = container.get_absolute_rect();
         let mouse_pos = graphics.get_mouse_pos();
@@ -138,10 +134,20 @@ impl TextInput {
         }
         initial_pos
     }
+}
+
+impl UiElement for TextInput {
+    fn get_sub_elements_mut(&mut self) -> Vec<&mut dyn BaseUiElement> {
+        vec![&mut self.cursor_rect]
+    }
+
+    fn get_sub_elements(&self) -> Vec<&dyn BaseUiElement> {
+        vec![&self.cursor_rect]
+    }
 
     /// renders the text input
     #[allow(clippy::too_many_lines)] // TODO: split this function up
-    pub fn render(&mut self, graphics: &gfx::GraphicsContext, parent_container: Option<&gfx::Container>) {
+    fn render_inner(&mut self, graphics: &mut gfx::GraphicsContext, parent_container: &gfx::Container) {
         let container = self.get_container(graphics, parent_container);
         let rect = container.get_absolute_rect();
 
@@ -224,7 +230,7 @@ impl TextInput {
         if self.text_changed || self.selected {
             let texture_width = if self.text.is_empty() { 0.0 } else { self.text_texture.get_texture_size().0 * self.scale };
 
-            let text_begin_x = f32::min(rect.pos.0 + self.padding * self.scale, rect.pos.0 - self.padding * self.scale + rect.size.0 - texture_width);
+            let text_begin_x = f32::min(self.padding * self.scale, -self.padding * self.scale + rect.size.0 - texture_width);
 
             // w1 is the width of the text before the cursor.0
             let w1 = if self.get_cursor().0 == 0 {
@@ -244,25 +250,25 @@ impl TextInput {
             let x2 = text_begin_x + w2 + 1.0;
 
             self.cursor_rect.pos.0 = x1;
-            self.cursor_rect.pos.1 = rect.pos.1 + self.padding * self.scale;
+            self.cursor_rect.pos.1 = self.padding * self.scale;
             self.cursor_rect.size.0 = x2 - x1;
             self.cursor_rect.size.1 = rect.size.1 - self.padding * self.scale * 2.0;
 
-            if self.cursor_rect.get_container(graphics, None).rect.pos.0 == 0.0 && self.cursor_rect.get_container(graphics, None).rect.pos.1 == 0.0 {
+            if self.cursor_rect.get_container(graphics, parent_container).rect.pos.0 == 0.0 && self.cursor_rect.get_container(graphics, parent_container).rect.pos.1 == 0.0 {
                 self.cursor_rect.jump_to_target();
             }
         }
 
         self.cursor_rect.fill_color.a = (255.0 * self.cursor_color_progress) as u8;
 
-        self.cursor_rect.render(graphics, None);
+        //self.cursor_rect.render(graphics, parent_container);
 
         self.text_changed = false;
     }
 
     #[allow(clippy::too_many_lines)] // TODO: split this up
     #[allow(clippy::cognitive_complexity)]
-    pub fn on_event(&mut self, event: &gfx::Event, graphics: &mut gfx::GraphicsContext, parent_container: Option<&gfx::Container>) {
+    fn on_event_inner(&mut self, graphics: &mut gfx::GraphicsContext, event: &gfx::Event, parent_container: &gfx::Container) -> bool {
         match event {
             gfx::Event::TextInput(text) => {
                 if self.selected {
@@ -286,6 +292,7 @@ impl TextInput {
                     self.cursor.0 += new_text.len();
                     self.text_changed = true;
                     self.cursor.1 = self.cursor.0;
+                    return true;
                 }
             }
 
@@ -295,7 +302,7 @@ impl TextInput {
                 }
 
                 if !self.selected {
-                    return;
+                    return false;
                 }
 
                 match key {
@@ -389,8 +396,15 @@ impl TextInput {
                     }
                     _ => {}
                 }
+                return true;
             }
             _ => {}
         }
+        false
+    }
+
+    /// Generates the container for the text input. It it private, since a text input should never contain other elements.
+    fn get_container(&self, graphics: &gfx::GraphicsContext, parent_container: &gfx::Container) -> gfx::Container {
+        gfx::Container::new(graphics, self.pos, self.get_size(), self.orientation, Some(parent_container))
     }
 }

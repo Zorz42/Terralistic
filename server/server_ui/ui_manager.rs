@@ -7,6 +7,7 @@ use std::sync::Mutex;
 use std::thread::sleep;
 
 use crate::libraries::graphics as gfx;
+use crate::libraries::graphics::BaseUiElement;
 use crate::server::server_core::Server;
 use crate::server::server_ui::ui_module_manager::{ModuleManager, ModuleTreeNodeType, ModuleTreeSplit, SplitType};
 use crate::server::server_ui::{console, empty_module, player_list, server_info};
@@ -157,7 +158,7 @@ impl UiManager {
         self.render_modules();
 
         if self.module_edit_mode {
-            self.module_manager.render_overlay(&self.graphics_context);
+            self.module_manager.render_overlay(&mut self.graphics_context);
         }
 
         //display the frame
@@ -225,8 +226,9 @@ impl UiManager {
         core::mem::swap(temp_1, temp_2);
 
         //loop through the modules and update their containers
+        let parent_container = gfx::Container::default(&self.graphics_context);
         for module in &mut self.modules {
-            module.get_container_mut().update(&self.graphics_context, None);
+            module.get_container_mut().update(&mut self.graphics_context, &parent_container);
         }
 
         Ok(())

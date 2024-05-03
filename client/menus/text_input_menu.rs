@@ -1,84 +1,108 @@
-use crate::client::menus::BackgroundRect;
-use crate::libraries::graphics as gfx;
+use std::cell::RefCell;
+use std::rc::Rc;
 
-pub fn run_text_input_menu(menu_title: &str, graphics: &mut gfx::GraphicsContext, menu_back: &mut dyn BackgroundRect) -> Option<String> {
-    let text_lines_vec = menu_title.split('\n').collect::<Vec<&str>>();
+use crate::libraries::graphics::{self as gfx, UiElement};
+use gfx::BaseUiElement;
 
-    let mut title_lines = Vec::new();
-    for line in text_lines_vec {
-        let mut sprite = gfx::Sprite::new();
-        sprite.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface(line, None));
-        sprite.scale = 3.0;
-        sprite.orientation = gfx::TOP;
-        sprite.pos.1 = gfx::SPACING + title_lines.len() as f32 * (sprite.get_size().1 + gfx::SPACING);
-        title_lines.push(sprite);
+use super::Menu;
+
+pub struct TextInputMenu {
+    title: gfx::Sprite,
+    back_button: gfx::Button,
+    confirm_button: gfx::Button,
+    input_field: gfx::TextInput,
+    text: Rc<RefCell<Option<String>>>,
+    close_menu: bool,
+}
+
+impl TextInputMenu {
+    pub fn new(graphics: &gfx::GraphicsContext, title_text: &str, text: Rc<RefCell<Option<String>>>) -> Self {
+        let back_str = "Back";
+        let mut back_button = gfx::Button::new(|| {});
+        back_button.scale = 3.0;
+        back_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface(back_str, None));
+        back_button.orientation = gfx::BOTTOM;
+
+        let confirm_str = "Continue";
+        let mut confirm_button = gfx::Button::new(|| {});
+        confirm_button.scale = 3.0;
+        confirm_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface(confirm_str, None));
+        confirm_button.pos.0 = back_button.get_size().0 + gfx::SPACING;
+        confirm_button.orientation = gfx::BOTTOM;
+
+        back_button.pos = gfx::FloatPos(-confirm_button.get_size().0 / 2.0 - gfx::SPACING, -gfx::SPACING);
+        confirm_button.pos = gfx::FloatPos(back_button.get_size().0 / 2.0 + gfx::SPACING, -gfx::SPACING);
+
+        let mut input_field = gfx::TextInput::new(graphics);
+        input_field.scale = 3.0;
+        input_field.orientation = gfx::CENTER;
+
+        let mut title_sprite = gfx::Sprite::new();
+        title_sprite.set_texture(gfx::Texture::load_from_surface(&graphics.font.create_text_surface(title_text, None)));
+        title_sprite.scale = 3.0;
+        title_sprite.orientation = gfx::TOP;
+
+        Self {
+            title: title_sprite,
+            back_button,
+            confirm_button,
+            input_field,
+            text,
+            close_menu: false,
+        }
+    }
+}
+
+impl UiElement for TextInputMenu {
+    fn get_sub_elements_mut(&mut self) -> Vec<&mut dyn BaseUiElement> {
+        vec![&mut self.back_button, &mut self.confirm_button, &mut self.input_field, &mut self.title]
     }
 
-    let mut buttons_container = gfx::Container::new(graphics, gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, 0.0), gfx::BOTTOM, None);
+    fn get_sub_elements(&self) -> Vec<&dyn BaseUiElement> {
+        vec![&self.back_button, &self.confirm_button, &self.input_field, &self.title]
+    }
 
-    let back_str = "Back";
-    let mut back_button = gfx::Button::new();
-    back_button.scale = 3.0;
-    back_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface(back_str, None));
+    fn get_container(&self, graphics: &gfx::GraphicsContext, parent_container: &gfx::Container) -> gfx::Container {
+        gfx::Container::new(graphics, parent_container.rect.pos, parent_container.rect.size, parent_container.orientation, None)
+    }
 
-    let confirm_str = "Continue";
-    let mut confirm_button = gfx::Button::new();
-    confirm_button.scale = 3.0;
-    confirm_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface(confirm_str, None));
-    confirm_button.pos.0 = back_button.get_size().0 + gfx::SPACING;
+    fn on_event_inner(&mut self, graphics: &mut gfx::GraphicsContext, event: &gfx::Event, parent_container: &gfx::Container) -> bool {
+        if self.back_button.on_event_inner(graphics, event, parent_container) {
+            self.close_menu = true;
+            return true;
+        }
+        if self.confirm_button.on_event_inner(graphics, event, parent_container) {
+            *self.text.borrow_mut() = Some(self.input_field.get_text().to_owned());
+            self.close_menu = true;
+            return true;
+        }
 
-    buttons_container.rect.size.0 = back_button.get_size().0 + confirm_button.get_size().0 + gfx::SPACING;
-    buttons_container.rect.size.1 = back_button.get_size().1;
-    buttons_container.rect.pos.1 = -gfx::SPACING;
-
-    let mut input_field = gfx::TextInput::new(graphics);
-    input_field.scale = 3.0;
-    input_field.orientation = gfx::CENTER;
-
-    //this is where the menu is drawn
-    while graphics.is_window_open() {
-        while let Some(event) = graphics.get_event() {
-            input_field.on_event(&event, graphics, Some(menu_back.get_back_rect_container()));
-
-            //sorts out the events
-            if let gfx::Event::KeyRelease(key, ..) = event {
-                match key {
-                    gfx::Key::MouseLeft => {
-                        if back_button.is_hovered(graphics, Some(&buttons_container)) {
-                            return None;
-                        }
-                        if confirm_button.is_hovered(graphics, Some(&buttons_container)) {
-                            return Some(input_field.get_text().clone());
-                        }
-                    }
-                    gfx::Key::Escape => return None,
-                    gfx::Key::Enter => {
-                        return Some(input_field.get_text().clone());
-                    }
-                    _ => {}
+        //sorts out the events
+        if let gfx::Event::KeyRelease(key, ..) = event {
+            match key {
+                gfx::Key::Escape => {
+                    self.close_menu = true;
+                    return true;
                 }
+                gfx::Key::Enter => {
+                    *self.text.borrow_mut() = Some(self.input_field.get_text().to_owned());
+                    self.close_menu = true;
+                    return true;
+                }
+                _ => {}
             }
         }
-        menu_back.set_back_rect_width(700.0);
 
-        menu_back.render_back(graphics);
+        false
+    }
+}
 
-        //render input fields
-
-        buttons_container.update(graphics, Some(menu_back.get_back_rect_container()));
-
-        for sprite in &mut title_lines {
-            sprite.render(graphics, Some(menu_back.get_back_rect_container()), None);
-        }
-
-        back_button.render(graphics, Some(&buttons_container));
-
-        confirm_button.render(graphics, Some(&buttons_container));
-
-        input_field.render(graphics, Some(menu_back.get_back_rect_container()));
-
-        graphics.update_window();
+impl Menu for TextInputMenu {
+    fn should_close(&mut self) -> bool {
+        self.close_menu
     }
 
-    None
+    fn open_menu(&mut self, _: &mut gfx::GraphicsContext) -> Option<(Box<dyn Menu>, String)> {
+        None
+    }
 }

@@ -4,6 +4,7 @@ use crate::libraries::graphics as gfx;
 use crate::shared::packet::Packet;
 use crate::shared::players::RespawnPacket;
 use anyhow::Result;
+use gfx::{BaseUiElement, UiElement};
 
 pub struct RespawnScreen {
     respawn_button: gfx::Button,
@@ -15,7 +16,7 @@ pub struct RespawnScreen {
 impl RespawnScreen {
     pub fn new() -> Self {
         Self {
-            respawn_button: gfx::Button::new(),
+            respawn_button: gfx::Button::new(|| {}),
             respawn_text: gfx::Sprite::new(),
             back_rect: gfx::RenderRect::new(gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, 0.0)),
             is_shown: false,
@@ -27,7 +28,7 @@ impl RespawnScreen {
         self.respawn_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Respawn", None));
         self.respawn_button.scale = 3.0;
 
-        self.respawn_text.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("You died", None));
+        self.respawn_text.set_texture(gfx::Texture::load_from_surface(&graphics.font.create_text_surface("You died", None)));
         self.respawn_text.pos.1 = -100.0;
         self.respawn_text.orientation = gfx::CENTER;
         self.respawn_text.scale = 3.0;
@@ -41,23 +42,26 @@ impl RespawnScreen {
         self.back_rect.shadow_intensity = gfx::SHADOW_INTENSITY;
     }
 
-    pub fn render(&mut self, graphics: &gfx::GraphicsContext) {
+    pub fn render(&mut self, graphics: &mut gfx::GraphicsContext) {
         if self.is_shown {
             gfx::Rect::new(gfx::FloatPos(0.0, 0.0), graphics.get_window_size()).render(graphics, gfx::Color::new(255, 0, 0, 100));
 
+            let window_container = gfx::Container::default(graphics);
+
             self.back_rect.size.1 = graphics.get_window_size().1;
-            self.back_rect.render(graphics, Some(&self.back_rect.get_container(graphics, None)));
+            self.back_rect.render(graphics, &self.back_rect.get_container(graphics, &window_container));
 
-            self.respawn_text.render(graphics, Some(&self.back_rect.get_container(graphics, None)), None);
+            self.respawn_text.render(graphics, &self.back_rect.get_container(graphics, &window_container));
 
-            self.respawn_button.render(graphics, Some(&self.back_rect.get_container(graphics, None)));
+            self.respawn_button.render(graphics, &self.back_rect.get_container(graphics, &window_container));
+            //TODO UI element
         }
     }
 
     pub fn on_event(&mut self, event: &Event, graphics: &gfx::GraphicsContext, networking: &mut ClientNetworking) -> Result<()> {
         if self.is_shown {
             if let Some(gfx::Event::KeyPress(gfx::Key::MouseLeft, ..)) = event.downcast::<gfx::Event>() {
-                if self.respawn_button.is_hovered(graphics, Some(&self.back_rect.get_container(graphics, None))) {
+                if self.respawn_button.is_hovered(graphics, &self.back_rect.get_container(graphics, &gfx::Container::default(graphics))) {
                     let packet = Packet::new(RespawnPacket {})?;
                     networking.send_packet(packet)?;
                 }

@@ -1,4 +1,5 @@
 use crate::libraries::graphics as gfx;
+use gfx::{BaseUiElement, UiElement};
 
 use super::theme::{GFX_DEFAULT_BUTTON_BORDER_COLOR, GFX_DEFAULT_BUTTON_COLOR, GFX_DEFAULT_BUTTON_PADDING, GFX_DEFAULT_HOVERED_BUTTON_BORDER_COLOR, GFX_DEFAULT_HOVERED_BUTTON_COLOR};
 
@@ -19,12 +20,13 @@ pub struct Button {
     pub hover_progress: f32,
     timer: std::time::Instant,
     timer_counter: u32,
+    on_click: Box<dyn Fn()>,
 }
 
 impl Button {
     /// Creates a new button.
     #[must_use]
-    pub fn new() -> Self {
+    pub fn new<F: 'static + Fn()>(closure: F) -> Self {
         Self {
             pos: gfx::FloatPos(0.0, 0.0),
             orientation: gfx::TOP_LEFT,
@@ -40,6 +42,7 @@ impl Button {
             hover_progress: 0.0,
             timer: std::time::Instant::now(),
             timer_counter: 0,
+            on_click: Box::new(closure),
         }
     }
 
@@ -52,15 +55,9 @@ impl Button {
         )
     }
 
-    /// Generates the container for the button.
-    #[must_use]
-    pub fn get_container(&self, graphics: &gfx::GraphicsContext, parent_container: Option<&gfx::Container>) -> gfx::Container {
-        gfx::Container::new(graphics, self.pos, self.get_size(), self.orientation, parent_container)
-    }
-
     /// Checks if the button is hovered with a mouse.
     #[must_use]
-    pub fn is_hovered(&self, graphics: &gfx::GraphicsContext, parent_container: Option<&gfx::Container>) -> bool {
+    pub fn is_hovered(&self, graphics: &gfx::GraphicsContext, parent_container: &gfx::Container) -> bool {
         if self.disabled {
             return false;
         }
@@ -71,8 +68,22 @@ impl Button {
         rect.contains(mouse_pos)
     }
 
+    pub fn press(&self) {
+        (self.on_click)();
+    }
+}
+
+impl UiElement for Button {
+    fn get_sub_elements_mut(&mut self) -> Vec<&mut dyn BaseUiElement> {
+        Vec::new()
+    }
+
+    fn get_sub_elements(&self) -> Vec<&dyn BaseUiElement> {
+        Vec::new()
+    }
+
     /// Renders the button.
-    pub fn render(&mut self, graphics: &gfx::GraphicsContext, parent_container: Option<&gfx::Container>) {
+    fn render_inner(&mut self, graphics: &mut gfx::GraphicsContext, parent_container: &gfx::Container) {
         let container = self.get_container(graphics, parent_container);
         let rect = container.get_absolute_rect();
 
@@ -125,5 +136,22 @@ impl Button {
         if self.disabled && self.darken_on_disabled {
             rect.render(graphics, gfx::Color::new(0, 0, 0, 100));
         }
+    }
+
+    ///calls `on_click` when clicked
+    fn on_event_inner(&mut self, graphics: &mut gfx::GraphicsContext, event: &gfx::Event, parent_container: &gfx::Container) -> bool {
+        if let gfx::Event::KeyRelease(key, ..) = event {
+            if *key == gfx::Key::MouseLeft && self.is_hovered(graphics, parent_container) && !self.disabled {
+                (self.on_click)();
+                return true;
+            }
+        }
+        false
+    }
+
+    /// Generates the container for the button.
+    #[must_use]
+    fn get_container(&self, graphics: &gfx::GraphicsContext, parent_container: &gfx::Container) -> gfx::Container {
+        gfx::Container::new(graphics, self.pos, self.get_size(), self.orientation, Some(parent_container))
     }
 }

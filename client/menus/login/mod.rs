@@ -1,4 +1,4 @@
-pub use login::run_login_menu;
+pub use login::LoginMenu;
 
 pub mod login;
 
