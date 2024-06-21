@@ -24,7 +24,7 @@ impl ItemId {
     }
 }
 
-#[derive(Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[derive(Clone, Serialize, Deserialize, PartialEq, Eq, Debug)]
 pub struct ItemStack {
     pub item: ItemId,
     pub count: i32,

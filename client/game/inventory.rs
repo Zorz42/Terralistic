@@ -11,13 +11,14 @@ use crate::shared::items::{ItemStack, RecipeId};
 use crate::shared::packet::Packet;
 use gfx::{BaseUiElement, UiElement};
 
-#[derive(Clone, Copy, PartialEq, Eq)]
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
 enum OpenState {
     Closed,
     Open,
     OpenedBlock { x: i32, y: i32 },
 }
 
+#[derive(core::fmt::Debug)]
 enum HoveredSlot {
     None,
     Inventory(usize),
@@ -25,6 +26,7 @@ enum HoveredSlot {
     Recipe(RecipeId),
 }
 
+#[derive(Debug)]
 pub struct ClientInventory {
     open_state: OpenState,
     back_rect: gfx::RenderRect,
@@ -146,6 +148,7 @@ impl ClientInventory {
                 back_rect.pos.0 + x as f32 * (INVENTORY_SLOT_SIZE + INVENTORY_SPACING),
                 back_rect.pos.1 + y as f32 * (INVENTORY_SLOT_SIZE + INVENTORY_SPACING),
             );
+            self.hovered_slot_rect.update(graphics, &window_container);
             self.hovered_slot_rect.render(graphics, &window_container);
         }
 

@@ -2,6 +2,7 @@
 /// It accumulates the time elapsed for example: if you wait 1000ms and duration is 100ms,
 /// then first 10 times `is_frame_ready` will return true and 11th time it will return false.
 
+#[derive(Debug)]
 pub struct AnimationTimer {
     per_frame: i32,
     start_time: std::time::Instant,

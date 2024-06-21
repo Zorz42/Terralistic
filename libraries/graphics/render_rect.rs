@@ -6,6 +6,7 @@ use gfx::BaseUiElement;
 /// it has a `smooth_factor`. At every render the position
 /// of the container is changed by the distance to the
 /// target position divided by the `smooth_factor`. It is 1 by default.
+#[derive(Debug)]
 pub struct RenderRect {
     pub pos: gfx::FloatPos,
     pub size: gfx::FloatSize,

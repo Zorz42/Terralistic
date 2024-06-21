@@ -2,7 +2,7 @@ use crate::libraries::graphics as gfx;
 
 use super::{BaseUiElement, Rect, UiElement};
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Debug)]
 pub struct Orientation {
     pub x: f32,
     pub y: f32,

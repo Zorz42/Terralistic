@@ -12,7 +12,7 @@ pub enum Slot {
     Block(i32, i32, usize),
 }
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize, Debug)]
 pub struct Inventory {
     items: Vec<Option<ItemStack>>,
     pub has_changed: bool,
