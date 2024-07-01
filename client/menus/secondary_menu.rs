@@ -57,7 +57,7 @@ impl SecondaryMenu {
                 top_menu_container,
                 bottom_menu_container,
             } => {
-                *transition_state += (1.0 - *transition_state) / 15.0;
+                *transition_state += (1.0 - *transition_state) / 5.0;
                 if *transition_state > 0.999 {
                     stop_transition = true;
                 }

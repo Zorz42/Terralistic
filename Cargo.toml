@@ -37,18 +37,18 @@ kvptree = "0.1"
 
 # set custom dependency for windows
 [target.'cfg(windows)'.dependencies]
-sdl2 = { version = "=0.35.2", features = ["bundled", "static-link"] }
-sdl2-sys = { version = "=0.35.2", features = ["bundled", "static-link"] }
+sdl2 = { version = "=0.36.0", features = ["bundled", "static-link"] }
+sdl2-sys = { version = "=0.36.0", features = ["bundled", "static-link"] }
 
 # set custom dependency for linux
 [target.'cfg(unix)'.dependencies]
-sdl2 = { version = "=0.35.2", features = ["use-pkgconfig", "static-link"] }
-sdl2-sys = { version = "=0.35.2", features = ["use-pkgconfig", "static-link"] }
+sdl2 = { version = "=0.36.0", features = ["use-pkgconfig", "static-link"] }
+sdl2-sys = { version = "=0.36.0", features = ["use-pkgconfig", "static-link"] }
 
 # set custom dependency for macos
 [target.'cfg(target_os = "macos")'.dependencies]
-sdl2 = { version = "=0.35.2", features = ["static-link"] }
-sdl2-sys = { version = "=0.35.2", features = ["static-link"] }
+sdl2 = { version = "=0.36.0", features = ["static-link"] }
+sdl2-sys = { version = "=0.36.0", features = ["static-link"] }
 
 [profile.release]
 strip = true
@@ -100,18 +100,18 @@ harness = false
 
 # set custom dependency for windows
 [target.'cfg(windows)'.build-dependencies]
-sdl2 = { version = "=0.35.2", features = ["bundled", "static-link"] }
-sdl2-sys = { version = "=0.35.2", features = ["bundled", "static-link"] }
+sdl2 = { version = "=0.36.0", features = ["bundled", "static-link"] }
+sdl2-sys = { version = "=0.36.0", features = ["bundled", "static-link"] }
 
 # set custom dependency for linux
 [target.'cfg(unix)'.build-dependencies]
-sdl2 = { version = "=0.35.2", features = ["use-pkgconfig", "static-link"] }
-sdl2-sys = { version = "=0.35.2", features = ["use-pkgconfig", "static-link"] }
+sdl2 = { version = "=0.36.0", features = ["use-pkgconfig", "static-link"] }
+sdl2-sys = { version = "=0.36.0", features = ["use-pkgconfig", "static-link"] }
 
 # set custom dependency for macos
 [target.'cfg(target_os = "macos")'.build-dependencies]
-sdl2 = { version = "=0.35.2", features = ["static-link"] }
-sdl2-sys = { version = "=0.35.2", features = ["static-link"] }
+sdl2 = { version = "=0.36.0", features = ["static-link"] }
+sdl2-sys = { version = "=0.36.0", features = ["static-link"] }
 
 [package.metadata.bundle]
 name = "Terralistic"
