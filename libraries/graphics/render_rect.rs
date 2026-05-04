@@ -91,7 +91,6 @@ impl gfx::UiElement for RenderRect {
 
     /// This function returns the container of the rectangle.
     /// The container has the position of render rect.
-    #[must_use]
     fn get_container(&self, graphics: &gfx::GraphicsContext, parent_container: &gfx::Container) -> gfx::Container {
         gfx::Container::new(graphics, self.render_pos, self.render_size, self.orientation, Some(parent_container))
     }

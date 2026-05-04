@@ -80,13 +80,13 @@ impl Surface {
 
     /// Returns a surface iterator.
     #[must_use]
-    pub const fn iter(&self) -> SurfaceIterator {
+    pub const fn iter(&self) -> SurfaceIterator<'_> {
         SurfaceIterator::new(self)
     }
 
     /// Returns a surface iterator.
     #[must_use]
-    pub fn iter_mut(&mut self) -> MutSurfaceIterator {
+    pub fn iter_mut(&mut self) -> MutSurfaceIterator<'_> {
         MutSurfaceIterator::new(self)
     }
 }

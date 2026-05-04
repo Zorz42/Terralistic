@@ -24,7 +24,7 @@ impl WorldGenerator {
         }
     }
 
-    fn get_biomes(&self) -> MutexGuard<Vec<Biome>> {
+    fn get_biomes(&self) -> MutexGuard<'_, Vec<Biome>> {
         self.biomes.lock().unwrap_or_else(PoisonError::into_inner)
     }
 

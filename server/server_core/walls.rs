@@ -25,7 +25,7 @@ impl ServerWalls {
         init_walls_mod_interface(mods, &self.walls)
     }
 
-    pub fn get_walls(&self) -> MutexGuard<Walls> {
+    pub fn get_walls(&self) -> MutexGuard<'_, Walls> {
         self.walls.lock().unwrap_or_else(PoisonError::into_inner)
     }
 

@@ -234,12 +234,12 @@ impl ModManager {
     }
 
     /// Get mods iterator.
-    pub fn mods_iter(&self) -> Iter<GameMod> {
+    pub fn mods_iter(&self) -> Iter<'_, GameMod> {
         self.mods.iter()
     }
 
     /// Get mutable mods iterator.
-    pub fn mods_iter_mut(&mut self) -> IterMut<GameMod> {
+    pub fn mods_iter_mut(&mut self) -> IterMut<'_, GameMod> {
         self.mods.iter_mut()
     }
 }

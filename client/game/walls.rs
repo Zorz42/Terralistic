@@ -128,7 +128,7 @@ impl ClientWalls {
         }
     }
 
-    pub fn get_walls(&self) -> MutexGuard<Walls> {
+    pub fn get_walls(&self) -> MutexGuard<'_, Walls> {
         self.walls.lock().unwrap_or_else(PoisonError::into_inner)
     }
 

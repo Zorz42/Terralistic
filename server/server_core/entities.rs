@@ -17,7 +17,7 @@ impl ServerEntities {
         }
     }
 
-    pub fn get_entities(&self) -> MutexGuard<Entities> {
+    pub fn get_entities(&self) -> MutexGuard<'_, Entities> {
         self.entities.lock().unwrap_or_else(PoisonError::into_inner)
     }
 

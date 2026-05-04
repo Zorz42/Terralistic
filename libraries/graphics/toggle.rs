@@ -134,7 +134,6 @@ impl UiElement for Toggle {
     }
 
     /// Generates the container for the toggle.
-    #[must_use]
     fn get_container(&self, graphics: &gfx::GraphicsContext, parent_container: &gfx::Container) -> gfx::Container {
         gfx::Container::new(graphics, self.pos, self.get_size(), self.orientation, Some(parent_container))
     }

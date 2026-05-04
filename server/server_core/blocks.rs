@@ -43,7 +43,7 @@ impl ServerBlocks {
         Ok(())
     }
 
-    pub fn get_blocks(&self) -> MutexGuard<Blocks> {
+    pub fn get_blocks(&self) -> MutexGuard<'_, Blocks> {
         self.blocks.lock().unwrap_or_else(PoisonError::into_inner)
     }
 

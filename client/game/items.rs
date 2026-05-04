@@ -99,7 +99,7 @@ impl ClientItems {
         &self.atlas
     }
 
-    pub fn get_items(&self) -> MutexGuard<Items> {
+    pub fn get_items(&self) -> MutexGuard<'_, Items> {
         self.items.lock().unwrap_or_else(PoisonError::into_inner)
     }
 }
