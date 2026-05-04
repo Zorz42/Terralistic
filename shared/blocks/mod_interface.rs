@@ -188,7 +188,7 @@ pub fn handle_event_for_blocks_interface(mods: &mut ModManager, event: &Event) -
     if let Some(event) = event.downcast::<BlockBreakEvent>() {
         for game_mod in mods.mods_iter_mut() {
             if game_mod.is_symbol_defined("on_block_break")? {
-                game_mod.call_function("on_block_break", (event.x, event.y, event.prev_block_id))?;
+                game_mod.call_function::<_, ()>("on_block_break", (event.x, event.y, event.prev_block_id))?;
             }
         }
     }
