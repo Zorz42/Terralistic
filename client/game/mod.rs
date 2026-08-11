@@ -19,5 +19,6 @@ mod pause_menu;
 mod players;
 pub mod private_world;
 mod respawn_screen;
+mod tests;
 pub mod tls_client;
 mod walls;

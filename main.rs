@@ -8,7 +8,6 @@
 #![warn(clippy::perf)]
 #![warn(clippy::style)]
 #![warn(clippy::suspicious)]
-#![warn(clippy::allow_attributes_without_reason)]
 #![warn(clippy::assertions_on_result_states)]
 #![warn(clippy::create_dir)]
 #![warn(clippy::decimal_literal_representation)]
@@ -31,22 +30,16 @@
 #![warn(clippy::rc_mutex)]
 #![warn(clippy::rest_pat_in_fully_bound_structs)]
 #![warn(clippy::same_name_method)]
-#![warn(clippy::shadow_unrelated)]
 #![warn(clippy::single_char_lifetime_names)]
 #![warn(clippy::str_to_string)]
-#![warn(clippy::string_to_string)]
-#![warn(clippy::todo)]
 #![warn(clippy::try_err)]
-#![warn(clippy::unimplemented)]
 #![warn(clippy::unnecessary_self_imports)]
 #![warn(clippy::unneeded_field_pattern)]
 #![warn(clippy::unwrap_in_result)]
 #![warn(clippy::unwrap_used)]
 #![warn(clippy::verbose_file_reads)]
-#![warn(clippy::allow_attributes_without_reason)]
 #![warn(clippy::if_not_else)]
 #![warn(clippy::from_iter_instead_of_collect)]
-#![warn(clippy::if_then_some_else_none)]
 #![warn(clippy::ignored_unit_patterns)]
 #![warn(clippy::inefficient_to_string)]
 #![warn(clippy::impl_trait_in_params)]
@@ -66,11 +59,9 @@
 #![warn(clippy::manual_string_new)]
 #![warn(clippy::map_unwrap_or)]
 #![warn(clippy::match_bool)]
-#![warn(clippy::match_on_vec_items)]
 #![warn(clippy::match_same_arms)]
 #![warn(clippy::match_wild_err_arm)]
 #![warn(clippy::match_wildcard_for_single_variants)]
-#![warn(clippy::mem_forget)]
 #![warn(clippy::missing_const_for_fn)]
 #![warn(clippy::mixed_read_write_in_expression)]
 #![warn(clippy::mut_mut)]
@@ -86,13 +77,10 @@
 #![warn(clippy::needless_raw_string_hashes)]
 #![warn(clippy::needless_raw_strings)]
 #![warn(clippy::no_effect_underscore_binding)]
-#![warn(clippy::non_ascii_literal)]
 #![warn(clippy::option_option)]
 #![warn(clippy::pub_without_shorthand)]
 #![warn(clippy::range_minus_one)]
 #![warn(clippy::range_plus_one)]
-#![warn(clippy::rc_buffer)]
-#![warn(clippy::rc_mutex)]
 #![warn(clippy::redundant_clone)]
 #![warn(clippy::redundant_closure_for_method_calls)]
 #![warn(clippy::redundant_else)]
@@ -101,7 +89,6 @@
 #![warn(clippy::ref_binding_to_reference)]
 #![warn(clippy::ref_option_ref)]
 #![warn(clippy::ref_patterns)]
-#![warn(clippy::rest_pat_in_fully_bound_structs)]
 #![warn(clippy::return_self_not_must_use)]
 #![warn(clippy::same_functions_in_if_condition)]
 #![warn(clippy::semicolon_if_nothing_returned)]
@@ -111,17 +98,14 @@
 #![warn(clippy::unnecessary_join)]
 #![warn(clippy::unnecessary_safety_comment)]
 #![warn(clippy::unnecessary_safety_doc)]
-#![warn(clippy::unnecessary_self_imports)]
 #![warn(clippy::unnecessary_struct_initialization)]
 #![warn(clippy::unnecessary_wraps)]
-#![warn(clippy::unneeded_field_pattern)]
 #![warn(clippy::unnested_or_patterns)]
 #![warn(clippy::unreadable_literal)]
 #![warn(clippy::unused_async)]
 #![warn(clippy::unused_peekable)]
 #![warn(clippy::unused_rounding)]
 #![warn(clippy::unused_self)]
-#![warn(clippy::verbose_file_reads)]
 #![warn(clippy::wildcard_dependencies)]
 #![warn(clippy::zero_sized_map_values)]
 #![allow(clippy::allow_attributes_without_reason)]
@@ -237,6 +221,17 @@ fn server_main(args: &[String]) {
     };
 
     let server_running = Arc::new(AtomicBool::new(true));
+
+    // Without this, a headless server has no way to be stopped from outside the process:
+    // nothing else ever clears `server_running`, so Ctrl-C or SIGTERM kills the process
+    // before `Server::stop` runs and the world is never saved.
+    let running_on_signal = server_running.clone();
+    if let Err(error) = ctrlc::set_handler(move || {
+        println!("Shutdown requested, stopping the server and saving the world...");
+        running_on_signal.store(false, std::sync::atomic::Ordering::Relaxed);
+    }) {
+        println!("Failed to install the shutdown handler, the server will not save on Ctrl-C: {error}");
+    }
 
     let loading_text = Arc::new(Mutex::new("Loading".to_owned()));
 

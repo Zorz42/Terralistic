@@ -6,6 +6,10 @@ use crate::shared::blocks::{BlockId, ToolId};
 
 use super::Blocks;
 
+/// How many frames the breaking overlay texture (`misc:breaking.opa`, 8x64) has.
+/// A break stage is an index into it, so the valid range is `0..BREAK_STAGES`.
+pub const BREAK_STAGES: i32 = 8;
+
 /// Breaking block struct represents a block that is currently being broken.
 #[derive(Clone)]
 pub struct BreakingBlock {
@@ -43,6 +47,12 @@ impl Blocks {
         // check if coordinates are out of bounds
         self.block_data.map.translate_coords(x, y)?;
 
+        // an unbreakable block must never enter the breaking list, or update_breaking_blocks
+        // would go on to break it - start_breaking_block already refuses these
+        if self.get_block_type_at(x, y)?.break_time.is_none() {
+            return Ok(());
+        }
+
         for breaking_block in &mut self.breaking_blocks {
             if breaking_block.coord == (x, y) {
                 breaking_block.break_progress = progress;
@@ -58,8 +68,18 @@ impl Blocks {
     }
 
     /// Gets the break stage of a block, which is rendered.
+    /// An unbreakable block never shows breaking progress, and the result is always a
+    /// valid index into the breaking texture.
     pub fn get_break_stage(&self, x: i32, y: i32) -> Result<i32> {
-        Ok((self.get_break_progress(x, y)? as f32 / self.get_block_type_at(x, y)?.break_time.unwrap_or(0) as f32 * 8.0) as i32)
+        let Some(break_time) = self.get_block_type_at(x, y)?.break_time else {
+            return Ok(0);
+        };
+
+        if break_time <= 0 {
+            return Ok(0);
+        }
+
+        Ok((self.get_break_progress(x, y)? * BREAK_STAGES / break_time).clamp(0, BREAK_STAGES - 1))
     }
 
     /// Adds a block to the breaking list, which means that the block is being broken.
@@ -119,7 +139,13 @@ impl Blocks {
 
         let mut broken_blocks = Vec::new();
         for breaking_block in &self.breaking_blocks {
-            if breaking_block.break_progress > self.get_block_type_at(breaking_block.coord.0, breaking_block.coord.1)?.break_time.unwrap_or(1) {
+            // break_time of None means unbreakable, so such a block never completes.
+            // It used to fall back to 1, which broke it on the very next update.
+            let Some(break_time) = self.get_block_type_at(breaking_block.coord.0, breaking_block.coord.1)?.break_time else {
+                continue;
+            };
+
+            if breaking_block.break_progress > break_time {
                 broken_blocks.push(breaking_block.coord);
             }
         }

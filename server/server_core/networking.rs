@@ -91,8 +91,6 @@ impl ServerNetworking {
         );
     }
 
-    #[allow(clippy::expect_used)]
-    #[allow(clippy::unwrap_in_result)]
     fn net_receive_loop(event_sender: &Sender<Event>, packet_receiver: &Receiver<(Vec<u8>, Connection)>, is_running: &Arc<AtomicBool>, server_port: u16) -> Result<()> {
         let (handler, listener) = node::split::<()>();
 
@@ -117,7 +115,15 @@ impl ServerNetworking {
                     }
                 }
                 NetEvent::Message(peer, packet) => {
-                    let packet: Packet = bincode::deserialize(packet).expect("Failed to deserialize");
+                    // a malformed frame from one client must not take down networking for
+                    // everyone, so drop the packet and keep serving the other connections
+                    let packet: Packet = match bincode::deserialize(packet) {
+                        Ok(packet) => packet,
+                        Err(e) => {
+                            print_to_console(&format!("[{peer}] sent a packet that could not be deserialized, ignoring it: {e}"), 1);
+                            return;
+                        }
+                    };
                     if let Some(packet) = packet.try_deserialize::<NamePacket>() {
                         print_to_console(&format!("[{:?}] joined the game", packet.name), 0);
                         match event_sender.send(Event::new(NewConnectionEvent {
@@ -148,7 +154,11 @@ impl ServerNetworking {
                 }
 
                 while let Ok((packet_data, conn)) = packet_receiver.try_recv() {
-                    Self::send_packet_internal(&handler, &packet_data, &conn).expect("Failed to send Packet");
+                    // sending routinely fails when the peer has gone away between queueing
+                    // and sending, which is normal and must not kill the networking thread
+                    if let Err(e) = Self::send_packet_internal(&handler, &packet_data, &conn) {
+                        print_to_console(&format!("Failed to send a packet to [{}]: {e}", conn.address), 1);
+                    }
                 }
 
                 handler.signals().send_with_timer((), std::time::Duration::from_millis(1));

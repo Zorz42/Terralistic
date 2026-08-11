@@ -9,5 +9,6 @@ mod items;
 mod mod_manager;
 mod networking;
 mod players;
+mod tests;
 mod walls;
 mod world_generator;
