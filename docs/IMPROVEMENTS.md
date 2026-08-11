@@ -42,11 +42,19 @@ Found while doing the above, not in the original catalogue:
 
 ### The one open decision: 5.1
 
-`shared/liquids/` is 271 lines that nothing constructs. Options, roughly in order of
-how much work they are: delete it (recoverable from git history), move it to a branch,
-or finish and wire it in. I have not touched it, because throwing away unfinished work
-is your call, not mine. `shared/liquids/tests.rs` is left as an empty stub for the same
-reason — testing dead code is not worth it until it has a future.
+`shared/liquids/` is **entirely commented out**, which is worse than the original scan
+suggested. Both files are a single `/* .. */` block from their first line to their last:
+`liquids.rs` is 271 lines and `liquid_type.rs` is 92, and between them they contain zero
+lines of compiled code. `shared/liquids/mod.rs` declares three modules that build to
+nothing.
+
+So the earlier description, "271 lines that nothing constructs", understated it — it is
+not unused code, it is commented-out code that has been carried in the tree.
+
+Options, roughly in order of effort: delete it (recoverable from git history), move it to
+a branch, or uncomment and finish it. I have not touched it, because throwing away
+unfinished work is your call. `shared/liquids/tests.rs` stays a stub, now with a comment
+explaining that there is literally nothing to test.
 
 
 ---

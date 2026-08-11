@@ -15,7 +15,7 @@ cargo run --release       # client, release
 cargo run -- server       # server with GUI
 cargo run -- server nogui # headless server
 cargo run -- version      # print version
-cargo test                # 59 tests, all should pass
+cargo test                # 239 tests, all should pass
 cargo clippy --all-targets
 ./coverage.sh             # coverage via config-coverage.toml
 ```
@@ -251,13 +251,27 @@ is a `BTreeMap` to keep that stable — don't change it back.
   deadlock waiting to happen; the codebase currently always takes them one at a time.
 - `PoisonError::into_inner` is used everywhere instead of propagating lock poisoning. That's
   deliberate — follow it for consistency.
-- Empty stub test files exist at `shared/{walls,items,inventory,liquids}/tests.rs`
-  (`mod tests {}`). They are wired into their `mod.rs` already, so adding tests there needs
-  no plumbing.
-- `shared/liquids/` is **dead code** — fully written, never constructed by client or server,
-  no serialization. Don't assume it works.
+- Test files follow one convention: a `tests.rs` beside the module it covers, declared in
+  the neighbouring `mod.rs`, containing `#![cfg(test)] mod tests { .. }`. Every module
+  directory now has one except `shared/liquids`.
+- `shared/liquids/` is not just dead, it is **entirely commented out** — both `liquids.rs`
+  and `liquid_type.rs` are one `/* .. */` block from first line to last, so the module
+  compiles to nothing. Don't assume any of it works.
+- Two `create` methods differ: `Blocks::create` fills the map with air, `Walls::create`
+  fills it with `WallId::undefined()`, so reading a wall before setting one errors. Only
+  `create_from_wall_ids` calls it, and that overwrites everything, so the game never hits
+  it — but calling `Walls::create` directly is a trap.
+- Serialization saves the block and wall **grids**, not the type registries. On load the
+  server registers types from mods first, then deserializes, so ids line up. Tests have to
+  do the same.
 
 ## CI
 
-`.github/workflows/rust.yml` runs `cargo test` on Ubuntu for pushes/PRs to `master` only.
-No clippy, no fmt check, no release build, and nothing runs on other branches.
+`.github/workflows/rust.yml` runs on Ubuntu, for pushes to `master`/`beta-5`, for pull
+requests against any branch, and on manual dispatch. It checks, in order:
+`cargo fmt --check`, `cargo clippy --all-targets -- -D warnings`, `cargo test`, and a
+release build. All four are blocking, so a new clippy warning fails the build — prefer a
+targeted `#[allow]` with a reason over relaxing the flag.
+
+Not covered: macOS and Windows are never built, though all three platforms have
+`Cargo.toml` sections and `#[cfg]` branches.

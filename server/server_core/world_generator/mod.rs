@@ -4,3 +4,4 @@ mod noise;
 mod world_generator;
 
 pub use world_generator::WorldGenerator;
+mod tests;

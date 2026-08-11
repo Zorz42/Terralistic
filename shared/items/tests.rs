@@ -1,4 +1,5 @@
 #![allow(clippy::unwrap_used)] // tests assert on results directly
+#![allow(clippy::assertions_on_result_states)] // some Ok types are not Debug, so unwrap_err is unavailable
 #![cfg(test)]
 mod tests {
     use crate::libraries::events::EventManager;

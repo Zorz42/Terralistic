@@ -40,6 +40,7 @@ mod shaders;
 mod shadow;
 mod sprite;
 mod surface;
+mod tests;
 mod text;
 mod text_input;
 mod texture;

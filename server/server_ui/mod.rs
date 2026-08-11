@@ -6,5 +6,6 @@ mod empty_module;
 mod message_types;
 mod player_list;
 mod server_info;
+mod tests;
 mod ui_manager;
 mod ui_module_manager;

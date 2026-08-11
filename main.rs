@@ -156,6 +156,7 @@ pub mod libraries {
     pub mod events;
     pub mod graphics;
     pub mod serialization;
+    mod tests;
 }
 
 pub mod shared;
@@ -170,6 +171,7 @@ pub mod client {
     pub mod global_settings;
     pub mod menus;
     pub mod settings;
+    mod tests;
 }
 
 fn main() {

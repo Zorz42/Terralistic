@@ -44,7 +44,7 @@ mod tests {
     fn test_set_item_out_of_bounds() {
         let mut inventory = Inventory::new(2);
         let (_items, id) = items_with_max_stack(10);
-        assert!(inventory.set_item(2, Some(ItemStack::new(id, 1))).is_err());
+        inventory.set_item(2, Some(ItemStack::new(id, 1))).unwrap_err();
     }
 
     /// A stack with a non-positive count is normalised to an empty slot rather than
@@ -181,7 +181,7 @@ mod tests {
         recipe.result = ItemStack::new(id, 1);
         recipe.ingredients.insert(id, 5);
 
-        assert!(inventory.craft(&recipe, DROP_POS, &items, &mut entities, &mut events).is_err());
+        inventory.craft(&recipe, DROP_POS, &items, &mut entities, &mut events).unwrap_err();
     }
 
     /// Crafting removes exactly the ingredient count and hands back the result.
