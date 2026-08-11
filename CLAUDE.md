@@ -15,19 +15,20 @@ cargo run --release       # client, release
 cargo run -- server       # server with GUI
 cargo run -- server nogui # headless server
 cargo run -- version      # print version
-cargo test                # 22 tests, all should pass
+cargo test                # 59 tests, all should pass
 cargo clippy --all-targets
 ./coverage.sh             # coverage via config-coverage.toml
 ```
 
-Cold build is ~1m40s, largely because the build script pulls in 21 build-dependencies
-(see "Build pipeline" below). Tests are pure unit tests — no graphics context needed.
+Tests are pure unit tests — no graphics context needed, so they run anywhere.
+CI enforces `cargo fmt --check` and `cargo clippy --all-targets -- -D warnings`; the tree is
+currently clippy clean, so keep it that way rather than dropping the flag.
 
 ## Entry point
 
 `main.rs` dispatches on `argv[1]`: absent or `client` → `client_main()`, `server` →
 `server_main()`, `version` → print. It also carries the entire crate's lint configuration:
-~150 `#![warn(clippy::...)]` lines at the top. **That list is the project's style contract** —
+~136 `#![warn(clippy::...)]` lines at the top. **That list is the project's style contract** —
 `unwrap_used`, `expect_used`, `panic`, `indexing_slicing`, `todo` are all warned on. Prefer
 `Result` + `anyhow` and `.get()` over indexing. When you must violate one, add a local
 `#[allow(...)]` with a reason comment, which is the existing convention.
@@ -96,8 +97,11 @@ Caveats worth knowing before touching it:
 - `TypeId` is not stable across compiler versions, so client and server must be built by
   the same rustc. There is no handshake that checks this.
 - Renaming a packet struct silently changes its wire id.
-- Transport is `message-io` FramedTcp. The server binds `127.0.0.1:<port>` (see
-  "Improvements" — this blocks real LAN play).
+- Transport is `message-io` FramedTcp. The bind address is explicit per server, via
+  `BindAddress`: the dedicated server uses `AllInterfaces`, singleplayer uses `Loopback`.
+  **Keep singleplayer on loopback** — it runs a real `Server`, and binding it wide would put
+  every singleplayer world on the local network.
+- There is no authentication of any kind. Anyone who can reach the port can join.
 - Ports: singleplayer 49152, multiplayer 49153 (`server/server_core/core_server.rs`).
 
 Connection handshake: client sends `NamePacket` → server replies `WelcomeCompletePacket` →
@@ -112,6 +116,10 @@ main loop only ever touches the channels, never the socket.
 `shared/mod_manager.rs`. Each `GameMod` owns its own `Lua` state, its minified source, and
 a `HashMap<String, Vec<u8>>` of resources. Resource keys use `:` as separator, e.g.
 `blocks:dirt.opa`.
+
+The on-disk `.mod` format is `snap(bincode(GameModData))` — see `shared/mod_data.rs`, which
+is deliberately a dependency-free leaf module so the build script can write mods without
+pulling in Lua.
 
 Rust exposes functions to Lua with the `terralistic_` prefix — `ModManager::add_global_function`
 adds that prefix automatically, so `add_global_function("get_block", ..)` is called as

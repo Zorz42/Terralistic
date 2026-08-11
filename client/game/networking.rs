@@ -14,6 +14,7 @@ use crate::libraries::events;
 use crate::libraries::events::EventManager;
 use crate::shared::packet::{Packet, WelcomeCompletePacket};
 use crate::shared::players::NamePacket;
+use crate::shared::versions::VersionPacket;
 
 /// This event is called, when the client has received a welcome packet.
 pub struct WelcomePacketEvent {
@@ -102,6 +103,9 @@ impl ClientNetworking {
             .ok_or_else(|| anyhow!("server address not found"))?;
         let (server_endpoint, _) = handler.network().connect(Transport::FramedTcp, server_addr)?;
 
+        // the version goes first, so a mismatched server can say so instead of silently
+        // failing to understand everything that follows
+        Self::send_packet_internal(&handler, &Packet::new(VersionPacket::current())?, server_endpoint)?;
         Self::send_packet_internal(&handler, &Packet::new(NamePacket { name: player_name.to_owned() })?, server_endpoint)?;
 
         listener.for_each(move |event| {

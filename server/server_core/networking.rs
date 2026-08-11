@@ -15,6 +15,7 @@ use crate::libraries::events::{Event, EventManager};
 use crate::server::server_core::print_to_console;
 use crate::shared::packet::{Packet, WelcomeCompletePacket};
 use crate::shared::players::NamePacket;
+use crate::shared::versions::{VersionPacket, VERSION};
 
 /// This struct holds the address of a connection.
 #[derive(Clone, Eq)]
@@ -130,6 +131,10 @@ impl ServerNetworking {
 
         handler.signals().send(());
 
+        // peers that have sent a version we accept; a NamePacket from anyone else means a
+        // client too old to send one at all
+        let mut accepted_peers = std::collections::HashSet::new();
+
         listener.for_each(|event| match event {
             NodeEvent::Network(net_event) => match net_event {
                 NetEvent::Connected(..) => {}
@@ -137,6 +142,7 @@ impl ServerNetworking {
                     print_to_console(&format!("[{peer}] connected"), 0);
                 }
                 NetEvent::Disconnected(peer) => {
+                    accepted_peers.remove(&peer);
                     print_to_console(&format!("[{peer}] disconnected"), 0);
                     match event_sender.send(Event::new(DisconnectEvent { conn: Connection { address: peer } })) {
                         Ok(()) => {}
@@ -155,7 +161,23 @@ impl ServerNetworking {
                             return;
                         }
                     };
+                    if let Some(packet) = packet.try_deserialize::<VersionPacket>() {
+                        if packet.version == VERSION {
+                            accepted_peers.insert(peer);
+                        } else {
+                            print_to_console(&format!("[{peer}] refused: it is version {}, this server is {VERSION}", packet.version), 1);
+                            handler.network().remove(peer.resource_id());
+                        }
+                        return;
+                    }
+
                     if let Some(packet) = packet.try_deserialize::<NamePacket>() {
+                        if !accepted_peers.contains(&peer) {
+                            print_to_console(&format!("[{peer}] refused: it did not send a version, so it is older than {VERSION}"), 1);
+                            handler.network().remove(peer.resource_id());
+                            return;
+                        }
+
                         print_to_console(&format!("[{:?}] joined the game", packet.name), 0);
                         match event_sender.send(Event::new(NewConnectionEvent {
                             conn: Connection { address: peer },

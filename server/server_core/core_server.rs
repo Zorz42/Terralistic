@@ -6,7 +6,7 @@ use std::sync::{Arc, Mutex, PoisonError};
 use std::thread::sleep;
 use std::time::Duration;
 
-use anyhow::{anyhow, Result};
+use anyhow::{anyhow, bail, Result};
 
 use crate::libraries::events::EventManager;
 use crate::server::server_core::chat::server_chat_on_event;
@@ -15,6 +15,7 @@ use crate::server::server_core::items::ServerItems;
 use crate::server::server_core::networking::{DisconnectEvent, NewConnectionEvent};
 use crate::server::server_core::players::ServerPlayers;
 use crate::server::server_ui::{ConsoleMessageType, PlayerEventType, ServerState, UiMessageType};
+use crate::shared::versions::{WORLD_SAVE_VERSION, WORLD_SAVE_VERSION_KEY};
 
 use super::blocks::ServerBlocks;
 use super::commands::CommandManager;
@@ -329,6 +330,22 @@ impl Server {
         // decode world file as HashMap<String, Vec<u8>>
         let world: HashMap<String, Vec<u8>> = bincode::deserialize(&world_file)?;
 
+        match world.get(WORLD_SAVE_VERSION_KEY) {
+            // Worlds written before save versioning existed. The layout has not changed
+            // since, so load them rather than making people throw the world away; they get
+            // stamped on the next save.
+            None => print_to_console(
+                &format!("this world has no save version, so it predates world versioning - loading it as version {WORLD_SAVE_VERSION}"),
+                1,
+            ),
+            Some(bytes) => {
+                let version: u32 = bincode::deserialize(bytes)?;
+                if version != WORLD_SAVE_VERSION {
+                    bail!("this world is save version {version}, but this build reads version {WORLD_SAVE_VERSION}");
+                }
+            }
+        }
+
         self.blocks.get_blocks().deserialize(world.get("blocks").unwrap_or(&Vec::new()))?;
         self.walls.get_walls().deserialize(world.get("walls").unwrap_or(&Vec::new()))?;
         self.players.deserialize(world.get("players").unwrap_or(&Vec::new()))?;
@@ -337,6 +354,7 @@ impl Server {
 
     fn save_world(&self, world_path: &Path) -> Result<()> {
         let mut world = HashMap::new();
+        world.insert(WORLD_SAVE_VERSION_KEY.to_owned(), bincode::serialize(&WORLD_SAVE_VERSION)?);
         world.insert("blocks".to_owned(), self.blocks.get_blocks().serialize()?);
         world.insert("walls".to_owned(), self.walls.get_walls().serialize()?);
         world.insert("players".to_owned(), self.players.serialize()?);
