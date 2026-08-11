@@ -16,15 +16,15 @@ mod tests {
     /// server down and was reachable by any connected player from the stock client.
     #[test]
     fn test_empty_command_does_not_panic() {
-        assert!(execute("").is_err());
+        execute("").unwrap_err();
     }
 
     /// Same path, but the message was "/ " or similar: `split_whitespace` still yields
     /// no tokens.
     #[test]
     fn test_whitespace_only_command_does_not_panic() {
-        assert!(execute("   ").is_err());
-        assert!(execute("\t").is_err());
+        execute("   ").unwrap_err();
+        execute("\t").unwrap_err();
     }
 
     /// An unknown command is reported back to the caller rather than being an error.
@@ -44,6 +44,6 @@ mod tests {
     /// Help rejects more than one argument instead of panicking or silently ignoring.
     #[test]
     fn test_help_with_too_many_arguments() {
-        assert!(execute("help one two").is_err());
+        execute("help one two").unwrap_err();
     }
 }

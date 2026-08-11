@@ -162,11 +162,10 @@ impl UiElement for WorldCreationMenu {
                         return true;
                     }
                 }
-                gfx::Key::Enter
-                    if !self.create_button.disabled => {
-                        self.create_world(graphics);
-                        return true;
-                    }
+                gfx::Key::Enter if !self.create_button.disabled => {
+                    self.create_world(graphics);
+                    return true;
+                }
                 _ => {}
             }
         }

@@ -206,14 +206,13 @@ impl UiElement for LoginMenu {
                     }
                     return true;
                 }
-                gfx::Key::Enter
-                    if !self.confirm_button.disabled => {
-                        save_user_data(self.username_input.get_text(), self.password_input.get_text());
-                        if self.login_register_toggle.toggled {
-                            eprintln!("{:?}", register(self.username_input.get_text(), self.password_input.get_text(), self.email_input.get_text(), graphics));
-                        }
-                        return true;
+                gfx::Key::Enter if !self.confirm_button.disabled => {
+                    save_user_data(self.username_input.get_text(), self.password_input.get_text());
+                    if self.login_register_toggle.toggled {
+                        eprintln!("{:?}", register(self.username_input.get_text(), self.password_input.get_text(), self.email_input.get_text(), graphics));
                     }
+                    return true;
+                }
                 _ => {}
             }
         }

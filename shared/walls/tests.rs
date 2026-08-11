@@ -63,7 +63,7 @@ mod tests {
     }
 
     /// The break stage indexes the breaking texture, so it has to stay in range even
-    /// when progress has run past break_time.
+    /// when progress has run past `break_time`.
     #[test]
     fn test_break_stage_stays_in_texture_range() {
         let (mut walls, breakable, unbreakable) = walls_with_types();

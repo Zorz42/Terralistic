@@ -7,14 +7,14 @@ mod tests {
     fn test_new_tracker_is_empty() {
         let tracker = ChunkTracker::new(4);
         assert_eq!(tracker.get_num_chunks(), 0);
-        assert!(tracker.get_oldest_chunk().is_err());
+        tracker.get_oldest_chunk().unwrap_err();
     }
 
     #[test]
     fn test_out_of_bounds_chunk() {
         let mut tracker = ChunkTracker::new(2);
-        assert!(tracker.update(2).is_err());
-        assert!(tracker.remove_chunk(9).is_err());
+        tracker.update(2).unwrap_err();
+        tracker.remove_chunk(9).unwrap_err();
     }
 
     #[test]

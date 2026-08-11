@@ -378,21 +378,20 @@ impl UiElement for TextInput {
                             }
                         }
                     }
-                    gfx::Key::X
-                        if graphics.get_key_state(gfx::Key::LeftControl) && self.cursor.0 != self.cursor.1 => {
-                            if graphics.get_key_state(gfx::Key::LeftControl) {
-                                graphics
-                                    .clipboard_context
-                                    .set_text(self.text.get(self.get_cursor().0..self.get_cursor().1).unwrap_or("").to_owned())
-                                    .unwrap_or_else(|e| {
-                                        println!("Failed to copy to clipboard {e}");
-                                    });
-                            }
-                            self.text.replace_range(self.get_cursor().0..self.get_cursor().1, ""); //add text filtering lol
-                            self.cursor.0 = self.get_cursor().0;
-                            self.cursor.1 = self.cursor.0;
-                            self.text_changed = true;
+                    gfx::Key::X if graphics.get_key_state(gfx::Key::LeftControl) && self.cursor.0 != self.cursor.1 => {
+                        if graphics.get_key_state(gfx::Key::LeftControl) {
+                            graphics
+                                .clipboard_context
+                                .set_text(self.text.get(self.get_cursor().0..self.get_cursor().1).unwrap_or("").to_owned())
+                                .unwrap_or_else(|e| {
+                                    println!("Failed to copy to clipboard {e}");
+                                });
                         }
+                        self.text.replace_range(self.get_cursor().0..self.get_cursor().1, ""); //add text filtering lol
+                        self.cursor.0 = self.get_cursor().0;
+                        self.cursor.1 = self.cursor.0;
+                        self.text_changed = true;
+                    }
                     _ => {}
                 }
                 return true;

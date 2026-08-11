@@ -24,11 +24,11 @@ jobs:
        run: sudo apt-get update && sudo apt-get install -y libsdl2-dev
      - name: Check formatting
        run: cargo fmt --check
-     # main.rs sets #![deny(clippy::all)], so this already fails the build on any
-     # deny-level regression. It does not yet use -D warnings, because the tree has
-     # ~107 outstanding warnings; once those are cleared, add -D warnings here.
+     # The tree is clippy clean, so any new warning fails the build. If this ever
+     # becomes an obstacle, prefer a targeted #[allow] with a reason over dropping
+     # -D warnings, since the lint list in main.rs is the main quality mechanism here.
      - name: Clippy
-       run: cargo clippy --all-targets
+       run: cargo clippy --all-targets -- -D warnings
      - name: Run tests
        run: cargo test --verbose
      - name: Release build

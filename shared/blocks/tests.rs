@@ -189,7 +189,7 @@ mod tests {
     }
 
     /// An unbreakable block has no break time to measure progress against, so it shows
-    /// no breaking overlay. This used to divide by zero and saturate to i32::MAX.
+    /// no breaking overlay. This used to divide by zero and saturate to `i32::MAX`.
     #[test]
     fn test_break_stage_of_unbreakable_block_is_zero() {
         let (mut blocks, _breakable, unbreakable) = blocks_with_break_types();
@@ -202,7 +202,7 @@ mod tests {
     }
 
     /// The break stage indexes the 8 frame breaking texture, so it has to stay in range
-    /// even when progress has reached break_time.
+    /// even when progress has reached `break_time`.
     #[test]
     fn test_break_stage_stays_in_texture_range() {
         let (mut blocks, breakable, _unbreakable) = blocks_with_break_types();

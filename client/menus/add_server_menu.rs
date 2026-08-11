@@ -158,11 +158,10 @@ impl UiElement for AddServerMenu {
                         self.close_self = true;
                     }
                 }
-                gfx::Key::Enter
-                    if !self.add_button.disabled => {
-                        self.add_server();
-                        self.close_self = true;
-                    }
+                gfx::Key::Enter if !self.add_button.disabled => {
+                    self.add_server();
+                    self.close_self = true;
+                }
                 _ => {}
             }
         }
