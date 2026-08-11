@@ -162,7 +162,7 @@ impl ModuleManager {
         }))
     }
 
-    pub fn get_root_mut(&mut self) -> &mut ModuleTreeNodeType {
+    pub const fn get_root_mut(&mut self) -> &mut ModuleTreeNodeType {
         &mut self.root
     }
 
@@ -279,7 +279,7 @@ impl ModuleManager {
         }
     }
 
-    fn handle_resize_mode_key_events(&mut self, key: gfx::Key) {
+    const fn handle_resize_mode_key_events(&mut self, key: gfx::Key) {
         match key {
             gfx::Key::Enter | gfx::Key::Escape => {
                 self.mode = EditMode::Select;

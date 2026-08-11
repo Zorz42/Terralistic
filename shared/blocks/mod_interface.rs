@@ -104,7 +104,7 @@ pub fn init_blocks_mod_interface(blocks: &Arc<Mutex<Blocks>>, mods: &mut ModMana
     mods.add_global_function("get_block_id_by_name", move |_lua, name: String| {
         let blocks = blocks_clone.lock().unwrap_or_else(PoisonError::into_inner);
 
-        blocks.get_block_id_by_name(&name).map_err(|_| rlua::Error::RuntimeError("Block type not found".to_owned()))
+        blocks.get_block_id_by_name(&name).map_err(|e| rlua::Error::RuntimeError(e.to_string()))
     })?;
 
     // a method to connect two blocks

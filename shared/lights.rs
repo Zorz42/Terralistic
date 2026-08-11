@@ -81,26 +81,26 @@ impl Lights {
 
     /// returns the light at the given coordinate
     pub fn get_light(&self, x: i32, y: i32) -> Result<&Light> {
-        self.lights.get(self.map.translate_coords(x, y)?).ok_or_else(|| anyhow!("Light not found! x: {}, y: {}", x, y))
+        self.lights.get(self.map.translate_coords(x, y)?).ok_or_else(|| anyhow!("Light not found! x: {x}, y: {y}"))
     }
 
     /// returns mutable light at the given coordinate
     fn get_light_mut(&mut self, x: i32, y: i32) -> Result<&mut Light> {
-        self.lights.get_mut(self.map.translate_coords(x, y)?).ok_or_else(|| anyhow!("Light not found! x: {}, y: {}", x, y))
+        self.lights.get_mut(self.map.translate_coords(x, y)?).ok_or_else(|| anyhow!("Light not found! x: {x}, y: {y}"))
     }
 
     /// returns the light chunk at the given coordinate
     pub fn get_light_chunk(&self, x: i32, y: i32) -> Result<&LightChunk> {
         self.light_chunks
             .get(self.map.translate_chunk_coords(x, y)?)
-            .ok_or_else(|| anyhow!("Light chunk not found! x: {}, y: {}", x, y))
+            .ok_or_else(|| anyhow!("Light chunk not found! x: {x}, y: {y}"))
     }
 
     /// returns mutable light chunk at the given coordinate
     fn get_light_chunk_mut(&mut self, x: i32, y: i32) -> Result<&mut LightChunk> {
         self.light_chunks
             .get_mut(self.map.translate_chunk_coords(x, y)?)
-            .ok_or_else(|| anyhow!("Light chunk not found! x: {}, y: {}", x, y))
+            .ok_or_else(|| anyhow!("Light chunk not found! x: {x}, y: {y}"))
     }
 
     /// sets the light color at the given coordinate

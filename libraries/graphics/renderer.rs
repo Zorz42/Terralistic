@@ -76,9 +76,9 @@ impl GraphicsContext {
         let mut window_framebuffer = 0;
 
         unsafe {
-            gl::GenTextures(1, &mut window_texture);
-            gl::GenTextures(1, &mut window_texture_back);
-            gl::GenFramebuffers(1, &mut window_framebuffer);
+            gl::GenTextures(1, &raw mut window_texture);
+            gl::GenTextures(1, &raw mut window_texture_back);
+            gl::GenFramebuffers(1, &raw mut window_framebuffer);
             gl::BindFramebuffer(gl::FRAMEBUFFER, window_framebuffer);
         }
 
@@ -219,7 +219,7 @@ impl GraphicsContext {
     }
 
     /// Closes the window
-    pub fn close_window(&mut self) {
+    pub const fn close_window(&mut self) {
         self.window_open = false;
     }
 
@@ -315,7 +315,7 @@ impl GraphicsContext {
         self.blur_region(rect, radius, self.window_texture, self.window_texture_back, self.get_window_size(), &self.normalization_transform);
     }
 
-    pub fn enable_blur(&mut self, enable: bool) {
+    pub const fn enable_blur(&mut self, enable: bool) {
         self.blur_context.blur_enabled = enable;
     }
 
@@ -325,7 +325,7 @@ impl GraphicsContext {
         self.ms_so_far = 0.0;
     }
 
-    pub fn disable_fps_limit(&mut self) {
+    pub const fn disable_fps_limit(&mut self) {
         self.min_ms_per_frame = 0.0;
     }
 
@@ -342,9 +342,9 @@ impl Drop for GraphicsContext {
     /// Closes, destroys the window and cleans up the resources.
     fn drop(&mut self) {
         unsafe {
-            gl::DeleteFramebuffers(1, &self.window_framebuffer);
-            gl::DeleteTextures(1, &self.window_texture);
-            gl::DeleteTextures(1, &self.window_texture_back);
+            gl::DeleteFramebuffers(1, &raw const self.window_framebuffer);
+            gl::DeleteTextures(1, &raw const self.window_texture);
+            gl::DeleteTextures(1, &raw const self.window_texture_back);
         }
     }
 }

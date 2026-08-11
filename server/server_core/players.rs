@@ -51,7 +51,7 @@ impl ServerPlayers {
             for x in 0..(PLAYER_WIDTH.ceil() as i32) {
                 let block_type = blocks.get_block_type(blocks.get_block(spawn_x as i32 + x, y as i32).unwrap_or_else(|_| blocks.air()));
 
-                let is_ghost = block_type.ok().map_or(false, |block_type| block_type.ghost);
+                let is_ghost = block_type.ok().is_some_and(|block_type| block_type.ghost);
 
                 if !is_ghost {
                     spawn_y = y as f32 - PLAYER_HEIGHT;
@@ -100,10 +100,10 @@ impl ServerPlayers {
                 if let Slot::Block(x, y, slot) = packet.slot {
                     let mut inventory_data = blocks.get_blocks().get_block_inventory_data(x, y)?;
 
-                    let block_item = inventory_data.get(slot).ok_or_else(|| anyhow!("Block at ({}, {}) doesn't have slot {}", x, y, slot))?.clone();
+                    let block_item = inventory_data.get(slot).ok_or_else(|| anyhow!("Block at ({x}, {y}) doesn't have slot {slot}"))?.clone();
                     let selected_item = inventory.get_selected_item();
 
-                    *inventory_data.get_mut(slot).ok_or_else(|| anyhow!("Block at ({}, {}) doesn't have slot {}", x, y, slot))? = selected_item;
+                    *inventory_data.get_mut(slot).ok_or_else(|| anyhow!("Block at ({x}, {y}) doesn't have slot {slot}"))? = selected_item;
 
                     let selected_slot = inventory.selected_slot.ok_or_else(|| anyhow!("Player doesn't have selected slot"))?;
 

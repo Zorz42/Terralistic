@@ -27,7 +27,7 @@ impl Texture {
         result.size = gfx::FloatSize::from(surface.get_size());
 
         unsafe {
-            gl::GenTextures(1, &mut result.texture_handle);
+            gl::GenTextures(1, &raw mut result.texture_handle);
             gl::BindTexture(gl::TEXTURE_2D, result.texture_handle);
 
             gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MIN_FILTER, gl::NEAREST as i32);
@@ -58,7 +58,7 @@ impl Texture {
     fn free_texture(&mut self) {
         if self.texture_handle != u32::MAX {
             unsafe {
-                gl::DeleteTextures(1, &self.texture_handle);
+                gl::DeleteTextures(1, &raw const self.texture_handle);
             }
             self.texture_handle = u32::MAX;
             self.size = gfx::FloatSize(0.0, 0.0);

@@ -90,11 +90,11 @@ impl PauseMenu {
             self.back_rect.size.0 = MENU_WIDTH;
             self.back_rect.pos.0 = 0.0;
         } else if self.open {
-            self.back_rect.pos.0 = (-graphics.get_window_size().0 + self.rect_width) / 2.0 - 10.0;
+            self.back_rect.pos.0 = f32::midpoint(-graphics.get_window_size().0, self.rect_width) - 10.0;
             self.back_rect.size.0 = self.rect_width + 10.0;
         } else {
             self.back_rect.size.0 = self.rect_width;
-            self.back_rect.pos.0 = (-graphics.get_window_size().0 + self.rect_width) / 2.0 - self.back_rect.size.0 - 100.0;
+            self.back_rect.pos.0 = f32::midpoint(-graphics.get_window_size().0, self.rect_width) - self.back_rect.size.0 - 100.0;
         }
 
         let window_container = gfx::Container::default(graphics);

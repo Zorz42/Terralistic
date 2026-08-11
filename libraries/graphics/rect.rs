@@ -32,7 +32,7 @@ impl Rect {
         transform.stretch((self.size.0, self.size.1));
 
         unsafe {
-            gl::UniformMatrix3fv(graphics.passthrough_shader.transform_matrix, 1, gl::FALSE, &transform.matrix[0]);
+            gl::UniformMatrix3fv(graphics.passthrough_shader.transform_matrix, 1, gl::FALSE, &raw const transform.matrix[0]);
             gl::Uniform4f(
                 graphics.passthrough_shader.global_color,
                 color.r as f32 / 255.0,
@@ -57,7 +57,7 @@ impl Rect {
         transform.stretch((self.size.0, self.size.1));
 
         unsafe {
-            gl::UniformMatrix3fv(graphics.passthrough_shader.transform_matrix, 1, gl::FALSE, &transform.matrix[0]);
+            gl::UniformMatrix3fv(graphics.passthrough_shader.transform_matrix, 1, gl::FALSE, &raw const transform.matrix[0]);
             gl::Uniform4f(
                 graphics.passthrough_shader.global_color,
                 color.r as f32 / 255.0,

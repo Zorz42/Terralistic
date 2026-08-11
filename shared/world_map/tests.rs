@@ -1,3 +1,4 @@
+#![allow(clippy::unwrap_used)] // tests assert on results directly
 #[cfg(test)]
 mod tests {
     use crate::shared::world_map::world_map::WorldMap;

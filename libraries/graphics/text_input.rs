@@ -378,8 +378,8 @@ impl UiElement for TextInput {
                             }
                         }
                     }
-                    gfx::Key::X => {
-                        if graphics.get_key_state(gfx::Key::LeftControl) && self.cursor.0 != self.cursor.1 {
+                    gfx::Key::X
+                        if graphics.get_key_state(gfx::Key::LeftControl) && self.cursor.0 != self.cursor.1 => {
                             if graphics.get_key_state(gfx::Key::LeftControl) {
                                 graphics
                                     .clipboard_context
@@ -393,7 +393,6 @@ impl UiElement for TextInput {
                             self.cursor.1 = self.cursor.0;
                             self.text_changed = true;
                         }
-                    }
                     _ => {}
                 }
                 return true;

@@ -12,10 +12,10 @@ pub fn compile_shader(vertex_code: &str, fragment_code: &str) -> Result<u32> {
 
         // Check for vertex shader compile errors
         let mut success = 0;
-        gl::GetShaderiv(vertex_id, gl::COMPILE_STATUS, &mut success);
+        gl::GetShaderiv(vertex_id, gl::COMPILE_STATUS, &raw mut success);
         if success == 0 {
             let mut len = 0;
-            gl::GetShaderiv(vertex_id, gl::INFO_LOG_LENGTH, &mut len);
+            gl::GetShaderiv(vertex_id, gl::INFO_LOG_LENGTH, &raw mut len);
 
             // create a buffer with the correct size
             let mut buffer = vec![0; len as usize];
@@ -31,10 +31,10 @@ pub fn compile_shader(vertex_code: &str, fragment_code: &str) -> Result<u32> {
 
         // Check for fragment shader compile errors
         success = 0;
-        gl::GetShaderiv(fragment_id, gl::COMPILE_STATUS, &mut success);
+        gl::GetShaderiv(fragment_id, gl::COMPILE_STATUS, &raw mut success);
         if success == 0 {
             let mut len = 0;
-            gl::GetShaderiv(fragment_id, gl::INFO_LOG_LENGTH, &mut len);
+            gl::GetShaderiv(fragment_id, gl::INFO_LOG_LENGTH, &raw mut len);
 
             // create a buffer with the correct size
             let mut buffer = vec![0; len as usize];

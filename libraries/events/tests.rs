@@ -1,3 +1,4 @@
+#![allow(clippy::unwrap_used)] // tests assert on results directly
 // Tests for the events library.
 // It tests the event manager and the event struct.
 

@@ -142,7 +142,7 @@ impl ui_manager::ModuleTrait for PlayerList {
         &mut self.container
     }
 
-    fn get_name(&self) -> &str {
+    fn get_name(&self) -> &'static str {
         "player_list"
     }
 

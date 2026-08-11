@@ -184,10 +184,7 @@ impl UiElement for MultiplayerSelector {
     fn update_inner(&mut self, graphics: &mut gfx::GraphicsContext, parent_container: &gfx::Container) {
         self.update_server_list(graphics);
 
-        let mut server_height = 0.0;
-        if let Some(server) = self.server_list.servers.first() {
-            server_height = server.get_height();
-        }
+        let server_height = self.server_list.servers.first().map_or(0.0, super::multiplayer_selector::ServerCard::get_height);
 
         let elements_height = (server_height + gfx::SPACING) * self.server_list.servers.len() as f32 - gfx::SPACING;
 
@@ -335,12 +332,12 @@ impl ServerCard {
     }
 
     /// This function disables/enables the server card buttons.
-    pub fn set_enabled(&mut self, enabled: bool) {
+    pub const fn set_enabled(&mut self, enabled: bool) {
         self.play_button.disabled = !enabled;
         self.delete_button.disabled = !enabled;
     }
 
-    pub fn set_pos(&mut self, pos: gfx::FloatPos) {
+    pub const fn set_pos(&mut self, pos: gfx::FloatPos) {
         self.rect.pos = pos;
     }
 }

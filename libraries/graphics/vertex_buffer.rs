@@ -26,9 +26,9 @@ pub struct VertexBuffer {
 impl Drop for VertexBuffer {
     fn drop(&mut self) {
         unsafe {
-            gl::DeleteBuffers(1, &self.vertex_buffer);
-            gl::DeleteBuffers(1, &self.index_buffer);
-            gl::DeleteVertexArrays(1, &self.vertex_array);
+            gl::DeleteBuffers(1, &raw const self.vertex_buffer);
+            gl::DeleteBuffers(1, &raw const self.index_buffer);
+            gl::DeleteVertexArrays(1, &raw const self.vertex_array);
         }
     }
 }
@@ -43,9 +43,9 @@ impl VertexBuffer {
             vertex_array: 0,
         };
         unsafe {
-            gl::GenBuffers(1, &mut result.vertex_buffer);
-            gl::GenBuffers(1, &mut result.index_buffer);
-            gl::GenVertexArrays(1, &mut result.vertex_array);
+            gl::GenBuffers(1, &raw mut result.vertex_buffer);
+            gl::GenBuffers(1, &raw mut result.index_buffer);
+            gl::GenVertexArrays(1, &raw mut result.vertex_array);
         }
         result
     }

@@ -4,7 +4,6 @@ use crate::libraries::graphics::BaseUiElement;
 use crate::shared::blocks::RENDER_BLOCK_WIDTH;
 
 /// Camera is a struct that handles the camera position.
-
 pub struct Camera {
     target_position_x: f32,
     target_position_y: f32,
@@ -35,7 +34,7 @@ impl Camera {
         self.detached_text.color = gfx::Color::new(255, 0, 0, 255);
     }
 
-    pub fn set_position(&mut self, x: f32, y: f32) {
+    pub const fn set_position(&mut self, x: f32, y: f32) {
         if !self.detached {
             self.target_position_x = x;
             self.target_position_y = y;

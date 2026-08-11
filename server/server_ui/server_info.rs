@@ -197,7 +197,7 @@ impl ui_manager::ModuleTrait for ServerInfo {
         &mut self.container
     }
 
-    fn get_name(&self) -> &str {
+    fn get_name(&self) -> &'static str {
         "server_info"
     }
 

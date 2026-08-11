@@ -137,17 +137,19 @@ impl SettingUi {
         let setting_container = self.get_container(graphics, parent_container);
         match self {
             Self::Toggle { setting_id, toggle, .. } => {
-                let mut setting_toggled = false;
-                if let Ok(Setting::Toggle { toggled, .. }) = settings.borrow_mut().get_setting_mut(*setting_id) {
-                    setting_toggled = *toggled;
-                }
+                let setting_toggled = if let Ok(Setting::Toggle { toggled, .. }) = settings.borrow_mut().get_setting_mut(*setting_id) {
+                    *toggled
+                } else {
+                    false
+                };
                 toggle.toggled = setting_toggled;
             }
             Self::Choice { buttons, setting_id, choice_rect, .. } => {
-                let mut chosen_button = 0;
-                if let Ok(Setting::Choice { selected, .. }) = settings.borrow_mut().get_setting_mut(*setting_id) {
-                    chosen_button = *selected;
-                }
+                let chosen_button = if let Ok(Setting::Choice { selected, .. }) = settings.borrow_mut().get_setting_mut(*setting_id) {
+                    *selected
+                } else {
+                    0
+                };
 
                 if let Some(button) = buttons.get(chosen_button as usize) {
                     choice_rect.pos = button.pos;
@@ -165,17 +167,14 @@ impl SettingUi {
                 slider_chosen,
                 ..
             } => {
-                let mut choice = SliderSelection::Choice(0);
-                let mut slider_val_low = 0;
-                let mut slider_val_high = 0;
-                if let Ok(Setting::Slider {
+                let (choice, slider_val_low, slider_val_high) = if let Ok(Setting::Slider {
                     selected, upper_limit, lower_limit, ..
                 }) = settings.borrow_mut().get_setting_mut(*setting_id)
                 {
-                    choice = selected.clone();
-                    slider_val_low = *lower_limit;
-                    slider_val_high = *upper_limit;
-                }
+                    (selected.clone(), *lower_limit, *upper_limit)
+                } else {
+                    (SliderSelection::Choice(0), 0, 0)
+                };
 
                 *slider_chosen = false;
 

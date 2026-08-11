@@ -29,7 +29,7 @@ impl WorldMap {
     /// Translates a x y coordinate to a single number.
     pub fn translate_coords(&self, x: i32, y: i32) -> Result<usize> {
         if x < 0 || y < 0 || x >= self.size.0 as i32 || y >= self.size.1 as i32 {
-            bail!("Coordinates are out of bounds! x: {}, y: {}", x, y);
+            bail!("Coordinates are out of bounds! x: {x}, y: {y}");
         }
 
         Ok((x * self.size.1 as i32 + y) as usize)
@@ -38,7 +38,7 @@ impl WorldMap {
     /// Same as `translate_coords` but for chunks
     pub fn translate_chunk_coords(&self, x: i32, y: i32) -> Result<usize> {
         if x < 0 || y < 0 || x >= self.size.0 as i32 / CHUNK_SIZE || y >= self.size.1 as i32 / CHUNK_SIZE {
-            bail!("Coordinates are out of bounds! x: {}, y: {}", x, y);
+            bail!("Coordinates are out of bounds! x: {x}, y: {y}");
         }
 
         Ok((x + y * (self.size.0 as i32 / CHUNK_SIZE)) as usize)

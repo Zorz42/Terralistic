@@ -36,8 +36,8 @@ mod tests {
     #[test]
     fn test_get_item_out_of_bounds() {
         let inventory = Inventory::new(2);
-        assert!(inventory.get_item(2).is_err());
-        assert!(inventory.get_item(99).is_err());
+        inventory.get_item(2).unwrap_err();
+        inventory.get_item(99).unwrap_err();
     }
 
     #[test]
@@ -121,7 +121,7 @@ mod tests {
         assert!(inventory.get_item(1).unwrap().is_none());
     }
 
-    /// Once the first stack hits max_stack the remainder spills into the next free slot.
+    /// Once the first stack hits `max_stack` the remainder spills into the next free slot.
     #[test]
     fn test_give_item_overflows_into_a_new_slot() {
         let (items, id) = items_with_max_stack(10);
