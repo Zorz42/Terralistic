@@ -42,25 +42,27 @@ impl ServerPlayers {
         }
     }
 
-    fn get_spawn_coords(blocks: &Blocks) -> (f32, f32) {
+    /// Finds a spawn point in the middle column of the map: the first tile from the top
+    /// that the player cannot walk through, with the player placed directly on top of it.
+    pub(super) fn get_spawn_coords(blocks: &Blocks) -> (f32, f32) {
         let spawn_x = blocks.get_size().0 as f32 / 2.0;
-        let mut spawn_y = 0.0;
-        // find a spawn point
-        // iterate from the top of the map to the bottom
-        for y in (0..blocks.get_size().1).rev() {
+
+        // y grows downwards, so this really does walk from the top of the map down
+        for y in 0..blocks.get_size().1 {
             for x in 0..(PLAYER_WIDTH.ceil() as i32) {
                 let block_type = blocks.get_block_type(blocks.get_block(spawn_x as i32 + x, y as i32).unwrap_or_else(|_| blocks.air()));
 
                 let is_ghost = block_type.ok().map_or(false, |block_type| block_type.ghost);
 
                 if !is_ghost {
-                    spawn_y = y as f32 - PLAYER_HEIGHT;
-                    break;
+                    return (spawn_x, y as f32 - PLAYER_HEIGHT);
                 }
             }
         }
 
-        (spawn_x, spawn_y)
+        // Nothing solid anywhere in the column. Put the player at the bottom of the map
+        // rather than at y 0, where they would fall the entire height of the world.
+        (spawn_x, blocks.get_size().1 as f32 - PLAYER_HEIGHT)
     }
 
     pub fn handle_client_packet(
