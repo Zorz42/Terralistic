@@ -83,7 +83,7 @@ impl Entities {
     pub fn update_entities_ms(&mut self, blocks: &Blocks, events: &mut EventManager) -> Result<()> {
         let mut vec = Vec::new();
 
-        for (entity, (position, physics)) in self.ecs.query_mut::<(&mut PositionComponent, &mut PhysicsComponent)>() {
+        for (entity, position, physics) in self.ecs.query_mut::<(Entity, &mut PositionComponent, &mut PhysicsComponent)>() {
             let velocity_x_before = physics.velocity_x;
             let velocity_y_before = physics.velocity_y;
 

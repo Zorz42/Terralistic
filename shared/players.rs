@@ -41,7 +41,7 @@ pub fn spawn_player(entities: &mut Entities, x: f32, y: f32, name: &str, id: Ent
 }
 
 pub fn update_players_ms(entities: &mut Entities, blocks: &Blocks) {
-    for (_, (position, physics, player)) in entities.ecs.query_mut::<(&PositionComponent, &mut PhysicsComponent, &mut PlayerComponent)>() {
+    for (position, physics, player) in entities.ecs.query_mut::<(&PositionComponent, &mut PhysicsComponent, &mut PlayerComponent)>() {
         if player.jumping && is_touching_ground(position, physics, blocks) {
             physics.velocity_y += -PLAYER_JUMP_SPEED;
         }
@@ -86,7 +86,7 @@ pub fn update_players_ms(entities: &mut Entities, blocks: &Blocks) {
     }
 
     let mut positions = Vec::new();
-    for (_, (position, _player)) in entities.ecs.query_mut::<(&PositionComponent, &PlayerComponent)>() {
+    for (position, _player) in entities.ecs.query_mut::<(&PositionComponent, &PlayerComponent)>() {
         positions.push((position.x() + PLAYER_WIDTH / 2.0, position.y() + PLAYER_HEIGHT / 2.0));
     }
 
@@ -100,7 +100,7 @@ pub fn update_players_ms(entities: &mut Entities, blocks: &Blocks) {
         // the speed change is applied to the item's velocity
         // in the direction of the player
 
-        for (_, (item_position, item_physics, _item)) in entities.ecs.query_mut::<(&PositionComponent, &mut PhysicsComponent, &ItemComponent)>() {
+        for (item_position, item_physics, _item) in entities.ecs.query_mut::<(&PositionComponent, &mut PhysicsComponent, &ItemComponent)>() {
             let dx = player_position.0 - item_position.x() - 0.5;
             let dy = player_position.1 - item_position.y() - 0.5;
             let d2 = dx * dx + dy * dy;
@@ -120,13 +120,13 @@ pub fn update_players_ms(entities: &mut Entities, blocks: &Blocks) {
 
 pub fn remove_all_picked_items(entities: &mut Entities, events: &mut EventManager, items: &Items) -> Result<()> {
     let mut positions = Vec::new();
-    for (entity, (position, _player)) in entities.ecs.query_mut::<(&PositionComponent, &PlayerComponent)>() {
+    for (entity, position, _player) in entities.ecs.query_mut::<(Entity, &PositionComponent, &PlayerComponent)>() {
         positions.push(((position.x() + PLAYER_WIDTH / 2.0, position.y() + PLAYER_HEIGHT / 2.0), entity));
     }
 
     for (player_position, player_entity) in positions {
         let mut items_to_remove = Vec::new();
-        for (entity, (item_position, _item)) in entities.ecs.query_mut::<(&PositionComponent, &ItemComponent)>() {
+        for (entity, item_position, _item) in entities.ecs.query_mut::<(Entity, &PositionComponent, &ItemComponent)>() {
             let dx = player_position.0 - item_position.x() - 0.5;
             let dy = player_position.1 - item_position.y() - 0.5;
             let d2 = dx * dx + dy * dy;

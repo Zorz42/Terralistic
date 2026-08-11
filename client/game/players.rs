@@ -1,4 +1,4 @@
-use anyhow::{anyhow, Result};
+use anyhow::Result;
 use hecs::Entity;
 
 use crate::client::game::camera::Camera;
@@ -109,7 +109,7 @@ impl ClientPlayers {
     }
 
     pub fn render(&self, graphics: &gfx::GraphicsContext, entities: &mut Entities, camera: &Camera) {
-        for (_, (position, player_component)) in entities.ecs.query_mut::<(&PositionComponent, &PlayerComponent)>() {
+        for (position, player_component) in entities.ecs.query_mut::<(&PositionComponent, &PlayerComponent)>() {
             let x = position.x() * RENDER_BLOCK_WIDTH - camera.get_top_left(graphics).0 * RENDER_BLOCK_WIDTH;
             let y = position.y() * RENDER_BLOCK_WIDTH - camera.get_top_left(graphics).1 * RENDER_BLOCK_WIDTH;
 
@@ -137,7 +137,7 @@ impl ClientPlayers {
                 }
             } else if let Some(packet) = packet_event.try_deserialize::<PlayerMovingPacketToClient>() {
                 let entity = entities.get_entity_from_id(packet.player_id)?;
-                let mut physics_component = entities.ecs.query_one::<&mut PhysicsComponent>(entity)?.get().ok_or_else(|| anyhow!("unwrap failed"))?.clone();
+                let mut physics_component = entities.ecs.query_one::<&mut PhysicsComponent>(entity).get()?.clone();
                 {
                     let player_component = entities.ecs.query_one_mut::<&mut PlayerComponent>(entity)?;
                     player_component.set_moving_type(packet.moving_type, &mut physics_component);

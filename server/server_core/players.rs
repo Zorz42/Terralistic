@@ -161,7 +161,7 @@ impl ServerPlayers {
 
         let (spawn_x, spawn_y) = player_data.map_or_else(|| Self::get_spawn_coords(blocks), |player_data| (player_data.position.x(), player_data.position.y()));
 
-        for (entity, (player, position)) in &mut entities.ecs.query::<(&PlayerComponent, &PositionComponent)>() {
+        for (entity, player, position) in &mut entities.ecs.query::<(Entity, &PlayerComponent, &PositionComponent)>() {
             let id = entities.get_id_from_entity(entity)?;
             let spawn_packet = Packet::new(PlayerSpawnPacket {
                 id,

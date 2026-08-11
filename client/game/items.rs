@@ -73,7 +73,7 @@ impl ClientItems {
     }
 
     pub fn render(&self, graphics: &gfx::GraphicsContext, camera: &Camera, entities: &mut Entities) -> Result<()> {
-        for (_entity, (position, item)) in entities.ecs.query_mut::<(&PositionComponent, &ItemComponent)>() {
+        for (position, item) in entities.ecs.query_mut::<(&PositionComponent, &ItemComponent)>() {
             let mut src_rect = *self.atlas.get_rect(&item.get_item_type()).ok_or_else(|| anyhow!("Item not found in atlas"))?;
             src_rect.size.0 /= 2.0;
             let top_left = camera.get_top_left(graphics);

@@ -1,4 +1,5 @@
 use anyhow::Result;
+use hecs::Entity;
 use std::sync::{Arc, Mutex, MutexGuard, PoisonError};
 
 use crate::libraries::events::Event;
@@ -27,7 +28,7 @@ impl ServerEntities {
 
     pub fn sync_entities(&self, networking: &mut ServerNetworking) -> Result<()> {
         let mut entity_list = Vec::new();
-        for (entity, (position, physics)) in &mut self.get_entities().ecs.query::<(&PositionComponent, &PhysicsComponent)>() {
+        for (entity, position, physics) in &mut self.get_entities().ecs.query::<(Entity, &PositionComponent, &PhysicsComponent)>() {
             entity_list.push((entity, position.clone(), physics.clone()));
         }
 
