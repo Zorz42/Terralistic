@@ -243,51 +243,16 @@ impl GraphicsContext {
             gl::FramebufferTexture2D(gl::READ_FRAMEBUFFER, gl::COLOR_ATTACHMENT0, gl::TEXTURE_2D, self.window_texture, 0);
             gl::BindFramebuffer(gl::DRAW_FRAMEBUFFER, 0);
 
-            #[cfg(target_os = "windows")]
-            {
-                gl::BlitFramebuffer(
-                    0,
-                    0,
-                    (self.get_window_size().0 * 2.0) as i32,
-                    (self.get_window_size().1 * 2.0) as i32,
-                    0,
-                    0,
-                    (self.get_window_size().0 * 2.0) as i32,
-                    (self.get_window_size().1 * 2.0) as i32,
-                    gl::COLOR_BUFFER_BIT,
-                    gl::NEAREST,
-                );
-            }
-            #[cfg(target_os = "macos")]
-            {
-                gl::BlitFramebuffer(
-                    0,
-                    0,
-                    (self.get_window_size().0 * 2.0) as i32,
-                    (self.get_window_size().1 * 2.0) as i32,
-                    0,
-                    0,
-                    (self.get_window_size().0 * 2.0) as i32,
-                    (self.get_window_size().1 * 2.0) as i32,
-                    gl::COLOR_BUFFER_BIT,
-                    gl::NEAREST,
-                );
-            }
-            #[cfg(target_os = "linux")]
-            {
-                gl::BlitFramebuffer(
-                    0,
-                    0,
-                    (self.get_window_size().0 * 2.0) as i32,
-                    (self.get_window_size().1 * 2.0) as i32,
-                    0,
-                    0,
-                    (self.get_window_size().0 * 2.0) as i32,
-                    (self.get_window_size().1 * 2.0) as i32,
-                    gl::COLOR_BUFFER_BIT,
-                    gl::NEAREST,
-                );
-            }
+            // This used to be three byte-identical copies of the same call, one each
+            // under cfg(windows), cfg(macos) and cfg(linux) - which also meant no blit at
+            // all on any other target.
+            //
+            // The 2.0 is a hardcoded assumption that the drawable is twice the window
+            // size. That is wrong on non-HiDPI displays, but fixing it needs the real
+            // drawable size and a visual check, so it is left as is here.
+            let blit_width = (self.get_window_size().0 * 2.0) as i32;
+            let blit_height = (self.get_window_size().1 * 2.0) as i32;
+            gl::BlitFramebuffer(0, 0, blit_width, blit_height, 0, 0, blit_width, blit_height, gl::COLOR_BUFFER_BIT, gl::NEAREST);
         }
 
         self.sdl_window.gl_swap_window();

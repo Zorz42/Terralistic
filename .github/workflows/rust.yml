@@ -2,9 +2,10 @@ name: Rust
 
 on:
    push:
-     branches: [ "master" ]
+     branches: [ "master", "beta-5" ]
+   # no branch filter: a pull request against any branch gets checked, not just master
    pull_request:
-     branches: [ "master" ]
+   workflow_dispatch:
 
 env:
    CARGO_TERM_COLOR: always
@@ -15,11 +16,20 @@ jobs:
      runs-on: ubuntu-latest
 
      steps:
-     - uses: actions/checkout@v3
-     - run: rustup toolchain install stable --profile minimal
+     - uses: actions/checkout@v4
+     - run: rustup toolchain install stable --profile minimal --component clippy,rustfmt
      - name: Rust Cache
-       uses: Swatinem/rust-cache@v2.5.0
+       uses: Swatinem/rust-cache@v2
      - name: Install dependencies
-       run: sudo apt-get install -y libsdl2-dev
+       run: sudo apt-get update && sudo apt-get install -y libsdl2-dev
+     - name: Check formatting
+       run: cargo fmt --check
+     # main.rs sets #![deny(clippy::all)], so this already fails the build on any
+     # deny-level regression. It does not yet use -D warnings, because the tree has
+     # ~107 outstanding warnings; once those are cleared, add -D warnings here.
+     - name: Clippy
+       run: cargo clippy --all-targets
      - name: Run tests
        run: cargo test --verbose
+     - name: Release build
+       run: cargo build --release
