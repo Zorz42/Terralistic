@@ -1,6 +1,5 @@
 use std::collections::HashMap;
 use std::path::Path;
-use std::ptr::{addr_of, addr_of_mut};
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::mpsc::{Receiver, Sender};
 use std::sync::{Arc, Mutex, PoisonError};
@@ -40,6 +39,14 @@ pub struct Server {
     players: ServerPlayers,
     ui_event_receiver: Option<Receiver<UiMessageType>>,
     commands: CommandManager,
+    /// Simulated milliseconds already stepped, used to catch the fixed 5ms tick up to real time.
+    ms_counter: i32,
+    /// Whole seconds already stepped, used to rate limit entity syncing.
+    seconds_counter: i32,
+    /// Set on the first update, then used as the origin that `ms_counter` counts from.
+    ms_timer: Option<std::time::Instant>,
+    /// Time of the previous update, used to measure delta time.
+    last_time: Option<std::time::Instant>,
 }
 
 impl Server {
@@ -62,6 +69,10 @@ impl Server {
             players: ServerPlayers::new(),
             ui_event_receiver,
             commands,
+            ms_counter: 0,
+            seconds_counter: 0,
+            ms_timer: None,
+            last_time: None,
         }
     }
 
@@ -176,15 +187,33 @@ impl Server {
         Ok(())
     }
 
+    /// Advances the frame timers and returns the tick origin and the previous frame time.
+    /// Returns `None` on the first update, when there is not yet a previous frame to
+    /// measure a delta against, so that update is skipped.
+    ///
+    /// The second guard is kept from the original implementation for safety, but is
+    /// unreachable: the first branch always sets `last_time` alongside `ms_timer`.
+    fn advance_timers(&mut self) -> Option<(std::time::Instant, std::time::Instant)> {
+        let Some(ms_timer) = self.ms_timer else {
+            self.ms_timer = Some(std::time::Instant::now());
+            self.last_time = self.ms_timer;
+            return None; //we skip this time
+        };
+
+        let Some(last_time) = self.last_time else {
+            self.last_time = Some(std::time::Instant::now());
+            return None; //we skip this time
+        };
+
+        self.last_time = Some(std::time::Instant::now());
+
+        Some((ms_timer, last_time))
+    }
+
     /// Updates the server - manual way. It updates the server once and returns
     pub fn update(&mut self) -> Result<()> {
-        //there's no point in outside functions knowing about the counters. Letting outside functions manage these variables could lead to bugs
-        static mut MS_COUNTER: i32 = 0;
-        static mut SECONDS_COUNTER: i32 = 0;
-        static mut MS_TIMER: Option<std::time::Instant> = None;
-        static mut LAST_TIME: Option<std::time::Instant> = None;
-
-        let Some((ms_timer, last_time)) = (unsafe { get_timers_from_static(addr_of_mut!(MS_TIMER), addr_of_mut!(LAST_TIME)) }) else {
+        // the counters are private fields so outside functions cannot mismanage them
+        let Some((ms_timer, last_time)) = self.advance_timers() else {
             return Ok(()); //we return early this time
         };
 
@@ -200,7 +229,7 @@ impl Server {
         // handle events
         self.handle_events()?;
 
-        while unsafe { MS_COUNTER < ms_timer.elapsed().as_millis() as i32 } {
+        while self.ms_counter < ms_timer.elapsed().as_millis() as i32 {
             self.players.update(
                 &mut self.entities.get_entities(),
                 &self.blocks.get_blocks(),
@@ -209,16 +238,12 @@ impl Server {
                 &mut self.networking,
             )?;
             self.entities.get_entities().update_entities_ms(&self.blocks.get_blocks(), &mut self.events)?;
-            unsafe {
-                MS_COUNTER += 5;
-            }
+            self.ms_counter += 5;
         }
 
-        unsafe {
-            if SECONDS_COUNTER < MS_COUNTER / 1000 {
-                self.entities.sync_entities(&mut self.networking)?;
-                SECONDS_COUNTER = MS_COUNTER / 1000;
-            }
+        if self.seconds_counter < self.ms_counter / 1000 {
+            self.entities.sync_entities(&mut self.networking)?;
+            self.seconds_counter = self.ms_counter / 1000;
         }
 
         Ok(())
@@ -325,38 +350,24 @@ impl Server {
     }
 }
 
-unsafe fn get_timers_from_static(ms_timer_static: *mut Option<std::time::Instant>, last_time_static: *mut Option<std::time::Instant>) -> Option<(std::time::Instant, std::time::Instant)> {
-    let Some(ms_timer) = *ms_timer_static else {
-        *ms_timer_static = Some(std::time::Instant::now());
-        *last_time_static = *ms_timer_static;
-        return None; //we skip this time
-    };
-
-    let Some(last_time) = *last_time_static else {
-        *last_time_static = Some(std::time::Instant::now());
-        return None; //we skip this time
-    };
-
-    *last_time_static = Some(std::time::Instant::now());
-
-    Some((ms_timer, last_time))
-}
+/// The channel back to the server ui. It is process global because `print_to_console` and
+/// `send_to_ui` are free functions called from all over the server, which have no `Server`
+/// to reach through. The first non-`None` sender handed in wins; later ones are ignored.
+///
+/// A `Sender` is `Send` but not `Sync`, so this cannot be a `OnceLock` - it needs the `Mutex`.
+static UI_EVENT_SENDER: Mutex<Option<Sender<UiMessageType>>> = Mutex::new(None);
 
 /// sends any data to the ui if the server was started without nogui flag
 pub fn send_to_ui(data: UiMessageType, ui_event_sender: Option<Sender<UiMessageType>>) {
-    static mut UI_EVENT_SENDER: Option<Sender<UiMessageType>> = None;
+    let mut sender = UI_EVENT_SENDER.lock().unwrap_or_else(PoisonError::into_inner);
 
-    unsafe {
-        if UI_EVENT_SENDER.is_none() {
-            UI_EVENT_SENDER = ui_event_sender;
-        }
+    if sender.is_none() {
+        *sender = ui_event_sender;
+    }
 
-        if let Some(sender) = &*addr_of!(UI_EVENT_SENDER) {
-            let result = sender.send(data);
-
-            if let Err(_e) = result {
-                println!("error sending data to ui");
-            }
+    if let Some(sender) = sender.as_ref() {
+        if sender.send(data).is_err() {
+            println!("error sending data to ui");
         }
     }
 }
