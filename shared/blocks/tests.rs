@@ -7,6 +7,7 @@ mod tests {
     use crate::shared::blocks::Block;
     use crate::shared::blocks::BlockChangeEvent;
     use crate::shared::blocks::Blocks;
+    use crate::shared::blocks::BREAK_STAGES;
 
     #[test]
     fn test_blocks_new() {
@@ -150,5 +151,85 @@ mod tests {
 
         let event = events.pop_event();
         assert!(event.is_none());
+    }
+
+    /// Builds a 5x5 world with a breakable and an unbreakable block type registered.
+    fn blocks_with_break_types() -> (Blocks, crate::shared::blocks::BlockId, crate::shared::blocks::BlockId) {
+        let mut blocks = Blocks::new();
+
+        let mut breakable = Block::new();
+        breakable.name = "breakable".to_owned();
+        breakable.break_time = Some(1000);
+        let breakable_id = blocks.register_new_block_type(breakable);
+
+        let mut unbreakable = Block::new();
+        unbreakable.name = "unbreakable".to_owned();
+        unbreakable.break_time = None;
+        let unbreakable_id = blocks.register_new_block_type(unbreakable);
+
+        blocks.create((5, 5));
+
+        (blocks, breakable_id, unbreakable_id)
+    }
+
+    /// `set_break_progress` is a second way into the breaking list, and unlike
+    /// `start_breaking_block` it did not check whether the block can be broken at all.
+    /// `update_breaking_blocks` then compared against `break_time.unwrap_or(1)`, so an
+    /// unbreakable block was destroyed on the very next update.
+    #[test]
+    fn test_set_break_progress_cannot_destroy_an_unbreakable_block() {
+        let (mut blocks, _breakable, unbreakable) = blocks_with_break_types();
+        let mut events = EventManager::new();
+
+        blocks.set_block(&mut events, 1, 1, unbreakable).unwrap();
+        blocks.set_break_progress(1, 1, 5000).unwrap();
+        blocks.update_breaking_blocks(&mut events, 0.0).unwrap();
+
+        assert!(blocks.get_block(1, 1).unwrap() == unbreakable, "an unbreakable block was destroyed");
+    }
+
+    /// An unbreakable block has no break time to measure progress against, so it shows
+    /// no breaking overlay. This used to divide by zero and saturate to i32::MAX.
+    #[test]
+    fn test_break_stage_of_unbreakable_block_is_zero() {
+        let (mut blocks, _breakable, unbreakable) = blocks_with_break_types();
+        let mut events = EventManager::new();
+
+        blocks.set_block(&mut events, 1, 1, unbreakable).unwrap();
+        blocks.set_break_progress(1, 1, 500).unwrap();
+
+        assert_eq!(blocks.get_break_stage(1, 1).unwrap(), 0);
+    }
+
+    /// The break stage indexes the 8 frame breaking texture, so it has to stay in range
+    /// even when progress has reached break_time.
+    #[test]
+    fn test_break_stage_stays_in_texture_range() {
+        let (mut blocks, breakable, _unbreakable) = blocks_with_break_types();
+        let mut events = EventManager::new();
+
+        blocks.set_block(&mut events, 1, 1, breakable).unwrap();
+
+        for progress in [0, 1, 500, 999, 1000] {
+            blocks.set_break_progress(1, 1, progress).unwrap();
+            let stage = blocks.get_break_stage(1, 1).unwrap();
+            assert!((0..BREAK_STAGES).contains(&stage), "progress {progress} gave break stage {stage}, outside 0..{BREAK_STAGES}");
+        }
+    }
+
+    /// A breakable block still breaks normally.
+    #[test]
+    fn test_breakable_block_still_breaks() {
+        let (mut blocks, breakable, _unbreakable) = blocks_with_break_types();
+        let mut events = EventManager::new();
+
+        blocks.set_block(&mut events, 1, 1, breakable).unwrap();
+        blocks.start_breaking_block(&mut events, 1, 1, None, 0).unwrap();
+
+        for _ in 0..3 {
+            blocks.update_breaking_blocks(&mut events, 1000.0).unwrap();
+        }
+
+        assert!(blocks.get_block(1, 1).unwrap() == blocks.air(), "a breakable block was not broken");
     }
 }
