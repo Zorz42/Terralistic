@@ -1,6 +1,7 @@
 #![allow(clippy::unwrap_used)] // tests assert on results directly
 #[cfg(test)]
 mod tests {
+    use crate::libraries::serialization;
     use crate::shared::packet::{Packet, WelcomeCompletePacket};
 
     #[test]
@@ -40,8 +41,8 @@ mod tests {
     #[test]
     fn test_packet_to_data_from_data() {
         let packet = Packet::new(WelcomeCompletePacket).unwrap();
-        let packet_data = bincode::serialize(&packet).unwrap();
-        let packet = bincode::deserialize::<Packet>(&packet_data).unwrap();
+        let packet_data = serialization::serialize(&packet).unwrap();
+        let packet = serialization::deserialize::<Packet>(&packet_data).unwrap();
         assert!(packet.try_deserialize::<WelcomeCompletePacket>().is_some());
         assert!(packet.try_deserialize::<u32>().is_none());
     }

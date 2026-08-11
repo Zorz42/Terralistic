@@ -1,8 +1,8 @@
 use anyhow::{anyhow, bail, Result};
-use bincode;
 use serde_derive::{Deserialize, Serialize};
 use snap;
 
+use crate::libraries::serialization;
 use crate::shared::blocks::Tool;
 use crate::shared::blocks::{Blocks, ToolId};
 use crate::shared::walls::{BreakingWall, Wall};
@@ -117,13 +117,13 @@ impl Walls {
 
     /// Serializes walls for saving
     pub fn serialize(&self) -> Result<Vec<u8>> {
-        Ok(snap::raw::Encoder::new().compress_vec(&bincode::serialize(&self.walls_data)?)?)
+        Ok(snap::raw::Encoder::new().compress_vec(&serialization::serialize(&self.walls_data)?)?)
     }
 
     /// Deserializes walls from u8 vector
     pub fn deserialize(&mut self, data: &[u8]) -> Result<()> {
         let decompressed = snap::raw::Decoder::new().decompress_vec(data)?;
-        self.walls_data = bincode::deserialize(&decompressed)?;
+        self.walls_data = serialization::deserialize(&decompressed)?;
 
         Ok(())
     }

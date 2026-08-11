@@ -5,6 +5,7 @@ use serde_derive::{Deserialize, Serialize};
 use snap;
 
 use crate::libraries::events::{Event, EventManager};
+use crate::libraries::serialization;
 use crate::shared::blocks::{Block, BlockBreakEvent, BreakingBlock, Tool};
 use crate::shared::items::ItemStack;
 use crate::shared::world_map::WorldMap;
@@ -206,11 +207,11 @@ impl Blocks {
     }
 
     pub fn serialize(&self) -> Result<Vec<u8>> {
-        Ok(snap::raw::Encoder::new().compress_vec(&bincode::serialize(&self.block_data)?)?)
+        Ok(snap::raw::Encoder::new().compress_vec(&serialization::serialize(&self.block_data)?)?)
     }
 
     pub fn deserialize(&mut self, serial: &[u8]) -> Result<()> {
-        self.block_data = bincode::deserialize(&snap::raw::Decoder::new().decompress_vec(serial)?)?;
+        self.block_data = serialization::deserialize(&snap::raw::Decoder::new().decompress_vec(serial)?)?;
         Ok(())
     }
 

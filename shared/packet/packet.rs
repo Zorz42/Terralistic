@@ -1,6 +1,7 @@
 use std::any::TypeId;
 use std::hash::{Hash, Hasher};
 
+use crate::libraries::serialization;
 use anyhow::Result;
 use fnv::FnvHasher;
 use serde::de::DeserializeOwned;
@@ -27,7 +28,7 @@ impl Packet {
     /// This function creates a new packet from a serializable object.
     pub fn new<T: serde::Serialize + 'static>(data: T) -> Result<Self> {
         let id = get_type_id::<T>();
-        let data = bincode::serialize(&data)?;
+        let data = serialization::serialize(&data)?;
         Ok(Self { id, data })
     }
 
@@ -37,7 +38,7 @@ impl Packet {
     #[must_use]
     pub fn try_deserialize<T: DeserializeOwned + 'static>(&self) -> Option<T> {
         if self.id == get_type_id::<T>() {
-            bincode::deserialize(&self.data).map_or_else(|_| None, |data| Some(data))
+            serialization::deserialize(&self.data).map_or_else(|_| None, |data| Some(data))
         } else {
             None
         }

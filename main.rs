@@ -155,6 +155,7 @@ use crate::server::server_ui::UiManager;
 pub mod libraries {
     pub mod events;
     pub mod graphics;
+    pub mod serialization;
 }
 
 pub mod shared;

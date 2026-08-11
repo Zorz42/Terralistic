@@ -7,6 +7,7 @@ use crate::shared::mod_manager::{GameMod, ModManager, ModsWelcomePacket};
 use crate::shared::packet::Packet;
 
 use super::networking::{NewConnectionEvent, ServerNetworking};
+use crate::libraries::serialization;
 
 /// server mod manager that manages all the mods for the server.
 /// It is used to initialize, update and stop all the mods.
@@ -43,7 +44,7 @@ impl ServerModManager {
         if let Some(event) = event.downcast::<NewConnectionEvent>() {
             let mut mods = Vec::new();
             for game_mod in self.mod_manager.mods_iter_mut() {
-                mods.push(bincode::serialize(game_mod)?);
+                mods.push(serialization::serialize(game_mod)?);
             }
             let welcome_packet = Packet::new(ModsWelcomePacket { mods })?;
             networking.send_packet(&welcome_packet, SendTarget::Connection(event.conn.clone()))?;

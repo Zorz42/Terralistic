@@ -23,6 +23,7 @@ use super::mod_manager::ServerModManager;
 use super::networking::{BindAddress, ServerNetworking};
 use super::walls::ServerWalls;
 use super::world_generator::WorldGenerator;
+use crate::libraries::serialization;
 
 pub const SINGLEPLAYER_PORT: u16 = 49152;
 pub const MULTIPLAYER_PORT: u16 = 49153;
@@ -106,7 +107,7 @@ impl Server {
         for game_mod in mods_serialized {
             // decompress mod with snap
             let game_mod = snap::raw::Decoder::new().decompress_vec(&game_mod)?;
-            mods.push(bincode::deserialize(&game_mod)?);
+            mods.push(serialization::deserialize(&game_mod)?);
         }
         self.mods = ServerModManager::new(mods);
 
@@ -328,18 +329,16 @@ impl Server {
         // load world file into Vec<u8>
         let world_file = std::fs::read(world_path)?;
         // decode world file as HashMap<String, Vec<u8>>
-        let world: HashMap<String, Vec<u8>> = bincode::deserialize(&world_file)?;
+        let world: HashMap<String, Vec<u8>> = serialization::deserialize(&world_file)?;
 
         match world.get(WORLD_SAVE_VERSION_KEY) {
-            // Worlds written before save versioning existed. The layout has not changed
-            // since, so load them rather than making people throw the world away; they get
-            // stamped on the next save.
-            None => print_to_console(
-                &format!("this world has no save version, so it predates world versioning - loading it as version {WORLD_SAVE_VERSION}"),
-                1,
-            ),
+            // A world with no version key was written before versioning existed, which also
+            // means it was written with bincode 1. That encoding is not readable now, so
+            // there is nothing useful to do with it. Note this branch is best effort: the
+            // outer decode above usually fails first on such a file.
+            None => bail!("this world has no save version, so it was written with the old bincode 1 format and cannot be read by this build"),
             Some(bytes) => {
-                let version: u32 = bincode::deserialize(bytes)?;
+                let version: u32 = serialization::deserialize(bytes)?;
                 if version != WORLD_SAVE_VERSION {
                     bail!("this world is save version {version}, but this build reads version {WORLD_SAVE_VERSION}");
                 }
@@ -354,12 +353,12 @@ impl Server {
 
     fn save_world(&self, world_path: &Path) -> Result<()> {
         let mut world = HashMap::new();
-        world.insert(WORLD_SAVE_VERSION_KEY.to_owned(), bincode::serialize(&WORLD_SAVE_VERSION)?);
+        world.insert(WORLD_SAVE_VERSION_KEY.to_owned(), serialization::serialize(&WORLD_SAVE_VERSION)?);
         world.insert("blocks".to_owned(), self.blocks.get_blocks().serialize()?);
         world.insert("walls".to_owned(), self.walls.get_walls().serialize()?);
         world.insert("players".to_owned(), self.players.serialize()?);
 
-        let world_file = bincode::serialize(&world)?;
+        let world_file = serialization::serialize(&world)?;
         if !world_path.exists() {
             std::fs::create_dir_all(world_path.parent().ok_or_else(|| anyhow!("could not get parent folder"))?)?;
         }

@@ -7,6 +7,7 @@ use darklua_core::Parser;
 
 use crate::build_project::png_to_opa::png_file_to_opa_bytes;
 use crate::libraries::graphics as gfx;
+use crate::libraries::serialization;
 use crate::shared::mod_data::GameModData;
 
 /// This function compiles a game mod from a directory.
@@ -55,7 +56,7 @@ pub fn compile_mod(mod_path: PathBuf) {
     };
 
     // serialize the mod to a byte array
-    let mod_bytes = bincode::serialize(&mod_obj).unwrap();
+    let mod_bytes = serialization::serialize(&mod_obj).unwrap();
     // compress the mod with snap
     let mod_bytes = snap::raw::Encoder::new().compress_vec(&mod_bytes).unwrap();
 

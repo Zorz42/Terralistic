@@ -12,6 +12,7 @@ use message_io::node::{NodeEvent, NodeHandler};
 
 use crate::libraries::events;
 use crate::libraries::events::EventManager;
+use crate::libraries::serialization;
 use crate::shared::packet::{Packet, WelcomeCompletePacket};
 use crate::shared::players::NamePacket;
 use crate::shared::versions::VersionPacket;
@@ -123,7 +124,7 @@ impl ClientNetworking {
                     match event {
                         NetEvent::Accepted(..) | NetEvent::Connected(..) | NetEvent::Disconnected(..) => {}
                         NetEvent::Message(_peer, packet) => {
-                            let packet = bincode::deserialize::<Packet>(packet);
+                            let packet = serialization::deserialize::<Packet>(packet);
 
                             packet.map_or_else(
                                 |error| {
@@ -155,7 +156,7 @@ impl ClientNetworking {
                     NodeEvent::Network(event) => match event {
                         NetEvent::Connected(..) | NetEvent::Accepted(..) | NetEvent::Disconnected(..) => {}
                         NetEvent::Message(_peer, packet) => {
-                            let packet = bincode::deserialize::<Packet>(packet);
+                            let packet = serialization::deserialize::<Packet>(packet);
 
                             packet.map_or_else(
                                 |error| {
@@ -205,7 +206,7 @@ impl ClientNetworking {
     }
 
     fn send_packet_internal(net_client: &NodeHandler<()>, packet: &Packet, endpoint: Endpoint) -> Result<()> {
-        let packet_data = bincode::serialize(packet)?;
+        let packet_data = serialization::serialize(packet)?;
 
         loop {
             let status = net_client.network().send(endpoint, &packet_data);

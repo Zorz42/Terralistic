@@ -4,6 +4,7 @@ use crate::libraries::events::Event;
 use crate::shared::mod_manager::{ModManager, ModsWelcomePacket};
 
 use super::networking::WelcomePacketEvent;
+use crate::libraries::serialization;
 
 /// client mod manager that manages all the mods for the client.
 /// It is used to initialize, update and stop all the mods.
@@ -44,7 +45,7 @@ impl ClientModManager {
             if let Some(packet) = event.packet.try_deserialize::<ModsWelcomePacket>() {
                 let mut game_mods = Vec::new();
                 for mod_data in packet.mods {
-                    let game_mod = bincode::deserialize(&mod_data)?;
+                    let game_mod = serialization::deserialize(&mod_data)?;
                     game_mods.push(game_mod);
                 }
                 self.mod_manager = ModManager::new(game_mods);

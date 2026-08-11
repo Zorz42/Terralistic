@@ -12,6 +12,7 @@ use message_io::node;
 use message_io::node::{NodeEvent, NodeHandler};
 
 use crate::libraries::events::{Event, EventManager};
+use crate::libraries::serialization;
 use crate::server::server_core::print_to_console;
 use crate::shared::packet::{Packet, WelcomeCompletePacket};
 use crate::shared::players::NamePacket;
@@ -154,7 +155,7 @@ impl ServerNetworking {
                 NetEvent::Message(peer, packet) => {
                     // a malformed frame from one client must not take down networking for
                     // everyone, so drop the packet and keep serving the other connections
-                    let packet: Packet = match bincode::deserialize(packet) {
+                    let packet: Packet = match serialization::deserialize(packet) {
                         Ok(packet) => packet,
                         Err(e) => {
                             print_to_console(&format!("[{peer}] sent a packet that could not be deserialized, ignoring it: {e}"), 1);
@@ -285,7 +286,7 @@ impl ServerNetworking {
     }
 
     pub fn send_packet(&mut self, packet: &Packet, target: SendTarget) -> Result<()> {
-        let packet_data = bincode::serialize(&packet)?;
+        let packet_data = serialization::serialize(&packet)?;
 
         match target {
             SendTarget::All => {

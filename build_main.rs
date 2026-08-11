@@ -22,6 +22,8 @@ pub mod build_project {
 // The module paths have to match main.rs, because these files refer to themselves through
 // `crate::libraries::graphics` and `crate::shared`.
 pub mod libraries {
+    pub mod serialization;
+
     pub mod graphics {
         mod color;
         mod position;

@@ -86,7 +86,12 @@ Consequences to keep in mind:
 ### Networking
 
 `shared/packet/packet.rs` is the whole protocol. A `Packet` is `{ id: u64, data: Vec<u8> }`,
-where `id` is an FNV hash of `TypeId::of::<T>()` and `data` is bincode. Receivers call
+where `id` is an FNV hash of `TypeId::of::<T>()` and `data` is bincode.
+
+**All bincode goes through `libraries/serialization.rs`** — packets, world saves and `.mod`
+files alike. That module picks the format (bincode 2's default: little endian, varint) in
+one place. Don't call `bincode::` directly; if the backend ever changes, that file is meant
+to be the only edit. Receivers call
 `packet.try_deserialize::<SomeType>()`, which returns `None` if the type hash doesn't match.
 
 This means: **there is no packet registry and no version negotiation.** Any serializable

@@ -19,7 +19,7 @@ webpki-roots = { version = "1.0", default-features = false }
 rustls-pki-types = { version = "1.1", default-features = false }
 directories = { version = "6.0", default-features = false }
 chrono = { version = "0.4", default-features = false, features = ["clock"] }
-bincode = { version = "1.3", default-features = false }
+bincode = { version = "2.0", default-features = false, features = ["std", "serde"] }
 rlua = { version = "0.20" }
 anyhow = {version =  "1.0", default-features = false, features = ["std", "backtrace"] }
 serde = { version = "1.0", default-features = false }
@@ -75,7 +75,7 @@ opt-level = 0
 # and bincode+snap to write .mod files. It deliberately does NOT include the game's
 # dependencies - see the module declarations in build_main.rs for why.
 anyhow = { version = "1.0", features = ["std", "backtrace"] }
-bincode = { version = "1.3", default-features = false }
+bincode = { version = "2.0", default-features = false, features = ["std", "serde"] }
 darklua = "0.19"
 png = { version = "0.18", default-features = false }
 serde = { version = "1.0", default-features = false }

@@ -4,6 +4,7 @@ use serde_derive::{Deserialize, Serialize};
 use crate::libraries::graphics as gfx;
 
 use super::Color;
+use crate::libraries::serialization;
 
 /// Surface is an image stored in ram.
 #[derive(Serialize, Deserialize, Clone)]
@@ -26,14 +27,14 @@ impl Surface {
     /// It is serialized with bincode and compressed with snap.
     pub fn serialize_to_bytes(&self) -> Result<Vec<u8>> {
         let mut buffer = Vec::new();
-        bincode::serialize_into(&mut buffer, &self)?;
+        serialization::serialize_into(&mut buffer, &self)?;
         Ok(snap::raw::Encoder::new().compress_vec(&buffer)?)
     }
 
     /// Deserializes a surface from a vector of bytes the same way it was serialized.
     pub fn deserialize_from_bytes(buffer: &[u8]) -> Result<Self> {
         let decompressed = snap::raw::Decoder::new().decompress_vec(buffer)?;
-        Ok(bincode::deserialize(&decompressed)?)
+        serialization::deserialize(&decompressed)
     }
 
     /// Converts 2D location to a linear location in color array.

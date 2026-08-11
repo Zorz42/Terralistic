@@ -8,7 +8,10 @@ pub const VERSION: &str = env!("CARGO_PKG_VERSION");
 ///
 /// This is separate from `VERSION` because the save format only changes occasionally,
 /// and a normal release should not invalidate everyone's worlds.
-pub const WORLD_SAVE_VERSION: u32 = 1;
+///
+/// 1: the original layout, written with bincode 1 (fixed width integers)
+/// 2: the same layout written with bincode 2 (variable length integers)
+pub const WORLD_SAVE_VERSION: u32 = 2;
 
 /// The key the save version is stored under inside the world file.
 pub const WORLD_SAVE_VERSION_KEY: &str = "version";

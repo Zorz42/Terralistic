@@ -6,6 +6,7 @@ use hecs::Entity;
 use serde_derive::{Deserialize, Serialize};
 
 use crate::libraries::events::{Event, EventManager};
+use crate::libraries::serialization;
 use crate::server::server_core::blocks::ServerBlocks;
 use crate::server::server_core::networking::{Connection, DisconnectEvent, NewConnectionWelcomedEvent, PacketFromClientEvent, SendTarget, ServerNetworking};
 use crate::server::server_core::print_to_console;
@@ -322,11 +323,11 @@ impl ServerPlayers {
     }
 
     pub fn serialize(&self) -> Result<Vec<u8>> {
-        Ok(bincode::serialize(&self.saved_players)?)
+        serialization::serialize(&self.saved_players)
     }
 
     pub fn deserialize(&mut self, data: &[u8]) -> Result<()> {
-        self.saved_players = bincode::deserialize(data)?;
+        self.saved_players = serialization::deserialize(data)?;
         Ok(())
     }
 }

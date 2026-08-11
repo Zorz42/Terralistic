@@ -1,7 +1,8 @@
 # Dependency status
 
-State after the update pass on 2026-08-11. Everything is on its latest usable version
-except the two items under "Blocked", which need a decision rather than a version bump.
+State after the update pass on 2026-08-11. Everything is on its latest usable version.
+The two items under "Notable" are on their newest usable release but are unmaintained
+upstream, which is worth knowing even though there is nothing to bump.
 
 ## Updated
 
@@ -9,6 +10,7 @@ except the two items under "Blocked", which need a decision rather than a versio
 |---|---|---|---|
 | png | 0.17 | 0.18 | needs `BufRead`; `output_buffer_size` now returns `Option` |
 | darklua | 0.18 | 0.19 | build script only |
+| bincode | 1.3 | 2.0.1 | new API and a different encoding; see below |
 | hecs | 0.10 | 0.11 | query iterators yield `Q::Item`, not `(Entity, Q::Item)` |
 | rand | 0.8 | 0.10 | `RngCore` renamed to `Rng`; old `Rng` is now `RngExt` |
 | everything else | | | moved within its existing range via `cargo update` |
@@ -16,12 +18,14 @@ except the two items under "Blocked", which need a decision rather than a versio
 Already at the newest release and left alone: `rlua` 0.20.1, `noise` 0.9.0, `gl` 0.14.0,
 `winres` 0.1.12, `kvptree` 0.1.0, `sdl2` 0.38.0 (pinned with `=`).
 
-## Blocked
+## Notable
 
-### bincode — the newest version is a tombstone, do not upgrade
+### bincode — on 2.0.1; 3.0.0 is a tombstone and must not be used
 
-`bincode` 3.0.0 is the latest release and it **cannot be used**. It ships no code: its
-`src/lib.rs` is one line.
+The project is on **2.0.1**, the last release that contains code.
+
+`bincode` 3.0.0 is the latest published version and it **cannot be used**. It ships no
+code: its `src/lib.rs` is one line.
 
 ```rust
 compile_error!("https://xkcd.com/2347/");
@@ -37,23 +41,13 @@ From its README:
 > as a lib.rs containing only a compiler error, to inform potential users of the
 > maintenance status of this crate.
 
-So the project stays on **1.3**, which works. The real decision is not a version bump:
+So `Cargo.toml` pins `2.0`, and it should stay there. Bumping to 3 fails to resolve, then
+fails to compile by design.
 
-- The last release with actual code is **2.0.1** (March 2025). Moving 1.3 to 2.0.1 is a
-  genuine API migration — 2.x replaced `serialize`/`deserialize` with
-  `encode_to_vec`/`decode_from_slice` plus a config, and its default encoding is varint
-  where 1.x was fixed-width, so it needs `bincode::config::legacy()` to keep the bytes
-  compatible. That buys a newer version of a crate that is dead either way.
-- bincode's own README points at [`wincode`](https://crates.io/crates/wincode) as a
-  bincode-compatible alternative.
-
-This matters more here than in most projects, because bincode defines three things at
-once: the world save format, the network wire format, and the committed `base_game.mod`.
-Any move needs the format held stable, or a version bump on all three — the save version
-added in `shared/versions.rs` now makes at least the world side detectable.
-
-My suggestion: skip 2.0.1. The format-compatibility work is the same whether the target is
-2.0.1 or a maintained alternative, so doing 1.3 to 2.0.1 first means doing it twice.
+bincode is still unmaintained at 2.0.1, so a future move off it is worth considering; its
+README suggests [`wincode`](https://crates.io/crates/wincode) as a compatible alternative.
+`libraries/serialization.rs` exists partly to make that a one file change: every call site
+goes through it, so swapping the backend does not mean touching 25 places again.
 
 ### rlua — deprecated in favour of mlua
 
