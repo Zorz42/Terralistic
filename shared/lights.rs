@@ -119,7 +119,10 @@ impl Lights {
     /// creates an empty light vector
     pub fn create(&mut self, size: (u32, u32)) {
         self.lights = vec![Light::new(); (size.0 * size.1) as usize];
-        self.light_chunks = vec![LightChunk::new(); (size.0 as i32 / CHUNK_SIZE * size.1 as i32 / CHUNK_SIZE) as usize];
+        // the parentheses matter: `/` and `*` are left associative, so without them this
+        // reads as `((w / CHUNK_SIZE) * h) / CHUNK_SIZE`, which is a different number
+        // whenever the height is not a multiple of CHUNK_SIZE
+        self.light_chunks = vec![LightChunk::new(); ((size.0 as i32 / CHUNK_SIZE) * (size.1 as i32 / CHUNK_SIZE)) as usize];
         self.map = WorldMap::new(size);
         self.sky_heights = vec![-1; size.0 as usize];
     }
@@ -251,14 +254,14 @@ impl Lights {
             let curr_block_transparent = blocks.get_block_type_at(event.x, event.y)?.transparent;
             let prev_block_transparent = blocks.get_block_type(event.prev_block)?.transparent;
 
-            if curr_block_transparent && !prev_block_transparent && *self.sky_heights.get(event.x as usize).unwrap_or(&0) == event.y - 1 {
+            if curr_block_transparent && !prev_block_transparent && *self.sky_heights.get(event.x as usize).unwrap_or(&-1) == event.y - 1 {
                 let mut sky_height = event.y;
                 while sky_height < self.get_size().1 as i32 && blocks.get_block_type_at(event.x, sky_height)?.transparent {
                     sky_height += 1;
                 }
 
                 *self.sky_heights.get_mut(event.x as usize).ok_or_else(|| anyhow!("sky_heights out of bounds"))? = sky_height - 1;
-            } else if !curr_block_transparent && prev_block_transparent && *self.sky_heights.get(event.x as usize).unwrap_or(&0) >= event.y {
+            } else if !curr_block_transparent && prev_block_transparent && *self.sky_heights.get(event.x as usize).unwrap_or(&-1) >= event.y {
                 *self.sky_heights.get_mut(event.x as usize).ok_or_else(|| anyhow!("sky_heights out of bounds"))? = event.y - 1;
             }
 
