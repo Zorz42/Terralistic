@@ -256,7 +256,7 @@ impl ServerNetworking {
                     // wait a bit and try again
                     std::thread::sleep(std::time::Duration::from_millis(1));
                 }
-            };
+            }
         }
 
         Ok(())

@@ -178,7 +178,7 @@ impl UiElement for LoginMenu {
         );
 
         self.register_sprite.pos = gfx::FloatPos(
-            (self.register_sprite.get_texture().get_texture_size().0 * self.register_sprite.scale + self.login_register_toggle.size.0) / 2.0 + gfx::SPACING,
+            f32::midpoint(self.register_sprite.get_texture().get_texture_size().0 * self.register_sprite.scale, self.login_register_toggle.size.0) + gfx::SPACING,
             self.login_register_toggle.get_container(graphics, parent_container).rect.pos.1,
         );
 
@@ -206,15 +206,14 @@ impl UiElement for LoginMenu {
                     }
                     return true;
                 }
-                gfx::Key::Enter => {
-                    if !self.confirm_button.disabled {
+                gfx::Key::Enter
+                    if !self.confirm_button.disabled => {
                         save_user_data(self.username_input.get_text(), self.password_input.get_text());
                         if self.login_register_toggle.toggled {
                             eprintln!("{:?}", register(self.username_input.get_text(), self.password_input.get_text(), self.email_input.get_text(), graphics));
                         }
                         return true;
                     }
-                }
                 _ => {}
             }
         }
@@ -352,7 +351,7 @@ pub(super) fn is_valid_email(email: &str) -> bool {
         }
         let mut user = user.to_owned();
         user.remove(0);
-        user.remove(user.as_bytes().len() - 1);
+        user.remove(user.len() - 1);
         while let Some(n) = user.find("\\\\") {
             user.remove(n);
             user.remove(n);
@@ -369,7 +368,7 @@ pub(super) fn is_valid_email(email: &str) -> bool {
     let domain_ok = if domain.starts_with('[') && domain.ends_with(']') {
         let mut domain = domain.to_owned();
         domain.remove(0);
-        domain.remove(domain.as_bytes().len() - 1);
+        domain.remove(domain.len() - 1);
         is_ip_email_domain_valid(domain)
     } else {
         is_email_domain_valid(domain)
@@ -425,5 +424,5 @@ fn is_ip_email_domain_valid(mut domain: String) -> bool {
         domain.remove(0); //:
     }
     let res = std::net::IpAddr::from_str(&domain);
-    res.map_or(false, |_| true)
+    res.is_ok_and(|_| true)
 }

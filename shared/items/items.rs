@@ -163,7 +163,7 @@ impl Items {
 
     /// this function returns the number of item types
     #[must_use]
-    pub fn get_num_item_types(&self) -> usize {
+    pub const fn get_num_item_types(&self) -> usize {
         self.item_types.len()
     }
 

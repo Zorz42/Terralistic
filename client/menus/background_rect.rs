@@ -1,8 +1,9 @@
 use crate::libraries::graphics as gfx;
 use gfx::BaseUiElement;
 
-/// `BackgroundRect` is a trait that defines a background which
-/// also has a rectangle. You can set the rectangle's width and
+/// `BackgroundRect` is a trait that defines a background which also has a rectangle.
+///
+/// You can set the rectangle's width and
 /// retrieve the rectangle's width. The height is always the same
 /// as the height of the window. You can also retrieve the back rectangle's
 /// container.

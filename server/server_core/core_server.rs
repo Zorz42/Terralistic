@@ -284,7 +284,7 @@ impl Server {
                 match feedback {
                     Ok(feedback) => print_to_console(&feedback, 0),
                     Err(val) => print_to_console(&val.to_string(), 1),
-                };
+                }
             }
         }
 

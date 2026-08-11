@@ -81,7 +81,7 @@ impl Walls {
             .walls_data
             .walls
             .get(self.walls_data.map.translate_coords(x, y)?)
-            .ok_or_else(|| anyhow!("Wall is accessed out of the bounds! ({}, {})", x, y))?)
+            .ok_or_else(|| anyhow!("Wall is accessed out of the bounds! ({x}, {y})"))?)
     }
 
     #[must_use]
@@ -110,7 +110,7 @@ impl Walls {
             .walls_data
             .walls
             .get_mut(self.walls_data.map.translate_coords(x, y)?)
-            .ok_or_else(|| anyhow!("Wall is accessed out of the bounds! ({}, {})", x, y))? = wall_id;
+            .ok_or_else(|| anyhow!("Wall is accessed out of the bounds! ({x}, {y})"))? = wall_id;
 
         Ok(())
     }
@@ -145,7 +145,7 @@ impl Walls {
                 return Ok(wall_type.id);
             }
         }
-        bail!("No wall type with name {} found", name)
+        bail!("No wall type with name {name} found")
     }
 
     /// This function creates a world from a 2d vector of wall type ids

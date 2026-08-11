@@ -3,10 +3,10 @@ use crate::libraries::graphics as gfx;
 use super::background_rect::BackgroundRect;
 use gfx::{BaseUiElement, UiElement};
 
-/// `MenuBack` is a struct that contains the background rectangle for
-/// the most main menus. It implements the `BackgroundRect` trait. It
-/// draws the background.opa image scaled to the window's height and
-/// scrolled to the left.
+/// `MenuBack` contains the background rectangle for most main menus.
+///
+/// It implements the `BackgroundRect` trait. It draws the background.opa image
+/// scaled to the window's height and scrolled to the left.
 pub struct MenuBack {
     background: gfx::Texture,
     back_rect: gfx::RenderRect,

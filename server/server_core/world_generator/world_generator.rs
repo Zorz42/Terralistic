@@ -41,7 +41,7 @@ impl WorldGenerator {
             // determine the width of the current biome
             // the width is a random number between the min and max width
             let biomes = self.get_biomes();
-            let biome = biomes.get(curr_biome as usize).ok_or_else(|| anyhow!("Biome with id {} does not exist!", curr_biome))?;
+            let biome = biomes.get(curr_biome as usize).ok_or_else(|| anyhow!("Biome with id {curr_biome} does not exist!"))?;
             let biome_width = (rand::random::<u32>() % (biome.max_width - biome.min_width) + biome.min_width) as i32;
             for _ in 0..biome_width {
                 biome_ids.push(curr_biome);

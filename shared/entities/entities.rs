@@ -171,7 +171,7 @@ impl Entities {
         self.entity_to_id.get(&entity).ok_or_else(|| anyhow!("invalid entity")).copied()
     }
 
-    pub fn new_id(&mut self) -> EntityId {
+    pub const fn new_id(&mut self) -> EntityId {
         self.current_id += 1;
         EntityId::new(self.current_id)
     }
@@ -245,11 +245,11 @@ impl PositionComponent {
         self.y
     }
 
-    pub fn set_x(&mut self, x: f32) {
+    pub const fn set_x(&mut self, x: f32) {
         self.x = x;
     }
 
-    pub fn set_y(&mut self, y: f32) {
+    pub const fn set_y(&mut self, y: f32) {
         self.y = y;
     }
 }

@@ -144,7 +144,7 @@ impl ClientNetworking {
                             );
                         }
                     }
-                };
+                }
             } else {
                 // normal loop
                 match event {
@@ -180,7 +180,7 @@ impl ClientNetworking {
 
                         handler.signals().send_with_timer((), std::time::Duration::from_millis(1));
                     }
-                };
+                }
             }
         });
 
@@ -217,7 +217,7 @@ impl ClientNetworking {
                     std::thread::sleep(std::time::Duration::from_millis(1));
                     // just try again
                 }
-            };
+            }
         }
         Ok(())
     }
@@ -228,7 +228,7 @@ impl ClientNetworking {
     }
 
     pub fn check_thread_for_errors(&mut self) -> Result<()> {
-        let is_finished = self.net_loop_thread.as_ref().map_or(false, JoinHandle::is_finished);
+        let is_finished = self.net_loop_thread.as_ref().is_some_and(JoinHandle::is_finished);
 
         if is_finished {
             let thread = self.net_loop_thread.take().ok_or_else(|| anyhow!("thread not found"))?;

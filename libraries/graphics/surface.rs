@@ -86,7 +86,7 @@ impl Surface {
 
     /// Returns a surface iterator.
     #[must_use]
-    pub fn iter_mut(&mut self) -> MutSurfaceIterator<'_> {
+    pub const fn iter_mut(&mut self) -> MutSurfaceIterator<'_> {
         MutSurfaceIterator::new(self)
     }
 }
@@ -133,7 +133,7 @@ pub struct MutSurfaceIterator<'surface_lifetime> {
 }
 
 impl<'surface_lifetime> MutSurfaceIterator<'surface_lifetime> {
-    pub fn new(surface: &'surface_lifetime mut Surface) -> Self {
+    pub const fn new(surface: &'surface_lifetime mut Surface) -> Self {
         Self { surface, pos: gfx::IntPos(0, 0) }
     }
 }

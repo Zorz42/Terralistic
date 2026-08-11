@@ -80,7 +80,7 @@ impl WorldCreationMenu {
         world_seed_input.scale = 3.0;
         world_seed_input.set_hint(graphics, "World seed");
         world_seed_input.orientation = gfx::CENTER;
-        world_seed_input.pos.1 = (world_seed_input.get_size().1 + gfx::SPACING) / 2.0;
+        world_seed_input.pos.1 = f32::midpoint(world_seed_input.get_size().1, gfx::SPACING);
 
         world_name_input.text_processing = Some(Box::new(|text: char| {
             // this closure only accepts letters, numbers and _ symbol
@@ -162,12 +162,11 @@ impl UiElement for WorldCreationMenu {
                         return true;
                     }
                 }
-                gfx::Key::Enter => {
-                    if !self.create_button.disabled {
+                gfx::Key::Enter
+                    if !self.create_button.disabled => {
                         self.create_world(graphics);
                         return true;
                     }
-                }
                 _ => {}
             }
         }

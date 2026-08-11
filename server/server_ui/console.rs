@@ -138,7 +138,7 @@ impl ui_manager::ModuleTrait for Console {
                 }
             };
 
-            self.add_line(message.to_string(), graphics_context, color);
+            self.add_line(message.clone(), graphics_context, color);
         }
     }
 
@@ -146,7 +146,7 @@ impl ui_manager::ModuleTrait for Console {
         &mut self.container
     }
 
-    fn get_name(&self) -> &str {
+    fn get_name(&self) -> &'static str {
         "console"
     }
 
@@ -165,16 +165,15 @@ impl ui_manager::ModuleTrait for Console {
                 self.scroll = self.scroll.max(0.0);
                 self.position_lines();
             }
-            gfx::Event::KeyPress(key, _repeat) => {
+            gfx::Event::KeyPress(key, _repeat)
                 //if enter is pressed, send the message to the server
-                if matches!(key, gfx::Key::Enter) && self.input.selected && !self.input.get_text().is_empty() {
+                if matches!(key, gfx::Key::Enter) && self.input.selected && !self.input.get_text().is_empty() => {
                     send_to_srv(UiMessageType::UiToSrvConsoleMessage(self.input.get_text().clone()), self.sender.as_ref());
                     let message = format_timestamp(&format!("[console_input] {}", self.input.get_text().clone()));
                     self.add_line(message.clone(), graphics_context, gfx::Color::new(200, 200, 200, 255));
                     println!("{message}");
                     self.input.set_text(String::new());
                 }
-            }
             _ => {}
         }
     }

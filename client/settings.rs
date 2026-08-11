@@ -120,11 +120,11 @@ impl Settings {
     }
 
     pub fn get_setting_mut(&mut self, id: i32) -> Result<&mut Setting> {
-        return self.settings.get_mut(&id).ok_or_else(|| anyhow!("Invalid setting id"));
+        self.settings.get_mut(&id).ok_or_else(|| anyhow!("Invalid setting id"))
     }
 
     pub fn get_setting(&self, id: i32) -> Result<&Setting> {
-        return self.settings.get(&id).ok_or_else(|| anyhow!("Invalid setting id"));
+        self.settings.get(&id).ok_or_else(|| anyhow!("Invalid setting id"))
     }
 
     pub fn save_config(&self) -> Result<()> {

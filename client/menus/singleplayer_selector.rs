@@ -125,7 +125,7 @@ impl World {
     }
 
     /// This function disables/enables the world card buttons.
-    pub fn set_enabled(&mut self, enabled: bool) {
+    pub const fn set_enabled(&mut self, enabled: bool) {
         self.play_button.disabled = !enabled;
         self.delete_button.disabled = !enabled;
     }
@@ -428,10 +428,7 @@ impl UiElement for SingleplayerSelector {
 
         self.bottom_rect.size.0 = parent_container.get_absolute_rect().size.0;
 
-        let mut world_height = 0.0;
-        if let Some(world) = self.world_list.worlds.first() {
-            world_height = world.get_height();
-        }
+        let world_height = self.world_list.worlds.first().map_or(0.0, World::get_height);
         self.scrollable.scroll_size = (world_height + gfx::SPACING) * self.world_list.worlds.len() as f32 - gfx::SPACING;
         self.scrollable.rect.size.1 = graphics.get_window_size().1 - self.top_rect.size.1 - self.bottom_rect.size.1;
 

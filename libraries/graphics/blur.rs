@@ -66,7 +66,7 @@ impl BlurContext {
             rect_vertex_buffer: {
                 let mut buffer = 0;
                 unsafe {
-                    gl::GenBuffers(1, &mut buffer);
+                    gl::GenBuffers(1, &raw mut buffer);
 
                     let rect_vertex_array: [f32; 12] = [0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 1.0];
 

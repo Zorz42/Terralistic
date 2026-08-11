@@ -1,9 +1,9 @@
 use crate::libraries::graphics as gfx;
 use gfx::BaseUiElement;
 
-/// The struct `RenderRect` contains a container and
-/// moves smoothly visually to the saved position
-/// it has a `smooth_factor`. At every render the position
+/// The struct `RenderRect` contains a container and moves smoothly to the saved position.
+///
+/// It has a `smooth_factor`. At every render the position
 /// of the container is changed by the distance to the
 /// target position divided by the `smooth_factor`. It is 1 by default.
 #[derive(Debug)]
@@ -48,7 +48,7 @@ impl RenderRect {
     }
 
     /// This function jumps the rectangle to the target position.
-    pub fn jump_to_target(&mut self) {
+    pub const fn jump_to_target(&mut self) {
         self.render_pos = self.pos;
         self.render_size = self.size;
     }

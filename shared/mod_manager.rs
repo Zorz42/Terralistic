@@ -21,6 +21,7 @@ pub fn get_mod_id(context: Context) -> Result<i32, LuaError> {
 }
 
 /// Game mod contains lua code that can be used to modify the game.
+///
 /// It also contains resources that can be used by the lua code.
 /// resources are a map of strings to byte arrays. The string key
 /// is the path of the resource file, relative to the `game_mod`

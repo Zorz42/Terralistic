@@ -52,7 +52,7 @@ impl ChatLine {
         self.texture.render(graphics, 3.0, pos, None, false, Some(gfx::Color::new(255, 255, 255, self.transparency as u8)));
     }
 
-    pub fn set_pos(&mut self, pos: gfx::FloatPos) {
+    pub const fn set_pos(&mut self, pos: gfx::FloatPos) {
         self.back_rect.pos = pos;
     }
 

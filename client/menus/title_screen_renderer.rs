@@ -161,7 +161,7 @@ pub fn run_title_screen(graphics: &mut gfx::GraphicsContext, settings: &Rc<RefCe
         menus.render(graphics, &main_back_container, &secondary_back_container);
 
         if !matches!(menus.state, TitleScreenState::SecondaryMenu) {
-            let color = get_tls_status_color(&tls_client);
+            let color = get_tls_status_color(tls_client.as_ref());
             cloud_status_rect.render(graphics, color);
             cloud_status_button.render(graphics, &gfx::Container::default(graphics));
         }
@@ -175,7 +175,7 @@ fn position_back_menus(graphics: &gfx::GraphicsContext, state: &TitleScreenState
     match state {
         TitleScreenState::MainMenu => {
             main_back_rect.set_x_position(0.0);
-            secondary_back_rect.pos.0 = (graphics.get_window_size().0 + secondary_back_rect.size.0) / 2.0 + INVISIBLE_PADDING;
+            secondary_back_rect.pos.0 = f32::midpoint(graphics.get_window_size().0, secondary_back_rect.size.0) + INVISIBLE_PADDING;
         }
         TitleScreenState::BothMenus => {
             main_back_rect.set_x_position(-max_width / 2.0 + main_back_rect.get_back_rect_width() / 2.0);
@@ -188,8 +188,8 @@ fn position_back_menus(graphics: &gfx::GraphicsContext, state: &TitleScreenState
     }
 }
 
-fn get_tls_status_color(tls_client: &Option<TlsClient>) -> gfx::Color {
-    tls_client.as_ref().map_or_else(
+fn get_tls_status_color(tls_client: Option<&TlsClient>) -> gfx::Color {
+    tls_client.map_or_else(
         || gfx::Color::new(255, 0, 0, 255),
         |client| match &client.get_connection_state() {
             ConnectionState::CONNECTING(_) => gfx::Color::new(255, 255, 0, 255),

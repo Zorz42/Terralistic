@@ -171,7 +171,7 @@ impl Inventory {
 
     /// This function returns inventory size
     #[must_use]
-    pub fn get_size(&self) -> usize {
+    pub const fn get_size(&self) -> usize {
         self.items.len()
     }
 }

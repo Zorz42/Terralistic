@@ -45,11 +45,10 @@ impl UiElement for MenuStack {
             }
         }
 
-        let mut close = false;
-        if let Some(top_menu) = self.stack.last_mut() {
+        let close = self.stack.last_mut().is_some_and(|top_menu| {
             top_menu.0.update_inner(graphics, parent_container);
-            close = top_menu.0.should_close();
-        }
+            top_menu.0.should_close()
+        });
         if close {
             self.stack.pop();
             if let Some(top_menu) = self.stack.last_mut() {

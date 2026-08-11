@@ -11,7 +11,7 @@ fn get_ip_port(server_ip_input: &str) -> (String, u16) {
     let port = if server_ip_input.contains(':') {
         server_ip_input
             .split(':')
-            .last()
+            .next_back()
             .unwrap_or("-1") //-1 so it fails on next unwrap and always defaults to MULTIPLAYER_PORT
             .to_owned()
             .parse::<u16>()
@@ -86,7 +86,7 @@ impl AddServerMenu {
         server_ip_input.scale = 3.0;
         server_ip_input.set_hint(graphics, "Server ip");
         server_ip_input.orientation = gfx::CENTER;
-        server_ip_input.pos.1 = (server_ip_input.get_size().1 + gfx::SPACING) / 2.0;
+        server_ip_input.pos.1 = f32::midpoint(server_ip_input.get_size().1, gfx::SPACING);
 
         server_name_input.text_processing = Some(Box::new(|text: char| {
             // this closure only accepts letters, numbers and _ symbol
@@ -118,7 +118,7 @@ impl AddServerMenu {
 
     fn add_server(&mut self) {
         let (ip, port) = get_ip_port(self.server_ip_input.get_text());
-        self.servers.push(ServerInfo::new(self.server_name_input.get_text().to_string(), ip, port));
+        self.servers.push(ServerInfo::new(self.server_name_input.get_text().clone(), ip, port));
         let file = serde_json::to_string(&self.servers).unwrap_or_else(|_| String::new());
         let res = std::fs::write(self.server_file.clone(), file);
         if let Err(e) = res {
@@ -158,12 +158,11 @@ impl UiElement for AddServerMenu {
                         self.close_self = true;
                     }
                 }
-                gfx::Key::Enter => {
-                    if !self.add_button.disabled {
+                gfx::Key::Enter
+                    if !self.add_button.disabled => {
                         self.add_server();
                         self.close_self = true;
                     }
-                }
                 _ => {}
             }
         }
