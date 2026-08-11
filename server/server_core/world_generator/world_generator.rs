@@ -5,7 +5,7 @@ use std::sync::{Mutex, PoisonError};
 use anyhow::{anyhow, bail, Result};
 use noise::Perlin;
 use rand::rngs::StdRng;
-use rand::{RngCore, SeedableRng};
+use rand::{Rng, SeedableRng};
 
 use crate::server::server_core::world_generator::biome::Biome;
 use crate::server::server_core::world_generator::noise::{convolve, turbulence};
