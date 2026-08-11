@@ -129,6 +129,14 @@ impl Items {
         Ok(())
     }
 
+    /// Registers an item type on this `Items` and returns its id.
+    ///
+    /// The mod interface has to use `register_new_item_type` directly because it only
+    /// holds the item type vector, not the whole `Items`. Everything else should use this.
+    pub fn register_item_type(&mut self, item_type: Item) -> ItemId {
+        Self::register_new_item_type(&mut self.item_types, item_type)
+    }
+
     /// this function registers an item type
     pub fn register_new_item_type(item_types: &mut Vec<Item>, mut item_type: Item) -> ItemId {
         item_type.id = ItemId::new();
