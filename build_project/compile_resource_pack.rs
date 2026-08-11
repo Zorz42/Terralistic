@@ -9,10 +9,10 @@ pub fn compile_resource_pack(input_resource_pack: PathBuf, output_resource_pack:
     println!("cargo:rerun-if-changed={}", output_resource_pack.to_str().unwrap());
 
     // create output_resource_pack directory if it doesn't exist
-    std::fs::create_dir_all(output_resource_pack.clone()).unwrap();
+    std::fs::create_dir_all(output_resource_pack.clone()).unwrap_or_else(|e| panic!("could not create output directory {}: {e}", output_resource_pack.display()));
 
     // iterate through all files in input_resource_pack
-    for entry in std::fs::read_dir(input_resource_pack).unwrap() {
+    for entry in std::fs::read_dir(&input_resource_pack).unwrap_or_else(|e| panic!("could not read resource directory {}: {e}", input_resource_pack.display())) {
         let path = entry.unwrap().path();
 
         // skip .DS_Store files

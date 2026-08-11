@@ -9,8 +9,46 @@ code path) or **suspected** (looks wrong, not proven).
 
 ## Status
 
+Everything catalogued below is done, except item 5.1 which needs a decision from you.
+All of it is on `Claude-testing`; items 1.1-1.7, 2.1, 2.2, 4, 5.2 and 6 also went to
+`master` via PRs #168-#178.
+
 | Item | State |
 |---|---|
+| 1.1 Empty command panic | done (#168) |
+| 1.2 Server binds loopback | done — `BindAddress` per server, singleplayer stays on loopback |
+| 1.3 Unbreakable blocks | done (#175) |
+| 1.4 Spawn point | done (#176) — clarity and early exit; not the behaviour bug I first suspected |
+| 1.5 `ChunkTracker` sentinel | done (#174) |
+| 1.6 `Lights::create` arithmetic | done (#174) |
+| 1.7 Headless server never saves on shutdown | done (#173) |
+| 2.1 `static mut` | done (#169) |
+| 2.2 Network thread `expect` | done (#170) |
+| 3.1 Build-dependency bloat | done — 21 build-dependencies down to 8 |
+| 3.2 `message-io` skew | done — removed from build-dependencies entirely |
+| 3.3 Build script error messages | done — failures now name the path |
+| 4 CI gaps | done (#171), plus `-D warnings` once the tree was clean |
+| 5.1 Dead `liquids` module | **open — needs your call, see below** |
+| 5.2 Empty test stubs | done — walls (#175), inventory (#172), items; liquids left with 5.1 |
+| 6 Duplication and cleanup | done (#178), plus all 107 clippy warnings cleared |
+| 7 Protocol/format robustness | done — version handshake and world save version |
+
+Found while doing the above, not in the original catalogue:
+
+| Finding | State |
+|---|---|
+| `base_game.mod` was never reproducible — `HashMap` iteration order meant a committed artifact changed on every build | done — `GameModData.resources` is a `BTreeMap` |
+| The blit in `update_window` was skipped entirely on any OS that is not windows/macos/linux | done (#178) |
+
+### The one open decision: 5.1
+
+`shared/liquids/` is 271 lines that nothing constructs. Options, roughly in order of
+how much work they are: delete it (recoverable from git history), move it to a branch,
+or finish and wire it in. I have not touched it, because throwing away unfinished work
+is your call, not mine. `shared/liquids/tests.rs` is left as an empty stub for the same
+reason — testing dead code is not worth it until it has a future.
+
+---|---|
 | 1.1 Empty command panic | PR [#168](https://github.com/Zorz42/Terralistic/pull/168) |
 | 1.2 Server binds loopback | open — needs a bind address + auth decision, see the item |
 | 1.3 Unbreakable blocks | open |

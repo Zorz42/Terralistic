@@ -6,7 +6,7 @@ use crate::libraries::graphics as gfx;
 
 #[must_use]
 pub fn png_file_to_opa_bytes(png_path: PathBuf) -> Vec<u8> {
-    let decoder = png::Decoder::new(File::open(png_path).unwrap());
+    let decoder = png::Decoder::new(File::open(&png_path).unwrap_or_else(|e| panic!("could not open png {}: {e}", png_path.display())));
     let mut reader = decoder.read_info().unwrap();
     let mut buf = vec![0; reader.output_buffer_size()];
     let info = reader.next_frame(&mut buf).unwrap();
@@ -32,6 +32,6 @@ pub fn png_file_to_opa_bytes(png_path: PathBuf) -> Vec<u8> {
 pub fn png_file_to_opa_file(input_file: PathBuf, output_file: PathBuf) {
     let serialized = png_file_to_opa_bytes(input_file);
 
-    let mut file = File::create(output_file).unwrap();
+    let mut file = File::create(&output_file).unwrap_or_else(|e| panic!("could not create {}: {e}", output_file.display()));
     file.write_all(&serialized).unwrap();
 }

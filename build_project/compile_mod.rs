@@ -25,7 +25,7 @@ pub fn compile_mod(mod_path: PathBuf) {
     for entry in std::fs::read_dir(mod_path.clone()).unwrap() {
         let path = entry.unwrap().path();
         if path.extension().unwrap_or(OsStr::new("")) == "lua" {
-            lua_code.push_str(&std::fs::read_to_string(path).unwrap());
+            lua_code.push_str(&std::fs::read_to_string(&path).unwrap_or_else(|e| panic!("could not read lua file {}: {e}", path.display())));
             lua_code.push('\n');
         }
     }
@@ -70,7 +70,7 @@ fn generate_resources(resources_path: PathBuf, prefix: String) -> BTreeMap<Strin
 
     let mut resources = BTreeMap::new();
 
-    for entry in std::fs::read_dir(resources_path).unwrap() {
+    for entry in std::fs::read_dir(&resources_path).unwrap_or_else(|e| panic!("could not read mod resource directory {}: {e}", resources_path.display())) {
         let path = entry.unwrap().path();
 
         if path.is_dir() {
