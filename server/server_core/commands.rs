@@ -89,6 +89,10 @@ impl CommandManager {
     pub fn execute_command(&self, command: &str, mod_manager: &mut ModManager, executor: Option<EntityId>) -> Result<String> {
         // split the command into Vec<String>
         let mut arguments = command.split_whitespace().map(std::borrow::ToOwned::to_owned).collect::<Vec<_>>();
+        // a command that is empty or only whitespace has no name to look up
+        if arguments.is_empty() {
+            bail!("No command provided.")
+        }
         let command_name = arguments.remove(0);
         let function_name = format!("command_{command_name}");
 
