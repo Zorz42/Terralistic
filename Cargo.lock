@@ -10,6 +10,7 @@ dependencies = [
  "arboard",
  "bincode",
  "chrono",
+ "ctrlc",
  "darklua",
  "directories",
  "fnv",

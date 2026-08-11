@@ -238,6 +238,17 @@ fn server_main(args: &[String]) {
 
     let server_running = Arc::new(AtomicBool::new(true));
 
+    // Without this, a headless server has no way to be stopped from outside the process:
+    // nothing else ever clears `server_running`, so Ctrl-C or SIGTERM kills the process
+    // before `Server::stop` runs and the world is never saved.
+    let running_on_signal = server_running.clone();
+    if let Err(error) = ctrlc::set_handler(move || {
+        println!("Shutdown requested, stopping the server and saving the world...");
+        running_on_signal.store(false, std::sync::atomic::Ordering::Relaxed);
+    }) {
+        println!("Failed to install the shutdown handler, the server will not save on Ctrl-C: {error}");
+    }
+
     let loading_text = Arc::new(Mutex::new("Loading".to_owned()));
 
     let curr_dir = std::env::current_dir();
