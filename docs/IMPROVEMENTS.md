@@ -5,7 +5,28 @@ Baseline at time of writing: `cargo build` clean, `cargo test` 22/22 passing,
 `cargo clippy --all-targets` 107 warnings on the binary.
 
 Each item says whether it was **confirmed** (reproduced or verified by reading the exact
-code path) or **suspected** (looks wrong, not proven). Nothing here has been fixed yet.
+code path) or **suspected** (looks wrong, not proven).
+
+## Status
+
+| Item | State |
+|---|---|
+| 1.1 Empty command panic | PR [#168](https://github.com/Zorz42/Terralistic/pull/168) |
+| 1.2 Server binds loopback | open — needs a bind address + auth decision, see the item |
+| 1.3 Unbreakable blocks | open |
+| 1.4 Spawn point | open |
+| 1.5 `ChunkTracker` sentinel | open |
+| 1.6 `Lights::create` arithmetic | open |
+| 1.7 Headless server never saves on shutdown | PR [#173](https://github.com/Zorz42/Terralistic/pull/173) |
+| 2.1 `static mut` | PR [#169](https://github.com/Zorz42/Terralistic/pull/169) |
+| 2.2 Network thread `expect` | PR [#170](https://github.com/Zorz42/Terralistic/pull/170) |
+| 3.1 Build-dependency bloat | open |
+| 3.2 `message-io` skew | open |
+| 4 CI gaps | PR [#171](https://github.com/Zorz42/Terralistic/pull/171) |
+| 5.1 Dead `liquids` module | open — needs a keep/drop decision |
+| 5.2 Empty test stubs | PR [#172](https://github.com/Zorz42/Terralistic/pull/172) (inventory; walls/items/liquids still empty) |
+| 6 Duplication and cleanup | open |
+| 7 Protocol/format robustness | open |
 
 ---
 
@@ -131,6 +152,26 @@ Parenthesise it.
 Related: `init_sky_heights` defaults missing entries to `-1`, while `on_event` reads them
 with `.unwrap_or(&0)`. Pick one.
 
+### 1.7 A headless server never saves its world on shutdown — CONFIRMED
+
+`main.rs:server_main`, `server/server_core/core_server.rs:run`, `server/server_ui/ui_manager.rs:should_ui_stop`
+
+`Server::run` leaves its loop only when `is_running` goes false or a mod sets the state to
+`Stopping`, and only then calls `stop()` → `save_world()`. In `nogui` mode **nothing ever
+does either**: `server_running` is cleared in exactly one place, `UiManager::should_ui_stop`,
+when the GUI window closes. There is no signal handling anywhere in the tree — grepping for
+`ctrlc|signal_hook|SIGINT|SIGTERM|set_handler` returns nothing.
+
+So Ctrl-C or SIGTERM kills the process before the save runs, and every shutdown of a
+dedicated server loses all world progress since it started.
+
+Confirmed by running the same binary two ways. On master, SIGTERM makes the process exit
+instantly with no "saving world" line and no `server_data/` directory. With a `ctrlc`
+handler that clears `server_running`, the same signal produces the full
+`saving world → server stopped.` sequence and a 1.1 MB `server.world`.
+
+The shutdown logic itself was already correct — it was simply unreachable.
+
 ---
 
 ## 2. Undefined behaviour and thread-safety
@@ -218,7 +259,10 @@ with no path. Cheap improvement: `.expect("reading resources/...")` with the pat
 
 Concrete gaps:
 
-- **Nothing runs on any other branch**, including this one — `push: branches: ["master"]`.
+- **No pushes outside `master` are built.** Note the `pull_request` filter is on the *base*
+  branch, so pull requests targeting `master` do get CI — an earlier draft of this document
+  overstated this as "nothing runs on any other branch". The real gap is branch pushes with
+  no PR open, and PRs targeting anything other than `master`.
 - No `cargo clippy`, despite ~150 curated lints in `main.rs`. That list is the project's
   main quality mechanism and CI never checks it.
 - No `cargo fmt --check`, despite a committed `rustfmt.toml`.
