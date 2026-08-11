@@ -54,7 +54,6 @@ impl Walls {
             }
         }
 
-
         if let Some(breaking_wall) = breaking_wall {
             breaking_wall.is_breaking = true;
         } else {
