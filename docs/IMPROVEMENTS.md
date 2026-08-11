@@ -48,23 +48,6 @@ or finish and wire it in. I have not touched it, because throwing away unfinishe
 is your call, not mine. `shared/liquids/tests.rs` is left as an empty stub for the same
 reason — testing dead code is not worth it until it has a future.
 
----|---|
-| 1.1 Empty command panic | PR [#168](https://github.com/Zorz42/Terralistic/pull/168) |
-| 1.2 Server binds loopback | open — needs a bind address + auth decision, see the item |
-| 1.3 Unbreakable blocks | open |
-| 1.4 Spawn point | open |
-| 1.5 `ChunkTracker` sentinel | open |
-| 1.6 `Lights::create` arithmetic | open |
-| 1.7 Headless server never saves on shutdown | PR [#173](https://github.com/Zorz42/Terralistic/pull/173) |
-| 2.1 `static mut` | PR [#169](https://github.com/Zorz42/Terralistic/pull/169) |
-| 2.2 Network thread `expect` | PR [#170](https://github.com/Zorz42/Terralistic/pull/170) |
-| 3.1 Build-dependency bloat | open |
-| 3.2 `message-io` skew | open |
-| 4 CI gaps | PR [#171](https://github.com/Zorz42/Terralistic/pull/171) |
-| 5.1 Dead `liquids` module | open — needs a keep/drop decision |
-| 5.2 Empty test stubs | PR [#172](https://github.com/Zorz42/Terralistic/pull/172) (inventory; walls/items/liquids still empty) |
-| 6 Duplication and cleanup | open |
-| 7 Protocol/format robustness | open |
 
 ---
 
