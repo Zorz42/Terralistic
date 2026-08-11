@@ -1,6 +1,7 @@
 use anyhow::Result;
 
 use crate::libraries::events::EventManager;
+use crate::shared::blocks::BREAK_STAGES;
 use crate::shared::walls::Walls;
 
 /// Stores the info about a breaking progress about a wall.
@@ -35,8 +36,18 @@ impl Walls {
     }
 
     /// Returns the break stage (for example to be used as a break texture stage) of the wall at x and y
+    /// An unbreakable wall never shows breaking progress, and the result is always a
+    /// valid index into the breaking texture.
     pub fn get_break_stage(&self, x: i32, y: i32) -> Result<i32> {
-        Ok(self.get_break_progress(x, y)? * 9 / self.get_wall_type_at(x, y)?.break_time.unwrap_or(1))
+        let Some(break_time) = self.get_wall_type_at(x, y)?.break_time else {
+            return Ok(0);
+        };
+
+        if break_time <= 0 {
+            return Ok(0);
+        }
+
+        Ok((self.get_break_progress(x, y)? * BREAK_STAGES / break_time).clamp(0, BREAK_STAGES - 1))
     }
 
     /// Includes the necessary steps to start breaking a wall, such as adding it to the
@@ -90,7 +101,13 @@ impl Walls {
 
         let mut broken_walls = Vec::new();
         for breaking_wall in &self.breaking_walls {
-            if breaking_wall.break_progress > self.get_wall_type_at(breaking_wall.coord.0, breaking_wall.coord.1)?.break_time.unwrap_or(1) {
+            // break_time of None means unbreakable, so such a wall never completes.
+            // It used to fall back to 1, which broke it on the very next update.
+            let Some(break_time) = self.get_wall_type_at(breaking_wall.coord.0, breaking_wall.coord.1)?.break_time else {
+                continue;
+            };
+
+            if breaking_wall.break_progress > break_time {
                 broken_walls.push(breaking_wall.coord);
             }
         }
