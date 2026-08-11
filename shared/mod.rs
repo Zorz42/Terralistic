@@ -9,7 +9,8 @@ pub mod mod_data;
 pub mod mod_manager;
 pub mod packet;
 pub mod players;
-pub mod tls_client;
+// login disabled: the account server is unreachable, see docs/LOGIN.md
+// pub mod tls_client;
 pub mod versions;
 pub mod walls;
 pub mod world_map;

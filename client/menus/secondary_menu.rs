@@ -7,7 +7,7 @@ use gfx::{BaseUiElement, UiElement};
 use std::cell::RefCell;
 use std::rc::Rc;
 
-use super::{LoginMenu, MultiplayerSelector, SingleplayerSelector};
+use super::{MultiplayerSelector, SingleplayerSelector};
 
 pub enum SecondaryMenu {
     None,
@@ -187,7 +187,8 @@ impl SecondaryMenu {
         menu_back: &dyn UiElement,
     ) -> bool {
         let menu: (Box<dyn Menu>, String) = match menu_index {
-            0 => (Box::new(LoginMenu::new(graphics)), "LoginMenu".to_owned()),
+            // login disabled: the account server is unreachable, see docs/LOGIN.md
+            // 0 => (Box::new(LoginMenu::new(graphics)), "LoginMenu".to_owned()),
             1 => (Box::new(SingleplayerSelector::new(graphics, settings, global_settings)), "SingleplayerSelector".to_owned()),
             2 => {
                 let res = MultiplayerSelector::new(graphics, settings, global_settings);
