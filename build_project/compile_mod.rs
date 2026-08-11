@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 use std::ffi::OsStr;
 use std::path::PathBuf;
 
@@ -7,7 +7,7 @@ use darklua_core::Parser;
 
 use crate::build_project::png_to_opa::png_file_to_opa_bytes;
 use crate::libraries::graphics as gfx;
-use crate::shared::mod_manager::GameMod;
+use crate::shared::mod_data::GameModData;
 
 /// This function compiles a game mod from a directory.
 /// It takes the path to the directory as input.
@@ -46,7 +46,13 @@ pub fn compile_mod(mod_path: PathBuf) {
 
     let minified_lua_code = generator.into_string();
     let resources = generate_resources(mod_path.join("resources"), String::new());
-    let mod_obj = GameMod::new(mod_path.file_name().unwrap().to_str().unwrap().to_owned(), minified_lua_code, resources);
+    // GameMod serializes through exactly this type, so writing it directly produces the
+    // same bytes without needing to construct a Lua state at build time
+    let mod_obj = GameModData {
+        name: mod_path.file_name().unwrap().to_str().unwrap().to_owned(),
+        lua_code: minified_lua_code,
+        resources,
+    };
 
     // serialize the mod to a byte array
     let mod_bytes = bincode::serialize(&mod_obj).unwrap();
@@ -59,10 +65,10 @@ pub fn compile_mod(mod_path: PathBuf) {
 
 /// This function takes the resources folder, goes through all of the recursively,
 /// changes the file paths to use : instead of / and adds the files to a map.
-fn generate_resources(resources_path: PathBuf, prefix: String) -> HashMap<String, Vec<u8>> {
+fn generate_resources(resources_path: PathBuf, prefix: String) -> BTreeMap<String, Vec<u8>> {
     println!("Generating resource pack... {}", resources_path.to_str().unwrap());
 
-    let mut resources = HashMap::new();
+    let mut resources = BTreeMap::new();
 
     for entry in std::fs::read_dir(resources_path).unwrap() {
         let path = entry.unwrap().path();

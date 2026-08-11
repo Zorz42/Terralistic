@@ -6,6 +6,8 @@ use rlua::prelude::LuaError;
 use rlua::{Context, FromLuaMulti, IntoLuaMulti, Lua};
 use serde::{Deserialize, Serialize};
 
+use crate::shared::mod_data::GameModData;
+
 static MOD_ID_IDENT: &str = "__TERRALISTIC_MOD_ID";
 
 #[derive(serde_derive::Serialize, serde_derive::Deserialize)]
@@ -132,13 +134,6 @@ impl GameMod {
     }
 }
 
-#[derive(serde_derive::Serialize, serde_derive::Deserialize)]
-struct GameModData {
-    name: String,
-    lua_code: String,
-    resources: HashMap<String, Vec<u8>>,
-}
-
 impl Serialize for GameMod {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
@@ -147,7 +142,7 @@ impl Serialize for GameMod {
         let data = GameModData {
             name: self.name.clone(),
             lua_code: self.lua_code.clone(),
-            resources: self.resources.clone(),
+            resources: self.resources.clone().into_iter().collect(),
         };
         data.serialize(serializer)
     }
@@ -162,7 +157,7 @@ impl<'de> Deserialize<'de> for GameMod {
         Ok(Self {
             name: data.name,
             lua_code: data.lua_code,
-            resources: data.resources,
+            resources: data.resources.into_iter().collect(),
             lua: Lua::new(),
             id: -1,
         })

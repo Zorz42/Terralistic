@@ -5,6 +5,7 @@ pub mod inventory;
 pub mod items;
 pub mod lights;
 pub mod liquids;
+pub mod mod_data;
 pub mod mod_manager;
 pub mod packet;
 pub mod players;

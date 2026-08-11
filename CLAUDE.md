@@ -210,13 +210,23 @@ or the wall equivalent silently breaks existing worlds.
 and `include_bytes!`-ed into the binary. If you edit `base_game/*.lua` or `resources/*`, the
 regenerated `.mod`/`.opa` files show up as diffs — that's expected, not a mistake.
 
+The `.mod` build is reproducible: identical sources produce identical bytes. It used not to
+be, because resources were serialized from a `HashMap` whose iteration order Rust randomises
+per process, so the committed artifact changed on every single build. `GameModData.resources`
+is a `BTreeMap` to keep that stable — don't change it back.
+
 `Template_*.png` files get expanded at build time into 16-frame connected-texture atlases
 (`process_template` in `build_project/compile_mod.rs`) and lose the prefix in the output.
 
 ## Gotchas
 
-- **`main.rs` module tree is duplicated in `build_main.rs`.** Adding a module under
-  `shared/` or `libraries/` may require adding it in both, or the build script won't compile.
+- **`build_main.rs` declares its own narrow module tree.** It names individual leaf files
+  (`libraries/graphics/{color,position,surface}.rs`, `shared/mod_data.rs`) rather than
+  `pub mod graphics;` / `pub mod shared;`, so the build script does not compile the game's
+  dependency tree. Module *paths* must still match `main.rs`, because those files refer to
+  themselves as `crate::libraries::graphics` and `crate::shared`. If the build script ever
+  needs another type, prefer moving that type to a dependency-free leaf module over
+  widening the declaration.
 - `shared/world_map/world_map.rs` has two coordinate schemes that disagree:
   `translate_coords` is `x * height + y` (column-major), `translate_chunk_coords` is
   `x + y * width` (row-major). Both are internally consistent; don't "fix" one in isolation.

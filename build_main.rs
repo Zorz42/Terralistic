@@ -11,12 +11,31 @@ pub mod build_project {
     pub mod png_to_opa;
 }
 
+// The build script only needs a handful of plain data types: Surface/Color/IntPos/IntSize
+// to convert PNGs to .opa, and GameModData to write .mod files.
+//
+// Declaring the real `libraries::graphics` and `shared` modules here would compile their
+// whole module trees into the build script, which is what dragged SDL2, OpenGL, rustls,
+// message-io, rlua and friends into [build-dependencies] - all of them then built twice,
+// once for the host and once for the target. So we name the individual leaf files instead.
+//
+// The module paths have to match main.rs, because these files refer to themselves through
+// `crate::libraries::graphics` and `crate::shared`.
 pub mod libraries {
-    pub mod events;
-    pub mod graphics;
+    pub mod graphics {
+        mod color;
+        mod position;
+        mod surface;
+
+        pub use color::*;
+        pub use position::*;
+        pub use surface::*;
+    }
 }
 
-pub mod shared;
+pub mod shared {
+    pub mod mod_data;
+}
 
 fn main() {
     #[cfg(target_os = "macos")]
