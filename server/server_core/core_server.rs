@@ -20,7 +20,7 @@ use crate::server::server_ui::{ConsoleMessageType, PlayerEventType, ServerState,
 use super::blocks::ServerBlocks;
 use super::commands::CommandManager;
 use super::mod_manager::ServerModManager;
-use super::networking::ServerNetworking;
+use super::networking::{BindAddress, ServerNetworking};
 use super::walls::ServerWalls;
 use super::world_generator::WorldGenerator;
 
@@ -44,7 +44,7 @@ pub struct Server {
 
 impl Server {
     #[must_use]
-    pub fn new(port: u16, ui_event_receiver: Option<Receiver<UiMessageType>>, ui_event_sender: Option<Sender<UiMessageType>>) -> Self {
+    pub fn new(port: u16, bind_address: BindAddress, ui_event_receiver: Option<Receiver<UiMessageType>>, ui_event_sender: Option<Sender<UiMessageType>>) -> Self {
         send_to_ui(UiMessageType::ServerState(ServerState::Nothing), ui_event_sender); //this is useless but sets the ui event sender
         let blocks = ServerBlocks::new();
         let walls = ServerWalls::new(&mut blocks.get_blocks());
@@ -53,7 +53,7 @@ impl Server {
             tps_limit: 20.0,
             state: Arc::new(Mutex::new(ServerState::Nothing)),
             events: EventManager::new(),
-            networking: ServerNetworking::new(port),
+            networking: ServerNetworking::new(port, bind_address),
             mods: ServerModManager::new(Vec::new()),
             blocks,
             walls,

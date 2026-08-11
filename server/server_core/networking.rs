@@ -40,11 +40,32 @@ pub enum SendTarget {
     AllExcept(Connection),
 }
 
+/// Which interfaces a server accepts connections on.
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum BindAddress {
+    /// Only this machine can connect. This is what the singleplayer server uses, and it
+    /// must stay that way - a singleplayer world should never be reachable from the network.
+    Loopback,
+    /// Every interface, so players on other machines can join. Used by the dedicated server.
+    AllInterfaces,
+}
+
+impl BindAddress {
+    #[must_use]
+    pub const fn as_ip(self) -> &'static str {
+        match self {
+            Self::Loopback => "127.0.0.1",
+            Self::AllInterfaces => "0.0.0.0",
+        }
+    }
+}
+
 /// This handles all the networking for the server.
 /// server listens for connections and sends and receives packets
 /// for each client.
 pub struct ServerNetworking {
     server_port: u16,
+    bind_address: BindAddress,
     connections: Vec<Connection>,
     connection_names: HashMap<Connection, String>,
     event_receiver: Option<Receiver<Event>>,
@@ -54,9 +75,10 @@ pub struct ServerNetworking {
 }
 
 impl ServerNetworking {
-    pub fn new(server_port: u16) -> Self {
+    pub fn new(server_port: u16, bind_address: BindAddress) -> Self {
         Self {
             server_port,
+            bind_address,
             connections: Vec::new(),
             connection_names: HashMap::new(),
             event_receiver: None,
@@ -80,24 +102,33 @@ impl ServerNetworking {
 
         let is_running = self.is_running.clone();
         let server_port = self.server_port;
+        let bind_address = self.bind_address;
 
         self.net_loop_thread = Some(
             //this panics with normal thread creation anyway
             #[allow(clippy::unwrap_used)]
             std::thread::Builder::new()
                 .name("Server networking".to_owned())
-                .spawn(move || Self::net_receive_loop(&event_sender, &packet_receiver, &is_running, server_port))
+                .spawn(move || Self::net_receive_loop(&event_sender, &packet_receiver, &is_running, server_port, bind_address))
                 .unwrap(),
         );
     }
 
     #[allow(clippy::expect_used)]
     #[allow(clippy::unwrap_in_result)]
-    fn net_receive_loop(event_sender: &Sender<Event>, packet_receiver: &Receiver<(Vec<u8>, Connection)>, is_running: &Arc<AtomicBool>, server_port: u16) -> Result<()> {
+    fn net_receive_loop(event_sender: &Sender<Event>, packet_receiver: &Receiver<(Vec<u8>, Connection)>, is_running: &Arc<AtomicBool>, server_port: u16, bind_address: BindAddress) -> Result<()> {
         let (handler, listener) = node::split::<()>();
 
-        let listen_addr = format!("127.0.0.1:{server_port}");
-        handler.network().listen(Transport::FramedTcp, listen_addr)?;
+        let listen_addr = format!("{}:{server_port}", bind_address.as_ip());
+        handler.network().listen(Transport::FramedTcp, &listen_addr)?;
+        print_to_console(&format!("listening on {listen_addr}"), 0);
+
+        if bind_address == BindAddress::AllInterfaces {
+            print_to_console(
+                "this server is reachable from the network and has no authentication, so anyone who can reach this port can join and change the world",
+                1,
+            );
+        }
 
         handler.signals().send(());
 

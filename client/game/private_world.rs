@@ -13,7 +13,7 @@ use crate::client::menus::{LoadingScreen, Menu};
 use crate::client::settings::Settings;
 use crate::libraries::graphics as gfx;
 use crate::server::server_core::Server;
-use crate::server::server_core::SINGLEPLAYER_PORT;
+use crate::server::server_core::{BindAddress, SINGLEPLAYER_PORT};
 
 fn start_private_world_server(world_path: &Path) -> Result<(std::thread::JoinHandle<std::result::Result<(), anyhow::Error>>, Arc<AtomicBool>, Arc<Mutex<String>>)> {
     let server_running = Arc::new(AtomicBool::new(true));
@@ -25,7 +25,8 @@ fn start_private_world_server(world_path: &Path) -> Result<(std::thread::JoinHan
     let world_path = world_path.to_owned();
 
     let server_thread = std::thread::Builder::new().name("Private server".to_owned()).spawn(move || {
-        let mut server = Server::new(SINGLEPLAYER_PORT, None, None);
+        // loopback only: a singleplayer world must not be reachable from the network
+        let mut server = Server::new(SINGLEPLAYER_PORT, BindAddress::Loopback, None, None);
         let result = server.run(&server_running2, &loading_text2, vec![include_bytes!("../../base_game/base_game.mod").to_vec()], &world_path);
 
         if result.is_err() {

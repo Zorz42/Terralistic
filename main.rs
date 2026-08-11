@@ -165,7 +165,7 @@ use crate::client::global_settings::GlobalSettings;
 use crate::client::menus::{run_title_screen, MenuBack};
 use crate::client::settings::Settings;
 use crate::libraries::graphics as gfx;
-use crate::server::server_core::{Server, MULTIPLAYER_PORT};
+use crate::server::server_core::{BindAddress, Server, MULTIPLAYER_PORT};
 use crate::server::server_ui::UiManager;
 
 pub mod libraries {
@@ -256,9 +256,9 @@ fn server_main(args: &[String]) {
     let (ui_to_srv_event_sender, ui_to_srv_event_receiver) = std::sync::mpsc::channel();
 
     let mut server = if server_graphics_context.is_some() {
-        Server::new(MULTIPLAYER_PORT, Some(ui_to_srv_event_receiver), Some(srv_to_ui_event_sender))
+        Server::new(MULTIPLAYER_PORT, BindAddress::AllInterfaces, Some(ui_to_srv_event_receiver), Some(srv_to_ui_event_sender))
     } else {
-        Server::new(MULTIPLAYER_PORT, None, None)
+        Server::new(MULTIPLAYER_PORT, BindAddress::AllInterfaces, None, None)
     };
 
     if let Some(graphics) = server_graphics_context {
