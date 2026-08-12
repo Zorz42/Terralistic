@@ -253,9 +253,7 @@ fn server_main(args: &[String]) {
             }
         }
 
-        if graphics.set_min_window_size(graphics.get_window_size()).is_err() {
-            println!("Failed to set minimum window size");
-        }
+        graphics.set_min_window_size(graphics.get_window_size());
         Some(graphics)
     };
 
@@ -322,9 +320,7 @@ fn client_main() {
         }
     }
 
-    if graphics.set_min_window_size(gfx::FloatSize(1130.0, 700.0)).is_err() {
-        println!("Failed to set minimum window size");
-    }
+    graphics.set_min_window_size(gfx::FloatSize(1130.0, 700.0));
 
     let base_dirs;
     if let Some(base_dirs_) = BaseDirs::new() {

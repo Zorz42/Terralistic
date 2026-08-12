@@ -26,6 +26,8 @@
 //! Everything else - the transform arithmetic, the blend factors, nearest sampling, the
 //! gaussian weights - is a faithful port, which is why the rest of the goldens survived.
 
+use std::sync::Arc;
+
 use anyhow::{anyhow, Result};
 
 use crate::libraries::graphics as gfx;
@@ -166,7 +168,12 @@ pub struct WgpuBackend {
 
 impl WgpuBackend {
     /// Brings up the device, publishes it for resource creation, and builds the pipelines.
-    pub(super) fn new(window: &sdl2::video::Window, size: gfx::IntSize, drawable_size: gfx::IntSize) -> Result<Self> {
+    ///
+    /// Takes the window by `Arc` so the surface can own a share of it. That is what makes
+    /// the surface `'static` without the unsafe raw-handle constructor, and it means the
+    /// window cannot be dropped out from under wgpu no matter what order anything else
+    /// holding one is destroyed in.
+    pub(super) fn new(window: &Arc<winit::window::Window>, size: gfx::IntSize, drawable_size: gfx::IntSize) -> Result<Self> {
         let instance = wgpu::Instance::new(wgpu::InstanceDescriptor {
             backends: wgpu::Backends::PRIMARY,
             flags: wgpu::InstanceFlags::default(),
@@ -175,15 +182,7 @@ impl WgpuBackend {
             display: None,
         });
 
-        // Safety: the surface is stored alongside the window in `GraphicsContext` and is
-        // declared before it, so it is dropped first. Nothing else can outlive the window.
-        let surface = unsafe {
-            use raw_window_handle::{HasDisplayHandle, HasWindowHandle};
-            instance.create_surface_unsafe(wgpu::SurfaceTargetUnsafe::RawHandle {
-                raw_display_handle: Some(window.display_handle()?.as_raw()),
-                raw_window_handle: window.window_handle()?.as_raw(),
-            })?
-        };
+        let surface = instance.create_surface(Arc::clone(window))?;
 
         let adapter = pollster::block_on(instance.request_adapter(&wgpu::RequestAdapterOptions {
             power_preference: wgpu::PowerPreference::default(),
@@ -197,8 +196,14 @@ impl WgpuBackend {
             label: Some("terralistic"),
             required_features: wgpu::Features::empty(),
             // The toolkit draws textured triangles and nothing else, so the lowest common
-            // denominator is enough and keeps the oldest hardware working.
-            required_limits: wgpu::Limits::downlevel_defaults(),
+            // denominator is enough and keeps the oldest hardware working - except for
+            // texture size, which is not a matter of taste: the offscreen pair and the
+            // surface are as big as the window, and `downlevel_defaults` caps a texture at
+            // 2048. A 1670x1050 window on a 2x display is already 3340 pixels across, so the
+            // default would refuse to configure the surface at all. `using_resolution` keeps
+            // everything else conservative and takes only the dimension limits from the
+            // adapter.
+            required_limits: wgpu::Limits::downlevel_defaults().using_resolution(adapter.limits()),
             experimental_features: wgpu::ExperimentalFeatures::disabled(),
             memory_hints: wgpu::MemoryHints::default(),
             trace: wgpu::Trace::Off,

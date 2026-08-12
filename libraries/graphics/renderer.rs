@@ -1,17 +1,15 @@
 use std::cell::RefCell;
-use std::collections::HashMap;
-use std::collections::VecDeque;
-use std::mem::swap;
+use std::collections::{HashMap, VecDeque};
 
 use arboard::Clipboard;
 
-use anyhow::{anyhow, Result};
+use anyhow::Result;
 
 use crate::libraries::graphics as gfx;
 use crate::libraries::graphics::draw_list::{DrawCommand, DrawList, DrawTarget};
-use crate::libraries::graphics::events::sdl_event_to_gfx_event;
 use crate::libraries::graphics::shadow::ShadowContext;
 use crate::libraries::graphics::wgpu_backend::WgpuBackend;
+use crate::libraries::graphics::window::Window;
 use crate::libraries::graphics::Font;
 use crate::libraries::graphics::UiContext;
 
@@ -19,24 +17,22 @@ use crate::libraries::graphics::UiContext;
 ///
 /// Drawing does not happen here. A `render` call appends to `draw_list`, and `update_window`
 /// hands the whole list to `backend`, which is the only part of the toolkit that knows about
-/// OpenGL. Everything between those two points is plain data - see `gfx::draw_list`.
+/// wgpu. Everything between those two points is plain data - see `gfx::draw_list`.
 pub struct GraphicsContext {
-    /// Declared before `sdl_window` on purpose. The backend holds a `wgpu::Surface` created
-    /// from the window's raw handle, and fields drop in declaration order, so this is what
-    /// keeps the surface from outliving the window it points at.
     backend: WgpuBackend,
-    sdl_window: sdl2::video::Window,
-    sdl_event_pump: sdl2::EventPump,
+    window: Window,
     /// The frame being recorded. Behind a `RefCell` because drawing takes `&self`: the
     /// toolkit is full of `graphics.font.render_text(graphics, ..)` shaped calls that borrow
     /// the context twice, which was fine when drawing went straight to OpenGL and has to
     /// stay fine now.
     draw_list: RefCell<DrawList>,
+    /// Events that have been read off the window but not yet handed to the caller.
     events_queue: VecDeque<gfx::Event>,
     window_open: bool,
-    // Keep track of all Key states as a hashmap
+    /// Which keys are currently held. Maintained from the press and release events as they
+    /// go past, because a UI element asks "is shift down" far more often than it reacts to
+    /// shift being pressed.
     key_states: HashMap<gfx::Key, bool>,
-    events: Vec<gfx::Event>,
     pub(super) shadow_context: ShadowContext,
     clipboard_context: Clipboard,
     pub block_key_states: bool,
@@ -70,23 +66,9 @@ impl GraphicsContext {
     }
 
     fn new_with_visibility(window_width: u32, window_height: u32, window_title: &str, font: &[u8], font_mono: Option<&[u8]>, visible: bool) -> Result<Self> {
-        let sdl = sdl2::init();
-        let sdl = sdl.map_err(|e| anyhow!(e))?;
-        let video_subsystem = sdl.video();
-        let video_subsystem = video_subsystem.map_err(|e| anyhow!(e))?;
+        let window = Window::new(window_title, gfx::IntSize(window_width, window_height), visible)?;
 
-        let mut window_builder = video_subsystem.window(window_title, window_width, window_height);
-        window_builder.position_centered().resizable();
-        // wgpu reaches the window through its raw handle, and on macOS that handle has to be
-        // a Metal view. Without this SDL panics when the handle is asked for.
-        #[cfg(target_os = "macos")]
-        window_builder.metal_view();
-        if !visible {
-            window_builder.hidden();
-        }
-        let sdl_window = window_builder.build()?;
-
-        let backend = WgpuBackend::new(&sdl_window, window_size_of(&sdl_window), drawable_size_of(&sdl_window))?;
+        let backend = WgpuBackend::new(&window.handle()?, window.size(), window.drawable_size())?;
         // Uploads a texture, so it has to come after the device exists.
         let shadow_context = ShadowContext::new();
 
@@ -95,11 +77,9 @@ impl GraphicsContext {
 
         let mut result = Self {
             backend,
-            sdl_window,
-            sdl_event_pump: sdl.event_pump().map_err(|e| anyhow!(e))?,
+            window,
             draw_list: RefCell::new(DrawList::new()),
             key_states: HashMap::new(),
-            events: Vec::new(),
             shadow_context,
             events_queue: VecDeque::new(),
             window_open: true,
@@ -121,9 +101,10 @@ impl GraphicsContext {
         Ok(result)
     }
 
-    /// Is called every time the window is resized.
+    /// Reallocates everything that is sized in window pixels. Called when the window is
+    /// resized, which `get_event` notices, and once at startup.
     pub fn handle_window_resize(&mut self) {
-        self.backend.resize(window_size_of(&self.sdl_window), drawable_size_of(&self.sdl_window));
+        self.backend.resize(self.window.size(), self.window.drawable_size());
     }
 
     /// Hands the recorded frame to the backend and starts a new one.
@@ -162,54 +143,40 @@ impl GraphicsContext {
         self.backend.settle_blur();
     }
 
-    /// Returns an array of events, such as key presses.
-    fn get_events(&mut self) -> Vec<gfx::Event> {
-        let mut sdl_events = vec![];
+    /// Pumps the window system and turns what it reports into queued events and context state.
+    fn poll_window(&mut self) {
+        let poll = self.window.poll();
 
-        for sdl_event in self.sdl_event_pump.poll_iter() {
-            sdl_events.push(sdl_event);
+        if poll.resized {
+            self.handle_window_resize();
+        }
+        if poll.closed {
+            self.close_window();
+        }
+        // Nothing reaches a window that is not focused, so anything held down at that moment
+        // would otherwise stay held forever - the release arrives at whichever window took
+        // the focus. This is why alt-tabbing mid-stride does not leave the player walking.
+        if poll.focus_lost {
+            self.key_states.clear();
         }
 
-        for sdl_event in sdl_events {
-            match sdl_event {
-                // handle window resize
-                sdl2::event::Event::Window {
-                    win_event: sdl2::event::WindowEvent::Resized(_width, _height),
-                    ..
-                } => {
-                    self.handle_window_resize();
-                }
-                // handle quit event
-                sdl2::event::Event::Quit { .. } => {
-                    self.close_window();
-                }
+        for event in poll.events {
+            match event {
+                gfx::Event::KeyPress(key, ..) => self.set_key_state(key, true),
+                gfx::Event::KeyRelease(key, ..) => self.set_key_state(key, false),
                 _ => {}
             }
-
-            if let Some(event) = sdl_event_to_gfx_event(&sdl_event) {
-                // if event is a key press event update the key states to true
-                if let gfx::Event::KeyPress(key, ..) = event {
-                    self.set_key_state(key, true);
-                }
-                // if event is a key release event update the key states to false
-                if let gfx::Event::KeyRelease(key, ..) = event {
-                    self.set_key_state(key, false);
-                }
-
-                self.events.push(event);
-            }
+            self.events_queue.push_back(event);
         }
-
-        let mut result = Vec::new();
-        swap(&mut result, &mut self.events);
-
-        result
     }
 
-    /// Returns an event, returns None if there are no events
+    /// Returns the next event, or `None` once there are none left this frame.
+    ///
+    /// The window is only pumped when the queue runs dry, so a caller draining the queue in
+    /// a `while let` loop makes exactly one round trip to the window system per frame.
     pub fn get_event(&mut self) -> Option<gfx::Event> {
-        for event in self.get_events() {
-            self.events_queue.push_back(event);
+        if self.events_queue.is_empty() {
+            self.poll_window();
         }
         self.events_queue.pop_front()
     }
@@ -259,8 +226,8 @@ impl GraphicsContext {
     }
 
     /// Sets the minimum window size
-    pub fn set_min_window_size(&mut self, size: gfx::FloatSize) -> Result<()> {
-        self.sdl_window.set_minimum_size(size.0 as u32, size.1 as u32).map_err(|e| anyhow!(e))
+    pub fn set_min_window_size(&mut self, size: gfx::FloatSize) {
+        self.window.set_min_size(size);
     }
 
     /// Sets key state
@@ -296,14 +263,13 @@ impl GraphicsContext {
 /// to observe. Kept deliberately separate from rendering - see `gfx::UiContext`.
 impl UiContext for GraphicsContext {
     fn get_window_size(&self) -> gfx::FloatSize {
-        gfx::FloatSize(self.sdl_window.size().0 as f32 / self.real_scale, self.sdl_window.size().1 as f32 / self.real_scale)
+        let size = self.window.size();
+        gfx::FloatSize(size.0 as f32 / self.real_scale, size.1 as f32 / self.real_scale)
     }
 
     fn get_mouse_pos(&self) -> gfx::FloatPos {
-        gfx::FloatPos(
-            self.sdl_event_pump.mouse_state().x() as f32 / self.real_scale,
-            self.sdl_event_pump.mouse_state().y() as f32 / self.real_scale,
-        )
+        let pos = self.window.mouse_pos();
+        gfx::FloatPos(pos.0 / self.real_scale, pos.1 / self.real_scale)
     }
 
     fn get_key_state(&self, key: gfx::Key) -> bool {
@@ -323,26 +289,6 @@ impl UiContext for GraphicsContext {
     fn as_graphics_context(&mut self) -> Option<&mut Self> {
         Some(self)
     }
-}
-
-/// The window in logical pixels, which is what the game draws in.
-fn window_size_of(window: &sdl2::video::Window) -> gfx::IntSize {
-    let size = window.size();
-    gfx::IntSize(size.0, size.1)
-}
-
-/// The window in real device pixels, which is what the surface has to be configured at.
-///
-/// On a `HiDPI` display these differ by the backing scale factor. The OpenGL backend
-/// hardcoded that ratio as 2.0, which was wrong on every other kind of display; asking SDL
-/// keeps the game rendering at logical resolution while the final upscale matches whatever
-/// the screen actually is.
-fn drawable_size_of(window: &sdl2::video::Window) -> gfx::IntSize {
-    let drawable = window.drawable_size();
-    if drawable.0 == 0 || drawable.1 == 0 {
-        return window_size_of(window);
-    }
-    gfx::IntSize(drawable.0, drawable.1)
 }
 
 /// Where the game's drawing ends up. The commands sit here until `update_window` replays

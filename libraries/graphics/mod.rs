@@ -65,6 +65,8 @@ mod vertex_buffer;
 /// How a draw list becomes pixels. The only module that talks to wgpu, apart from the
 /// resource types that own GPU objects.
 mod wgpu_backend;
+/// The window and the input. The only module that talks to winit.
+mod window;
 
 /// Initializes the graphics context.
 pub fn init(window_width: u32, window_height: u32, window_title: &str, default_font_data: &[u8], default_mono_font_data: Option<&[u8]>) -> Result<GraphicsContext> {

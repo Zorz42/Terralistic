@@ -35,9 +35,12 @@ serde = { version = "1.0", default-features = false }
 serde_derive = { version = "1.0", default-features = false }
 serde_json = { version = "1.0", default-features = false, features = ["std"] }
 wgpu = { version = "30.0", default-features = false, features = ["std", "wgsl", "metal", "vulkan", "dx12"] }
+# The window and the input. `rwh_06` is what lets wgpu create a surface from the window
+# without an unsafe raw-handle round trip; the x11/wayland pair is Linux only and both are
+# loaded at runtime, so neither needs a system library at build time.
+winit = { version = "0.30", default-features = false, features = ["rwh_06", "x11", "wayland", "wayland-dlopen"] }
 pollster = { version = "1.0", default-features = false }
 bytemuck = { version = "1.25", default-features = false, features = ["derive"] }
-raw-window-handle = { version = "0.6", default-features = false }
 snap = { version = "1.1", default-features = false }
 arboard = { version = "3.3", default-features = false }
 rand = { version = "0.10", default-features = false, features = ["std", "std_rng", "thread_rng"] }
@@ -47,21 +50,6 @@ ctrlc = { version = "3.5", default-features = false, features = ["termination"] 
 hecs = { version = "0.11", default-features = false, features = ["std"] }
 message-io = { version = "0.19", default-features = false, features = ["tcp"] }
 # kvptree = { version = "0.1", default-features = false }
-
-# set custom dependency for windows
-[target.'cfg(windows)'.dependencies]
-sdl2 = { version = "=0.38.0", features = ["bundled", "static-link", "raw-window-handle"] }
-sdl2-sys = { version = "=0.38.0", features = ["bundled", "static-link"] }
-
-# set custom dependency for linux
-[target.'cfg(unix)'.dependencies]
-sdl2 = { version = "=0.38.0", features = ["use-pkgconfig", "static-link", "raw-window-handle"] }
-sdl2-sys = { version = "=0.38.0", features = ["use-pkgconfig", "static-link"] }
-
-# set custom dependency for macos
-[target.'cfg(target_os = "macos")'.dependencies]
-sdl2 = { version = "=0.38.0", features = ["static-link", "raw-window-handle"] }
-sdl2-sys = { version = "=0.38.0", features = ["static-link"] }
 
 [profile.release]
 strip = true
