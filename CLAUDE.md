@@ -14,6 +14,7 @@ read in full; do that before large refactors.
 ```bash
 cargo run                 # client
 cargo run --release       # client, release
+cargo build --profile dist # what you ship: release + LTO, 4.63 MB vs 5.49 MB
 cargo run -- server       # server with GUI
 cargo run -- server nogui # headless server
 cargo run -- version      # print version
@@ -27,6 +28,13 @@ cargo run --features render-tests -- rendertest regenerate  # rewrite the golden
 ```
 
 Tests are pure unit tests — no graphics context needed, so they run anywhere.
+
+**The profiles are tuned for the loop you are actually in.** `dev` and `test` rebuild in
+about 2s after a one line edit; `release` takes 10s because it optimises but does not link
+the whole program; `dist` takes a minute or more because it does. `[profile.test]` used to
+carry `lto = true` and `opt-level = 3`, which made every `cargo test` a 62 second wait to run
+a two second suite — if you find yourself tempted to add LTO to a profile you rebuild, that
+is what it costs.
 CI enforces `cargo fmt --check` and `cargo clippy --all-targets -- -D warnings`; the tree is
 currently clippy clean, so keep it that way rather than dropping the flag.
 

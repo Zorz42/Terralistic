@@ -34,7 +34,9 @@ anyhow = {version =  "1.0", default-features = false, features = ["std", "backtr
 serde = { version = "1.0", default-features = false }
 serde_derive = { version = "1.0", default-features = false }
 serde_json = { version = "1.0", default-features = false, features = ["std"] }
-wgpu = { version = "30.0", default-features = false, features = ["std", "wgsl", "metal", "vulkan", "dx12"] }
+# The graphics backends are picked per target below. Asking for all three everywhere costs
+# build time for two that can never run.
+wgpu = { version = "30.0", default-features = false, features = ["std", "wgsl"] }
 # The window and the input. `rwh_06` is what lets wgpu create a surface from the window
 # without an unsafe raw-handle round trip; the x11/wayland pair is Linux only and both are
 # loaded at runtime, so neither needs a system library at build time.
@@ -51,18 +53,42 @@ hecs = { version = "0.11", default-features = false, features = ["std"] }
 message-io = { version = "0.19", default-features = false, features = ["tcp"] }
 # kvptree = { version = "0.1", default-features = false }
 
+# One graphics backend per platform. wgpu already refuses to build a backend its target
+# cannot use, so this does not change what runs - it stops `wgpu-core` compiling the plumbing
+# for the other two.
+[target.'cfg(target_os = "macos")'.dependencies]
+wgpu = { version = "30.0", default-features = false, features = ["metal"] }
+
+[target.'cfg(windows)'.dependencies]
+wgpu = { version = "30.0", default-features = false, features = ["dx12", "vulkan"] }
+
+[target.'cfg(all(unix, not(target_os = "macos")))'.dependencies]
+wgpu = { version = "30.0", default-features = false, features = ["vulkan"] }
+
+# What you play and iterate on. Deliberately no LTO: it costs 15% of the binary size but
+# takes an incremental rebuild from 10s to 64s, and this is the profile you rebuild. Use
+# `dist` to ship.
 [profile.release]
 strip = true
-#lto = true
-#codegen-units = 1
 opt-level = 3
 panic = "abort"
 
-[profile.test]
-strip = true
+# What you ship. Same as release plus whole-program optimisation: 4.63 MB against release's
+# 5.49 MB, for about 30s more on a clean build.
+#   cargo build --profile dist
+[profile.dist]
+inherits = "release"
 lto = true
 codegen-units = 1
-opt-level = 3
+
+# Optimised enough that the suite still runs in about two seconds, and no further.
+#
+# This used to be `opt-level = 3` with `lto = true` and `codegen-units = 1`, which meant
+# every `cargo test` after a one line edit spent **62 seconds** relinking the world to run
+# 385 tests that take two. At `opt-level = 1` the same edit rebuilds in 2s. Going to 0 builds
+# just as fast but the tests themselves slow to 8s, because world generation is real work.
+[profile.test]
+opt-level = 1
 
 [profile.dev]
 strip = false
