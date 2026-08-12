@@ -167,6 +167,13 @@ impl BlurContext {
         }
     }
 
+    /// Jumps the blur fade straight to its target, so a golden does not depend on how many
+    /// 10 ms frames happened to elapse before the capture.
+    #[cfg(feature = "render-tests")]
+    pub(super) const fn settle(&mut self) {
+        self.blur_intensity = if self.blur_enabled { 1.0 } else { 0.0 };
+    }
+
     pub(super) fn update(&mut self) {
         let blur_target = if self.blur_enabled { 1.0 } else { 0.0 };
 

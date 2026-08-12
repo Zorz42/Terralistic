@@ -18,6 +18,10 @@ cargo run -- version      # print version
 cargo test                # 366 tests, all should pass
 cargo clippy --all-targets
 ./coverage.sh             # coverage via config-coverage.toml
+
+cargo run --features render-tests -- rendertest             # 42 golden-image tests
+cargo run --features render-tests -- rendertest dump        # + viewable PPMs of every case
+cargo run --features render-tests -- rendertest regenerate  # rewrite the goldens
 ```
 
 Tests are pure unit tests — no graphics context needed, so they run anywhere.
@@ -215,6 +219,49 @@ the glyph texture upload, so text measurement and `create_text_surface` are test
 
 Rendering goes to an offscreen texture (`window_texture`) which is blitted to the default
 framebuffer in `update_window()`, which is what makes the blur/shadow effects possible.
+
+#### Golden-image tests
+
+`libraries/graphics/render_tests.rs` renders 42 cases into the offscreen `window_texture`,
+reads them back with `GraphicsContext::capture_frame`, and compares against committed
+`Surface`s in `libraries/graphics/goldens/*.opa`. They cover rects and outlines, `RectArray`,
+textures (scale, flip, source rect, tint), blend modes, both fonts, containers and all nine
+orientations, `RenderRect` fill/border/shadow/blur, sprites, the atlas, and the button,
+toggle and text input widgets.
+
+**They are not `#[test]`s and cannot be.** They need a real GL context, macOS requires that
+on the main thread, and libtest always runs a test body on a spawned worker — even under
+`--test-threads=1`. SDL's `offscreen` driver would avoid that but needs EGL, which macOS
+lacks. So they get a `main.rs` dispatch arg instead, behind the `render-tests` feature.
+`cargo test` is untouched and still needs no graphics context.
+
+The window is hidden, so running them does not flash windows across the desktop. Capture is
+taken *before* the HiDPI blit in `update_window`, so the hardcoded `2.0` there cannot
+contaminate a golden.
+
+Determinism is the whole game, and the toolkit fights it in three places. Each has a
+`#[cfg(feature = "render-tests")]` hook: wall-clock animations (`AnimationTimer::freeze`,
+`Button::settle_hover`, `Toggle::settle_animation`, `TextInput::settle_animation`), the blur
+and scale fades (`GraphicsContext::settle_animations`), and hover states that read the real
+mouse — which the settle hooks also neutralise. **If you add a case, run it five times before
+committing the golden.** That is how the atlas bug below was found.
+
+Tolerances are per case: `EXACT` for flat colour and `NEAREST`-sampled geometry, which
+should be bit-identical, and `BLURRY` for anything going through the gaussian blur or shadow
+shaders, where float error differs between drivers.
+
+Two known-bad behaviours are deliberately *not* covered rather than frozen in:
+
+- **Atlas region bleed.** `TextureAtlas::new` packs in `HashMap` order, which Rust
+  randomises per process, and `Texture::render` inflates the source rect by `size + 0.1`.
+  Together, the last column of a region can round into whichever region was packed beside
+  it, so a multi-region atlas renders differently between runs. Block, wall and item sprites
+  all go through this path. The test uses a single-region atlas; fixing this needs
+  deterministic packing (the `BTreeMap` treatment `GameModData.resources` already got) *and*
+  a look at that `+ 0.1`.
+- **Alpha eaten by blending.** `glBlendFunc` applies to the alpha channel too, so drawing
+  anything translucent lowers the framebuffer's alpha below 1. Invisible on screen because
+  the final blit ignores alpha, but it shows up in a capture. The goldens record it as-is.
 
 Several older UI pieces predate the `UiElement` trait and are hand-rolled — the `//TODO make
 this a UI element` comments in `client/game/chat.rs`, `pause_menu.rs`, `debug_menu.rs`,

@@ -51,6 +51,21 @@ impl GraphicsContext {
     /// Initializes all the values needed for rendering.
     /// It usually fails because the system doesn't support graphics.
     pub fn new(window_width: u32, window_height: u32, window_title: &str, font: &[u8], font_mono: Option<&[u8]>) -> Result<Self> {
+        Self::new_with_visibility(window_width, window_height, window_title, font, font_mono, true)
+    }
+
+    /// Same as `new`, but the window is never mapped on screen.
+    ///
+    /// Rendering already goes to `window_texture` rather than the default framebuffer, so
+    /// a hidden window is enough to drive the whole renderer - only the final blit in
+    /// `update_window` needs a visible one. This is what the golden-image tests use, so
+    /// running them does not flash windows across the desktop.
+    #[cfg(feature = "render-tests")]
+    pub fn new_hidden(window_width: u32, window_height: u32, font: &[u8], font_mono: Option<&[u8]>) -> Result<Self> {
+        Self::new_with_visibility(window_width, window_height, "Terralistic render tests", font, font_mono, false)
+    }
+
+    fn new_with_visibility(window_width: u32, window_height: u32, window_title: &str, font: &[u8], font_mono: Option<&[u8]>, visible: bool) -> Result<Self> {
         let sdl = sdl2::init();
         let sdl = sdl.map_err(|e| anyhow!(e))?;
         let video_subsystem = sdl.video();
@@ -61,7 +76,12 @@ impl GraphicsContext {
         gl_attr.set_context_profile(sdl2::video::GLProfile::Core);
         gl_attr.set_context_version(3, 3);
 
-        let sdl_window = video_subsystem.window(window_title, window_width, window_height).position_centered().opengl().resizable().build()?;
+        let mut window_builder = video_subsystem.window(window_title, window_width, window_height);
+        window_builder.position_centered().opengl().resizable();
+        if !visible {
+            window_builder.hidden();
+        }
+        let sdl_window = window_builder.build()?;
 
         let gl_context = sdl_window.gl_create_context().map_err(|e| anyhow!(e))?;
         gl::load_with(|s| video_subsystem.gl_get_proc_address(s).cast::<std::ffi::c_void>());
@@ -161,6 +181,78 @@ impl GraphicsContext {
         }
     }
 
+    /// Recomputes the transform that maps window pixel coordinates onto OpenGL clip space.
+    ///
+    /// The negative y scale is OpenGL's convention: clip space is y-up with the framebuffer
+    /// origin at the bottom left, while every coordinate in this toolkit is y-down from the
+    /// top left.
+    fn update_normalization_transform(&mut self) {
+        self.normalization_transform = Transformation::new();
+        self.normalization_transform.translate(gfx::FloatPos(-1.0, 1.0));
+        self.normalization_transform.stretch((2.0 / self.get_window_size().0, -2.0 / self.get_window_size().1));
+    }
+
+    /// Prepares a deterministic offscreen frame for the golden-image tests.
+    ///
+    /// `new` generates the framebuffer but never attaches a texture to it - that only
+    /// happens on the first `update_window`. The tests never call `update_window` (there is
+    /// nothing to present to on a hidden window), so they attach it here, and clear to
+    /// transparent so every case starts from an identical buffer.
+    #[cfg(feature = "render-tests")]
+    pub fn begin_capture_frame(&mut self) {
+        self.update_normalization_transform();
+        let size = self.sdl_window.size();
+
+        unsafe {
+            gl::BindFramebuffer(gl::FRAMEBUFFER, self.window_framebuffer);
+            gl::FramebufferTexture2D(gl::FRAMEBUFFER, gl::COLOR_ATTACHMENT0, gl::TEXTURE_2D, self.window_texture, 0);
+            gl::Viewport(0, 0, size.0 as i32, size.1 as i32);
+            gl::ClearColor(0.0, 0.0, 0.0, 0.0);
+            gl::Clear(gl::COLOR_BUFFER_BIT);
+            gl::UseProgram(self.passthrough_shader.passthrough_shader);
+        }
+    }
+
+    /// Reads the offscreen frame back into a `Surface`.
+    ///
+    /// The read is from `window_framebuffer`, so this captures what was drawn rather than
+    /// what reached the screen - it is deliberately upstream of the `HiDPI` blit in
+    /// `update_window`, whose hardcoded 2.0 would otherwise contaminate every golden.
+    #[cfg(feature = "render-tests")]
+    #[must_use]
+    pub fn capture_frame(&self) -> gfx::Surface {
+        let size = self.sdl_window.size();
+        let mut flipped = gfx::Surface::new(gfx::IntSize(size.0, size.1));
+
+        unsafe {
+            gl::Finish();
+            gl::BindFramebuffer(gl::READ_FRAMEBUFFER, self.window_framebuffer);
+            gl::FramebufferTexture2D(gl::READ_FRAMEBUFFER, gl::COLOR_ATTACHMENT0, gl::TEXTURE_2D, self.window_texture, 0);
+            // Color is four u8s in r, g, b, a order, which is the same assumption
+            // Texture::load_from_surface already makes when it uploads a surface.
+            gl::ReadPixels(0, 0, size.0 as i32, size.1 as i32, gl::RGBA, gl::UNSIGNED_BYTE, flipped.pixels.as_mut_ptr().cast::<std::ffi::c_void>());
+        }
+
+        // OpenGL hands back rows bottom to top; Surface is top to bottom.
+        let mut result = gfx::Surface::new(gfx::IntSize(size.0, size.1));
+        for (pos, pixel) in result.iter_mut() {
+            if let Ok(source) = flipped.get_pixel(gfx::IntPos(pos.0, size.1 as i32 - 1 - pos.1)) {
+                *pixel = *source;
+            }
+        }
+        result
+    }
+
+    /// Jumps the scale and blur animations straight to their target values.
+    ///
+    /// Both are driven by wall-clock timers, so without this a golden would depend on how
+    /// long the test happened to take.
+    #[cfg(feature = "render-tests")]
+    pub const fn settle_animations(&mut self) {
+        self.real_scale = self.scale;
+        self.blur_context.settle();
+    }
+
     /// Returns an array of events, such as key presses.
     fn get_events(&mut self) -> Vec<gfx::Event> {
         let mut sdl_events = vec![];
@@ -235,9 +327,7 @@ impl GraphicsContext {
             }
         }
 
-        self.normalization_transform = Transformation::new();
-        self.normalization_transform.translate(gfx::FloatPos(-1.0, 1.0));
-        self.normalization_transform.stretch((2.0 / self.get_window_size().0, -2.0 / self.get_window_size().1));
+        self.update_normalization_transform();
 
         unsafe {
             gl::BindFramebuffer(gl::READ_FRAMEBUFFER, self.window_framebuffer);

@@ -193,11 +193,42 @@ fn main() {
                 client_main();
             } else if arg == "version" {
                 println!("{}", shared::versions::VERSION);
+            } else if arg == "rendertest" {
+                render_test_main(args.as_slice());
             } else {
                 println!("Invalid argument: {arg}");
             }
         },
     );
+}
+
+/// Entry point for the graphics golden-image tests.
+///
+/// These cannot be `#[test]`s: they need an OpenGL context, and on macOS that has to be
+/// created on the main thread, which libtest never gives a test body. Hence a dispatch arg,
+/// which does put us on the main thread. See `libraries/graphics/render_tests.rs`.
+#[cfg(feature = "render-tests")]
+#[allow(clippy::exit, reason = "a test runner has to report failure through its exit code")]
+fn render_test_main(args: &[String]) {
+    let regenerate = args.contains(&"regenerate".to_owned());
+    let dump = args.contains(&"dump".to_owned());
+
+    let result = gfx::render_tests::run(regenerate, dump, include_bytes!("Build/Resources/font.opa"), include_bytes!("Build/Resources/font_mono.opa"));
+
+    match result {
+        Ok(true) => {}
+        Ok(false) => std::process::exit(1),
+        Err(error) => {
+            println!("render tests could not run: {error:?}");
+            std::process::exit(2);
+        }
+    }
+}
+
+#[cfg(not(feature = "render-tests"))]
+fn render_test_main(_args: &[String]) {
+    println!("This build has no render tests. Rebuild with:");
+    println!("    cargo run --features render-tests -- rendertest");
 }
 
 fn server_main(args: &[String]) {

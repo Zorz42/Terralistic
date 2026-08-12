@@ -13,6 +13,14 @@ categories = ["games", "graphics", "gui", "network-programming", "rendering"]
 name = "terralistic"
 path = "main.rs"
 
+[features]
+# Golden-image tests for libraries/graphics. Off by default: they need a real GL
+# context, which on macOS has to be created on the main thread, so they cannot run
+# under `cargo test` (libtest always spawns a worker thread). Run them with
+#   cargo run --features render-tests -- rendertest
+# See libraries/graphics/render_tests.rs.
+render-tests = []
+
 [dependencies]
 # login disabled: these are only used by the account client, see docs/LOGIN.md
 # rustls = { version = "0.23", default-features = false, features = ["ring", "std"] }

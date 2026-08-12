@@ -7,3 +7,5 @@ Output/
 server_data/
 target
 *.profraw
+# actual/expected/diff dumps written by the graphics golden-image tests
+render_test_output/

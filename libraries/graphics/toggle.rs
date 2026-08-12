@@ -53,6 +53,14 @@ impl Toggle {
         self.size
     }
 
+    /// Pins both animations for the golden-image tests. See `Button::settle_hover`.
+    #[cfg(feature = "render-tests")]
+    pub const fn settle_animation(&mut self, toggle_progress: f32, hover_progress: f32) {
+        self.toggle_progress = toggle_progress;
+        self.hover_progress = hover_progress;
+        self.timer_counter = u32::MAX;
+    }
+
     /// Checks if the toggle is hovered with a mouse.
     #[must_use]
     pub fn is_hovered(&self, graphics: &dyn gfx::UiContext, parent_container: &gfx::Container) -> bool {

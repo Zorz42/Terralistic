@@ -134,6 +134,13 @@ impl TextInput {
         &self.text
     }
 
+    /// Freezes the hover, cursor and hint fades for the golden-image tests.
+    /// See `Button::settle_hover` for why this is needed.
+    #[cfg(feature = "render-tests")]
+    pub const fn settle_animation(&mut self) {
+        self.animation_timer.freeze();
+    }
+
     /// sets the text in the input box
     pub fn set_text(&mut self, text: String) {
         self.text = text;

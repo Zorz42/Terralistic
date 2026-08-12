@@ -20,6 +20,16 @@ impl AnimationTimer {
         }
     }
 
+    /// Stops the timer from ever reporting another ready frame.
+    ///
+    /// The golden-image tests use this to pin animations that are driven by elapsed wall
+    /// clock time, which would otherwise make a capture depend on how long the run took to
+    /// reach that widget.
+    #[cfg(feature = "render-tests")]
+    pub const fn freeze(&mut self) {
+        self.ms_passed = i32::MAX;
+    }
+
     /// Returns true if the frame is ready to be rendered.
     #[must_use]
     pub fn frame_ready(&mut self) -> bool {

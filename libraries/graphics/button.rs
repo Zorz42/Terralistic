@@ -72,6 +72,19 @@ impl Button {
     pub fn press(&self) {
         (self.on_click)();
     }
+
+    /// Pins the hover animation at `progress` for the golden-image tests.
+    ///
+    /// Two things would otherwise make a capture non-reproducible: the animation advances
+    /// once per elapsed millisecond since the button was constructed, and its target comes
+    /// from `is_hovered`, which reads the real mouse position. Pushing `timer_counter` past
+    /// any reachable elapsed time stops `render_inner` advancing it, so the value set here
+    /// is exactly what gets drawn.
+    #[cfg(feature = "render-tests")]
+    pub const fn settle_hover(&mut self, progress: f32) {
+        self.hover_progress = progress;
+        self.timer_counter = u32::MAX;
+    }
 }
 
 impl UiElement for Button {

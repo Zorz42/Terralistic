@@ -37,6 +37,10 @@ mod position;
 mod rect;
 mod rect_array;
 mod render_rect;
+/// Golden-image tests. Behind a feature because they need a real OpenGL context on the
+/// main thread, which `cargo test` cannot provide - see the module docs.
+#[cfg(feature = "render-tests")]
+pub mod render_tests;
 mod renderer;
 mod scrollable;
 mod shaders;
