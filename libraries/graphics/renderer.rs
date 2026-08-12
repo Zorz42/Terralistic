@@ -1,3 +1,4 @@
+use std::cell::RefCell;
 use std::collections::HashMap;
 use std::collections::VecDeque;
 use std::mem::swap;
@@ -8,26 +9,29 @@ use anyhow::{anyhow, Result};
 use sdl2::video::SwapInterval;
 
 use crate::libraries::graphics as gfx;
-use crate::libraries::graphics::blur::BlurContext;
+use crate::libraries::graphics::draw_list::{DrawCommand, DrawList, DrawTarget};
 use crate::libraries::graphics::events::sdl_event_to_gfx_event;
-use crate::libraries::graphics::passthrough_shader::PassthroughShader;
+use crate::libraries::graphics::gl_backend::GlBackend;
 use crate::libraries::graphics::shadow::ShadowContext;
-use crate::libraries::graphics::transformation::Transformation;
 use crate::libraries::graphics::Font;
 use crate::libraries::graphics::UiContext;
 
-/// This stores all the values needed for rendering.
+/// The window, the input, and the frame currently being recorded.
+///
+/// Drawing does not happen here. A `render` call appends to `draw_list`, and `update_window`
+/// hands the whole list to `backend`, which is the only part of the toolkit that knows about
+/// OpenGL. Everything between those two points is plain data - see `gfx::draw_list`.
 pub struct GraphicsContext {
     _gl_context: sdl2::video::GLContext,
     sdl_window: sdl2::video::Window,
     sdl_event_pump: sdl2::EventPump,
     video_subsystem: sdl2::VideoSubsystem,
-    pub(super) normalization_transform: Transformation,
-    window_texture: u32,
-    window_texture_back: u32,
-    window_framebuffer: u32,
-    blur_context: BlurContext,
-    pub(super) passthrough_shader: PassthroughShader,
+    backend: GlBackend,
+    /// The frame being recorded. Behind a `RefCell` because drawing takes `&self`: the
+    /// toolkit is full of `graphics.font.render_text(graphics, ..)` shaped calls that borrow
+    /// the context twice, which was fine when drawing went straight to OpenGL and has to
+    /// stay fine now.
+    draw_list: RefCell<DrawList>,
     events_queue: VecDeque<gfx::Event>,
     window_open: bool,
     // Keep track of all Key states as a hashmap
@@ -86,23 +90,7 @@ impl GraphicsContext {
         let gl_context = sdl_window.gl_create_context().map_err(|e| anyhow!(e))?;
         gl::load_with(|s| video_subsystem.gl_get_proc_address(s).cast::<std::ffi::c_void>());
 
-        unsafe {
-            gl::Enable(gl::BLEND);
-        }
-        gfx::set_blend_mode(gfx::BlendMode::Alpha);
-
-        let passthrough_shader = PassthroughShader::new()?;
-        let mut window_texture = 0;
-        let mut window_texture_back = 0;
-        let mut window_framebuffer = 0;
-
-        unsafe {
-            gl::GenTextures(1, &raw mut window_texture);
-            gl::GenTextures(1, &raw mut window_texture_back);
-            gl::GenFramebuffers(1, &raw mut window_framebuffer);
-            gl::BindFramebuffer(gl::FRAMEBUFFER, window_framebuffer);
-        }
-
+        let backend = GlBackend::new()?;
         let shadow_context = ShadowContext::new();
 
         let font = Font::new(font, false)?;
@@ -113,14 +101,10 @@ impl GraphicsContext {
             sdl_window,
             sdl_event_pump: sdl.event_pump().map_err(|e| anyhow!(e))?,
             video_subsystem,
-            normalization_transform: Transformation::new(),
-            window_texture,
-            window_texture_back,
-            window_framebuffer,
+            backend,
+            draw_list: RefCell::new(DrawList::new()),
             key_states: HashMap::new(),
             events: Vec::new(),
-            blur_context: BlurContext::new()?,
-            passthrough_shader,
             shadow_context,
             events_queue: VecDeque::new(),
             window_open: true,
@@ -144,103 +128,37 @@ impl GraphicsContext {
 
     /// Is called every time the window is resized.
     pub fn handle_window_resize(&mut self) {
-        unsafe {
-            gl::BindTexture(gl::TEXTURE_2D, self.window_texture);
-            gl::TexImage2D(
-                gl::TEXTURE_2D,
-                0,
-                gl::RGBA as i32,
-                self.sdl_window.size().0 as i32,
-                self.sdl_window.size().1 as i32,
-                0,
-                gl::BGRA as gl::types::GLenum,
-                gl::UNSIGNED_BYTE,
-                std::ptr::null(),
-            );
-
-            gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MAG_FILTER, gl::NEAREST as i32);
-            gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MIN_FILTER, gl::NEAREST as i32);
-
-            gl::BindTexture(gl::TEXTURE_2D, self.window_texture_back);
-            gl::TexImage2D(
-                gl::TEXTURE_2D,
-                0,
-                gl::RGBA as i32,
-                self.sdl_window.size().0 as i32,
-                self.sdl_window.size().1 as i32,
-                0,
-                gl::BGRA,
-                gl::UNSIGNED_BYTE,
-                std::ptr::null(),
-            );
-
-            gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MAG_FILTER, gl::NEAREST as i32);
-            gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MIN_FILTER, gl::NEAREST as i32);
-
-            gl::Viewport(0, 0, self.sdl_window.size().0 as i32, self.sdl_window.size().1 as i32);
-        }
+        let size = self.sdl_window.size();
+        self.backend.resize(gfx::IntSize(size.0, size.1));
     }
 
-    /// Recomputes the transform that maps window pixel coordinates onto OpenGL clip space.
-    ///
-    /// The negative y scale is OpenGL's convention: clip space is y-up with the framebuffer
-    /// origin at the bottom left, while every coordinate in this toolkit is y-down from the
-    /// top left.
-    fn update_normalization_transform(&mut self) {
-        self.normalization_transform = Transformation::new();
-        self.normalization_transform.translate(gfx::FloatPos(-1.0, 1.0));
-        self.normalization_transform.stretch((2.0 / self.get_window_size().0, -2.0 / self.get_window_size().1));
+    /// Hands the recorded frame to the backend and starts a new one.
+    fn flush_draw_list(&mut self) {
+        let window_size = self.get_window_size();
+        self.backend.execute(&self.draw_list.borrow(), window_size);
+        self.draw_list.borrow_mut().clear();
     }
 
     /// Prepares a deterministic offscreen frame for the golden-image tests.
-    ///
-    /// `new` generates the framebuffer but never attaches a texture to it - that only
-    /// happens on the first `update_window`. The tests never call `update_window` (there is
-    /// nothing to present to on a hidden window), so they attach it here, and clear to
-    /// transparent so every case starts from an identical buffer.
     #[cfg(feature = "render-tests")]
     pub fn begin_capture_frame(&mut self) {
-        self.update_normalization_transform();
+        let window_size = self.get_window_size();
+        self.backend.update_normalization_transform(window_size);
         let size = self.sdl_window.size();
-
-        unsafe {
-            gl::BindFramebuffer(gl::FRAMEBUFFER, self.window_framebuffer);
-            gl::FramebufferTexture2D(gl::FRAMEBUFFER, gl::COLOR_ATTACHMENT0, gl::TEXTURE_2D, self.window_texture, 0);
-            gl::Viewport(0, 0, size.0 as i32, size.1 as i32);
-            gl::ClearColor(0.0, 0.0, 0.0, 0.0);
-            gl::Clear(gl::COLOR_BUFFER_BIT);
-            gl::UseProgram(self.passthrough_shader.passthrough_shader);
-        }
+        self.backend.begin_capture_frame(gfx::IntSize(size.0, size.1));
+        self.draw_list.borrow_mut().clear();
     }
 
-    /// Reads the offscreen frame back into a `Surface`.
+    /// Executes whatever the case recorded, then reads the frame back into a `Surface`.
     ///
-    /// The read is from `window_framebuffer`, so this captures what was drawn rather than
-    /// what reached the screen - it is deliberately upstream of the `HiDPI` blit in
-    /// `update_window`, whose hardcoded 2.0 would otherwise contaminate every golden.
+    /// The flush has to happen here rather than in `update_window`, because a captured case
+    /// never presents - there is nothing to show on a hidden window.
     #[cfg(feature = "render-tests")]
     #[must_use]
-    pub fn capture_frame(&self) -> gfx::Surface {
+    pub fn capture_frame(&mut self) -> gfx::Surface {
+        self.flush_draw_list();
         let size = self.sdl_window.size();
-        let mut flipped = gfx::Surface::new(gfx::IntSize(size.0, size.1));
-
-        unsafe {
-            gl::Finish();
-            gl::BindFramebuffer(gl::READ_FRAMEBUFFER, self.window_framebuffer);
-            gl::FramebufferTexture2D(gl::READ_FRAMEBUFFER, gl::COLOR_ATTACHMENT0, gl::TEXTURE_2D, self.window_texture, 0);
-            // Color is four u8s in r, g, b, a order, which is the same assumption
-            // Texture::load_from_surface already makes when it uploads a surface.
-            gl::ReadPixels(0, 0, size.0 as i32, size.1 as i32, gl::RGBA, gl::UNSIGNED_BYTE, flipped.pixels.as_mut_ptr().cast::<std::ffi::c_void>());
-        }
-
-        // OpenGL hands back rows bottom to top; Surface is top to bottom.
-        let mut result = gfx::Surface::new(gfx::IntSize(size.0, size.1));
-        for (pos, pixel) in result.iter_mut() {
-            if let Ok(source) = flipped.get_pixel(gfx::IntPos(pos.0, size.1 as i32 - 1 - pos.1)) {
-                *pixel = *source;
-            }
-        }
-        result
+        self.backend.read_pixels(gfx::IntSize(size.0, size.1))
     }
 
     /// Jumps the scale and blur animations straight to their target values.
@@ -250,7 +168,7 @@ impl GraphicsContext {
     #[cfg(feature = "render-tests")]
     pub const fn settle_animations(&mut self) {
         self.real_scale = self.scale;
-        self.blur_context.settle();
+        self.backend.settle_blur();
     }
 
     /// Returns an array of events, such as key presses.
@@ -318,7 +236,13 @@ impl GraphicsContext {
 
     /// Should be called after rendering
     pub fn update_window(&mut self) {
-        self.blur_context.update();
+        // The flush comes first, before the animations advance and before the transform is
+        // recomputed. That is what makes deferring the frame's drawing to here invisible: a
+        // command recorded during this frame is executed with exactly the transform and the
+        // blur intensity it would have been drawn with immediately.
+        self.flush_draw_list();
+
+        self.backend.update_blur();
 
         while self.scale_animation_timer.frame_ready() {
             self.real_scale += (self.scale - self.real_scale) / 10.0;
@@ -327,30 +251,13 @@ impl GraphicsContext {
             }
         }
 
-        self.update_normalization_transform();
-
-        unsafe {
-            gl::BindFramebuffer(gl::READ_FRAMEBUFFER, self.window_framebuffer);
-            gl::FramebufferTexture2D(gl::READ_FRAMEBUFFER, gl::COLOR_ATTACHMENT0, gl::TEXTURE_2D, self.window_texture, 0);
-            gl::BindFramebuffer(gl::DRAW_FRAMEBUFFER, 0);
-
-            // This used to be three byte-identical copies of the same call, one each
-            // under cfg(windows), cfg(macos) and cfg(linux) - which also meant no blit at
-            // all on any other target.
-            //
-            // The 2.0 is a hardcoded assumption that the drawable is twice the window
-            // size. That is wrong on non-HiDPI displays, but fixing it needs the real
-            // drawable size and a visual check, so it is left as is here.
-            let blit_width = (self.get_window_size().0 * 2.0) as i32;
-            let blit_height = (self.get_window_size().1 * 2.0) as i32;
-            gl::BlitFramebuffer(0, 0, blit_width, blit_height, 0, 0, blit_width, blit_height, gl::COLOR_BUFFER_BIT, gl::NEAREST);
-        }
+        let window_size = self.get_window_size();
+        self.backend.update_normalization_transform(window_size);
+        self.backend.present(window_size);
 
         self.sdl_window.gl_swap_window();
 
-        unsafe {
-            gl::BindFramebuffer(gl::FRAMEBUFFER, self.window_framebuffer);
-        }
+        self.backend.bind_offscreen_framebuffer();
 
         self.frames_so_far += 1;
         let now = std::time::Instant::now();
@@ -372,21 +279,13 @@ impl GraphicsContext {
         *self.key_states.entry(key).or_insert(false) = state;
     }
 
-    /// Blurs given texture
-    pub(super) fn blur_region(&self, rect: gfx::Rect, radius: i32, gl_texture: u32, back_texture: u32, size: gfx::FloatSize, texture_transform: &Transformation) {
-        self.blur_context.blur_region(rect, radius, gl_texture, back_texture, size, texture_transform);
-        unsafe {
-            gl::UseProgram(self.passthrough_shader.passthrough_shader);
-        }
-    }
-
-    /// Blurs a given rectangle on the screen
+    /// Records a blur of whatever has already been drawn inside `rect`.
     pub(super) fn blur_rect(&self, rect: gfx::Rect, radius: i32) {
-        self.blur_region(rect, radius, self.window_texture, self.window_texture_back, self.get_window_size(), &self.normalization_transform);
+        self.push_draw_command(DrawCommand::Blur { rect, radius });
     }
 
     pub const fn enable_blur(&mut self, enable: bool) {
-        self.blur_context.blur_enabled = enable;
+        self.backend.set_blur_enabled(enable);
     }
 
     pub fn set_fps_limit(&mut self, fps: f32) {
@@ -440,14 +339,14 @@ impl UiContext for GraphicsContext {
     }
 }
 
-/// Implement the Drop trait for the Renderer.
-impl Drop for GraphicsContext {
-    /// Closes, destroys the window and cleans up the resources.
-    fn drop(&mut self) {
-        unsafe {
-            gl::DeleteFramebuffers(1, &raw const self.window_framebuffer);
-            gl::DeleteTextures(1, &raw const self.window_texture);
-            gl::DeleteTextures(1, &raw const self.window_texture_back);
-        }
+/// Where the game's drawing ends up. The commands sit here until `update_window` replays
+/// them through the backend.
+impl DrawTarget for GraphicsContext {
+    fn push_draw_command(&self, command: DrawCommand) {
+        self.draw_list.borrow_mut().push(command);
+    }
+
+    fn get_draw_area(&self) -> gfx::FloatSize {
+        self.get_window_size()
     }
 }

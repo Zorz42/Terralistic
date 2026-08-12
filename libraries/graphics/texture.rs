@@ -1,13 +1,12 @@
 use crate::libraries::graphics as gfx;
 
-use super::renderer::GraphicsContext;
-use super::transformation::Transformation;
-use super::vertex_buffer::DrawMode;
+use super::draw_list::{DrawCommand, DrawTarget, TextureHandle};
+use super::gpu_garbage;
 use super::{Color, Rect, Surface};
 
 /// Texture is an image stored in gpu
 pub struct Texture {
-    pub(super) texture_handle: u32,
+    handle: TextureHandle,
     size: gfx::FloatSize,
 }
 
@@ -15,7 +14,7 @@ impl Texture {
     #[must_use]
     pub const fn new() -> Self {
         Self {
-            texture_handle: u32::MAX,
+            handle: TextureHandle::NONE,
             size: gfx::FloatSize(0.0, 0.0),
         }
     }
@@ -27,8 +26,8 @@ impl Texture {
         result.size = gfx::FloatSize::from(surface.get_size());
 
         unsafe {
-            gl::GenTextures(1, &raw mut result.texture_handle);
-            gl::BindTexture(gl::TEXTURE_2D, result.texture_handle);
+            gl::GenTextures(1, &raw mut result.handle.0);
+            gl::BindTexture(gl::TEXTURE_2D, result.handle.0);
 
             gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MIN_FILTER, gl::NEAREST as i32);
             gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MAG_FILTER, gl::NEAREST as i32);
@@ -57,21 +56,24 @@ impl Texture {
     /// A texture that reports a size but owns nothing on the GPU, for tests.
     ///
     /// Layout code only ever asks a texture for `get_texture_size`, so this is enough to
-    /// drive a `Button` or a `Sprite` headlessly. It is safe to drop: `free_texture`
-    /// skips the `glDeleteTextures` call while the handle is still `u32::MAX`.
+    /// drive a `Button` or a `Sprite` headlessly. It is safe to drop: the handle stays
+    /// `TextureHandle::NONE`, so `free_texture` has nothing to park.
     #[cfg(test)]
     #[must_use]
     pub const fn new_sized(size: gfx::FloatSize) -> Self {
-        Self { texture_handle: u32::MAX, size }
+        Self { handle: TextureHandle::NONE, size }
     }
 
-    /// Deletes the current texture if it exists.
+    /// Parks the OpenGL object for deletion if there is one.
+    ///
+    /// The name is handed to `gpu_garbage` rather than deleted outright, because a
+    /// `DrawCommand` recorded earlier this frame may still name this texture. Textures are
+    /// created and dropped inside `render_inner` all over the game, so this is the common
+    /// case, not a corner one.
     fn free_texture(&mut self) {
-        if self.texture_handle != u32::MAX {
-            unsafe {
-                gl::DeleteTextures(1, &raw const self.texture_handle);
-            }
-            self.texture_handle = u32::MAX;
+        if self.handle != TextureHandle::NONE {
+            gpu_garbage::delete_texture_later(self.handle.0);
+            self.handle = TextureHandle::NONE;
             self.size = gfx::FloatSize(0.0, 0.0);
         }
     }
@@ -81,52 +83,31 @@ impl Texture {
         self.size
     }
 
-    pub(super) fn get_normalization_transform(&self) -> Transformation {
-        let mut result = Transformation::new();
-        result.stretch((1.0 / self.size.0, 1.0 / self.size.1));
-        result
+    /// The backend's name for this texture, which is what a `DrawCommand` carries.
+    #[must_use]
+    pub const fn get_handle(&self) -> TextureHandle {
+        self.handle
     }
 
-    pub fn render(&self, graphics: &GraphicsContext, scale: f32, pos: gfx::FloatPos, src_rect: Option<Rect>, flipped: bool, color: Option<Color>) {
+    /// Records a draw of `src_rect` (the whole texture by default) at `pos`.
+    pub fn render(&self, target: &dyn DrawTarget, scale: f32, pos: gfx::FloatPos, src_rect: Option<Rect>, flipped: bool, color: Option<Color>) {
         let src_rect = src_rect.unwrap_or_else(|| Rect::new(gfx::FloatPos(0.0, 0.0), self.get_texture_size()));
 
+        // Also catches a texture that owns nothing on the GPU, since that reports a zero
+        // size and so cannot produce a non-empty default source rectangle.
         if src_rect.size.0 <= 0.0 || src_rect.size.1 <= 0.0 {
             return;
         }
 
-        let color = color.unwrap_or(Color { r: 255, g: 255, b: 255, a: 255 });
-
-        let mut transform = graphics.normalization_transform.clone();
-
-        if flipped {
-            transform.translate(gfx::FloatPos(src_rect.size.0 * scale + pos.0 * 2.0, 0.0));
-            transform.stretch((-1.0, 1.0));
-        }
-
-        transform.translate(pos);
-        transform.stretch((src_rect.size.0 * scale, src_rect.size.1 * scale));
-
-        unsafe {
-            gl::UniformMatrix3fv(graphics.passthrough_shader.transform_matrix, 1, gl::FALSE, transform.matrix.as_ptr());
-
-            transform = self.get_normalization_transform();
-            transform.translate(src_rect.pos);
-            transform.stretch((src_rect.size.0, src_rect.size.1));
-
-            gl::UniformMatrix3fv(graphics.passthrough_shader.texture_transform_matrix, 1, gl::FALSE, transform.matrix.as_ptr());
-            gl::Uniform4f(
-                graphics.passthrough_shader.global_color,
-                color.r as f32 / 255.0,
-                color.g as f32 / 255.0,
-                color.b as f32 / 255.0,
-                color.a as f32 / 255.0,
-            );
-            gl::Uniform1i(graphics.passthrough_shader.has_texture, 1);
-
-            gl::BindTexture(gl::TEXTURE_2D, self.texture_handle);
-
-            graphics.passthrough_shader.rect_vertex_buffer.draw(true, DrawMode::Triangles);
-        }
+        target.push_draw_command(DrawCommand::Texture {
+            texture: self.handle,
+            texture_size: self.size,
+            src_rect,
+            pos,
+            scale,
+            flipped,
+            color: color.unwrap_or(Color { r: 255, g: 255, b: 255, a: 255 }),
+        });
     }
 }
 

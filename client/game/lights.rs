@@ -7,6 +7,7 @@ use crate::client::game::chunk_tracker::ChunkTracker;
 use crate::client::settings::{Setting, Settings};
 use crate::libraries::events::Event;
 use crate::libraries::graphics as gfx;
+use crate::libraries::graphics::DrawTarget;
 use crate::shared::blocks::{Blocks, RENDER_BLOCK_WIDTH};
 use crate::shared::lights::Lights;
 use crate::shared::world_map::CHUNK_SIZE;
@@ -70,9 +71,9 @@ impl LightChunk {
     pub fn render(&self, graphics: &gfx::GraphicsContext, world_x: i32, world_y: i32, camera: &Camera) {
         let screen_x = world_x as f32 * RENDER_BLOCK_WIDTH - camera.get_top_left(graphics).0 * RENDER_BLOCK_WIDTH;
         let screen_y = world_y as f32 * RENDER_BLOCK_WIDTH - camera.get_top_left(graphics).1 * RENDER_BLOCK_WIDTH;
-        gfx::set_blend_mode(gfx::BlendMode::Multiply);
+        graphics.set_blend_mode(gfx::BlendMode::Multiply);
         self.rect_array.render(graphics, None, gfx::FloatPos(screen_x.round(), screen_y.round()));
-        gfx::set_blend_mode(gfx::BlendMode::Alpha);
+        graphics.set_blend_mode(gfx::BlendMode::Alpha);
     }
 }
 

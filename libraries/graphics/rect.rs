@@ -1,11 +1,10 @@
 use crate::libraries::graphics as gfx;
 
 use super::color::Color;
-use super::vertex_buffer::DrawMode;
+use super::draw_list::{DrawCommand, DrawTarget};
 
 /// This is a rectangle shape.
-use crate::libraries::graphics::UiContext;
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct Rect {
     pub pos: gfx::FloatPos,
     pub size: gfx::FloatSize,
@@ -18,58 +17,31 @@ impl Rect {
         Self { pos, size }
     }
 
-    /// Renders the rectangle on the screen.
-    pub fn render(&self, graphics: &gfx::GraphicsContext, color: Color) {
+    /// Records a filled rectangle.
+    ///
+    /// Fully transparent and fully offscreen rectangles are dropped here rather than in the
+    /// backend, because the cheapest command is the one that never reaches the list.
+    pub fn render(&self, target: &dyn DrawTarget, color: Color) {
         if color.a == 0 {
             return;
         }
 
-        if self.pos.0 > graphics.get_window_size().0 || self.pos.1 > graphics.get_window_size().1 || self.pos.0 + self.size.0 < 0.0 || self.pos.1 + self.size.1 < 0.0 {
+        let draw_area = target.get_draw_area();
+        if self.pos.0 > draw_area.0 || self.pos.1 > draw_area.1 || self.pos.0 + self.size.0 < 0.0 || self.pos.1 + self.size.1 < 0.0 {
             return;
         }
 
-        let mut transform = graphics.normalization_transform.clone();
-        transform.translate(self.pos);
-        transform.stretch((self.size.0, self.size.1));
-
-        unsafe {
-            gl::UniformMatrix3fv(graphics.passthrough_shader.transform_matrix, 1, gl::FALSE, &raw const transform.matrix[0]);
-            gl::Uniform4f(
-                graphics.passthrough_shader.global_color,
-                color.r as f32 / 255.0,
-                color.g as f32 / 255.0,
-                color.b as f32 / 255.0,
-                color.a as f32 / 255.0,
-            );
-            gl::Uniform1i(graphics.passthrough_shader.has_texture, 0);
-        }
-
-        graphics.passthrough_shader.rect_vertex_buffer.draw(false, DrawMode::Triangles);
+        target.push_draw_command(DrawCommand::Rect { rect: *self, color });
     }
 
-    /// Renders the rectangle outline on the screen.
-    pub fn render_outline(&self, graphics: &gfx::GraphicsContext, color: Color) {
+    /// Records the rectangle's outline. Unlike `render` this is not culled, so a border
+    /// that starts offscreen still draws the edges that are on screen.
+    pub fn render_outline(&self, target: &dyn DrawTarget, color: Color) {
         if color.a == 0 {
             return;
         }
 
-        let mut transform = graphics.normalization_transform.clone();
-        transform.translate(self.pos);
-        transform.stretch((self.size.0, self.size.1));
-
-        unsafe {
-            gl::UniformMatrix3fv(graphics.passthrough_shader.transform_matrix, 1, gl::FALSE, &raw const transform.matrix[0]);
-            gl::Uniform4f(
-                graphics.passthrough_shader.global_color,
-                color.r as f32 / 255.0,
-                color.g as f32 / 255.0,
-                color.b as f32 / 255.0,
-                color.a as f32 / 255.0,
-            );
-            gl::Uniform1i(graphics.passthrough_shader.has_texture, 0);
-        }
-
-        graphics.passthrough_shader.rect_outline_vertex_buffer.draw(false, DrawMode::Lines);
+        target.push_draw_command(DrawCommand::RectOutline { rect: *self, color });
     }
 
     #[must_use]

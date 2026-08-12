@@ -1,10 +1,13 @@
 use anyhow::Result;
 
 pub use animation_timer::AnimationTimer;
-pub use blend_mode::{set_blend_mode, BlendMode};
+pub use blend_mode::BlendMode;
 pub use button::Button;
 pub use color::{interpolate_colors, Color};
 pub use container::{Container, Orientation, BOTTOM, BOTTOM_LEFT, BOTTOM_RIGHT, CENTER, LEFT, RIGHT, TOP, TOP_LEFT, TOP_RIGHT};
+#[cfg(test)]
+pub use draw_list::DrawRecorder;
+pub use draw_list::{DrawCommand, DrawList, DrawTarget, MeshHandle, TextureHandle};
 pub use events::{Event, Key};
 pub use position::{FloatPos, FloatSize, IntPos, IntSize};
 pub use rect::Rect;
@@ -31,7 +34,13 @@ mod blur;
 mod button;
 mod color;
 mod container;
+/// What to draw, as backend-agnostic data. The seam the renderer is built around.
+pub mod draw_list;
 mod events;
+/// How a draw list becomes pixels. The only module that knows about OpenGL, apart from the
+/// resource types that own GPU objects.
+mod gl_backend;
+mod gpu_garbage;
 mod passthrough_shader;
 mod position;
 mod rect;

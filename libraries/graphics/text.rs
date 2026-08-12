@@ -189,11 +189,11 @@ impl Font {
     }
 
     /// This function renders text on the window.
-    pub fn render_text(&self, graphics: &gfx::GraphicsContext, text: &str, mut pos: gfx::FloatPos, scale: f32) {
+    pub fn render_text(&self, target: &dyn gfx::DrawTarget, text: &str, mut pos: gfx::FloatPos, scale: f32) {
         for c in text.chars() {
             if let Some(char_surface) = self.font_surfaces.get(c as usize) {
                 if let Some(char_texture) = self.font_textures.get(c as usize) {
-                    char_texture.render(graphics, scale, pos, None, false, None);
+                    char_texture.render(target, scale, pos, None, false, None);
                     pos.0 += (char_surface.get_size().0 as i32 + CHAR_SPACING) as f32 * scale;
                     if c == ' ' {
                         pos.0 += SPACE_WIDTH as f32 * scale;

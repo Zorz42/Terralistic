@@ -1,6 +1,8 @@
 use crate::libraries::graphics as gfx;
 
 use super::color;
+use super::draw_list::MeshHandle;
+use super::gpu_garbage;
 
 #[derive(Debug, Clone, Copy)]
 pub enum DrawMode {
@@ -23,13 +25,13 @@ pub struct VertexBuffer {
     vertex_array: u32,
 }
 
+/// Parks the OpenGL objects rather than deleting them, because a `DrawCommand` recorded
+/// earlier this frame may still refer to them - see `gpu_garbage`.
 impl Drop for VertexBuffer {
     fn drop(&mut self) {
-        unsafe {
-            gl::DeleteBuffers(1, &raw const self.vertex_buffer);
-            gl::DeleteBuffers(1, &raw const self.index_buffer);
-            gl::DeleteVertexArrays(1, &raw const self.vertex_array);
-        }
+        gpu_garbage::delete_buffer_later(self.vertex_buffer);
+        gpu_garbage::delete_buffer_later(self.index_buffer);
+        gpu_garbage::delete_vertex_array_later(self.vertex_array);
     }
 }
 
@@ -76,36 +78,57 @@ impl VertexBuffer {
         }
     }
 
-    pub fn draw(&self, has_texture: bool, mode: DrawMode) {
-        unsafe {
-            gl::BindVertexArray(self.vertex_array);
-            gl::BindBuffer(gl::ARRAY_BUFFER, self.vertex_buffer);
-            gl::BindBuffer(gl::ELEMENT_ARRAY_BUFFER, self.index_buffer);
+    /// The backend's name for this mesh, which is what a `DrawCommand` carries.
+    ///
+    /// A handle can outlive the buffer it names. That is deliberate and safe: the OpenGL
+    /// objects are parked in `gpu_garbage` on drop and only released once the frame's
+    /// commands have run.
+    pub(super) const fn get_handle(&self) -> MeshHandle {
+        MeshHandle {
+            vertex_array: self.vertex_array,
+            vertex_buffer: self.vertex_buffer,
+            index_buffer: self.index_buffer,
+            index_count: self.indices.len() as u32,
+        }
+    }
 
-            gl::VertexAttribPointer(0, 2, gl::FLOAT, gl::FALSE, 8 * 4, std::ptr::null());
-            gl::VertexAttribPointer(1, 4, gl::FLOAT, gl::FALSE, 8 * 4, (2 * 4) as *const _);
-            if has_texture {
-                gl::VertexAttribPointer(2, 2, gl::FLOAT, gl::FALSE, 8 * 4, (6 * 4) as *const _);
-            }
+    /// Draws this buffer immediately. Only the backend's own built-in rectangle meshes use
+    /// this; everything else goes through a `DrawCommand::Mesh` and `draw_mesh`.
+    pub(super) fn draw(&self, has_texture: bool, mode: DrawMode) {
+        draw_mesh(self.get_handle(), has_texture, mode);
+    }
+}
 
-            gl::EnableVertexAttribArray(0);
-            gl::EnableVertexAttribArray(1);
-            if has_texture {
-                gl::EnableVertexAttribArray(2);
-            }
+/// Issues the draw for an already uploaded mesh.
+pub(super) fn draw_mesh(mesh: MeshHandle, has_texture: bool, mode: DrawMode) {
+    unsafe {
+        gl::BindVertexArray(mesh.vertex_array);
+        gl::BindBuffer(gl::ARRAY_BUFFER, mesh.vertex_buffer);
+        gl::BindBuffer(gl::ELEMENT_ARRAY_BUFFER, mesh.index_buffer);
 
-            let gl_mode = match mode {
-                DrawMode::Triangles => gl::TRIANGLES,
-                DrawMode::Lines => gl::LINES,
-            };
+        gl::VertexAttribPointer(0, 2, gl::FLOAT, gl::FALSE, 8 * 4, std::ptr::null());
+        gl::VertexAttribPointer(1, 4, gl::FLOAT, gl::FALSE, 8 * 4, (2 * 4) as *const _);
+        if has_texture {
+            gl::VertexAttribPointer(2, 2, gl::FLOAT, gl::FALSE, 8 * 4, (6 * 4) as *const _);
+        }
 
-            gl::DrawElements(gl_mode, self.indices.len() as i32, gl::UNSIGNED_INT, std::ptr::null());
+        gl::EnableVertexAttribArray(0);
+        gl::EnableVertexAttribArray(1);
+        if has_texture {
+            gl::EnableVertexAttribArray(2);
+        }
 
-            gl::DisableVertexAttribArray(0);
-            gl::DisableVertexAttribArray(1);
-            if has_texture {
-                gl::DisableVertexAttribArray(2);
-            }
+        let gl_mode = match mode {
+            DrawMode::Triangles => gl::TRIANGLES,
+            DrawMode::Lines => gl::LINES,
+        };
+
+        gl::DrawElements(gl_mode, mesh.index_count as i32, gl::UNSIGNED_INT, std::ptr::null());
+
+        gl::DisableVertexAttribArray(0);
+        gl::DisableVertexAttribArray(1);
+        if has_texture {
+            gl::DisableVertexAttribArray(2);
         }
     }
 }

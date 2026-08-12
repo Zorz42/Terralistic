@@ -1,5 +1,7 @@
 use crate::libraries::graphics as gfx;
 
+use super::draw_list::DrawTarget;
+
 /// `ShadowContext` is a struct that contains the information needed to draw a shadow.
 pub struct ShadowContext {
     pub shadow_texture: gfx::Texture,
@@ -51,8 +53,12 @@ impl ShadowContext {
     }
 
     /// Renders the shadow.
+    ///
+    /// The gaussian is baked into a CPU `Surface` once in `new`, so this is nothing but a
+    /// handful of ordinary nearest-neighbour texture draws - no shader is involved, which
+    /// is why the shadow's golden images can be exact.
     #[allow(clippy::too_many_lines)]
-    pub fn render(&self, graphics: &gfx::GraphicsContext, rect: &gfx::Rect, shadow_intensity: f32) {
+    pub fn render(&self, target: &dyn DrawTarget, rect: &gfx::Rect, shadow_intensity: f32) {
         let shadow_color = gfx::Color::new(0, 0, 0, (80.0 * shadow_intensity) as u8);
 
         let shadow_edge_width = f32::min(200.0 + rect.size.0 / 2.0, 350.0);
@@ -124,7 +130,7 @@ impl ShadowContext {
         }
 
         for (pos, src_rect) in elements {
-            self.shadow_texture.render(graphics, 1.0, pos, Some(src_rect), false, Some(shadow_color));
+            self.shadow_texture.render(target, 1.0, pos, Some(src_rect), false, Some(shadow_color));
         }
     }
 }

@@ -30,6 +30,20 @@
 //! hover states that read the real mouse position - which the settle hooks also neutralise,
 //! because they stop the animation advancing towards whatever target hover reports.
 //!
+//! # What these cover that the draw-list tests cannot
+//!
+//! Drawing records a `DrawCommand` and the backend replays it, so `cargo test` can assert on
+//! what a primitive *asks* for without a window - see the draw list tests in `tests.rs`.
+//! These cases are the other half: they are the only check that the backend turns those
+//! commands into the right pixels, and the only coverage of anything that has to own a GPU
+//! object before it can draw at all (`RectArray`, `TextureAtlas`, `ShadowContext`, fonts).
+//!
+//! They also happen to be a hard test of deferred resource deletion. `fixture_texture()`
+//! returns a temporary, so in a line like
+//! `fixture_texture().render(graphics, ..)` the texture is dropped at the end of the
+//! statement - long before the frame is executed in `capture_frame`. These cases only match
+//! their goldens because `gpu_garbage` holds the OpenGL name until the frame has run.
+//!
 //! Running a new case five times before committing its golden is what caught the atlas bug:
 //! `TextureAtlas::new` packed in `HashMap` iteration order, which Rust randomises per
 //! process, and `Texture::render` inflated the source rectangle by `size + 0.1`, so the last
@@ -43,7 +57,7 @@ use std::path::{Path, PathBuf};
 use anyhow::{bail, Context, Result};
 
 use crate::libraries::graphics as gfx;
-use crate::libraries::graphics::{BaseUiElement, UiContext};
+use crate::libraries::graphics::{BaseUiElement, DrawTarget, UiContext};
 
 /// Small on purpose: the goldens are committed, and a diff a human has to look at is much
 /// easier to read at this size than at window size.
@@ -269,9 +283,9 @@ fn case_blend_mode_multiply(graphics: &mut gfx::GraphicsContext) {
     background(graphics);
     gfx::Rect::new(gfx::FloatPos(20.0, 20.0), gfx::FloatSize(160.0, 100.0)).render(graphics, gfx::Color::new(255, 200, 100, 255));
 
-    gfx::set_blend_mode(gfx::BlendMode::Multiply);
+    graphics.set_blend_mode(gfx::BlendMode::Multiply);
     gfx::Rect::new(gfx::FloatPos(80.0, 70.0), gfx::FloatSize(160.0, 100.0)).render(graphics, gfx::Color::new(120, 255, 200, 255));
-    gfx::set_blend_mode(gfx::BlendMode::Alpha);
+    graphics.set_blend_mode(gfx::BlendMode::Alpha);
 }
 
 // --- cases: text ----------------------------------------------------------------------
@@ -906,8 +920,9 @@ fn output_dir() -> PathBuf {
 fn capture_case(graphics: &mut gfx::GraphicsContext, case: &Case) -> gfx::Surface {
     graphics.begin_capture_frame();
     graphics.settle_animations();
-    // isolate cases from each other: a case that changes the blend mode must not leak
-    gfx::set_blend_mode(gfx::BlendMode::Alpha);
+    // Cases are isolated from each other by the draw list itself: `begin_capture_frame`
+    // drops anything left recorded, and executing a list resets the blend mode, so a case
+    // that switches to multiply cannot leak into the next one.
     (case.draw)(graphics);
     graphics.capture_frame()
 }

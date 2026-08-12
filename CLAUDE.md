@@ -179,8 +179,8 @@ So terrain and walls repeat for a given seed and the trees do not.
 
 ### Rendering and UI
 
-`libraries/graphics` is a self-contained immediate-mode-ish toolkit over raw `gl` calls.
-It has no game knowledge — treat it as a vendored library.
+`libraries/graphics` is a self-contained immediate-mode-ish toolkit. It has no game
+knowledge — treat it as a vendored library.
 
 The UI contract is `UiElement` / `BaseUiElement` in `ui_element.rs`. You implement
 `UiElement` (`get_container`, plus optional `render_inner` / `update_inner` /
@@ -220,6 +220,62 @@ the glyph texture upload, so text measurement and `create_text_surface` are test
 Rendering goes to an offscreen texture (`window_texture`) which is blitted to the default
 framebuffer in `update_window()`, which is what makes the blur/shadow effects possible.
 
+#### The draw list: what to draw vs. how
+
+**No drawing call touches OpenGL.** `rect.render(..)`, `texture.render(..)`,
+`rect_array.render(..)`, `font.render_text(..)` and `shadow_context.render(..)` all *record*
+a `DrawCommand` into the frame's `DrawList`. `GraphicsContext::update_window` hands the whole
+list to `GlBackend::execute`, which is the only place the frame path issues `gl::` calls.
+
+| File | Role |
+|---|---|
+| `draw_list.rs` | `DrawCommand`, `DrawList`, the `DrawTarget` trait, and `DrawRecorder` for tests |
+| `gl_backend.rs` | `GlBackend`: shaders, offscreen framebuffer, blur pass, `execute` |
+| `gpu_garbage.rs` | Deferred deletion of GPU objects |
+
+Consequences worth knowing:
+
+- **Commands are in window pixels**, y-down from the top left, holding the caller's raw
+  arguments (pos, scale, source rect) rather than a precomputed destination. Clip space, the
+  y flip and the divide by window size all belong to the backend. Keeping the arithmetic
+  there in the same order is what made this change bit-exact against all 43 goldens.
+- **`DrawTarget::push_draw_command` takes `&self`**, backed by a `RefCell` on
+  `GraphicsContext`. It has to: `graphics.font.render_text(graphics, ..)` and
+  `graphics.shadow_context.render(graphics, ..)` borrow the context twice, which was fine
+  when drawing went to OpenGL — a mutable global by nature — and has to stay fine. So
+  `render` methods take `&dyn DrawTarget`, and `&mut GraphicsContext` coerces to it.
+- **Order is the list order.** Blur and blend mode are commands (`DrawCommand::Blur`,
+  `SetBlendMode`) precisely because they only mean anything relative to the draws around
+  them. There is no free `gfx::set_blend_mode` any more — call `graphics.set_blend_mode(..)`,
+  which records.
+- **`execute` resets the shader program and the blend mode**, so a frame never inherits
+  state. Nothing used to bind the passthrough program at startup; the game rendered only
+  because the first `RenderRect`'s no-op blur bound it on the way out.
+- **The flush is the *first* thing `update_window` does**, before the blur and scale
+  animations advance and before the normalization transform is recomputed. That is what
+  makes deferral invisible: a command executes with exactly the transform and blur intensity
+  it would have been drawn with immediately. Don't reorder it.
+- Resource *creation* is still immediate and context-free (`Texture::load_from_surface`,
+  `VertexBuffer::upload`). Under wgpu that needs a device, so moving resources behind the
+  backend is the next step, not this one.
+
+##### Deferred deletion is load-bearing
+
+`Texture` and `VertexBuffer` still own their GPU objects, and a command names them by
+handle, so a resource can be dropped while a command still refers to it. That is not a
+corner case: `login.rs` builds a text texture inside `render_inner` and drops it there, and
+every world chunk replaces its whole `RectArray` via `self.rect_array = RectArray::new()`
+when it changes. `Drop` therefore parks the OpenGL name in `gpu_garbage` and
+`GlBackend::execute` deletes the batch after the frame has run.
+
+**Don't turn that back into a direct `glDeleteTextures`.** Beyond the dangling reference, an
+immediate delete lets OpenGL hand the same name to the next `glGenTextures`, so a stale
+command would draw *another* texture rather than nothing — a much harder bug to see.
+
+Mutating a live mesh mid-frame would still be wrong, but nothing does it: every `RectArray`
+mutation replaces the whole object, so the old buffer keeps its old contents until it is
+collected.
+
 #### Golden-image tests
 
 `libraries/graphics/render_tests.rs` renders 43 cases into the offscreen `window_texture`,
@@ -238,6 +294,13 @@ lacks. So they get a `main.rs` dispatch arg instead, behind the `render-tests` f
 The window is hidden, so running them does not flash windows across the desktop. Capture is
 taken *before* the HiDPI blit in `update_window`, so the hardcoded `2.0` there cannot
 contaminate a golden.
+
+Since the draw list landed these are one of **two** tiers. The draw-list tests at the bottom
+of `tests.rs` assert on the commands a primitive records and run under `cargo test`; these
+assert that the backend turns commands into the right pixels, and are the only coverage of
+anything needing a GPU object to draw at all (`RectArray`, `TextureAtlas`, `ShadowContext`,
+fonts). They are also the real test of `gpu_garbage`: `fixture_texture().render(..)` drops
+the texture at the end of the statement, well before the frame executes.
 
 Determinism is the whole game, and the toolkit fights it in three places. Each has a
 `#[cfg(feature = "render-tests")]` hook: wall-clock animations (`AnimationTimer::freeze`,
@@ -263,7 +326,8 @@ it shows up in a capture.
 
 Two bugs here were found by the golden tests and fixed; both are easy to reintroduce.
 
-`Texture::render` maps the quad's `[0,1]` texture coordinate onto the source rectangle as
+`GlBackend::draw_texture` (this lived in `Texture::render` before the draw list) maps the
+quad's `[0,1]` texture coordinate onto the source rectangle as
 `u = (src.pos + t * src.size) / texture_width`. It used to stretch by `src.size + 0.1`
 instead. That extra tenth of a texel pushed the last output column past the end of the
 source rectangle: for an 8-texel region drawn at scale 8, the final pixel sampled

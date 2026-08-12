@@ -1,6 +1,7 @@
 use crate::libraries::graphics as gfx;
 
-use super::vertex_buffer::{DrawMode, Vertex, VertexBuffer};
+use super::draw_list::{DrawCommand, DrawTarget};
+use super::vertex_buffer::{Vertex, VertexBuffer};
 
 /// The struct `RectArray` is used to draw multiple rectangles with the same texture
 /// and in one draw call. This is much faster than drawing each rectangle individually.
@@ -70,33 +71,16 @@ impl RectArray {
         self.vertex_buffer.upload();
     }
 
-    /// Draws the `RectArray`.
-    pub fn render(&self, graphics: &gfx::GraphicsContext, texture: Option<&gfx::Texture>, pos: gfx::FloatPos) {
-        // to avoid artifacts
-        let pos = gfx::FloatPos(pos.0 + 0.01, pos.1 + 0.01);
-
-        unsafe {
-            let mut transform = graphics.normalization_transform.clone();
-
-            transform.translate(pos);
-
-            gl::UniformMatrix3fv(graphics.passthrough_shader.transform_matrix, 1, gl::FALSE, transform.matrix.as_ptr());
-
-            texture.map_or_else(
-                || {
-                    gl::Uniform1i(graphics.passthrough_shader.has_texture, 0);
-                },
-                |texture| {
-                    transform = texture.get_normalization_transform();
-                    gl::UniformMatrix3fv(graphics.passthrough_shader.texture_transform_matrix, 1, gl::FALSE, transform.matrix.as_ptr());
-                    gl::Uniform1i(graphics.passthrough_shader.has_texture, 1);
-                    gl::BindTexture(gl::TEXTURE_2D, texture.texture_handle);
-                },
-            );
-
-            gl::Uniform4f(graphics.passthrough_shader.global_color, 1.0, 1.0, 1.0, 1.0);
-
-            self.vertex_buffer.draw(texture.is_some(), DrawMode::Triangles);
-        }
+    /// Records a draw of the whole array, offset by `pos`.
+    ///
+    /// The command names the mesh by handle, so the array may be dropped or replaced before
+    /// the frame is executed - which the world renderer does constantly, since a chunk that
+    /// changes throws its whole `RectArray` away. `gpu_garbage` is what makes that safe.
+    pub fn render(&self, target: &dyn DrawTarget, texture: Option<&gfx::Texture>, pos: gfx::FloatPos) {
+        target.push_draw_command(DrawCommand::Mesh {
+            mesh: self.vertex_buffer.get_handle(),
+            texture: texture.map(|texture| (texture.get_handle(), texture.get_texture_size())),
+            pos,
+        });
     }
 }

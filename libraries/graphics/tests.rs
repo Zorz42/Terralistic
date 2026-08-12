@@ -1282,4 +1282,205 @@ mod tests {
         let mut graphics = gfx::HeadlessContext::new();
         assert!(graphics.as_graphics_context().is_none());
     }
+
+    // ---------------------------------------------------------------------------------
+    // Draw list tests
+    //
+    // Drawing records a `DrawCommand` rather than issuing an OpenGL call, so what a
+    // primitive draws is assertable without a window. That is the whole point of the split
+    // in `libraries/graphics/draw_list.rs`, and it is the only tier of rendering coverage
+    // that `cargo test` can run - the golden images need a real context on the main thread.
+    //
+    // What is missing here is anything that has to own a GPU object before it can record:
+    // `RectArray` allocates its buffers in `new`, `ShadowContext` uploads its baked gaussian,
+    // and `Font::new_headless` deliberately skips the glyph upload, so `render_text` finds no
+    // textures and draws nothing. Those stay the golden suite's job.
+    // ---------------------------------------------------------------------------------
+
+    use gfx::{BlendMode, DrawCommand, DrawList, DrawRecorder, DrawTarget};
+
+    const WHITE: Color = Color::new(255, 255, 255, 255);
+
+    #[test]
+    fn test_rect_records_itself_unchanged() {
+        let recorder = DrawRecorder::new();
+        let rect = Rect::new(FloatPos(10.0, 20.0), FloatSize(30.0, 40.0));
+
+        rect.render(&recorder, Color::new(1, 2, 3, 4));
+
+        assert_eq!(recorder.get_commands(), vec![DrawCommand::Rect { rect, color: Color::new(1, 2, 3, 4) }]);
+    }
+
+    #[test]
+    fn test_rect_outline_records_a_different_command() {
+        let recorder = DrawRecorder::new();
+        let rect = Rect::new(FloatPos(10.0, 20.0), FloatSize(30.0, 40.0));
+
+        rect.render_outline(&recorder, WHITE);
+
+        assert_eq!(recorder.get_commands(), vec![DrawCommand::RectOutline { rect, color: WHITE }]);
+    }
+
+    /// A fully transparent draw is dropped at record time rather than being handed to the
+    /// backend to blend into nothing.
+    #[test]
+    fn test_invisible_rects_are_never_recorded() {
+        let recorder = DrawRecorder::new();
+        let rect = Rect::new(FloatPos(10.0, 20.0), FloatSize(30.0, 40.0));
+
+        rect.render(&recorder, WHITE.set_a(0));
+        rect.render_outline(&recorder, WHITE.set_a(0));
+
+        assert!(recorder.is_empty());
+    }
+
+    #[test]
+    fn test_offscreen_rects_are_culled_at_record_time() {
+        let recorder = DrawRecorder::with_draw_area(FloatSize(100.0, 100.0));
+
+        // past each of the four edges
+        Rect::new(FloatPos(-50.0, 10.0), FloatSize(20.0, 20.0)).render(&recorder, WHITE);
+        Rect::new(FloatPos(10.0, -50.0), FloatSize(20.0, 20.0)).render(&recorder, WHITE);
+        Rect::new(FloatPos(200.0, 10.0), FloatSize(20.0, 20.0)).render(&recorder, WHITE);
+        Rect::new(FloatPos(10.0, 200.0), FloatSize(20.0, 20.0)).render(&recorder, WHITE);
+
+        assert!(recorder.is_empty());
+    }
+
+    #[test]
+    fn test_a_rect_hanging_over_an_edge_still_draws() {
+        let recorder = DrawRecorder::with_draw_area(FloatSize(100.0, 100.0));
+
+        Rect::new(FloatPos(-10.0, -10.0), FloatSize(20.0, 20.0)).render(&recorder, WHITE);
+        Rect::new(FloatPos(90.0, 90.0), FloatSize(20.0, 20.0)).render(&recorder, WHITE);
+
+        assert_eq!(recorder.len(), 2);
+    }
+
+    /// Culling `render` but not `render_outline` is a real asymmetry, not an oversight: a
+    /// border whose rectangle starts offscreen still has edges that cross the window.
+    #[test]
+    fn test_outlines_are_not_culled() {
+        let recorder = DrawRecorder::with_draw_area(FloatSize(100.0, 100.0));
+
+        Rect::new(FloatPos(-500.0, -500.0), FloatSize(20.0, 20.0)).render_outline(&recorder, WHITE);
+
+        assert_eq!(recorder.len(), 1);
+    }
+
+    #[test]
+    fn test_texture_defaults_to_its_whole_self_undyed() {
+        let recorder = DrawRecorder::new();
+        let texture = gfx::Texture::new_sized(FloatSize(16.0, 8.0));
+
+        texture.render(&recorder, 2.0, FloatPos(5.0, 6.0), None, false, None);
+
+        assert_eq!(
+            recorder.get_commands(),
+            vec![DrawCommand::Texture {
+                texture: texture.get_handle(),
+                texture_size: FloatSize(16.0, 8.0),
+                src_rect: Rect::new(FloatPos(0.0, 0.0), FloatSize(16.0, 8.0)),
+                pos: FloatPos(5.0, 6.0),
+                scale: 2.0,
+                flipped: false,
+                color: WHITE,
+            }]
+        );
+    }
+
+    #[test]
+    fn test_texture_passes_through_source_rect_flip_and_tint() {
+        let recorder = DrawRecorder::new();
+        let texture = gfx::Texture::new_sized(FloatSize(16.0, 16.0));
+        let src = Rect::new(FloatPos(4.0, 4.0), FloatSize(8.0, 8.0));
+
+        texture.render(&recorder, 3.0, FloatPos(1.0, 2.0), Some(src), true, Some(Color::new(9, 8, 7, 6)));
+
+        assert_eq!(
+            recorder.get_commands(),
+            vec![DrawCommand::Texture {
+                texture: texture.get_handle(),
+                texture_size: FloatSize(16.0, 16.0),
+                src_rect: src,
+                pos: FloatPos(1.0, 2.0),
+                scale: 3.0,
+                flipped: true,
+                color: Color::new(9, 8, 7, 6),
+            }]
+        );
+    }
+
+    #[test]
+    fn test_an_empty_source_rect_draws_nothing() {
+        let recorder = DrawRecorder::new();
+        let texture = gfx::Texture::new_sized(FloatSize(16.0, 16.0));
+
+        texture.render(&recorder, 1.0, FloatPos(0.0, 0.0), Some(Rect::new(FloatPos(0.0, 0.0), FloatSize(0.0, 0.0))), false, None);
+
+        assert!(recorder.is_empty());
+    }
+
+    /// A `Texture::new` owns nothing on the GPU and reports a zero size, so the default
+    /// source rectangle is empty and the same early return catches it. Without that, the
+    /// backend would be handed a command naming a texture that does not exist.
+    #[test]
+    fn test_a_texture_with_no_gpu_object_draws_nothing() {
+        let recorder = DrawRecorder::new();
+
+        gfx::Texture::new().render(&recorder, 1.0, FloatPos(0.0, 0.0), None, false, None);
+
+        assert!(recorder.is_empty());
+    }
+
+    /// A blend mode change only means something relative to the draws around it, which is
+    /// why it is a command in the list rather than a call that takes effect immediately.
+    #[test]
+    fn test_blend_mode_changes_keep_their_place_in_the_order() {
+        let recorder = DrawRecorder::new();
+        let rect = Rect::new(FloatPos(0.0, 0.0), FloatSize(10.0, 10.0));
+
+        rect.render(&recorder, WHITE);
+        recorder.set_blend_mode(BlendMode::Multiply);
+        rect.render(&recorder, WHITE);
+        recorder.set_blend_mode(BlendMode::Alpha);
+
+        assert_eq!(
+            recorder.get_commands(),
+            vec![
+                DrawCommand::Rect { rect, color: WHITE },
+                DrawCommand::SetBlendMode(BlendMode::Multiply),
+                DrawCommand::Rect { rect, color: WHITE },
+                DrawCommand::SetBlendMode(BlendMode::Alpha),
+            ]
+        );
+    }
+
+    #[test]
+    fn test_clearing_a_list_empties_it() {
+        let mut list = DrawList::new();
+        assert!(list.is_empty());
+
+        list.push(DrawCommand::SetBlendMode(BlendMode::Alpha));
+        list.push(DrawCommand::SetBlendMode(BlendMode::Multiply));
+        assert_eq!(list.len(), 2);
+        assert_eq!(list.get_commands().len(), 2);
+
+        list.clear();
+        assert!(list.is_empty());
+        assert_eq!(list.get_commands(), &[]);
+    }
+
+    /// Dropping a texture parks its OpenGL name instead of deleting it, because a command
+    /// recorded earlier this frame may still refer to it. A texture that never had a name
+    /// must not park anything.
+    #[test]
+    fn test_dropping_a_gpu_less_texture_parks_nothing() {
+        let before = gfx::gpu_garbage::get_pending_counts();
+
+        drop(gfx::Texture::new_sized(FloatSize(4.0, 4.0)));
+        drop(gfx::Texture::new());
+
+        assert_eq!(gfx::gpu_garbage::get_pending_counts(), before);
+    }
 }
