@@ -260,7 +260,7 @@ mod tests {
     // Headless UI tests
     //
     // Everything below drives real widgets through a `HeadlessContext` - no window, no
-    // OpenGL context, no SDL. Layout, hit testing and event handling all go through
+    // GPU device, no window. Layout, hit testing and event handling all go through
     // `UiContext`, so they behave exactly as they do in the running client; only drawing
     // is missing. See `libraries/graphics/ui_context.rs`.
     // ---------------------------------------------------------------------------------

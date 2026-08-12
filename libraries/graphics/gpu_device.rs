@@ -40,8 +40,8 @@ use crate::libraries::graphics as gfx;
 /// created when a menu or a font is built, never per frame, so the extra pass does not
 /// matter.
 fn surface_bytes(surface: &gfx::Surface) -> Vec<u8> {
-    let mut bytes = Vec::with_capacity(surface.get_size().0 as usize * surface.get_size().1 as usize * 4);
-    for (_, pixel) in surface.iter() {
+    let mut bytes = Vec::with_capacity(surface.pixels.len() * 4);
+    for pixel in &surface.pixels {
         bytes.extend_from_slice(&[pixel.r, pixel.g, pixel.b, pixel.a]);
     }
     bytes

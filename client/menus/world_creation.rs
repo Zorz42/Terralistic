@@ -48,8 +48,6 @@ impl WorldCreationMenu {
         title.pos.1 = gfx::SPACING;
         title.orientation = gfx::TOP;
 
-        let mut buttons_container = gfx::Container::new(graphics, gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, 0.0), gfx::BOTTOM, None);
-
         let mut back_button = gfx::Button::new(|| {});
         back_button.scale = 3.0;
         back_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Back", None));
@@ -64,10 +62,6 @@ impl WorldCreationMenu {
 
         back_button.pos = gfx::FloatPos(-create_button.get_size().0 / 2.0 - gfx::SPACING, -gfx::SPACING);
         create_button.pos = gfx::FloatPos(back_button.get_size().0 / 2.0 + gfx::SPACING, -gfx::SPACING);
-
-        buttons_container.rect.size.0 = back_button.get_size().0 + create_button.get_size().0 + gfx::SPACING;
-        buttons_container.rect.size.1 = back_button.get_size().1;
-        buttons_container.rect.pos.1 = -gfx::SPACING;
 
         let mut world_name_input = gfx::TextInput::new(graphics);
         world_name_input.scale = 3.0;

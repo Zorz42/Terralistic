@@ -20,7 +20,7 @@ pub struct Button {
     pub darken_on_disabled: bool,
     pub hover_progress: f32,
     timer: std::time::Instant,
-    timer_counter: u32,
+    timer_counter: u64,
     on_click: Box<dyn Fn()>,
 }
 
@@ -83,7 +83,7 @@ impl Button {
     #[cfg(feature = "render-tests")]
     pub const fn settle_hover(&mut self, progress: f32) {
         self.hover_progress = progress;
-        self.timer_counter = u32::MAX;
+        self.timer_counter = u64::MAX;
     }
 }
 
@@ -111,7 +111,7 @@ impl UiElement for Button {
             0.0
         };
 
-        while self.timer_counter < self.timer.elapsed().as_millis() as u32 {
+        while self.timer_counter < self.timer.elapsed().as_millis() as u64 {
             self.hover_progress += (hover_progress_target - self.hover_progress) / 40.0;
             if (hover_progress_target - self.hover_progress).abs() <= 0.01 {
                 self.hover_progress = hover_progress_target;
@@ -119,19 +119,8 @@ impl UiElement for Button {
             self.timer_counter += 1;
         }
 
-        let button_color = gfx::Color::new(
-            (self.hover_color.r as f32 * self.hover_progress + self.color.r as f32 * (1.0 - self.hover_progress)) as u8,
-            (self.hover_color.g as f32 * self.hover_progress + self.color.g as f32 * (1.0 - self.hover_progress)) as u8,
-            (self.hover_color.b as f32 * self.hover_progress + self.color.b as f32 * (1.0 - self.hover_progress)) as u8,
-            (self.hover_color.a as f32 * self.hover_progress + self.color.a as f32 * (1.0 - self.hover_progress)) as u8,
-        );
-
-        let button_border_color = gfx::Color::new(
-            (self.hover_border_color.r as f32 * self.hover_progress + self.border_color.r as f32 * (1.0 - self.hover_progress)) as u8,
-            (self.hover_border_color.g as f32 * self.hover_progress + self.border_color.g as f32 * (1.0 - self.hover_progress)) as u8,
-            (self.hover_border_color.b as f32 * self.hover_progress + self.border_color.b as f32 * (1.0 - self.hover_progress)) as u8,
-            (self.hover_border_color.a as f32 * self.hover_progress + self.border_color.a as f32 * (1.0 - self.hover_progress)) as u8,
-        );
+        let button_color = gfx::interpolate_colors(self.color, self.hover_color, self.hover_progress);
+        let button_border_color = gfx::interpolate_colors(self.border_color, self.hover_border_color, self.hover_progress);
 
         let padding = (1.0 - self.hover_progress) * 30.0;
         let hover_rect = gfx::Rect::new(

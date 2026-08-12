@@ -31,17 +31,15 @@ impl<KeyType: Eq + Hash + Clone + Ord> TextureAtlas<KeyType> {
             };
         }
 
+        // One row, so the atlas is as wide as the surfaces laid end to end and as tall as
+        // the tallest. This used to add each surface's *height* into the width as well,
+        // which packed correctly but left the texture wider than anything drawn into it -
+        // for the block atlas, several megabytes of transparent pixels on the GPU.
         let mut total_width = 0;
-        for surface in surfaces.values() {
-            total_width += surface.get_size().1;
-        }
-
         let mut max_height = 0;
         for surface in surfaces.values() {
             total_width += surface.get_size().0;
-            if surface.get_size().1 > max_height {
-                max_height = surface.get_size().1;
-            }
+            max_height = max_height.max(surface.get_size().1);
         }
 
         let mut main_surface = Surface::new(gfx::IntSize(total_width, max_height));

@@ -38,7 +38,7 @@ impl Font {
     ///
     /// This is the whole of the font's CPU work; `new` then uploads the result to the GPU.
     /// The split is what lets `get_text_size` and `create_text_surface` be tested without
-    /// an OpenGL context.
+    /// a GPU device.
     fn load_surfaces(font_data: &[u8], mono: bool) -> Result<Vec<Surface>> {
         let mut font_surfaces = vec![];
         let font_surface = Surface::deserialize_from_bytes(font_data)?;

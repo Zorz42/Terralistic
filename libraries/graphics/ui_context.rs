@@ -5,7 +5,7 @@ use crate::libraries::graphics as gfx;
 /// This is deliberately the *whole* non-rendering surface of `GraphicsContext`: window size,
 /// pointer, keyboard and clipboard. `get_container` and `on_event_inner` take a
 /// `&dyn UiContext` rather than a `&GraphicsContext`, which is what makes layout and event
-/// handling testable without a window or an OpenGL context. Drawing still needs the real
+/// handling testable without a window at all. Drawing still needs the real
 /// thing, so `render_inner` and `update_inner` keep taking `&mut GraphicsContext`.
 ///
 /// If you are tempted to add a method here, check first that it is not a rendering
@@ -38,7 +38,7 @@ pub trait UiContext {
     }
 }
 
-/// A `UiContext` with no window, no OpenGL context and no real clipboard, for tests.
+/// A `UiContext` with no window, no GPU device and no real clipboard, for tests.
 ///
 /// Every input a UI element can observe is a plain field you set directly, so a test reads
 /// as "put the mouse here, hold this key, send this event, assert on the result".
@@ -71,7 +71,7 @@ impl HeadlessContext {
         self.mouse_pos = pos;
     }
 
-    /// Presses or releases a key, as `GraphicsContext` would when it sees the SDL event.
+    /// Presses or releases a key, as `GraphicsContext` would when the window reports one.
     pub fn set_key_state(&mut self, key: gfx::Key, pressed: bool) {
         if pressed {
             self.pressed_keys.insert(key);

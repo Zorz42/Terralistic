@@ -25,7 +25,6 @@ pub struct Container {
     pub rect: Rect,
     abs_rect: Rect,
     pub orientation: Orientation,
-    pub update_subelements: Box<dyn Fn()>,
 }
 
 impl Container {
@@ -36,7 +35,6 @@ impl Container {
             rect: Rect::new(pos, size),
             abs_rect: Rect::new(gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, 0.0)),
             orientation,
-            update_subelements: Box::new(|| {}),
         };
         result.update_position(graphics, parent_container);
         result

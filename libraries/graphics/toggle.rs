@@ -19,7 +19,7 @@ pub struct Toggle {
     toggle_progress: f32,
     hover_progress: f32,
     timer: std::time::Instant,
-    timer_counter: u32,
+    timer_counter: u64,
     pub changed: bool,
 }
 
@@ -58,7 +58,7 @@ impl Toggle {
     pub const fn settle_animation(&mut self, toggle_progress: f32, hover_progress: f32) {
         self.toggle_progress = toggle_progress;
         self.hover_progress = hover_progress;
-        self.timer_counter = u32::MAX;
+        self.timer_counter = u64::MAX;
     }
 
     /// Checks if the toggle is hovered with a mouse.
@@ -87,7 +87,7 @@ impl UiElement for Toggle {
         let toggle_target = if self.toggled { 1.0 } else { 0.0 };
         let hover_target = if self.is_hovered(graphics, parent_container) { 1.0 } else { 0.0 };
 
-        while self.timer_counter < self.timer.elapsed().as_millis() as u32 {
+        while self.timer_counter < self.timer.elapsed().as_millis() as u64 {
             self.toggle_progress += (toggle_target - self.toggle_progress) / 40.0;
             if (toggle_target - self.toggle_progress).abs() <= 0.01 {
                 self.toggle_progress = toggle_target;

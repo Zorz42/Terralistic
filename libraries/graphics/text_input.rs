@@ -229,19 +229,8 @@ impl UiElement for TextInput {
             }
         }
 
-        let color = gfx::Color::new(
-            (self.hover_color.r as f32 * self.hover_progress + self.color.r as f32 * (1.0 - self.hover_progress)) as u8,
-            (self.hover_color.g as f32 * self.hover_progress + self.color.g as f32 * (1.0 - self.hover_progress)) as u8,
-            (self.hover_color.b as f32 * self.hover_progress + self.color.b as f32 * (1.0 - self.hover_progress)) as u8,
-            (self.hover_color.a as f32 * self.hover_progress + self.color.a as f32 * (1.0 - self.hover_progress)) as u8,
-        );
-
-        let border_color = gfx::Color::new(
-            (self.hover_border_color.r as f32 * self.hover_progress + self.border_color.r as f32 * (1.0 - self.hover_progress)) as u8,
-            (self.hover_border_color.g as f32 * self.hover_progress + self.border_color.g as f32 * (1.0 - self.hover_progress)) as u8,
-            (self.hover_border_color.b as f32 * self.hover_progress + self.border_color.b as f32 * (1.0 - self.hover_progress)) as u8,
-            (self.hover_border_color.a as f32 * self.hover_progress + self.border_color.a as f32 * (1.0 - self.hover_progress)) as u8,
-        );
+        let color = gfx::interpolate_colors(self.color, self.hover_color, self.hover_progress);
+        let border_color = gfx::interpolate_colors(self.border_color, self.hover_border_color, self.hover_progress);
 
         rect.render(graphics, color);
         rect.render_outline(graphics, border_color);
@@ -286,19 +275,19 @@ impl UiElement for TextInput {
 
             let text_begin_x = f32::min(self.padding * self.scale, -self.padding * self.scale + rect.size.0 - texture_width);
 
-            // w1 is the width of the text before the cursor.0
-            let w1 = if self.get_cursor().0 == 0 {
-                0.0
-            } else {
-                graphics.font.create_text_surface(self.text.get(..self.get_cursor().0).unwrap_or(""), None).get_size().0 as f32 * self.scale
+            // How far into the text each end of the selection sits. `get_text_size` is the
+            // measuring half of `create_text_surface` and returns the size that one would
+            // have had, so this is the same number without rasterising every glyph into a
+            // throwaway surface - twice - on every frame the input is selected.
+            let width_up_to = |end: usize| {
+                if end == 0 {
+                    0.0
+                } else {
+                    graphics.font.get_text_size(self.text.get(..end).unwrap_or(""), None).0 as f32 * self.scale
+                }
             };
-
-            // w2 is the width of the text before the cursor.1
-            let w2 = if self.get_cursor().1 == 0 {
-                0.0
-            } else {
-                graphics.font.create_text_surface(self.text.get(..self.get_cursor().1).unwrap_or(""), None).get_size().0 as f32 * self.scale
-            };
+            let w1 = width_up_to(self.get_cursor().0);
+            let w2 = width_up_to(self.get_cursor().1);
 
             let x1 = text_begin_x + w1 - 3.0;
             let x2 = text_begin_x + w2 + 1.0;

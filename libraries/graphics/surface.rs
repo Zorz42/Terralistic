@@ -79,87 +79,31 @@ impl Surface {
         Ok(())
     }
 
-    /// Returns a surface iterator.
-    #[must_use]
-    pub const fn iter(&self) -> SurfaceIterator<'_> {
-        SurfaceIterator::new(self)
+    /// Every pixel with its position, row by row.
+    ///
+    /// Walking the backing slice rather than calling `get_pixel` per step: the position is
+    /// derived from the index instead of the index from the position, which is the same
+    /// order and skips a bounds check and a `Result` for every pixel. The mutable version
+    /// used to need `unsafe` to hand out a borrow the compiler could not see was disjoint;
+    /// `iter_mut` on the slice already knows that.
+    pub fn iter(&self) -> impl Iterator<Item = (gfx::IntPos, &Color)> {
+        let width = self.size.0 as i32;
+        self.pixels.iter().enumerate().map(move |(index, pixel)| (index_to_pos(index, width), pixel))
     }
 
-    /// Returns a surface iterator.
-    #[must_use]
-    pub const fn iter_mut(&mut self) -> MutSurfaceIterator<'_> {
-        MutSurfaceIterator::new(self)
-    }
-}
-
-/// Surface iterator iterates through all pixels in a surface row by row.
-pub struct SurfaceIterator<'surface_lifetime> {
-    surface: &'surface_lifetime Surface,
-    pos: gfx::IntPos,
-}
-
-impl<'surface_lifetime> SurfaceIterator<'surface_lifetime> {
-    pub const fn new(surface: &'surface_lifetime Surface) -> Self {
-        Self { surface, pos: gfx::IntPos(0, 0) }
+    /// Every pixel with its position, row by row, mutably.
+    pub fn iter_mut(&mut self) -> impl Iterator<Item = (gfx::IntPos, &mut Color)> {
+        let width = self.size.0 as i32;
+        self.pixels.iter_mut().enumerate().map(move |(index, pixel)| (index_to_pos(index, width), pixel))
     }
 }
 
-impl<'surface_lifetime> Iterator for SurfaceIterator<'surface_lifetime> {
-    type Item = (gfx::IntPos, &'surface_lifetime Color);
-
-    fn next(&mut self) -> Option<Self::Item> {
-        if self.pos.0 >= self.surface.get_size().0 as i32 {
-            self.pos.0 = 0;
-            self.pos.1 += 1;
-        }
-
-        if self.pos.1 >= self.surface.get_size().1 as i32 {
-            return None;
-        }
-
-        let result = self.surface.get_pixel(self.pos).ok();
-        self.pos.0 += 1;
-        if let Some(result) = result {
-            Some((self.pos - gfx::IntPos(1, 0), result))
-        } else {
-            None
-        }
+/// The inverse of `get_index`. A zero width surface has no pixels, so the division is only
+/// ever reached with a positive one.
+const fn index_to_pos(index: usize, width: i32) -> gfx::IntPos {
+    if width <= 0 {
+        return gfx::IntPos(0, 0);
     }
-}
-
-/// Surface iterator iterates through all pixels in a surface row by row.
-pub struct MutSurfaceIterator<'surface_lifetime> {
-    surface: &'surface_lifetime mut Surface,
-    pos: gfx::IntPos,
-}
-
-impl<'surface_lifetime> MutSurfaceIterator<'surface_lifetime> {
-    pub const fn new(surface: &'surface_lifetime mut Surface) -> Self {
-        Self { surface, pos: gfx::IntPos(0, 0) }
-    }
-}
-
-impl<'surface_lifetime> Iterator for MutSurfaceIterator<'surface_lifetime> {
-    type Item = (gfx::IntPos, &'surface_lifetime mut Color);
-
-    fn next(&mut self) -> Option<Self::Item> {
-        if self.pos.0 >= self.surface.get_size().0 as i32 {
-            self.pos.0 = 0;
-            self.pos.1 += 1;
-        }
-
-        if self.pos.1 >= self.surface.get_size().1 as i32 {
-            return None;
-        }
-
-        let result = self.surface.get_pixel_mut(self.pos).ok();
-        self.pos.0 += 1;
-        if let Some(result) = result {
-            // We know that the result is a valid mutable reference and 'surface_lifetime
-            // outlives the iterator. Apparently mutable iterators are not possible without unsafe code.
-            unsafe { Some((self.pos - gfx::IntPos(1, 0), &mut *std::ptr::from_mut::<Color>(result))) }
-        } else {
-            None
-        }
-    }
+    let index = index as i32;
+    gfx::IntPos(index % width, index / width)
 }

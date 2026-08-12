@@ -19,17 +19,16 @@ impl ShadowContext {
 
     /// Creates a new `ShadowContext`.
     pub fn new() -> Self {
+        // A black square whose edges fade out along a gaussian: opaque in the middle 300x300,
+        // falling off over the 200px border on each side. `render` then draws the eight
+        // pieces of that border around whatever rectangle wants a shadow.
+        //
+        // One pass over the half million pixels, not two - filling with opaque black and
+        // then fading it are the same loop.
         let mut surface = gfx::Surface::new(gfx::IntSize(700, 700));
-        // fill surface with black color
-        for (_, pixel) in surface.iter_mut() {
-            *pixel = gfx::Color::new(0, 0, 0, 255);
-        }
-
-        // draw a shadow to the surface with center rectangle being transparent with
-        // size 300, 300 and offset 200, 200. The blur around the rectangle is a gaussian
-        // curve.
-
         for (pos, pixel) in surface.iter_mut() {
+            *pixel = gfx::Color::new(0, 0, 0, 255);
+
             if pos.1 < 200 {
                 Self::set_gaussian_pixel(200 - pos.1, pixel);
             }
@@ -47,9 +46,9 @@ impl ShadowContext {
             }
         }
 
-        let shadow_texture = gfx::Texture::load_from_surface(&surface);
-
-        Self { shadow_texture }
+        Self {
+            shadow_texture: gfx::Texture::load_from_surface(&surface),
+        }
     }
 
     /// Renders the shadow.

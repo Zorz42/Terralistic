@@ -73,8 +73,17 @@ impl gfx::UiElement for RenderRect {
     fn render_inner(&mut self, graphics: &mut gfx::GraphicsContext, parent_container: &gfx::Container) {
         let container = self.get_container(graphics, parent_container);
         let rect = container.get_absolute_rect();
-        graphics.blur_rect(*rect, self.blur_radius);
-        graphics.shadow_context.render(graphics, rect, self.shadow_intensity as f32 / 255.0);
+
+        // Both of these are off for most rects, and neither draws anything when it is off -
+        // the backend discards a blur below one pixel of radius, and a shadow at zero
+        // intensity is drawn with a zero alpha tint. Skipping them here rather than letting
+        // them record is worth it because the shadow is not one command but nine or more.
+        if self.blur_radius > 0 {
+            graphics.blur_rect(*rect, self.blur_radius);
+        }
+        if self.shadow_intensity > 0 {
+            graphics.shadow_context.render(graphics, rect, self.shadow_intensity as f32 / 255.0);
+        }
 
         rect.render(graphics, self.fill_color);
         rect.render_outline(graphics, self.border_color);

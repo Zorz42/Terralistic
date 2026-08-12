@@ -3,8 +3,8 @@
 //! Every drawing primitive in this toolkit used to issue OpenGL calls directly from its
 //! `render` method, which meant the game's whole render path was welded to one backend and
 //! could only be checked by taking a screenshot. Now `render` *records* a `DrawCommand`
-//! into a `DrawList`, and something that knows about a GPU - today `gl_backend::GlBackend`
-//! - replays the list once per frame.
+//! into a `DrawList`, and something that knows about a GPU - today
+//! `wgpu_backend::WgpuBackend` - replays the list once per frame.
 //!
 //! Two things fall out of that:
 //!
@@ -21,7 +21,7 @@
 //! list has to outlive the borrow of whatever recorded into it. The handle carries the
 //! backend's own name for the resource, which is the single place a backend-specific value
 //! crosses this boundary. `Texture` and `VertexBuffer` still own their GPU objects, so a
-//! handle can outlive its owner - see `gpu_garbage` for why that is safe.
+//! handle can outlive its owner - see `gpu_device` for why that is safe.
 
 use crate::libraries::graphics as gfx;
 
@@ -62,12 +62,6 @@ impl MeshHandle {
     #[must_use]
     pub const fn get_id(self) -> u32 {
         self.id
-    }
-
-    /// How many vertices the mesh will draw. Zero means the mesh is empty.
-    #[must_use]
-    pub const fn get_vertex_count(self) -> u32 {
-        self.vertex_count
     }
 }
 
@@ -173,7 +167,7 @@ pub trait DrawTarget {
 ///
 /// This is the draw-list counterpart of `gfx::HeadlessContext`: it makes what a primitive or
 /// a widget draws assertable in `cargo test`, where the golden-image suite cannot run
-/// because it needs a real OpenGL context on the main thread.
+/// because it needs a real GPU surface on the main thread.
 #[cfg(test)]
 pub struct DrawRecorder {
     commands: std::cell::RefCell<DrawList>,
