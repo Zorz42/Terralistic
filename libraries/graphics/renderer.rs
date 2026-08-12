@@ -34,6 +34,12 @@ pub struct GraphicsContext {
     /// Whether the window has been pumped since the last `update_window`, so that draining
     /// the queue does not pump it again mid-frame.
     polled_this_frame: bool,
+    /// Draw into a logical-sized offscreen rather than a device-sized one.
+    ///
+    /// Only the golden-image harness asks for this. Its images are committed at the window's
+    /// logical size, and they have to be the same images whatever the DPI of the machine
+    /// running them - a `HiDPI` capture would be four times the pixels and match nothing.
+    render_at_logical_resolution: bool,
     window_open: bool,
     /// Which keys are currently held. Maintained from the press and release events as they
     /// go past, because a UI element asks "is shift down" far more often than it reacts to
@@ -68,6 +74,8 @@ impl GraphicsContext {
     /// is enough to drive the whole renderer - only `present` needs a visible one. This is
     /// what the golden-image tests use, so running them does not flash windows across the
     /// desktop.
+    /// It also draws at the window's logical resolution rather than the display's, so the
+    /// captures are the size the goldens are committed at on any machine.
     #[cfg(feature = "render-tests")]
     pub fn new_hidden(window_width: u32, window_height: u32, font: &[u8], font_mono: Option<&[u8]>) -> Result<Self> {
         Self::new_with_visibility(window_width, window_height, "Terralistic render tests", font, font_mono, false)
@@ -91,6 +99,7 @@ impl GraphicsContext {
             shadow_context,
             events_queue: VecDeque::new(),
             polled_this_frame: false,
+            render_at_logical_resolution: !visible,
             window_open: true,
             clipboard_context: Clipboard::new()?,
             block_key_states: false,
@@ -112,8 +121,16 @@ impl GraphicsContext {
 
     /// Reallocates everything that is sized in window pixels. Called when the window is
     /// resized, which `get_event` notices, and once at startup.
+    ///
+    /// The frame is drawn at the display's **real** resolution, not at the logical one. The
+    /// game lays out in logical pixels either way - the transform that maps those onto clip
+    /// space is a ratio, so it does not care how many pixels the target has - but drawing at
+    /// the real resolution means a smooth animation moves a device pixel at a time instead of
+    /// jumping two at once, and the final blit stops being an upscale.
     pub fn handle_window_resize(&mut self) {
-        self.backend.resize(self.window.size(), self.window.drawable_size());
+        let surface_size = self.window.drawable_size();
+        let offscreen_size = if self.render_at_logical_resolution { self.window.size() } else { surface_size };
+        self.backend.resize(offscreen_size, surface_size);
     }
 
     /// Hands the recorded frame to the backend and starts a new one.

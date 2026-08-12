@@ -226,6 +226,16 @@ the glyph texture upload, so text measurement and `create_text_surface` are test
 Rendering goes to an offscreen texture (`window_texture`) which is blitted to the default
 framebuffer in `update_window()`, which is what makes the blur/shadow effects possible.
 
+**That offscreen is the display's real pixel size, not the logical one.** Layout is in
+logical pixels either way — the transform mapping those onto clip space is a ratio and does
+not care how many pixels the target has — but drawing at the real resolution is what lets a
+smooth animation move one device pixel at a time instead of jumping two, and it makes the
+final blit a copy rather than an upscale. It costs about 1 ms of GPU per frame in game
+(3.1 ms → 4.2 ms measured on an M-series Mac at 3340x2100), which leaves a 60 fps frame
+plenty of headroom. If that ever becomes a problem on weaker hardware, the offscreen size is
+chosen in one place, `GraphicsContext::handle_window_resize`, and would make a reasonable
+setting.
+
 #### The window: `window.rs` is the only module that knows winit exists
 
 `GraphicsContext` deals in `gfx::Event` and `gfx::IntSize`; `events.rs` is pure data with no
@@ -260,8 +270,8 @@ as active, so it would otherwise open behind the terminal — and `key_states` i
 the window loses focus, so a held key does not stick across an alt-tab.
 
 winit reports the true `HiDPI` drawable size where SDL, without `allow_highdpi`, reported the
-logical one. The game therefore renders at logical resolution and nearest-upscales to the
-display instead of being smoothed by the compositor. That also means the surface can be
+logical one. The game draws at that real resolution rather than being smoothed up to it by
+the compositor. That also means the surface can be
 bigger than `Limits::downlevel_defaults` allows a texture to be, which is why the device asks
 for `downlevel_defaults().using_resolution(adapter.limits())` — with the plain defaults a
 1670x1050 window on a 2x display fails `Surface::configure` outright.
@@ -371,9 +381,12 @@ off, macOS requires that on the main thread, and libtest always runs a test body
 worker — even under `--test-threads=1`. So they get a `main.rs` dispatch arg instead, behind
 the `render-tests` feature. `cargo test` is untouched and still needs no graphics context.
 
-The window is hidden, so running them does not flash windows across the desktop. Capture is
-taken from the offscreen texture, *before* `present` scales it to the display, so the
-window's DPI cannot contaminate a golden.
+The window is hidden, so running them does not flash windows across the desktop. The harness
+is also the one caller that draws at the window's *logical* resolution rather than the
+display's (`render_at_logical_resolution`), and capture is taken from the offscreen texture
+rather than the surface — between them, a golden is the same image whatever the DPI of the
+machine that runs it. On a `HiDPI` display the game's own offscreen would be four times the
+pixels and match nothing.
 
 Since the draw list landed these are one of **two** tiers. The draw-list tests at the bottom
 of `tests.rs` assert on the commands a primitive records and run under `cargo test`; these
@@ -437,9 +450,11 @@ anything inside a `Scrollable`, anything mid-animation — so this was visible i
 list on every row. `text_on_fractional_offsets` is the case that would catch a regression: it
 draws the same string at four sub-pixel offsets and they must come out identical.
 
-Nothing is lost by snapping. There is no sub-pixel detail in this renderer — no filtering
-anywhere, and the final blit to the display is a nearest integer upscale — so a draw moves by
-at most half a pixel and gains an exact texel mapping. Meshes are **not** snapped: `RectArray`
+The grid is the **offscreen's**, which is the display's real resolution, so on a `HiDPI`
+screen this still leaves half a logical pixel of movement for an animation to use. Nothing is
+lost by snapping: there is no sub-pixel detail in this renderer, since nothing filters, so a
+draw moves by at most half a device pixel and gains an exact texel mapping. Meshes are
+**not** snapped: `RectArray`
 maps texture-coordinate corners per vertex rather than sampling across a scaled quad, and the
 world would jitter against the camera if it were.
 

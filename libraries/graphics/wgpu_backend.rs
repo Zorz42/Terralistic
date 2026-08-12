@@ -292,18 +292,37 @@ impl WgpuBackend {
         );
     }
 
-    /// Reallocates the offscreen pair and reconfigures the surface for a new window size.
-    pub(super) fn resize(&mut self, size: gfx::IntSize, drawable_size: gfx::IntSize) {
+    /// Reallocates the offscreen pair and reconfigures the surface.
+    ///
+    /// `offscreen_size` is the resolution the frame is *drawn* at and `surface_size` the one
+    /// it is presented at. The game normally asks for both to be the display's real pixel
+    /// size, so nothing is upscaled; the golden-image harness asks for a logical-sized
+    /// offscreen instead - see `GraphicsContext::handle_window_resize`.
+    pub(super) fn resize(&mut self, offscreen_size: gfx::IntSize, surface_size: gfx::IntSize) {
         let Some(gpu) = gpu_device::get() else { return };
-        if size != self.size {
-            self.front = Offscreen::new(gpu, size, "window texture");
-            self.back = Offscreen::new(gpu, size, "window texture back");
-            self.size = size;
+        if offscreen_size != self.size {
+            self.front = Offscreen::new(gpu, offscreen_size, "window texture");
+            self.back = Offscreen::new(gpu, offscreen_size, "window texture back");
+            self.size = offscreen_size;
         }
-        if drawable_size != self.surface_size {
-            self.surface_size = drawable_size;
+        if surface_size != self.surface_size {
+            self.surface_size = surface_size;
             self.configure_surface();
         }
+    }
+
+    /// Rounds a destination position onto a whole offscreen pixel.
+    ///
+    /// The coordinates a command carries are logical, and the offscreen usually has more
+    /// than one pixel per logical unit, so this is a finer grid than "whole logical pixel" -
+    /// which is the point. It is what a smooth animation gets to move along.
+    fn snap_to_pixel(&self, pos: gfx::FloatPos, window_size: gfx::FloatSize) -> gfx::FloatPos {
+        let per_logical_x = self.size.0 as f32 / window_size.0;
+        let per_logical_y = self.size.1 as f32 / window_size.1;
+        if per_logical_x <= 0.0 || per_logical_y <= 0.0 {
+            return pos;
+        }
+        gfx::FloatPos((pos.0 * per_logical_x).round() / per_logical_x, (pos.1 * per_logical_y).round() / per_logical_y)
     }
 
     pub(super) fn set_vsync(&mut self, enable: bool) {
@@ -388,17 +407,16 @@ impl WgpuBackend {
                 // Sampling is `NEAREST`, so a destination pixel takes whichever texel its
                 // centre falls in. With the quad starting on a whole pixel and an integer
                 // scale, those centres land halfway through a texel and every texel gets the
-                // same number of pixels. Half a pixel off and they land exactly *on* the
+                // same number of pixels. Off by half and they land exactly *on* the
                 // boundaries instead, where which side they fall on comes down to the last
                 // bit of a float interpolated across the quad - so a 3x glyph pixel comes out
                 // 2 or 4 wide, and does it differently along the string. That is the uneven,
-                // faintly slanted look text had wherever layout put it on a half pixel, which
+                // faintly slanted look text had wherever layout put it between pixels, which
                 // in the world list was every row.
                 //
-                // The whole draw moves by at most half a pixel, and there is no sub-pixel
-                // detail to lose: the game renders at logical resolution and the final blit
-                // to the display is a nearest integer upscale.
-                let pos = gfx::FloatPos(pos.0.round(), pos.1.round());
+                // The grid is the offscreen's, not the logical one, so on a `HiDPI` display
+                // this still leaves half a logical pixel of movement to animate along.
+                let pos = self.snap_to_pixel(pos, window_size);
 
                 let mut transform = self.normalization_transform.clone();
                 if flipped {
