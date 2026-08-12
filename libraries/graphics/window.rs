@@ -83,8 +83,8 @@ impl Window {
     /// from inside a callback, so this pumps the loop until `resumed` has run.
     pub(super) fn new(title: &str, size: gfx::IntSize, visible: bool) -> Result<Self> {
         let event_loop = EventLoop::new()?;
-        // Nothing here ever waits for an event: the game loop decides when the next frame
-        // happens, and the pump below always uses a zero timeout.
+        // The external loop decides when the next frame happens, and every pump below uses a
+        // zero timeout, so winit is never the thing that waits.
         event_loop.set_control_flow(ControlFlow::Poll);
 
         let attributes = WindowAttributes::default()
@@ -101,6 +101,7 @@ impl Window {
                 creation_error: None,
                 events: Vec::new(),
                 mouse_pos: gfx::FloatPos(0.0, 0.0),
+                geometry: Geometry::FALLBACK,
                 resized: false,
                 closed: false,
                 focus_lost: false,
@@ -140,19 +141,16 @@ impl Window {
     }
 
     /// The window in logical pixels, which is what the game lays out and draws in.
-    pub(super) fn size(&self) -> gfx::IntSize {
-        let (size, scale) = self.physical_size_and_scale();
-        let logical = size.to_logical::<f64>(scale);
-        gfx::IntSize(logical.width as u32, logical.height as u32)
+    pub(super) const fn size(&self) -> gfx::IntSize {
+        self.state.geometry.logical_size
     }
 
     /// The window in real device pixels, which is what the surface has to be configured at.
     ///
     /// On a `HiDPI` display this is a multiple of `size`. The OpenGL backend hardcoded that
     /// multiple as 2.0, which was wrong on every display that is not `HiDPI`.
-    pub(super) fn drawable_size(&self) -> gfx::IntSize {
-        let (size, _) = self.physical_size_and_scale();
-        gfx::IntSize(size.width, size.height)
+    pub(super) const fn drawable_size(&self) -> gfx::IntSize {
+        self.state.geometry.physical_size
     }
 
     /// Where the pointer is, in the same logical pixels as `size`.
@@ -165,15 +163,52 @@ impl Window {
             window.set_min_inner_size(Some(LogicalSize::new(size.0, size.1)));
         }
     }
+}
 
+/// How big the window is, cached.
+///
+/// **This has to be cached, and the reason is performance, not tidiness.** Layout asks for
+/// the window size constantly - every `Container`, the camera's visible bounds, and every
+/// chunk that decides whether it is on screen - which measured out at ~540 calls per frame.
+/// SDL answered each one from a struct field it kept up to date itself. winit does not
+/// cache: `inner_size` and `scale_factor` are objc message sends to `NSView` and `NSWindow`
+/// on macOS, at roughly 12us a call, so asking every time cost ~6.7ms of every 16ms frame -
+/// 40% of the game's wall clock. It also starved the 10ms budget that `walls.rs` and
+/// `lights.rs` use to decide how many chunk meshes to rebuild, which made a world take
+/// minutes to finish drawing its walls and lighting.
+///
+/// The size only changes when the window system says so, and it always says so, so the
+/// events are the authority and reading back is unnecessary.
+#[derive(Clone, Copy)]
+struct Geometry {
+    /// Real device pixels. What the surface is configured at.
+    physical_size: gfx::IntSize,
+    /// Physical divided by the scale factor. What the game draws in.
+    logical_size: gfx::IntSize,
+    scale_factor: f64,
+}
+
+impl Geometry {
     /// A window that has gone away reports 1x1 rather than 0x0: every size here ends up as a
     /// divisor somewhere downstream, and zero would take the layout arithmetic with it.
-    fn physical_size_and_scale(&self) -> (PhysicalSize<u32>, f64) {
-        self.state.window.as_ref().map_or((PhysicalSize::new(1, 1), 1.0), |window| {
-            let size = window.inner_size();
-            let size = PhysicalSize::new(size.width.max(1), size.height.max(1));
-            (size, window.scale_factor())
-        })
+    const FALLBACK: Self = Self {
+        physical_size: gfx::IntSize(1, 1),
+        logical_size: gfx::IntSize(1, 1),
+        scale_factor: 1.0,
+    };
+
+    fn new(physical: PhysicalSize<u32>, scale_factor: f64) -> Self {
+        let physical = PhysicalSize::new(physical.width.max(1), physical.height.max(1));
+        let logical = physical.to_logical::<f64>(scale_factor);
+        Self {
+            physical_size: gfx::IntSize(physical.width, physical.height),
+            logical_size: gfx::IntSize((logical.width as u32).max(1), (logical.height as u32).max(1)),
+            scale_factor,
+        }
+    }
+
+    fn of(window: &winit::window::Window) -> Self {
+        Self::new(window.inner_size(), window.scale_factor())
     }
 }
 
@@ -185,6 +220,8 @@ struct State {
     creation_error: Option<winit::error::OsError>,
     events: Vec<gfx::Event>,
     mouse_pos: gfx::FloatPos,
+    /// Kept up to date from the resize events rather than read back - see `Geometry`.
+    geometry: Geometry,
     resized: bool,
     closed: bool,
     focus_lost: bool,
@@ -198,10 +235,6 @@ impl State {
             closed: std::mem::take(&mut self.closed),
             focus_lost: std::mem::take(&mut self.focus_lost),
         }
-    }
-
-    fn scale_factor(&self) -> f64 {
-        self.window.as_ref().map_or(1.0, |window| window.scale_factor())
     }
 
     fn handle_keyboard(&mut self, event: &winit::event::KeyEvent) {
@@ -253,6 +286,7 @@ impl ApplicationHandler for State {
                 // will not raise a window for an application it does not consider active,
                 // which is exactly the state a pumped event loop leaves it in.
                 window.focus_window();
+                self.geometry = Geometry::of(&window);
                 self.window = Some(Arc::new(window));
             }
             Err(error) => self.creation_error = Some(error),
@@ -262,12 +296,25 @@ impl ApplicationHandler for State {
     fn window_event(&mut self, _event_loop: &ActiveEventLoop, _id: WindowId, event: WindowEvent) {
         match event {
             WindowEvent::CloseRequested | WindowEvent::Destroyed => self.closed = true,
+            WindowEvent::Resized(size) => {
+                self.geometry = Geometry::new(size, self.geometry.scale_factor);
+                self.resized = true;
+            }
             // A scale factor change is a resize as far as the surface is concerned, even
-            // when the logical size is unchanged: the drawable size moved.
-            WindowEvent::Resized(_) | WindowEvent::ScaleFactorChanged { .. } => self.resized = true,
+            // when the logical size is unchanged: the drawable size moved. The new physical
+            // size is not in the event, so this is the one place that reads it back - it
+            // happens when a window moves between displays, not every frame.
+            WindowEvent::ScaleFactorChanged { scale_factor, .. } => {
+                let physical = self
+                    .window
+                    .as_ref()
+                    .map_or_else(|| PhysicalSize::new(self.geometry.physical_size.0, self.geometry.physical_size.1), |window| window.inner_size());
+                self.geometry = Geometry::new(physical, scale_factor);
+                self.resized = true;
+            }
             WindowEvent::Focused(focused) => self.focus_lost = !focused,
             WindowEvent::CursorMoved { position, .. } => {
-                let position = position.to_logical::<f64>(self.scale_factor());
+                let position = position.to_logical::<f64>(self.geometry.scale_factor);
                 self.mouse_pos = gfx::FloatPos(position.x as f32, position.y as f32);
             }
             // `is_synthetic` marks the events a platform replays to describe the keyboard

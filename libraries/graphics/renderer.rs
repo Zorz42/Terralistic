@@ -28,6 +28,9 @@ pub struct GraphicsContext {
     draw_list: RefCell<DrawList>,
     /// Events that have been read off the window but not yet handed to the caller.
     events_queue: VecDeque<gfx::Event>,
+    /// Whether the window has been pumped since the last `update_window`, so that draining
+    /// the queue does not pump it again mid-frame.
+    polled_this_frame: bool,
     window_open: bool,
     /// Which keys are currently held. Maintained from the press and release events as they
     /// go past, because a UI element asks "is shift down" far more often than it reacts to
@@ -82,6 +85,7 @@ impl GraphicsContext {
             key_states: HashMap::new(),
             shadow_context,
             events_queue: VecDeque::new(),
+            polled_this_frame: false,
             window_open: true,
             clipboard_context: Clipboard::new()?,
             block_key_states: false,
@@ -145,6 +149,7 @@ impl GraphicsContext {
 
     /// Pumps the window system and turns what it reports into queued events and context state.
     fn poll_window(&mut self) {
+        self.polled_this_frame = true;
         let poll = self.window.poll();
 
         if poll.resized {
@@ -172,10 +177,11 @@ impl GraphicsContext {
 
     /// Returns the next event, or `None` once there are none left this frame.
     ///
-    /// The window is only pumped when the queue runs dry, so a caller draining the queue in
-    /// a `while let` loop makes exactly one round trip to the window system per frame.
+    /// This normally just drains the queue `update_window` filled at the end of the previous
+    /// frame. It only pumps the window itself when nothing has yet this frame, which happens
+    /// before the first frame and would happen for a caller that never presents.
     pub fn get_event(&mut self) -> Option<gfx::Event> {
-        if self.events_queue.is_empty() {
+        if self.events_queue.is_empty() && !self.polled_this_frame {
             self.poll_window();
         }
         self.events_queue.pop_front()
@@ -223,6 +229,20 @@ impl GraphicsContext {
         if self.ms_so_far < self.min_ms_per_frame * self.frames_so_far as f32 {
             std::thread::sleep(std::time::Duration::from_millis((self.min_ms_per_frame * self.frames_so_far as f32 - self.ms_so_far) as u64));
         }
+
+        // Collect the next frame's input here, at the frame boundary, rather than letting
+        // the first `get_event` of the next frame do it.
+        //
+        // This is about *where the waiting happens*, not about latency - the events are the
+        // same ones, delivered at the same point in the next frame either way. On macOS
+        // pumping the event loop is what services the layer's pending drawable, so with any
+        // slack in the frame the pump is where the wait for the display lands, and it can be
+        // most of a frame. `client/game/core_client.rs` starts a timer at the top of its loop
+        // and gives `walls.rs` and `lights.rs` the first 10ms of it to rebuild chunk meshes;
+        // a pump inside that window spends the budget on waiting and the world takes minutes
+        // to finish drawing. Under SDL this wait sat in `present`, which is to say here.
+        self.polled_this_frame = false;
+        self.poll_window();
     }
 
     /// Sets the minimum window size
