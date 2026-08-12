@@ -1,4 +1,3 @@
-use std::hash::{Hash, Hasher};
 use std::ops::{Add, Sub};
 
 use serde_derive::{Deserialize, Serialize};
@@ -139,6 +138,14 @@ impl From<FloatSize> for IntSize {
     }
 }
 
+/// The float positions and sizes compare with a tolerance, because they are the result of
+/// layout arithmetic and asking two of those to be bit-equal is asking for a flicker.
+///
+/// **They deliberately do not implement `Hash`.** They used to, by quantising to a
+/// thousandth, and that quietly broke the contract every hash container relies on: two
+/// values 0.00005 apart are equal here but land either side of a bucket boundary and hash
+/// differently, so a lookup could miss a key that is in the map. Nothing ever keyed a map on
+/// one, so it was never hit - and now it cannot be.
 impl PartialEq for FloatPos {
     fn eq(&self, other: &Self) -> bool {
         (self.0 - other.0).abs() < 0.0001 && (self.1 - other.1).abs() < 0.0001
@@ -147,13 +154,6 @@ impl PartialEq for FloatPos {
 
 impl Eq for FloatPos {}
 
-impl Hash for FloatPos {
-    fn hash<H: Hasher>(&self, state: &mut H) {
-        ((self.0 * 1000.0) as i32).hash(state);
-        ((self.1 * 1000.0) as i32).hash(state);
-    }
-}
-
 impl PartialEq for FloatSize {
     fn eq(&self, other: &Self) -> bool {
         (self.0 - other.0).abs() < 0.0001 && (self.1 - other.1).abs() < 0.0001
@@ -161,10 +161,3 @@ impl PartialEq for FloatSize {
 }
 
 impl Eq for FloatSize {}
-
-impl Hash for FloatSize {
-    fn hash<H: Hasher>(&self, state: &mut H) {
-        ((self.0 * 1000.0) as i32).hash(state);
-        ((self.1 * 1000.0) as i32).hash(state);
-    }
-}

@@ -595,7 +595,7 @@ mod tests {
         // the velocity is private, but a scroll of the same sign should not increase it
         // further, which is what the max/min in the handler is for
         scrollable.on_event(&mut graphics, &gfx::Event::MouseScroll(1.0), &root);
-        assert_close(scrollable.get_scroll_pos(), 0.0); // position only moves while rendering, not on the event
+        assert_close(scrollable.get_scroll_pos(), 0.0); // position only moves while updating, not on the event
     }
 
     #[test]

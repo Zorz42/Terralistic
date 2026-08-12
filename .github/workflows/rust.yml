@@ -20,8 +20,6 @@ jobs:
      - run: rustup toolchain install stable --profile minimal --component clippy,rustfmt
      - name: Rust Cache
        uses: Swatinem/rust-cache@v2
-     - name: Install dependencies
-       run: sudo apt-get update && sudo apt-get install -y libsdl2-dev
      - name: Check formatting
        run: cargo fmt --check
      # The tree is clippy clean, so any new warning fails the build. If this ever

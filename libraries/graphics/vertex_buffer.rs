@@ -5,7 +5,7 @@ use super::draw_list::MeshHandle;
 use super::gpu_device;
 use super::wgpu_backend::VERTEX_FLOATS;
 
-#[derive(Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Clone, Copy, PartialEq, Eq)]
 pub struct Vertex {
     pub(super) pos: gfx::FloatPos,
     pub(super) color: color::Color,

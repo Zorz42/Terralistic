@@ -48,7 +48,16 @@ impl UiElement for Scrollable {
         Vec::new()
     }
 
-    fn render_inner(&mut self, _: &mut gfx::GraphicsContext, _: &gfx::Container) {
+    /// Advances the scroll, and does nothing else.
+    ///
+    /// This is `update_inner` rather than `render_inner` because moving is not drawing.
+    /// Every other widget in the toolkit steps its animation here; this one stepped it while
+    /// rendering, which meant a caller that laid the list out without drawing it - a menu
+    /// sliding offscreen, say - froze the scroll. The frame it lands on is unchanged either
+    /// way: the parent reads `get_scroll_x` from its own `update_inner`, which the recursion
+    /// in `BaseUiElement::update` runs before this, so it sees the previous frame's position
+    /// exactly as it did before.
+    fn update_inner(&mut self, _: &mut gfx::GraphicsContext, _: &gfx::Container) {
         while self.animation_timer.frame_ready() {
             self.scroll_pos += self.scroll_velocity;
 

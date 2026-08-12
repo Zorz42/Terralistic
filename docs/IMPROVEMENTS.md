@@ -262,33 +262,32 @@ main loop checks. The server should do the same rather than `expect`.
 
 ## 3. Build and dependencies
 
-### 3.1 The build script compiles 21 dependencies it does not need — CONFIRMED
+### 3.1 The build script compiles 21 dependencies it does not need — DONE
 
-`cargo tree -e build --depth 1` lists sdl2, sdl2-sys, gl, rustls, webpki-roots, message-io,
-arboard, hecs, rlua, kvptree and more as **build-dependencies**. The build script's actual
-needs are tiny:
+`cargo tree -e build --depth 1` used to list sdl2, sdl2-sys, gl, rustls, webpki-roots,
+message-io, arboard, hecs, rlua, kvptree and more as **build-dependencies**. The build
+script's actual needs are tiny:
 
-- `gfx::Surface`, `gfx::Color`, `gfx::IntPos`, `gfx::IntSize` — pure CPU pixel buffers, no OpenGL
+- `gfx::Surface`, `gfx::Color`, `gfx::IntPos`, `gfx::IntSize` — pure CPU pixel buffers, no GPU
 - `shared::mod_manager::GameMod` — a struct with a `String` and a `HashMap`
 - `png`, `darklua`, `bincode`, `snap`, `serde`, `winres`
 
-The cause is `build_main.rs` re-declaring the whole module tree (`pub mod libraries { pub mod
+The cause was `build_main.rs` re-declaring the whole module tree (`pub mod libraries { pub mod
 graphics; } pub mod shared;`), which drags in every transitive dependency of the game.
-Everything in that list is compiled **twice** — once for the host build script, once for the
-target — and it is a large share of the ~1m40s cold build.
+Everything in that list was compiled **twice** — once for the host build script, once for the
+target — and it was a large share of the ~1m40s cold build.
 
-Fix: split the handful of pure-data types (`Surface`, `Color`, `IntPos`, `IntSize`, and the
-`GameMod` serialization shape) into a leaf module with no SDL/GL/network dependencies that
-both the build script and the game can include. Then trim `[build-dependencies]`.
+Fixed by having `build_main.rs` name the individual leaf files it needs
+(`libraries/graphics/{color,position,surface}.rs`, `shared/mod_data.rs`) instead of
+re-declaring `pub mod graphics;` / `pub mod shared;`. `[build-dependencies]` is now anyhow,
+bincode, darklua, png, serde, serde_derive, snap and winres, and nothing else.
 
-### 3.2 `message-io` version skew — CONFIRMED
+### 3.2 `message-io` version skew — DONE
 
-`Cargo.toml` pins `0.19` in `[dependencies]` and `0.18` in `[build-dependencies]`. Two
-versions get compiled. The build script does not use `message-io` at all — it can simply be
-removed from `[build-dependencies]` (subsumed by 3.1).
-
-Also: several `[build-dependencies]` (`fnv`, `rand`, `kvptree`, `png`) lack the
-`default-features = false` that their `[dependencies]` counterparts carefully specify.
+`Cargo.toml` pinned `0.19` in `[dependencies]` and `0.18` in `[build-dependencies]`, so two
+versions were compiled. The build script never used it. Subsumed by 3.1: it, `fnv`, `rand`
+and `kvptree` are all gone from `[build-dependencies]`, and what remains carries
+`default-features = false` where it matters.
 
 ### 3.3 Build script panics on every error — MINOR
 
@@ -369,11 +368,12 @@ That brought layout, hit testing, event routing, `Button`, `Toggle`, `Scrollable
 
 Not covered, and the honest limits of the approach:
 
-- `render_inner` / `update_inner` still need real GL, so nothing that draws is tested.
+- `render_inner` / `update_inner` still need a real GPU device, so what a widget *draws* is
+  covered by the golden-image suite rather than by `cargo test`.
 - The three menus that build GPU resources from an event handler take the
   `as_graphics_context()` escape hatch, and those branches are skipped headlessly.
 - The `HeadlessContext` is a stand-in. It answers the same questions as the real context,
-  but it is not proof that SDL reports what we think it does.
+  but it is not proof that the window reports what we think it does.
 
 ### 5.5 Nothing tested more than one subsystem at a time — DONE
 

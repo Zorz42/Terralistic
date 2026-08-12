@@ -1,12 +1,13 @@
 # Terralistic — working notes
 
 A Terraria-like 2D sandbox game in Rust. Single binary that runs as client, server, or
-server-with-GUI. Rendering is wgpu through a hand-written UI toolkit, with SDL2 for the
+server-with-GUI. Rendering is wgpu through a hand-written UI toolkit, with winit for the
 window and input.
 Game content (blocks, items, walls, biomes, recipes, commands) lives in **Lua mods**, not
 in Rust — `base_game` is itself a mod.
 
-~19k lines of Rust across 145 files. Small enough to read in full; do that before large refactors.
+~21k lines of Rust across 140 files, plus ~7.6k lines of tests in 26 more. Small enough to
+read in full; do that before large refactors.
 
 ## Commands
 
@@ -199,7 +200,11 @@ The trait methods split by what they need:
 | Method | Takes | Why |
 |---|---|---|
 | `get_container`, `on_event_inner` | `&dyn UiContext` | layout and input only |
-| `render_inner`, `update_inner` | `&mut GraphicsContext` | needs GL |
+| `render_inner`, `update_inner` | `&mut GraphicsContext` | needs the GPU |
+
+`update_inner` is where a widget advances an animation; `render_inner` is where it records
+what to draw. Keep the two apart — `Scrollable` used to step its scroll while rendering,
+which froze it for any caller that laid a list out without drawing it.
 
 `UiContext` (`ui_context.rs`) is the whole non-rendering surface of `GraphicsContext`:
 window size, mouse position, key states, clipboard. `GraphicsContext` implements it, and so
@@ -221,6 +226,46 @@ the glyph texture upload, so text measurement and `create_text_surface` are test
 Rendering goes to an offscreen texture (`window_texture`) which is blitted to the default
 framebuffer in `update_window()`, which is what makes the blur/shadow effects possible.
 
+#### The window: `window.rs` is the only module that knows winit exists
+
+`GraphicsContext` deals in `gfx::Event` and `gfx::IntSize`; `events.rs` is pure data with no
+window-system types in it. This replaced SDL2, which is now gone from the tree entirely.
+
+The game's three main loops (`client/game/core_client.rs`,
+`client/menus/title_screen_renderer.rs`, `server/server_ui/ui_manager.rs`) drive their own
+simulation and rendering, so the event loop is **pumped, not run**:
+`EventLoopExtPumpEvents::pump_app_events` with a zero timeout. Inverting three loops around
+winit's `run_app` callback was not worth it. The cost is that a resize drag does not repaint
+mid-drag on macOS, and that `pump_app_events` is desktop only — which is all this builds for.
+
+Three things about it are load-bearing:
+
+- **Keys are physical positions, not labels.** `translate_key` maps winit's `KeyCode`, so
+  `Key::W` is wherever W sits on QWERTY and WASD stays a square on AZERTY. Typing is
+  unaffected: text arrives separately as `Event::TextInput`. SDL reported layout-mapped
+  keycodes, so this is a deliberate behaviour change.
+- **`Geometry` caches the window size, and must.** Layout asks ~540 times a frame — every
+  `Container`, the camera bounds, every chunk testing visibility. SDL answered from its own
+  struct field; winit's `inner_size`/`scale_factor` are objc message sends on macOS at ~12µs
+  each, which measured at 40% of the game's wall clock. The resize events are the authority;
+  never read the size back per call.
+- **The pump happens at the end of `update_window`, not at the top of the frame.** On macOS
+  pumping is what services the layer's pending drawable, so with slack in the frame the wait
+  for the display lands there and can be most of a frame. See *Timing* for why that has to
+  stay outside the frame's budget window. `get_event` only pumps if nothing has yet this
+  frame (`polled_this_frame`).
+
+The window also asks for focus on creation — a pumped loop leaves macOS not treating the app
+as active, so it would otherwise open behind the terminal — and `key_states` is cleared when
+the window loses focus, so a held key does not stick across an alt-tab.
+
+winit reports the true `HiDPI` drawable size where SDL, without `allow_highdpi`, reported the
+logical one. The game therefore renders at logical resolution and nearest-upscales to the
+display instead of being smoothed by the compositor. That also means the surface can be
+bigger than `Limits::downlevel_defaults` allows a texture to be, which is why the device asks
+for `downlevel_defaults().using_resolution(adapter.limits())` — with the plain defaults a
+1670x1050 window on a 2x display fails `Surface::configure` outright.
+
 #### The draw list: what to draw vs. how
 
 **No drawing call touches the graphics API.** `rect.render(..)`, `texture.render(..)`,
@@ -240,6 +285,7 @@ reason under *Outlines* below.
 | `wgpu_backend.rs` | `WgpuBackend`: pipelines, uniforms, offscreen textures, blur, present |
 | `shaders.wgsl` | Both shaders. One vertex entry point, one fragment each for normal draws and blur |
 | `gpu_device.rs` | The device, the resource registry, and deferred release |
+| `window.rs` | The window and the input. The only module that talks to winit |
 
 Consequences worth knowing:
 
@@ -382,6 +428,11 @@ layout differed on every launch — the same class of bug that made `GameModData
 `RectArray` and map texture-coordinate corners exactly, but it combined with the `+ 0.1`
 above to make item rendering differ run to run.
 
+The atlas is one row: as wide as the surfaces laid end to end, as tall as the tallest. It
+used to add each surface's *height* into the width as well, which packed correctly and drew
+correctly but left megabytes of transparent pixels on the GPU. Neither the layout nor the
+goldens depend on the width, because sampling is at texel centres.
+
 Several older UI pieces predate the `UiElement` trait and are hand-rolled — the `//TODO make
 this a UI element` comments in `client/game/chat.rs`, `pause_menu.rs`, `debug_menu.rs`,
 `inventory.rs`, `respawn_screen.rs` mark them. Converting one is a good self-contained task.
@@ -394,6 +445,17 @@ this a UI element` comments in `client/game/chat.rs`, `pause_menu.rs`, `debug_me
   accumulator via `FramerateMeasurer::has_5ms_passed()` for simulation.
 - Physics constants live in `shared/entities/entities.rs` and `shared/players.rs`. The
   `/ 200.0` divisors there are the 5 ms tick expressed as a fraction of a second.
+
+**The frame's first 10 ms are a budget, and it is easy to spend by accident.**
+`core_client.rs` starts a `frame_timer` at the top of its loop and passes it to
+`walls.rs` and `lights.rs`, which rebuild chunk meshes only while
+`frame_timer.elapsed() < 10ms`. That is the whole mechanism keeping the frame rate up while a
+world loads. Anything slow *before* `walls.render` starves it, and the failure mode is not a
+crash but a world that draws its blocks immediately and takes minutes to finish its walls and
+lighting. Two things have done this already, both from the winit port: querying the window
+size per call, and pumping the event loop at the top of the frame instead of at the end of
+`update_window`. Measure `frame_timer.elapsed()` at `walls.render` if chunk loading ever
+looks slow — healthy is under 0.1 ms.
 
 Client-side prediction: the client simulates its own player and periodically sends
 `PlayerPositionPacketToServer`; the server accepts it if within a tolerance of 2.0 blocks,
@@ -493,6 +555,13 @@ Things worth knowing before adding one:
 - Tests never need a graphics context. UI tests drive real widgets through
   `gfx::HeadlessContext` — see the `UiContext` section above. Nothing in the suite opens a
   window, so it all runs on CI's headless Ubuntu.
+- `gfx::FloatPos` and `gfx::FloatSize` compare with a 0.0001 tolerance and **deliberately do
+  not implement `Hash`.** They used to, by quantising to a thousandth, which broke the
+  hash/eq contract: two values that compare equal could land in different buckets. Don't add
+  it back to make one a map key — round to integers first.
+- `AnimationTimer` and the `timer_counter` in `Button`/`Toggle` hold absolute milliseconds
+  since construction. They are 64-bit for a reason: as `i32`/`u32` they overflowed after
+  24.8 and 49.7 days of uptime, and every animation in the game stopped for good.
 - `shared/liquids/` is not just dead, it is **entirely commented out** — both `liquids.rs`
   and `liquid_type.rs` are one `/* .. */` block from first line to last, so the module
   compiles to nothing. Don't assume any of it works.
@@ -512,7 +581,11 @@ requests against any branch, and on manual dispatch. It checks, in order:
 release build. All four are blocking, so a new clippy warning fails the build — prefer a
 targeted `#[allow]` with a reason over relaxing the flag.
 
-Not covered: macOS and Windows are never built, though all three platforms have
-`Cargo.toml` sections and `#[cfg]` branches. That gap matters more since the wgpu port —
+**No system packages are installed any more.** SDL2 needed `libsdl2-dev`; winit's X11 and
+Wayland backends are loaded at runtime through `x11-dl` and `wayland-dlopen`, so nothing is
+needed to build, and the test suite never opens a window so nothing is needed to run either.
+
+Not covered: macOS and Windows are never built. That gap matters more since the wgpu port —
 the backend is written to be portable and the goldens are written to be backend-independent,
-but only Metal has actually run them. Adding a macOS job is the obvious next step.
+but only Metal has actually run them. Adding a macOS job is the obvious next step, and it is
+the only way the golden images would ever be checked in CI at all.

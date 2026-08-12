@@ -15,8 +15,14 @@ upstream, which is worth knowing even though there is nothing to bump.
 | rand | 0.8 | 0.10 | `RngCore` renamed to `Rng`; old `Rng` is now `RngExt` |
 | everything else | | | moved within its existing range via `cargo update` |
 
-Already at the newest release and left alone: `rlua` 0.20.1, `noise` 0.9.0, `gl` 0.14.0,
-`winres` 0.1.12, `kvptree` 0.1.0, `sdl2` 0.38.0 (pinned with `=`).
+Already at the newest release and left alone: `rlua` 0.20.1, `noise` 0.9.0,
+`winres` 0.1.12, `kvptree` 0.1.0.
+
+**Since this pass:** `gl` and `sdl2`/`sdl2-sys` are gone. The OpenGL backend was replaced by
+`wgpu` 30, and the window and input by `winit` 0.30; `raw-window-handle` went with them,
+because wgpu can build a surface straight from an `Arc<winit::window::Window>`. That also
+removed the three target-specific `[dependencies]` blocks and the last system library the
+build needed.
 
 ## Notable
 

@@ -346,7 +346,7 @@ pub trait ModuleTrait {
     fn get_name(&self) -> &str;
     /// gives the event sender to the module, so it can send data to the server
     fn set_sender(&mut self, _sender: Sender<UiMessageType>) {}
-    /// sends sdl2 events to the module
+    /// sends window events to the module
     fn on_event(&mut self, _event: &gfx::Event, _graphics_context: &mut gfx::GraphicsContext) {}
     /// returns a mut reference to whether the module is enabled. Modules will still be updated for consistency, but not rendered
     fn get_enabled_mut(&mut self) -> &mut bool;
