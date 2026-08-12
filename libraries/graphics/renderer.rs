@@ -13,6 +13,9 @@ use crate::libraries::graphics::window::Window;
 use crate::libraries::graphics::Font;
 use crate::libraries::graphics::UiContext;
 
+/// How many unread events to keep before the oldest start falling off. See `poll_window`.
+const MAX_QUEUED_EVENTS: usize = 1024;
+
 /// The window, the input, and the frame currently being recorded.
 ///
 /// Drawing does not happen here. A `render` call appends to `draw_list`, and `update_window`
@@ -42,9 +45,11 @@ pub struct GraphicsContext {
     pub scale: f32,
     real_scale: f32,
     scale_animation_timer: gfx::AnimationTimer,
-    min_ms_per_frame: f32,
-    frames_so_far: u32,
-    ms_so_far: f32,
+    /// Zero means unlimited. Everything below is in milliseconds and 64 bit, because these
+    /// accumulate for the life of the process - see `limit_framerate`.
+    min_ms_per_frame: f64,
+    frames_so_far: u64,
+    ms_so_far: f64,
     prev_frame_time: std::time::Instant,
     pub font: Font,
     pub font_mono: Option<Font>,
@@ -173,6 +178,15 @@ impl GraphicsContext {
             }
             self.events_queue.push_back(event);
         }
+
+        // A frame produces a handful of events, so the cap is only ever reached by a loop
+        // that presents without reading its input - which the disabled login menus do. Since
+        // the pump moved into `update_window` such a loop would otherwise grow this queue for
+        // as long as it ran. Dropping the oldest is the right end to drop: what a caller that
+        // has ignored a thousand events wants, if it ever looks, is the recent ones.
+        while self.events_queue.len() > MAX_QUEUED_EVENTS {
+            self.events_queue.pop_front();
+        }
     }
 
     /// Returns the next event, or `None` once there are none left this frame.
@@ -221,14 +235,7 @@ impl GraphicsContext {
             println!("Error presenting frame: {error}");
         }
 
-        self.frames_so_far += 1;
-        let now = std::time::Instant::now();
-        let delta = now.duration_since(self.prev_frame_time).as_millis() as f32;
-        self.ms_so_far += delta;
-        self.prev_frame_time = now;
-        if self.ms_so_far < self.min_ms_per_frame * self.frames_so_far as f32 {
-            std::thread::sleep(std::time::Duration::from_millis((self.min_ms_per_frame * self.frames_so_far as f32 - self.ms_so_far) as u64));
-        }
+        self.limit_framerate();
 
         // Collect the next frame's input here, at the frame boundary, rather than letting
         // the first `get_event` of the next frame do it.
@@ -243,6 +250,37 @@ impl GraphicsContext {
         // to finish drawing. Under SDL this wait sat in `present`, which is to say here.
         self.polled_this_frame = false;
         self.poll_window();
+    }
+
+    /// Sleeps for whatever is left of this frame's share of the wall clock.
+    ///
+    /// The limit is an *average* rather than a per-frame cap: both the elapsed time and the
+    /// time the frames should have taken are accumulated, and the sleep is the difference, so
+    /// a frame that overran is made up by the next ones rather than pushing the whole session
+    /// behind. Two things about that are easy to get wrong and were both wrong here:
+    ///
+    /// - The elapsed time was measured with `as_millis`, which truncates. Under a 60 fps
+    ///   limit each frame lost up to a millisecond, so the limiter settled slightly below the
+    ///   rate it was asked for.
+    /// - Both accumulators were `f32`. They only ever grow, and past about 2^24 - four and a
+    ///   half hours at 60 fps - a 16 ms increment stops being representable. The elapsed side
+    ///   then stalls while the target side keeps climbing, and the sleep grows without bound.
+    fn limit_framerate(&mut self) {
+        let now = std::time::Instant::now();
+        let elapsed = now.duration_since(self.prev_frame_time);
+        self.prev_frame_time = now;
+
+        if self.min_ms_per_frame <= 0.0 {
+            return;
+        }
+
+        self.frames_so_far += 1;
+        self.ms_so_far += elapsed.as_secs_f64() * 1000.0;
+
+        let owed = self.min_ms_per_frame * self.frames_so_far as f64 - self.ms_so_far;
+        if owed > 0.0 {
+            std::thread::sleep(std::time::Duration::from_secs_f64(owed / 1000.0));
+        }
     }
 
     /// Sets the minimum window size
@@ -264,8 +302,10 @@ impl GraphicsContext {
         self.backend.set_blur_enabled(enable);
     }
 
+    /// Caps the frame rate at `fps`. A non-positive `fps` means no limit, rather than a
+    /// division by zero and a sleep measured in centuries.
     pub fn set_fps_limit(&mut self, fps: f32) {
-        self.min_ms_per_frame = 1000.0 / fps;
+        self.min_ms_per_frame = if fps > 0.0 { 1000.0 / f64::from(fps) } else { 0.0 };
         self.frames_so_far = 0;
         self.ms_so_far = 0.0;
     }

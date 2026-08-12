@@ -47,13 +47,6 @@ fn surface_bytes(surface: &gfx::Surface) -> Vec<u8> {
     bytes
 }
 
-/// A texture in the registry, with the bind group already built so drawing it is one call.
-pub(super) struct TextureEntry {
-    pub bind_group: wgpu::BindGroup,
-    /// Kept alive for the bind group, and needed as a copy source when a golden is captured.
-    pub texture: wgpu::Texture,
-}
-
 /// An uploaded vertex buffer. There is no index buffer: the OpenGL version had one, but its
 /// indices were always `0..n`, so it described nothing the vertex order did not.
 pub(super) struct MeshEntry {
@@ -67,7 +60,9 @@ pub(super) struct GpuDevice {
     /// Shared by every texture bind group and by the backend's pipeline layout.
     pub texture_bind_group_layout: wgpu::BindGroupLayout,
     pub sampler: wgpu::Sampler,
-    textures: Mutex<HashMap<u32, TextureEntry>>,
+    /// The bind group is all a draw needs. wgpu keeps the texture and the view behind it
+    /// alive by reference, so there is nothing else to hold on to.
+    textures: Mutex<HashMap<u32, wgpu::BindGroup>>,
     meshes: Mutex<HashMap<u32, MeshEntry>>,
     next_id: AtomicU32,
     pending_textures: Mutex<Vec<u32>>,
@@ -187,13 +182,8 @@ impl GpuDevice {
         }
 
         let id = self.take_id();
-        self.textures.lock().unwrap_or_else(PoisonError::into_inner).insert(
-            id,
-            TextureEntry {
-                bind_group: self.create_texture_bind_group(&texture.create_view(&wgpu::TextureViewDescriptor::default())),
-                texture,
-            },
-        );
+        let bind_group = self.create_texture_bind_group(&texture.create_view(&wgpu::TextureViewDescriptor::default()));
+        self.textures.lock().unwrap_or_else(PoisonError::into_inner).insert(id, bind_group);
         id
     }
 
@@ -237,16 +227,12 @@ impl GpuDevice {
     /// Taking a guard rather than a closure per lookup is what lets the backend hold the
     /// bind group references it needs across a whole render pass. The mesh registry is
     /// always locked after this one, and nothing else takes both, so the order is fixed.
-    pub(super) fn lock_textures(&self) -> std::sync::MutexGuard<'_, HashMap<u32, TextureEntry>> {
+    pub(super) fn lock_textures(&self) -> std::sync::MutexGuard<'_, HashMap<u32, wgpu::BindGroup>> {
         self.textures.lock().unwrap_or_else(PoisonError::into_inner)
     }
 
     pub(super) fn lock_meshes(&self) -> std::sync::MutexGuard<'_, HashMap<u32, MeshEntry>> {
         self.meshes.lock().unwrap_or_else(PoisonError::into_inner)
-    }
-
-    pub(super) fn with_texture<T>(&self, id: u32, f: impl FnOnce(&TextureEntry) -> T) -> Option<T> {
-        Some(f(self.textures.lock().unwrap_or_else(PoisonError::into_inner).get(&id)?))
     }
 
     /// Releases everything parked since the last sweep. Only the backend calls this, and

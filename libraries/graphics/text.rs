@@ -188,7 +188,12 @@ impl Font {
         surface
     }
 
-    /// This function renders text on the window.
+    /// Draws one line of text, glyph by glyph, straight from the font's textures.
+    ///
+    /// **One line.** Unlike `get_text_size` and `create_text_surface` this honours neither
+    /// `\n` nor a width limit, so a multi-line string would measure as several lines and
+    /// draw as one long one. Anything that might wrap should go through
+    /// `create_text_surface` and a `Texture`, which is what `Sprite` does.
     pub fn render_text(&self, target: &dyn gfx::DrawTarget, text: &str, mut pos: gfx::FloatPos, scale: f32) {
         for c in text.chars() {
             if let Some(char_surface) = self.font_surfaces.get(c as usize) {

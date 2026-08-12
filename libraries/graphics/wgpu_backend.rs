@@ -26,6 +26,7 @@
 //! Everything else - the transform arithmetic, the blend factors, nearest sampling, the
 //! gaussian weights - is a faithful port, which is why the rest of the goldens survived.
 
+use std::collections::HashMap;
 use std::sync::Arc;
 
 use anyhow::{anyhow, Result};
@@ -34,7 +35,7 @@ use crate::libraries::graphics as gfx;
 
 use super::blend_mode::BlendMode;
 use super::draw_list::{DrawCommand, DrawList};
-use super::gpu_device::{self, GpuDevice};
+use super::gpu_device::{self, GpuDevice, MeshEntry};
 use super::transformation::Transformation;
 
 /// One vertex: position, colour, texture coordinate. Matches `VertexBuffer`'s packing so a
@@ -516,81 +517,83 @@ impl WgpuBackend {
         gpu.queue.write_buffer(&self.uniform_buffer, 0, &bytes);
     }
 
+    /// Turns the planned segments into render passes.
+    ///
+    /// A frame is one pass per run of draws, split wherever a blur needs to read back what
+    /// has been drawn so far. Only the very first pass of the frame may clear.
     fn encode(&self, gpu: &GpuDevice, encoder: &mut wgpu::CommandEncoder, segments: &[Segment], clear: bool) {
         let textures = gpu.lock_textures();
         let meshes = gpu.lock_meshes();
 
-        // A frame is one render pass per run of draws, split wherever a blur needs to read
-        // back what has been drawn so far.
-        let mut first_pass = true;
-        let mut index = 0;
-        while index < segments.len() {
-            if let Some(&Segment::BlurPass { uniform, to_back }) = segments.get(index) {
-                let (target, source) = if to_back { (&self.back, &self.front) } else { (&self.front, &self.back) };
-                let mut pass = begin_pass(encoder, &target.view, clear && first_pass);
-                pass.set_pipeline(&self.blur_pipeline);
-                pass.set_vertex_buffer(0, self.quad_buffer.slice(..));
-                pass.set_bind_group(1, &source.bind_group, &[]);
-                pass.set_bind_group(0, &self.uniform_bind_group, &[uniform * self.uniform_stride]);
-                pass.draw(0..6, 0..1);
-                first_pass = false;
-                index += 1;
-            } else {
-                {
-                    let end = segments
-                        .iter()
-                        .skip(index)
-                        .position(|segment| matches!(segment, Segment::BlurPass { .. }))
-                        .map_or(segments.len(), |offset| index + offset);
-
-                    let mut pass = begin_pass(encoder, &self.front.view, clear && first_pass);
-                    for segment in segments.get(index..end).unwrap_or_default() {
-                        let &Segment::Draw { uniform, blend, texture, geometry } = segment else {
-                            continue;
-                        };
-
-                        pass.set_pipeline(match blend {
-                            BlendMode::Alpha => &self.alpha_pipeline,
-                            BlendMode::Multiply => &self.multiply_pipeline,
-                        });
-
-                        // A missing entry means the resource was created without a device,
-                        // which can only happen in a process that cannot render anyway.
-                        let bind_group = match texture {
-                            None => &self.white_bind_group,
-                            Some(id) => match textures.get(&id) {
-                                Some(entry) => &entry.bind_group,
-                                None => continue,
-                            },
-                        };
-                        pass.set_bind_group(1, bind_group, &[]);
-                        pass.set_bind_group(0, &self.uniform_bind_group, &[uniform * self.uniform_stride]);
-
-                        match geometry {
-                            Geometry::Quad => {
-                                pass.set_vertex_buffer(0, self.quad_buffer.slice(..));
-                                pass.draw(0..6, 0..1);
-                            }
-                            Geometry::Mesh(id) => {
-                                let Some(mesh) = meshes.get(&id) else { continue };
-                                if mesh.vertex_count == 0 {
-                                    continue;
-                                }
-                                pass.set_vertex_buffer(0, mesh.buffer.slice(..));
-                                pass.draw(0..mesh.vertex_count, 0..1);
-                            }
-                        }
-                    }
-                    first_pass = false;
-                    index = end;
+        let mut clear_next = clear;
+        let mut rest = segments;
+        while let Some(head) = rest.first() {
+            let consumed = match *head {
+                Segment::BlurPass { uniform, to_back } => {
+                    self.encode_blur(encoder, uniform, to_back, clear_next);
+                    1
                 }
-            }
+                Segment::Draw { .. } => {
+                    let run = rest.iter().position(|segment| matches!(segment, Segment::BlurPass { .. })).unwrap_or(rest.len());
+                    self.encode_draws(encoder, rest.get(..run).unwrap_or_default(), &textures, &meshes, clear_next);
+                    run
+                }
+            };
+            clear_next = false;
+            rest = rest.get(consumed..).unwrap_or_default();
         }
 
         // A frame that recorded nothing but asked for a clear still needs the pass that
         // performs it, or the golden would show the previous case.
-        if first_pass && clear {
+        if clear_next {
             drop(begin_pass(encoder, &self.front.view, true));
+        }
+    }
+
+    /// One gaussian pass, reading whichever offscreen texture is not being written.
+    fn encode_blur(&self, encoder: &mut wgpu::CommandEncoder, uniform: u32, to_back: bool, clear: bool) {
+        let (target, source) = if to_back { (&self.back, &self.front) } else { (&self.front, &self.back) };
+        let mut pass = begin_pass(encoder, &target.view, clear);
+        pass.set_pipeline(&self.blur_pipeline);
+        pass.set_vertex_buffer(0, self.quad_buffer.slice(..));
+        pass.set_bind_group(1, &source.bind_group, &[]);
+        pass.set_bind_group(0, &self.uniform_bind_group, &[uniform * self.uniform_stride]);
+        pass.draw(0..6, 0..1);
+    }
+
+    /// One pass covering an unbroken run of draws.
+    fn encode_draws(&self, encoder: &mut wgpu::CommandEncoder, segments: &[Segment], textures: &HashMap<u32, wgpu::BindGroup>, meshes: &HashMap<u32, MeshEntry>, clear: bool) {
+        let mut pass = begin_pass(encoder, &self.front.view, clear);
+        for segment in segments {
+            let &Segment::Draw { uniform, blend, texture, geometry } = segment else {
+                continue;
+            };
+
+            // A missing entry means the resource was created without a device, which can
+            // only happen in a process that cannot render anyway.
+            let bind_group = match texture {
+                None => &self.white_bind_group,
+                Some(id) => match textures.get(&id) {
+                    Some(bind_group) => bind_group,
+                    None => continue,
+                },
+            };
+            let (buffer, vertices) = match geometry {
+                Geometry::Quad => (self.quad_buffer.slice(..), 6),
+                Geometry::Mesh(id) => match meshes.get(&id) {
+                    Some(mesh) if mesh.vertex_count > 0 => (mesh.buffer.slice(..), mesh.vertex_count),
+                    _ => continue,
+                },
+            };
+
+            pass.set_pipeline(match blend {
+                BlendMode::Alpha => &self.alpha_pipeline,
+                BlendMode::Multiply => &self.multiply_pipeline,
+            });
+            pass.set_bind_group(1, bind_group, &[]);
+            pass.set_bind_group(0, &self.uniform_bind_group, &[uniform * self.uniform_stride]);
+            pass.set_vertex_buffer(0, buffer);
+            pass.draw(0..vertices, 0..1);
         }
     }
 
@@ -891,33 +894,43 @@ fn build_quad_buffer(gpu: &GpuDevice) -> wgpu::Buffer {
 ///
 /// WGSL has no way to leave a binding empty, and the shader ignores the sample when
 /// `has_texture` is zero, so what this contains never reaches the output.
+///
+/// Built straight off the device rather than through `gpu_device`'s registry: this one lives
+/// for the whole process, so an id nothing owns and nothing can ever release would only be
+/// something for the sweep to walk past. Dropping the `wgpu::Texture` here is fine - the view
+/// and the bind group hold their own references to it.
 fn build_white_bind_group(gpu: &GpuDevice) -> wgpu::BindGroup {
-    let mut surface = gfx::Surface::new(gfx::IntSize(1, 1));
-    for (_, pixel) in surface.iter_mut() {
-        *pixel = gfx::Color::new(255, 255, 255, 255);
-    }
-    let id = gpu.create_texture(&surface);
-    gpu.with_texture(id, |entry| gpu.create_texture_bind_group(&entry.texture.create_view(&wgpu::TextureViewDescriptor::default())))
-        .unwrap_or_else(|| {
-            gpu.create_texture_bind_group(
-                &gpu.device
-                    .create_texture(&wgpu::TextureDescriptor {
-                        label: Some("white fallback"),
-                        size: wgpu::Extent3d {
-                            width: 1,
-                            height: 1,
-                            depth_or_array_layers: 1,
-                        },
-                        mip_level_count: 1,
-                        sample_count: 1,
-                        dimension: wgpu::TextureDimension::D2,
-                        format: wgpu::TextureFormat::Rgba8Unorm,
-                        usage: wgpu::TextureUsages::TEXTURE_BINDING,
-                        view_formats: &[],
-                    })
-                    .create_view(&wgpu::TextureViewDescriptor::default()),
-            )
-        })
+    let size = wgpu::Extent3d {
+        width: 1,
+        height: 1,
+        depth_or_array_layers: 1,
+    };
+    let texture = gpu.device.create_texture(&wgpu::TextureDescriptor {
+        label: Some("white"),
+        size,
+        mip_level_count: 1,
+        sample_count: 1,
+        dimension: wgpu::TextureDimension::D2,
+        format: wgpu::TextureFormat::Rgba8Unorm,
+        usage: wgpu::TextureUsages::TEXTURE_BINDING | wgpu::TextureUsages::COPY_DST,
+        view_formats: &[],
+    });
+    gpu.queue.write_texture(
+        wgpu::TexelCopyTextureInfo {
+            texture: &texture,
+            mip_level: 0,
+            origin: wgpu::Origin3d::ZERO,
+            aspect: wgpu::TextureAspect::All,
+        },
+        &[255, 255, 255, 255],
+        wgpu::TexelCopyBufferLayout {
+            offset: 0,
+            bytes_per_row: Some(4),
+            rows_per_image: Some(1),
+        },
+        size,
+    );
+    gpu.create_texture_bind_group(&texture.create_view(&wgpu::TextureViewDescriptor::default()))
 }
 
 fn build_uniform_bind_group(gpu: &GpuDevice, layout: &wgpu::BindGroupLayout, buffer: &wgpu::Buffer) -> wgpu::BindGroup {

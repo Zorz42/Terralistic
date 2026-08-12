@@ -145,7 +145,11 @@ impl TextInput {
     pub fn set_text(&mut self, text: String) {
         self.text = text;
         self.text_changed = true;
-        self.cursor = std::cmp::min(self.cursor, (self.text.len(), self.text.len()));
+        // Both halves, separately. This used to be `min(self.cursor, (len, len))`, which
+        // compares tuples lexicographically: a cursor of `(2, 8)` shrunk against `(3, 3)`
+        // stays `(2, 8)` because 2 < 3, and the 8 then indexes past the end of the new text.
+        // A forwards selection plus a shorter `set_text` was enough to panic.
+        self.cursor = (self.clamp_into_text(self.cursor.0), self.clamp_into_text(self.cursor.1));
     }
 
     /// sets the hint text in the input box
@@ -162,31 +166,97 @@ impl TextInput {
         }
     }
 
-    /// finds a space character on the right
-    fn find_space_right(&self, mut initial_pos: usize, is_ctrl_pressed: bool) -> usize {
-        if initial_pos < self.text.len() {
-            initial_pos += 1;
+    /// The byte index of the character boundary immediately before `pos`.
+    ///
+    /// **The cursor is a byte offset that moves by characters**, which is the one thing to
+    /// keep straight in here. Byte offsets are what `replace_range` and `insert_str` want,
+    /// so that is what `cursor` holds - but stepping one *byte* lands inside a multi-byte
+    /// character and the next edit panics. This used to index `text.chars().nth(pos)`,
+    /// mixing the two outright, and typing an accented letter then pressing left and
+    /// backspace was enough to take the game down.
+    fn prev_boundary(&self, pos: usize) -> usize {
+        let mut pos = pos.saturating_sub(1);
+        while pos > 0 && !self.text.is_char_boundary(pos) {
+            pos -= 1;
         }
+        pos
+    }
 
+    /// The byte index of the character boundary immediately after `pos`, or the end.
+    fn next_boundary(&self, pos: usize) -> usize {
+        let mut pos = pos.saturating_add(1).min(self.text.len());
+        while pos < self.text.len() && !self.text.is_char_boundary(pos) {
+            pos += 1;
+        }
+        pos
+    }
+
+    /// Brings a byte offset inside the text and onto a character boundary.
+    fn clamp_into_text(&self, pos: usize) -> usize {
+        let mut pos = pos.min(self.text.len());
+        while pos > 0 && !self.text.is_char_boundary(pos) {
+            pos -= 1;
+        }
+        pos
+    }
+
+    /// The character starting at `pos`, or `None` at the end of the text.
+    fn char_at(&self, pos: usize) -> Option<char> {
+        self.text.get(pos..).and_then(|rest| rest.chars().next())
+    }
+
+    /// finds a space character on the right
+    fn find_space_right(&self, initial_pos: usize, is_ctrl_pressed: bool) -> usize {
+        let mut pos = self.next_boundary(initial_pos);
         if is_ctrl_pressed {
-            while initial_pos < self.text.len() && !WORD_DELIMITERS.contains(self.text.chars().nth(initial_pos).unwrap_or('\0')) {
-                initial_pos += 1;
+            while pos < self.text.len() && !self.char_at(pos).is_some_and(|c| WORD_DELIMITERS.contains(c)) {
+                pos = self.next_boundary(pos);
             }
         }
-        initial_pos
+        pos
     }
 
     /// finds a space character on the left
-    fn find_space_left(&self, mut initial_pos: usize, is_ctrl_pressed: bool) -> usize {
-        // subtract 1 if initial_pos is bigger than 0
-        initial_pos = initial_pos.saturating_sub(1);
-
+    fn find_space_left(&self, initial_pos: usize, is_ctrl_pressed: bool) -> usize {
+        let mut pos = self.prev_boundary(initial_pos);
         if is_ctrl_pressed {
-            while initial_pos > 0 && !WORD_DELIMITERS.contains(self.text.chars().nth(initial_pos - 1).unwrap_or('\0')) {
-                initial_pos -= 1;
+            while pos > 0 && !self.char_at(self.prev_boundary(pos)).is_some_and(|c| WORD_DELIMITERS.contains(c)) {
+                pos = self.prev_boundary(pos);
             }
         }
-        initial_pos
+        pos
+    }
+
+    /// Runs text through `text_processing`, if the field was given one.
+    fn filter(&self, text: &str) -> String {
+        let Some(process) = &self.text_processing else {
+            return text.to_owned();
+        };
+        text.chars().filter_map(process).collect()
+    }
+
+    /// Replaces the selection with `text` and leaves the cursor after it.
+    ///
+    /// Every route text takes into the field goes through here, which is the point: typing
+    /// ran the characters through `text_processing` and pasting did not, so Ctrl+V could put
+    /// a character into a world name or a server address that typing it would have rejected.
+    fn insert(&mut self, text: &str) {
+        if self.cursor.0 != self.cursor.1 {
+            let (start, end) = self.get_cursor();
+            self.text.replace_range(start..end, "");
+            // Collapse onto the start of the selection. This used to assign
+            // `cursor.1 = cursor.0`, which keeps whichever half happened to be larger - and
+            // after a right to left selection (shift+left) that is the *end*, which no
+            // longer exists once the range is removed, so the insert below panicked on a
+            // non char boundary.
+            self.cursor = (start, start);
+        }
+
+        let filtered = self.filter(text);
+        self.text.insert_str(self.cursor.0, &filtered);
+        self.cursor.0 += filtered.len();
+        self.cursor.1 = self.cursor.0;
+        self.text_changed = true;
     }
 }
 
@@ -315,32 +385,7 @@ impl UiElement for TextInput {
         match event {
             gfx::Event::TextInput(text) => {
                 if self.selected {
-                    if self.cursor.0 != self.cursor.1 {
-                        let (start, end) = self.get_cursor();
-                        self.text.replace_range(start..end, "");
-                        // Collapse onto the start of the selection. This used to assign
-                        // `cursor.1 = cursor.0`, which keeps whichever half happened to be
-                        // larger - and after a right to left selection (shift+left) that
-                        // is the *end*, which no longer exists once the range is removed,
-                        // so the insert below panicked on a non char boundary.
-                        self.cursor = (start, start);
-                    }
-                    // run every character of text through text_processing closure if it exists and create new string
-                    let mut new_text = String::new();
-                    for c in text.chars() {
-                        if let Some(text_processing) = &self.text_processing {
-                            if let Some(c) = text_processing(c) {
-                                new_text.push(c);
-                            }
-                        } else {
-                            new_text.push(c);
-                        }
-                    }
-
-                    self.text.insert_str(self.cursor.0, &new_text);
-                    self.cursor.0 += new_text.len();
-                    self.text_changed = true;
-                    self.cursor.1 = self.cursor.0;
+                    self.insert(text);
                     return true;
                 }
             }
@@ -411,20 +456,13 @@ impl UiElement for TextInput {
                     gfx::Key::V => {
                         if graphics.get_key_state(gfx::Key::LeftControl) {
                             if let Some(text) = graphics.get_clipboard_text() {
-                                if self.cursor.0 != self.cursor.1 {
-                                    self.text.replace_range(self.get_cursor().0..self.get_cursor().1, ""); //add text filtering lol
-                                    self.cursor.0 = self.get_cursor().0;
-                                }
-                                self.text.insert_str(self.cursor.0, &text);
-                                self.cursor.0 += text.len();
-                                self.cursor.1 = self.cursor.0;
-                                self.text_changed = true;
+                                self.insert(&text);
                             }
                         }
                     }
                     gfx::Key::X if graphics.get_key_state(gfx::Key::LeftControl) && self.cursor.0 != self.cursor.1 => {
                         graphics.set_clipboard_text(self.text.get(self.get_cursor().0..self.get_cursor().1).unwrap_or(""));
-                        self.text.replace_range(self.get_cursor().0..self.get_cursor().1, ""); //add text filtering lol
+                        self.text.replace_range(self.get_cursor().0..self.get_cursor().1, "");
                         self.cursor.0 = self.get_cursor().0;
                         self.cursor.1 = self.cursor.0;
                         self.text_changed = true;

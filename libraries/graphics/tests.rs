@@ -961,6 +961,93 @@ mod tests {
         assert!(!input.selected);
     }
 
+    /// The cursor is a byte offset that moves by characters. Stepping it a byte at a time
+    /// put it inside a multi-byte character, and the next edit panicked on a range that was
+    /// not a char boundary - which any accented letter was enough to trigger.
+    #[test]
+    #[allow(clippy::non_ascii_literal, reason = "the character being multi-byte is the point of the test")]
+    fn test_the_cursor_steps_over_a_whole_multibyte_character() {
+        let mut graphics = gfx::HeadlessContext::new();
+        let mut input = input_containing(&mut graphics, "aé");
+        let root = root_container(&graphics);
+
+        input.on_event(&mut graphics, &press(gfx::Key::Left), &root);
+        assert_eq!(input.get_cursor_range(), (1, 1), "left should land before the two byte char, not inside it");
+
+        input.on_event(&mut graphics, &press(gfx::Key::Backspace), &root);
+        assert_eq!(input.get_text(), "é");
+    }
+
+    #[test]
+    #[allow(clippy::non_ascii_literal, reason = "the character being multi-byte is the point of the test")]
+    fn test_deleting_forwards_over_a_multibyte_character() {
+        let mut graphics = gfx::HeadlessContext::new();
+        let mut input = input_containing(&mut graphics, "éa");
+        let root = root_container(&graphics);
+
+        for _ in 0..2 {
+            input.on_event(&mut graphics, &press(gfx::Key::Left), &root);
+        }
+        input.on_event(&mut graphics, &press(gfx::Key::Delete), &root);
+
+        assert_eq!(input.get_text(), "a");
+    }
+
+    #[test]
+    #[allow(clippy::non_ascii_literal, reason = "the character being multi-byte is the point of the test")]
+    fn test_control_left_jumps_words_containing_multibyte_characters() {
+        let mut graphics = gfx::HeadlessContext::new();
+        let mut input = input_containing(&mut graphics, "über café");
+        let root = root_container(&graphics);
+
+        graphics.set_key_state(gfx::Key::LeftControl, true);
+        input.on_event(&mut graphics, &press(gfx::Key::Left), &root);
+
+        // "café" is five bytes, so a byte-counting jump would land mid-character
+        assert_eq!(input.get_text().get(input.get_cursor_range().0..), Some("café"));
+    }
+
+    /// `set_text` clamped with a lexicographic tuple `min`, so a cursor of `(2, 8)` shrunk
+    /// against `(3, 3)` stayed `(2, 8)` - 2 is less than 3, so the whole tuple compared
+    /// smaller and the 8 survived to index past the end of the new text.
+    #[test]
+    fn test_set_text_clamps_both_halves_of_a_forwards_selection() {
+        let mut graphics = gfx::HeadlessContext::new();
+        let mut input = input_containing(&mut graphics, "abcdefghij");
+        let root = root_container(&graphics);
+        for _ in 0..8 {
+            input.on_event(&mut graphics, &press(gfx::Key::Left), &root);
+        }
+        graphics.set_key_state(gfx::Key::LeftShift, true);
+        for _ in 0..6 {
+            input.on_event(&mut graphics, &press(gfx::Key::Right), &root);
+        }
+        graphics.set_key_state(gfx::Key::LeftShift, false);
+        assert_eq!(input.get_cursor_range(), (2, 8));
+
+        input.set_text("abc".to_owned());
+
+        let (start, end) = input.get_cursor_range();
+        assert!(end <= 3, "cursor {start}..{end} is past the end of the new text");
+        input.on_event(&mut graphics, &press(gfx::Key::Backspace), &root);
+    }
+
+    /// Typing ran characters through `text_processing` and pasting did not, so Ctrl+V could
+    /// put a character into a field that typing it would have rejected.
+    #[test]
+    fn test_pasting_is_filtered_the_same_way_typing_is() {
+        let mut graphics = gfx::HeadlessContext::new();
+        let mut input = selected_input();
+        let root = root_container(&graphics);
+        input.text_processing = Some(Box::new(|c: char| c.is_ascii_digit().then_some(c)));
+        graphics.set_clipboard_text("a1b2c3");
+
+        graphics.set_key_state(gfx::Key::LeftControl, true);
+        input.on_event(&mut graphics, &press(gfx::Key::V), &root);
+
+        assert_eq!(input.get_text(), "123");
+    }
+
     #[test]
     fn test_set_text_clamps_the_cursor_into_range() {
         let mut graphics = gfx::HeadlessContext::new();
