@@ -17,11 +17,11 @@ cargo run --release       # client, release
 cargo run -- server       # server with GUI
 cargo run -- server nogui # headless server
 cargo run -- version      # print version
-cargo test                # 380 tests, all should pass
+cargo test                # 385 tests, all should pass
 cargo clippy --all-targets
 ./coverage.sh             # coverage via config-coverage.toml
 
-cargo run --features render-tests -- rendertest             # 43 golden-image tests
+cargo run --features render-tests -- rendertest             # 44 golden-image tests
 cargo run --features render-tests -- rendertest dump        # + viewable PPMs of every case
 cargo run --features render-tests -- rendertest regenerate  # rewrite the goldens
 ```
@@ -359,7 +359,7 @@ untouched.
 
 #### Golden-image tests
 
-`libraries/graphics/render_tests.rs` renders 43 cases into the offscreen texture,
+`libraries/graphics/render_tests.rs` renders 44 cases into the offscreen texture,
 reads them back with `GraphicsContext::capture_frame`, and compares against committed
 `Surface`s in `libraries/graphics/goldens/*.opa`. They cover rects and outlines, `RectArray`,
 textures (scale, flip, source rect, tint), blend modes, both fonts, containers and all nine
@@ -394,7 +394,7 @@ mouse — which the settle hooks also neutralise. **If you add a case, run it fi
 committing the golden.** That is how the atlas bug described under *Texture sampling* was
 found.
 
-Tolerances are per case, and **42 of the 43 are `EXACT`** — bit-identical. Only
+Tolerances are per case, and **43 of the 44 are `EXACT`** — bit-identical. Only
 `render_rect_blur` is `BLURRY`, because the gaussian blur shader's float error differs
 between drivers. The shadow looks like it belongs in that group and does not: `ShadowContext`
 bakes its gaussian into a CPU `Surface` once and draws it as an ordinary `NEAREST` texture.
@@ -420,6 +420,28 @@ Symptoms were a one-pixel-early quadrant boundary on any scaled texture, a missi
 column on sub-rectangle renders, and item sprites showing a sliver of another item.
 **Don't add a fudge factor back.** Sampling happens at pixel centres, so the exact mapping
 already lands strictly inside the region.
+
+##### Draws are snapped to whole pixels
+
+`WgpuBackend::plan_command` rounds a texture draw's destination position to a whole pixel,
+and that is not cosmetic. Sampling is `NEAREST`: a destination pixel takes whichever texel
+its centre falls in. On a whole pixel with an integer scale those centres land halfway
+through a texel and every texel gets the same number of pixels. Half a pixel off and they
+land exactly *on* the texel boundaries, where which side they fall on comes down to the last
+bit of a float interpolated across the quad — so a 3x glyph pixel came out 2 or 4 wide, and
+differently along the string, which reads as uneven and faintly slanted text. At scale 1 it
+swallowed the one pixel gaps between strokes outright.
+
+Layout puts things on half pixels constantly — anything centred inside an odd-width parent,
+anything inside a `Scrollable`, anything mid-animation — so this was visible in the world
+list on every row. `text_on_fractional_offsets` is the case that would catch a regression: it
+draws the same string at four sub-pixel offsets and they must come out identical.
+
+Nothing is lost by snapping. There is no sub-pixel detail in this renderer — no filtering
+anywhere, and the final blit to the display is a nearest integer upscale — so a draw moves by
+at most half a pixel and gains an exact texel mapping. Meshes are **not** snapped: `RectArray`
+maps texture-coordinate corners per vertex rather than sampling across a scaled quad, and the
+world would jitter against the camera if it were.
 
 `TextureAtlas::new` packs left to right **in key order**, which is why `KeyType: Ord`. It
 used to pack in `HashMap` iteration order, which Rust randomises per process, so the atlas

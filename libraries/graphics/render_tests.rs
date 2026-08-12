@@ -301,6 +301,24 @@ fn case_text_scaled(graphics: &mut gfx::GraphicsContext) {
     graphics.font.render_text(graphics, "Scale 3", gfx::FloatPos(20.0, 100.0), 3.0);
 }
 
+/// The same text drawn four times, a quarter of a pixel further along each time.
+///
+/// All four rows must come out **identical**, which is the whole point: the backend snaps a
+/// texture draw to a whole pixel, so where layout happened to put it between pixels cannot
+/// change which texel a destination pixel takes. Without that snap the half pixel row
+/// rendered its 3x glyph pixels 2 and 4 wide instead of 3 - uneven and faintly slanted - and
+/// at scale 1 it swallowed the one pixel gaps between strokes outright.
+///
+/// This is what the world list looked like: every row sat on a fractional offset from the
+/// scroll position, so every world name was drawn wrong in its own way.
+fn case_text_on_fractional_offsets(graphics: &mut gfx::GraphicsContext) {
+    background(graphics);
+    let texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("World", None));
+    for (step, offset) in [0.0_f32, 0.25, 0.5, 0.75].into_iter().enumerate() {
+        texture.render(graphics, 3.0, gfx::FloatPos(20.0 + offset, 5.0 + step as f32 * 56.0), None, false, None);
+    }
+}
+
 fn case_text_mono(graphics: &mut gfx::GraphicsContext) {
     background(graphics);
     if let Some(font_mono) = &graphics.font_mono {
@@ -682,6 +700,11 @@ const CASES: &[Case] = &[
         name: "text_scaled",
         tolerance: Tolerance::EXACT,
         draw: case_text_scaled,
+    },
+    Case {
+        name: "text_on_fractional_offsets",
+        tolerance: Tolerance::EXACT,
+        draw: case_text_on_fractional_offsets,
     },
     Case {
         name: "text_mono",

@@ -382,6 +382,24 @@ impl WgpuBackend {
                 flipped,
                 color,
             } => {
+                // **Snapped to a whole pixel**, which is what keeps a texel from coming out a
+                // pixel wider than its neighbour.
+                //
+                // Sampling is `NEAREST`, so a destination pixel takes whichever texel its
+                // centre falls in. With the quad starting on a whole pixel and an integer
+                // scale, those centres land halfway through a texel and every texel gets the
+                // same number of pixels. Half a pixel off and they land exactly *on* the
+                // boundaries instead, where which side they fall on comes down to the last
+                // bit of a float interpolated across the quad - so a 3x glyph pixel comes out
+                // 2 or 4 wide, and does it differently along the string. That is the uneven,
+                // faintly slanted look text had wherever layout put it on a half pixel, which
+                // in the world list was every row.
+                //
+                // The whole draw moves by at most half a pixel, and there is no sub-pixel
+                // detail to lose: the game renders at logical resolution and the final blit
+                // to the display is a nearest integer upscale.
+                let pos = gfx::FloatPos(pos.0.round(), pos.1.round());
+
                 let mut transform = self.normalization_transform.clone();
                 if flipped {
                     transform.translate(gfx::FloatPos(src_rect.size.0 * scale + pos.0 * 2.0, 0.0));
