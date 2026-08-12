@@ -30,13 +30,12 @@
 //! hover states that read the real mouse position - which the settle hooks also neutralise,
 //! because they stop the animation advancing towards whatever target hover reports.
 //!
-//! One thing is genuinely not deterministic and is therefore not covered: a `TextureAtlas`
-//! built from more than one surface. `TextureAtlas::new` packs in `HashMap` iteration order,
-//! which Rust randomises per process, and `Texture::render` inflates the source rectangle by
-//! `size + 0.1`, so the last column of a region can round into whichever region was packed
-//! next to it. That combination makes the same atlas render differently between runs, and it
-//! is a real rendering bug rather than a testing artifact - block, wall and item sprites all
-//! go through exactly this path.
+//! Running a new case five times before committing its golden is what caught the atlas bug:
+//! `TextureAtlas::new` packed in `HashMap` iteration order, which Rust randomises per
+//! process, and `Texture::render` inflated the source rectangle by `size + 0.1`, so the last
+//! column of a region rounded into whichever region happened to be packed next to it. Both
+//! are fixed - the atlas packs in key order and the source rectangle is mapped exactly - and
+//! `texture_atlas_multiple_regions` is the case that would catch a regression.
 
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
@@ -68,8 +67,14 @@ impl Tolerance {
         max_differing_fraction: 0.0,
     };
 
-    /// Anything that goes through the gaussian blur or shadow shaders accumulates float
-    /// error, which differs between drivers and between GPU and software rasterisers.
+    /// Only for the gaussian blur shader, whose float error differs between drivers and
+    /// between GPU and software rasterisers.
+    ///
+    /// Use this sparingly. The shadow looks like it belongs here and does not:
+    /// `ShadowContext` bakes its gaussian into a CPU `Surface` once and then draws it as an
+    /// ordinary `NEAREST` texture, so it is exactly reproducible. Everything except
+    /// `render_rect_blur` holds at `EXACT`, and a loose tolerance hides real changes - this
+    /// constant once absorbed a genuine one pixel shift in the text input cases.
     const BLURRY: Self = Self {
         max_channel_delta: 4,
         max_differing_fraction: 0.02,
@@ -430,13 +435,9 @@ fn case_sprite_flipped_tinted_centered(graphics: &mut gfx::GraphicsContext) {
 
 /// Atlas construction, `get_rect` and rendering a region back out of the packed texture.
 ///
-/// Deliberately a single entry. A multi-region atlas cannot be asserted on pixel for pixel
-/// today, because two things conspire against it: `TextureAtlas::new` packs in `HashMap`
-/// iteration order, which Rust randomises per process, and `Texture::render` stretches the
-/// source rectangle by `size + 0.1`, so whether the last column rounds into the neighbouring
-/// region depends on where that region happened to land. An earlier version of this case
-/// used three regions and failed intermittently with one column of the next region's colour
-/// bleeding in - see the note in the module docs.
+/// A single entry, so the region fills the whole atlas: this pins the simple case where
+/// there is no neighbour to bleed from, and the square must be a full 64 pixels wide rather
+/// than the 63 the old `size + 0.1` mapping produced.
 fn case_texture_atlas_single_region(graphics: &mut gfx::GraphicsContext) {
     background(graphics);
     let mut surfaces = HashMap::new();
@@ -445,6 +446,26 @@ fn case_texture_atlas_single_region(graphics: &mut gfx::GraphicsContext) {
 
     if let Some(rect) = atlas.get_rect(&0) {
         atlas.get_texture().render(graphics, 8.0, gfx::FloatPos(40.0, 80.0), Some(*rect), false, None);
+    }
+}
+
+/// Three regions packed into one atlas, each drawn back out by key.
+///
+/// This is the case that used to be nondeterministic, before `TextureAtlas::new` started
+/// packing in key order. Each square must be a flat colour: a column of the neighbouring
+/// region's colour along an edge means the source rectangle is being sampled too wide.
+fn case_texture_atlas_multiple_regions(graphics: &mut gfx::GraphicsContext) {
+    background(graphics);
+    let mut surfaces = HashMap::new();
+    surfaces.insert(0_u32, solid_surface(8, gfx::Color::new(230, 60, 60, 255)));
+    surfaces.insert(1_u32, solid_surface(8, gfx::Color::new(60, 230, 60, 255)));
+    surfaces.insert(2_u32, solid_surface(8, gfx::Color::new(60, 60, 230, 255)));
+    let atlas = gfx::TextureAtlas::new(&surfaces);
+
+    for key in 0..3_u32 {
+        if let Some(rect) = atlas.get_rect(&key) {
+            atlas.get_texture().render(graphics, 8.0, gfx::FloatPos(20.0 + key as f32 * 80.0, 80.0), Some(*rect), false, None);
+        }
     }
 }
 
@@ -685,7 +706,7 @@ const CASES: &[Case] = &[
     },
     Case {
         name: "render_rect_shadow",
-        tolerance: Tolerance::BLURRY,
+        tolerance: Tolerance::EXACT,
         draw: case_render_rect_shadow,
     },
     Case {
@@ -712,6 +733,11 @@ const CASES: &[Case] = &[
         name: "texture_atlas_single_region",
         tolerance: Tolerance::EXACT,
         draw: case_texture_atlas_single_region,
+    },
+    Case {
+        name: "texture_atlas_multiple_regions",
+        tolerance: Tolerance::EXACT,
+        draw: case_texture_atlas_multiple_regions,
     },
     Case {
         name: "texture_atlas_empty",
@@ -755,17 +781,17 @@ const CASES: &[Case] = &[
     },
     Case {
         name: "text_input_with_text",
-        tolerance: Tolerance::BLURRY,
+        tolerance: Tolerance::EXACT,
         draw: case_text_input_with_text,
     },
     Case {
         name: "text_input_hint",
-        tolerance: Tolerance::BLURRY,
+        tolerance: Tolerance::EXACT,
         draw: case_text_input_hint,
     },
     Case {
         name: "text_input_overflowing_text",
-        tolerance: Tolerance::BLURRY,
+        tolerance: Tolerance::EXACT,
         draw: case_text_input_overflowing_text,
     },
 ];

@@ -29,7 +29,7 @@ pub(super) struct BlocksData {
     pub block_inventory_data: HashMap<usize, Vec<Option<ItemStack>>>,
 }
 
-#[derive(Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 pub struct BlockId {
     pub(super) id: i8,
 }

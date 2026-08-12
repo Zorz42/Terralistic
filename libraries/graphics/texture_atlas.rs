@@ -12,7 +12,16 @@ pub struct TextureAtlas<KeyType> {
     rects: HashMap<KeyType, Rect>,
 }
 
-impl<KeyType: Eq + Hash + Clone> TextureAtlas<KeyType> {
+impl<KeyType: Eq + Hash + Clone + Ord> TextureAtlas<KeyType> {
+    /// Packs every surface into one texture, left to right in key order.
+    ///
+    /// **The key order matters.** This used to pack in `HashMap` iteration order, which Rust
+    /// randomises per process, so the same set of surfaces produced a different atlas layout
+    /// on every launch. That is invisible as long as a region is sampled perfectly, but
+    /// `Texture::render` samples half a texel wide on each side, so a region whose neighbour
+    /// changed between runs could pick up a different edge colour - the same class of bug
+    /// that made `GameModData.resources` a `BTreeMap`. Sorting by key makes the layout, and
+    /// therefore anything rendered from it, reproducible.
     #[must_use]
     pub fn new(surfaces: &HashMap<KeyType, Surface>) -> Self {
         if surfaces.is_empty() {
@@ -38,8 +47,14 @@ impl<KeyType: Eq + Hash + Clone> TextureAtlas<KeyType> {
         let mut main_surface = Surface::new(gfx::IntSize(total_width, max_height));
         let mut rects = HashMap::new();
 
+        let mut keys: Vec<&KeyType> = surfaces.keys().collect();
+        keys.sort_unstable();
+
         let mut x = 0;
-        for (key, surface) in surfaces {
+        for key in keys {
+            let Some(surface) = surfaces.get(key) else {
+                continue;
+            };
             rects.insert(key.clone(), Rect::new(gfx::FloatPos(x as f32, 0.0), gfx::FloatSize::from(surface.get_size())));
             main_surface.draw(gfx::IntPos(x, 0), surface, Color::new(255, 255, 255, 255)).unwrap_or_else(|e| {
                 println!("Failed to draw surface to main surface (unreachable) {e}");

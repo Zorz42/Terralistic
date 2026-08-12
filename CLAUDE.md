@@ -19,7 +19,7 @@ cargo test                # 366 tests, all should pass
 cargo clippy --all-targets
 ./coverage.sh             # coverage via config-coverage.toml
 
-cargo run --features render-tests -- rendertest             # 42 golden-image tests
+cargo run --features render-tests -- rendertest             # 43 golden-image tests
 cargo run --features render-tests -- rendertest dump        # + viewable PPMs of every case
 cargo run --features render-tests -- rendertest regenerate  # rewrite the goldens
 ```
@@ -222,7 +222,7 @@ framebuffer in `update_window()`, which is what makes the blur/shadow effects po
 
 #### Golden-image tests
 
-`libraries/graphics/render_tests.rs` renders 42 cases into the offscreen `window_texture`,
+`libraries/graphics/render_tests.rs` renders 43 cases into the offscreen `window_texture`,
 reads them back with `GraphicsContext::capture_frame`, and compares against committed
 `Surface`s in `libraries/graphics/goldens/*.opa`. They cover rects and outlines, `RectArray`,
 textures (scale, flip, source rect, tint), blend modes, both fonts, containers and all nine
@@ -244,24 +244,41 @@ Determinism is the whole game, and the toolkit fights it in three places. Each h
 `Button::settle_hover`, `Toggle::settle_animation`, `TextInput::settle_animation`), the blur
 and scale fades (`GraphicsContext::settle_animations`), and hover states that read the real
 mouse — which the settle hooks also neutralise. **If you add a case, run it five times before
-committing the golden.** That is how the atlas bug below was found.
+committing the golden.** That is how the atlas bug described under *Texture sampling* was
+found.
 
-Tolerances are per case: `EXACT` for flat colour and `NEAREST`-sampled geometry, which
-should be bit-identical, and `BLURRY` for anything going through the gaussian blur or shadow
-shaders, where float error differs between drivers.
+Tolerances are per case, and **42 of the 43 are `EXACT`** — bit-identical. Only
+`render_rect_blur` is `BLURRY`, because the gaussian blur shader's float error differs
+between drivers. The shadow looks like it belongs in that group and does not: `ShadowContext`
+bakes its gaussian into a CPU `Surface` once and draws it as an ordinary `NEAREST` texture.
+Keep new cases `EXACT` unless a shader is genuinely involved — a loose tolerance once
+absorbed a real one-pixel shift in the text input cases without failing.
 
-Two known-bad behaviours are deliberately *not* covered rather than frozen in:
+One known-bad behaviour is recorded as-is rather than fixed: **alpha eaten by blending.**
+`glBlendFunc` applies to the alpha channel too, so drawing anything translucent lowers the
+framebuffer's alpha below 1. Invisible on screen, because the final blit ignores alpha, but
+it shows up in a capture.
 
-- **Atlas region bleed.** `TextureAtlas::new` packs in `HashMap` order, which Rust
-  randomises per process, and `Texture::render` inflates the source rect by `size + 0.1`.
-  Together, the last column of a region can round into whichever region was packed beside
-  it, so a multi-region atlas renders differently between runs. Block, wall and item sprites
-  all go through this path. The test uses a single-region atlas; fixing this needs
-  deterministic packing (the `BTreeMap` treatment `GameModData.resources` already got) *and*
-  a look at that `+ 0.1`.
-- **Alpha eaten by blending.** `glBlendFunc` applies to the alpha channel too, so drawing
-  anything translucent lowers the framebuffer's alpha below 1. Invisible on screen because
-  the final blit ignores alpha, but it shows up in a capture. The goldens record it as-is.
+#### Texture sampling
+
+Two bugs here were found by the golden tests and fixed; both are easy to reintroduce.
+
+`Texture::render` maps the quad's `[0,1]` texture coordinate onto the source rectangle as
+`u = (src.pos + t * src.size) / texture_width`. It used to stretch by `src.size + 0.1`
+instead. That extra tenth of a texel pushed the last output column past the end of the
+source rectangle: for an 8-texel region drawn at scale 8, the final pixel sampled
+`src.pos + 63.5 * 8.1 / 64 = src.pos + 8.037`, which floors to the *neighbouring* texel.
+Symptoms were a one-pixel-early quadrant boundary on any scaled texture, a missing last
+column on sub-rectangle renders, and item sprites showing a sliver of another item.
+**Don't add a fudge factor back.** Sampling happens at pixel centres, so the exact mapping
+already lands strictly inside the region.
+
+`TextureAtlas::new` packs left to right **in key order**, which is why `KeyType: Ord`. It
+used to pack in `HashMap` iteration order, which Rust randomises per process, so the atlas
+layout differed on every launch — the same class of bug that made `GameModData.resources` a
+`BTreeMap`. On its own that was harmless for blocks and walls, which go through
+`RectArray` and map texture-coordinate corners exactly, but it combined with the `+ 0.1`
+above to make item rendering differ run to run.
 
 Several older UI pieces predate the `UiElement` trait and are hand-rolled — the `//TODO make
 this a UI element` comments in `client/game/chat.rs`, `pause_menu.rs`, `debug_menu.rs`,

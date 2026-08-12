@@ -12,7 +12,7 @@ use crate::shared::walls::WallId;
 
 const VELOCITY_RANGE: f32 = 5.0;
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 pub struct ItemId {
     pub(super) id: i32,
 }

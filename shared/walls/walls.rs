@@ -9,7 +9,7 @@ use crate::shared::walls::{BreakingWall, Wall};
 use crate::shared::world_map::WorldMap;
 
 /// `WallId` stores id to a type of wall.
-#[derive(Deserialize, Serialize, Clone, Copy, Eq, PartialEq, Hash)]
+#[derive(Deserialize, Serialize, Clone, Copy, Eq, PartialEq, PartialOrd, Ord, Hash)]
 pub struct WallId {
     pub id: i8,
 }

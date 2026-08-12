@@ -111,7 +111,7 @@ impl Texture {
 
             transform = self.get_normalization_transform();
             transform.translate(src_rect.pos);
-            transform.stretch((src_rect.size.0 + 0.1, src_rect.size.1 + 0.1));
+            transform.stretch((src_rect.size.0, src_rect.size.1));
 
             gl::UniformMatrix3fv(graphics.passthrough_shader.texture_transform_matrix, 1, gl::FALSE, transform.matrix.as_ptr());
             gl::Uniform4f(
