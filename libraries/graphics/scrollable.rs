@@ -28,7 +28,7 @@ impl Scrollable {
     }
 
     #[must_use]
-    pub fn get_scroll_x(&self, graphics: &gfx::GraphicsContext, parent_container: &gfx::Container) -> f32 {
+    pub fn get_scroll_x(&self, graphics: &dyn gfx::UiContext, parent_container: &gfx::Container) -> f32 {
         let container = self.get_container(graphics, parent_container);
         container.rect.pos.0 - self.scroll_pos
     }
@@ -69,7 +69,7 @@ impl UiElement for Scrollable {
         }
     }
 
-    fn on_event_inner(&mut self, _: &mut gfx::GraphicsContext, event: &gfx::Event, _: &gfx::Container) -> bool {
+    fn on_event_inner(&mut self, _: &mut dyn gfx::UiContext, event: &gfx::Event, _: &gfx::Container) -> bool {
         if let gfx::Event::MouseScroll(delta) = event {
             let delta = -*delta * 0.8;
             if delta > 0.0 {
@@ -83,7 +83,7 @@ impl UiElement for Scrollable {
 
     /// This function returns the container of the rectangle.
     /// The container has the position of render rect.
-    fn get_container(&self, graphics: &gfx::GraphicsContext, parent_container: &gfx::Container) -> gfx::Container {
+    fn get_container(&self, graphics: &dyn gfx::UiContext, parent_container: &gfx::Container) -> gfx::Container {
         gfx::Container::new(graphics, self.rect.pos, self.rect.size, self.orientation, Some(parent_container))
     }
 }

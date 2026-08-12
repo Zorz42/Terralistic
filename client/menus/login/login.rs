@@ -194,7 +194,7 @@ impl UiElement for LoginMenu {
             self.username_input.get_text().is_empty() || self.password_input.get_text().is_empty() || (self.login_register_toggle.toggled && !is_valid_email(self.email_input.get_text()));
     }
 
-    fn on_event_inner(&mut self, graphics: &mut gfx::GraphicsContext, event: &gfx::Event, parent_container: &gfx::Container) -> bool {
+    fn on_event_inner(&mut self, graphics: &mut dyn gfx::UiContext, event: &gfx::Event, parent_container: &gfx::Container) -> bool {
         if let gfx::Event::KeyRelease(key, ..) = event {
             match key {
                 gfx::Key::Escape => {
@@ -230,7 +230,7 @@ impl UiElement for LoginMenu {
         false
     }
 
-    fn get_container(&self, graphics: &gfx::GraphicsContext, parent_container: &gfx::Container) -> gfx::Container {
+    fn get_container(&self, graphics: &dyn gfx::UiContext, parent_container: &gfx::Container) -> gfx::Container {
         gfx::Container::new(graphics, parent_container.rect.pos, parent_container.rect.size, parent_container.orientation, None)
     }
 }

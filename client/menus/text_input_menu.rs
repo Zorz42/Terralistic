@@ -63,7 +63,7 @@ impl UiElement for TextInputMenu {
         vec![&self.back_button, &self.confirm_button, &self.input_field, &self.title]
     }
 
-    fn on_event_inner(&mut self, graphics: &mut gfx::GraphicsContext, event: &gfx::Event, parent_container: &gfx::Container) -> bool {
+    fn on_event_inner(&mut self, graphics: &mut dyn gfx::UiContext, event: &gfx::Event, parent_container: &gfx::Container) -> bool {
         if self.back_button.on_event_inner(graphics, event, parent_container) {
             self.close_menu = true;
             return true;
@@ -93,7 +93,7 @@ impl UiElement for TextInputMenu {
         false
     }
 
-    fn get_container(&self, graphics: &gfx::GraphicsContext, parent_container: &gfx::Container) -> gfx::Container {
+    fn get_container(&self, graphics: &dyn gfx::UiContext, parent_container: &gfx::Container) -> gfx::Container {
         gfx::Container::new(graphics, parent_container.rect.pos, parent_container.rect.size, parent_container.orientation, None)
     }
 }

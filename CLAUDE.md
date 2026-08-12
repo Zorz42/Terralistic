@@ -15,7 +15,7 @@ cargo run --release       # client, release
 cargo run -- server       # server with GUI
 cargo run -- server nogui # headless server
 cargo run -- version      # print version
-cargo test                # 239 tests, all should pass
+cargo test                # 310 tests, all should pass
 cargo clippy --all-targets
 ./coverage.sh             # coverage via config-coverage.toml
 ```
@@ -180,6 +180,32 @@ Layout is `Container` + `Orientation` (`TOP_LEFT`, `CENTER`, …): a child posit
 relative to a parent container by orientation plus offset. Theme constants (colors, `SPACING`,
 `BLUR`, `TRANSPARENCY`) are in `theme.rs` — use them rather than literals.
 
+#### `UiContext`: the line between layout and drawing
+
+The trait methods split by what they need:
+
+| Method | Takes | Why |
+|---|---|---|
+| `get_container`, `on_event_inner` | `&dyn UiContext` | layout and input only |
+| `render_inner`, `update_inner` | `&mut GraphicsContext` | needs GL |
+
+`UiContext` (`ui_context.rs`) is the whole non-rendering surface of `GraphicsContext`:
+window size, mouse position, key states, clipboard. `GraphicsContext` implements it, and so
+does `HeadlessContext`, a `#[cfg(test)]` struct whose inputs are plain fields. That is what
+makes hit testing, layout and event routing testable in CI with no window — see the headless
+half of `libraries/graphics/tests.rs`.
+
+**Keep new widgets off `GraphicsContext` in those two methods.** If an event handler needs
+to draw or upload a texture, the work almost always belongs in `render_inner`. Three menus
+genuinely do not fit — `world_creation` and `multiplayer_selector` build the next menu, and
+`settings_menu` applies vsync/scale — and they use the documented escape hatch
+`UiContext::as_graphics_context() -> Option<&mut GraphicsContext>`, which is `None` headlessly.
+Those branches are the only UI logic tests cannot reach.
+
+Companion `#[cfg(test)]` constructors exist for the same reason: `Font::new_headless` (skips
+the glyph texture upload, so text measurement and `create_text_surface` are testable),
+`Texture::new_sized` (reports a size, allocates nothing) and `TextInput::new_headless`.
+
 Rendering goes to an offscreen texture (`window_texture`) which is blitted to the default
 framebuffer in `update_window()`, which is what makes the blur/shadow effects possible.
 
@@ -254,6 +280,9 @@ is a `BTreeMap` to keep that stable — don't change it back.
 - Test files follow one convention: a `tests.rs` beside the module it covers, declared in
   the neighbouring `mod.rs`, containing `#![cfg(test)] mod tests { .. }`. Every module
   directory now has one except `shared/liquids`.
+- Tests never need a graphics context. UI tests drive real widgets through
+  `gfx::HeadlessContext` — see the `UiContext` section above. Nothing in the suite opens a
+  window, so it all runs on CI's headless Ubuntu.
 - `shared/liquids/` is not just dead, it is **entirely commented out** — both `liquids.rs`
   and `liquid_type.rs` are one `/* .. */` block from first line to last, so the module
   compiles to nothing. Don't assume any of it works.

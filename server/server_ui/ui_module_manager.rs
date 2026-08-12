@@ -14,6 +14,7 @@ use crate::server::server_ui::UiMessageType;
 /// `Split` means that the node's window area splits into 2 more nodes.
 /// `Module` means that the node is a module which takes up the node's window area.
 /// Ideally Nothing should never be used as that means the upper node splits into a module ans nothing, when it itself should just be a module. Nothing may be used for editing the tree in the future
+use crate::libraries::graphics::UiContext;
 #[derive(serde_derive::Serialize, serde_derive::Deserialize)]
 pub enum ModuleTreeNodeType {
     Nothing,

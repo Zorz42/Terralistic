@@ -14,6 +14,7 @@ use crate::libraries::graphics::passthrough_shader::PassthroughShader;
 use crate::libraries::graphics::shadow::ShadowContext;
 use crate::libraries::graphics::transformation::Transformation;
 use crate::libraries::graphics::Font;
+use crate::libraries::graphics::UiContext;
 
 /// This stores all the values needed for rendering.
 pub struct GraphicsContext {
@@ -33,7 +34,7 @@ pub struct GraphicsContext {
     key_states: HashMap<gfx::Key, bool>,
     events: Vec<gfx::Event>,
     pub(super) shadow_context: ShadowContext,
-    pub clipboard_context: Clipboard,
+    clipboard_context: Clipboard,
     pub block_key_states: bool,
     pub scale: f32,
     real_scale: f32,
@@ -276,27 +277,6 @@ impl GraphicsContext {
         self.sdl_window.set_minimum_size(size.0 as u32, size.1 as u32).map_err(|e| anyhow!(e))
     }
 
-    /// Get the current window size
-    #[must_use]
-    pub fn get_window_size(&self) -> gfx::FloatSize {
-        gfx::FloatSize(self.sdl_window.size().0 as f32 / self.real_scale, self.sdl_window.size().1 as f32 / self.real_scale)
-    }
-
-    /// Gets mouse position
-    #[must_use]
-    pub fn get_mouse_pos(&self) -> gfx::FloatPos {
-        gfx::FloatPos(
-            self.sdl_event_pump.mouse_state().x() as f32 / self.real_scale,
-            self.sdl_event_pump.mouse_state().y() as f32 / self.real_scale,
-        )
-    }
-
-    /// Gets key state
-    #[must_use]
-    pub fn get_key_state(&self, key: gfx::Key) -> bool {
-        !self.block_key_states && *self.key_states.get(&key).unwrap_or(&false)
-    }
-
     /// Sets key state
     fn set_key_state(&mut self, key: gfx::Key, state: bool) {
         *self.key_states.entry(key).or_insert(false) = state;
@@ -334,6 +314,39 @@ impl GraphicsContext {
         if let Err(error) = self.video_subsystem.gl_set_swap_interval(swap_interval) {
             println!("Error setting VSync: {error}");
         }
+    }
+}
+
+/// The window, pointer, keyboard and clipboard, which is everything a UI element is allowed
+/// to observe. Kept deliberately separate from rendering - see `gfx::UiContext`.
+impl UiContext for GraphicsContext {
+    fn get_window_size(&self) -> gfx::FloatSize {
+        gfx::FloatSize(self.sdl_window.size().0 as f32 / self.real_scale, self.sdl_window.size().1 as f32 / self.real_scale)
+    }
+
+    fn get_mouse_pos(&self) -> gfx::FloatPos {
+        gfx::FloatPos(
+            self.sdl_event_pump.mouse_state().x() as f32 / self.real_scale,
+            self.sdl_event_pump.mouse_state().y() as f32 / self.real_scale,
+        )
+    }
+
+    fn get_key_state(&self, key: gfx::Key) -> bool {
+        !self.block_key_states && *self.key_states.get(&key).unwrap_or(&false)
+    }
+
+    fn get_clipboard_text(&mut self) -> Option<String> {
+        self.clipboard_context.get_text().ok()
+    }
+
+    fn set_clipboard_text(&mut self, text: &str) {
+        if let Err(error) = self.clipboard_context.set_text(text.to_owned()) {
+            println!("Error setting clipboard contents: {error}");
+        }
+    }
+
+    fn as_graphics_context(&mut self) -> Option<&mut Self> {
+        Some(self)
     }
 }
 

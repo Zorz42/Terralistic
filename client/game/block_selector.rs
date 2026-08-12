@@ -11,6 +11,7 @@ use super::networking::ClientNetworking;
 /// Block selector is used to select a block.
 /// It draws a red rectangle around the block
 /// that is currently selected with the mouse.
+use crate::libraries::graphics::UiContext;
 pub struct BlockSelector {
     prev_selected: (i32, i32),
     breaking: bool,

@@ -31,7 +31,7 @@ pub struct Container {
 impl Container {
     /// Creates a new container.
     #[must_use]
-    pub fn new(graphics: &gfx::GraphicsContext, pos: gfx::FloatPos, size: gfx::FloatSize, orientation: Orientation, parent_container: Option<&Self>) -> Self {
+    pub fn new(graphics: &dyn gfx::UiContext, pos: gfx::FloatPos, size: gfx::FloatSize, orientation: Orientation, parent_container: Option<&Self>) -> Self {
         let mut result = Self {
             rect: Rect::new(pos, size),
             abs_rect: Rect::new(gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, 0.0)),
@@ -43,7 +43,7 @@ impl Container {
     }
 
     #[must_use]
-    pub fn default(graphics_context: &gfx::GraphicsContext) -> Self {
+    pub fn default(graphics_context: &dyn gfx::UiContext) -> Self {
         Self::new(graphics_context, gfx::FloatPos(0.0, 0.0), graphics_context.get_window_size(), TOP_LEFT, None)
     }
 
@@ -56,7 +56,7 @@ impl Container {
         &self.abs_rect
     }
 
-    fn update_position(&mut self, graphics: &gfx::GraphicsContext, parent_container: Option<&Self>) {
+    fn update_position(&mut self, graphics: &dyn gfx::UiContext, parent_container: Option<&Self>) {
         let parent_rect = parent_container.map_or_else(|| Rect::new(gfx::FloatPos(0.0, 0.0), graphics.get_window_size()), |parent| *parent.get_absolute_rect());
 
         self.abs_rect.pos = parent_rect.pos + self.rect.pos + gfx::FloatPos(parent_rect.size.0 * self.orientation.x, parent_rect.size.1 * self.orientation.y)
@@ -79,7 +79,7 @@ impl UiElement for Container {
         self.update_position(graphics, Some(parent_container));
     }
 
-    fn get_container(&self, graphics: &gfx::GraphicsContext, parent_container: &Container) -> Container {
+    fn get_container(&self, graphics: &dyn gfx::UiContext, parent_container: &Container) -> Container {
         Self::new(graphics, self.rect.pos, self.rect.size, self.orientation, Some(parent_container))
     }
 }

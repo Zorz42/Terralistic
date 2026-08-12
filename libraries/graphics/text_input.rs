@@ -67,14 +67,61 @@ impl TextInput {
         }
     }
 
+    /// A text input with no GPU textures behind it, for tests.
+    ///
+    /// The text texture is given the height of one line of the real font (16px) and no
+    /// width, which is what `new` ends up with for empty text. Everything this type does
+    /// with the keyboard, the cursor and the clipboard is unaffected; only rendering and
+    /// the *width* of the drawn text depend on the missing texture.
+    #[cfg(test)]
+    #[must_use]
+    pub fn new_headless() -> Self {
+        let mut cursor_rect = gfx::RenderRect::new(gfx::FloatPos(0.0, 0.0), gfx::FloatSize(1.0, 1.0));
+        cursor_rect.smooth_factor = 30.0;
+        cursor_rect.fill_color = gfx::WHITE;
+
+        Self {
+            pos: gfx::FloatPos(0.0, 0.0),
+            orientation: gfx::TOP_LEFT,
+            width: GFX_DEFAULT_TEXT_INPUT_WIDTH,
+            hint_texture: gfx::Texture::new(),
+            padding: GFX_DEFAULT_TEXT_INPUT_PADDING,
+            scale: 1.0,
+            color: GFX_DEFAULT_TEXT_INPUT_COLOR,
+            border_color: GFX_DEFAULT_TEXT_INPUT_BORDER_COLOR,
+            hover_color: GFX_DEFAULT_TEXT_INPUT_HOVER_COLOR,
+            hover_border_color: GFX_DEFAULT_TEXT_INPUT_HOVER_BORDER_COLOR,
+            hover_progress: 0.0,
+            cursor_color_progress: 0.0,
+            hint_color_progress: 1.0,
+            animation_timer: gfx::AnimationTimer::new(1),
+            text: String::new(),
+            text_texture: gfx::Texture::new_sized(gfx::FloatSize(0.0, 16.0)),
+            text_changed: true,
+            selected: false,
+            shadow_intensity: GFX_DEFAULT_TEXT_INPUT_SHADOW_INTENSITY,
+            cursor: (0, 0),
+            cursor_rect,
+            text_processing: None,
+        }
+    }
+
     #[must_use]
     pub fn get_size(&self) -> gfx::FloatSize {
         gfx::FloatSize((self.width) * self.scale, (self.text_texture.get_texture_size().1 + self.padding * 2.0) * self.scale)
     }
 
+    /// The selection as an ordered `(start, end)` byte range. Exposed for tests, which
+    /// otherwise could not see where the cursor ended up.
+    #[cfg(test)]
+    #[must_use]
+    pub const fn get_cursor_range(&self) -> (usize, usize) {
+        self.get_cursor()
+    }
+
     /// Checks if the button is hovered with a mouse
     #[must_use]
-    pub fn is_hovered(&self, graphics: &gfx::GraphicsContext, parent_container: &gfx::Container) -> bool {
+    pub fn is_hovered(&self, graphics: &dyn gfx::UiContext, parent_container: &gfx::Container) -> bool {
         let container = self.get_container(graphics, parent_container);
         let rect = container.get_absolute_rect();
         let mouse_pos = graphics.get_mouse_pos();
@@ -268,13 +315,19 @@ impl UiElement for TextInput {
 
     #[allow(clippy::too_many_lines)] // TODO: split this up
     #[allow(clippy::cognitive_complexity)]
-    fn on_event_inner(&mut self, graphics: &mut gfx::GraphicsContext, event: &gfx::Event, parent_container: &gfx::Container) -> bool {
+    fn on_event_inner(&mut self, graphics: &mut dyn gfx::UiContext, event: &gfx::Event, parent_container: &gfx::Container) -> bool {
         match event {
             gfx::Event::TextInput(text) => {
                 if self.selected {
                     if self.cursor.0 != self.cursor.1 {
-                        self.text.replace_range(self.get_cursor().0..self.get_cursor().1, "");
-                        self.cursor.1 = self.cursor.0;
+                        let (start, end) = self.get_cursor();
+                        self.text.replace_range(start..end, "");
+                        // Collapse onto the start of the selection. This used to assign
+                        // `cursor.1 = cursor.0`, which keeps whichever half happened to be
+                        // larger - and after a right to left selection (shift+left) that
+                        // is the *end*, which no longer exists once the range is removed,
+                        // so the insert below panicked on a non char boundary.
+                        self.cursor = (start, start);
                     }
                     // run every character of text through text_processing closure if it exists and create new string
                     let mut new_text = String::new();
@@ -356,17 +409,12 @@ impl UiElement for TextInput {
                     }
                     gfx::Key::C => {
                         if graphics.get_key_state(gfx::Key::LeftControl) {
-                            graphics
-                                .clipboard_context
-                                .set_text(self.text.get(self.get_cursor().0..self.get_cursor().1).unwrap_or("").to_owned())
-                                .unwrap_or_else(|e| {
-                                    println!("Error setting clipboard contents: {e}");
-                                });
+                            graphics.set_clipboard_text(self.text.get(self.get_cursor().0..self.get_cursor().1).unwrap_or(""));
                         }
                     }
                     gfx::Key::V => {
                         if graphics.get_key_state(gfx::Key::LeftControl) {
-                            if let Ok(text) = graphics.clipboard_context.get_text() {
+                            if let Some(text) = graphics.get_clipboard_text() {
                                 if self.cursor.0 != self.cursor.1 {
                                     self.text.replace_range(self.get_cursor().0..self.get_cursor().1, ""); //add text filtering lol
                                     self.cursor.0 = self.get_cursor().0;
@@ -379,14 +427,7 @@ impl UiElement for TextInput {
                         }
                     }
                     gfx::Key::X if graphics.get_key_state(gfx::Key::LeftControl) && self.cursor.0 != self.cursor.1 => {
-                        if graphics.get_key_state(gfx::Key::LeftControl) {
-                            graphics
-                                .clipboard_context
-                                .set_text(self.text.get(self.get_cursor().0..self.get_cursor().1).unwrap_or("").to_owned())
-                                .unwrap_or_else(|e| {
-                                    println!("Failed to copy to clipboard {e}");
-                                });
-                        }
+                        graphics.set_clipboard_text(self.text.get(self.get_cursor().0..self.get_cursor().1).unwrap_or(""));
                         self.text.replace_range(self.get_cursor().0..self.get_cursor().1, ""); //add text filtering lol
                         self.cursor.0 = self.get_cursor().0;
                         self.cursor.1 = self.cursor.0;
@@ -402,7 +443,7 @@ impl UiElement for TextInput {
     }
 
     /// Generates the container for the text input. It it private, since a text input should never contain other elements.
-    fn get_container(&self, graphics: &gfx::GraphicsContext, parent_container: &gfx::Container) -> gfx::Container {
+    fn get_container(&self, graphics: &dyn gfx::UiContext, parent_container: &gfx::Container) -> gfx::Container {
         gfx::Container::new(graphics, self.pos, self.get_size(), self.orientation, Some(parent_container))
     }
 }

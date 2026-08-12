@@ -54,6 +54,17 @@ impl Texture {
         result
     }
 
+    /// A texture that reports a size but owns nothing on the GPU, for tests.
+    ///
+    /// Layout code only ever asks a texture for `get_texture_size`, so this is enough to
+    /// drive a `Button` or a `Sprite` headlessly. It is safe to drop: `free_texture`
+    /// skips the `glDeleteTextures` call while the handle is still `u32::MAX`.
+    #[cfg(test)]
+    #[must_use]
+    pub const fn new_sized(size: gfx::FloatSize) -> Self {
+        Self { texture_handle: u32::MAX, size }
+    }
+
     /// Deletes the current texture if it exists.
     fn free_texture(&mut self) {
         if self.texture_handle != u32::MAX {

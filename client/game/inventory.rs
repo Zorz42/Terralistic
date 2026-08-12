@@ -11,6 +11,7 @@ use crate::shared::items::{ItemStack, RecipeId};
 use crate::shared::packet::Packet;
 use gfx::{BaseUiElement, UiElement};
 
+use crate::libraries::graphics::UiContext;
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 enum OpenState {
     Closed,

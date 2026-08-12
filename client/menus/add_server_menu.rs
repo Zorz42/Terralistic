@@ -140,12 +140,13 @@ impl UiElement for AddServerMenu {
         self.add_button.disabled = self.server_name_input.get_text().is_empty() || server_exists(self.server_name_input.get_text(), &self.servers);
     }
 
-    fn on_event_inner(&mut self, graphics: &mut gfx::GraphicsContext, event: &gfx::Event, parent_container: &gfx::Container) -> bool {
-        if self.add_button.on_event(graphics, event, &self.get_container(graphics, parent_container)) {
+    fn on_event_inner(&mut self, graphics: &mut dyn gfx::UiContext, event: &gfx::Event, parent_container: &gfx::Container) -> bool {
+        let container = self.get_container(graphics, parent_container);
+        if self.add_button.on_event(graphics, event, &container) {
             self.add_server();
             self.close_self = true;
         }
-        if self.back_button.on_event(graphics, event, &self.get_container(graphics, parent_container)) {
+        if self.back_button.on_event(graphics, event, &container) {
             self.close_self = true;
         }
         if let gfx::Event::KeyRelease(key, ..) = event {
@@ -168,7 +169,7 @@ impl UiElement for AddServerMenu {
         false
     }
 
-    fn get_container(&self, graphics: &gfx::GraphicsContext, parent_container: &gfx::Container) -> gfx::Container {
+    fn get_container(&self, graphics: &dyn gfx::UiContext, parent_container: &gfx::Container) -> gfx::Container {
         gfx::Container::new(graphics, parent_container.rect.pos, parent_container.rect.size, parent_container.orientation, None)
     }
 }

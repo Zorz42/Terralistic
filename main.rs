@@ -152,6 +152,7 @@ use crate::libraries::graphics as gfx;
 use crate::server::server_core::{BindAddress, Server, MULTIPLAYER_PORT};
 use crate::server::server_ui::UiManager;
 
+use crate::libraries::graphics::UiContext;
 pub mod libraries {
     pub mod events;
     pub mod graphics;

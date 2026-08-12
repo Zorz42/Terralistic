@@ -5,6 +5,7 @@ use super::theme::{GFX_DEFAULT_BUTTON_BORDER_COLOR, GFX_DEFAULT_BUTTON_COLOR, GF
 
 /// A Button is a rectangle with an image in it.
 /// It can be clicked and has a hover animation.
+use crate::libraries::graphics::UiContext;
 pub struct Button {
     pub pos: gfx::FloatPos,
     pub orientation: gfx::Orientation,
@@ -57,7 +58,7 @@ impl Button {
 
     /// Checks if the button is hovered with a mouse.
     #[must_use]
-    pub fn is_hovered(&self, graphics: &gfx::GraphicsContext, parent_container: &gfx::Container) -> bool {
+    pub fn is_hovered(&self, graphics: &dyn gfx::UiContext, parent_container: &gfx::Container) -> bool {
         if self.disabled {
             return false;
         }
@@ -139,7 +140,7 @@ impl UiElement for Button {
     }
 
     ///calls `on_click` when clicked
-    fn on_event_inner(&mut self, graphics: &mut gfx::GraphicsContext, event: &gfx::Event, parent_container: &gfx::Container) -> bool {
+    fn on_event_inner(&mut self, graphics: &mut dyn gfx::UiContext, event: &gfx::Event, parent_container: &gfx::Container) -> bool {
         if let gfx::Event::KeyRelease(key, ..) = event {
             if *key == gfx::Key::MouseLeft && self.is_hovered(graphics, parent_container) && !self.disabled {
                 (self.on_click)();
@@ -150,7 +151,7 @@ impl UiElement for Button {
     }
 
     /// Generates the container for the button.
-    fn get_container(&self, graphics: &gfx::GraphicsContext, parent_container: &gfx::Container) -> gfx::Container {
+    fn get_container(&self, graphics: &dyn gfx::UiContext, parent_container: &gfx::Container) -> gfx::Container {
         gfx::Container::new(graphics, self.pos, self.get_size(), self.orientation, Some(parent_container))
     }
 }

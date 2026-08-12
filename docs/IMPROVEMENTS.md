@@ -39,6 +39,20 @@ Found while doing the above, not in the original catalogue:
 |---|---|
 | `base_game.mod` was never reproducible — `HashMap` iteration order meant a committed artifact changed on every build | done — `GameModData.resources` is a `BTreeMap` |
 | The blit in `update_window` was skipped entirely on any OS that is not windows/macos/linux | done (#178) |
+| `TextInput` panicked when typing over a right-to-left selection | done — see below |
+
+### The `TextInput` selection panic
+
+Found by the headless UI tests, and reachable in the running game: select text with
+shift+left, then type. The `Event::TextInput` handler deleted the selected range and then
+collapsed the cursor with `self.cursor.1 = self.cursor.0`, which keeps whichever half is
+*larger*. After a right-to-left selection that is the end of the range, which no longer
+exists once the range is removed, so the following `insert_str` panicked on a non
+char-boundary index.
+
+The fix collapses onto the start of the selection, matching what the backspace, delete and
+paste handlers already did. `test_typing_replaces_the_selection` is the regression test,
+and `test_typing_replaces_a_forwards_selection` pins the other direction.
 
 ### The one open decision: 5.1
 
@@ -333,6 +347,30 @@ are pure functions with real branching logic and no coverage at all.
 Marked by `//TODO` comments in `client/game/chat.rs`, `pause_menu.rs`, `debug_menu.rs`,
 `inventory.rs`, `respawn_screen.rs`, plus `settings_menu.rs:112`
 (`//TODO this is shit, make it centered on the slider`). Each is a self-contained conversion.
+
+There is now a second reason to do these: anything implementing `UiElement` gets its layout
+and event handling tested headlessly for free (see 5.4), while a hand-rolled element does
+not.
+
+### 5.4 UI logic could not be tested at all — DONE
+
+`get_container` and `on_event_inner` took a `&GraphicsContext`, which cannot be constructed
+without a window and an OpenGL context, so none of the layout or input handling was
+reachable from a test. They now take a `&dyn UiContext` — window size, mouse, keys,
+clipboard and nothing else — which `GraphicsContext` and the test-only `HeadlessContext`
+both implement.
+
+That brought layout, hit testing, event routing, `Button`, `Toggle`, `Scrollable`,
+`TextInput` and the font's text measurement under test, and immediately turned up the
+`TextInput` selection panic above.
+
+Not covered, and the honest limits of the approach:
+
+- `render_inner` / `update_inner` still need real GL, so nothing that draws is tested.
+- The three menus that build GPU resources from an event handler take the
+  `as_graphics_context()` escape hatch, and those branches are skipped headlessly.
+- The `HeadlessContext` is a stand-in. It answers the same questions as the real context,
+  but it is not proof that SDL reports what we think it does.
 
 ---
 

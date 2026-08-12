@@ -9,6 +9,7 @@ use std::rc::Rc;
 
 use super::{MultiplayerSelector, SingleplayerSelector};
 
+use crate::libraries::graphics::UiContext;
 pub enum SecondaryMenu {
     None,
     SingleMenu((MenuStack, usize)),

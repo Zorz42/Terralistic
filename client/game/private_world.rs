@@ -81,7 +81,7 @@ impl gfx::UiElement for PrivateWorld {
         vec![]
     }
 
-    fn get_container(&self, graphics: &gfx::GraphicsContext, _: &gfx::Container) -> gfx::Container {
+    fn get_container(&self, graphics: &dyn gfx::UiContext, _: &gfx::Container) -> gfx::Container {
         gfx::Container::default(graphics)
     }
 }

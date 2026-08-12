@@ -4,6 +4,7 @@ use gfx::{BaseUiElement, UiElement};
 
 /// The debug menu shows useful information about the game.
 /// Like fps, time per frame, position, etc.
+use crate::libraries::graphics::UiContext;
 pub struct DebugMenu {
     open: bool,
     back_rect: gfx::RenderRect,

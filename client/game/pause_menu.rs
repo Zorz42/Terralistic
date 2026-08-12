@@ -13,6 +13,7 @@ use std::rc::Rc;
 
 /// The pause menu actually does not pause the game (ironic, I know).
 /// It just shows a menu with options to quit the world or go back to the game.
+use crate::libraries::graphics::UiContext;
 pub struct PauseMenu {
     open: bool,
     resume_button: gfx::Button,

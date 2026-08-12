@@ -7,6 +7,7 @@ use gfx::{BaseUiElement, UiElement};
 ///
 /// It implements the `BackgroundRect` trait. It draws the background.opa image
 /// scaled to the window's height and scrolled to the left.
+use crate::libraries::graphics::UiContext;
 pub struct MenuBack {
     background: gfx::Texture,
     back_rect: gfx::RenderRect,
@@ -67,7 +68,7 @@ impl UiElement for MenuBack {
         self.back_container.rect = new_container.rect;
     }
 
-    fn get_container(&self, graphics: &gfx::GraphicsContext, parent_container: &gfx::Container) -> gfx::Container {
+    fn get_container(&self, graphics: &dyn gfx::UiContext, parent_container: &gfx::Container) -> gfx::Container {
         gfx::Container::new(
             graphics,
             self.back_container.rect.pos,

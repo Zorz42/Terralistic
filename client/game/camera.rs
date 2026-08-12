@@ -4,6 +4,7 @@ use crate::libraries::graphics::BaseUiElement;
 use crate::shared::blocks::RENDER_BLOCK_WIDTH;
 
 /// Camera is a struct that handles the camera position.
+use crate::libraries::graphics::UiContext;
 pub struct Camera {
     target_position_x: f32,
     target_position_y: f32,

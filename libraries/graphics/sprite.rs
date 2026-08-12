@@ -66,7 +66,7 @@ impl UiElement for Sprite {
     }
 
     /// Generates containers for the sprite.
-    fn get_container(&self, graphics: &gfx::GraphicsContext, parent: &gfx::Container) -> gfx::Container {
+    fn get_container(&self, graphics: &dyn gfx::UiContext, parent: &gfx::Container) -> gfx::Container {
         gfx::Container::new(graphics, self.pos, self.get_size(), self.orientation, Some(parent))
     }
 }

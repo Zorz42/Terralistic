@@ -9,6 +9,7 @@ use crate::shared::mod_manager::ModManager;
 use crate::shared::packet::Packet;
 use crate::shared::players::PLAYER_WIDTH;
 
+use crate::libraries::graphics::UiContext;
 const HEART_WIDTH: f32 = 33.0;
 
 pub struct ClientHealth {

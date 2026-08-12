@@ -9,6 +9,7 @@ use crate::shared::chat::ChatPacket;
 use crate::shared::packet::Packet;
 use gfx::{BaseUiElement, UiElement};
 
+use crate::libraries::graphics::UiContext;
 pub struct ChatLine {
     texture: gfx::Texture,
     back_rect: gfx::RenderRect,
@@ -126,7 +127,8 @@ impl ClientChat {
                 }
             }
 
-            self.text_input.on_event(graphics, event, &gfx::Container::default(graphics));
+            let container = gfx::Container::default(graphics);
+            self.text_input.on_event(graphics, event, &container);
 
             if let gfx::Event::KeyPress(gfx::Key::Enter, ..) = event {
                 if self.text_input.selected && !self.text_input.get_text().is_empty() {

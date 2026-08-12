@@ -20,6 +20,9 @@ pub use texture::Texture;
 pub use texture_atlas::TextureAtlas;
 pub use theme::{BLACK, BLUR, BORDER_COLOR, DARK_GREY, GREY, LIGHT_GREY, SHADOW_INTENSITY, SPACING, TEXT_INPUT_WIDTH, TRANSPARENCY, TRANSPARENT, WHITE};
 pub use toggle::Toggle;
+#[cfg(test)]
+pub use ui_context::HeadlessContext;
+pub use ui_context::UiContext;
 pub use ui_element::{BaseUiElement, UiElement};
 
 mod animation_timer;
@@ -48,6 +51,7 @@ mod texture_atlas;
 mod theme;
 mod toggle;
 mod transformation;
+mod ui_context;
 mod ui_element;
 mod vertex_buffer;
 

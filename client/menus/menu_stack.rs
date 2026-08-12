@@ -57,14 +57,14 @@ impl UiElement for MenuStack {
         }
     }
 
-    fn on_event_inner(&mut self, graphics: &mut gfx::GraphicsContext, event: &gfx::Event, parent_container: &gfx::Container) -> bool {
+    fn on_event_inner(&mut self, graphics: &mut dyn gfx::UiContext, event: &gfx::Event, parent_container: &gfx::Container) -> bool {
         if let Some(element) = self.stack.last_mut() {
             return element.0.on_event_inner(graphics, event, parent_container);
         }
         false
     }
 
-    fn get_container(&self, graphics: &gfx::GraphicsContext, parent_container: &gfx::Container) -> gfx::Container {
+    fn get_container(&self, graphics: &dyn gfx::UiContext, parent_container: &gfx::Container) -> gfx::Container {
         self.stack.last().map_or_else(
             || {
                 gfx::Container::new(

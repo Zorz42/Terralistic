@@ -12,6 +12,7 @@ use super::background_rect::BackgroundRect;
 use super::MenuBack;
 
 // when menu is off-screen, how much is it off-screen by
+use crate::libraries::graphics::UiContext;
 const INVISIBLE_PADDING: f32 = 50.0;
 
 enum TitleScreenState {

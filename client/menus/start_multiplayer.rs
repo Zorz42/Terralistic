@@ -49,7 +49,7 @@ impl UiElement for StartMultiplayer {
         vec![]
     }
 
-    fn get_container(&self, graphics: &crate::libraries::graphics::GraphicsContext, parent_container: &crate::libraries::graphics::Container) -> crate::libraries::graphics::Container {
+    fn get_container(&self, graphics: &dyn crate::libraries::graphics::UiContext, parent_container: &crate::libraries::graphics::Container) -> crate::libraries::graphics::Container {
         gfx::Container::new(graphics, parent_container.rect.pos, parent_container.rect.size, parent_container.orientation, None)
     }
 }

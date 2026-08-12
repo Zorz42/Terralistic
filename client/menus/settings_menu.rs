@@ -7,6 +7,7 @@ use std::borrow::Borrow;
 use std::cell::RefCell;
 use std::rc::Rc;
 
+use crate::libraries::graphics::UiContext;
 const SETTINGS_WIDTH: f32 = 700.0;
 const SETTINGS_BOX_HEIGHT: f32 = 70.0;
 const TOGGLE_BUTTON_WIDTH: f32 = 35.0;
@@ -346,7 +347,7 @@ impl UiElement for SettingUi {
         }
     }
 
-    fn get_container(&self, graphics: &gfx::GraphicsContext, parent_container: &gfx::Container) -> gfx::Container {
+    fn get_container(&self, graphics: &dyn gfx::UiContext, parent_container: &gfx::Container) -> gfx::Container {
         let y = gfx::SPACING + self.get_id() as f32 * (gfx::SPACING + SETTINGS_BOX_HEIGHT);
         gfx::Container::new(graphics, gfx::FloatPos(0.0, y), gfx::FloatSize(SETTINGS_WIDTH, SETTINGS_BOX_HEIGHT), gfx::TOP, Some(parent_container))
     }
@@ -421,7 +422,7 @@ impl UiElement for SettingsMenu {
     }
 
     /// returns true, if settings menu has been closed
-    fn on_event_inner(&mut self, graphics: &mut gfx::GraphicsContext, event: &gfx::Event, parent_container: &gfx::Container) -> bool {
+    fn on_event_inner(&mut self, graphics: &mut dyn gfx::UiContext, event: &gfx::Event, parent_container: &gfx::Container) -> bool {
         if let gfx::Event::KeyRelease(gfx::Key::MouseLeft, ..) = event {
             for setting in &mut self.settings_ui {
                 let setting_container = setting.get_container(graphics, parent_container);
@@ -471,12 +472,14 @@ impl UiElement for SettingsMenu {
             return true;
         }
 
-        self.global_settings.borrow_mut().update(graphics, self.settings.borrow());
+        if let Some(graphics) = graphics.as_graphics_context() {
+            self.global_settings.borrow_mut().update(graphics, self.settings.borrow());
+        }
 
         false
     }
 
-    fn get_container(&self, graphics: &gfx::GraphicsContext, parent_container: &gfx::Container) -> gfx::Container {
+    fn get_container(&self, graphics: &dyn gfx::UiContext, parent_container: &gfx::Container) -> gfx::Container {
         gfx::Container::new(graphics, parent_container.rect.pos, parent_container.rect.size, parent_container.orientation, None)
     }
 }

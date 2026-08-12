@@ -32,10 +32,14 @@ fn is_column_empty(surface: &Surface, column: i32) -> bool {
 }
 
 impl Font {
-    /// Loads a font from a data vector, which is deserialized into a surface.
-    /// Loads all the characters in the file and stores them in a
-    /// surface array. The index of the array is the ascii value.
-    pub fn new(font_data: &[u8], mono: bool) -> Result<Self> {
+    /// Cuts a font atlas into one surface per character, trimming the empty columns on
+    /// either side so characters are proportionally spaced (or padded back out to 8 wide
+    /// when `mono`).
+    ///
+    /// This is the whole of the font's CPU work; `new` then uploads the result to the GPU.
+    /// The split is what lets `get_text_size` and `create_text_surface` be tested without
+    /// an OpenGL context.
+    fn load_surfaces(font_data: &[u8], mono: bool) -> Result<Vec<Surface>> {
         let mut font_surfaces = vec![];
         let font_surface = Surface::deserialize_from_bytes(font_data)?;
 
@@ -75,12 +79,34 @@ impl Font {
             }
         }
 
+        Ok(font_surfaces)
+    }
+
+    /// Loads a font from a data vector, which is deserialized into a surface.
+    /// Loads all the characters in the file and stores them in a
+    /// surface array. The index of the array is the ascii value.
+    pub fn new(font_data: &[u8], mono: bool) -> Result<Self> {
+        let font_surfaces = Self::load_surfaces(font_data, mono)?;
+
         let mut font_textures = Vec::new();
         for surface in &font_surfaces {
             font_textures.push(gfx::Texture::load_from_surface(surface));
         }
 
         Ok(Self { font_surfaces, font_textures })
+    }
+
+    /// A font that can measure and rasterise text but not render it, for tests.
+    ///
+    /// Skipping the texture upload is the only difference: `get_text_size` and
+    /// `create_text_surface` read `font_surfaces` and behave identically. Calling
+    /// `render_text` on one of these draws nothing, because `font_textures` is empty.
+    #[cfg(test)]
+    pub fn new_headless(font_data: &[u8], mono: bool) -> Result<Self> {
+        Ok(Self {
+            font_surfaces: Self::load_surfaces(font_data, mono)?,
+            font_textures: Vec::new(),
+        })
     }
 
     /// This function returns the size of the text.

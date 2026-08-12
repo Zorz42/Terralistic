@@ -142,9 +142,12 @@ impl UiElement for WorldCreationMenu {
         self.create_button.disabled = world_name_exists(&self.worlds_list, self.world_name_input.get_text()) || self.world_name_input.get_text().is_empty();
     }
 
-    fn on_event_inner(&mut self, graphics: &mut gfx::GraphicsContext, event: &gfx::Event, parent_container: &gfx::Container) -> bool {
-        if self.create_button.on_event(graphics, event, &self.get_container(graphics, parent_container)) {
-            self.create_world(graphics);
+    fn on_event_inner(&mut self, graphics: &mut dyn gfx::UiContext, event: &gfx::Event, parent_container: &gfx::Container) -> bool {
+        let container = self.get_container(graphics, parent_container);
+        if self.create_button.on_event(graphics, event, &container) {
+            if let Some(graphics) = graphics.as_graphics_context() {
+                self.create_world(graphics);
+            }
             return true;
         }
         if self.back_button.on_event(graphics, event, parent_container) {
@@ -163,7 +166,9 @@ impl UiElement for WorldCreationMenu {
                     }
                 }
                 gfx::Key::Enter if !self.create_button.disabled => {
-                    self.create_world(graphics);
+                    if let Some(graphics) = graphics.as_graphics_context() {
+                        self.create_world(graphics);
+                    }
                     return true;
                 }
                 _ => {}
@@ -173,7 +178,7 @@ impl UiElement for WorldCreationMenu {
         false
     }
 
-    fn get_container(&self, graphics: &gfx::GraphicsContext, parent_container: &gfx::Container) -> gfx::Container {
+    fn get_container(&self, graphics: &dyn gfx::UiContext, parent_container: &gfx::Container) -> gfx::Container {
         gfx::Container::new(graphics, parent_container.rect.pos, parent_container.rect.size, parent_container.orientation, None)
     }
 }

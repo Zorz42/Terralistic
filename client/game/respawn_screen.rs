@@ -6,6 +6,7 @@ use crate::shared::players::RespawnPacket;
 use anyhow::Result;
 use gfx::{BaseUiElement, UiElement};
 
+use crate::libraries::graphics::UiContext;
 pub struct RespawnScreen {
     respawn_button: gfx::Button,
     respawn_text: gfx::Sprite,

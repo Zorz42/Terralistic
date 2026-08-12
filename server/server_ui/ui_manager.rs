@@ -13,6 +13,7 @@ use crate::server::server_ui::ui_module_manager::{ModuleManager, ModuleTreeNodeT
 use crate::server::server_ui::{console, empty_module, player_list, server_info};
 use crate::server::server_ui::{ServerState, UiMessageType};
 
+use crate::libraries::graphics::UiContext;
 pub const SCALE: f32 = 2.0;
 pub const EDGE_SPACING: f32 = 4.0;
 

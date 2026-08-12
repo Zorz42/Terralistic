@@ -16,6 +16,7 @@ use super::{AddServerMenu, Menu, StartMultiplayer};
 use super::background_rect::BackgroundRect;
 use gfx::{BaseUiElement, UiElement};
 
+use crate::libraries::graphics::UiContext;
 pub const MENU_WIDTH: f32 = 800.0;
 
 #[derive(Serialize, Deserialize, Clone)]
@@ -193,7 +194,7 @@ impl UiElement for MultiplayerSelector {
         self.server_list.top_rect_size = self.top_rect.size.1;
     }
 
-    fn on_event_inner(&mut self, graphics: &mut gfx::GraphicsContext, event: &gfx::Event, parent_container: &gfx::Container) -> bool {
+    fn on_event_inner(&mut self, graphics: &mut dyn gfx::UiContext, event: &gfx::Event, parent_container: &gfx::Container) -> bool {
         let inner_container = self.get_container(graphics, parent_container);
         if self.back_button.on_event(graphics, event, parent_container) {
             self.close_self = true;
@@ -206,39 +207,49 @@ impl UiElement for MultiplayerSelector {
             }
         }
         if self.new_server_button.on_event(graphics, event, &inner_container) {
-            self.open_menu = Some((Box::new(AddServerMenu::new(graphics, self.servers_file.clone())), "AddServer".to_owned()));
+            // Opening a menu builds its text textures, so it only happens with a real
+            // graphics context. See `UiContext::as_graphics_context`.
+            if let Some(graphics) = graphics.as_graphics_context() {
+                self.open_menu = Some((Box::new(AddServerMenu::new(graphics, self.servers_file.clone())), "AddServer".to_owned()));
+            }
         }
 
         for server in &mut self.server_list.servers {
-            if server.play_button.on_event(graphics, event, &server.get_container(graphics, &inner_container)) {
-                let mut menu_back = super::MenuBack::new(graphics);
-                menu_back.set_back_rect_width(parent_container.rect.size.0, false);
-                menu_back.update(graphics, &gfx::Container::default(graphics));
-                menu_back.render_back(graphics);
+            let server_container = server.get_container(graphics, &inner_container);
+            if server.play_button.on_event(graphics, event, &server_container) {
+                if let Some(graphics) = graphics.as_graphics_context() {
+                    let mut menu_back = super::MenuBack::new(graphics);
+                    menu_back.set_back_rect_width(parent_container.rect.size.0, false);
+                    let default_container = gfx::Container::default(graphics);
+                    menu_back.update(graphics, &default_container);
+                    menu_back.render_back(graphics);
+                }
                 self.open_menu = Some((
                     Box::new(StartMultiplayer::new(server.server_info.clone(), self.settings.clone(), self.global_settings.clone())),
                     "f StartMultiplayer".to_owned(),
                 ));
             }
-            if server.delete_button.on_event(graphics, event, &server.get_container(graphics, &inner_container)) {
+            if server.delete_button.on_event(graphics, event, &server_container) {
                 let path = self.servers_file.clone();
                 let name_to_delete = server.server_info.name.clone();
-                self.open_menu = Some((
-                    Box::new(ChoiceMenu::new(
-                        format!("The server \"{}\" will be deleted.\nDo you want to proceed?", server.server_info.name).as_str(),
-                        graphics,
-                        vec![("Back", Box::new(|| {})), ("Proceed", Box::new(move || remove_server_by_name(&name_to_delete.clone(), path.clone())))],
-                        Some(0),
-                        Some(1),
-                    )),
-                    "DeleteServer".to_owned(),
-                ));
+                if let Some(graphics) = graphics.as_graphics_context() {
+                    self.open_menu = Some((
+                        Box::new(ChoiceMenu::new(
+                            format!("The server \"{}\" will be deleted.\nDo you want to proceed?", server.server_info.name).as_str(),
+                            graphics,
+                            vec![("Back", Box::new(|| {})), ("Proceed", Box::new(move || remove_server_by_name(&name_to_delete.clone(), path.clone())))],
+                            Some(0),
+                            Some(1),
+                        )),
+                        "DeleteServer".to_owned(),
+                    ));
+                }
             }
         }
         false
     }
 
-    fn get_container(&self, graphics: &gfx::GraphicsContext, parent_container: &gfx::Container) -> gfx::Container {
+    fn get_container(&self, graphics: &dyn gfx::UiContext, parent_container: &gfx::Container) -> gfx::Container {
         gfx::Container::new(graphics, parent_container.rect.pos, parent_container.rect.size, parent_container.orientation, None)
     }
 }
@@ -360,7 +371,7 @@ impl UiElement for ServerCard {
     }
 
     /// This function returns the container of the server card.
-    fn get_container(&self, graphics: &gfx::GraphicsContext, parent_container: &gfx::Container) -> gfx::Container {
+    fn get_container(&self, graphics: &dyn gfx::UiContext, parent_container: &gfx::Container) -> gfx::Container {
         self.rect.get_container(graphics, parent_container)
     }
 }
@@ -431,7 +442,7 @@ impl UiElement for ServerList {
         }
     }
 
-    fn get_container(&self, graphics: &gfx::GraphicsContext, parent_container: &gfx::Container) -> gfx::Container {
+    fn get_container(&self, graphics: &dyn gfx::UiContext, parent_container: &gfx::Container) -> gfx::Container {
         gfx::Container::new(graphics, parent_container.rect.pos, parent_container.rect.size, parent_container.orientation, None)
     }
 }

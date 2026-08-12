@@ -16,6 +16,7 @@ use gfx::{BaseUiElement, UiElement};
 use super::world_creation::WorldCreationMenu;
 use super::{BackgroundRect, Menu};
 
+use crate::libraries::graphics::UiContext;
 pub const MENU_WIDTH: f32 = 800.0;
 
 /// This function returns formatted string "%d %B %Y %H:%M" of the time
@@ -155,7 +156,7 @@ impl UiElement for World {
     }
 
     /// This function returns the container of the world card.
-    fn get_container(&self, graphics: &gfx::GraphicsContext, parent_container: &gfx::Container) -> gfx::Container {
+    fn get_container(&self, graphics: &dyn gfx::UiContext, parent_container: &gfx::Container) -> gfx::Container {
         self.rect.get_container(graphics, parent_container)
     }
 }
@@ -233,7 +234,7 @@ impl UiElement for WorldList {
         }
     }
 
-    fn get_container(&self, graphics: &gfx::GraphicsContext, parent_container: &gfx::Container) -> gfx::Container {
+    fn get_container(&self, graphics: &dyn gfx::UiContext, parent_container: &gfx::Container) -> gfx::Container {
         gfx::Container::new(graphics, parent_container.rect.pos, parent_container.rect.size, parent_container.orientation, None)
         //this might benefit from having its own container
     }
@@ -439,7 +440,7 @@ impl UiElement for SingleplayerSelector {
         *self.world_button_press.borrow_mut() = None;
     }
 
-    fn on_event_inner(&mut self, graphics: &mut gfx::GraphicsContext, event: &gfx::Event, parent_container: &gfx::Container) -> bool {
+    fn on_event_inner(&mut self, graphics: &mut dyn gfx::UiContext, event: &gfx::Event, parent_container: &gfx::Container) -> bool {
         if let gfx::Event::KeyRelease(key, ..) = event {
             if key == &gfx::Key::Escape {
                 self.close_self = true;
@@ -453,7 +454,7 @@ impl UiElement for SingleplayerSelector {
         false
     }
 
-    fn get_container(&self, graphics: &gfx::GraphicsContext, parent_container: &gfx::Container) -> gfx::Container {
+    fn get_container(&self, graphics: &dyn gfx::UiContext, parent_container: &gfx::Container) -> gfx::Container {
         gfx::Container::new(graphics, parent_container.rect.pos, parent_container.rect.size, parent_container.orientation, None)
     }
 }
