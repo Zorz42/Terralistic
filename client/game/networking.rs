@@ -37,6 +37,7 @@ pub struct ClientNetworking {
 }
 
 impl ClientNetworking {
+    #[must_use]
     pub fn new(server_port: u16, server_address: String) -> Self {
         Self {
             server_port,
@@ -122,7 +123,30 @@ impl ClientNetworking {
                 // welcoming loop
                 if let NodeEvent::Network(event) = event {
                     match event {
-                        NetEvent::Accepted(..) | NetEvent::Connected(..) | NetEvent::Disconnected(..) => {}
+                        NetEvent::Accepted(..) => {}
+                        // `connect` is not blocking, so a server that is down or refusing
+                        // is reported here rather than by an error from `init`. This used
+                        // to be ignored, which left the caller spinning on `is_welcoming`
+                        // for as long as the player was willing to watch a loading screen.
+                        NetEvent::Connected(_peer, established) => {
+                            if !established {
+                                error_returned
+                                    .lock()
+                                    .unwrap_or_else(PoisonError::into_inner)
+                                    .push_str("could not connect to the server: it did not accept the connection");
+                                handler.stop();
+                            }
+                        }
+                        // The server drops connections it refuses - a version it does not
+                        // accept, or no version at all. Ignoring that hung the client in
+                        // exactly the case the version handshake was added to explain.
+                        NetEvent::Disconnected(..) => {
+                            error_returned
+                                .lock()
+                                .unwrap_or_else(PoisonError::into_inner)
+                                .push_str("the server closed the connection during the handshake, so it refused to let this client join");
+                            handler.stop();
+                        }
                         NetEvent::Message(_peer, packet) => {
                             let packet = serialization::deserialize::<Packet>(packet);
 
@@ -244,8 +268,13 @@ impl ClientNetworking {
         Ok(())
     }
 
+    /// Whether the handshake is still in progress.
+    ///
+    /// Callers spin on this waiting for the world to arrive, so it has to go false when
+    /// the connection fails too - otherwise there is nothing left to wait for and the
+    /// wait never ends. The failure itself is reported by the next `update`.
     pub fn is_welcoming(&self) -> bool {
-        self.is_welcoming.load(Ordering::Relaxed)
+        self.is_welcoming.load(Ordering::Relaxed) && self.receive_loop_error.lock().unwrap_or_else(PoisonError::into_inner).is_empty()
     }
 
     pub fn start_receiving(&self) {

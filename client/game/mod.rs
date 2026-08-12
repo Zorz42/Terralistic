@@ -15,6 +15,10 @@ mod items;
 mod lights;
 mod mod_manager;
 mod networking;
+/// Reached only by the integration tests, which connect a real client to a real server.
+/// The game itself goes through `core_client::run_game`.
+#[cfg(test)]
+pub use networking::{ClientNetworking, WelcomePacketEvent};
 mod pause_menu;
 mod players;
 pub mod private_world;

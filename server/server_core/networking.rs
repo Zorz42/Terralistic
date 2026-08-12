@@ -77,6 +77,7 @@ pub struct ServerNetworking {
 }
 
 impl ServerNetworking {
+    #[must_use]
     pub fn new(server_port: u16, bind_address: BindAddress) -> Self {
         Self {
             server_port,
@@ -90,6 +91,7 @@ impl ServerNetworking {
         }
     }
 
+    #[must_use]
     pub fn get_connection_name(&self, conn: &Connection) -> String {
         let unknown = "Unknown".to_owned();
         self.connection_names.get(conn).unwrap_or(&unknown).clone()

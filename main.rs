@@ -167,6 +167,10 @@ pub mod server {
     pub mod server_ui;
 }
 
+/// Tests that exercise more than one subsystem at a time. The whole module is
+/// `#[cfg(test)]`, so it costs the shipped binary nothing.
+mod integration_tests;
+
 pub mod client {
     pub mod game;
     pub mod global_settings;

@@ -181,6 +181,13 @@ impl Entities {
 
         if let Ok(entity) = entity_to_despawn {
             self.ecs.despawn(entity)?;
+            // the id maps are not part of the ecs, so despawning does not touch them.
+            // Leaving the entries behind meant every id ever handed out stayed resolvable
+            // to an entity that no longer exists - a lookup that succeeds and then fails
+            // at the query, and two maps that only ever grow on a server that spawns and
+            // drops items all day.
+            self.id_to_entity.remove(&id);
+            self.entity_to_id.remove(&entity);
         } else {
             bail!("Could not find entity with id");
         }

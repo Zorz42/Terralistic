@@ -15,7 +15,7 @@ cargo run --release       # client, release
 cargo run -- server       # server with GUI
 cargo run -- server nogui # headless server
 cargo run -- version      # print version
-cargo test                # 310 tests, all should pass
+cargo test                # 366 tests, all should pass
 cargo clippy --all-targets
 ./coverage.sh             # coverage via config-coverage.toml
 ```
@@ -50,6 +50,7 @@ currently clippy clean, so keep it that way rather than dropping the flag.
 | `libraries/events/` | Type-erased event queue (`Box<dyn Any>` + downcast) |
 | `base_game/` | Lua mod: all actual game content |
 | `resources/` | Client-side assets (fonts, icons, UI textures) |
+| `integration_tests/` | Tests that drive several subsystems against each other |
 
 ### The shared/server/client triple
 
@@ -164,7 +165,13 @@ that adding a parameter means editing every call site in `base_game/`.
 4. Generate column by column; at each biome boundary hand the accumulated columns to the
    biome's Lua `generator_function` for decoration (trees, etc.).
 
-Default world is 4400×1200, seed 423657, hardcoded in `Server::start`.
+Default world is 4400×1200, seed 423657 — `Server::world_size` and `Server::world_seed`,
+defaulted in `Server::new` from the `DEFAULT_WORLD_*` constants. They are fields rather
+than literals inside `start` so a test can ask for a world small enough to assert about.
+
+Generation is reproducible from the seed on the rust side, but **not end to end**: each
+biome's lua `generator_function` decorates with `math.random`, which lua seeds per state.
+So terrain and walls repeat for a given seed and the trees do not.
 
 ### Rendering and UI
 
@@ -257,6 +264,40 @@ is a `BTreeMap` to keep that stable — don't change it back.
 `Template_*.png` files get expanded at build time into 16-frame connected-texture atlases
 (`process_template` in `build_project/compile_mod.rs`) and lose the prefix in the output.
 
+## Integration tests
+
+`integration_tests/` holds the tests that span subsystems, as opposed to the `tests.rs`
+files that cover one module each. They are ordinary `#[test]`s in the same binary —
+the crate is binary-only, so a `tests/` directory would have nothing to link against.
+
+| File | Covers |
+|---|---|
+| `harness.rs` | Shared machinery: temp worlds, free ports, drivers for a real server and client |
+| `networking.rs` | The wire protocol over a loopback socket, both halves at once |
+| `client_server.rs` | A real client joining a real `Server`: world sync, chat, commands, breaking blocks, persistence |
+| `server_lifecycle.rs` | `start`/`update`/`stop`, and world generation with the real biomes |
+| `world_persistence.rs` | Saving and loading, including the version and corruption paths |
+| `mods.rs` | The committed `.mod` artifact through lua into the rust registries |
+
+Things worth knowing before adding one:
+
+- **Small worlds, not generated ones.** `TestServer::start_on_small_world` writes a save
+  first, so the server takes the load path and skips generation entirely. Use
+  `start_on_generated_world` only when generation is the thing under test; a generated
+  world needs a height above ~250 or the terrain runs off the top and there is no sky.
+- **Ports come from `free_port`**, which counts rather than asking the OS for port 0 —
+  two tests probing one after the other can otherwise be handed the same port, and then
+  one test's client joins the other test's server.
+- **Wait for the listener.** Both networking layers bind on a background thread, so
+  `wait_until_listening` is what makes a connection immediately afterwards reliable.
+- **One lock at a time.** `Server::get_blocks()` and friends are `#[cfg(test)]` accessors
+  that take the server's mutex. Two calls in one expression deadlock against yourself.
+- **Let the clock run.** Anything that advances over time takes whole milliseconds of
+  measured frame length, which truncates to zero in a tight loop — `update_slowly` exists
+  for that.
+- A few types are re-exported `#[cfg(test)]` from `server_core` and `client::game` purely
+  so these tests can reach them. Keep that list short.
+
 ## Gotchas
 
 - **`build_main.rs` declares its own narrow module tree.** It names individual leaf files
@@ -269,9 +310,11 @@ is a `BTreeMap` to keep that stable — don't change it back.
 - `shared/world_map/world_map.rs` has two coordinate schemes that disagree:
   `translate_coords` is `x * height + y` (column-major), `translate_chunk_coords` is
   `x + y * width` (row-major). Both are internally consistent; don't "fix" one in isolation.
-- `server/server_core/core_server.rs` uses `static mut` for tick counters and the UI sender.
-  This warns under `rust_2024_compatibility` and is genuinely not thread-safe. Two `Server`
-  instances in one process share those counters.
+- `server/server_core/core_server.rs` keeps the tick counters as `Server` fields, so two
+  servers in one process no longer share them — the integration tests rely on that. The
+  channel back to the ui is still process-global (`UI_EVENT_SENDER`), because
+  `print_to_console` is a free function with no `Server` to reach through: the first
+  non-`None` sender wins and later ones are ignored.
 - Server `Blocks`/`Walls`/`Items`/`Entities` are behind `Arc<Mutex<_>>` and accessed via
   `get_blocks()` etc. that lock. Holding two of these at once in the wrong order is a
   deadlock waiting to happen; the codebase currently always takes them one at a time.
@@ -279,7 +322,8 @@ is a `BTreeMap` to keep that stable — don't change it back.
   deliberate — follow it for consistency.
 - Test files follow one convention: a `tests.rs` beside the module it covers, declared in
   the neighbouring `mod.rs`, containing `#![cfg(test)] mod tests { .. }`. Every module
-  directory now has one except `shared/liquids`.
+  directory now has one except `shared/liquids`. Tests that span subsystems live in
+  `integration_tests/` instead — see below.
 - Tests never need a graphics context. UI tests drive real widgets through
   `gfx::HeadlessContext` — see the `UiContext` section above. Nothing in the suite opens a
   window, so it all runs on CI's headless Ubuntu.

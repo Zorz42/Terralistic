@@ -28,8 +28,21 @@ use crate::libraries::serialization;
 pub const SINGLEPLAYER_PORT: u16 = 49152;
 pub const MULTIPLAYER_PORT: u16 = 49153;
 
+/// The world a server generates when it is started without a save to load.
+///
+/// `min_width` is a floor rather than the exact width: the biome walk decides where the
+/// world actually ends, so the generated world is at least this wide.
+pub const DEFAULT_WORLD_MIN_WIDTH: i32 = 4400;
+pub const DEFAULT_WORLD_HEIGHT: i32 = 1200;
+pub const DEFAULT_WORLD_SEED: u64 = 423_657;
+
 pub struct Server {
     pub tps_limit: f32,
+    /// Size of the world to generate, as (`min_width`, height). Only read when there is
+    /// no world to load. A field rather than a constant in `start` so a test can generate
+    /// a world small enough to assert about all of.
+    pub world_size: (i32, i32),
+    pub world_seed: u64,
     pub state: Arc<Mutex<ServerState>>,
     events: EventManager,
     networking: ServerNetworking,
@@ -60,6 +73,8 @@ impl Server {
         let commands = CommandManager::new();
         Self {
             tps_limit: 20.0,
+            world_size: (DEFAULT_WORLD_MIN_WIDTH, DEFAULT_WORLD_HEIGHT),
+            world_seed: DEFAULT_WORLD_SEED,
             state: Arc::new(Mutex::new(ServerState::Nothing)),
             events: EventManager::new(),
             networking: ServerNetworking::new(port, bind_address),
@@ -139,9 +154,9 @@ impl Server {
             generator.generate(
                 (&mut *self.blocks.get_blocks(), &mut self.walls.get_walls()),
                 &mut self.mods.mod_manager,
-                4400,
-                1200,
-                423_657,
+                self.world_size.0,
+                self.world_size.1,
+                self.world_seed,
                 status_text,
             )?;
 
@@ -323,6 +338,44 @@ impl Server {
         }
 
         Ok(())
+    }
+
+    /// Read only views of the world, for the integration tests.
+    ///
+    /// The game itself never reaches into a running server from outside - everything goes
+    /// through events and packets - so these exist purely so a test can check what the
+    /// simulation actually did. Each one takes the same lock the server does, so a test
+    /// must drop the guard before stepping the server again.
+    #[cfg(test)]
+    pub fn get_blocks(&self) -> std::sync::MutexGuard<'_, crate::shared::blocks::Blocks> {
+        self.blocks.get_blocks()
+    }
+
+    #[cfg(test)]
+    pub fn get_walls(&self) -> std::sync::MutexGuard<'_, crate::shared::walls::Walls> {
+        self.walls.get_walls()
+    }
+
+    #[cfg(test)]
+    pub fn get_items(&self) -> std::sync::MutexGuard<'_, crate::shared::items::Items> {
+        self.items.get_items()
+    }
+
+    #[cfg(test)]
+    pub fn get_entities(&self) -> std::sync::MutexGuard<'_, crate::shared::entities::Entities> {
+        self.entities.get_entities()
+    }
+
+    /// The mods as the server loaded them, so a test can call into their lua.
+    #[cfg(test)]
+    pub const fn get_mods(&mut self) -> &mut crate::shared::mod_manager::ModManager {
+        &mut self.mods.mod_manager
+    }
+
+    /// Runs a command the way a player typing it in chat would.
+    #[cfg(test)]
+    pub fn execute_command(&mut self, command: &str) -> Result<String> {
+        self.commands.execute_command(command, &mut self.mods.mod_manager, None)
     }
 
     fn load_world(&mut self, world_path: &Path) -> Result<()> {

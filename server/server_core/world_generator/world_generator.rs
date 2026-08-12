@@ -18,6 +18,7 @@ pub struct WorldGenerator {
 }
 
 impl WorldGenerator {
+    #[must_use]
     pub fn new() -> Self {
         Self {
             biomes: Arc::new(Mutex::new(Vec::new())),
@@ -30,19 +31,25 @@ impl WorldGenerator {
 
     /// This function creates a array of biome ids and returns it along with the width of the world.
     /// Each biome id is for each column of the world.
-    fn generate_biome_ids(&self, min_width: i32) -> Result<(Vec<i32>, i32)> {
+    ///
+    /// Takes the seeded generator rather than reaching for `rand::random`, which is the
+    /// thread local one: drawing the biome walk from there made the world layout, and
+    /// with it the world's width, different on every run of the same seed. Everything
+    /// downstream of this - terrain, caves, ores - was already seeded, so the seed only
+    /// ever controlled part of the world.
+    fn generate_biome_ids(&self, min_width: i32, rng: &mut StdRng) -> Result<(Vec<i32>, i32)> {
         let mut biome_ids = Vec::new();
         let mut width = 0;
 
         // walk on the graph of biomes
         // initial biome is random
-        let mut curr_biome = rand::random::<i32>().abs() % self.get_biomes().len() as i32;
+        let mut curr_biome = (rng.next_u32() % self.get_biomes().len() as u32) as i32;
         while width < min_width {
             // determine the width of the current biome
             // the width is a random number between the min and max width
             let biomes = self.get_biomes();
             let biome = biomes.get(curr_biome as usize).ok_or_else(|| anyhow!("Biome with id {curr_biome} does not exist!"))?;
-            let biome_width = (rand::random::<u32>() % (biome.max_width - biome.min_width) + biome.min_width) as i32;
+            let biome_width = (rng.next_u32() % (biome.max_width - biome.min_width) + biome.min_width) as i32;
             for _ in 0..biome_width {
                 biome_ids.push(curr_biome);
             }
@@ -54,7 +61,7 @@ impl WorldGenerator {
             for (weight, _) in &biome.adjacent_biomes {
                 total_weight += weight;
             }
-            let mut rand = rand::random::<i32>().abs() % total_weight;
+            let mut rand = (rng.next_u32() % total_weight as u32) as i32;
             for (weight, next_biome) in &biome.adjacent_biomes {
                 rand -= weight;
                 if rand < 0 {
@@ -107,7 +114,12 @@ impl WorldGenerator {
         }
 
         let mut ores_perlin_noises = Vec::new();
-        for (block_id, (start_noises, end_noises)) in &ores_start_end_noises {
+        // walks the block ids rather than the map, because each ore is handed the next
+        // number from the seeded generator here. `HashMap` iteration order varies between
+        // maps even within one run, so drawing in that order gave every ore a different
+        // noise field each time the same seed was generated.
+        for block_id in blocks.get_all_block_ids() {
+            let (start_noises, end_noises) = ores_start_end_noises.get(&block_id).ok_or_else(|| anyhow!("invalid block id"))?;
             let mut commonness = 0.0;
             // commonness is the average difference between the start and end noise
             for (start_noise, end_noise) in start_noises.iter().zip(end_noises.iter()) {
@@ -116,7 +128,7 @@ impl WorldGenerator {
             commonness /= width as f32;
 
             ores_perlin_noises.push((
-                *block_id,
+                block_id,
                 Perlin::new(rng.next_u32()),
                 commonness,
                 start_noises
@@ -263,7 +275,7 @@ impl WorldGenerator {
             bail!("No biomes were added! Cannot generate world!")
         }
 
-        let (biome_ids, width) = self.generate_biome_ids(min_width)?;
+        let (biome_ids, width) = self.generate_biome_ids(min_width, &mut rng)?;
 
         let mut min_heights = Vec::new();
         let mut max_heights = Vec::new();

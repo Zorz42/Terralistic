@@ -40,6 +40,9 @@ Found while doing the above, not in the original catalogue:
 | `base_game.mod` was never reproducible — `HashMap` iteration order meant a committed artifact changed on every build | done — `GameModData.resources` is a `BTreeMap` |
 | The blit in `update_window` was skipped entirely on any OS that is not windows/macos/linux | done (#178) |
 | `TextInput` panicked when typing over a right-to-left selection | done — see below |
+| The client hung forever on the loading screen when the server was down or refused it | done — see 5.5 |
+| World generation ignored its seed for the biome layout, so the same seed gave a different world every run | done — see 5.5 |
+| `despawn_entity` left every despawned id resolvable, and the id maps only ever grew | done — see 5.5 |
 
 ### The `TextInput` selection panic
 
@@ -371,6 +374,40 @@ Not covered, and the honest limits of the approach:
   `as_graphics_context()` escape hatch, and those branches are skipped headlessly.
 - The `HeadlessContext` is a stand-in. It answers the same questions as the real context,
   but it is not proof that SDL reports what we think it does.
+
+### 5.5 Nothing tested more than one subsystem at a time — DONE
+
+Every test was a unit test beside the module it covered, which left the seams between
+modules — the ones with no compile-time check on them — completely unexercised. The
+networking modules had no test at all, world generation had none, and the `.mod` artifact
+was only ever exercised by running the game.
+
+`integration_tests/` now drives the real pieces against each other: a real
+`ClientNetworking` against a real `ServerNetworking` over a loopback socket, a real
+`Server` on a temporary world, and the committed `base_game.mod` through lua into the rust
+registries. 56 tests across five files, in about two seconds.
+
+They found four bugs, all fixed and covered:
+
+| Bug | Effect |
+|---|---|
+| The client ignored `Connected(_, false)` while welcoming | Joining a server that is down hung on the loading screen forever |
+| The client ignored `Disconnected` while welcoming | Same, when the server *refused* the client — which is exactly what the version handshake was added to report |
+| `generate_biome_ids` drew from `rand::random` | The world seed did not control the biome layout or the world's width, so the same seed built a different world every time |
+| `despawn_entity` never cleared the id maps | Despawned ids stayed resolvable, and the two maps grew for the life of the server |
+
+Known limits, again honestly:
+
+- World generation is still not reproducible from a seed end to end. The rust half now is,
+  but each biome's lua `generator_function` decorates with `math.random`, which is seeded
+  per lua state. Making decoration reproducible means seeding lua from the world seed,
+  which is a change to what mods can rely on — a decision, not a fix. The determinism test
+  compares walls, which lua never touches, and says so.
+- Rendering is still untested, for the reasons in 5.4.
+- `ClientNetworking::stop` deadlocks if called while the client is still welcoming: the
+  networking thread only checks the running flag from the normal loop. Nothing in the game
+  does this — `run_game` only stops a client it has already waited for — so it is a trap
+  rather than a live bug, and the harness documents it instead of working around it.
 
 ---
 
