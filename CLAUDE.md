@@ -1,7 +1,8 @@
 # Terralistic — working notes
 
 A Terraria-like 2D sandbox game in Rust. Single binary that runs as client, server, or
-server-with-GUI. Rendering is SDL2 + raw OpenGL 3.3 through a hand-written UI toolkit.
+server-with-GUI. Rendering is wgpu through a hand-written UI toolkit, with SDL2 for the
+window and input.
 Game content (blocks, items, walls, biomes, recipes, commands) lives in **Lua mods**, not
 in Rust — `base_game` is itself a mod.
 
@@ -15,7 +16,7 @@ cargo run --release       # client, release
 cargo run -- server       # server with GUI
 cargo run -- server nogui # headless server
 cargo run -- version      # print version
-cargo test                # 366 tests, all should pass
+cargo test                # 380 tests, all should pass
 cargo clippy --all-targets
 ./coverage.sh             # coverage via config-coverage.toml
 
@@ -50,7 +51,7 @@ currently clippy clean, so keep it that way rather than dropping the flag.
 | `server/server_ui/` | Optional GUI for the server (console, player list, stats) |
 | `client/game/` | In-game client: rendering, input, prediction |
 | `client/menus/` | Title screen, world selector, settings, multiplayer, login |
-| `libraries/graphics/` | The UI toolkit + OpenGL renderer (no game knowledge) |
+| `libraries/graphics/` | The UI toolkit + wgpu renderer (no game knowledge) |
 | `libraries/events/` | Type-erased event queue (`Box<dyn Any>` + downcast) |
 | `base_game/` | Lua mod: all actual game content |
 | `resources/` | Client-side assets (fonts, icons, UI textures) |
@@ -222,16 +223,23 @@ framebuffer in `update_window()`, which is what makes the blur/shadow effects po
 
 #### The draw list: what to draw vs. how
 
-**No drawing call touches OpenGL.** `rect.render(..)`, `texture.render(..)`,
+**No drawing call touches the graphics API.** `rect.render(..)`, `texture.render(..)`,
 `rect_array.render(..)`, `font.render_text(..)` and `shadow_context.render(..)` all *record*
 a `DrawCommand` into the frame's `DrawList`. `GraphicsContext::update_window` hands the whole
-list to `GlBackend::execute`, which is the only place the frame path issues `gl::` calls.
+list to `WgpuBackend::execute`, which is the only place the frame path talks to wgpu.
+
+This is what made the OpenGL to wgpu move a contained change: everything above the draw list
+describes a frame as data and never knew which API drew it, so only the backend, the two
+resource types and the window setup moved. **38 of the 43 golden images came out
+byte-identical across the swap**; the five that moved are the ones with borders, for the
+reason under *Outlines* below.
 
 | File | Role |
 |---|---|
 | `draw_list.rs` | `DrawCommand`, `DrawList`, the `DrawTarget` trait, and `DrawRecorder` for tests |
-| `gl_backend.rs` | `GlBackend`: shaders, offscreen framebuffer, blur pass, `execute` |
-| `gpu_garbage.rs` | Deferred deletion of GPU objects |
+| `wgpu_backend.rs` | `WgpuBackend`: pipelines, uniforms, offscreen textures, blur, present |
+| `shaders.wgsl` | Both shaders. One vertex entry point, one fragment each for normal draws and blur |
+| `gpu_device.rs` | The device, the resource registry, and deferred release |
 
 Consequences worth knowing:
 
@@ -248,59 +256,89 @@ Consequences worth knowing:
   `SetBlendMode`) precisely because they only mean anything relative to the draws around
   them. There is no free `gfx::set_blend_mode` any more — call `graphics.set_blend_mode(..)`,
   which records.
-- **`execute` resets the shader program and the blend mode**, so a frame never inherits
-  state. Nothing used to bind the passthrough program at startup; the game rendered only
-  because the first `RenderRect`'s no-op blur bound it on the way out.
+- **Blend mode is baked into a pipeline**, so the backend keeps one per mode and switching
+  mid-frame means switching pipeline. There is no global state for a frame to inherit.
 - **The flush is the *first* thing `update_window` does**, before the blur and scale
   animations advance and before the normalization transform is recomputed. That is what
   makes deferral invisible: a command executes with exactly the transform and blur intensity
   it would have been drawn with immediately. Don't reorder it.
-- Resource *creation* is still immediate and context-free (`Texture::load_from_surface`,
-  `VertexBuffer::upload`). Under wgpu that needs a device, so moving resources behind the
-  backend is the next step, not this one.
+- **A `Blur` command splits the frame into separate render passes**, because wgpu cannot
+  sample the texture it is currently drawing into. Everything before the blur is in one
+  pass, the gaussian ping-pongs between the two offscreen textures, and the rest resumes
+  with `LoadOp::Load`.
 
-##### Deferred deletion is load-bearing
+##### The device is global, and that is deliberate
 
-`Texture` and `VertexBuffer` still own their GPU objects, and a command names them by
-handle, so a resource can be dropped while a command still refers to it. That is not a
-corner case: `login.rs` builds a text texture inside `render_inner` and drops it there, and
-every world chunk replaces its whole `RectArray` via `self.rect_array = RectArray::new()`
-when it changes. `Drop` therefore parks the OpenGL name in `gpu_garbage` and
-`GlBackend::execute` deletes the batch after the frame has run.
+`Texture::load_from_surface(&surface)` is called from ~80 places and takes no context.
+OpenGL made that work through an implicit thread-current context; wgpu has no such thing, so
+the choice was to thread a `&Device` through all 80 call sites or keep the coupling and
+write it down. `gpu_device.rs` is the latter — a `OnceLock<GpuDevice>` the renderer publishes
+once.
 
-**Don't turn that back into a direct `glDeleteTextures`.** Beyond the dangling reference, an
-immediate delete lets OpenGL hand the same name to the next `glGenTextures`, so a stale
-command would draw *another* texture rather than nothing — a much harder bug to see.
+One consequence is an improvement: **creating a texture with no device is no longer undefined
+behaviour**, it produces a `Texture` that knows its size and owns nothing. Layout code works
+headlessly and `cargo test` can build real textures.
+
+##### Deferred release is load-bearing
+
+Resources live in a registry inside `gpu_device` and commands name them by id, so a resource
+can be dropped while a command still refers to it. That is not a corner case: `login.rs`
+builds a text texture inside `render_inner` and drops it there, every world chunk replaces
+its whole `RectArray` via `self.rect_array = RectArray::new()` when it changes, and the
+golden cases draw from temporaries that die at the end of the statement. `Drop` therefore
+parks the id and `execute` sweeps after the frame has been submitted.
+
+**Don't make that an immediate removal.** The command would resolve to nothing and the draw
+would silently vanish.
 
 Mutating a live mesh mid-frame would still be wrong, but nothing does it: every `RectArray`
 mutation replaces the whole object, so the old buffer keeps its old contents until it is
 collected.
 
+##### Outlines
+
+`render_outline` draws **four one-pixel quads on the rectangle's own edge pixels**, not a
+line primitive. Line rasterisation rules differ between Metal, Vulkan and DX12, which would
+make the output depend on the machine — the opposite of what the goldens are for. Under
+OpenGL the border straddled the boundary and sat a pixel outside on two edges; it is now
+exactly the rect's footprint, which is also what a UI border should be.
+
+##### Coordinates
+
+wgpu's framebuffer origin is top left, OpenGL's was bottom left. The old code compensated in
+two places and both are gone: `glReadPixels` output had to be flipped row by row, and the
+blur's texture transform negated y and leaned on `GL_REPEAT` wrapping to land back in range.
+Clip space is unchanged — `+1` is the top in both — so the normalization transform ported
+untouched.
+
 #### Golden-image tests
 
-`libraries/graphics/render_tests.rs` renders 43 cases into the offscreen `window_texture`,
+`libraries/graphics/render_tests.rs` renders 43 cases into the offscreen texture,
 reads them back with `GraphicsContext::capture_frame`, and compares against committed
 `Surface`s in `libraries/graphics/goldens/*.opa`. They cover rects and outlines, `RectArray`,
 textures (scale, flip, source rect, tint), blend modes, both fonts, containers and all nine
 orientations, `RenderRect` fill/border/shadow/blur, sprites, the atlas, and the button,
 toggle and text input widgets.
 
-**They are not `#[test]`s and cannot be.** They need a real GL context, macOS requires that
-on the main thread, and libtest always runs a test body on a spawned worker — even under
-`--test-threads=1`. SDL's `offscreen` driver would avoid that but needs EGL, which macOS
-lacks. So they get a `main.rs` dispatch arg instead, behind the `render-tests` feature.
-`cargo test` is untouched and still needs no graphics context.
+**They are not `#[test]`s and cannot be.** They need a real window to hang a GPU surface
+off, macOS requires that on the main thread, and libtest always runs a test body on a spawned
+worker — even under `--test-threads=1`. So they get a `main.rs` dispatch arg instead, behind
+the `render-tests` feature. `cargo test` is untouched and still needs no graphics context.
 
 The window is hidden, so running them does not flash windows across the desktop. Capture is
-taken *before* the HiDPI blit in `update_window`, so the hardcoded `2.0` there cannot
-contaminate a golden.
+taken from the offscreen texture, *before* `present` scales it to the display, so the
+window's DPI cannot contaminate a golden.
 
 Since the draw list landed these are one of **two** tiers. The draw-list tests at the bottom
 of `tests.rs` assert on the commands a primitive records and run under `cargo test`; these
 assert that the backend turns commands into the right pixels, and are the only coverage of
 anything needing a GPU object to draw at all (`RectArray`, `TextureAtlas`, `ShadowContext`,
-fonts). They are also the real test of `gpu_garbage`: `fixture_texture().render(..)` drops
+fonts). They are also the real test of deferred release: `fixture_texture().render(..)` drops
 the texture at the end of the statement, well before the frame executes.
+
+They earned their keep on the wgpu port: **38 of 43 came back byte-identical** on a different
+graphics API, which is what turned "the port looks fine" into evidence. The other 5 are all
+border cases, matching the deliberate outline change.
 
 Determinism is the whole game, and the toolkit fights it in three places. Each has a
 `#[cfg(feature = "render-tests")]` hook: wall-clock animations (`AnimationTimer::freeze`,
@@ -318,7 +356,7 @@ Keep new cases `EXACT` unless a shader is genuinely involved — a loose toleran
 absorbed a real one-pixel shift in the text input cases without failing.
 
 One known-bad behaviour is recorded as-is rather than fixed: **alpha eaten by blending.**
-`glBlendFunc` applies to the alpha channel too, so drawing anything translucent lowers the
+The blend factors apply to the alpha channel as well as to colour, so drawing anything translucent lowers the
 framebuffer's alpha below 1. Invisible on screen, because the final blit ignores alpha, but
 it shows up in a capture.
 
@@ -326,7 +364,7 @@ it shows up in a capture.
 
 Two bugs here were found by the golden tests and fixed; both are easy to reintroduce.
 
-`GlBackend::draw_texture` (this lived in `Texture::render` before the draw list) maps the
+`WgpuBackend::plan_command` (this lived in `Texture::render` before the draw list) maps the
 quad's `[0,1]` texture coordinate onto the source rectangle as
 `u = (src.pos + t * src.size) / texture_width`. It used to stretch by `src.size + 0.1`
 instead. That extra tenth of a texel pushed the last output column past the end of the
@@ -475,4 +513,6 @@ release build. All four are blocking, so a new clippy warning fails the build �
 targeted `#[allow]` with a reason over relaxing the flag.
 
 Not covered: macOS and Windows are never built, though all three platforms have
-`Cargo.toml` sections and `#[cfg]` branches.
+`Cargo.toml` sections and `#[cfg]` branches. That gap matters more since the wgpu port —
+the backend is written to be portable and the goldens are written to be backend-independent,
+but only Metal has actually run them. Adding a macOS job is the obvious next step.

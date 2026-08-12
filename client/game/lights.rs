@@ -20,7 +20,7 @@ pub struct LightChunk {
 }
 
 impl LightChunk {
-    pub fn new() -> Self {
+    pub const fn new() -> Self {
         Self {
             rect_array: gfx::RectArray::new(),
             needs_update: true,

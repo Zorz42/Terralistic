@@ -6,13 +6,12 @@ use std::mem::swap;
 use arboard::Clipboard;
 
 use anyhow::{anyhow, Result};
-use sdl2::video::SwapInterval;
 
 use crate::libraries::graphics as gfx;
 use crate::libraries::graphics::draw_list::{DrawCommand, DrawList, DrawTarget};
 use crate::libraries::graphics::events::sdl_event_to_gfx_event;
-use crate::libraries::graphics::gl_backend::GlBackend;
 use crate::libraries::graphics::shadow::ShadowContext;
+use crate::libraries::graphics::wgpu_backend::WgpuBackend;
 use crate::libraries::graphics::Font;
 use crate::libraries::graphics::UiContext;
 
@@ -22,11 +21,12 @@ use crate::libraries::graphics::UiContext;
 /// hands the whole list to `backend`, which is the only part of the toolkit that knows about
 /// OpenGL. Everything between those two points is plain data - see `gfx::draw_list`.
 pub struct GraphicsContext {
-    _gl_context: sdl2::video::GLContext,
+    /// Declared before `sdl_window` on purpose. The backend holds a `wgpu::Surface` created
+    /// from the window's raw handle, and fields drop in declaration order, so this is what
+    /// keeps the surface from outliving the window it points at.
+    backend: WgpuBackend,
     sdl_window: sdl2::video::Window,
     sdl_event_pump: sdl2::EventPump,
-    video_subsystem: sdl2::VideoSubsystem,
-    backend: GlBackend,
     /// The frame being recorded. Behind a `RefCell` because drawing takes `&self`: the
     /// toolkit is full of `graphics.font.render_text(graphics, ..)` shaped calls that borrow
     /// the context twice, which was fine when drawing went straight to OpenGL and has to
@@ -60,10 +60,10 @@ impl GraphicsContext {
 
     /// Same as `new`, but the window is never mapped on screen.
     ///
-    /// Rendering already goes to `window_texture` rather than the default framebuffer, so
-    /// a hidden window is enough to drive the whole renderer - only the final blit in
-    /// `update_window` needs a visible one. This is what the golden-image tests use, so
-    /// running them does not flash windows across the desktop.
+    /// Rendering goes to an offscreen texture rather than to the surface, so a hidden window
+    /// is enough to drive the whole renderer - only `present` needs a visible one. This is
+    /// what the golden-image tests use, so running them does not flash windows across the
+    /// desktop.
     #[cfg(feature = "render-tests")]
     pub fn new_hidden(window_width: u32, window_height: u32, font: &[u8], font_mono: Option<&[u8]>) -> Result<Self> {
         Self::new_with_visibility(window_width, window_height, "Terralistic render tests", font, font_mono, false)
@@ -75,33 +75,28 @@ impl GraphicsContext {
         let video_subsystem = sdl.video();
         let video_subsystem = video_subsystem.map_err(|e| anyhow!(e))?;
 
-        let gl_attr = video_subsystem.gl_attr();
-
-        gl_attr.set_context_profile(sdl2::video::GLProfile::Core);
-        gl_attr.set_context_version(3, 3);
-
         let mut window_builder = video_subsystem.window(window_title, window_width, window_height);
-        window_builder.position_centered().opengl().resizable();
+        window_builder.position_centered().resizable();
+        // wgpu reaches the window through its raw handle, and on macOS that handle has to be
+        // a Metal view. Without this SDL panics when the handle is asked for.
+        #[cfg(target_os = "macos")]
+        window_builder.metal_view();
         if !visible {
             window_builder.hidden();
         }
         let sdl_window = window_builder.build()?;
 
-        let gl_context = sdl_window.gl_create_context().map_err(|e| anyhow!(e))?;
-        gl::load_with(|s| video_subsystem.gl_get_proc_address(s).cast::<std::ffi::c_void>());
-
-        let backend = GlBackend::new()?;
+        let backend = WgpuBackend::new(&sdl_window, window_size_of(&sdl_window), drawable_size_of(&sdl_window))?;
+        // Uploads a texture, so it has to come after the device exists.
         let shadow_context = ShadowContext::new();
 
         let font = Font::new(font, false)?;
         let font_mono = if let Some(data) = font_mono { Some(Font::new(data, true)?) } else { None };
 
         let mut result = Self {
-            _gl_context: gl_context,
+            backend,
             sdl_window,
             sdl_event_pump: sdl.event_pump().map_err(|e| anyhow!(e))?,
-            video_subsystem,
-            backend,
             draw_list: RefCell::new(DrawList::new()),
             key_states: HashMap::new(),
             events: Vec::new(),
@@ -128,8 +123,7 @@ impl GraphicsContext {
 
     /// Is called every time the window is resized.
     pub fn handle_window_resize(&mut self) {
-        let size = self.sdl_window.size();
-        self.backend.resize(gfx::IntSize(size.0, size.1));
+        self.backend.resize(window_size_of(&self.sdl_window), drawable_size_of(&self.sdl_window));
     }
 
     /// Hands the recorded frame to the backend and starts a new one.
@@ -144,8 +138,7 @@ impl GraphicsContext {
     pub fn begin_capture_frame(&mut self) {
         let window_size = self.get_window_size();
         self.backend.update_normalization_transform(window_size);
-        let size = self.sdl_window.size();
-        self.backend.begin_capture_frame(gfx::IntSize(size.0, size.1));
+        self.backend.clear_next_frame();
         self.draw_list.borrow_mut().clear();
     }
 
@@ -154,11 +147,9 @@ impl GraphicsContext {
     /// The flush has to happen here rather than in `update_window`, because a captured case
     /// never presents - there is nothing to show on a hidden window.
     #[cfg(feature = "render-tests")]
-    #[must_use]
-    pub fn capture_frame(&mut self) -> gfx::Surface {
+    pub fn capture_frame(&mut self) -> Result<gfx::Surface> {
         self.flush_draw_list();
-        let size = self.sdl_window.size();
-        self.backend.read_pixels(gfx::IntSize(size.0, size.1))
+        self.backend.read_pixels()
     }
 
     /// Jumps the scale and blur animations straight to their target values.
@@ -253,11 +244,9 @@ impl GraphicsContext {
 
         let window_size = self.get_window_size();
         self.backend.update_normalization_transform(window_size);
-        self.backend.present(window_size);
-
-        self.sdl_window.gl_swap_window();
-
-        self.backend.bind_offscreen_framebuffer();
+        if let Err(error) = self.backend.present() {
+            println!("Error presenting frame: {error}");
+        }
 
         self.frames_so_far += 1;
         let now = std::time::Instant::now();
@@ -298,11 +287,8 @@ impl GraphicsContext {
         self.min_ms_per_frame = 0.0;
     }
 
-    pub fn enable_vsync(&self, enable: bool) {
-        let swap_interval = if enable { SwapInterval::VSync } else { SwapInterval::Immediate };
-        if let Err(error) = self.video_subsystem.gl_set_swap_interval(swap_interval) {
-            println!("Error setting VSync: {error}");
-        }
+    pub fn enable_vsync(&mut self, enable: bool) {
+        self.backend.set_vsync(enable);
     }
 }
 
@@ -337,6 +323,26 @@ impl UiContext for GraphicsContext {
     fn as_graphics_context(&mut self) -> Option<&mut Self> {
         Some(self)
     }
+}
+
+/// The window in logical pixels, which is what the game draws in.
+fn window_size_of(window: &sdl2::video::Window) -> gfx::IntSize {
+    let size = window.size();
+    gfx::IntSize(size.0, size.1)
+}
+
+/// The window in real device pixels, which is what the surface has to be configured at.
+///
+/// On a `HiDPI` display these differ by the backing scale factor. The OpenGL backend
+/// hardcoded that ratio as 2.0, which was wrong on every other kind of display; asking SDL
+/// keeps the game rendering at logical resolution while the final upscale matches whatever
+/// the screen actually is.
+fn drawable_size_of(window: &sdl2::video::Window) -> gfx::IntSize {
+    let drawable = window.drawable_size();
+    if drawable.0 == 0 || drawable.1 == 0 {
+        return window_size_of(window);
+    }
+    gfx::IntSize(drawable.0, drawable.1)
 }
 
 /// Where the game's drawing ends up. The commands sit here until `update_window` replays

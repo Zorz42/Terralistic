@@ -1,16 +1,16 @@
 //! Golden-image tests for the graphics library.
 //!
-//! Every case draws into the offscreen framebuffer that the renderer already uses, reads it
+//! Every case draws into the offscreen texture that the renderer already uses, reads it
 //! back with `GraphicsContext::capture_frame`, and compares it against a committed
 //! `Surface` in `goldens/`. That makes the pixels the renderer produces a checked-in
 //! specification rather than something only a human eye ever verifies.
 //!
 //! # Why these are not `#[test]`s
 //!
-//! They need a real OpenGL context. On macOS the Cocoa video driver refuses to initialise
-//! off the main thread, and libtest always runs a test body on a spawned worker - even
-//! under `--test-threads=1`. SDL's `offscreen` driver would sidestep that, but it needs
-//! EGL, which macOS does not have. So the suite gets its own main-thread entry point:
+//! They need a real window to hang a GPU surface off. On macOS the Cocoa video driver
+//! refuses to initialise off the main thread, and libtest always runs a test body on a
+//! spawned worker - even under `--test-threads=1`. So the suite gets its own main-thread
+//! entry point:
 //!
 //! ```text
 //! cargo run --features render-tests -- rendertest             # check against goldens
@@ -42,7 +42,7 @@
 //! returns a temporary, so in a line like
 //! `fixture_texture().render(graphics, ..)` the texture is dropped at the end of the
 //! statement - long before the frame is executed in `capture_frame`. These cases only match
-//! their goldens because `gpu_garbage` holds the OpenGL name until the frame has run.
+//! their goldens because `gpu_device` parks the resource until the frame has run.
 //!
 //! Running a new case five times before committing its golden is what caught the atlas bug:
 //! `TextureAtlas::new` packed in `HashMap` iteration order, which Rust randomises per
@@ -917,7 +917,7 @@ fn output_dir() -> PathBuf {
 // --- runner ---------------------------------------------------------------------------------
 
 /// Draws one case into a freshly cleared offscreen frame and reads it back.
-fn capture_case(graphics: &mut gfx::GraphicsContext, case: &Case) -> gfx::Surface {
+fn capture_case(graphics: &mut gfx::GraphicsContext, case: &Case) -> Result<gfx::Surface> {
     graphics.begin_capture_frame();
     graphics.settle_animations();
     // Cases are isolated from each other by the draw list itself: `begin_capture_frame`
@@ -947,7 +947,7 @@ pub fn run(regenerate: bool, dump: bool, font: &[u8], font_mono: &[u8]) -> Resul
     let mut regenerated = 0_u32;
 
     for case in CASES {
-        let actual = capture_case(&mut graphics, case);
+        let actual = capture_case(&mut graphics, case).with_context(|| format!("capturing {}", case.name))?;
         let golden_path = goldens.join(format!("{}.opa", case.name));
 
         if dump {

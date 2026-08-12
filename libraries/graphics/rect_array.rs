@@ -12,7 +12,7 @@ pub struct RectArray {
 impl RectArray {
     /// Creates a new `RectArray`.
     #[must_use]
-    pub fn new() -> Self {
+    pub const fn new() -> Self {
         Self { vertex_buffer: VertexBuffer::new() }
     }
 
@@ -67,7 +67,7 @@ impl RectArray {
         });
     }
 
-    pub fn update(&self) {
+    pub fn update(&mut self) {
         self.vertex_buffer.upload();
     }
 
@@ -75,7 +75,7 @@ impl RectArray {
     ///
     /// The command names the mesh by handle, so the array may be dropped or replaced before
     /// the frame is executed - which the world renderer does constantly, since a chunk that
-    /// changes throws its whole `RectArray` away. `gpu_garbage` is what makes that safe.
+    /// changes throws its whole `RectArray` away. `gpu_device` is what makes that safe.
     pub fn render(&self, target: &dyn DrawTarget, texture: Option<&gfx::Texture>, pos: gfx::FloatPos) {
         target.push_draw_command(DrawCommand::Mesh {
             mesh: self.vertex_buffer.get_handle(),

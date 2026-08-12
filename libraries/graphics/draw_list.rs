@@ -29,15 +29,15 @@ use super::blend_mode::BlendMode;
 
 /// A texture living in the renderer backend.
 ///
-/// Opaque outside `gl_backend`: today it holds an OpenGL texture name, a wgpu backend would
-/// put its own index here. `Texture::new` produces `NONE`, which never reaches a draw
-/// because a texture with no GPU object also reports a zero size and gets culled first.
+/// Opaque outside the backend: today it is an index into `gpu_device`'s registry. The point
+/// is that a command can name a resource without borrowing it, so the list outlives whatever
+/// recorded into it.
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 pub struct TextureHandle(pub(super) u32);
 
 impl TextureHandle {
-    /// The handle of a `Texture` that owns nothing on the GPU.
-    pub(super) const NONE: Self = Self(u32::MAX);
+    /// The handle of a `Texture` that owns nothing on the GPU. Zero is never a real id.
+    pub(super) const NONE: Self = Self(0);
 
     /// The backend's raw name for this resource. Only useful to a backend or a test.
     #[must_use]
@@ -48,22 +48,26 @@ impl TextureHandle {
 
 /// An uploaded triangle mesh living in the renderer backend.
 ///
-/// Same contract as `TextureHandle`: the fields are the backend's business. They are three
-/// OpenGL object names plus the element count, which is everything `execute` needs to issue
-/// the draw without reaching back into the `VertexBuffer` that owns them.
+/// Same contract as `TextureHandle`: the id is the backend's business, and the vertex count
+/// rides along so `execute` can issue the draw without reaching back into the
+/// `VertexBuffer` that owns the resource.
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 pub struct MeshHandle {
-    pub(super) vertex_array: u32,
-    pub(super) vertex_buffer: u32,
-    pub(super) index_buffer: u32,
-    pub(super) index_count: u32,
+    pub(super) id: u32,
+    pub(super) vertex_count: u32,
 }
 
 impl MeshHandle {
-    /// How many indices the mesh will draw. Zero means the mesh is empty.
+    /// The backend's raw id for this resource. Only useful to a backend or a test.
     #[must_use]
-    pub const fn get_index_count(self) -> u32 {
-        self.index_count
+    pub const fn get_id(self) -> u32 {
+        self.id
+    }
+
+    /// How many vertices the mesh will draw. Zero means the mesh is empty.
+    #[must_use]
+    pub const fn get_vertex_count(self) -> u32 {
+        self.vertex_count
     }
 }
 

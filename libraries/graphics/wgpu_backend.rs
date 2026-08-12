@@ -1,0 +1,931 @@
+//! The wgpu half of the renderer: how a `DrawList` becomes pixels.
+//!
+//! This replaced a hand-written OpenGL 3.3 backend. The draw list is what made that a
+//! contained change - the toolkit above this file describes a frame as data and never knew
+//! which API drew it, so only this file, the two resource types and the window setup moved.
+//!
+//! # Shape of a frame
+//!
+//! `execute` runs in two phases. The first walks the command list and turns it into a flat
+//! list of `Segment`s plus one `Uniforms` entry per draw, because wgpu wants all the uniform
+//! data written before any of it is encoded. The second encodes the segments into render
+//! passes. A `Blur` command splits the frame, since blurring means sampling what has already
+//! been drawn and wgpu cannot sample the texture it is currently drawing into.
+//!
+//! # Differences from the OpenGL backend that are visible in the goldens
+//!
+//! - **Rectangle outlines are four thin quads, not `GL_LINES`.** Line rasterisation rules
+//!   differ between Metal, Vulkan and DX12, so a line primitive would have made the output
+//!   depend on the machine, which is the opposite of what the golden images are for. Quads
+//!   put the border exactly on the rectangle's own pixels.
+//! - **The offscreen texture is stored top down.** OpenGL's framebuffer origin is at the
+//!   bottom left, so the old code flipped in two places: `glReadPixels` output, and the blur's
+//!   texture transform, which negated y and relied on `GL_REPEAT` wrapping to land back in
+//!   the right place. wgpu's origin is top left, so both flips are gone.
+//!
+//! Everything else - the transform arithmetic, the blend factors, nearest sampling, the
+//! gaussian weights - is a faithful port, which is why the rest of the goldens survived.
+
+use anyhow::{anyhow, Result};
+
+use crate::libraries::graphics as gfx;
+
+use super::blend_mode::BlendMode;
+use super::draw_list::{DrawCommand, DrawList};
+use super::gpu_device::{self, GpuDevice};
+use super::transformation::Transformation;
+
+/// One vertex: position, colour, texture coordinate. Matches `VertexBuffer`'s packing so a
+/// `RectArray` and the built-in quad can share a pipeline.
+pub(super) const VERTEX_FLOATS: usize = 8;
+
+const SHADER: &str = include_str!("shaders.wgsl");
+
+/// The per-draw uniform block. Laid out by hand to match WGSL's rules: a `mat3x3` occupies
+/// three 16 byte columns, and the whole struct aligns to 16.
+#[repr(C)]
+#[derive(Clone, Copy, bytemuck::Pod, bytemuck::Zeroable)]
+struct Uniforms {
+    transform: [[f32; 4]; 3],
+    texture_transform: [[f32; 4]; 3],
+    color: [f32; 4],
+    /// Blur only: the region outside which sampling is clamped, as (max u, max v, min u, min v).
+    limit: [f32; 4],
+    /// Blur only: how far apart the thirteen taps are.
+    blur_offset: [f32; 2],
+    has_texture: u32,
+    _padding: u32,
+}
+
+impl Uniforms {
+    fn new(transform: &Transformation, texture_transform: &Transformation, color: gfx::Color, has_texture: bool) -> Self {
+        Self {
+            transform: expand(transform),
+            texture_transform: expand(texture_transform),
+            color: [color.r as f32 / 255.0, color.g as f32 / 255.0, color.b as f32 / 255.0, color.a as f32 / 255.0],
+            limit: [0.0; 4],
+            blur_offset: [0.0; 2],
+            has_texture: u32::from(has_texture),
+            _padding: 0,
+        }
+    }
+}
+
+/// A column major 3x3 becomes three padded 4-float columns.
+const fn expand(transform: &Transformation) -> [[f32; 4]; 3] {
+    let m = &transform.matrix;
+    [[m[0], m[1], m[2], 0.0], [m[3], m[4], m[5], 0.0], [m[6], m[7], m[8], 0.0]]
+}
+
+/// What to draw with, once a command has been resolved against the registry.
+#[derive(Clone, Copy)]
+enum Geometry {
+    /// The built-in unit quad, which every rect and texture draw is a transform of.
+    Quad,
+    /// A mesh from the registry, by id.
+    Mesh(u32),
+}
+
+enum Segment {
+    Draw {
+        uniform: u32,
+        blend: BlendMode,
+        /// Registry id of the texture to sample, or `None` for the white dummy.
+        texture: Option<u32>,
+        geometry: Geometry,
+    },
+    /// One gaussian pass. `to_back` picks which of the ping-pong pair is the attachment.
+    BlurPass { uniform: u32, to_back: bool },
+}
+
+/// The two offscreen textures the frame is drawn into and blurred between.
+struct Offscreen {
+    /// Only the golden-image readback needs the texture itself; the view keeps it alive.
+    #[cfg_attr(not(feature = "render-tests"), allow(dead_code, reason = "only read back when capturing goldens"))]
+    texture: wgpu::Texture,
+    view: wgpu::TextureView,
+    bind_group: wgpu::BindGroup,
+}
+
+impl Offscreen {
+    fn new(gpu: &GpuDevice, size: gfx::IntSize, label: &str) -> Self {
+        let texture = gpu.device.create_texture(&wgpu::TextureDescriptor {
+            label: Some(label),
+            size: wgpu::Extent3d {
+                width: size.0.max(1),
+                height: size.1.max(1),
+                depth_or_array_layers: 1,
+            },
+            mip_level_count: 1,
+            sample_count: 1,
+            dimension: wgpu::TextureDimension::D2,
+            format: wgpu::TextureFormat::Rgba8Unorm,
+            usage: wgpu::TextureUsages::RENDER_ATTACHMENT | wgpu::TextureUsages::TEXTURE_BINDING | wgpu::TextureUsages::COPY_SRC,
+            view_formats: &[],
+        });
+        let view = texture.create_view(&wgpu::TextureViewDescriptor::default());
+        let bind_group = gpu.create_texture_bind_group(&view);
+        Self { texture, view, bind_group }
+    }
+}
+
+pub struct WgpuBackend {
+    surface: wgpu::Surface<'static>,
+    surface_format: wgpu::TextureFormat,
+    surface_size: gfx::IntSize,
+    present_mode: wgpu::PresentMode,
+
+    front: Offscreen,
+    back: Offscreen,
+    size: gfx::IntSize,
+
+    /// Indexed by `BlendMode`; the blend state is baked into a wgpu pipeline, so switching
+    /// modes mid-frame means switching pipeline.
+    alpha_pipeline: wgpu::RenderPipeline,
+    multiply_pipeline: wgpu::RenderPipeline,
+    blur_pipeline: wgpu::RenderPipeline,
+    present_pipeline: wgpu::RenderPipeline,
+
+    quad_buffer: wgpu::Buffer,
+    white_bind_group: wgpu::BindGroup,
+
+    uniform_layout: wgpu::BindGroupLayout,
+    uniform_buffer: wgpu::Buffer,
+    uniform_bind_group: wgpu::BindGroup,
+    uniform_capacity: u64,
+    /// Distance between consecutive uniform entries, rounded up to the device's alignment.
+    uniform_stride: u32,
+
+    normalization_transform: Transformation,
+    blur_enabled: bool,
+    blur_intensity: f32,
+    blur_animation_timer: gfx::AnimationTimer,
+    /// Set by the golden-image harness so the next frame starts from a known buffer.
+    clear_next_frame: bool,
+}
+
+impl WgpuBackend {
+    /// Brings up the device, publishes it for resource creation, and builds the pipelines.
+    pub(super) fn new(window: &sdl2::video::Window, size: gfx::IntSize, drawable_size: gfx::IntSize) -> Result<Self> {
+        let instance = wgpu::Instance::new(wgpu::InstanceDescriptor {
+            backends: wgpu::Backends::PRIMARY,
+            flags: wgpu::InstanceFlags::default(),
+            memory_budget_thresholds: wgpu::MemoryBudgetThresholds::default(),
+            backend_options: wgpu::BackendOptions::default(),
+            display: None,
+        });
+
+        // Safety: the surface is stored alongside the window in `GraphicsContext` and is
+        // declared before it, so it is dropped first. Nothing else can outlive the window.
+        let surface = unsafe {
+            use raw_window_handle::{HasDisplayHandle, HasWindowHandle};
+            instance.create_surface_unsafe(wgpu::SurfaceTargetUnsafe::RawHandle {
+                raw_display_handle: Some(window.display_handle()?.as_raw()),
+                raw_window_handle: window.window_handle()?.as_raw(),
+            })?
+        };
+
+        let adapter = pollster::block_on(instance.request_adapter(&wgpu::RequestAdapterOptions {
+            power_preference: wgpu::PowerPreference::default(),
+            force_fallback_adapter: false,
+            compatible_surface: Some(&surface),
+            apply_limit_buckets: false,
+        }))
+        .map_err(|error| anyhow!("no graphics adapter available: {error}"))?;
+
+        let (device, queue) = pollster::block_on(adapter.request_device(&wgpu::DeviceDescriptor {
+            label: Some("terralistic"),
+            required_features: wgpu::Features::empty(),
+            // The toolkit draws textured triangles and nothing else, so the lowest common
+            // denominator is enough and keeps the oldest hardware working.
+            required_limits: wgpu::Limits::downlevel_defaults(),
+            experimental_features: wgpu::ExperimentalFeatures::disabled(),
+            memory_hints: wgpu::MemoryHints::default(),
+            trace: wgpu::Trace::Off,
+        }))?;
+
+        gpu_device::init(device, queue);
+        let gpu = gpu_device::get().ok_or_else(|| anyhow!("the gpu device disappeared right after being published"))?;
+
+        let capabilities = surface.get_capabilities(&adapter);
+        let surface_format = *capabilities
+            .formats
+            .iter()
+            .find(|format| !format.is_srgb())
+            .or_else(|| capabilities.formats.first())
+            .ok_or_else(|| anyhow!("the surface supports no texture formats"))?;
+
+        let Pipelines {
+            uniform_layout,
+            alpha_pipeline,
+            multiply_pipeline,
+            blur_pipeline,
+            present_pipeline,
+        } = build_pipelines(gpu, surface_format);
+
+        let quad_buffer = build_quad_buffer(gpu);
+        let white_bind_group = build_white_bind_group(gpu);
+
+        let uniform_stride = gpu.device.limits().min_uniform_buffer_offset_alignment.max(std::mem::size_of::<Uniforms>() as u32);
+        let uniform_capacity = u64::from(uniform_stride) * 256;
+        let uniform_buffer = gpu.device.create_buffer(&wgpu::BufferDescriptor {
+            label: Some("uniforms"),
+            size: uniform_capacity,
+            usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
+            mapped_at_creation: false,
+        });
+        let uniform_bind_group = build_uniform_bind_group(gpu, &uniform_layout, &uniform_buffer);
+
+        let result = Self {
+            surface,
+            surface_format,
+            surface_size: drawable_size,
+            present_mode: wgpu::PresentMode::AutoVsync,
+            front: Offscreen::new(gpu, size, "window texture"),
+            back: Offscreen::new(gpu, size, "window texture back"),
+            size,
+            alpha_pipeline,
+            multiply_pipeline,
+            blur_pipeline,
+            present_pipeline,
+            quad_buffer,
+            white_bind_group,
+            uniform_layout,
+            uniform_buffer,
+            uniform_bind_group,
+            uniform_capacity,
+            uniform_stride,
+            normalization_transform: Transformation::new(),
+            blur_enabled: true,
+            blur_intensity: 0.0,
+            blur_animation_timer: gfx::AnimationTimer::new(10),
+            clear_next_frame: false,
+        };
+        result.configure_surface();
+        Ok(result)
+    }
+
+    fn configure_surface(&self) {
+        let Some(gpu) = gpu_device::get() else { return };
+        if self.surface_size.0 == 0 || self.surface_size.1 == 0 {
+            return;
+        }
+        self.surface.configure(
+            &gpu.device,
+            &wgpu::SurfaceConfiguration {
+                usage: wgpu::TextureUsages::RENDER_ATTACHMENT,
+                format: self.surface_format,
+                color_space: wgpu::SurfaceColorSpace::Auto,
+                width: self.surface_size.0,
+                height: self.surface_size.1,
+                present_mode: self.present_mode,
+                desired_maximum_frame_latency: 2,
+                alpha_mode: wgpu::CompositeAlphaMode::Auto,
+                view_formats: vec![],
+            },
+        );
+    }
+
+    /// Reallocates the offscreen pair and reconfigures the surface for a new window size.
+    pub(super) fn resize(&mut self, size: gfx::IntSize, drawable_size: gfx::IntSize) {
+        let Some(gpu) = gpu_device::get() else { return };
+        if size != self.size {
+            self.front = Offscreen::new(gpu, size, "window texture");
+            self.back = Offscreen::new(gpu, size, "window texture back");
+            self.size = size;
+        }
+        if drawable_size != self.surface_size {
+            self.surface_size = drawable_size;
+            self.configure_surface();
+        }
+    }
+
+    pub(super) fn set_vsync(&mut self, enable: bool) {
+        let wanted = if enable { wgpu::PresentMode::AutoVsync } else { wgpu::PresentMode::AutoNoVsync };
+        if wanted != self.present_mode {
+            self.present_mode = wanted;
+            self.configure_surface();
+        }
+    }
+
+    /// Recomputes the transform that maps window pixel coordinates onto clip space.
+    ///
+    /// The negative y scale is the graphics convention: clip space is y up, while every
+    /// coordinate in this toolkit is y down from the top left.
+    pub(super) fn update_normalization_transform(&mut self, window_size: gfx::FloatSize) {
+        self.normalization_transform = Transformation::new();
+        self.normalization_transform.translate(gfx::FloatPos(-1.0, 1.0));
+        self.normalization_transform.stretch((2.0 / window_size.0, -2.0 / window_size.1));
+    }
+
+    /// Draws a whole frame, then releases anything the frame dropped.
+    pub(super) fn execute(&mut self, list: &DrawList, window_size: gfx::FloatSize) {
+        let Some(gpu) = gpu_device::get() else { return };
+
+        let mut uniforms: Vec<Uniforms> = Vec::new();
+        let mut segments: Vec<Segment> = Vec::new();
+        let mut blend = BlendMode::Alpha;
+
+        for command in list.get_commands() {
+            self.plan_command(command, window_size, &mut blend, &mut uniforms, &mut segments);
+        }
+
+        let clear = std::mem::take(&mut self.clear_next_frame);
+        if uniforms.is_empty() && !clear {
+            gpu.collect();
+            return;
+        }
+
+        self.write_uniforms(gpu, &uniforms);
+
+        let mut encoder = gpu.device.create_command_encoder(&wgpu::CommandEncoderDescriptor { label: Some("frame") });
+        self.encode(gpu, &mut encoder, &segments, clear);
+        gpu.queue.submit(Some(encoder.finish()));
+
+        gpu.collect();
+    }
+
+    fn plan_command(&self, command: &DrawCommand, window_size: gfx::FloatSize, blend: &mut BlendMode, uniforms: &mut Vec<Uniforms>, segments: &mut Vec<Segment>) {
+        let push = |uniform: Uniforms, texture: Option<u32>, geometry: Geometry, uniforms: &mut Vec<Uniforms>, segments: &mut Vec<Segment>| {
+            segments.push(Segment::Draw {
+                uniform: uniforms.len() as u32,
+                blend: *blend,
+                texture,
+                geometry,
+            });
+            uniforms.push(uniform);
+        };
+
+        match *command {
+            DrawCommand::Rect { rect, color } => {
+                push(self.rect_uniform(rect, color), None, Geometry::Quad, uniforms, segments);
+            }
+            DrawCommand::RectOutline { rect, color } => {
+                // Four one pixel quads on the rectangle's own edge pixels. See the module
+                // docs: a line primitive would rasterise differently per backend.
+                for edge in outline_edges(rect) {
+                    push(self.rect_uniform(edge, color), None, Geometry::Quad, uniforms, segments);
+                }
+            }
+            DrawCommand::Texture {
+                texture,
+                texture_size,
+                src_rect,
+                pos,
+                scale,
+                flipped,
+                color,
+            } => {
+                let mut transform = self.normalization_transform.clone();
+                if flipped {
+                    transform.translate(gfx::FloatPos(src_rect.size.0 * scale + pos.0 * 2.0, 0.0));
+                    transform.stretch((-1.0, 1.0));
+                }
+                transform.translate(pos);
+                transform.stretch((src_rect.size.0 * scale, src_rect.size.1 * scale));
+
+                // The unit square maps onto the source rectangle and then onto [0,1] of the
+                // whole texture. The stretch is by exactly `src_rect.size`: sampling happens
+                // at texel centres, so the last output column already lands strictly inside
+                // the region. There used to be a `+ 0.1` fudge here, and it pushed that
+                // column into the neighbouring texel.
+                let mut texture_transform = texel_scale(texture_size);
+                texture_transform.translate(src_rect.pos);
+                texture_transform.stretch((src_rect.size.0, src_rect.size.1));
+
+                push(Uniforms::new(&transform, &texture_transform, color, true), Some(texture.get_id()), Geometry::Quad, uniforms, segments);
+            }
+            DrawCommand::Mesh { mesh, texture, pos } => {
+                // to avoid artifacts
+                let pos = gfx::FloatPos(pos.0 + 0.01, pos.1 + 0.01);
+                let mut transform = self.normalization_transform.clone();
+                transform.translate(pos);
+
+                let (texture_id, texture_transform) = match texture {
+                    Some((handle, size)) => (Some(handle.get_id()), texel_scale(size)),
+                    None => (None, Transformation::new()),
+                };
+
+                push(
+                    Uniforms::new(&transform, &texture_transform, gfx::Color::new(255, 255, 255, 255), texture.is_some()),
+                    texture_id,
+                    Geometry::Mesh(mesh.get_id()),
+                    uniforms,
+                    segments,
+                );
+            }
+            DrawCommand::Blur { rect, radius } => self.plan_blur(rect, radius, window_size, uniforms, segments),
+            DrawCommand::SetBlendMode(mode) => *blend = mode,
+        }
+    }
+
+    fn rect_uniform(&self, rect: gfx::Rect, color: gfx::Color) -> Uniforms {
+        let mut transform = self.normalization_transform.clone();
+        transform.translate(rect.pos);
+        transform.stretch((rect.size.0, rect.size.1));
+        Uniforms::new(&transform, &Transformation::new(), color, false)
+    }
+
+    /// Turns one blur command into its ping-pong passes.
+    ///
+    /// A faithful port of the OpenGL version, including the pass count and the offsets. The
+    /// one change is that the texture transform no longer negates y: OpenGL stored the
+    /// framebuffer bottom up, so the old code flipped and leaned on `GL_REPEAT` to wrap back
+    /// into range.
+    fn plan_blur(&self, rect: gfx::Rect, radius: i32, window_size: gfx::FloatSize, uniforms: &mut Vec<Uniforms>, segments: &mut Vec<Segment>) {
+        let radius = radius as f32 * self.blur_intensity / 5.0;
+        if radius < 1.0 {
+            return;
+        }
+
+        let begin_x = rect.pos.0.max(0.0);
+        let begin_y = rect.pos.1.max(0.0);
+        let end_x = (rect.pos.0 + rect.size.0).min(window_size.0);
+        let end_y = (rect.pos.1 + rect.size.1).min(window_size.1);
+        let rect = gfx::Rect::new(gfx::FloatPos(begin_x, begin_y), gfx::FloatSize(end_x - begin_x, end_y - begin_y));
+        if rect.size.0 <= 0.0 || rect.size.1 <= 0.0 {
+            return;
+        }
+
+        let x1 = (rect.pos.0 + 1.0) / window_size.0;
+        let y1 = (rect.pos.1 + 1.0) / window_size.1;
+        let x2 = (rect.pos.0 + rect.size.0 - 1.0) / window_size.0;
+        let y2 = (rect.pos.1 + rect.size.1 - 1.0) / window_size.1;
+
+        let mut transform = self.normalization_transform.clone();
+        transform.translate(rect.pos);
+        transform.stretch((rect.size.0, rect.size.1));
+
+        let mut texture_transform = Transformation::new();
+        texture_transform.stretch((1.0 / window_size.0, 1.0 / window_size.1));
+        texture_transform.translate(rect.pos);
+        texture_transform.stretch((rect.size.0, rect.size.1));
+
+        let mut offsets = vec![
+            [0.0, radius / window_size.1 / 10.0],
+            [radius / window_size.0 / 10.0, 0.0],
+            [0.0, radius / window_size.1],
+            [radius / window_size.0, 0.0],
+        ];
+        if radius > 5.0 {
+            offsets.push([0.0, 2.0 / window_size.1]);
+            offsets.push([2.0 / window_size.0, 0.0]);
+        }
+
+        for (index, offset) in offsets.into_iter().enumerate() {
+            let mut uniform = Uniforms::new(&transform, &texture_transform, gfx::Color::new(255, 255, 255, 255), true);
+            uniform.limit = [x2, y2, x1, y1];
+            uniform.blur_offset = offset;
+
+            segments.push(Segment::BlurPass {
+                uniform: uniforms.len() as u32,
+                // Even passes read the front and write the back, odd ones read it back. The
+                // count is always even, so the result ends up in the front texture.
+                to_back: index % 2 == 0,
+            });
+            uniforms.push(uniform);
+        }
+    }
+
+    fn write_uniforms(&mut self, gpu: &GpuDevice, uniforms: &[Uniforms]) {
+        let needed = u64::from(self.uniform_stride) * uniforms.len() as u64;
+        if needed > self.uniform_capacity {
+            self.uniform_capacity = needed.next_power_of_two();
+            self.uniform_buffer = gpu.device.create_buffer(&wgpu::BufferDescriptor {
+                label: Some("uniforms"),
+                size: self.uniform_capacity,
+                usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
+                mapped_at_creation: false,
+            });
+            self.uniform_bind_group = build_uniform_bind_group(gpu, &self.uniform_layout, &self.uniform_buffer);
+        }
+
+        let stride = self.uniform_stride as usize;
+        let mut bytes = vec![0u8; stride * uniforms.len()];
+        for (index, uniform) in uniforms.iter().enumerate() {
+            let start = index * stride;
+            if let Some(slot) = bytes.get_mut(start..start + std::mem::size_of::<Uniforms>()) {
+                slot.copy_from_slice(bytemuck::bytes_of(uniform));
+            }
+        }
+        gpu.queue.write_buffer(&self.uniform_buffer, 0, &bytes);
+    }
+
+    fn encode(&self, gpu: &GpuDevice, encoder: &mut wgpu::CommandEncoder, segments: &[Segment], clear: bool) {
+        let textures = gpu.lock_textures();
+        let meshes = gpu.lock_meshes();
+
+        // A frame is one render pass per run of draws, split wherever a blur needs to read
+        // back what has been drawn so far.
+        let mut first_pass = true;
+        let mut index = 0;
+        while index < segments.len() {
+            if let Some(&Segment::BlurPass { uniform, to_back }) = segments.get(index) {
+                let (target, source) = if to_back { (&self.back, &self.front) } else { (&self.front, &self.back) };
+                let mut pass = begin_pass(encoder, &target.view, clear && first_pass);
+                pass.set_pipeline(&self.blur_pipeline);
+                pass.set_vertex_buffer(0, self.quad_buffer.slice(..));
+                pass.set_bind_group(1, &source.bind_group, &[]);
+                pass.set_bind_group(0, &self.uniform_bind_group, &[uniform * self.uniform_stride]);
+                pass.draw(0..6, 0..1);
+                first_pass = false;
+                index += 1;
+            } else {
+                {
+                    let end = segments
+                        .iter()
+                        .skip(index)
+                        .position(|segment| matches!(segment, Segment::BlurPass { .. }))
+                        .map_or(segments.len(), |offset| index + offset);
+
+                    let mut pass = begin_pass(encoder, &self.front.view, clear && first_pass);
+                    for segment in segments.get(index..end).unwrap_or_default() {
+                        let &Segment::Draw { uniform, blend, texture, geometry } = segment else {
+                            continue;
+                        };
+
+                        pass.set_pipeline(match blend {
+                            BlendMode::Alpha => &self.alpha_pipeline,
+                            BlendMode::Multiply => &self.multiply_pipeline,
+                        });
+
+                        // A missing entry means the resource was created without a device,
+                        // which can only happen in a process that cannot render anyway.
+                        let bind_group = match texture {
+                            None => &self.white_bind_group,
+                            Some(id) => match textures.get(&id) {
+                                Some(entry) => &entry.bind_group,
+                                None => continue,
+                            },
+                        };
+                        pass.set_bind_group(1, bind_group, &[]);
+                        pass.set_bind_group(0, &self.uniform_bind_group, &[uniform * self.uniform_stride]);
+
+                        match geometry {
+                            Geometry::Quad => {
+                                pass.set_vertex_buffer(0, self.quad_buffer.slice(..));
+                                pass.draw(0..6, 0..1);
+                            }
+                            Geometry::Mesh(id) => {
+                                let Some(mesh) = meshes.get(&id) else { continue };
+                                if mesh.vertex_count == 0 {
+                                    continue;
+                                }
+                                pass.set_vertex_buffer(0, mesh.buffer.slice(..));
+                                pass.draw(0..mesh.vertex_count, 0..1);
+                            }
+                        }
+                    }
+                    first_pass = false;
+                    index = end;
+                }
+            }
+        }
+
+        // A frame that recorded nothing but asked for a clear still needs the pass that
+        // performs it, or the golden would show the previous case.
+        if first_pass && clear {
+            drop(begin_pass(encoder, &self.front.view, true));
+        }
+    }
+
+    /// Copies the offscreen texture onto the window.
+    ///
+    /// OpenGL did this with `glBlitFramebuffer` and a hardcoded 2x, which was wrong on any
+    /// display that is not `HiDPI`. Here the surface is configured at the real drawable size
+    /// and the offscreen texture is drawn as a nearest-sampled quad over it, so the upscale
+    /// is whatever the display actually needs.
+    pub(super) fn present(&mut self) -> Result<()> {
+        let Some(gpu) = gpu_device::get() else { return Ok(()) };
+
+        let frame = match self.surface.get_current_texture() {
+            wgpu::CurrentSurfaceTexture::Success(frame) | wgpu::CurrentSurfaceTexture::Suboptimal(frame) => frame,
+            // Lost or outdated just means the window changed under us, so reconfigure and
+            // let the next frame have it. The others are all "try again later".
+            wgpu::CurrentSurfaceTexture::Lost | wgpu::CurrentSurfaceTexture::Outdated => {
+                self.configure_surface();
+                return Ok(());
+            }
+            wgpu::CurrentSurfaceTexture::Timeout | wgpu::CurrentSurfaceTexture::Occluded => return Ok(()),
+            other @ wgpu::CurrentSurfaceTexture::Validation => return Err(anyhow!("could not acquire a frame to present: {other:?}")),
+        };
+
+        let view = frame.texture.create_view(&wgpu::TextureViewDescriptor::default());
+        let mut transform = Transformation::new();
+        transform.translate(gfx::FloatPos(-1.0, 1.0));
+        transform.stretch((2.0, -2.0));
+        let uniform = Uniforms::new(&transform, &Transformation::new(), gfx::Color::new(255, 255, 255, 255), true);
+        self.write_uniforms(gpu, std::slice::from_ref(&uniform));
+
+        let mut encoder = gpu.device.create_command_encoder(&wgpu::CommandEncoderDescriptor { label: Some("present") });
+        {
+            let mut pass = begin_pass(&mut encoder, &view, true);
+            pass.set_pipeline(&self.present_pipeline);
+            pass.set_vertex_buffer(0, self.quad_buffer.slice(..));
+            pass.set_bind_group(1, &self.front.bind_group, &[]);
+            pass.set_bind_group(0, &self.uniform_bind_group, &[0]);
+            pass.draw(0..6, 0..1);
+        }
+        gpu.queue.submit(Some(encoder.finish()));
+        gpu.queue.present(frame);
+        Ok(())
+    }
+
+    /// Advances the blur fade by however many 10 ms frames have elapsed.
+    pub(super) fn update_blur(&mut self) {
+        let target = if self.blur_enabled { 1.0 } else { 0.0 };
+        while self.blur_animation_timer.frame_ready() {
+            self.blur_intensity += (target - self.blur_intensity) / 10.0;
+            if f32::abs(self.blur_intensity - target) < 0.001 {
+                self.blur_intensity = target;
+            }
+        }
+    }
+
+    pub(super) const fn set_blur_enabled(&mut self, enable: bool) {
+        self.blur_enabled = enable;
+    }
+
+    /// Jumps the blur fade to its target, so a golden does not depend on how many 10 ms
+    /// frames happened to elapse before the capture.
+    #[cfg(feature = "render-tests")]
+    pub(super) const fn settle_blur(&mut self) {
+        self.blur_intensity = if self.blur_enabled { 1.0 } else { 0.0 };
+    }
+
+    /// Asks for the next executed frame to start from a cleared buffer.
+    #[cfg(feature = "render-tests")]
+    pub(super) const fn clear_next_frame(&mut self) {
+        self.clear_next_frame = true;
+    }
+
+    /// Reads the offscreen texture back into a `Surface`.
+    ///
+    /// Upstream of `present`, so what a golden records is what the game drew rather than
+    /// what the display scaled it to. Unlike OpenGL's `glReadPixels` this needs no vertical
+    /// flip: row zero is the top.
+    #[cfg(feature = "render-tests")]
+    pub(super) fn read_pixels(&self) -> Result<gfx::Surface> {
+        let gpu = gpu_device::get().ok_or_else(|| anyhow!("no gpu device"))?;
+        let size = self.size;
+        // Buffer rows have to start on a 256 byte boundary, so the readback is usually
+        // wider than the image and has to be un-padded row by row.
+        let bytes_per_row = (size.0 * 4).div_ceil(256) * 256;
+
+        let buffer = gpu.device.create_buffer(&wgpu::BufferDescriptor {
+            label: Some("readback"),
+            size: u64::from(bytes_per_row) * u64::from(size.1),
+            usage: wgpu::BufferUsages::COPY_DST | wgpu::BufferUsages::MAP_READ,
+            mapped_at_creation: false,
+        });
+
+        let mut encoder = gpu.device.create_command_encoder(&wgpu::CommandEncoderDescriptor { label: Some("readback") });
+        encoder.copy_texture_to_buffer(
+            wgpu::TexelCopyTextureInfo {
+                texture: &self.front.texture,
+                mip_level: 0,
+                origin: wgpu::Origin3d::ZERO,
+                aspect: wgpu::TextureAspect::All,
+            },
+            wgpu::TexelCopyBufferInfo {
+                buffer: &buffer,
+                layout: wgpu::TexelCopyBufferLayout {
+                    offset: 0,
+                    bytes_per_row: Some(bytes_per_row),
+                    rows_per_image: Some(size.1),
+                },
+            },
+            wgpu::Extent3d {
+                width: size.0,
+                height: size.1,
+                depth_or_array_layers: 1,
+            },
+        );
+        gpu.queue.submit(Some(encoder.finish()));
+
+        let slice = buffer.slice(..);
+        let (sender, receiver) = std::sync::mpsc::channel();
+        slice.map_async(wgpu::MapMode::Read, move |result| {
+            // Nothing to do if the receiver has gone: the capture was abandoned.
+            drop(sender.send(result));
+        });
+        gpu.device.poll(wgpu::PollType::wait_indefinitely())?;
+        receiver.recv()??;
+
+        let data = slice.get_mapped_range()?;
+        let mut result = gfx::Surface::new(size);
+        for (pos, pixel) in result.iter_mut() {
+            let offset = (pos.1 as u32 * bytes_per_row + pos.0 as u32 * 4) as usize;
+            if let Some(bytes) = data.get(offset..offset + 4) {
+                *pixel = gfx::Color::new(*bytes.first().unwrap_or(&0), *bytes.get(1).unwrap_or(&0), *bytes.get(2).unwrap_or(&0), *bytes.get(3).unwrap_or(&0));
+            }
+        }
+        drop(data);
+        buffer.unmap();
+        Ok(result)
+    }
+}
+
+/// Everything built once from the shader module.
+struct Pipelines {
+    uniform_layout: wgpu::BindGroupLayout,
+    alpha_pipeline: wgpu::RenderPipeline,
+    multiply_pipeline: wgpu::RenderPipeline,
+    blur_pipeline: wgpu::RenderPipeline,
+    present_pipeline: wgpu::RenderPipeline,
+}
+
+/// Compiles the shader and builds one pipeline per blend mode, plus the blur and present
+/// pipelines. Blend state and target format are baked into a wgpu pipeline, which is why
+/// there are four rather than one with switchable state.
+fn build_pipelines(gpu: &GpuDevice, surface_format: wgpu::TextureFormat) -> Pipelines {
+    let shader = gpu.device.create_shader_module(wgpu::ShaderModuleDescriptor {
+        label: Some("terralistic"),
+        source: wgpu::ShaderSource::Wgsl(SHADER.into()),
+    });
+
+    let uniform_layout = gpu.device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
+        label: Some("uniforms"),
+        entries: &[wgpu::BindGroupLayoutEntry {
+            binding: 0,
+            visibility: wgpu::ShaderStages::VERTEX_FRAGMENT,
+            ty: wgpu::BindingType::Buffer {
+                ty: wgpu::BufferBindingType::Uniform,
+                has_dynamic_offset: true,
+                min_binding_size: wgpu::BufferSize::new(std::mem::size_of::<Uniforms>() as u64),
+            },
+            count: None,
+        }],
+    });
+
+    let pipeline_layout = gpu.device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
+        label: Some("terralistic"),
+        bind_group_layouts: &[Some(&uniform_layout), Some(&gpu.texture_bind_group_layout)],
+        immediate_size: 0,
+    });
+
+    let make_pipeline = |label: &str, fragment_entry: &str, format: wgpu::TextureFormat, blend: Option<wgpu::BlendState>| {
+        gpu.device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
+            label: Some(label),
+            layout: Some(&pipeline_layout),
+            vertex: wgpu::VertexState {
+                module: &shader,
+                entry_point: Some("vertex_main"),
+                compilation_options: wgpu::PipelineCompilationOptions::default(),
+                buffers: &[Some(wgpu::VertexBufferLayout {
+                    array_stride: (VERTEX_FLOATS * 4) as u64,
+                    step_mode: wgpu::VertexStepMode::Vertex,
+                    attributes: &wgpu::vertex_attr_array![0 => Float32x2, 1 => Float32x4, 2 => Float32x2],
+                })],
+            },
+            fragment: Some(wgpu::FragmentState {
+                module: &shader,
+                entry_point: Some(fragment_entry),
+                compilation_options: wgpu::PipelineCompilationOptions::default(),
+                targets: &[Some(wgpu::ColorTargetState {
+                    format,
+                    blend,
+                    write_mask: wgpu::ColorWrites::ALL,
+                })],
+            }),
+            primitive: wgpu::PrimitiveState::default(),
+            depth_stencil: None,
+            multisample: wgpu::MultisampleState::default(),
+            multiview_mask: None,
+            cache: None,
+        })
+    };
+
+    let offscreen = wgpu::TextureFormat::Rgba8Unorm;
+    Pipelines {
+        alpha_pipeline: make_pipeline("alpha", "fragment_main", offscreen, Some(blend_state(BlendMode::Alpha))),
+        multiply_pipeline: make_pipeline("multiply", "fragment_main", offscreen, Some(blend_state(BlendMode::Multiply))),
+        // The blur writes a finished pixel rather than compositing one.
+        blur_pipeline: make_pipeline("blur", "fragment_blur", offscreen, None),
+        present_pipeline: make_pipeline("present", "fragment_main", surface_format, None),
+        uniform_layout,
+    }
+}
+
+/// The four one pixel edges of a rectangle border, as rectangles.
+fn outline_edges(rect: gfx::Rect) -> [gfx::Rect; 4] {
+    let gfx::Rect { pos, size } = rect;
+    [
+        gfx::Rect::new(pos, gfx::FloatSize(size.0, 1.0)),
+        gfx::Rect::new(gfx::FloatPos(pos.0, pos.1 + size.1 - 1.0), gfx::FloatSize(size.0, 1.0)),
+        gfx::Rect::new(pos, gfx::FloatSize(1.0, size.1)),
+        gfx::Rect::new(gfx::FloatPos(pos.0 + size.0 - 1.0, pos.1), gfx::FloatSize(1.0, size.1)),
+    ]
+}
+
+/// Maps texel coordinates onto the `[0,1]` range the sampler wants.
+fn texel_scale(texture_size: gfx::FloatSize) -> Transformation {
+    let mut result = Transformation::new();
+    result.stretch((1.0 / texture_size.0, 1.0 / texture_size.1));
+    result
+}
+
+/// The OpenGL blend functions, which applied to the alpha channel as well as to colour.
+///
+/// Keeping that is deliberate: it is what makes a translucent draw lower the framebuffer's
+/// alpha, which is invisible on screen but shows up in a capture, and the goldens record it.
+const fn blend_state(mode: BlendMode) -> wgpu::BlendState {
+    let component = match mode {
+        BlendMode::Alpha => wgpu::BlendComponent {
+            src_factor: wgpu::BlendFactor::SrcAlpha,
+            dst_factor: wgpu::BlendFactor::OneMinusSrcAlpha,
+            operation: wgpu::BlendOperation::Add,
+        },
+        BlendMode::Multiply => wgpu::BlendComponent {
+            src_factor: wgpu::BlendFactor::Dst,
+            dst_factor: wgpu::BlendFactor::OneMinusSrcAlpha,
+            operation: wgpu::BlendOperation::Add,
+        },
+    };
+    wgpu::BlendState { color: component, alpha: component }
+}
+
+fn begin_pass<'encoder>(encoder: &'encoder mut wgpu::CommandEncoder, view: &wgpu::TextureView, clear: bool) -> wgpu::RenderPass<'encoder> {
+    encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
+        label: Some("pass"),
+        color_attachments: &[Some(wgpu::RenderPassColorAttachment {
+            view,
+            depth_slice: None,
+            resolve_target: None,
+            ops: wgpu::Operations {
+                // The game never clears: it draws an opaque background over the whole window
+                // every frame, exactly as it did under OpenGL.
+                load: if clear { wgpu::LoadOp::Clear(wgpu::Color::TRANSPARENT) } else { wgpu::LoadOp::Load },
+                store: wgpu::StoreOp::Store,
+            },
+        })],
+        depth_stencil_attachment: None,
+        timestamp_writes: None,
+        occlusion_query_set: None,
+        multiview_mask: None,
+    })
+}
+
+/// The unit quad every rectangle and texture draw is a transform of.
+fn build_quad_buffer(gpu: &GpuDevice) -> wgpu::Buffer {
+    let mut vertices: Vec<f32> = Vec::new();
+    for (x, y) in [(0.0, 0.0), (1.0, 0.0), (0.0, 1.0), (1.0, 0.0), (1.0, 1.0), (0.0, 1.0)] {
+        vertices.extend_from_slice(&[x, y, 1.0, 1.0, 1.0, 1.0, x, y]);
+    }
+    let buffer = gpu.device.create_buffer(&wgpu::BufferDescriptor {
+        label: Some("unit quad"),
+        size: std::mem::size_of_val(vertices.as_slice()) as u64,
+        usage: wgpu::BufferUsages::VERTEX | wgpu::BufferUsages::COPY_DST,
+        mapped_at_creation: false,
+    });
+    gpu.queue.write_buffer(&buffer, 0, bytemuck::cast_slice(&vertices));
+    buffer
+}
+
+/// A 1x1 white texture, bound whenever a draw has no texture of its own.
+///
+/// WGSL has no way to leave a binding empty, and the shader ignores the sample when
+/// `has_texture` is zero, so what this contains never reaches the output.
+fn build_white_bind_group(gpu: &GpuDevice) -> wgpu::BindGroup {
+    let mut surface = gfx::Surface::new(gfx::IntSize(1, 1));
+    for (_, pixel) in surface.iter_mut() {
+        *pixel = gfx::Color::new(255, 255, 255, 255);
+    }
+    let id = gpu.create_texture(&surface);
+    gpu.with_texture(id, |entry| gpu.create_texture_bind_group(&entry.texture.create_view(&wgpu::TextureViewDescriptor::default())))
+        .unwrap_or_else(|| {
+            gpu.create_texture_bind_group(
+                &gpu.device
+                    .create_texture(&wgpu::TextureDescriptor {
+                        label: Some("white fallback"),
+                        size: wgpu::Extent3d {
+                            width: 1,
+                            height: 1,
+                            depth_or_array_layers: 1,
+                        },
+                        mip_level_count: 1,
+                        sample_count: 1,
+                        dimension: wgpu::TextureDimension::D2,
+                        format: wgpu::TextureFormat::Rgba8Unorm,
+                        usage: wgpu::TextureUsages::TEXTURE_BINDING,
+                        view_formats: &[],
+                    })
+                    .create_view(&wgpu::TextureViewDescriptor::default()),
+            )
+        })
+}
+
+fn build_uniform_bind_group(gpu: &GpuDevice, layout: &wgpu::BindGroupLayout, buffer: &wgpu::Buffer) -> wgpu::BindGroup {
+    gpu.device.create_bind_group(&wgpu::BindGroupDescriptor {
+        label: Some("uniforms"),
+        layout,
+        entries: &[wgpu::BindGroupEntry {
+            binding: 0,
+            resource: wgpu::BindingResource::Buffer(wgpu::BufferBinding {
+                buffer,
+                offset: 0,
+                size: wgpu::BufferSize::new(std::mem::size_of::<Uniforms>() as u64),
+            }),
+        }],
+    })
+}

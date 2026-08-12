@@ -21,7 +21,7 @@ pub struct RenderWallChunk {
 }
 
 impl RenderWallChunk {
-    pub fn new() -> Self {
+    pub const fn new() -> Self {
         Self {
             needs_update: true,
             rect_array: gfx::RectArray::new(),

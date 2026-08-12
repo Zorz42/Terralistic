@@ -20,7 +20,7 @@ pub struct ClientHealth {
 }
 
 impl ClientHealth {
-    pub fn new() -> Self {
+    pub const fn new() -> Self {
         Self {
             heart_texture: gfx::Texture::new(),
             health: 0,

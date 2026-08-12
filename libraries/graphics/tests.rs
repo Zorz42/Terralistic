@@ -1471,16 +1471,27 @@ mod tests {
         assert_eq!(list.get_commands(), &[]);
     }
 
-    /// Dropping a texture parks its OpenGL name instead of deleting it, because a command
-    /// recorded earlier this frame may still refer to it. A texture that never had a name
+    /// Dropping a texture parks its registry id instead of releasing it, because a command
+    /// recorded earlier this frame may still refer to it. A texture that never had an id
     /// must not park anything.
     #[test]
     fn test_dropping_a_gpu_less_texture_parks_nothing() {
-        let before = gfx::gpu_garbage::get_pending_counts();
+        let before = gfx::gpu_device::get_pending_counts();
 
         drop(gfx::Texture::new_sized(FloatSize(4.0, 4.0)));
         drop(gfx::Texture::new());
 
-        assert_eq!(gfx::gpu_garbage::get_pending_counts(), before);
+        assert_eq!(gfx::gpu_device::get_pending_counts(), before);
+    }
+
+    /// Uploading a surface with no device in the process is not an error any more, it just
+    /// produces a texture that knows its size and owns nothing. Under OpenGL the same call
+    /// without a current context was undefined behaviour, so this could not be a test.
+    #[test]
+    fn test_a_texture_can_be_built_without_a_device() {
+        let texture = gfx::Texture::load_from_surface(&Surface::new(IntSize(6, 9)));
+
+        assert_eq!(texture.get_texture_size(), FloatSize(6.0, 9.0));
+        assert_eq!(texture.get_handle(), gfx::Texture::new().get_handle());
     }
 }

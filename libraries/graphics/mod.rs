@@ -30,29 +30,24 @@ pub use ui_element::{BaseUiElement, UiElement};
 
 mod animation_timer;
 mod blend_mode;
-mod blur;
 mod button;
 mod color;
 mod container;
 /// What to draw, as backend-agnostic data. The seam the renderer is built around.
 pub mod draw_list;
 mod events;
-/// How a draw list becomes pixels. The only module that knows about OpenGL, apart from the
-/// resource types that own GPU objects.
-mod gl_backend;
-mod gpu_garbage;
-mod passthrough_shader;
+/// The GPU device and the registry a `DrawCommand`'s handles resolve against.
+pub(crate) mod gpu_device;
 mod position;
 mod rect;
 mod rect_array;
 mod render_rect;
-/// Golden-image tests. Behind a feature because they need a real OpenGL context on the
-/// main thread, which `cargo test` cannot provide - see the module docs.
+/// Golden-image tests. Behind a feature because they need a real GPU surface on the main
+/// thread, which `cargo test` cannot provide - see the module docs.
 #[cfg(feature = "render-tests")]
 pub mod render_tests;
 mod renderer;
 mod scrollable;
-mod shaders;
 mod shadow;
 mod sprite;
 mod surface;
@@ -67,6 +62,9 @@ mod transformation;
 mod ui_context;
 mod ui_element;
 mod vertex_buffer;
+/// How a draw list becomes pixels. The only module that talks to wgpu, apart from the
+/// resource types that own GPU objects.
+mod wgpu_backend;
 
 /// Initializes the graphics context.
 pub fn init(window_width: u32, window_height: u32, window_title: &str, default_font_data: &[u8], default_mono_font_data: Option<&[u8]>) -> Result<GraphicsContext> {
