@@ -15,10 +15,14 @@ pub struct Surface {
 
 impl Surface {
     /// Creates a new surface with all transparent pixels.
+    ///
+    /// The pixel count is computed in `usize` rather than in `u32`, because everything
+    /// downstream trusts that it matches `size` - see `deserialize_from_bytes` - and a `u32`
+    /// product that wrapped would hand out a surface smaller than it claims to be.
     #[must_use]
     pub fn new(size: gfx::IntSize) -> Self {
         Self {
-            pixels: std::vec![Color::new(0, 0, 0, 0); (size.0 * size.1) as usize],
+            pixels: std::vec![Color::new(0, 0, 0, 0); size.0 as usize * size.1 as usize],
             size,
         }
     }
@@ -32,9 +36,22 @@ impl Surface {
     }
 
     /// Deserializes a surface from a vector of bytes the same way it was serialized.
+    ///
+    /// **The pixel count is checked against the declared size**, because everything downstream
+    /// takes `get_size` at its word. `GpuDevice::create_texture` in particular tells wgpu the
+    /// texture is `size` big and hands it `pixels`; a surface claiming 64x64 while holding four
+    /// pixels is a validation error, and wgpu turns that into a panic. Surfaces are read out of
+    /// `.mod` files - ordinary files a player can replace - so a well formed one is not
+    /// something this is entitled to assume.
     pub fn deserialize_from_bytes(buffer: &[u8]) -> Result<Self> {
         let decompressed = snap::raw::Decoder::new().decompress_vec(buffer)?;
-        serialization::deserialize(&decompressed)
+        let surface: Self = serialization::deserialize(&decompressed)?;
+
+        let expected = surface.size.0 as usize * surface.size.1 as usize;
+        if surface.pixels.len() != expected {
+            bail!("surface is {:?} but holds {} pixels rather than {expected}", surface.size, surface.pixels.len());
+        }
+        Ok(surface)
     }
 
     /// Converts a 2D location into an index into the colour array.

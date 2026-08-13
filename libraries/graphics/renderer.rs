@@ -311,14 +311,22 @@ impl GraphicsContext {
 
     /// Caps the frame rate at `fps`. A non-positive `fps` means no limit, rather than a
     /// division by zero and a sleep measured in centuries.
+    ///
+    /// The ledger is only reset when the limit actually changes: it makes no sense across a
+    /// change of target, but re-setting the same limit has to be free, because the settings
+    /// menu applies every setting on every event it sees. Clearing it each time would leave
+    /// the limiter capping each frame on its own rather than averaging over them.
     pub fn set_fps_limit(&mut self, fps: f32) {
-        self.min_ms_per_frame = if fps > 0.0 { 1000.0 / f64::from(fps) } else { 0.0 };
-        self.frames_so_far = 0;
-        self.ms_so_far = 0.0;
+        let min_ms_per_frame = if fps > 0.0 { 1000.0 / f64::from(fps) } else { 0.0 };
+        if (min_ms_per_frame - self.min_ms_per_frame).abs() > f64::EPSILON {
+            self.min_ms_per_frame = min_ms_per_frame;
+            self.frames_so_far = 0;
+            self.ms_so_far = 0.0;
+        }
     }
 
-    pub const fn disable_fps_limit(&mut self) {
-        self.min_ms_per_frame = 0.0;
+    pub fn disable_fps_limit(&mut self) {
+        self.set_fps_limit(0.0);
     }
 
     pub fn enable_vsync(&mut self, enable: bool) {

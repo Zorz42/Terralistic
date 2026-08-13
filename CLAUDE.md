@@ -18,7 +18,7 @@ cargo build --profile dist # what you ship: release + LTO, 4.63 MB vs 5.49 MB
 cargo run -- server       # server with GUI
 cargo run -- server nogui # headless server
 cargo run -- version      # print version
-cargo test                # 402 tests, all should pass
+cargo test                # 406 tests, all should pass
 cargo clippy --all-targets
 ./coverage.sh             # coverage via config-coverage.toml
 
@@ -663,7 +663,16 @@ Things worth knowing before adding one:
   its closure twice, and the menu reads the second answer. Worth knowing before adding a
   button with a side effect in its closure. A menu that dispatches to buttons itself has to
   forward *every* event, not only the release; `choice_menu` did the latter and its buttons
-  went dead the moment the press started mattering.
+  went dead the moment the press started mattering. **`gfx::Toggle` follows the same rule**,
+  and a widget that reacts to a bare release is the bug, not the pattern: `settings_menu`
+  decided for itself from `Toggle::hovered` and so flipped a setting for any release that
+  happened to land on a toggle. It now reads `toggle.toggled` back instead — the toggle is a
+  sub-element, so it has already answered the same event by the time the menu sees it.
+- **A `gfx::Surface` is checked against its own size when it is deserialized**, because
+  nothing downstream re-checks: `GpuDevice::create_texture` tells wgpu the texture is
+  `get_size()` big and hands it `pixels`, and a mismatch is a wgpu validation error, which is
+  a panic. Surfaces come out of `.mod` files, which are ordinary files on disk, so a
+  hand-edited or truncated one used to take the client down on load.
 - `shared/liquids/` is not just dead, it is **entirely commented out** — both `liquids.rs`
   and `liquid_type.rs` are one `/* .. */` block from first line to last, so the module
   compiles to nothing. Don't assume any of it works.

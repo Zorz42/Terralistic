@@ -8,17 +8,20 @@ pub struct Toggle {
     pub size: gfx::FloatSize,
     pub orientation: gfx::Orientation,
     pub padding: f32,
-    pub scale: f32,
     pub left_color: gfx::Color,
     pub right_color: gfx::Color,
     pub border_color: gfx::Color,
     pub button_color: gfx::Color,
     pub toggled: bool,
-    pub hovered: bool,
     toggle_progress: f32,
     hover_progress: f32,
     /// See `Button::animation_timer`.
     animation_timer: gfx::AnimationTimer,
+    /// Whether the most recent press of the left button landed on this toggle. Exactly
+    /// `Button::pressed_inside`, and for the same reason: a click is a press *and* a release on
+    /// the same widget, so a press that landed somewhere else must not flip whatever the
+    /// pointer happens to be over when it comes back up.
+    pressed_inside: bool,
     pub changed: bool,
 }
 
@@ -30,16 +33,15 @@ impl Toggle {
             size: gfx::FloatSize(82.0, 50.0),
             orientation: gfx::TOP_LEFT,
             padding: 5.0,
-            scale: 1.0,
             left_color: gfx::Color::new(210, 0, 0, 255),
             right_color: gfx::Color::new(0, 210, 0, 255),
             border_color: BUTTON_BORDER_COLOR,
             button_color: gfx::WHITE,
             toggled: false,
-            hovered: false,
             toggle_progress: 0.0,
             hover_progress: 0.0,
             animation_timer: gfx::AnimationTimer::new(1),
+            pressed_inside: false,
             changed: true,
         }
     }
@@ -105,17 +107,19 @@ impl UiElement for Toggle {
         knob.render(graphics, self.button_color);
     }
 
-    fn update_inner(&mut self, graphics: &mut gfx::GraphicsContext, parent_container: &gfx::Container) {
-        self.hovered = self.is_hovered(graphics, parent_container);
-    }
-
+    /// Flips on the release of a press that landed on this same toggle, so neither half of a
+    /// click that started or finished somewhere else counts. See `Button::on_event_inner`.
     fn on_event_inner(&mut self, graphics: &mut dyn gfx::UiContext, event: &gfx::Event, parent_container: &gfx::Container) -> bool {
-        if let gfx::Event::KeyRelease(gfx::Key::MouseLeft, ..) = event {
-            if self.is_hovered(graphics, parent_container) {
+        match event {
+            gfx::Event::KeyPress(gfx::Key::MouseLeft, ..) => {
+                self.pressed_inside = self.is_hovered(graphics, parent_container);
+            }
+            gfx::Event::KeyRelease(gfx::Key::MouseLeft, ..) if self.pressed_inside && self.is_hovered(graphics, parent_container) => {
                 self.toggled = !self.toggled;
                 self.changed = true;
                 return true;
             }
+            _ => {}
         }
         false
     }

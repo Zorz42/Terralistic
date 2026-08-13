@@ -427,11 +427,14 @@ impl UiElement for SettingsMenu {
             for setting in &mut self.settings_ui {
                 let setting_container = setting.get_container(graphics, parent_container);
                 match setting {
+                    // The toggle is a sub-element, so it has already seen this release and
+                    // decided for itself - a click being a press *and* a release on it. Reading
+                    // the answer back beats deciding again from the hover, which flipped the
+                    // setting for any release that happened to land on the toggle, whatever the
+                    // press before it had been aimed at.
                     SettingUi::Toggle { toggle, setting_id, .. } => {
-                        if toggle.hovered {
-                            if let Ok(Setting::Toggle { toggled, .. }) = self.settings.borrow_mut().get_setting_mut(*setting_id) {
-                                *toggled = !*toggled;
-                            }
+                        if let Ok(Setting::Toggle { toggled, .. }) = self.settings.borrow_mut().get_setting_mut(*setting_id) {
+                            *toggled = toggle.toggled;
                         }
                     }
                     SettingUi::Choice { buttons, setting_id, .. } => {

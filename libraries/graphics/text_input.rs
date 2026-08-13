@@ -213,17 +213,16 @@ impl TextInput {
     /// it out of the left edge and paints a white bar over whatever is beside the input. So the
     /// window is pulled back to whichever end of it the cursor has left.
     fn view_offset(&self, font: &gfx::Font) -> f32 {
-        let visible_width = self.visible_width();
-        let furthest = f32::max(self.width_up_to(font, self.text.len()) - visible_width, 0.0);
-
-        let tail = furthest;
+        // How far the text has to slide left for its end to sit against the right edge, which
+        // is zero as long as the whole value fits.
+        let furthest = f32::max(self.width_up_to(font, self.text.len()) - self.visible_width(), 0.0);
         if !self.selected {
-            return tail;
+            return furthest;
         }
         // The second half of the cursor is the end the user is moving, so that is the one that
-        // has to stay on screen.
-        let cursor_x = self.width_up_to(font, self.cursor.1);
-        tail.min(cursor_x).max(cursor_x - visible_width).clamp(0.0, furthest)
+        // has to stay on screen. No clamping is needed on top of this: a prefix is never wider
+        // than the whole string, so the result is already inside `0..=furthest`.
+        f32::min(furthest, self.width_up_to(font, self.cursor.1))
     }
 
     /// How much of the text fits between the two paddings, unscaled.

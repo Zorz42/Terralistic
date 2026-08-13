@@ -864,6 +864,13 @@ fn build_pipelines(gpu: &GpuDevice, surface_format: wgpu::TextureFormat) -> Pipe
 /// border should look like and what keeps the goldens machine-independent. That only holds
 /// for a rectangle with room for an edge, which is why `Rect::render_outline` drops empty
 /// ones before they get here.
+///
+/// The horizontal edges run corner to corner and the vertical ones do too, so **the four
+/// corner pixels are drawn twice**. With an opaque colour that is idempotent; with a
+/// translucent one - a `Button`'s border part way through its hover fade is the only place the
+/// toolkit produces one - the corners blend twice and come out slightly darker than the rest
+/// of the border. Four pixels for a fraction of a second, and the alternative is edges whose
+/// extent depends on the rectangle being at least two pixels each way, so it is left alone.
 pub(super) fn outline_edges(rect: gfx::Rect) -> [gfx::Rect; 4] {
     let gfx::Rect { pos, size } = rect;
     [

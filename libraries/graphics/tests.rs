@@ -202,6 +202,52 @@ mod tests {
         assert!(Surface::deserialize_from_bytes(&[1, 2, 3, 4, 5]).is_err());
     }
 
+    /// A surface's serialized form is its pixels and its size, with nothing tying the two
+    /// together, so the bytes can perfectly well describe a 64x64 image holding four pixels.
+    ///
+    /// Everything downstream takes `get_size` at its word, and `GpuDevice::create_texture` in
+    /// particular tells wgpu the texture is that big and hands it the short buffer - which is a
+    /// validation error, which wgpu turns into a panic ("Copy at offset 0 for 16384 bytes would
+    /// end up overrunning the bounds of the Source buffer of size 16"). Surfaces are read out
+    /// of `.mod` files, which are ordinary files on disk, so this has to be caught at the door.
+    #[test]
+    fn test_a_surface_that_lies_about_its_size_is_rejected() {
+        /// The same shape as `Surface`, which is all postcard encodes: fields in order, no names.
+        #[derive(serde_derive::Serialize)]
+        struct MismatchedSurface {
+            pixels: Vec<Color>,
+            size: IntSize,
+        }
+
+        let bytes = crate::libraries::serialization::serialize(&MismatchedSurface {
+            pixels: std::vec![Color::new(1, 2, 3, 4); 4],
+            size: IntSize(64, 64),
+        })
+        .unwrap();
+
+        assert!(Surface::deserialize_from_bytes(&snap::raw::Encoder::new().compress_vec(&bytes).unwrap()).is_err());
+    }
+
+    /// The other direction, and the reason the check is an equality rather than a lower bound:
+    /// a surface with pixels to spare would upload fine and then be indexed by a size that does
+    /// not reach them.
+    #[test]
+    fn test_a_surface_with_pixels_to_spare_is_rejected_too() {
+        #[derive(serde_derive::Serialize)]
+        struct MismatchedSurface {
+            pixels: Vec<Color>,
+            size: IntSize,
+        }
+
+        let bytes = crate::libraries::serialization::serialize(&MismatchedSurface {
+            pixels: std::vec![Color::new(1, 2, 3, 4); 100],
+            size: IntSize(2, 2),
+        })
+        .unwrap();
+
+        assert!(Surface::deserialize_from_bytes(&snap::raw::Encoder::new().compress_vec(&bytes).unwrap()).is_err());
+    }
+
     // --- Transformation ---
 
     #[test]
@@ -610,6 +656,12 @@ mod tests {
 
     // --- Toggle ---
 
+    /// A press and a release at the same place, which is what a click is.
+    fn click(graphics: &mut gfx::HeadlessContext, toggle: &mut gfx::Toggle, root: &gfx::Container) -> bool {
+        toggle.on_event(graphics, &press(gfx::Key::MouseLeft), root);
+        toggle.on_event(graphics, &release(gfx::Key::MouseLeft), root)
+    }
+
     #[test]
     fn test_toggle_flips_when_clicked() {
         let mut graphics = gfx::HeadlessContext::new();
@@ -618,7 +670,7 @@ mod tests {
         graphics.set_mouse_pos(FloatPos(10.0, 10.0));
 
         assert!(!toggle.toggled);
-        let consumed = toggle.on_event(&mut graphics, &release(gfx::Key::MouseLeft), &root);
+        let consumed = click(&mut graphics, &mut toggle, &root);
 
         assert!(toggle.toggled);
         assert!(toggle.changed);
@@ -632,7 +684,44 @@ mod tests {
         let root = root_container(&graphics);
         graphics.set_mouse_pos(FloatPos(10.0, 10.0));
 
-        toggle.on_event(&mut graphics, &release(gfx::Key::MouseLeft), &root);
+        click(&mut graphics, &mut toggle, &root);
+        click(&mut graphics, &mut toggle, &root);
+
+        assert!(!toggle.toggled);
+    }
+
+    /// The same rule as `Button`, which a `Toggle` used not to follow: only the release was
+    /// checked, so a press that landed anywhere else - on the menu behind, or on whatever the
+    /// player was actually aiming at - flipped whichever toggle the pointer had wandered onto
+    /// by the time the button came back up.
+    #[test]
+    fn test_a_release_the_toggle_never_saw_the_press_for_does_nothing() {
+        let mut graphics = gfx::HeadlessContext::new();
+        let mut toggle = gfx::Toggle::new();
+        let root = root_container(&graphics);
+
+        // the press lands somewhere else entirely
+        graphics.set_mouse_pos(FloatPos(500.0, 500.0));
+        toggle.on_event(&mut graphics, &press(gfx::Key::MouseLeft), &root);
+        // and the pointer is over the toggle by the time it comes back up
+        graphics.set_mouse_pos(FloatPos(10.0, 10.0));
+        let consumed = toggle.on_event(&mut graphics, &release(gfx::Key::MouseLeft), &root);
+
+        assert!(!toggle.toggled);
+        assert!(!consumed, "a release that completes nothing is not this toggle's to consume");
+    }
+
+    /// And the other half: pressing on a toggle and dragging off it before letting go is how a
+    /// user backs out.
+    #[test]
+    fn test_pressing_a_toggle_and_letting_go_elsewhere_does_nothing() {
+        let mut graphics = gfx::HeadlessContext::new();
+        let mut toggle = gfx::Toggle::new();
+        let root = root_container(&graphics);
+
+        graphics.set_mouse_pos(FloatPos(10.0, 10.0));
+        toggle.on_event(&mut graphics, &press(gfx::Key::MouseLeft), &root);
+        graphics.set_mouse_pos(FloatPos(500.0, 500.0));
         toggle.on_event(&mut graphics, &release(gfx::Key::MouseLeft), &root);
 
         assert!(!toggle.toggled);
@@ -645,7 +734,7 @@ mod tests {
         let root = root_container(&graphics);
         graphics.set_mouse_pos(FloatPos(500.0, 500.0));
 
-        let consumed = toggle.on_event(&mut graphics, &release(gfx::Key::MouseLeft), &root);
+        let consumed = click(&mut graphics, &mut toggle, &root);
 
         assert!(!toggle.toggled);
         assert!(!consumed);

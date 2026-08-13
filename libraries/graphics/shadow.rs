@@ -92,8 +92,9 @@ impl ShadowContext {
         ];
 
         // A rectangle too tall or too wide for the pieces above to meet gets the middle of the
-        // texture tiled along the gap, 100px at a time.
-        if (edge_height - MAX_EDGE).abs() < f32::EPSILON {
+        // texture tiled along the gap, 100px at a time. `edge_height` is a `min` against
+        // `MAX_EDGE`, so being capped is the same test as the rectangle being too tall.
+        if edge_height >= MAX_EDGE {
             let mut left = rect.size.1 - 300.0;
             while left > 0.0 {
                 let y = rect.size.1 - 150.0 - left;
@@ -104,7 +105,7 @@ impl ShadowContext {
             }
         }
 
-        if (edge_width - MAX_EDGE).abs() < f32::EPSILON {
+        if edge_width >= MAX_EDGE {
             let mut left = rect.size.0 - 300.0;
             while left > 0.0 {
                 let x = rect.size.0 - 150.0 - left;
