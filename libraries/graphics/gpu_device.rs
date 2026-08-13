@@ -28,6 +28,8 @@ use std::sync::{Mutex, MutexGuard, OnceLock, PoisonError};
 
 use crate::libraries::graphics as gfx;
 
+use super::wgpu_backend::VERTEX_FLOATS;
+
 /// Flattens a surface's pixels into the `Rgba8Unorm` byte order the GPU wants.
 ///
 /// A copy rather than a reinterpret of the `Vec<Color>`: making `Color` `bytemuck::Pod` would
@@ -212,7 +214,10 @@ impl GpuDevice {
     }
 
     /// Uploads raw vertex data and returns its registry id.
-    pub(super) fn create_mesh(&self, vertices: &[f32], vertex_count: u32) -> u32 {
+    ///
+    /// The vertex count is derived from the data rather than passed alongside it, so a mesh
+    /// cannot be registered claiming to hold more vertices than it was given.
+    pub(super) fn create_mesh(&self, vertices: &[f32]) -> u32 {
         let buffer = self.device.create_buffer(&wgpu::BufferDescriptor {
             label: Some("mesh"),
             // A zero sized buffer is not allowed, and an empty mesh draws nothing anyway.
@@ -225,7 +230,13 @@ impl GpuDevice {
         }
 
         let id = self.take_id();
-        lock(&self.meshes).insert(id, MeshEntry { buffer, vertex_count });
+        lock(&self.meshes).insert(
+            id,
+            MeshEntry {
+                buffer,
+                vertex_count: (vertices.len() / VERTEX_FLOATS) as u32,
+            },
+        );
         id
     }
 

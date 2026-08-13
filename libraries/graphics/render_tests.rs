@@ -427,6 +427,21 @@ fn case_render_rect_blur(graphics: &mut gfx::GraphicsContext) {
     rect.render(graphics, &parent);
 }
 
+/// A frame whose *first* command is a blur, which is what a menu drawing a blurred panel over
+/// nothing else records.
+///
+/// The blur pass writes the back offscreen texture and reads the front, so this is the case
+/// that pins the frame's clear onto the front rather than onto whichever attachment the first
+/// pass happens to use. Get that wrong and the blur reads back the previous frame - here, the
+/// previous case's image - and everything outside the blurred region keeps it.
+///
+/// Blurring a cleared frame is exact despite the shader: every tap reads the same transparent
+/// black, so there is nothing for a driver's float error to disagree about. The region comes
+/// out opaque because the shader's accumulator starts its alpha at 255 rather than 0.
+fn case_blur_over_a_cleared_frame(graphics: &mut gfx::GraphicsContext) {
+    graphics.blur_rect(gfx::Rect::new(gfx::FloatPos(60.0, 50.0), gfx::FloatSize(200.0, 140.0)), 30);
+}
+
 /// `render_pos` is what gets drawn, and it lags `pos` by `smooth_factor`. Rendering without
 /// jumping to the target must therefore still draw at the old position.
 fn case_render_rect_lags_behind_target(graphics: &mut gfx::GraphicsContext) {
@@ -771,6 +786,11 @@ const CASES: &[Case] = &[
         name: "render_rect_blur",
         tolerance: Tolerance::BLURRY,
         draw: case_render_rect_blur,
+    },
+    Case {
+        name: "blur_over_a_cleared_frame",
+        tolerance: Tolerance::EXACT,
+        draw: case_blur_over_a_cleared_frame,
     },
     Case {
         name: "render_rect_lags_behind_target",

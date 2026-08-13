@@ -32,9 +32,14 @@ impl Scrollable {
     /// Where a list should start drawing: the scrollable's own offset, less how far it has been
     /// scrolled. Laying a container out to read this back would give the same number -
     /// `Container::rect` is the position and size it was handed - so it does not need one.
+    ///
+    /// **This is the vertical axis, and everything else here is too**: `scroll_pos` is bounded
+    /// against `rect.size.1`, and both callers add the result to a y coordinate. It used to be
+    /// `get_scroll_x` and read `rect.pos.0`, which only ever gave the right answer because the
+    /// two menus leave their x at zero and add the y offset back by hand.
     #[must_use]
-    pub const fn get_scroll_x(&self) -> f32 {
-        self.rect.pos.0 - self.scroll_pos
+    pub const fn get_scroll_y(&self) -> f32 {
+        self.rect.pos.1 - self.scroll_pos
     }
 
     #[must_use]

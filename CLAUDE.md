@@ -18,11 +18,11 @@ cargo build --profile dist # what you ship: release + LTO, 4.63 MB vs 5.49 MB
 cargo run -- server       # server with GUI
 cargo run -- server nogui # headless server
 cargo run -- version      # print version
-cargo test                # 386 tests, all should pass
+cargo test                # 387 tests, all should pass
 cargo clippy --all-targets
 ./coverage.sh             # coverage via config-coverage.toml
 
-cargo run --features render-tests -- rendertest             # 45 golden-image tests
+cargo run --features render-tests -- rendertest             # 46 golden-image tests
 cargo run --features render-tests -- rendertest dump        # + viewable PPMs of every case
 cargo run --features render-tests -- rendertest regenerate  # rewrite the goldens
 ```
@@ -217,6 +217,13 @@ what to draw. **Keep the two apart** — a widget that steps its animation while
 freezes for any caller that lays a list out without drawing it, which is what `Scrollable`
 did to menus sliding offscreen.
 
+**`Scrollable` is vertical, all of it.** `scroll_pos` is bounded against `rect.size.1` and
+`get_scroll_y` measures from `rect.pos.1`, which the world and server lists add straight to a
+row's y. It used to be `get_scroll_x` reading `rect.pos.0`, and only produced the right number
+because both menus leave their x at zero and added the y offset back by hand — so setting the
+scrollable's x would have slid the rows vertically. If you ever want a horizontal one, add the
+axis rather than reinterpreting this one.
+
 `UiContext` (`ui_context.rs`) is the whole non-rendering surface of `GraphicsContext`:
 window size, mouse position, key states, clipboard. `GraphicsContext` implements it, and so
 does `HeadlessContext`, a `#[cfg(test)]` struct whose inputs are plain fields. That is what
@@ -318,10 +325,22 @@ Consequences worth knowing:
   animations advance and before the normalization transform is recomputed. That is what
   makes deferral invisible: a command executes with exactly the transform and blur intensity
   it would have been drawn with immediately. Don't reorder it.
+- **`handle_window_resize` also owns the normalization transform**, and has to. The frame
+  about to be recorded draws through whatever transform is in force *now*, so a transform
+  only ever set at the end of `update_window` is the identity for the first frame — the
+  whole window's drawing collapsing into the top-left two-by-two of clip space — and one
+  size stale for the frame after every resize. Both last exactly one frame, which is why
+  neither was ever noticed; removing the call is how you get them back.
 - **A `Blur` command splits the frame into separate render passes**, because wgpu cannot
   sample the texture it is currently drawing into. Everything before the blur is in one
   pass, the gaussian ping-pongs between the two offscreen textures, and the rest resumes
   with `LoadOp::Load`.
+- **The clear gets a render pass of its own**, on the front texture, before any of that.
+  Folding it into the first pass instead is wrong precisely when the frame opens with a
+  blur: that pass writes the *back* texture, so the clear lands there, the front keeps the
+  previous frame, and the blur samples it straight back in. Only the golden harness ever
+  asks for a clear — the game draws an opaque background over the whole window — and
+  `blur_over_a_cleared_frame` is the case that pins it.
 
 `execute` plans before it encodes: `Plan` collects a `Uniforms` per draw plus a flat list of
 `Segment`s, because wgpu wants all the uniform data written before any of it is encoded.
@@ -367,7 +386,7 @@ is exactly the rect's footprint, which is also what a UI border should be.
 
 #### Golden-image tests
 
-`libraries/graphics/render_tests.rs` renders 45 cases into the offscreen texture,
+`libraries/graphics/render_tests.rs` renders 46 cases into the offscreen texture,
 reads them back with `GraphicsContext::capture_frame`, and compares against committed
 `Surface`s in `libraries/graphics/goldens/*.opa`. They cover rects and outlines, `RectArray`,
 textures (scale, flip, source rect, tint), blend modes, both fonts, containers and all nine
@@ -400,7 +419,7 @@ and scale fades (`GraphicsContext::settle_animations`), and hover states that re
 mouse — which the settle hooks also neutralise. **If you add a case, run it five times before
 committing the golden.**
 
-Tolerances are per case, and **44 of the 45 are `EXACT`** — bit-identical. Only
+Tolerances are per case, and **45 of the 46 are `EXACT`** — bit-identical. Only
 `render_rect_blur` is `BLURRY`, because the gaussian blur shader's float error differs
 between drivers. The two knobs compose rather than alternate: a pixel is over tolerance when a
 channel moved further than `max_channel_delta`, and the case fails when more than
@@ -524,7 +543,7 @@ unless you bump `WORLD_SAVE_VERSION` by hand — that is what it is for.
 
 `base_game/base_game.mod` and `Build/Resources/*` are `include_bytes!`-ed into the binary but
 are **not** committed — `.gitignore` carries `Build/` and `**/*.mod`, so every checkout builds
-its own. The only `.opa` files in git are the 45 golden images. That means a change to the
+its own. The only `.opa` files in git are the 46 golden images. That means a change to the
 serialization format costs nothing here, but it does mean the goldens have to be converted:
 they are `snap(postcard(Surface))` too.
 

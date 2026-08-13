@@ -3,7 +3,6 @@ use crate::libraries::graphics as gfx;
 use super::color;
 use super::draw_list::MeshHandle;
 use super::gpu_device;
-use super::wgpu_backend::VERTEX_FLOATS;
 
 /// The id of a buffer that has never been uploaded. Zero is never handed out by the registry.
 const NO_MESH: u32 = 0;
@@ -24,7 +23,6 @@ pub struct VertexBuffer {
     /// Staged vertices, emptied by `upload`.
     vertices: Vec<f32>,
     id: u32,
-    vertex_count: u32,
 }
 
 /// Parks the GPU resource rather than releasing it, because a `DrawCommand` recorded earlier
@@ -39,11 +37,7 @@ impl Drop for VertexBuffer {
 
 impl VertexBuffer {
     pub const fn new() -> Self {
-        Self {
-            vertices: Vec::new(),
-            id: NO_MESH,
-            vertex_count: 0,
-        }
+        Self { vertices: Vec::new(), id: NO_MESH }
     }
 
     pub fn add_vertex(&mut self, vertex: &Vertex) {
@@ -74,13 +68,12 @@ impl VertexBuffer {
             return;
         }
         let vertices = std::mem::take(&mut self.vertices);
-        self.vertex_count = (vertices.len() / VERTEX_FLOATS) as u32;
         let Some(gpu) = gpu_device::get() else { return };
 
         if self.id != NO_MESH {
             gpu_device::delete_mesh_later(self.id);
         }
-        self.id = gpu.create_mesh(&vertices, self.vertex_count);
+        self.id = gpu.create_mesh(&vertices);
     }
 
     /// The backend's name for this mesh, which is what a `DrawCommand` carries.

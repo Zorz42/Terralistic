@@ -164,7 +164,6 @@ impl UiManager {
 
         //display the frame
         self.graphics_context.update_window();
-        self.graphics_context.handle_window_resize(); //idk what this does
     }
 
     /// Initializes the modules

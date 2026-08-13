@@ -227,7 +227,9 @@ impl UiElement for WorldList {
     }
 
     fn update_inner(&mut self, _: &mut gfx::GraphicsContext, _: &gfx::Container) {
-        let mut current_y = gfx::SPACING + self.scrolled + self.top_rect_size;
+        // `scrolled` already carries the scrollable's own `gfx::SPACING` offset - see
+        // `Scrollable::get_scroll_y`.
+        let mut current_y = self.scrolled + self.top_rect_size;
         for world in &mut self.worlds {
             world.pos = gfx::FloatPos(0.0, current_y);
             current_y += world.get_height() + gfx::SPACING;
@@ -408,7 +410,7 @@ impl UiElement for SingleplayerSelector {
             world.set_enabled(hoverable);
         }
 
-        self.world_list.scrolled = self.scrollable.get_scroll_x();
+        self.world_list.scrolled = self.scrollable.get_scroll_y();
         self.world_list.top_rect_size = self.top_rect.size.1;
 
         self.top_rect.size.0 = parent_container.get_absolute_rect().size.0;

@@ -30,9 +30,10 @@ pub struct GraphicsContext {
     draw_list: RefCell<DrawList>,
     /// Events read off the window but not yet handed to the caller.
     events_queue: VecDeque<gfx::Event>,
-    /// Whether the window has been pumped since the last `update_window`, so draining the
-    /// queue does not pump it again mid-frame.
-    polled_this_frame: bool,
+    /// Whether the window has *ever* been pumped. It is never cleared, and that is the point:
+    /// once `update_window` has run a frame it collects the input at the end of every one, so
+    /// the only pump `get_event` ever has to do itself is the one before the first frame.
+    window_pumped: bool,
     /// Draw into a logical-sized offscreen rather than a device-sized one. Only the
     /// golden-image harness asks for this: its images are committed at the window's logical
     /// size and have to be the same whatever the DPI of the machine running them.
@@ -93,7 +94,7 @@ impl GraphicsContext {
             key_states: HashMap::new(),
             shadow_context,
             events_queue: VecDeque::new(),
-            polled_this_frame: false,
+            window_pumped: false,
             render_at_logical_resolution: !visible,
             window_open: true,
             clipboard_context: Clipboard::new().map_err(|error| println!("No clipboard available, copy and paste will do nothing: {error}")).ok(),
@@ -122,10 +123,19 @@ impl GraphicsContext {
     /// care how many pixels the target has - but drawing at the real resolution lets a smooth
     /// animation move one device pixel at a time instead of jumping two, and makes the final
     /// blit a copy rather than an upscale. This is the one place the offscreen size is chosen.
+    ///
+    /// The clip space transform is recomputed here too, and has to be. It is otherwise only
+    /// touched at the end of `update_window`, so the frame recorded before the *first* one drew
+    /// through the identity - the whole window's worth of drawing landing in the top left
+    /// two-by-two pixels of clip space - and the frame after a resize drew through the previous
+    /// size. Both are one frame long, which is exactly why neither was ever noticed.
     pub fn handle_window_resize(&mut self) {
         let surface_size = self.window.drawable_size();
         let offscreen_size = if self.render_at_logical_resolution { self.window.size() } else { surface_size };
         self.backend.resize(offscreen_size, surface_size);
+
+        let window_size = self.get_window_size();
+        self.backend.update_normalization_transform(window_size);
     }
 
     /// Hands the recorded frame to the backend and starts a new one.
@@ -138,8 +148,6 @@ impl GraphicsContext {
     /// Prepares a deterministic offscreen frame for the golden-image tests.
     #[cfg(feature = "render-tests")]
     pub fn begin_capture_frame(&mut self) {
-        let window_size = self.get_window_size();
-        self.backend.update_normalization_transform(window_size);
         self.backend.clear_next_frame();
         self.draw_list.borrow_mut().clear();
     }
@@ -163,7 +171,7 @@ impl GraphicsContext {
 
     /// Pumps the window system and turns what it reports into queued events and context state.
     fn poll_window(&mut self) {
-        self.polled_this_frame = true;
+        self.window_pumped = true;
         let poll = self.window.poll();
 
         if poll.resized {
@@ -200,7 +208,7 @@ impl GraphicsContext {
     /// This just drains the queue `update_window` filled at the end of the previous frame. It
     /// only pumps the window itself before the very first one, when nothing has yet.
     pub fn get_event(&mut self) -> Option<gfx::Event> {
-        if self.events_queue.is_empty() && !self.polled_this_frame {
+        if self.events_queue.is_empty() && !self.window_pumped {
             self.poll_window();
         }
         self.events_queue.pop_front()

@@ -604,14 +604,26 @@ mod tests {
         assert_close(scrollable.get_scroll_pos(), 0.0);
     }
 
-    /// `get_scroll_x` is the scrollable's own position less the scroll offset, which is how the
+    /// `get_scroll_y` is the scrollable's own position less the scroll offset, which is how the
     /// server and world lists slide their rows.
     #[test]
-    fn test_get_scroll_x_is_the_container_position_when_unscrolled() {
+    fn test_get_scroll_y_is_the_container_position_when_unscrolled() {
         let mut scrollable = gfx::Scrollable::new();
         scrollable.rect.pos = FloatPos(30.0, 40.0);
 
-        assert_close(scrollable.get_scroll_x(), 30.0);
+        assert_close(scrollable.get_scroll_y(), 40.0);
+    }
+
+    /// Everything about a `Scrollable` is vertical - `scroll_pos` is bounded against
+    /// `rect.size.1`, and both menus add the offset to a y coordinate - so the position it is
+    /// measured from has to be the vertical one. This used to read `rect.pos.0`, which happened
+    /// to work only because both callers leave their x at zero.
+    #[test]
+    fn test_the_scroll_offset_ignores_the_horizontal_position() {
+        let mut scrollable = gfx::Scrollable::new();
+        scrollable.rect.pos = FloatPos(500.0, 40.0);
+
+        assert_close(scrollable.get_scroll_y(), 40.0);
     }
 
     #[test]

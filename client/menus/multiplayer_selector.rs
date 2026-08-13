@@ -190,7 +190,7 @@ impl UiElement for MultiplayerSelector {
         let elements_height = (server_height + gfx::SPACING) * self.server_list.servers.len() as f32 - gfx::SPACING;
 
         self.update_top_bottom_rects(graphics, parent_container, elements_height);
-        self.server_list.scrolled = self.scrollable.get_scroll_x();
+        self.server_list.scrolled = self.scrollable.get_scroll_y();
         self.server_list.top_rect_size = self.top_rect.size.1;
     }
 
@@ -435,7 +435,9 @@ impl UiElement for ServerList {
     }
 
     fn update_inner(&mut self, _: &mut gfx::GraphicsContext, _: &gfx::Container) {
-        let mut current_y = gfx::SPACING + self.scrolled + self.top_rect_size;
+        // `scrolled` already carries the scrollable's own `gfx::SPACING` offset - see
+        // `Scrollable::get_scroll_y`.
+        let mut current_y = self.scrolled + self.top_rect_size;
         for server in &mut self.servers {
             server.set_pos(gfx::FloatPos(0.0, current_y));
             current_y += server.get_height() + gfx::SPACING;

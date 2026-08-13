@@ -567,40 +567,42 @@ impl WgpuBackend {
     /// Turns the planned segments into render passes.
     ///
     /// A frame is one pass per run of draws, split wherever a blur needs to read back what
-    /// has been drawn so far. Only the very first pass of the frame may clear.
+    /// has been drawn so far.
     fn encode(&self, gpu: &GpuDevice, encoder: &mut wgpu::CommandEncoder, segments: &[Segment], clear: bool) {
+        // The clear gets a pass of its own, on the frame's own target. Folding it into
+        // whichever pass happens to come first is wrong for a frame that opens with a blur:
+        // the first pass of one writes the *back* texture, so the clear landed there, the
+        // front kept the previous frame, and the blur then read that back in as its source.
+        // It also covers the frame that records nothing at all and still has to come out
+        // empty rather than showing what was there before.
+        if clear {
+            drop(begin_pass(encoder, &self.front.view, true));
+        }
+
         let textures = gpu.lock_textures();
         let meshes = gpu.lock_meshes();
 
-        let mut clear_next = clear;
         let mut rest = segments;
         while let Some(head) = rest.first() {
             let consumed = match *head {
                 Segment::BlurPass { uniform, to_back } => {
-                    self.encode_blur(encoder, uniform, to_back, clear_next);
+                    self.encode_blur(encoder, uniform, to_back);
                     1
                 }
                 Segment::Draw { .. } => {
                     let run = rest.iter().position(|segment| matches!(segment, Segment::BlurPass { .. })).unwrap_or(rest.len());
-                    self.encode_draws(encoder, rest.get(..run).unwrap_or_default(), &textures, &meshes, clear_next);
+                    self.encode_draws(encoder, rest.get(..run).unwrap_or_default(), &textures, &meshes);
                     run
                 }
             };
-            clear_next = false;
             rest = rest.get(consumed..).unwrap_or_default();
-        }
-
-        // A frame that recorded nothing but asked for a clear still needs the pass that
-        // performs it, or the golden would show the previous case.
-        if clear_next {
-            drop(begin_pass(encoder, &self.front.view, true));
         }
     }
 
     /// One gaussian pass, reading whichever offscreen texture is not being written.
-    fn encode_blur(&self, encoder: &mut wgpu::CommandEncoder, uniform: u32, to_back: bool, clear: bool) {
+    fn encode_blur(&self, encoder: &mut wgpu::CommandEncoder, uniform: u32, to_back: bool) {
         let (target, source) = if to_back { (&self.back, &self.front) } else { (&self.front, &self.back) };
-        let mut pass = begin_pass(encoder, &target.view, clear);
+        let mut pass = begin_pass(encoder, &target.view, false);
         pass.set_pipeline(&self.blur_pipeline);
         pass.set_vertex_buffer(0, self.quad_buffer.slice(..));
         pass.set_bind_group(1, &source.bind_group, &[]);
@@ -609,8 +611,8 @@ impl WgpuBackend {
     }
 
     /// One pass covering an unbroken run of draws.
-    fn encode_draws(&self, encoder: &mut wgpu::CommandEncoder, segments: &[Segment], textures: &HashMap<u32, wgpu::BindGroup>, meshes: &HashMap<u32, MeshEntry>, clear: bool) {
-        let mut pass = begin_pass(encoder, &self.front.view, clear);
+    fn encode_draws(&self, encoder: &mut wgpu::CommandEncoder, segments: &[Segment], textures: &HashMap<u32, wgpu::BindGroup>, meshes: &HashMap<u32, MeshEntry>) {
+        let mut pass = begin_pass(encoder, &self.front.view, false);
         for segment in segments {
             let &Segment::Draw { uniform, blend, texture, geometry } = segment else {
                 continue;
