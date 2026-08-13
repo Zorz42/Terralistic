@@ -210,6 +210,70 @@ impl TextInput {
         true
     }
 
+    /// Where the visible window into the text starts, in **texture** pixels.
+    ///
+    /// Text wider than the box is cropped, and by default it is cropped from the left so that
+    /// the end being typed stays visible. That alone is not enough once the field is selected:
+    /// the cursor has to stay inside the box too, or moving it left through a long value walks
+    /// it out of the left edge and paints a white bar over whatever is beside the input. So the
+    /// window is pulled back to whichever end of it the cursor has left.
+    fn view_offset(&self, font: &gfx::Font) -> f32 {
+        let visible_width = self.visible_width();
+        let furthest = f32::max(self.width_up_to(font, self.text.len()) - visible_width, 0.0);
+
+        let tail = furthest;
+        if !self.selected {
+            return tail;
+        }
+        // The second half of the cursor is the end the user is moving, so that is the one that
+        // has to stay on screen.
+        let cursor_x = self.width_up_to(font, self.cursor.1);
+        tail.min(cursor_x).max(cursor_x - visible_width).clamp(0.0, furthest)
+    }
+
+    /// How much of the text fits between the two paddings, unscaled.
+    fn visible_width(&self) -> f32 {
+        f32::max(self.width - self.padding * 2.0, 0.0)
+    }
+
+    /// How wide the text up to `end` is, unscaled.
+    ///
+    /// Measured rather than read off `text_texture`, so it is right even on the frame the
+    /// texture has not been rebuilt on - and so all of this works with no GPU. It is the same
+    /// number: `get_text_size` is what `create_text_surface` sizes itself by. Measuring also
+    /// beats rasterising a throwaway surface on every frame the field is selected.
+    ///
+    /// `get_text_size` never reports a zero width, so an empty prefix is answered directly.
+    fn width_up_to(&self, font: &gfx::Font, end: usize) -> f32 {
+        if end == 0 {
+            return 0.0;
+        }
+        font.get_text_size(self.text.get(..end).unwrap_or(""), None).0 as f32
+    }
+
+    /// The region of the text texture that is drawn, in texture pixels.
+    pub(super) fn visible_text_rect(&self, font: &gfx::Font) -> gfx::Rect {
+        gfx::Rect::new(
+            gfx::FloatPos(self.view_offset(font), 0.0),
+            gfx::FloatSize(f32::min(self.width_up_to(font, self.text.len()), self.visible_width()), self.text_texture.get_texture_size().1),
+        )
+    }
+
+    /// The cursor or selection rectangle, relative to the input's own top left.
+    ///
+    /// Split out of `render_inner` together with the two above because none of this needs a
+    /// GPU - a `Font` to measure with is the whole of it, and `Font::new_headless` is one.
+    pub(super) fn cursor_rect(&self, font: &gfx::Font, size: gfx::FloatSize) -> gfx::Rect {
+        let text_begin_x = (self.padding - self.view_offset(font)) * self.scale;
+        let (start, end) = self.get_cursor();
+        // A pixel of lead-in and lead-out, so a collapsed cursor is a visible bar rather than
+        // nothing at all.
+        let x1 = text_begin_x + self.width_up_to(font, start) * self.scale - 3.0;
+        let x2 = text_begin_x + self.width_up_to(font, end) * self.scale + 1.0;
+
+        gfx::Rect::new(gfx::FloatPos(x1, self.padding * self.scale), gfx::FloatSize(x2 - x1, size.1 - self.padding * self.scale * 2.0))
+    }
+
     /// Replaces the selection with `text` and leaves the cursor after it.
     ///
     /// Every route text takes into the field goes through here, so that pasting is filtered by
@@ -280,12 +344,6 @@ impl UiElement for TextInput {
         );
 
         if !self.text.is_empty() {
-            // Text wider than the box is cropped from the left, so the end being typed stays
-            // visible.
-            let mut src_rect = gfx::Rect::new(gfx::FloatPos(0.0, 0.0), self.text_texture.get_texture_size());
-            src_rect.size.0 = f32::min(src_rect.size.0, self.width - self.padding * 2.0);
-            src_rect.pos.0 = self.text_texture.get_texture_size().0 - src_rect.size.0;
-
             self.text_texture.render(
                 graphics,
                 self.scale,
@@ -293,26 +351,16 @@ impl UiElement for TextInput {
                     rect.pos.0 + self.padding * self.scale,
                     rect.pos.1 + rect.size.1 / 2.0 - self.text_texture.get_texture_size().1 * self.scale / 2.0,
                 ),
-                Some(src_rect),
+                Some(self.visible_text_rect(&graphics.font)),
                 false,
                 None,
             );
         }
 
         if self.text_changed || self.selected {
-            let texture_width = if self.text.is_empty() { 0.0 } else { self.text_texture.get_texture_size().0 * self.scale };
-            let text_begin_x = f32::min(self.padding * self.scale, -self.padding * self.scale + rect.size.0 - texture_width);
-
-            // How far into the text each end of the selection sits. `get_text_size` measures
-            // what `create_text_surface` would produce, without rasterising a throwaway
-            // surface twice on every frame the field is selected.
-            let width_up_to = |end: usize| graphics.font.get_text_size_scaled(self.text.get(..end).unwrap_or(""), self.scale, None).0;
-            let (start, end) = self.get_cursor();
-            let x1 = text_begin_x + if start == 0 { 0.0 } else { width_up_to(start) } - 3.0;
-            let x2 = text_begin_x + if end == 0 { 0.0 } else { width_up_to(end) } + 1.0;
-
-            self.cursor_rect.pos = gfx::FloatPos(x1, self.padding * self.scale);
-            self.cursor_rect.size = gfx::FloatSize(x2 - x1, rect.size.1 - self.padding * self.scale * 2.0);
+            let cursor = self.cursor_rect(&graphics.font, rect.size);
+            self.cursor_rect.pos = cursor.pos;
+            self.cursor_rect.size = cursor.size;
 
             // A cursor that has never been positioned starts at the origin; let it appear
             // where it belongs rather than sliding in from the corner.

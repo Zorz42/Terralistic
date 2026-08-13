@@ -1196,6 +1196,72 @@ mod tests {
         assert!(start <= 2 && end <= 2, "cursor {start}..{end} is past the end of the new text");
     }
 
+    /// Text longer than a default `TextInput` is wide, so the view has to crop it.
+    fn overflowing_input(graphics: &mut gfx::HeadlessContext) -> gfx::TextInput {
+        let input = input_containing(graphics, "a value far too long to fit inside the box it is being typed into");
+        assert!(
+            font().get_text_size(input.get_text(), None).0 as f32 > input.get_size().0,
+            "the fixture has to overflow for these tests to mean anything"
+        );
+        input
+    }
+
+    /// The visible window into a long value follows the cursor.
+    ///
+    /// It used to be pinned to the end of the text whatever the cursor was doing, so walking
+    /// the cursor left through a long value walked it straight out of the left edge of the
+    /// box. The cursor is a filled white rectangle and nothing here clips, so it went on being
+    /// drawn over whatever sat beside the input.
+    #[test]
+    fn test_the_view_follows_the_cursor_out_of_a_long_value() {
+        let mut graphics = gfx::HeadlessContext::new();
+        let mut input = overflowing_input(&mut graphics);
+        let root = root_container(&graphics);
+        let font = font();
+
+        assert!(input.cursor_rect(&font, input.get_size()).pos.0 > 0.0, "the cursor starts at the end, which is on screen");
+
+        while input.get_cursor_range().0 > 0 {
+            input.on_event(&mut graphics, &press(gfx::Key::Left), &root);
+            let cursor = input.cursor_rect(&font, input.get_size());
+            assert!(
+                cursor.pos.0 + cursor.size.0 > 0.0 && cursor.pos.0 < input.get_size().0,
+                "the cursor left the box at offset {:?}: {cursor:?}",
+                input.get_cursor_range()
+            );
+        }
+
+        assert_close(input.visible_text_rect(&font).pos.0, 0.0);
+    }
+
+    /// A field nobody is typing in still shows the end of what was typed, which is what the
+    /// `text_input_overflowing_text` golden records.
+    #[test]
+    fn test_an_unselected_field_shows_the_end_of_a_long_value() {
+        let mut graphics = gfx::HeadlessContext::new();
+        let mut input = overflowing_input(&mut graphics);
+        let font = font();
+        let hidden = font.get_text_size(input.get_text(), None).0 as f32 - (input.width - input.padding * 2.0);
+
+        input.selected = false;
+
+        assert_close(input.visible_text_rect(&font).pos.0, hidden);
+    }
+
+    /// Text that fits is never cropped, wherever the cursor is.
+    #[test]
+    fn test_a_value_that_fits_is_shown_from_the_start() {
+        let mut graphics = gfx::HeadlessContext::new();
+        let mut input = input_containing(&mut graphics, "short");
+        let root = root_container(&graphics);
+        let font = font();
+
+        for _ in 0..10 {
+            assert_close(input.visible_text_rect(&font).pos.0, 0.0);
+            input.on_event(&mut graphics, &press(gfx::Key::Left), &root);
+        }
+    }
+
     // --- Font ---
 
     const FONT: &[u8] = include_bytes!("../../Build/Resources/font.opa");
