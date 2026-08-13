@@ -17,9 +17,8 @@ pub struct Toggle {
     pub hovered: bool,
     toggle_progress: f32,
     hover_progress: f32,
-    timer: std::time::Instant,
-    /// Milliseconds of animation already applied. See `Button::timer_counter`.
-    timer_counter: u64,
+    /// See `Button::animation_timer`.
+    animation_timer: gfx::AnimationTimer,
     pub changed: bool,
 }
 
@@ -40,8 +39,7 @@ impl Toggle {
             hovered: false,
             toggle_progress: 0.0,
             hover_progress: 0.0,
-            timer: std::time::Instant::now(),
-            timer_counter: 0,
+            animation_timer: gfx::AnimationTimer::new(1),
             changed: true,
         }
     }
@@ -56,7 +54,7 @@ impl Toggle {
     pub const fn settle_animation(&mut self, toggle_progress: f32, hover_progress: f32) {
         self.toggle_progress = toggle_progress;
         self.hover_progress = hover_progress;
-        self.timer_counter = u64::MAX;
+        self.animation_timer.freeze();
     }
 
     #[must_use]
@@ -79,10 +77,9 @@ impl UiElement for Toggle {
         let toggle_target = if self.toggled { 1.0 } else { 0.0 };
         let hover_target = if self.is_hovered(graphics, parent_container) { 1.0 } else { 0.0 };
 
-        while self.timer_counter < self.timer.elapsed().as_millis() as u64 {
+        while self.animation_timer.frame_ready() {
             self.toggle_progress = gfx::approach(self.toggle_progress, toggle_target, 40.0, 0.01);
             self.hover_progress = gfx::approach(self.hover_progress, hover_target, 40.0, 0.01);
-            self.timer_counter += 1;
         }
 
         // The bar is dimmed to 80% until the mouse is over it.

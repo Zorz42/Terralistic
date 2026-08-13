@@ -17,10 +17,9 @@ pub struct Button {
     pub disabled: bool,
     pub darken_on_disabled: bool,
     pub hover_progress: f32,
-    timer: std::time::Instant,
-    /// Milliseconds of hover animation already applied. 64 bit because it is absolute, not a
-    /// delta - as `u32` it overflowed after 49.7 days of uptime and the animation stopped.
-    timer_counter: u64,
+    /// One hover step per elapsed millisecond, bounded so that a button built long before it
+    /// is first drawn - the pause menu's, say - does not owe a step for every one of them.
+    animation_timer: gfx::AnimationTimer,
     on_click: Box<dyn Fn()>,
 }
 
@@ -40,8 +39,7 @@ impl Button {
             disabled: false,
             darken_on_disabled: false,
             hover_progress: 0.0,
-            timer: std::time::Instant::now(),
-            timer_counter: 0,
+            animation_timer: gfx::AnimationTimer::new(1),
             on_click: Box::new(closure),
         }
     }
@@ -68,13 +66,12 @@ impl Button {
 
     /// Pins the hover animation at `progress` for the golden-image tests.
     ///
-    /// The animation advances once per elapsed millisecond and chases a target that depends on
-    /// the real mouse position, so pushing `timer_counter` past any reachable elapsed time is
-    /// what makes the value set here exactly what gets drawn.
+    /// The animation chases a target that depends on the real mouse position, so freezing the
+    /// timer is what makes the value set here exactly what gets drawn.
     #[cfg(feature = "render-tests")]
     pub const fn settle_hover(&mut self, progress: f32) {
         self.hover_progress = progress;
-        self.timer_counter = u64::MAX;
+        self.animation_timer.freeze();
     }
 }
 
@@ -101,9 +98,8 @@ impl UiElement for Button {
             0.0
         };
 
-        while self.timer_counter < self.timer.elapsed().as_millis() as u64 {
+        while self.animation_timer.frame_ready() {
             self.hover_progress = gfx::approach(self.hover_progress, hover_target, 40.0, 0.01);
-            self.timer_counter += 1;
         }
 
         let button_color = gfx::interpolate_colors(self.color, self.hover_color, self.hover_progress);

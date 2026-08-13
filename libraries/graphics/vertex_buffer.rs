@@ -62,13 +62,15 @@ impl VertexBuffer {
     /// mesh in RAM, ~50 KB a chunk across three caches of a thousand.
     ///
     /// With nothing staged there is nothing to send, so an already uploaded mesh is left alone
-    /// rather than replaced by an empty one.
+    /// rather than replaced by an empty one. With no device the vertices are left staged for
+    /// the same reason they are kept in `Texture::load_from_surface`: not having one is a
+    /// supported state, not a failure, and throwing the data away would make it one.
     pub fn upload(&mut self) {
+        let Some(gpu) = gpu_device::get() else { return };
         if self.vertices.is_empty() {
             return;
         }
         let vertices = std::mem::take(&mut self.vertices);
-        let Some(gpu) = gpu_device::get() else { return };
 
         if self.id != NO_MESH {
             gpu_device::delete_mesh_later(self.id);

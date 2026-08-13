@@ -46,6 +46,29 @@ impl Scrollable {
     pub const fn get_scroll_pos(&self) -> f32 {
         self.scroll_pos
     }
+
+    /// One frame of scrolling: the velocity moves the position, the position is pulled back
+    /// inside its bounds, and the velocity decays.
+    ///
+    /// Both pulls are `gfx::approach`, like every other animation in the toolkit, which is
+    /// what makes them *land* rather than close in on the target forever. Subtracting a
+    /// fraction of the remaining distance - which is all this used to do - leaves a list
+    /// flicked past its end a fraction of a pixel past it for as long as the menu is open.
+    ///
+    /// Split out of `update_inner` because that takes a `GraphicsContext` a headless test has
+    /// no way to build, even though none of this needs one.
+    pub(super) fn advance_frame(&mut self) {
+        self.scroll_pos += self.scroll_velocity;
+
+        let upper_bound = f32::max(self.scroll_size - self.rect.size.1, 0.0);
+        if self.scroll_pos < 0.0 {
+            self.scroll_pos = gfx::approach(self.scroll_pos, 0.0, self.boundary_smooth_factor, 0.01);
+        } else if self.scroll_pos > upper_bound {
+            self.scroll_pos = gfx::approach(self.scroll_pos, upper_bound, self.boundary_smooth_factor, 0.01);
+        }
+
+        self.scroll_velocity = gfx::approach(self.scroll_velocity, 0.0, self.scroll_smooth_factor, 0.01);
+    }
 }
 
 impl UiElement for Scrollable {
@@ -61,27 +84,12 @@ impl UiElement for Scrollable {
     ///
     /// **`update_inner`, not `render_inner`** - moving is not drawing, and stepping it while
     /// rendering froze the scroll for any caller that laid the list out without drawing it, a
-    /// menu sliding offscreen for instance. The parent reads `get_scroll_x` from its own
+    /// menu sliding offscreen for instance. The parent reads `get_scroll_y` from its own
     /// `update_inner`, which the recursion in `BaseUiElement::update` runs first, so it sees
     /// the previous frame's position.
     fn update_inner(&mut self, _: &mut gfx::GraphicsContext, _: &gfx::Container) {
         while self.animation_timer.frame_ready() {
-            self.scroll_pos += self.scroll_velocity;
-
-            if self.scroll_pos < 0.0 {
-                self.scroll_pos -= self.scroll_pos / self.boundary_smooth_factor;
-            }
-
-            let upper_bound = f32::max(self.scroll_size - self.rect.size.1, 0.0);
-            if self.scroll_pos > upper_bound {
-                self.scroll_pos -= (self.scroll_pos - upper_bound) / self.boundary_smooth_factor;
-            }
-
-            self.scroll_velocity -= self.scroll_velocity / self.scroll_smooth_factor;
-
-            if self.scroll_velocity.abs() < 0.01 {
-                self.scroll_velocity = 0.0;
-            }
+            self.advance_frame();
         }
     }
 

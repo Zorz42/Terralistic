@@ -126,10 +126,14 @@ impl Font {
 
             place(gfx::IntPos(x, y), glyph);
             x += advance;
-            max_width = max_width.max(x);
+            // The extra gap after a space is part of the width, not something that only the
+            // *next* character sees. `TextInput` measures the text before the cursor with
+            // `get_text_size`, and sampling the width before adding this left the cursor two
+            // pixels short of the glyph that `create_text_surface` then drew.
             if c == ' ' {
                 x += SPACE_WIDTH;
             }
+            max_width = max_width.max(x);
         }
 
         gfx::IntSize(max_width as u32, height as u32)

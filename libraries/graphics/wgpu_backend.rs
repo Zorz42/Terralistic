@@ -859,7 +859,12 @@ fn build_pipelines(gpu: &GpuDevice, surface_format: wgpu::TextureFormat) -> Pipe
 }
 
 /// The four one pixel edges of a rectangle border, as rectangles.
-fn outline_edges(rect: gfx::Rect) -> [gfx::Rect; 4] {
+///
+/// They cover the rectangle's own footprint and nothing outside it, which is both what a UI
+/// border should look like and what keeps the goldens machine-independent. That only holds
+/// for a rectangle with room for an edge, which is why `Rect::render_outline` drops empty
+/// ones before they get here.
+pub(super) fn outline_edges(rect: gfx::Rect) -> [gfx::Rect; 4] {
     let gfx::Rect { pos, size } = rect;
     [
         gfx::Rect::new(pos, gfx::FloatSize(size.0, 1.0)),

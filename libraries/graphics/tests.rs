@@ -266,6 +266,7 @@ mod tests {
     // ---------------------------------------------------------------------------------
 
     use crate::libraries::graphics as gfx;
+    use crate::libraries::graphics::animation_timer::MAX_CATCHUP_FRAMES;
     use gfx::{BaseUiElement, UiContext, UiElement};
     use std::cell::Cell;
     use std::rc::Rc;
@@ -624,6 +625,61 @@ mod tests {
         scrollable.rect.pos = FloatPos(500.0, 40.0);
 
         assert_close(scrollable.get_scroll_y(), 40.0);
+    }
+
+    /// A flick loses speed until it stops, rather than decaying towards a velocity that is
+    /// merely very small - `approach` snaps once it is inside its epsilon.
+    #[test]
+    fn test_a_flick_comes_to_a_complete_stop() {
+        let mut graphics = gfx::HeadlessContext::new();
+        let mut scrollable = gfx::Scrollable::new();
+        scrollable.scroll_smooth_factor = 10.0;
+        // room to scroll into, so the flick is not fighting the boundary pull
+        scrollable.scroll_size = 10000.0;
+        scrollable.rect.size.1 = 400.0;
+        let root = root_container(&graphics);
+        scrollable.on_event(&mut graphics, &gfx::Event::MouseScroll(-10.0), &root);
+
+        let travelled_in_one_frame = |scrollable: &mut gfx::Scrollable| {
+            let before = scrollable.get_scroll_pos();
+            scrollable.advance_frame();
+            scrollable.get_scroll_pos() - before
+        };
+
+        assert!(travelled_in_one_frame(&mut scrollable) > 0.0, "the flick should move the list");
+        for _ in 0..200 {
+            scrollable.advance_frame();
+        }
+        assert_close(travelled_in_one_frame(&mut scrollable), 0.0);
+    }
+
+    /// A list flicked past its end is pulled back *onto* the end, and stops there.
+    ///
+    /// The pull used to subtract a fraction of the overshoot per frame with nothing to finish
+    /// it off, so it only ever approached the boundary asymptotically. Too small to see, but
+    /// it is the reason the toolkit funnels every animation through `approach`: the epsilon is
+    /// what turns "close enough" into "done".
+    #[test]
+    #[allow(clippy::float_cmp, reason = "landing exactly on the boundary is what is being asserted")]
+    fn test_scrolling_past_the_top_settles_exactly_back_on_it() {
+        let mut graphics = gfx::HeadlessContext::new();
+        let mut scrollable = gfx::Scrollable::new();
+        // what both menus use
+        scrollable.scroll_smooth_factor = 100.0;
+        scrollable.boundary_smooth_factor = 40.0;
+        scrollable.scroll_size = 1000.0;
+        scrollable.rect.size.1 = 400.0;
+
+        let root = root_container(&graphics);
+        scrollable.on_event(&mut graphics, &gfx::Event::MouseScroll(10.0), &root);
+
+        scrollable.advance_frame();
+        assert!(scrollable.get_scroll_pos() < 0.0, "scrolling up from the top should overshoot");
+
+        for _ in 0..2000 {
+            scrollable.advance_frame();
+        }
+        assert_eq!(scrollable.get_scroll_pos(), 0.0, "the list should come to rest on the top, not near it");
     }
 
     #[test]
@@ -1172,6 +1228,40 @@ mod tests {
         }
     }
 
+    /// Whether a column of a rasterised string has any ink in it.
+    fn column_has_ink(surface: &Surface, x: u32) -> bool {
+        (0..surface.get_size().1 as i32).any(|y| surface.get_pixel(IntPos(x as i32, y)).is_ok_and(|pixel| pixel.a != 0))
+    }
+
+    /// `get_text_size` is an *advance* width, so measuring a prefix has to land exactly where
+    /// the next glyph is drawn.
+    ///
+    /// A space advances `SPACE_WIDTH` further than its (empty) glyph, and the width used to be
+    /// sampled before that was added - so `TextInput`, which measures the text before the
+    /// cursor this way, put the cursor two pixels left of the character after a space.
+    #[test]
+    fn test_a_prefix_ending_in_a_space_measures_up_to_the_next_glyph() {
+        let font = font();
+        let prefix = font.get_text_size("a ", None).0;
+        let surface = font.create_text_surface("a b", None);
+
+        let first_ink_after_the_a = (font.get_text_size("a", None).0..surface.get_size().0).find(|&x| column_has_ink(&surface, x));
+
+        assert_eq!(first_ink_after_the_a, Some(prefix), "the cursor after a space belongs where the next glyph starts");
+    }
+
+    /// Widths add up: laying two strings out end to end is the same as laying out their
+    /// concatenation, which is what makes measuring a prefix meaningful at all.
+    #[test]
+    fn test_measuring_is_additive() {
+        let font = font();
+        let width = |text| font.get_text_size(text, None).0;
+
+        assert_eq!(width("ab"), width("a") + width("b"));
+        assert_eq!(width("a "), width("a") + width(" "));
+        assert_eq!(width("a b"), width("a ") + width("b"));
+    }
+
     #[test]
     fn test_scaled_text_size_multiplies() {
         let font = font();
@@ -1361,6 +1451,42 @@ mod tests {
         assert!(!timer.frame_ready());
     }
 
+    /// A widget that exists but is not stepped for a long time owes a frame for every
+    /// millisecond of it, and the pause menu's buttons really do sit unrendered for a whole
+    /// session before their first frame. Walking that backlog is an hour of animation in one
+    /// frame; skipping it lands on the same value, because every animation here has settled
+    /// long before the bound.
+    #[test]
+    fn test_animation_timer_skips_a_backlog_it_could_never_walk() {
+        let hour_ms = 60 * 60 * 1000;
+        let mut timer = gfx::AnimationTimer::new_started_ago(1, hour_ms);
+
+        let mut frames = 0_i64;
+        while timer.frame_ready() {
+            frames += 1;
+            assert!(frames < hour_ms as i64, "the timer walked the whole backlog");
+        }
+
+        assert!(frames > 0, "the bound should still hand out the frames it caps at");
+        // A few more than the bound: the clock keeps running while the backlog is handed out.
+        assert!(frames <= MAX_CATCHUP_FRAMES + 100, "expected about {MAX_CATCHUP_FRAMES} frames, got {frames}");
+    }
+
+    /// The bound is a floor on how far behind the timer may be, not a reset: a timer that is
+    /// keeping up must still hand out exactly the frames it owes.
+    #[test]
+    fn test_the_backlog_bound_leaves_a_timer_that_is_keeping_up_alone() {
+        let mut timer = gfx::AnimationTimer::new_started_ago(5, 20);
+
+        let mut frames = 0;
+        while timer.frame_ready() {
+            frames += 1;
+            assert!(frames < 100, "the timer should stop handing out frames");
+        }
+
+        assert!((4..=6).contains(&frames), "expected about 4 frames, got {frames}");
+    }
+
     // --- HeadlessContext itself ---
 
     /// The test double has to answer the same questions as the real context, or the tests
@@ -1438,6 +1564,44 @@ mod tests {
         rect.render_outline(&recorder, WHITE.set_a(0));
 
         assert!(recorder.is_empty());
+    }
+
+    /// An outline is four one pixel quads laid on the rectangle's own edge pixels, which an
+    /// empty rectangle does not have: the bottom edge is placed at `pos.1 + size.1 - 1.0`, so
+    /// with no height it lands a row *above* the top edge, outside the rectangle entirely.
+    ///
+    /// A `Button` mid-hover-fade reaches this. Its hover rectangle is the button inset by up
+    /// to 30 pixels a side, which is more than a small button has to give, and the border it
+    /// is drawn with is part way to opaque by then.
+    #[test]
+    fn test_an_empty_rect_draws_no_outline() {
+        let recorder = DrawRecorder::new();
+
+        Rect::new(FloatPos(50.0, 50.0), FloatSize(0.0, 0.0)).render_outline(&recorder, WHITE);
+        Rect::new(FloatPos(50.0, 50.0), FloatSize(40.0, 0.0)).render_outline(&recorder, WHITE);
+        Rect::new(FloatPos(50.0, 50.0), FloatSize(0.0, 40.0)).render_outline(&recorder, WHITE);
+
+        assert!(recorder.is_empty(), "an empty rectangle has no edge pixels to draw");
+
+        // what it would have drawn: two vertical lines, the right hand one a pixel to the left
+        // of a rectangle that has no width at all
+        let edges = crate::libraries::graphics::wgpu_backend::outline_edges(Rect::new(FloatPos(50.0, 50.0), FloatSize(0.0, 40.0)));
+        assert_eq!(edges[3], Rect::new(FloatPos(49.0, 50.0), FloatSize(1.0, 40.0)));
+    }
+
+    /// The outline of a rectangle that does have edges covers its own footprint exactly, in
+    /// both directions - a border that spilled outside would be a pixel of another widget.
+    #[test]
+    fn test_outline_edges_stay_inside_the_rectangle() {
+        let rect = Rect::new(FloatPos(10.0, 20.0), FloatSize(30.0, 40.0));
+
+        for edge in crate::libraries::graphics::wgpu_backend::outline_edges(rect) {
+            assert!(edge.pos.0 >= rect.pos.0 && edge.pos.1 >= rect.pos.1, "{edge:?} starts outside {rect:?}");
+            assert!(
+                edge.pos.0 + edge.size.0 <= rect.pos.0 + rect.size.0 && edge.pos.1 + edge.size.1 <= rect.pos.1 + rect.size.1,
+                "{edge:?} ends outside {rect:?}"
+            );
+        }
     }
 
     #[test]

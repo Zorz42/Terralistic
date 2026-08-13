@@ -95,9 +95,32 @@ impl Tolerance {
 }
 
 struct Case {
-    name: &'static str,
+    /// The drawing function's own name, `case_` included. Use `name()` for the golden's.
+    function: &'static str,
     tolerance: Tolerance,
     draw: fn(&mut gfx::GraphicsContext),
+}
+
+impl Case {
+    /// What the golden is filed under, and what a failure is reported as.
+    fn name(&self) -> &'static str {
+        self.function.strip_prefix("case_").unwrap_or(self.function)
+    }
+}
+
+/// Builds the case table from a list of drawing functions, naming each case after its own
+/// function. `case_foo` is the case `foo` at `Tolerance::EXACT`; `case_foo: BLURRY` names a
+/// different tolerance.
+macro_rules! cases {
+    ($($function:ident $(: $tolerance:ident)?),* $(,)?) => {
+        [$(Case {
+            function: stringify!($function),
+            tolerance: cases!(@tolerance $($tolerance)?),
+            draw: $function,
+        }),*]
+    };
+    (@tolerance) => { Tolerance::EXACT };
+    (@tolerance $tolerance:ident) => { Tolerance::$tolerance };
 }
 
 // --- fixtures -------------------------------------------------------------------------
@@ -646,237 +669,59 @@ fn case_text_input_overflowing_text(graphics: &mut gfx::GraphicsContext) {
     input.render(graphics, &parent);
 }
 
-const CASES: &[Case] = &[
-    Case {
-        name: "rect_solid",
-        tolerance: Tolerance::EXACT,
-        draw: case_rect_solid,
-    },
-    Case {
-        name: "rect_outline",
-        tolerance: Tolerance::EXACT,
-        draw: case_rect_outline,
-    },
-    Case {
-        name: "rect_alpha_blend",
-        tolerance: Tolerance::EXACT,
-        draw: case_rect_alpha_blend,
-    },
-    Case {
-        name: "rect_offscreen_culled",
-        tolerance: Tolerance::EXACT,
-        draw: case_rect_offscreen_culled,
-    },
-    Case {
-        name: "rect_partially_offscreen",
-        tolerance: Tolerance::EXACT,
-        draw: case_rect_partially_offscreen,
-    },
-    Case {
-        name: "rect_zero_alpha_is_skipped",
-        tolerance: Tolerance::EXACT,
-        draw: case_rect_zero_alpha_is_skipped,
-    },
-    Case {
-        name: "rect_array_gradient",
-        tolerance: Tolerance::EXACT,
-        draw: case_rect_array_gradient,
-    },
-    Case {
-        name: "rect_array_textured",
-        tolerance: Tolerance::EXACT,
-        draw: case_rect_array_textured,
-    },
-    Case {
-        name: "rect_array_translated",
-        tolerance: Tolerance::EXACT,
-        draw: case_rect_array_translated,
-    },
-    Case {
-        name: "texture_unscaled",
-        tolerance: Tolerance::EXACT,
-        draw: case_texture_unscaled,
-    },
-    Case {
-        name: "texture_scaled",
-        tolerance: Tolerance::EXACT,
-        draw: case_texture_scaled,
-    },
-    Case {
-        name: "texture_flipped",
-        tolerance: Tolerance::EXACT,
-        draw: case_texture_flipped,
-    },
-    Case {
-        name: "texture_src_rect",
-        tolerance: Tolerance::EXACT,
-        draw: case_texture_src_rect,
-    },
-    Case {
-        name: "texture_tinted",
-        tolerance: Tolerance::EXACT,
-        draw: case_texture_tinted,
-    },
-    Case {
-        name: "texture_empty_src_rect",
-        tolerance: Tolerance::EXACT,
-        draw: case_texture_empty_src_rect,
-    },
-    Case {
-        name: "blend_mode_multiply",
-        tolerance: Tolerance::EXACT,
-        draw: case_blend_mode_multiply,
-    },
-    Case {
-        name: "text_basic",
-        tolerance: Tolerance::EXACT,
-        draw: case_text_basic,
-    },
-    Case {
-        name: "text_scaled",
-        tolerance: Tolerance::EXACT,
-        draw: case_text_scaled,
-    },
-    Case {
-        name: "text_on_fractional_offsets",
-        tolerance: Tolerance::EXACT,
-        draw: case_text_on_fractional_offsets,
-    },
-    Case {
-        name: "text_mono",
-        tolerance: Tolerance::EXACT,
-        draw: case_text_mono,
-    },
-    Case {
-        name: "text_surface",
-        tolerance: Tolerance::EXACT,
-        draw: case_text_surface,
-    },
-    Case {
-        name: "text_width_limit",
-        tolerance: Tolerance::EXACT,
-        draw: case_text_width_limit,
-    },
-    Case {
-        name: "container_orientations",
-        tolerance: Tolerance::EXACT,
-        draw: case_container_orientations,
-    },
-    Case {
-        name: "container_nested",
-        tolerance: Tolerance::EXACT,
-        draw: case_container_nested,
-    },
-    Case {
-        name: "render_rect_fill_and_border",
-        tolerance: Tolerance::EXACT,
-        draw: case_render_rect_fill_and_border,
-    },
-    Case {
-        name: "render_rect_translucent",
-        tolerance: Tolerance::EXACT,
-        draw: case_render_rect_translucent,
-    },
-    Case {
-        name: "render_rect_shadow",
-        tolerance: Tolerance::EXACT,
-        draw: case_render_rect_shadow,
-    },
-    Case {
-        name: "render_rect_blur",
-        tolerance: Tolerance::BLURRY,
-        draw: case_render_rect_blur,
-    },
-    Case {
-        name: "blur_over_a_cleared_frame",
-        tolerance: Tolerance::EXACT,
-        draw: case_blur_over_a_cleared_frame,
-    },
-    Case {
-        name: "render_rect_lags_behind_target",
-        tolerance: Tolerance::EXACT,
-        draw: case_render_rect_lags_behind_target,
-    },
-    Case {
-        name: "sprite_basic",
-        tolerance: Tolerance::EXACT,
-        draw: case_sprite_basic,
-    },
-    Case {
-        name: "sprite_flipped_tinted_centered",
-        tolerance: Tolerance::EXACT,
-        draw: case_sprite_flipped_tinted_centered,
-    },
-    Case {
-        name: "texture_atlas_single_region",
-        tolerance: Tolerance::EXACT,
-        draw: case_texture_atlas_single_region,
-    },
-    Case {
-        name: "texture_atlas_multiple_regions",
-        tolerance: Tolerance::EXACT,
-        draw: case_texture_atlas_multiple_regions,
-    },
-    Case {
-        name: "texture_atlas_empty",
-        tolerance: Tolerance::EXACT,
-        draw: case_texture_atlas_empty,
-    },
-    Case {
-        name: "button_idle",
-        tolerance: Tolerance::EXACT,
-        draw: case_button_idle,
-    },
-    Case {
-        name: "button_hovered",
-        tolerance: Tolerance::EXACT,
-        draw: case_button_hovered,
-    },
-    Case {
-        name: "button_half_hovered",
-        tolerance: Tolerance::EXACT,
-        draw: case_button_half_hovered,
-    },
-    Case {
-        name: "button_disabled_darkened",
-        tolerance: Tolerance::EXACT,
-        draw: case_button_disabled_darkened,
-    },
-    Case {
-        name: "toggle_off",
-        tolerance: Tolerance::EXACT,
-        draw: case_toggle_off,
-    },
-    Case {
-        name: "toggle_on",
-        tolerance: Tolerance::EXACT,
-        draw: case_toggle_on,
-    },
-    Case {
-        name: "toggle_mid_travel",
-        tolerance: Tolerance::EXACT,
-        draw: case_toggle_mid_travel,
-    },
-    Case {
-        name: "toggle_right_oriented",
-        tolerance: Tolerance::EXACT,
-        draw: case_toggle_right_oriented,
-    },
-    Case {
-        name: "text_input_with_text",
-        tolerance: Tolerance::EXACT,
-        draw: case_text_input_with_text,
-    },
-    Case {
-        name: "text_input_hint",
-        tolerance: Tolerance::EXACT,
-        draw: case_text_input_hint,
-    },
-    Case {
-        name: "text_input_overflowing_text",
-        tolerance: Tolerance::EXACT,
-        draw: case_text_input_overflowing_text,
-    },
+/// Every case, in the order they run.
+///
+/// The golden's name is the drawing function's own with the `case_` prefix taken off, so a
+/// case cannot end up compared against a different one's image - which a hand written table
+/// of `name` / `draw` pairs is one careless copy-paste away from. `EXACT` is the default;
+/// name a tolerance after a colon only where a case needs a looser one.
+const CASES: &[Case] = &cases![
+    case_rect_solid,
+    case_rect_outline,
+    case_rect_alpha_blend,
+    case_rect_offscreen_culled,
+    case_rect_partially_offscreen,
+    case_rect_zero_alpha_is_skipped,
+    case_rect_array_gradient,
+    case_rect_array_textured,
+    case_rect_array_translated,
+    case_texture_unscaled,
+    case_texture_scaled,
+    case_texture_flipped,
+    case_texture_src_rect,
+    case_texture_tinted,
+    case_texture_empty_src_rect,
+    case_blend_mode_multiply,
+    case_text_basic,
+    case_text_scaled,
+    case_text_on_fractional_offsets,
+    case_text_mono,
+    case_text_surface,
+    case_text_width_limit,
+    case_container_orientations,
+    case_container_nested,
+    case_render_rect_fill_and_border,
+    case_render_rect_translucent,
+    case_render_rect_shadow,
+    case_render_rect_blur: BLURRY,
+    case_blur_over_a_cleared_frame,
+    case_render_rect_lags_behind_target,
+    case_sprite_basic,
+    case_sprite_flipped_tinted_centered,
+    case_texture_atlas_single_region,
+    case_texture_atlas_multiple_regions,
+    case_texture_atlas_empty,
+    case_button_idle,
+    case_button_hovered,
+    case_button_half_hovered,
+    case_button_disabled_darkened,
+    case_toggle_off,
+    case_toggle_on,
+    case_toggle_mid_travel,
+    case_toggle_right_oriented,
+    case_text_input_with_text,
+    case_text_input_hint,
+    case_text_input_overflowing_text,
 ];
 
 // --- comparison -------------------------------------------------------------------------
@@ -1027,11 +872,11 @@ pub fn run(regenerate: bool, dump: bool, font: &[u8], font_mono: &[u8]) -> Resul
     let mut regenerated = 0_u32;
 
     for case in CASES {
-        let actual = capture_case(&mut graphics, case).with_context(|| format!("capturing {}", case.name))?;
-        let golden_path = goldens.join(format!("{}.opa", case.name));
+        let actual = capture_case(&mut graphics, case).with_context(|| format!("capturing {}", case.name()))?;
+        let golden_path = goldens.join(format!("{}.opa", case.name()));
 
         if dump {
-            write_ppm(&output.join(format!("{}.ppm", case.name)), &actual)?;
+            write_ppm(&output.join(format!("{}.ppm", case.name())), &actual)?;
         }
 
         if regenerate {
@@ -1041,7 +886,7 @@ pub fn run(regenerate: bool, dump: bool, font: &[u8], font_mono: &[u8]) -> Resul
         }
 
         if !golden_path.exists() {
-            println!("MISSING  {} (no golden at {})", case.name, golden_path.display());
+            println!("MISSING  {} (no golden at {})", case.name(), golden_path.display());
             failed += 1;
             continue;
         }
@@ -1056,7 +901,7 @@ pub fn run(regenerate: bool, dump: bool, font: &[u8], font_mono: &[u8]) -> Resul
                 failed += 1;
                 println!(
                     "FAIL     {}: {} of {} pixels differ, {} of them by more than {} ({:.3}%, allowed {:.3}%); largest channel delta {}",
-                    case.name,
+                    case.name(),
                     diff.differing_pixels,
                     diff.total_pixels,
                     diff.pixels_over_tolerance,
@@ -1069,14 +914,14 @@ pub fn run(regenerate: bool, dump: bool, font: &[u8], font_mono: &[u8]) -> Resul
                     println!("         first at ({}, {}): got {actual_pixel:?}, want {expected_pixel:?}", pos.0, pos.1);
                 }
                 std::fs::create_dir_all(&output).with_context(|| format!("creating {}", output.display()))?;
-                write_ppm(&output.join(format!("{}.actual.ppm", case.name)), &actual)?;
-                write_ppm(&output.join(format!("{}.expected.ppm", case.name)), &expected)?;
-                write_ppm(&output.join(format!("{}.diff.ppm", case.name)), &difference_surface(&actual, &expected))?;
+                write_ppm(&output.join(format!("{}.actual.ppm", case.name())), &actual)?;
+                write_ppm(&output.join(format!("{}.expected.ppm", case.name())), &expected)?;
+                write_ppm(&output.join(format!("{}.diff.ppm", case.name())), &difference_surface(&actual, &expected))?;
                 println!("         wrote actual/expected/diff to {}", output.display());
             }
             Err(error) => {
                 failed += 1;
-                println!("FAIL     {}: {error}", case.name);
+                println!("FAIL     {}: {error}", case.name());
             }
         }
     }
