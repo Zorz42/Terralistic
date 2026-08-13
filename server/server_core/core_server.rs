@@ -346,6 +346,14 @@ impl Server {
     /// through events and packets - so these exist purely so a test can check what the
     /// simulation actually did. Each one takes the same lock the server does, so a test
     /// must drop the guard before stepping the server again.
+    /// True once the networking thread has bound the port, so a test knows when it is safe
+    /// to connect without probing the port and racing that bind.
+    #[cfg(test)]
+    #[must_use]
+    pub fn is_listening(&self) -> bool {
+        self.networking.is_listening()
+    }
+
     #[cfg(test)]
     pub fn get_blocks(&self) -> std::sync::MutexGuard<'_, crate::shared::blocks::Blocks> {
         self.blocks.get_blocks()

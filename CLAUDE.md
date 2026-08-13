@@ -123,6 +123,11 @@ Caveats worth knowing before touching it:
   every singleplayer world on the local network.
 - There is no authentication of any kind. Anyone who can reach the port can join.
 - Ports: singleplayer 49152, multiplayer 49153 (`server/server_core/core_server.rs`).
+- **The bind happens on the networking thread, so its failure arrives late.** `init` returns
+  before the port is even attempted; the thread's `Result` only reaches anyone when
+  `ServerNetworking::update` notices the thread has finished and joins it. A server whose
+  port is taken therefore looks like it started and then accepts nobody forever, so the
+  error names the address it could not bind rather than being a bare `AddrInUse`.
 
 Connection handshake: client sends `NamePacket` → server replies `WelcomeCompletePacket` →
 client stops "welcoming" mode and starts the normal receive loop. Welcome-phase packets are
@@ -633,8 +638,18 @@ Things worth knowing before adding one:
 - **Ports come from `free_port`**, which counts rather than asking the OS for port 0 —
   two tests probing one after the other can otherwise be handed the same port, and then
   one test's client joins the other test's server.
-- **Wait for the listener.** Both networking layers bind on a background thread, so
-  `wait_until_listening` is what makes a connection immediately afterwards reliable.
+- **Wait for the listener, by asking it.** Both networking layers bind on a background
+  thread, so `wait_until_listening` is what makes a connection immediately afterwards
+  reliable. It takes a predicate backed by `ServerNetworking::is_listening`, an atomic the
+  binding thread sets, and **must not go back to probing the port**. The obvious check —
+  "has the port stopped being bindable" — has to *bind* the port to find out, which is the
+  very collision it is watching for: polling every millisecond it regularly won the race,
+  the server's own `listen` then failed with `AddrInUse`, and since that error only surfaces
+  through a later `update()` the probe waited out the full 30 s timeout for a listener that
+  no longer existed. That was a 1-in-10 flake over the whole integration suite, landing on
+  whichever test lost the toss — which is why it never looked like it belonged to any of
+  them. `SO_REUSEADDR` does not save you here: both sides set it, and it waives `TIME_WAIT`,
+  not a live listener.
 - **One lock at a time.** `Server::get_blocks()` and friends are `#[cfg(test)]` accessors
   that take the server's mutex. Two calls in one expression deadlock against yourself.
 - **Let the clock run.** Anything that advances over time takes whole milliseconds of

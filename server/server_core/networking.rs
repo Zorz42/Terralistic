@@ -73,6 +73,7 @@ pub struct ServerNetworking {
     event_receiver: Option<Receiver<Event>>,
     packet_sender: Option<Sender<(Vec<u8>, Connection)>>,
     is_running: Arc<AtomicBool>,
+    is_listening: Arc<AtomicBool>,
     net_loop_thread: Option<std::thread::JoinHandle<Result<()>>>,
 }
 
@@ -87,8 +88,24 @@ impl ServerNetworking {
             event_receiver: None,
             packet_sender: None,
             is_running: Arc::new(AtomicBool::new(true)),
+            is_listening: Arc::new(AtomicBool::new(false)),
             net_loop_thread: None,
         }
+    }
+
+    /// True once the networking thread has actually bound the port and is accepting.
+    ///
+    /// `init` only spawns that thread, so there is a window where the server exists and
+    /// nothing is listening yet. Anyone who needs to know the difference has to be told by
+    /// the thread that binds - probing the port from outside means *binding* it, which
+    /// races the bind being waited for and can lose it the port entirely.
+    ///
+    /// Only the tests need to know: the game's own server has a world to load before
+    /// anyone can connect, which is a far longer wait than the bind.
+    #[cfg(test)]
+    #[must_use]
+    pub fn is_listening(&self) -> bool {
+        self.is_listening.load(Ordering::Relaxed)
     }
 
     #[must_use]
@@ -105,6 +122,7 @@ impl ServerNetworking {
         self.packet_sender = Some(packet_sender);
 
         let is_running = self.is_running.clone();
+        let is_listening = self.is_listening.clone();
         let server_port = self.server_port;
         let bind_address = self.bind_address;
 
@@ -113,16 +131,29 @@ impl ServerNetworking {
             #[allow(clippy::unwrap_used)]
             std::thread::Builder::new()
                 .name("Server networking".to_owned())
-                .spawn(move || Self::net_receive_loop(&event_sender, &packet_receiver, &is_running, server_port, bind_address))
+                .spawn(move || Self::net_receive_loop(&event_sender, &packet_receiver, &is_running, &is_listening, server_port, bind_address))
                 .unwrap(),
         );
     }
 
-    fn net_receive_loop(event_sender: &Sender<Event>, packet_receiver: &Receiver<(Vec<u8>, Connection)>, is_running: &Arc<AtomicBool>, server_port: u16, bind_address: BindAddress) -> Result<()> {
+    fn net_receive_loop(
+        event_sender: &Sender<Event>,
+        packet_receiver: &Receiver<(Vec<u8>, Connection)>,
+        is_running: &Arc<AtomicBool>,
+        is_listening: &Arc<AtomicBool>,
+        server_port: u16,
+        bind_address: BindAddress,
+    ) -> Result<()> {
         let (handler, listener) = node::split::<()>();
 
         let listen_addr = format!("{}:{server_port}", bind_address.as_ip());
-        handler.network().listen(Transport::FramedTcp, &listen_addr)?;
+        // the error is worth naming: a port already in use is the common way this fails, and
+        // it otherwise surfaces only as a server that silently never accepts anyone
+        handler
+            .network()
+            .listen(Transport::FramedTcp, &listen_addr)
+            .map_err(|e| anyhow!("could not listen on {listen_addr}: {e}"))?;
+        is_listening.store(true, Ordering::Relaxed);
         print_to_console(&format!("listening on {listen_addr}"), 0);
 
         if bind_address == BindAddress::AllInterfaces {

@@ -1,7 +1,9 @@
-#![allow(clippy::unwrap_used)]
+#![allow(clippy::unwrap_used, clippy::panic)] // a helper that gives up should fail the test loudly
 #![cfg(test)]
 mod tests {
+    use crate::libraries::events::EventManager;
     use crate::server::server_core::commands::CommandManager;
+    use crate::server::server_core::networking::{BindAddress, ServerNetworking};
     use crate::shared::mod_manager::ModManager;
 
     /// Runs a command against a `CommandManager` that has no mods loaded.
@@ -45,5 +47,40 @@ mod tests {
     #[test]
     fn test_help_with_too_many_arguments() {
         execute("help one two").unwrap_err();
+    }
+
+    /// A server that cannot bind its port has to say so.
+    ///
+    /// The bind happens on the networking thread, so its error used to go nowhere anyone
+    /// looked: `init` returns before the bind is even attempted, and the thread's `Result`
+    /// is only joined once something else notices the thread has finished. A server whose
+    /// port was taken therefore looked like it had started, printed no listening line, and
+    /// accepted nobody for as long as it ran.
+    #[test]
+    fn test_a_server_that_cannot_bind_reports_it() {
+        // hold the port for real, so the bind underneath has nothing to take
+        let held = std::net::TcpListener::bind(("127.0.0.1", 0)).unwrap();
+        let port = held.local_addr().unwrap().port();
+
+        let mut net = ServerNetworking::new(port, BindAddress::Loopback);
+        let mut events = EventManager::new();
+        net.init();
+
+        let error = wait_for_error(&mut net, &mut events);
+        assert!(error.contains(&port.to_string()), "the error should name the port it could not bind: {error}");
+        assert!(!net.is_listening(), "a server that never bound must not claim to be listening");
+    }
+
+    /// Steps networking until it surfaces the dead thread's error, so the test fails with
+    /// that error rather than hanging if the reporting ever breaks again.
+    fn wait_for_error(net: &mut ServerNetworking, events: &mut EventManager) -> String {
+        let deadline = std::time::Instant::now() + std::time::Duration::from_secs(10);
+        while std::time::Instant::now() < deadline {
+            if let Err(e) = net.update(events) {
+                return e.to_string();
+            }
+            std::thread::sleep(std::time::Duration::from_millis(1));
+        }
+        panic!("networking never reported that it could not bind");
     }
 }

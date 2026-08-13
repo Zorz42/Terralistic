@@ -185,7 +185,7 @@ impl TestServer {
     fn start(&mut self) -> Result<()> {
         let world_path = self.dir.world_path();
         self.server.start(&self.status, vec![BASE_GAME_MOD.to_vec()], &world_path)?;
-        wait_until_listening(self.port);
+        wait_until_listening(|| self.server.is_listening());
         Ok(())
     }
 
@@ -257,12 +257,11 @@ impl NetServer {
     /// `init` only spawns the thread that binds the port, so a client that connects the
     /// instant this returns can be refused before the listener exists. The game never
     /// notices because its server has a world to generate first; a test has no such
-    /// pause, so it waits for the port to stop being bindable - which means the server
-    /// has taken it - rather than connecting to it and disturbing the connection log.
+    /// pause, so it waits for the networking layer to report that it has bound.
     pub fn start(port: u16) -> Self {
         let mut net = ServerNetworking::new(port, BindAddress::Loopback);
         net.init();
-        wait_until_listening(port);
+        wait_until_listening(|| net.is_listening());
         Self {
             net,
             events: EventManager::new(),
@@ -384,13 +383,21 @@ impl TestClient {
     }
 }
 
-/// Blocks until the port stops being bindable, which means the server has taken it.
+/// Blocks until the networking layer says it has bound its port.
 ///
 /// Both servers bind on a background thread, so a client that connects the instant the
-/// constructor returns can be refused before the listener exists. Checked by trying to
-/// bind rather than by connecting, so the server's connection log stays clean.
-pub fn wait_until_listening(port: u16) {
-    wait_until("the server to bind its port", || Ok(TcpListener::bind(("127.0.0.1", port)).is_err()));
+/// constructor returns can be refused before the listener exists.
+///
+/// This asks the server rather than probing the port, and that is the whole point. The
+/// obvious check - "has the port stopped being bindable" - has to *bind* the port to find
+/// out, and a second listener on an address someone else is binding is exactly the
+/// collision it is looking for. Polling every millisecond, it regularly won the race, and
+/// the server's own bind then failed with `AddrInUse`, killed the networking thread, and
+/// left the probe waiting the full 30 seconds for a listener that would never exist. That
+/// was a 1-in-10 flake across the whole integration suite, landing on whichever test
+/// happened to lose the coin toss.
+pub fn wait_until_listening(is_listening: impl Fn() -> bool) {
+    wait_until("the server to bind its port", || Ok(is_listening()));
 }
 
 /// Connects a client to a running `Server` and steps both until the world has arrived.
