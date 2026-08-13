@@ -35,10 +35,10 @@
 //! # What these cover that the draw-list tests cannot
 //!
 //! Drawing records a `DrawCommand` and the backend replays it, so `cargo test` can assert on
-//! what a primitive *asks* for without a window - see the draw list tests in `tests.rs`. These
-//! cases are the other half: the only check that the backend turns those commands into the
-//! right pixels, and the only coverage of anything that has to own a GPU object before it can
-//! draw at all (`RectArray`, `TextureAtlas`, `ShadowContext`, fonts).
+//! what a primitive *asks* for without a window - see the draw list tests in `tests.rs`, which
+//! every primitive reaches, because building one without a device is a supported state. These
+//! cases are the other half, and the only one: whether the backend turns those commands into
+//! the right pixels.
 //!
 //! They are also a hard test of deferred resource release. `fixture_texture()` returns a
 //! temporary, so `fixture_texture().render(graphics, ..)` drops the texture at the end of the

@@ -1,5 +1,5 @@
 use crate::libraries::graphics as gfx;
-use crate::libraries::graphics::{BaseUiElement, UiElement};
+use crate::libraries::graphics::UiElement;
 
 /// A texture that positions itself like a UI element: a position, a scale and an orientation,
 /// plus a flip, a tint and a source rectangle.
@@ -48,14 +48,6 @@ impl Sprite {
 }
 
 impl UiElement for Sprite {
-    fn get_sub_elements_mut(&mut self) -> Vec<&mut dyn BaseUiElement> {
-        Vec::new()
-    }
-
-    fn get_sub_elements(&self) -> Vec<&dyn BaseUiElement> {
-        Vec::new()
-    }
-
     fn render_inner(&mut self, graphics: &mut gfx::GraphicsContext, parent: &gfx::Container) {
         let container = self.get_container(graphics, parent);
         self.texture

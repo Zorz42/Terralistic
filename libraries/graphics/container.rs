@@ -1,6 +1,6 @@
 use crate::libraries::graphics as gfx;
 
-use super::{BaseUiElement, Rect, UiElement};
+use super::{Rect, UiElement};
 
 #[derive(Clone, Copy, Debug)]
 pub struct Orientation {
@@ -62,14 +62,6 @@ impl Container {
 }
 
 impl UiElement for Container {
-    fn get_sub_elements_mut(&mut self) -> Vec<&mut dyn BaseUiElement> {
-        vec![]
-    }
-
-    fn get_sub_elements(&self) -> Vec<&dyn BaseUiElement> {
-        vec![]
-    }
-
     /// Recomputes the absolute rectangle against the parent.
     fn update_inner(&mut self, graphics: &mut gfx::GraphicsContext, parent_container: &Self) {
         self.update_position(graphics, Some(parent_container));

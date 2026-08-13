@@ -18,7 +18,7 @@ cargo build --profile dist # what you ship: release + LTO, 4.63 MB vs 5.49 MB
 cargo run -- server       # server with GUI
 cargo run -- server nogui # headless server
 cargo run -- version      # print version
-cargo test                # 410 tests, all should pass
+cargo test                # 423 tests, all should pass
 cargo clippy --all-targets
 ./coverage.sh             # coverage via config-coverage.toml
 
@@ -193,9 +193,11 @@ So terrain and walls repeat for a given seed and the trees do not.
 knowledge — treat it as a vendored library.
 
 The UI contract is `UiElement` / `BaseUiElement` in `ui_element.rs`. You implement
-`UiElement` (`get_container`, plus optional `render_inner` / `update_inner` /
-`on_event_inner` and the `get_sub_elements*` accessors); `BaseUiElement` is blanket-implemented
-and handles recursing into children. **Implement `UiElement`, call `BaseUiElement`.**
+`UiElement` — `get_container` is the only required method, everything else defaults — and
+`BaseUiElement` is blanket-implemented and handles recursing into children. **Implement
+`UiElement`, call `BaseUiElement`.** The one default worth knowing is `get_sub_elements*`,
+which returns nothing: a leaf writes neither, and **an element with children has to override
+both**, or it is laid out and drawn while its children are not.
 
 Layout is `Container` + `Orientation` (`TOP_LEFT`, `CENTER`, …): a child positions itself
 relative to a parent container by orientation plus offset. Theme constants (colors, `SPACING`,
@@ -208,6 +210,10 @@ which a hand-rolled `value -= value / factor` does not.
 Hit testing is `UiElement::is_hovered`, a default method over `get_container`. Override it
 only where an element is hoverable on other terms; `Button` does, because a disabled one is
 never hovered.
+
+Clicking is `gfx::ClickTracker`, which `Button` and `Toggle` each own one of. See the gotcha
+below for the rule it encodes; the point of it being one type is that the rule is written down
+once, and a third clickable widget gets it by construction.
 
 #### `UiContext`: the line between layout and drawing
 
@@ -419,10 +425,14 @@ pixels and match nothing.
 
 These are one of **two** tiers. The draw-list tests at the bottom of `tests.rs` assert on the
 commands a primitive records and run under `cargo test`; these assert that the backend turns
-commands into the right pixels, and are the only coverage of anything needing a GPU object to
-draw at all (`RectArray`, `TextureAtlas`, `ShadowContext`, fonts). They are also the real test
-of deferred release: `fixture_texture().render(..)` drops the texture at the end of the
-statement, well before the frame executes.
+those commands into the right pixels, which is the half no headless test can see. **Every
+primitive reaches the first tier**, because building one without a device is a supported state
+rather than a failure — `ShadowContext` and `Font` get textures that know their size and own
+nothing, and a `RectArray` stages vertices for an upload that never happens — so "does the
+shadow cover the whole border" and "does the pen land where measuring said" are ordinary
+`#[test]`s, and only "is it the right colour" needs a GPU. These are also the real test of
+deferred release: `fixture_texture().render(..)` drops the texture at the end of the statement,
+well before the frame executes.
 
 `CASES` is built by the `cases!` macro from the drawing functions' own names, so a golden
 cannot end up compared against a different case's image. Adding one is a line: `case_foo`, or
@@ -536,6 +546,11 @@ this a UI element` comments in `client/game/chat.rs`, `pause_menu.rs`, `debug_me
   accumulator via `FramerateMeasurer::has_5ms_passed()` for simulation.
 - Physics constants live in `shared/entities/entities.rs` and `shared/players.rs`. The
   `/ 200.0` divisors there are the 5 ms tick expressed as a fraction of a second.
+- The fps limit is an **average**, not a per-frame cap: `renderer.rs`'s `FrameLimiter` keeps a
+  ledger of what the frames so far should have taken against what they did, so an overrun is
+  made up by the next frames. The debt is capped at one frame, because otherwise a stall — a
+  world loading, a laptop waking, a breakpoint — bought that many frames of uncapped rendering
+  afterwards.
 
 **The frame's first 10 ms are a budget, and it is easy to spend by accident.**
 `core_client.rs` starts a `frame_timer` at the top of its loop and passes it to
@@ -668,15 +683,15 @@ Things worth knowing before adding one:
   gives up after `MAX_CATCHUP_FRAMES` — the pause menu's buttons are built when the world
   loads and first drawn when the player opens it, which after an hour of play was 3.6 million
   animation steps on one frame.
-- **A `gfx::Button` fires on the release of a press it saw land on itself**, so half a click
-  does nothing in either direction. The remembered press is deliberately *not* cleared by the
-  release that consumes it, because several menus hold their buttons as sub-elements **and**
-  dispatch to them again from `on_event_inner` — so one release reaches a button twice, fires
-  its closure twice, and the menu reads the second answer. Worth knowing before adding a
-  button with a side effect in its closure. A menu that dispatches to buttons itself has to
-  forward *every* event, not only the release; `choice_menu` did the latter and its buttons
-  went dead the moment the press started mattering. **`gfx::Toggle` follows the same rule**,
-  and a widget that reacts to a bare release is the bug, not the pattern: `settings_menu`
+- **A click is a press and a release on the same widget** — `gfx::ClickTracker`, which
+  `Button` and `Toggle` both hold. Half a click does nothing in either direction. The
+  remembered press is deliberately *not* cleared by the release that consumes it, because
+  several menus hold their buttons as sub-elements **and** dispatch to them again from
+  `on_event_inner` — so one release reaches a button twice, fires its closure twice, and the
+  menu reads the second answer. Worth knowing before adding a button with a side effect in its
+  closure. A menu that dispatches to buttons itself has to forward *every* event, not only the
+  release; `choice_menu` did the latter and its buttons went dead the moment the press started
+  mattering. A widget that reacts to a bare release is the bug, not the pattern: `settings_menu`
   decided for itself from `Toggle::hovered` and so flipped a setting for any release that
   happened to land on a toggle. It now reads `toggle.toggled` back instead — the toggle is a
   sub-element, so it has already answered the same event by the time the menu sees it.

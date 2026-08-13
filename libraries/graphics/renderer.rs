@@ -50,14 +50,70 @@ pub struct GraphicsContext {
     pub scale: f32,
     real_scale: f32,
     scale_animation_timer: gfx::AnimationTimer,
-    /// Zero means unlimited. Everything below is in milliseconds and 64 bit, because these
-    /// accumulate for the life of the process - see `limit_framerate`.
-    min_ms_per_frame: f64,
-    frames_so_far: u64,
-    ms_so_far: f64,
+    frame_limiter: FrameLimiter,
     prev_frame_time: std::time::Instant,
     pub font: Font,
     pub font_mono: Option<Font>,
+}
+
+/// How long the frames so far *should* have taken against how long they did, in milliseconds.
+///
+/// The limit is an **average** rather than a per-frame cap: the sleep at the end of a frame is
+/// the difference between the two sides, so a frame that overran is made up by the next ones
+/// instead of pushing the whole session behind.
+///
+/// Both sides only ever grow, which is why they are `f64`: as `f32` a 16ms increment stops
+/// being representable after about four hours, the elapsed side stalls while the target side
+/// climbs, and the sleep grows without bound.
+#[derive(Default)]
+pub(super) struct FrameLimiter {
+    /// Zero means unlimited.
+    min_ms_per_frame: f64,
+    frames_so_far: u64,
+    ms_so_far: f64,
+}
+
+impl FrameLimiter {
+    /// Caps the frame rate at `fps`. A non-positive `fps` means no limit, rather than a
+    /// division by zero and a sleep measured in centuries.
+    ///
+    /// The ledger is only cleared when the limit actually changes: it means nothing across a
+    /// change of target, but re-setting the *same* limit has to be free, because the settings
+    /// menu applies every setting on every event it sees. Clearing it each time would leave the
+    /// limiter capping each frame on its own rather than averaging over them.
+    pub(super) fn set_fps_limit(&mut self, fps: f32) {
+        let min_ms_per_frame = if fps > 0.0 { 1000.0 / f64::from(fps) } else { 0.0 };
+        if (min_ms_per_frame - self.min_ms_per_frame).abs() > f64::EPSILON {
+            *self = Self {
+                min_ms_per_frame,
+                frames_so_far: 0,
+                ms_so_far: 0.0,
+            };
+        }
+    }
+
+    /// Books a frame that took `elapsed_ms` and answers how long to sleep for.
+    ///
+    /// **The debt is capped at one frame.** Without that the ledger is repaid at full speed
+    /// however long it took to run up, so anything that stops the loop for a while - a world
+    /// loading, a laptop waking, a breakpoint - buys that many frames of completely uncapped
+    /// rendering afterwards. A five minute pause at a 60 fps limit is eighteen thousand of them.
+    /// Making up a frame or two of jitter is the point; making up a stall the player did not ask
+    /// for is not.
+    pub(super) fn owed_ms(&mut self, elapsed_ms: f64) -> f64 {
+        if self.min_ms_per_frame <= 0.0 {
+            return 0.0;
+        }
+
+        self.frames_so_far += 1;
+        self.ms_so_far += elapsed_ms;
+
+        let owed = self.min_ms_per_frame * self.frames_so_far as f64 - self.ms_so_far;
+        if owed < -self.min_ms_per_frame {
+            self.ms_so_far = self.min_ms_per_frame * (self.frames_so_far as f64 + 1.0);
+        }
+        f64::max(owed, 0.0)
+    }
 }
 
 impl GraphicsContext {
@@ -102,9 +158,7 @@ impl GraphicsContext {
             scale: 1.0,
             real_scale: 1.0,
             scale_animation_timer: gfx::AnimationTimer::new(10),
-            min_ms_per_frame: 0.0,
-            frames_so_far: 0,
-            ms_so_far: 0.0,
+            frame_limiter: FrameLimiter::default(),
             prev_frame_time: std::time::Instant::now(),
             font,
             font_mono,
@@ -129,7 +183,7 @@ impl GraphicsContext {
     /// through the identity - the whole window's worth of drawing landing in the top left
     /// two-by-two pixels of clip space - and the frame after a resize drew through the previous
     /// size. Both are one frame long, which is exactly why neither was ever noticed.
-    pub fn handle_window_resize(&mut self) {
+    fn handle_window_resize(&mut self) {
         let surface_size = self.window.drawable_size();
         let offscreen_size = if self.render_at_logical_resolution { self.window.size() } else { surface_size };
         self.backend.resize(offscreen_size, surface_size);
@@ -261,38 +315,15 @@ impl GraphicsContext {
         self.poll_window();
     }
 
-    /// Sleeps for whatever is left of this frame's share of the wall clock.
-    ///
-    /// The limit is an *average* rather than a per-frame cap: both the elapsed time and the
-    /// time the frames should have taken are accumulated and the sleep is the difference, so a
-    /// frame that overran is made up by the next ones rather than pushing the whole session
-    /// behind. The accumulators are `f64` because they only ever grow: as `f32` a 16ms
-    /// increment stops being representable after about four hours, the elapsed side stalls
-    /// while the target side climbs, and the sleep grows without bound.
-    ///
-    /// **The debt is capped at one frame.** Without that the ledger is repaid at full speed
-    /// however long it took to run up, so anything that stops the loop for a while - a world
-    /// loading, a laptop waking, a breakpoint - bought that many frames of completely uncapped
-    /// rendering afterwards. A five minute pause at a 60 fps limit is eighteen thousand of them.
-    /// Making up a frame or two of jitter is the point; making up a stall the player did not ask
-    /// for is not.
+    /// Sleeps for whatever is left of this frame's share of the wall clock - see `FrameLimiter`.
     fn limit_framerate(&mut self) {
         let now = std::time::Instant::now();
         let elapsed = now.duration_since(self.prev_frame_time);
         self.prev_frame_time = now;
 
-        if self.min_ms_per_frame <= 0.0 {
-            return;
-        }
-
-        self.frames_so_far += 1;
-        self.ms_so_far += elapsed.as_secs_f64() * 1000.0;
-
-        let owed = self.min_ms_per_frame * self.frames_so_far as f64 - self.ms_so_far;
+        let owed = self.frame_limiter.owed_ms(elapsed.as_secs_f64() * 1000.0);
         if owed > 0.0 {
             std::thread::sleep(std::time::Duration::from_secs_f64(owed / 1000.0));
-        } else if owed < -self.min_ms_per_frame {
-            self.ms_so_far = self.min_ms_per_frame * (self.frames_so_far as f64 + 1.0);
         }
     }
 
@@ -309,20 +340,8 @@ impl GraphicsContext {
         self.backend.set_blur_enabled(enable);
     }
 
-    /// Caps the frame rate at `fps`. A non-positive `fps` means no limit, rather than a
-    /// division by zero and a sleep measured in centuries.
-    ///
-    /// The ledger is only reset when the limit actually changes: it makes no sense across a
-    /// change of target, but re-setting the same limit has to be free, because the settings
-    /// menu applies every setting on every event it sees. Clearing it each time would leave
-    /// the limiter capping each frame on its own rather than averaging over them.
     pub fn set_fps_limit(&mut self, fps: f32) {
-        let min_ms_per_frame = if fps > 0.0 { 1000.0 / f64::from(fps) } else { 0.0 };
-        if (min_ms_per_frame - self.min_ms_per_frame).abs() > f64::EPSILON {
-            self.min_ms_per_frame = min_ms_per_frame;
-            self.frames_so_far = 0;
-            self.ms_so_far = 0.0;
-        }
+        self.frame_limiter.set_fps_limit(fps);
     }
 
     pub fn disable_fps_limit(&mut self) {

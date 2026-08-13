@@ -82,15 +82,16 @@ impl Font {
         Ok(Self { font_surfaces, font_textures, mono })
     }
 
-    /// A font that can measure and rasterise text but not render it, for tests. Skipping the
-    /// texture upload is the only difference; `render_text` then draws nothing.
+    /// A font whose glyphs know their size and own no pixels, for tests.
+    ///
+    /// Skipping the upload is the only difference, so measuring, rasterising *and* the draw
+    /// commands `render_text` records are all the real thing - which is what lets a test check
+    /// that the pen lands where `get_text_size` says it does.
     #[cfg(test)]
     pub fn new_headless(font_data: &[u8], mono: bool) -> Result<Self> {
-        Ok(Self {
-            font_surfaces: Self::load_surfaces(font_data, mono)?,
-            font_textures: Vec::new(),
-            mono,
-        })
+        let font_surfaces = Self::load_surfaces(font_data, mono)?;
+        let font_textures = font_surfaces.iter().map(|glyph| gfx::Texture::new_sized(gfx::FloatSize::from(glyph.get_size()))).collect();
+        Ok(Self { font_surfaces, font_textures, mono })
     }
 
     /// How far the pen moves after `c`, whose glyph is `glyph`.

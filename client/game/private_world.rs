@@ -73,14 +73,6 @@ impl PrivateWorld {
 }
 
 impl gfx::UiElement for PrivateWorld {
-    fn get_sub_elements_mut(&mut self) -> Vec<&mut dyn gfx::BaseUiElement> {
-        vec![]
-    }
-
-    fn get_sub_elements(&self) -> Vec<&dyn gfx::BaseUiElement> {
-        vec![]
-    }
-
     fn get_container(&self, graphics: &dyn gfx::UiContext, _: &gfx::Container) -> gfx::Container {
         gfx::Container::default(graphics)
     }

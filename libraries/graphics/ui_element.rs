@@ -34,9 +34,21 @@ pub trait BaseUiElement: UiElement {
 impl<T: UiElement> BaseUiElement for T {}
 
 /// What a widget implements: where it sits, what it draws, and what it does with input.
+///
+/// `get_container` is the only required method. Everything else has a default, so a leaf - a
+/// button, a sprite, a text field - writes only what it actually does. **An element with
+/// children has to override both `get_sub_elements` methods**, because the recursion above
+/// finds them nowhere else: a container that forgets is laid out and drawn, and its children
+/// are not.
 pub trait UiElement {
-    fn get_sub_elements_mut(&mut self) -> Vec<&mut dyn BaseUiElement>;
-    fn get_sub_elements(&self) -> Vec<&dyn BaseUiElement>;
+    /// The children to recurse into, if any.
+    fn get_sub_elements_mut(&mut self) -> Vec<&mut dyn BaseUiElement> {
+        Vec::new()
+    }
+    /// The same, for the callers that only read - a menu delegating to the element it wraps.
+    fn get_sub_elements(&self) -> Vec<&dyn BaseUiElement> {
+        Vec::new()
+    }
     /// Records what to draw. The one place a widget is allowed to touch the GPU.
     fn render_inner(&mut self, _: &mut gfx::GraphicsContext, _: &gfx::Container) {}
     /// Advances animations and other per-frame state.
@@ -57,5 +69,37 @@ pub trait UiElement {
     /// disabled `Button` is never hovered, which is also what stops it reacting to clicks.
     fn is_hovered(&self, graphics: &dyn gfx::UiContext, parent_container: &gfx::Container) -> bool {
         self.get_container(graphics, parent_container).get_absolute_rect().contains(graphics.get_mouse_pos())
+    }
+}
+
+/// What makes a click a click: a press **and** a release on the same widget.
+///
+/// Checking only the release lets a press that landed somewhere else - on the menu behind, or
+/// in the menu this one replaced - activate whatever the pointer happens to be over when the
+/// button comes back up. Both halves also mean a user can back out of a press by dragging off
+/// the widget before letting go. `Button` and `Toggle` each own one of these.
+#[derive(Default)]
+pub struct ClickTracker {
+    /// Whether the most recent press of the left button landed on this widget.
+    ///
+    /// Deliberately **not** cleared by the release that consumes it. Several menus hold their
+    /// buttons as sub-elements *and* dispatch to them again from `on_event_inner`, so one
+    /// release reaches a widget twice - and the menu reads the second answer.
+    pressed_inside: bool,
+}
+
+impl ClickTracker {
+    /// Feeds one event in and answers whether it completed a click. `hovered` is whether the
+    /// pointer is over the widget right now, which is the widget's own question to answer: a
+    /// disabled `Button` says no and so is never clicked.
+    pub const fn completes_a_click(&mut self, event: &gfx::Event, hovered: bool) -> bool {
+        match event {
+            gfx::Event::KeyPress(gfx::Key::MouseLeft, ..) => {
+                self.pressed_inside = hovered;
+                false
+            }
+            gfx::Event::KeyRelease(gfx::Key::MouseLeft, ..) => self.pressed_inside && hovered,
+            _ => false,
+        }
     }
 }

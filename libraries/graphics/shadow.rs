@@ -2,10 +2,11 @@ use crate::libraries::graphics as gfx;
 
 use super::draw_list::DrawTarget;
 
-/// Half the width of the gaussian falloff, and the size of a corner piece.
-const FADE: f32 = 200.0;
+/// Half the width of the gaussian falloff, and the size of a corner piece. This is how far
+/// outside the rectangle the shadow reaches.
+pub(super) const FADE: f32 = 200.0;
 /// The size of the baked texture: an opaque core with a `FADE` wide falloff on each side.
-const TEXTURE_SIZE: f32 = 700.0;
+pub(super) const TEXTURE_SIZE: f32 = 700.0;
 /// How far a piece may reach along an edge before the middle has to be tiled instead.
 const MAX_EDGE: f32 = 350.0;
 

@@ -14,24 +14,8 @@ impl Color {
         Self { r, g, b, a }
     }
 
-    #[must_use]
-    pub const fn set_r(mut self, r: u8) -> Self {
-        self.r = r;
-        self
-    }
-
-    #[must_use]
-    pub const fn set_g(mut self, g: u8) -> Self {
-        self.g = g;
-        self
-    }
-
-    #[must_use]
-    pub const fn set_b(mut self, b: u8) -> Self {
-        self.b = b;
-        self
-    }
-
+    /// The same colour at a different opacity. Fading something out is the only channel
+    /// anything here ever changes on its own, which is why it is the only setter.
     #[must_use]
     pub const fn set_a(mut self, a: u8) -> Self {
         self.a = a;

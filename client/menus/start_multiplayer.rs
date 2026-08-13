@@ -41,14 +41,6 @@ impl StartMultiplayer {
 }
 
 impl UiElement for StartMultiplayer {
-    fn get_sub_elements_mut(&mut self) -> Vec<&mut dyn crate::libraries::graphics::BaseUiElement> {
-        vec![]
-    }
-
-    fn get_sub_elements(&self) -> Vec<&dyn crate::libraries::graphics::BaseUiElement> {
-        vec![]
-    }
-
     fn get_container(&self, graphics: &dyn crate::libraries::graphics::UiContext, parent_container: &crate::libraries::graphics::Container) -> crate::libraries::graphics::Container {
         gfx::Container::new(graphics, parent_container.rect.pos, parent_container.rect.size, parent_container.orientation, None)
     }

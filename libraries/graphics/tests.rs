@@ -1,5 +1,6 @@
 #![allow(clippy::unwrap_used)] // tests assert on results directly
 #![allow(clippy::assertions_on_result_states)] // some Ok types are not Debug, so unwrap_err is unavailable
+#![allow(clippy::panic)] // a test asserting on the shape of a value has nothing else to say when it is the wrong shape
 #![cfg(test)]
 mod tests {
     use crate::libraries::graphics::transformation::Transformation;
@@ -8,14 +9,11 @@ mod tests {
     // --- Color ---
 
     #[test]
-    fn test_color_setters_are_independent() {
+    fn test_set_a_leaves_the_colour_it_was_called_on_alone() {
         let color = Color::new(1, 2, 3, 4);
 
-        assert_eq!(color.set_r(10), Color::new(10, 2, 3, 4));
-        assert_eq!(color.set_g(20), Color::new(1, 20, 3, 4));
-        assert_eq!(color.set_b(30), Color::new(1, 2, 30, 4));
         assert_eq!(color.set_a(40), Color::new(1, 2, 3, 40));
-        // the setters take self by value, so the original is untouched
+        // it takes self by value, so the original is untouched
         assert_eq!(color, Color::new(1, 2, 3, 4));
     }
 
@@ -1611,7 +1609,9 @@ mod tests {
     #[test]
     fn test_render_rect_starts_at_its_target() {
         let rect = gfx::RenderRect::new(FloatPos(10.0, 20.0), FloatSize(30.0, 40.0));
-        assert!(rect.is_at_target());
+
+        assert_eq!(rect.render_pos, rect.pos);
+        assert_eq!(rect.render_size, rect.size);
     }
 
     #[test]
@@ -1619,10 +1619,9 @@ mod tests {
         let mut rect = gfx::RenderRect::new(FloatPos(0.0, 0.0), FloatSize(10.0, 10.0));
         rect.pos = FloatPos(100.0, 100.0);
 
-        assert!(!rect.is_at_target(), "the drawn position should not jump with the target");
+        assert_eq!(rect.render_pos, FloatPos(0.0, 0.0), "the drawn position should not jump with the target");
 
         rect.jump_to_target();
-        assert!(rect.is_at_target());
         assert_eq!(rect.render_pos, FloatPos(100.0, 100.0));
     }
 
@@ -1801,6 +1800,89 @@ mod tests {
         assert!((4..=6).contains(&frames), "expected about 4 frames, got {frames}");
     }
 
+    // --- FrameLimiter ---
+
+    use crate::libraries::graphics::renderer::FrameLimiter;
+
+    /// 60 fps, so a frame's share of the clock is 16.67ms.
+    fn limiter_at_60() -> FrameLimiter {
+        let mut limiter = FrameLimiter::default();
+        limiter.set_fps_limit(60.0);
+        limiter
+    }
+
+    /// Milliseconds, so a hundredth is far below anything anyone could see.
+    #[track_caller]
+    fn assert_close_ms(actual: f64, expected: f64) {
+        assert!((actual - expected).abs() < 0.01, "expected {expected}ms, got {actual}ms");
+    }
+
+    /// A non-positive limit means no limit, rather than a division by zero and a sleep measured
+    /// in centuries.
+    #[test]
+    fn test_an_unlimited_frame_never_sleeps() {
+        assert_close_ms(FrameLimiter::default().owed_ms(0.0), 0.0);
+
+        for fps in [0.0, -1.0] {
+            let mut limiter = limiter_at_60();
+            limiter.set_fps_limit(fps);
+            assert_close_ms(limiter.owed_ms(0.0), 0.0);
+        }
+    }
+
+    /// A frame that finished early sleeps out the rest of its share.
+    #[test]
+    fn test_a_fast_frame_sleeps_out_the_rest_of_its_share() {
+        assert_close_ms(limiter_at_60().owed_ms(4.0), 1000.0 / 60.0 - 4.0);
+    }
+
+    /// The limit is an average, so a frame that overran is made up by the next one rather than
+    /// leaving the whole session behind by that much.
+    #[test]
+    fn test_an_overrunning_frame_is_made_up_by_the_next() {
+        let mut limiter = limiter_at_60();
+
+        assert_close_ms(limiter.owed_ms(20.0), 0.0);
+        assert_close_ms(limiter.owed_ms(0.0), 2.0 * 1000.0 / 60.0 - 20.0);
+    }
+
+    /// **The debt is capped at one frame.** A loop that stopped for a while - a world loading, a
+    /// laptop waking, a breakpoint - would otherwise be owed every frame of it, and repay them
+    /// all at full speed: a five minute pause at 60 fps is eighteen thousand uncapped frames.
+    #[test]
+    fn test_a_long_stall_does_not_buy_uncapped_frames_afterwards() {
+        let mut limiter = limiter_at_60();
+        limiter.owed_ms(5.0 * 60.0 * 1000.0);
+
+        // one frame of the stall is made up, and then the limiter is back to capping
+        assert_close_ms(limiter.owed_ms(0.0), 0.0);
+        assert_close_ms(limiter.owed_ms(0.0), 1000.0 / 60.0);
+    }
+
+    /// Re-setting the same limit has to be free: the settings menu applies every setting on
+    /// every event it sees, and clearing the ledger each time would leave the limiter capping
+    /// each frame on its own rather than averaging over them.
+    #[test]
+    fn test_setting_the_same_limit_again_keeps_the_ledger() {
+        let mut limiter = limiter_at_60();
+        limiter.owed_ms(20.0);
+
+        limiter.set_fps_limit(60.0);
+
+        assert_close_ms(limiter.owed_ms(0.0), 2.0 * 1000.0 / 60.0 - 20.0);
+    }
+
+    #[test]
+    fn test_changing_the_limit_starts_a_new_ledger() {
+        let mut limiter = limiter_at_60();
+        limiter.owed_ms(20.0);
+
+        limiter.set_fps_limit(30.0);
+
+        // a whole frame at the new rate, with nothing carried over
+        assert_close_ms(limiter.owed_ms(0.0), 1000.0 / 30.0);
+    }
+
     // --- HeadlessContext itself ---
 
     /// The test double has to answer the same questions as the real context, or the tests
@@ -1837,10 +1919,11 @@ mod tests {
     // draws is assertable without a window. This is the only tier of rendering coverage
     // `cargo test` can run - the golden images need a real context on the main thread.
     //
-    // What is missing here is anything that has to own a GPU object before it can record:
-    // `RectArray` allocates its buffers in `new`, `ShadowContext` uploads its baked gaussian,
-    // and `Font::new_headless` skips the glyph upload, so `render_text` finds no textures and
-    // draws nothing. Those stay the golden suite's job.
+    // Every primitive reaches here, because building one without a device is a supported
+    // state rather than a failure: `RectArray` stages its vertices until an `upload` that
+    // never happens, and `ShadowContext` and `Font` get textures that know their size and own
+    // nothing. What these cannot see is the pixels - whether a command lands where it says
+    // it does is the golden suite's job.
     // ---------------------------------------------------------------------------------
 
     use gfx::{BlendMode, DrawCommand, DrawList, DrawRecorder, DrawTarget};
@@ -2076,5 +2159,178 @@ mod tests {
 
         assert_eq!(texture.get_texture_size(), FloatSize(6.0, 9.0));
         assert_eq!(texture.get_handle(), gfx::Texture::new().get_handle());
+    }
+
+    /// One mesh, however many rectangles went into it - drawing them in a single call is the
+    /// whole reason `RectArray` exists.
+    #[test]
+    fn test_a_rect_array_records_one_mesh_for_all_of_its_rectangles() {
+        let recorder = DrawRecorder::new();
+        let texture = gfx::Texture::new_sized(FloatSize(8.0, 8.0));
+        let mut array = gfx::RectArray::new();
+        let tex_rect = Rect::new(FloatPos(0.0, 0.0), FloatSize(8.0, 8.0));
+        for i in 0..3 {
+            array.add_rect(&Rect::new(FloatPos(i as f32 * 10.0, 0.0), FloatSize(10.0, 10.0)), &[WHITE; 4], &tex_rect);
+        }
+
+        array.render(&recorder, Some(&texture), FloatPos(4.0, 5.0));
+
+        assert_eq!(recorder.len(), 1);
+        let Some(DrawCommand::Mesh { texture: named, pos, .. }) = recorder.get_commands().first().copied() else {
+            panic!("a rect array should record a mesh, got {:?}", recorder.get_commands())
+        };
+        assert_eq!(named, Some((texture.get_handle(), FloatSize(8.0, 8.0))));
+        assert_eq!(pos, FloatPos(4.0, 5.0));
+    }
+
+    /// A `RectArray` with no texture draws its vertices' own colours, which is how the light
+    /// map and the health bar are drawn.
+    #[test]
+    fn test_an_untextured_rect_array_names_no_texture() {
+        let recorder = DrawRecorder::new();
+        gfx::RectArray::new().render(&recorder, None, FloatPos(0.0, 0.0));
+
+        assert!(matches!(recorder.get_commands().first(), Some(DrawCommand::Mesh { texture: None, .. })));
+    }
+
+    // --- Font drawing ---
+
+    /// Measuring and drawing have to agree to the pixel, because `TextInput` places its cursor
+    /// by measuring the text before it and the glyph after it is drawn by `render_text`. The
+    /// two share `Font::advance` so that they cannot drift; this is what pins that they don't.
+    ///
+    /// The space is the character that makes it worth checking: its glyph is trimmed to nothing,
+    /// so it records no draw at all and only moves the pen.
+    #[test]
+    fn test_render_text_draws_each_glyph_where_measuring_says_it_will() {
+        let font = font();
+        let recorder = DrawRecorder::with_draw_area(FloatSize(1000.0, 100.0));
+        let text = "a b";
+
+        font.render_text(&recorder, text, FloatPos(10.0, 20.0), 2.0);
+
+        // `get_text_size` never reports a zero width, so an empty prefix is answered directly -
+        // exactly as `TextInput::width_up_to` does it.
+        let expected: Vec<f32> = text
+            .char_indices()
+            .filter(|(_, character)| *character != ' ')
+            .map(|(index, _)| {
+                if index == 0 {
+                    10.0
+                } else {
+                    10.0 + font.get_text_size(text.get(..index).unwrap(), None).0 as f32 * 2.0
+                }
+            })
+            .collect();
+        let drawn: Vec<f32> = recorder
+            .get_commands()
+            .into_iter()
+            .map(|command| match command {
+                DrawCommand::Texture { pos, .. } => pos.0,
+                other => panic!("text should only draw textures, got {other:?}"),
+            })
+            .collect();
+
+        assert_eq!(drawn, expected);
+    }
+
+    // --- ShadowContext ---
+
+    use crate::libraries::graphics::shadow::{ShadowContext, FADE, TEXTURE_SIZE};
+
+    /// Where every piece of a shadow around `rect` lands, as (destination, source) rectangles.
+    /// The pieces are drawn unscaled, so a destination is as big as the region it samples.
+    fn shadow_pieces(rect: Rect) -> Vec<(Rect, Rect)> {
+        let recorder = DrawRecorder::with_draw_area(FloatSize(4000.0, 4000.0));
+        ShadowContext::new().render(&recorder, &rect, 1.0);
+
+        recorder
+            .get_commands()
+            .into_iter()
+            .map(|command| match command {
+                DrawCommand::Texture { pos, src_rect, .. } => (Rect::new(pos, src_rect.size), src_rect),
+                other => panic!("a shadow should only draw textures, got {other:?}"),
+            })
+            .collect()
+    }
+
+    /// The sizes that matter: below 300 the edge pieces meet in the middle on their own, and
+    /// above it they are capped and the gap has to be tiled.
+    const SHADOW_SIZES: [FloatSize; 5] = [FloatSize(0.0, 0.0), FloatSize(140.0, 100.0), FloatSize(140.0, 900.0), FloatSize(900.0, 140.0), FloatSize(901.0, 851.0)];
+
+    /// Every piece samples a region of the baked texture, and a region that ran off the edge of
+    /// it would be clamped by the sampler into a smear of whatever the last row holds.
+    #[test]
+    fn test_a_shadow_only_ever_samples_inside_its_own_texture() {
+        for size in SHADOW_SIZES {
+            for (_, source) in shadow_pieces(Rect::new(FloatPos(300.0, 300.0), size)) {
+                assert!(
+                    source.pos.0 >= 0.0 && source.pos.1 >= 0.0 && source.pos.0 + source.size.0 <= TEXTURE_SIZE && source.pos.1 + source.size.1 <= TEXTURE_SIZE,
+                    "a {size:?} shadow samples {source:?}, outside the {TEXTURE_SIZE}x{TEXTURE_SIZE} texture"
+                );
+            }
+        }
+    }
+
+    /// A shadow is drawn *under* an opaque rectangle, so anything it puts inside one is wasted
+    /// work - and it is not wasted work if the rectangle turns out to be translucent, it is a
+    /// dark smear across it.
+    #[test]
+    fn test_a_shadow_never_draws_inside_the_rectangle_it_surrounds() {
+        for size in SHADOW_SIZES {
+            let rect = Rect::new(FloatPos(300.0, 300.0), size);
+            for (piece, _) in shadow_pieces(rect) {
+                let overlaps = |piece_pos: f32, piece_size: f32, rect_pos: f32, rect_size: f32| piece_pos + piece_size > rect_pos && piece_pos < rect_pos + rect_size;
+                assert!(
+                    !(overlaps(piece.pos.0, piece.size.0, rect.pos.0, rect.size.0) && overlaps(piece.pos.1, piece.size.1, rect.pos.1, rect.size.1)),
+                    "the piece {piece:?} of a {size:?} shadow reaches inside {rect:?}"
+                );
+            }
+        }
+    }
+
+    /// And the other direction: the band of `FADE` pixels around the rectangle is covered by
+    /// the pieces with no gaps.
+    ///
+    /// This is what the tiling exists for. A rectangle taller than 300 pixels outgrows the two
+    /// edge pieces, which are capped so that opposite corners meet rather than overlapping, and
+    /// the middle of the texture is repeated down the gap they leave. An off-by-one there is a
+    /// transparent stripe up the side of a menu.
+    #[test]
+    fn test_a_shadow_covers_the_whole_band_around_the_rectangle() {
+        for size in SHADOW_SIZES {
+            let rect = Rect::new(FloatPos(300.0, 300.0), size);
+            let pieces = shadow_pieces(rect);
+
+            // Sampled on a grid offset off every piece boundary, so a point is covered by a
+            // piece rather than merely touching one - `Rect::contains` is inclusive.
+            let mut x = rect.pos.0 - FADE + 3.75;
+            while x < rect.pos.0 + rect.size.0 + FADE {
+                let mut y = rect.pos.1 - FADE + 3.75;
+                while y < rect.pos.1 + rect.size.1 + FADE {
+                    let inside = rect.contains(FloatPos(x, y));
+                    if !inside {
+                        assert!(pieces.iter().any(|(piece, _)| piece.contains(FloatPos(x, y))), "a {size:?} shadow leaves ({x}, {y}) uncovered");
+                    }
+                    y += 7.5;
+                }
+                x += 7.5;
+            }
+        }
+    }
+
+    /// The shadow fades out, so the pieces are drawn translucent - and the intensity a
+    /// `RenderRect` passes down has to reach them.
+    #[test]
+    fn test_shadow_intensity_scales_the_colour_every_piece_is_drawn_with() {
+        let recorder = DrawRecorder::with_draw_area(FloatSize(4000.0, 4000.0));
+        ShadowContext::new().render(&recorder, &Rect::new(FloatPos(300.0, 300.0), FloatSize(140.0, 100.0)), 0.5);
+
+        for command in recorder.get_commands() {
+            let DrawCommand::Texture { color, .. } = command else {
+                panic!("a shadow should only draw textures, got {command:?}")
+            };
+            assert_eq!(color, Color::new(0, 0, 0, 40));
+        }
     }
 }

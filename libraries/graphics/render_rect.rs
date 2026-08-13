@@ -1,5 +1,4 @@
 use crate::libraries::graphics as gfx;
-use gfx::BaseUiElement;
 
 /// A rectangle that slides towards its target instead of jumping to it.
 ///
@@ -43,22 +42,9 @@ impl RenderRect {
         self.render_pos = self.pos;
         self.render_size = self.size;
     }
-
-    #[must_use]
-    pub fn is_at_target(&self) -> bool {
-        self.pos == self.render_pos && self.size == self.render_size
-    }
 }
 
 impl gfx::UiElement for RenderRect {
-    fn get_sub_elements_mut(&mut self) -> Vec<&mut dyn BaseUiElement> {
-        Vec::new()
-    }
-
-    fn get_sub_elements(&self) -> Vec<&dyn BaseUiElement> {
-        Vec::new()
-    }
-
     fn render_inner(&mut self, graphics: &mut gfx::GraphicsContext, parent_container: &gfx::Container) {
         let container = self.get_container(graphics, parent_container);
         let rect = container.get_absolute_rect();

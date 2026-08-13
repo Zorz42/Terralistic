@@ -1,5 +1,5 @@
 use crate::libraries::graphics as gfx;
-use gfx::{BaseUiElement, UiElement};
+use gfx::UiElement;
 
 /// A scroll position with momentum, which the world and server lists offset their rows by.
 /// It draws nothing itself.
@@ -72,14 +72,6 @@ impl Scrollable {
 }
 
 impl UiElement for Scrollable {
-    fn get_sub_elements_mut(&mut self) -> Vec<&mut dyn BaseUiElement> {
-        Vec::new()
-    }
-
-    fn get_sub_elements(&self) -> Vec<&dyn BaseUiElement> {
-        Vec::new()
-    }
-
     /// Advances the scroll, and does nothing else.
     ///
     /// **`update_inner`, not `render_inner`** - moving is not drawing, and stepping it while

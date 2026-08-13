@@ -6,7 +6,7 @@ pub use color::{interpolate_colors, Color};
 pub use container::{Container, Orientation, BOTTOM, BOTTOM_LEFT, BOTTOM_RIGHT, CENTER, LEFT, RIGHT, TOP, TOP_LEFT, TOP_RIGHT};
 #[cfg(test)]
 pub use draw_list::DrawRecorder;
-pub use draw_list::{BlendMode, DrawCommand, DrawList, DrawTarget, MeshHandle, TextureHandle};
+pub use draw_list::{BlendMode, DrawCommand, DrawList, DrawTarget};
 pub use events::{Event, Key};
 pub use position::{FloatPos, FloatSize, IntPos, IntSize};
 pub use rect::Rect;
@@ -25,7 +25,7 @@ pub use toggle::Toggle;
 #[cfg(test)]
 pub use ui_context::HeadlessContext;
 pub use ui_context::UiContext;
-pub use ui_element::{BaseUiElement, UiElement};
+pub use ui_element::{BaseUiElement, ClickTracker, UiElement};
 
 mod animation_timer;
 mod button;
