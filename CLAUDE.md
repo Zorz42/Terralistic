@@ -199,7 +199,9 @@ and handles recursing into children. **Implement `UiElement`, call `BaseUiElemen
 
 Layout is `Container` + `Orientation` (`TOP_LEFT`, `CENTER`, …): a child positions itself
 relative to a parent container by orientation plus offset. Theme constants (colors, `SPACING`,
-`BLUR`, `TRANSPARENCY`) are in `theme.rs` — use them rather than literals.
+`BLUR`, `TRANSPARENCY`, and the widget defaults) are in `theme.rs` — use them rather than
+literals. Every fade and slide in the toolkit is `gfx::approach(value, target, smooth_factor,
+epsilon)` per ready `AnimationTimer` frame; don't hand-roll another one.
 
 #### `UiContext`: the line between layout and drawing
 
@@ -211,8 +213,9 @@ The trait methods split by what they need:
 | `render_inner`, `update_inner` | `&mut GraphicsContext` | needs the GPU |
 
 `update_inner` is where a widget advances an animation; `render_inner` is where it records
-what to draw. Keep the two apart — `Scrollable` used to step its scroll while rendering,
-which froze it for any caller that laid a list out without drawing it.
+what to draw. **Keep the two apart** — a widget that steps its animation while rendering
+freezes for any caller that lays a list out without drawing it, which is what `Scrollable`
+did to menus sliding offscreen.
 
 `UiContext` (`ui_context.rs`) is the whole non-rendering surface of `GraphicsContext`:
 window size, mouse position, key states, clipboard. `GraphicsContext` implements it, and so
@@ -231,8 +234,8 @@ Companion `#[cfg(test)]` constructors exist for the same reason: `Font::new_head
 the glyph texture upload, so text measurement and `create_text_surface` are testable),
 `Texture::new_sized` (reports a size, allocates nothing) and `TextInput::new_headless`.
 
-Rendering goes to an offscreen texture (`window_texture`) which is blitted to the default
-framebuffer in `update_window()`, which is what makes the blur/shadow effects possible.
+Rendering goes to an offscreen texture which is blitted to the window in `update_window()`,
+which is what makes the blur/shadow effects possible.
 
 **That offscreen is the display's real pixel size, not the logical one.** Layout is in
 logical pixels either way — the transform mapping those onto clip space is a ratio and does
@@ -247,7 +250,7 @@ setting.
 #### The window: `window.rs` is the only module that knows winit exists
 
 `GraphicsContext` deals in `gfx::Event` and `gfx::IntSize`; `events.rs` is pure data with no
-window-system types in it. This replaced SDL2, which is now gone from the tree entirely.
+window-system types in it.
 
 The game's three main loops (`client/game/core_client.rs`,
 `client/menus/title_screen_renderer.rs`, `server/server_ui/ui_manager.rs`) drive their own
@@ -260,13 +263,11 @@ Three things about it are load-bearing:
 
 - **Keys are physical positions, not labels.** `translate_key` maps winit's `KeyCode`, so
   `Key::W` is wherever W sits on QWERTY and WASD stays a square on AZERTY. Typing is
-  unaffected: text arrives separately as `Event::TextInput`. SDL reported layout-mapped
-  keycodes, so this is a deliberate behaviour change.
+  unaffected: text arrives separately as `Event::TextInput`.
 - **`Geometry` caches the window size, and must.** Layout asks ~540 times a frame — every
-  `Container`, the camera bounds, every chunk testing visibility. SDL answered from its own
-  struct field; winit's `inner_size`/`scale_factor` are objc message sends on macOS at ~12µs
-  each, which measured at 40% of the game's wall clock. The resize events are the authority;
-  never read the size back per call.
+  `Container`, the camera bounds, every chunk testing visibility. winit's `inner_size` and
+  `scale_factor` are objc message sends on macOS at ~12µs each, which measured at 40% of the
+  game's wall clock. The resize events are the authority; never read the size back per call.
 - **The pump happens at the end of `update_window`, not at the top of the frame.** On macOS
   pumping is what services the layer's pending drawable, so with slack in the frame the wait
   for the display lands there and can be most of a frame. See *Timing* for why that has to
@@ -277,11 +278,10 @@ The window also asks for focus on creation — a pumped loop leaves macOS not tr
 as active, so it would otherwise open behind the terminal — and `key_states` is cleared when
 the window loses focus, so a held key does not stick across an alt-tab.
 
-winit reports the true `HiDPI` drawable size where SDL, without `allow_highdpi`, reported the
-logical one. The game draws at that real resolution rather than being smoothed up to it by
-the compositor. That also means the surface can be
-bigger than `Limits::downlevel_defaults` allows a texture to be, which is why the device asks
-for `downlevel_defaults().using_resolution(adapter.limits())` — with the plain defaults a
+winit reports the true `HiDPI` drawable size, and the game draws at it rather than being
+smoothed up to it by the compositor. That also means the surface can be bigger than
+`Limits::downlevel_defaults` allows a texture to be, which is why the device asks for
+`downlevel_defaults().using_resolution(adapter.limits())` — with the plain defaults a
 1670x1050 window on a 2x display fails `Surface::configure` outright.
 
 #### The draw list: what to draw vs. how
@@ -291,15 +291,9 @@ for `downlevel_defaults().using_resolution(adapter.limits())` — with the plain
 a `DrawCommand` into the frame's `DrawList`. `GraphicsContext::update_window` hands the whole
 list to `WgpuBackend::execute`, which is the only place the frame path talks to wgpu.
 
-This is what made the OpenGL to wgpu move a contained change: everything above the draw list
-describes a frame as data and never knew which API drew it, so only the backend, the two
-resource types and the window setup moved. **38 of the 43 golden images came out
-byte-identical across the swap**; the five that moved are the ones with borders, for the
-reason under *Outlines* below.
-
 | File | Role |
 |---|---|
-| `draw_list.rs` | `DrawCommand`, `DrawList`, the `DrawTarget` trait, and `DrawRecorder` for tests |
+| `draw_list.rs` | `DrawCommand`, `DrawList`, `BlendMode`, the `DrawTarget` trait, and `DrawRecorder` for tests |
 | `wgpu_backend.rs` | `WgpuBackend`: pipelines, uniforms, offscreen textures, blur, present |
 | `shaders.wgsl` | Both shaders. One vertex entry point, one fragment each for normal draws and blur |
 | `gpu_device.rs` | The device, the resource registry, and deferred release |
@@ -310,16 +304,14 @@ Consequences worth knowing:
 - **Commands are in window pixels**, y-down from the top left, holding the caller's raw
   arguments (pos, scale, source rect) rather than a precomputed destination. Clip space, the
   y flip and the divide by window size all belong to the backend. Keeping the arithmetic
-  there in the same order is what made this change bit-exact against all 43 goldens.
+  there in the same order is what keeps the goldens bit-exact.
 - **`DrawTarget::push_draw_command` takes `&self`**, backed by a `RefCell` on
   `GraphicsContext`. It has to: `graphics.font.render_text(graphics, ..)` and
-  `graphics.shadow_context.render(graphics, ..)` borrow the context twice, which was fine
-  when drawing went to OpenGL — a mutable global by nature — and has to stay fine. So
-  `render` methods take `&dyn DrawTarget`, and `&mut GraphicsContext` coerces to it.
+  `graphics.shadow_context.render(graphics, ..)` borrow the context twice. So `render`
+  methods take `&dyn DrawTarget`, and `&mut GraphicsContext` coerces to it.
 - **Order is the list order.** Blur and blend mode are commands (`DrawCommand::Blur`,
   `SetBlendMode`) precisely because they only mean anything relative to the draws around
-  them. There is no free `gfx::set_blend_mode` any more — call `graphics.set_blend_mode(..)`,
-  which records.
+  them. Call `graphics.set_blend_mode(..)`, which records.
 - **Blend mode is baked into a pipeline**, so the backend keeps one per mode and switching
   mid-frame means switching pipeline. There is no global state for a frame to inherit.
 - **The flush is the *first* thing `update_window` does**, before the blur and scale
@@ -331,17 +323,18 @@ Consequences worth knowing:
   pass, the gaussian ping-pongs between the two offscreen textures, and the rest resumes
   with `LoadOp::Load`.
 
+`execute` plans before it encodes: `Plan` collects a `Uniforms` per draw plus a flat list of
+`Segment`s, because wgpu wants all the uniform data written before any of it is encoded.
+
 ##### The device is global, and that is deliberate
 
-`Texture::load_from_surface(&surface)` is called from ~80 places and takes no context.
-OpenGL made that work through an implicit thread-current context; wgpu has no such thing, so
-the choice was to thread a `&Device` through all 80 call sites or keep the coupling and
-write it down. `gpu_device.rs` is the latter — a `OnceLock<GpuDevice>` the renderer publishes
-once.
+`Texture::load_from_surface(&surface)` is called from ~80 places and takes no context. The
+choice was to thread a `&Device` through all 80 call sites or keep the coupling and write it
+down. `gpu_device.rs` is the latter — a `OnceLock<GpuDevice>` the renderer publishes once.
 
-One consequence is an improvement: **creating a texture with no device is no longer undefined
-behaviour**, it produces a `Texture` that knows its size and owns nothing. Layout code works
-headlessly and `cargo test` can build real textures.
+One consequence is an improvement: **creating a texture with no device is not an error**, it
+produces a `Texture` that knows its size and owns nothing. Layout code works headlessly and
+`cargo test` can build real textures.
 
 ##### Deferred release is load-bearing
 
@@ -363,17 +356,8 @@ collected.
 
 `render_outline` draws **four one-pixel quads on the rectangle's own edge pixels**, not a
 line primitive. Line rasterisation rules differ between Metal, Vulkan and DX12, which would
-make the output depend on the machine — the opposite of what the goldens are for. Under
-OpenGL the border straddled the boundary and sat a pixel outside on two edges; it is now
-exactly the rect's footprint, which is also what a UI border should be.
-
-##### Coordinates
-
-wgpu's framebuffer origin is top left, OpenGL's was bottom left. The old code compensated in
-two places and both are gone: `glReadPixels` output had to be flipped row by row, and the
-blur's texture transform negated y and leaned on `GL_REPEAT` wrapping to land back in range.
-Clip space is unchanged — `+1` is the top in both — so the normalization transform ported
-untouched.
+make the output depend on the machine — the opposite of what the goldens are for. The border
+is exactly the rect's footprint, which is also what a UI border should be.
 
 #### Golden-image tests
 
@@ -396,51 +380,44 @@ rather than the surface — between them, a golden is the same image whatever th
 machine that runs it. On a `HiDPI` display the game's own offscreen would be four times the
 pixels and match nothing.
 
-Since the draw list landed these are one of **two** tiers. The draw-list tests at the bottom
-of `tests.rs` assert on the commands a primitive records and run under `cargo test`; these
-assert that the backend turns commands into the right pixels, and are the only coverage of
-anything needing a GPU object to draw at all (`RectArray`, `TextureAtlas`, `ShadowContext`,
-fonts). They are also the real test of deferred release: `fixture_texture().render(..)` drops
-the texture at the end of the statement, well before the frame executes.
-
-They earned their keep on the wgpu port: **38 of 43 came back byte-identical** on a different
-graphics API, which is what turned "the port looks fine" into evidence. The other 5 are all
-border cases, matching the deliberate outline change.
+These are one of **two** tiers. The draw-list tests at the bottom of `tests.rs` assert on the
+commands a primitive records and run under `cargo test`; these assert that the backend turns
+commands into the right pixels, and are the only coverage of anything needing a GPU object to
+draw at all (`RectArray`, `TextureAtlas`, `ShadowContext`, fonts). They are also the real test
+of deferred release: `fixture_texture().render(..)` drops the texture at the end of the
+statement, well before the frame executes.
 
 Determinism is the whole game, and the toolkit fights it in three places. Each has a
 `#[cfg(feature = "render-tests")]` hook: wall-clock animations (`AnimationTimer::freeze`,
 `Button::settle_hover`, `Toggle::settle_animation`, `TextInput::settle_animation`), the blur
 and scale fades (`GraphicsContext::settle_animations`), and hover states that read the real
 mouse — which the settle hooks also neutralise. **If you add a case, run it five times before
-committing the golden.** That is how the atlas bug described under *Texture sampling* was
-found.
+committing the golden.**
 
 Tolerances are per case, and **43 of the 44 are `EXACT`** — bit-identical. Only
 `render_rect_blur` is `BLURRY`, because the gaussian blur shader's float error differs
 between drivers. The shadow looks like it belongs in that group and does not: `ShadowContext`
 bakes its gaussian into a CPU `Surface` once and draws it as an ordinary `NEAREST` texture.
 Keep new cases `EXACT` unless a shader is genuinely involved — a loose tolerance once
-absorbed a real one-pixel shift in the text input cases without failing.
+absorbed a real one-pixel shift in the text input cases.
 
 One known-bad behaviour is recorded as-is rather than fixed: **alpha eaten by blending.**
-The blend factors apply to the alpha channel as well as to colour, so drawing anything translucent lowers the
-framebuffer's alpha below 1. Invisible on screen, because the final blit ignores alpha, but
-it shows up in a capture.
+The blend factors apply to the alpha channel as well as to colour, so drawing anything
+translucent lowers the framebuffer's alpha below 1. Invisible on screen, because the final
+blit ignores alpha, but it shows up in a capture.
 
 #### Texture sampling
 
-Two bugs here were found by the golden tests and fixed; both are easy to reintroduce.
+Two rules here are easy to break by accident; both are pinned by goldens.
 
-`WgpuBackend::plan_command` (this lived in `Texture::render` before the draw list) maps the
-quad's `[0,1]` texture coordinate onto the source rectangle as
-`u = (src.pos + t * src.size) / texture_width`. It used to stretch by `src.size + 0.1`
-instead. That extra tenth of a texel pushed the last output column past the end of the
-source rectangle: for an 8-texel region drawn at scale 8, the final pixel sampled
-`src.pos + 63.5 * 8.1 / 64 = src.pos + 8.037`, which floors to the *neighbouring* texel.
-Symptoms were a one-pixel-early quadrant boundary on any scaled texture, a missing last
-column on sub-rectangle renders, and item sprites showing a sliver of another item.
-**Don't add a fudge factor back.** Sampling happens at pixel centres, so the exact mapping
-already lands strictly inside the region.
+**No fudge factor on the source rectangle.** `WgpuBackend::plan_command` maps the quad's
+`[0,1]` texture coordinate onto the source rectangle as
+`u = (src.pos + t * src.size) / texture_width`. Stretching by `src.size + 0.1` instead pushes
+the last output column past the end of the source rectangle — for an 8-texel region drawn at
+scale 8 the final pixel samples `src.pos + 8.037`, which floors to the *neighbouring* texel.
+Symptoms are a one-pixel-early quadrant boundary on any scaled texture, a missing last column
+on sub-rectangle renders, and item sprites showing a sliver of another item. Sampling happens
+at pixel centres, so the exact mapping already lands strictly inside the region.
 
 ##### Draws are snapped to whole pixels
 
@@ -462,21 +439,23 @@ The grid is the **offscreen's**, which is the display's real resolution, so on a
 screen this still leaves half a logical pixel of movement for an animation to use. Nothing is
 lost by snapping: there is no sub-pixel detail in this renderer, since nothing filters, so a
 draw moves by at most half a device pixel and gains an exact texel mapping. Meshes are
-**not** snapped: `RectArray`
-maps texture-coordinate corners per vertex rather than sampling across a scaled quad, and the
-world would jitter against the camera if it were.
+**not** snapped: `RectArray` maps texture-coordinate corners per vertex rather than sampling
+across a scaled quad, and the world would jitter against the camera if it were.
 
-`TextureAtlas::new` packs left to right **in key order**, which is why `KeyType: Ord`. It
-used to pack in `HashMap` iteration order, which Rust randomises per process, so the atlas
-layout differed on every launch — the same class of bug that made `GameModData.resources` a
-`BTreeMap`. On its own that was harmless for blocks and walls, which go through
-`RectArray` and map texture-coordinate corners exactly, but it combined with the `+ 0.1`
-above to make item rendering differ run to run.
+`TextureAtlas::new` packs left to right **in key order**, which is why `KeyType: Ord`.
+Packing in `HashMap` iteration order gives a different layout on every launch, since Rust
+randomises it per process — the same class of bug that made `GameModData.resources` a
+`BTreeMap`. The atlas is one row: as wide as the surfaces laid end to end, as tall as the
+tallest.
 
-The atlas is one row: as wide as the surfaces laid end to end, as tall as the tallest. It
-used to add each surface's *height* into the width as well, which packed correctly and drew
-correctly but left megabytes of transparent pixels on the GPU. Neither the layout nor the
-goldens depend on the width, because sampling is at texel centres.
+#### Text
+
+`Font` cuts a 16x16 atlas into one `Surface` and one `Texture` per ascii value.
+`get_text_size` and `create_text_surface` share one walk, `Font::layout`, which is what keeps
+measuring and rasterising from drifting apart — a test asserts they agree. `render_text` is
+the odd one out: it draws **one line** straight from the glyph textures and honours neither
+`\n` nor a width limit, so anything that might wrap goes through `create_text_surface` and a
+`Texture`, which is what `Sprite` does.
 
 Several older UI pieces predate the `UiElement` trait and are hand-rolled — the `//TODO make
 this a UI element` comments in `client/game/chat.rs`, `pause_menu.rs`, `debug_menu.rs`,
@@ -612,9 +591,9 @@ Things worth knowing before adding one:
   `gfx::HeadlessContext` — see the `UiContext` section above. Nothing in the suite opens a
   window, so it all runs on CI's headless Ubuntu.
 - `gfx::FloatPos` and `gfx::FloatSize` compare with a 0.0001 tolerance and **deliberately do
-  not implement `Hash`.** They used to, by quantising to a thousandth, which broke the
-  hash/eq contract: two values that compare equal could land in different buckets. Don't add
-  it back to make one a map key — round to integers first.
+  not implement `Hash`.** Quantising them to hash would break the hash/eq contract: two
+  values that compare equal land in different buckets. Don't add it to make one a map key —
+  round to integers first.
 - `AnimationTimer` and the `timer_counter` in `Button`/`Toggle` hold absolute milliseconds
   since construction. They are 64-bit for a reason: as `i32`/`u32` they overflowed after
   24.8 and 49.7 days of uptime, and every animation in the game stopped for good.
@@ -637,11 +616,11 @@ requests against any branch, and on manual dispatch. It checks, in order:
 release build. All four are blocking, so a new clippy warning fails the build — prefer a
 targeted `#[allow]` with a reason over relaxing the flag.
 
-**No system packages are installed any more.** SDL2 needed `libsdl2-dev`; winit's X11 and
-Wayland backends are loaded at runtime through `x11-dl` and `wayland-dlopen`, so nothing is
-needed to build, and the test suite never opens a window so nothing is needed to run either.
+**No system packages are installed.** winit's X11 and Wayland backends are loaded at runtime
+through `x11-dl` and `wayland-dlopen`, so nothing is needed to build, and the test suite never
+opens a window so nothing is needed to run either.
 
-Not covered: macOS and Windows are never built. That gap matters more since the wgpu port —
-the backend is written to be portable and the goldens are written to be backend-independent,
-but only Metal has actually run them. Adding a macOS job is the obvious next step, and it is
+Not covered: macOS and Windows are never built. That gap matters for the renderer — the
+backend is written to be portable and the goldens are written to be backend-independent, but
+only Metal has actually run them. Adding a macOS job is the obvious next step, and it is
 the only way the golden images would ever be checked in CI at all.

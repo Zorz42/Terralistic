@@ -1,13 +1,12 @@
 use anyhow::Result;
 
-pub use animation_timer::AnimationTimer;
-pub use blend_mode::BlendMode;
+pub use animation_timer::{approach, AnimationTimer};
 pub use button::Button;
 pub use color::{interpolate_colors, Color};
 pub use container::{Container, Orientation, BOTTOM, BOTTOM_LEFT, BOTTOM_RIGHT, CENTER, LEFT, RIGHT, TOP, TOP_LEFT, TOP_RIGHT};
 #[cfg(test)]
 pub use draw_list::DrawRecorder;
-pub use draw_list::{DrawCommand, DrawList, DrawTarget, MeshHandle, TextureHandle};
+pub use draw_list::{BlendMode, DrawCommand, DrawList, DrawTarget, MeshHandle, TextureHandle};
 pub use events::{Event, Key};
 pub use position::{FloatPos, FloatSize, IntPos, IntSize};
 pub use rect::Rect;
@@ -29,7 +28,6 @@ pub use ui_context::UiContext;
 pub use ui_element::{BaseUiElement, UiElement};
 
 mod animation_timer;
-mod blend_mode;
 mod button;
 mod color;
 mod container;

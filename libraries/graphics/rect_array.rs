@@ -3,68 +3,31 @@ use crate::libraries::graphics as gfx;
 use super::draw_list::{DrawCommand, DrawTarget};
 use super::vertex_buffer::{Vertex, VertexBuffer};
 
-/// The struct `RectArray` is used to draw multiple rectangles with the same texture
-/// and in one draw call. This is much faster than drawing each rectangle individually.
+/// Many rectangles sharing one texture, drawn in a single call. Much faster than drawing each
+/// of them individually, which is why the world is built out of these.
 pub struct RectArray {
     vertex_buffer: VertexBuffer,
 }
 
 impl RectArray {
-    /// Creates a new `RectArray`.
     #[must_use]
     pub const fn new() -> Self {
         Self { vertex_buffer: VertexBuffer::new() }
     }
 
-    /// Adds a rectangle to the `RectArray`.
+    /// Adds a rectangle as two triangles. `colors` is one colour per corner, in the order top
+    /// left, top right, bottom left, bottom right.
     pub fn add_rect(&mut self, rect: &gfx::Rect, colors: &[gfx::Color; 4], tex_rect: &gfx::Rect) {
-        let top_left = rect.pos;
-        let top_right = rect.pos + gfx::FloatSize(rect.size.0, 0.0);
-        let bottom_left = rect.pos + gfx::FloatSize(0.0, rect.size.1);
-        let bottom_right = rect.pos + rect.size;
+        let [top_left, top_right, bottom_left, bottom_right] = [
+            (rect.pos, tex_rect.pos, colors[0]),
+            (rect.pos + gfx::FloatSize(rect.size.0, 0.0), tex_rect.pos + gfx::FloatSize(tex_rect.size.0, 0.0), colors[1]),
+            (rect.pos + gfx::FloatSize(0.0, rect.size.1), tex_rect.pos + gfx::FloatSize(0.0, tex_rect.size.1), colors[2]),
+            (rect.pos + rect.size, tex_rect.pos + tex_rect.size, colors[3]),
+        ];
 
-        let tex_top_left = tex_rect.pos;
-        let tex_top_right = tex_rect.pos + gfx::FloatSize(tex_rect.size.0, 0.0);
-        let tex_bottom_left = tex_rect.pos + gfx::FloatSize(0.0, tex_rect.size.1);
-        let tex_bottom_right = tex_rect.pos + tex_rect.size;
-
-        // first triangle
-        self.vertex_buffer.add_vertex(&Vertex {
-            pos: top_left,
-            color: colors[0],
-            tex_pos: tex_top_left,
-        });
-
-        self.vertex_buffer.add_vertex(&Vertex {
-            pos: top_right,
-            color: colors[1],
-            tex_pos: tex_top_right,
-        });
-
-        self.vertex_buffer.add_vertex(&Vertex {
-            pos: bottom_left,
-            color: colors[2],
-            tex_pos: tex_bottom_left,
-        });
-
-        // second triangle
-        self.vertex_buffer.add_vertex(&Vertex {
-            pos: top_right,
-            color: colors[1],
-            tex_pos: tex_top_right,
-        });
-
-        self.vertex_buffer.add_vertex(&Vertex {
-            pos: bottom_right,
-            color: colors[3],
-            tex_pos: tex_bottom_right,
-        });
-
-        self.vertex_buffer.add_vertex(&Vertex {
-            pos: bottom_left,
-            color: colors[2],
-            tex_pos: tex_bottom_left,
-        });
+        for (pos, tex_pos, color) in [top_left, top_right, bottom_left, top_right, bottom_right, bottom_left] {
+            self.vertex_buffer.add_vertex(&Vertex { pos, color, tex_pos });
+        }
     }
 
     pub fn update(&mut self) {

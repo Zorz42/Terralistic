@@ -1,37 +1,37 @@
 //! What to draw, as plain data, with no idea of how it gets drawn.
 //!
-//! Every drawing primitive in this toolkit used to issue OpenGL calls directly from its
-//! `render` method, which meant the game's whole render path was welded to one backend and
-//! could only be checked by taking a screenshot. Now `render` *records* a `DrawCommand`
-//! into a `DrawList`, and something that knows about a GPU - today
-//! `wgpu_backend::WgpuBackend` - replays the list once per frame.
-//!
-//! Two things fall out of that:
-//!
-//! - Swapping the backend means writing one `execute`, not rewriting every widget.
-//! - A frame is inspectable. `DrawRecorder` is a `DrawTarget` with no window behind it, so
-//!   "what does this widget draw?" is an ordinary `#[test]` rather than a golden image.
+//! A primitive's `render` method *records* a `DrawCommand` into a `DrawList`, and something
+//! that knows about a GPU - today `wgpu_backend::WgpuBackend` - replays the list once per
+//! frame. So swapping the backend means writing one `execute` rather than rewriting every
+//! widget, and a frame is inspectable: `DrawRecorder` is a `DrawTarget` with no window behind
+//! it, which makes "what does this widget draw?" an ordinary `#[test]`.
 //!
 //! Coordinates in a command are window pixels, y-down from the top left, exactly as the
-//! caller gave them. Nothing here knows about clip space; that is the backend's business.
+//! caller gave them. Clip space is the backend's business.
 //!
-//! # Resources
-//!
-//! Commands refer to textures and meshes by handle rather than by reference, because the
-//! list has to outlive the borrow of whatever recorded into it. The handle carries the
-//! backend's own name for the resource, which is the single place a backend-specific value
-//! crosses this boundary. `Texture` and `VertexBuffer` still own their GPU objects, so a
-//! handle can outlive its owner - see `gpu_device` for why that is safe.
+//! Commands name textures and meshes by handle rather than by reference, because the list has
+//! to outlive the borrow of whatever recorded into it. `Texture` and `VertexBuffer` still own
+//! their GPU objects, so a handle can outlive its owner - see `gpu_device` for why that is
+//! safe.
 
 use crate::libraries::graphics as gfx;
 
-use super::blend_mode::BlendMode;
+/// How a draw combines with what is already in the framebuffer.
+///
+/// This is baked into a render pipeline rather than being a state switch, so the backend
+/// keeps one pipeline per mode. Changing it mid-frame has to keep its place in the draw
+/// order, which is why callers record a `SetBlendMode` command through
+/// `DrawTarget::set_blend_mode` instead of calling anything directly.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum BlendMode {
+    Alpha,
+    Multiply,
+}
 
 /// A texture living in the renderer backend.
 ///
 /// Opaque outside the backend: today it is an index into `gpu_device`'s registry. The point
-/// is that a command can name a resource without borrowing it, so the list outlives whatever
-/// recorded into it.
+/// is that a command can name a resource without borrowing it.
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 pub struct TextureHandle(pub(super) u32);
 
@@ -48,9 +48,8 @@ impl TextureHandle {
 
 /// An uploaded triangle mesh living in the renderer backend.
 ///
-/// Same contract as `TextureHandle`: the id is the backend's business, and the vertex count
-/// rides along so `execute` can issue the draw without reaching back into the
-/// `VertexBuffer` that owns the resource.
+/// Same contract as `TextureHandle`, except that the vertex count rides along so `execute`
+/// can issue the draw without reaching back into the `VertexBuffer` that owns the resource.
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 pub struct MeshHandle {
     pub(super) id: u32,
@@ -67,10 +66,10 @@ impl MeshHandle {
 
 /// One drawing operation, in window pixel coordinates.
 ///
-/// The arguments are stored exactly as the caller passed them rather than pre-multiplied
-/// into a destination rectangle. That is deliberate: the backend rebuilds the transform
-/// from the same inputs in the same order, so the floating point result is bit-identical to
-/// what the immediate mode code produced, which is what keeps the golden images exact.
+/// The arguments are stored exactly as the caller passed them rather than pre-multiplied into
+/// a destination rectangle, so the backend can rebuild the transform from the same inputs in
+/// the same order and land on bit-identical floats. That is what keeps the golden images
+/// exact.
 #[derive(Clone, Copy, PartialEq, Debug)]
 pub enum DrawCommand {
     /// A filled rectangle.
@@ -141,11 +140,10 @@ impl DrawList {
 
 /// Somewhere drawing commands can be recorded.
 ///
-/// `push_draw_command` takes `&self` rather than `&mut self` because the toolkit is full of
-/// places that draw through a shared borrow - `graphics.font.render_text(graphics, ..)` and
-/// `graphics.shadow_context.render(graphics, ..)` both borrow the context twice. That was
-/// fine when drawing went straight to OpenGL, which is a mutable global by nature, and the
-/// implementation keeps it fine with a `RefCell`. The borrow is only ever held for the
+/// `push_draw_command` takes `&self` because the toolkit is full of places that draw through
+/// a shared borrow - `graphics.font.render_text(graphics, ..)` and
+/// `graphics.shadow_context.render(graphics, ..)` both borrow the context twice. The
+/// implementation keeps that working with a `RefCell`; the borrow is only ever held for the
 /// length of a `push`, and nothing called from inside one can record.
 pub trait DrawTarget {
     /// Records one command.
@@ -155,19 +153,15 @@ pub trait DrawTarget {
     fn get_draw_area(&self) -> gfx::FloatSize;
 
     /// Changes how everything recorded after this point blends with what is underneath.
-    ///
-    /// This has to be recorded rather than applied, because it only means anything relative
-    /// to the surrounding draw order.
+    /// Recorded rather than applied, because it only means anything relative to the
+    /// surrounding draw order.
     fn set_blend_mode(&self, blend_mode: BlendMode) {
         self.push_draw_command(DrawCommand::SetBlendMode(blend_mode));
     }
 }
 
-/// A `DrawTarget` with no GPU behind it, for tests.
-///
-/// This is the draw-list counterpart of `gfx::HeadlessContext`: it makes what a primitive or
-/// a widget draws assertable in `cargo test`, where the golden-image suite cannot run
-/// because it needs a real GPU surface on the main thread.
+/// A `DrawTarget` with no GPU behind it, for tests. The draw-list counterpart of
+/// `gfx::HeadlessContext`.
 #[cfg(test)]
 pub struct DrawRecorder {
     commands: std::cell::RefCell<DrawList>,

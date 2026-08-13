@@ -6,7 +6,7 @@ use crate::libraries::graphics as gfx;
 use super::Color;
 use crate::libraries::serialization;
 
-/// Surface is an image stored in ram.
+/// An image stored in RAM.
 #[derive(Serialize, Deserialize, Clone)]
 pub struct Surface {
     pub(super) pixels: Vec<Color>,
@@ -37,9 +37,7 @@ impl Surface {
         serialization::deserialize(&decompressed)
     }
 
-    /// Converts 2D location to a linear location in color array.
-    /// The index points to the red bit of the color and the next
-    /// three to green, blue, alpha.
+    /// Converts a 2D location into an index into the colour array.
     fn get_index(&self, pos: gfx::IntPos) -> Result<usize> {
         if pos.0 < 0 || pos.0 >= self.size.0 as i32 || pos.1 < 0 || pos.1 >= self.size.1 as i32 {
             bail!("Pixel out of bounds");
@@ -54,7 +52,7 @@ impl Surface {
         self.pixels.get(index).ok_or_else(|| anyhow!("Pixel array malformed"))
     }
 
-    /// Retrieves the pixel color on a specified location.
+    /// Retrieves the pixel color on a specified location, mutably.
     pub fn get_pixel_mut(&mut self, pos: gfx::IntPos) -> Result<&mut Color> {
         let index = self.get_index(pos)?;
         self.pixels.get_mut(index).ok_or_else(|| anyhow!("Pixel array malformed"))
@@ -81,11 +79,8 @@ impl Surface {
 
     /// Every pixel with its position, row by row.
     ///
-    /// Walking the backing slice rather than calling `get_pixel` per step: the position is
-    /// derived from the index instead of the index from the position, which is the same
-    /// order and skips a bounds check and a `Result` for every pixel. The mutable version
-    /// used to need `unsafe` to hand out a borrow the compiler could not see was disjoint;
-    /// `iter_mut` on the slice already knows that.
+    /// Walks the backing slice and derives the position from the index rather than the other
+    /// way round, which is the same order and skips a bounds check and a `Result` per pixel.
     pub fn iter(&self) -> impl Iterator<Item = (gfx::IntPos, &Color)> {
         let width = self.size.0 as i32;
         self.pixels.iter().enumerate().map(move |(index, pixel)| (index_to_pos(index, width), pixel))

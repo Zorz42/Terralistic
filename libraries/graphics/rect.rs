@@ -3,7 +3,7 @@ use crate::libraries::graphics as gfx;
 use super::color::Color;
 use super::draw_list::{DrawCommand, DrawTarget};
 
-/// This is a rectangle shape.
+/// A rectangle, in whatever coordinate space the caller is working in.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct Rect {
     pub pos: gfx::FloatPos,
@@ -11,7 +11,6 @@ pub struct Rect {
 }
 
 impl Rect {
-    /// Creates a new rectangle.
     #[must_use]
     pub const fn new(pos: gfx::FloatPos, size: gfx::FloatSize) -> Self {
         Self { pos, size }

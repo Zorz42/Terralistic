@@ -1,6 +1,8 @@
 use crate::libraries::graphics as gfx;
 use gfx::{BaseUiElement, UiElement};
 
+/// A scroll position with momentum, which the world and server lists offset their rows by.
+/// It draws nothing itself.
 pub struct Scrollable {
     pub rect: gfx::Rect,
     pub orientation: gfx::Orientation,
@@ -50,13 +52,11 @@ impl UiElement for Scrollable {
 
     /// Advances the scroll, and does nothing else.
     ///
-    /// This is `update_inner` rather than `render_inner` because moving is not drawing.
-    /// Every other widget in the toolkit steps its animation here; this one stepped it while
-    /// rendering, which meant a caller that laid the list out without drawing it - a menu
-    /// sliding offscreen, say - froze the scroll. The frame it lands on is unchanged either
-    /// way: the parent reads `get_scroll_x` from its own `update_inner`, which the recursion
-    /// in `BaseUiElement::update` runs before this, so it sees the previous frame's position
-    /// exactly as it did before.
+    /// **`update_inner`, not `render_inner`** - moving is not drawing, and stepping it while
+    /// rendering froze the scroll for any caller that laid the list out without drawing it, a
+    /// menu sliding offscreen for instance. The parent reads `get_scroll_x` from its own
+    /// `update_inner`, which the recursion in `BaseUiElement::update` runs first, so it sees
+    /// the previous frame's position.
     fn update_inner(&mut self, _: &mut gfx::GraphicsContext, _: &gfx::Container) {
         while self.animation_timer.frame_ready() {
             self.scroll_pos += self.scroll_velocity;
@@ -90,8 +90,6 @@ impl UiElement for Scrollable {
         false
     }
 
-    /// This function returns the container of the rectangle.
-    /// The container has the position of render rect.
     fn get_container(&self, graphics: &dyn gfx::UiContext, parent_container: &gfx::Container) -> gfx::Container {
         gfx::Container::new(graphics, self.rect.pos, self.rect.size, self.orientation, Some(parent_container))
     }

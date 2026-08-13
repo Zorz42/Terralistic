@@ -6,34 +6,25 @@
 //!
 //! # Why the event loop is pumped rather than run
 //!
-//! winit wants to own the process: you hand `run_app` an `ApplicationHandler` and it calls
-//! you back. The game is the opposite shape - `while graphics.is_window_open() { .. }` in
+//! winit wants to own the process: you hand `run_app` an `ApplicationHandler` and it calls you
+//! back. The game is the opposite shape - `while graphics.is_window_open() { .. }` in
 //! `client/game/core_client.rs`, `client/menus/title_screen_renderer.rs` and
 //! `server/server_ui/ui_manager.rs`, all of which drive simulation and rendering themselves.
-//! `EventLoopExtPumpEvents::pump_app_events` is the supported way to keep that shape: it
-//! dispatches whatever the window system has queued and returns.
+//! `EventLoopExtPumpEvents::pump_app_events` keeps that shape: it dispatches whatever the
+//! window system has queued and returns. Inverting three main loops around a callback was not
+//! worth it.
 //!
-//! What that costs, and why it is acceptable here:
-//!
-//! - **Rendering happens outside the loop.** winit warns that a platform which drives
-//!   painting through a callback (macOS `drawRect`) can show artifacts while a window is
-//!   being dragged to a new size. The game renders continuously anyway, so what it gives up
-//!   is a repaint *during* the resize drag, not correctness afterwards.
-//! - **`pump_app_events` is desktop only** - Windows, macOS, X11 and Wayland. Those are the
-//!   only targets this game builds for.
-//!
-//! The alternative was inverting three main loops, an entity simulation and a server tick
-//! around a callback. It was not worth it.
+//! It costs two things. A platform that drives painting through a callback (macOS `drawRect`)
+//! can show artifacts while a window is being dragged to a new size, so what is given up is a
+//! repaint *during* the drag; and `pump_app_events` is desktop only - Windows, macOS, X11 and
+//! Wayland, which are the only targets this game builds for.
 //!
 //! # Keys are physical, not what the key is labelled
 //!
-//! `translate_key` maps winit's `KeyCode`, which names a *position* on a US layout, so
-//! `Key::W` is whichever key sits where W sits on QWERTY. That is what a game wants: WASD
-//! stays a square on AZERTY and on Dvorak. Typing is unaffected, because text arrives
-//! separately as `Event::TextInput` with whatever the layout actually produced.
-//!
-//! SDL, which this replaced, reported layout-mapped keycodes instead, so on a non-US layout
-//! the movement keys move.
+//! `translate_key` maps winit's `KeyCode`, which names a *position* on a US layout, so `Key::W`
+//! is whichever key sits where W sits on QWERTY. That is what a game wants: WASD stays a square
+//! on AZERTY and on Dvorak. Typing is unaffected, because text arrives separately as
+//! `Event::TextInput` with whatever the layout actually produced.
 
 use std::sync::Arc;
 use std::time::Duration;
@@ -146,9 +137,7 @@ impl Window {
     }
 
     /// The window in real device pixels, which is what the surface has to be configured at.
-    ///
-    /// On a `HiDPI` display this is a multiple of `size`. The OpenGL backend hardcoded that
-    /// multiple as 2.0, which was wrong on every display that is not `HiDPI`.
+    /// On a `HiDPI` display this is a multiple of `size`.
     pub(super) const fn drawable_size(&self) -> gfx::IntSize {
         self.state.geometry.physical_size
     }
@@ -167,17 +156,14 @@ impl Window {
 
 /// How big the window is, cached.
 ///
-/// **This has to be cached, and the reason is performance, not tidiness.** Layout asks for
-/// the window size constantly - every `Container`, the camera's visible bounds, and every
-/// chunk that decides whether it is on screen - which measured out at ~540 calls per frame.
-/// SDL answered each one from a struct field it kept up to date itself. winit does not
-/// cache: `inner_size` and `scale_factor` are objc message sends to `NSView` and `NSWindow`
-/// on macOS, at roughly 12us a call, so asking every time cost ~6.7ms of every 16ms frame -
-/// 40% of the game's wall clock. It also starved the 10ms budget that `walls.rs` and
-/// `lights.rs` use to decide how many chunk meshes to rebuild, which made a world take
-/// minutes to finish drawing its walls and lighting.
+/// **This has to be cached, and the reason is performance, not tidiness.** Layout asks for the
+/// window size constantly - every `Container`, the camera's visible bounds, and every chunk
+/// deciding whether it is on screen - which measures ~540 calls per frame. winit does not
+/// cache: `inner_size` and `scale_factor` are objc message sends on macOS at roughly 12us a
+/// call, so asking every time cost ~6.7ms of every 16ms frame, 40% of the game's wall clock,
+/// and starved the 10ms budget `walls.rs` and `lights.rs` rebuild chunk meshes in.
 ///
-/// The size only changes when the window system says so, and it always says so, so the
+/// The size only changes when the window system says so, and it always says so, so the resize
 /// events are the authority and reading back is unnecessary.
 #[derive(Clone, Copy)]
 struct Geometry {

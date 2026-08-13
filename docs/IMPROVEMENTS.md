@@ -413,11 +413,9 @@ Known limits, again honestly:
 
 ## 6. Duplication and cleanup
 
-- **`renderer.rs:update_window`** — the `#[cfg(target_os = "windows")]`,
-  `#[cfg(target_os = "macos")]` and `#[cfg(target_os = "linux")]` blocks contain
-  **byte-identical** `gl::BlitFramebuffer` calls. Collapse to one. The hardcoded `* 2.0`
-  in them also assumes a 2× backing scale on every platform, which is wrong for non-Retina
-  displays.
+- ~~**`renderer.rs:update_window`** — three byte-identical per-platform
+  `gl::BlitFramebuffer` blocks with a hardcoded 2× backing scale.~~ Gone with the wgpu port:
+  presenting is one nearest-sampled quad at the surface's real drawable size.
 - **`main.rs` lint list** — 10 lints are listed twice (clippy reports "duplicated attribute"
   ×10), and two are dead: `clippy::string_to_string` and `clippy::match_on_vec_items` have
   been removed from clippy. Several are both warned and allowed

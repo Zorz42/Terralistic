@@ -1,9 +1,8 @@
 use crate::libraries::graphics as gfx;
-use gfx::theme::GFX_DEFAULT_BUTTON_BORDER_COLOR;
+use gfx::theme::BUTTON_BORDER_COLOR;
 use gfx::{BaseUiElement, UiElement};
 
-/// A Toggle is a rectangle with 2 states.
-/// It can be clicked to toggle between them.
+/// A two state switch: a rounded bar with a knob that slides from one end to the other.
 pub struct Toggle {
     pub pos: gfx::FloatPos,
     pub size: gfx::FloatSize,
@@ -19,12 +18,12 @@ pub struct Toggle {
     toggle_progress: f32,
     hover_progress: f32,
     timer: std::time::Instant,
+    /// Milliseconds of animation already applied. See `Button::timer_counter`.
     timer_counter: u64,
     pub changed: bool,
 }
 
 impl Toggle {
-    /// Creates a new button.
     #[must_use]
     pub fn new() -> Self {
         Self {
@@ -35,7 +34,7 @@ impl Toggle {
             scale: 1.0,
             left_color: gfx::Color::new(210, 0, 0, 255),
             right_color: gfx::Color::new(0, 210, 0, 255),
-            border_color: GFX_DEFAULT_BUTTON_BORDER_COLOR,
+            border_color: BUTTON_BORDER_COLOR,
             button_color: gfx::WHITE,
             toggled: false,
             hovered: false,
@@ -47,7 +46,6 @@ impl Toggle {
         }
     }
 
-    /// returns the size.
     #[must_use]
     pub const fn get_size(&self) -> gfx::FloatSize {
         self.size
@@ -61,13 +59,9 @@ impl Toggle {
         self.timer_counter = u64::MAX;
     }
 
-    /// Checks if the toggle is hovered with a mouse.
     #[must_use]
     pub fn is_hovered(&self, graphics: &dyn gfx::UiContext, parent_container: &gfx::Container) -> bool {
-        let container = self.get_container(graphics, parent_container);
-        let rect = container.get_absolute_rect();
-        let mouse_pos = graphics.get_mouse_pos();
-        rect.contains(mouse_pos)
+        self.get_container(graphics, parent_container).get_absolute_rect().contains(graphics.get_mouse_pos())
     }
 }
 
@@ -80,50 +74,36 @@ impl UiElement for Toggle {
         Vec::new()
     }
 
-    /// Renders the toggle.
     fn render_inner(&mut self, graphics: &mut gfx::GraphicsContext, parent_container: &gfx::Container) {
         let mut container = self.get_container(graphics, parent_container);
-        let float_size_padding = gfx::FloatSize(self.padding, self.padding);
         let toggle_target = if self.toggled { 1.0 } else { 0.0 };
         let hover_target = if self.is_hovered(graphics, parent_container) { 1.0 } else { 0.0 };
 
         while self.timer_counter < self.timer.elapsed().as_millis() as u64 {
-            self.toggle_progress += (toggle_target - self.toggle_progress) / 40.0;
-            if (toggle_target - self.toggle_progress).abs() <= 0.01 {
-                self.toggle_progress = toggle_target;
-            }
-            self.hover_progress += (hover_target - self.hover_progress) / 40.0;
-            if (hover_target - self.hover_progress).abs() <= 0.01 {
-                self.hover_progress = hover_target;
-            }
+            self.toggle_progress = gfx::approach(self.toggle_progress, toggle_target, 40.0, 0.01);
+            self.hover_progress = gfx::approach(self.hover_progress, hover_target, 40.0, 0.01);
             self.timer_counter += 1;
         }
 
+        // The bar is dimmed to 80% until the mouse is over it.
         let fill_color = gfx::interpolate_colors(self.left_color, self.right_color, self.toggle_progress);
-        let fill_color = gfx::interpolate_colors(
-            gfx::Color {
-                r: (fill_color.r as f32 * 0.8) as u8,
-                g: (fill_color.g as f32 * 0.8) as u8,
-                b: (fill_color.b as f32 * 0.8) as u8,
-                a: 255,
-            },
-            fill_color,
-            self.hover_progress,
-        );
+        let dimmed = gfx::Color::new((fill_color.r as f32 * 0.8) as u8, (fill_color.g as f32 * 0.8) as u8, (fill_color.b as f32 * 0.8) as u8, 255);
+        let fill_color = gfx::interpolate_colors(dimmed, fill_color, self.hover_progress);
 
+        // The border is the container itself; the bar is the same rectangle inset by the
+        // padding, which is why the container is resized in place here.
         container.rect.render(graphics, self.border_color);
-        container.rect.size = container.rect.size - float_size_padding - float_size_padding;
+        container.rect.size = container.rect.size - gfx::FloatSize(self.padding * 2.0, self.padding * 2.0);
         container.update(graphics, parent_container);
         container.get_absolute_rect().render(graphics, fill_color);
-        let size = gfx::FloatSize(container.rect.size.1 - 2.0 * self.padding, container.rect.size.1 - 2.0 * self.padding);
 
-        let position = gfx::FloatPos(
-            self.padding * (1.0 - self.toggle_progress) + (container.rect.size.0 - size.0 - self.padding) * self.toggle_progress,
+        let knob_size = gfx::FloatSize(container.rect.size.1 - 2.0 * self.padding, container.rect.size.1 - 2.0 * self.padding);
+        let knob_pos = gfx::FloatPos(
+            self.padding * (1.0 - self.toggle_progress) + (container.rect.size.0 - knob_size.0 - self.padding) * self.toggle_progress,
             0.0,
         );
-
-        let button = gfx::container::Container::new(graphics, position, size, gfx::LEFT, Some(&container));
-        button.get_absolute_rect().render(graphics, self.button_color);
+        let knob = gfx::Container::new(graphics, knob_pos, knob_size, gfx::LEFT, Some(&container));
+        knob.get_absolute_rect().render(graphics, self.button_color);
     }
 
     fn update_inner(&mut self, graphics: &mut gfx::GraphicsContext, parent_container: &gfx::Container) {
@@ -141,7 +121,6 @@ impl UiElement for Toggle {
         false
     }
 
-    /// Generates the container for the toggle.
     fn get_container(&self, graphics: &dyn gfx::UiContext, parent_container: &gfx::Container) -> gfx::Container {
         gfx::Container::new(graphics, self.pos, self.get_size(), self.orientation, Some(parent_container))
     }

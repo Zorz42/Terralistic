@@ -1,11 +1,10 @@
 use crate::libraries::graphics as gfx;
 use gfx::BaseUiElement;
 
-/// The struct `RenderRect` contains a container and moves smoothly to the saved position.
+/// A rectangle that slides towards its target instead of jumping to it.
 ///
-/// It has a `smooth_factor`. At every render the position
-/// of the container is changed by the distance to the
-/// target position divided by the `smooth_factor`. It is 1 by default.
+/// Every ready frame, `render_pos` and `render_size` move a `1 / smooth_factor` fraction of
+/// the way to `pos` and `size`. It can also draw a border, a shadow and a blur.
 #[derive(Debug)]
 pub struct RenderRect {
     pub pos: gfx::FloatPos,
@@ -39,15 +38,7 @@ impl RenderRect {
         }
     }
 
-    fn approach(position: f32, target: f32, smooth_factor: f32) -> f32 {
-        if (target - position).abs() <= 0.01 {
-            target
-        } else {
-            position + (target - position) / smooth_factor
-        }
-    }
-
-    /// This function jumps the rectangle to the target position.
+    /// Skips the animation and puts the rectangle where it is headed.
     pub const fn jump_to_target(&mut self) {
         self.render_pos = self.pos;
         self.render_size = self.size;
@@ -55,7 +46,7 @@ impl RenderRect {
 
     #[must_use]
     pub fn is_at_target(&self) -> bool {
-        self.pos == self.render_pos
+        self.pos == self.render_pos && self.size == self.render_size
     }
 }
 
@@ -68,16 +59,13 @@ impl gfx::UiElement for RenderRect {
         Vec::new()
     }
 
-    /// This function renders the rectangle, it uses Rect class to render.
-    /// It also approaches the position to the target position.
     fn render_inner(&mut self, graphics: &mut gfx::GraphicsContext, parent_container: &gfx::Container) {
         let container = self.get_container(graphics, parent_container);
         let rect = container.get_absolute_rect();
 
-        // Both of these are off for most rects, and neither draws anything when it is off -
-        // the backend discards a blur below one pixel of radius, and a shadow at zero
-        // intensity is drawn with a zero alpha tint. Skipping them here rather than letting
-        // them record is worth it because the shadow is not one command but nine or more.
+        // Both are off for most rects, and neither draws anything when it is off. Skipping
+        // them here rather than letting them record is worth it because the shadow is not one
+        // command but nine or more.
         if self.blur_radius > 0 {
             graphics.blur_rect(*rect, self.blur_radius);
         }
@@ -91,15 +79,14 @@ impl gfx::UiElement for RenderRect {
 
     fn update_inner(&mut self, _: &mut gfx::GraphicsContext, _: &gfx::Container) {
         while self.animation_timer.frame_ready() {
-            self.render_pos.0 = Self::approach(self.render_pos.0, self.pos.0, self.smooth_factor);
-            self.render_pos.1 = Self::approach(self.render_pos.1, self.pos.1, self.smooth_factor);
-            self.render_size.0 = Self::approach(self.render_size.0, self.size.0, self.smooth_factor);
-            self.render_size.1 = Self::approach(self.render_size.1, self.size.1, self.smooth_factor);
+            self.render_pos.0 = gfx::approach(self.render_pos.0, self.pos.0, self.smooth_factor, 0.01);
+            self.render_pos.1 = gfx::approach(self.render_pos.1, self.pos.1, self.smooth_factor, 0.01);
+            self.render_size.0 = gfx::approach(self.render_size.0, self.size.0, self.smooth_factor, 0.01);
+            self.render_size.1 = gfx::approach(self.render_size.1, self.size.1, self.smooth_factor, 0.01);
         }
     }
 
-    /// This function returns the container of the rectangle.
-    /// The container has the position of render rect.
+    /// Built from `render_pos`, not `pos`, which is what makes the rectangle appear to slide.
     fn get_container(&self, graphics: &dyn gfx::UiContext, parent_container: &gfx::Container) -> gfx::Container {
         gfx::Container::new(graphics, self.render_pos, self.render_size, self.orientation, Some(parent_container))
     }

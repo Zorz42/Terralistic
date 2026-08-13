@@ -18,9 +18,11 @@ pub const BOTTOM_LEFT: Orientation = Orientation { x: 0.0, y: 1.0 };
 pub const BOTTOM: Orientation = Orientation { x: 0.5, y: 1.0 };
 pub const BOTTOM_RIGHT: Orientation = Orientation { x: 1.0, y: 1.0 };
 
-/// This struct has coordinates and size of a rectangle.
-/// Is has orientation and parent container. It also has
-/// a function to get absolute value of the rectangle.
+/// A rectangle positioned relative to a parent by an orientation plus an offset.
+///
+/// The orientation is the fraction of the parent the container is offset by, *and* the
+/// fraction of its own size it is pulled back by - so `CENTER` centres the element rather than
+/// putting its top left corner in the middle. With no parent the window is the parent.
 pub struct Container {
     pub rect: Rect,
     abs_rect: Rect,
@@ -28,7 +30,6 @@ pub struct Container {
 }
 
 impl Container {
-    /// Creates a new container.
     #[must_use]
     pub fn new(graphics: &dyn gfx::UiContext, pos: gfx::FloatPos, size: gfx::FloatSize, orientation: Orientation, parent_container: Option<&Self>) -> Self {
         let mut result = Self {
@@ -45,10 +46,7 @@ impl Container {
         Self::new(graphics_context, gfx::FloatPos(0.0, 0.0), graphics_context.get_window_size(), TOP_LEFT, None)
     }
 
-    /// Returns the absolute rectangle of the container. Orientation
-    /// is a percentage the container is offset from the top left corner
-    /// of the parent container. If parent is None, the parent is the
-    /// window. This function needs `graphics_context` to get the window size.
+    /// The container's rectangle in window coordinates, as of the last layout.
     #[must_use]
     pub const fn get_absolute_rect(&self) -> &Rect {
         &self.abs_rect
@@ -72,7 +70,7 @@ impl UiElement for Container {
         vec![]
     }
 
-    /// This function gets parent container and updates the absolute values
+    /// Recomputes the absolute rectangle against the parent.
     fn update_inner(&mut self, graphics: &mut gfx::GraphicsContext, parent_container: &Self) {
         self.update_position(graphics, Some(parent_container));
     }

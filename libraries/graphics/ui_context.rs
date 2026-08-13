@@ -4,12 +4,10 @@ use crate::libraries::graphics as gfx;
 ///
 /// This is deliberately the *whole* non-rendering surface of `GraphicsContext`: window size,
 /// pointer, keyboard and clipboard. `get_container` and `on_event_inner` take a
-/// `&dyn UiContext` rather than a `&GraphicsContext`, which is what makes layout and event
-/// handling testable without a window at all. Drawing still needs the real
-/// thing, so `render_inner` and `update_inner` keep taking `&mut GraphicsContext`.
+/// `&dyn UiContext`, which is what makes layout and event handling testable without a window.
 ///
-/// If you are tempted to add a method here, check first that it is not a rendering
-/// operation in disguise - the value of this trait is entirely in what it leaves out.
+/// If you are tempted to add a method here, check first that it is not a rendering operation
+/// in disguise - the value of this trait is entirely in what it leaves out.
 pub trait UiContext {
     /// Size of the window in logical (scaled) pixels.
     fn get_window_size(&self) -> gfx::FloatSize;
@@ -25,14 +23,13 @@ pub trait UiContext {
 
     /// The full rendering context, if this context has one.
     ///
-    /// This is the escape hatch, and it exists because three menus do genuinely
-    /// graphical work from an event handler: `world_creation` and `multiplayer_selector`
-    /// build the next menu (whose labels are uploaded as textures) and `settings_menu`
-    /// applies vsync, scale and the fps limit. Those branches are skipped under a headless
-    /// context and therefore are not covered by tests.
+    /// The escape hatch, for the three menus that do genuinely graphical work from an event
+    /// handler: `world_creation` and `multiplayer_selector` build the next menu (whose labels
+    /// are uploaded as textures) and `settings_menu` applies vsync, scale and the fps limit.
+    /// Those branches are `None` headlessly and so are the only UI logic tests cannot reach.
     ///
-    /// Nothing in the toolkit itself calls this. If you reach for it in a new widget, the
-    /// work almost certainly belongs in `render_inner` or `update_inner` instead.
+    /// Nothing in the toolkit itself calls this. If you reach for it in a new widget, the work
+    /// almost certainly belongs in `render_inner` or `update_inner` instead.
     fn as_graphics_context(&mut self) -> Option<&mut gfx::GraphicsContext> {
         None
     }

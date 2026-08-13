@@ -961,9 +961,9 @@ mod tests {
         assert!(!input.selected);
     }
 
-    /// The cursor is a byte offset that moves by characters. Stepping it a byte at a time
-    /// put it inside a multi-byte character, and the next edit panicked on a range that was
-    /// not a char boundary - which any accented letter was enough to trigger.
+    /// The cursor is a byte offset that moves by characters: stepping it a byte at a time
+    /// would land inside a multi-byte character, and the next edit would panic on a range that
+    /// is not a char boundary.
     #[test]
     #[allow(clippy::non_ascii_literal, reason = "the character being multi-byte is the point of the test")]
     fn test_the_cursor_steps_over_a_whole_multibyte_character() {
@@ -1007,9 +1007,8 @@ mod tests {
         assert_eq!(input.get_text().get(input.get_cursor_range().0..), Some("café"));
     }
 
-    /// `set_text` clamped with a lexicographic tuple `min`, so a cursor of `(2, 8)` shrunk
-    /// against `(3, 3)` stayed `(2, 8)` - 2 is less than 3, so the whole tuple compared
-    /// smaller and the 8 survived to index past the end of the new text.
+    /// Each half of the cursor is clamped separately. A lexicographic tuple `min` would leave
+    /// `(2, 8)` alone when clamping against `(3, 3)`, and the 8 then indexes past the end.
     #[test]
     fn test_set_text_clamps_both_halves_of_a_forwards_selection() {
         let mut graphics = gfx::HeadlessContext::new();
@@ -1032,8 +1031,8 @@ mod tests {
         input.on_event(&mut graphics, &press(gfx::Key::Backspace), &root);
     }
 
-    /// Typing ran characters through `text_processing` and pasting did not, so Ctrl+V could
-    /// put a character into a field that typing it would have rejected.
+    /// Pasting goes through `text_processing` exactly the way typing does, so Ctrl+V cannot put
+    /// a character into a field that typing it would have been rejected from.
     #[test]
     fn test_pasting_is_filtered_the_same_way_typing_is() {
         let mut graphics = gfx::HeadlessContext::new();
@@ -1373,15 +1372,14 @@ mod tests {
     // ---------------------------------------------------------------------------------
     // Draw list tests
     //
-    // Drawing records a `DrawCommand` rather than issuing an OpenGL call, so what a
-    // primitive draws is assertable without a window. That is the whole point of the split
-    // in `libraries/graphics/draw_list.rs`, and it is the only tier of rendering coverage
-    // that `cargo test` can run - the golden images need a real context on the main thread.
+    // Drawing records a `DrawCommand` rather than issuing a GPU call, so what a primitive
+    // draws is assertable without a window. This is the only tier of rendering coverage
+    // `cargo test` can run - the golden images need a real context on the main thread.
     //
     // What is missing here is anything that has to own a GPU object before it can record:
     // `RectArray` allocates its buffers in `new`, `ShadowContext` uploads its baked gaussian,
-    // and `Font::new_headless` deliberately skips the glyph upload, so `render_text` finds no
-    // textures and draws nothing. Those stay the golden suite's job.
+    // and `Font::new_headless` skips the glyph upload, so `render_text` finds no textures and
+    // draws nothing. Those stay the golden suite's job.
     // ---------------------------------------------------------------------------------
 
     use gfx::{BlendMode, DrawCommand, DrawList, DrawRecorder, DrawTarget};
@@ -1571,9 +1569,8 @@ mod tests {
         assert_eq!(gfx::gpu_device::get_pending_counts(), before);
     }
 
-    /// Uploading a surface with no device in the process is not an error any more, it just
-    /// produces a texture that knows its size and owns nothing. Under OpenGL the same call
-    /// without a current context was undefined behaviour, so this could not be a test.
+    /// Uploading a surface with no device in the process is not an error: it produces a texture
+    /// that knows its size and owns nothing, which is what lets layout run headlessly.
     #[test]
     fn test_a_texture_can_be_built_without_a_device() {
         let texture = gfx::Texture::load_from_surface(&Surface::new(IntSize(6, 9)));

@@ -1,16 +1,15 @@
 //! Golden-image tests for the graphics library.
 //!
-//! Every case draws into the offscreen texture that the renderer already uses, reads it
-//! back with `GraphicsContext::capture_frame`, and compares it against a committed
-//! `Surface` in `goldens/`. That makes the pixels the renderer produces a checked-in
-//! specification rather than something only a human eye ever verifies.
+//! Every case draws into the offscreen texture the renderer already uses, reads it back with
+//! `GraphicsContext::capture_frame`, and compares it against a committed `Surface` in
+//! `goldens/`. That makes the pixels the renderer produces a checked-in specification rather
+//! than something only a human eye ever verifies.
 //!
 //! # Why these are not `#[test]`s
 //!
-//! They need a real window to hang a GPU surface off. On macOS the Cocoa video driver
-//! refuses to initialise off the main thread, and libtest always runs a test body on a
-//! spawned worker - even under `--test-threads=1`. So the suite gets its own main-thread
-//! entry point:
+//! They need a real window to hang a GPU surface off. On macOS that has to be the main thread,
+//! and libtest always runs a test body on a spawned worker - even under `--test-threads=1`. So
+//! the suite gets its own main-thread entry point:
 //!
 //! ```text
 //! cargo run --features render-tests -- rendertest             # check against goldens
@@ -22,34 +21,29 @@
 //!
 //! # Determinism
 //!
-//! A golden is only useful if the same code always produces the same pixels. Three things
-//! in this toolkit fight that, and each has a `#[cfg(feature = "render-tests")]` hook to
-//! pin it: animations driven by `Instant::elapsed` (`AnimationTimer::freeze`,
-//! `Button::settle_hover`, `Toggle::settle_animation`, `TextInput::settle_animation`), the
-//! blur and scale fades on the context itself (`GraphicsContext::settle_animations`), and
-//! hover states that read the real mouse position - which the settle hooks also neutralise,
-//! because they stop the animation advancing towards whatever target hover reports.
+//! A golden is only useful if the same code always produces the same pixels. Three things in
+//! this toolkit fight that, and each has a `#[cfg(feature = "render-tests")]` hook to pin it:
+//! animations driven by `Instant::elapsed` (`AnimationTimer::freeze`, `Button::settle_hover`,
+//! `Toggle::settle_animation`, `TextInput::settle_animation`), the blur and scale fades on the
+//! context itself (`GraphicsContext::settle_animations`), and hover states that read the real
+//! mouse position - which the settle hooks also neutralise, because they stop the animation
+//! advancing towards whatever target hover reports.
+//!
+//! **Run a new case five times before committing its golden.** Iteration order and sampling
+//! error are the two things that make a case pass once and fail later.
 //!
 //! # What these cover that the draw-list tests cannot
 //!
 //! Drawing records a `DrawCommand` and the backend replays it, so `cargo test` can assert on
-//! what a primitive *asks* for without a window - see the draw list tests in `tests.rs`.
-//! These cases are the other half: they are the only check that the backend turns those
-//! commands into the right pixels, and the only coverage of anything that has to own a GPU
-//! object before it can draw at all (`RectArray`, `TextureAtlas`, `ShadowContext`, fonts).
+//! what a primitive *asks* for without a window - see the draw list tests in `tests.rs`. These
+//! cases are the other half: the only check that the backend turns those commands into the
+//! right pixels, and the only coverage of anything that has to own a GPU object before it can
+//! draw at all (`RectArray`, `TextureAtlas`, `ShadowContext`, fonts).
 //!
-//! They also happen to be a hard test of deferred resource deletion. `fixture_texture()`
-//! returns a temporary, so in a line like
-//! `fixture_texture().render(graphics, ..)` the texture is dropped at the end of the
-//! statement - long before the frame is executed in `capture_frame`. These cases only match
+//! They are also a hard test of deferred resource release. `fixture_texture()` returns a
+//! temporary, so `fixture_texture().render(graphics, ..)` drops the texture at the end of the
+//! statement, long before the frame is executed in `capture_frame`. These cases only match
 //! their goldens because `gpu_device` parks the resource until the frame has run.
-//!
-//! Running a new case five times before committing its golden is what caught the atlas bug:
-//! `TextureAtlas::new` packed in `HashMap` iteration order, which Rust randomises per
-//! process, and `Texture::render` inflated the source rectangle by `size + 0.1`, so the last
-//! column of a region rounded into whichever region happened to be packed next to it. Both
-//! are fixed - the atlas packs in key order and the source rectangle is mapped exactly - and
-//! `texture_atlas_multiple_regions` is the case that would catch a regression.
 
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
@@ -84,11 +78,11 @@ impl Tolerance {
     /// Only for the gaussian blur shader, whose float error differs between drivers and
     /// between GPU and software rasterisers.
     ///
-    /// Use this sparingly. The shadow looks like it belongs here and does not:
-    /// `ShadowContext` bakes its gaussian into a CPU `Surface` once and then draws it as an
+    /// Use this sparingly - a loose tolerance hides real changes, and this one once absorbed a
+    /// genuine one pixel shift in the text input cases. The shadow looks like it belongs here
+    /// and does not: `ShadowContext` bakes its gaussian into a CPU `Surface` and draws it as an
     /// ordinary `NEAREST` texture, so it is exactly reproducible. Everything except
-    /// `render_rect_blur` holds at `EXACT`, and a loose tolerance hides real changes - this
-    /// constant once absorbed a genuine one pixel shift in the text input cases.
+    /// `render_rect_blur` holds at `EXACT`.
     const BLURRY: Self = Self {
         max_channel_delta: 4,
         max_differing_fraction: 0.02,
@@ -483,9 +477,9 @@ fn case_texture_atlas_single_region(graphics: &mut gfx::GraphicsContext) {
 
 /// Three regions packed into one atlas, each drawn back out by key.
 ///
-/// This is the case that used to be nondeterministic, before `TextureAtlas::new` started
-/// packing in key order. Each square must be a flat colour: a column of the neighbouring
-/// region's colour along an edge means the source rectangle is being sampled too wide.
+/// The case that catches both halves of atlas sampling: each square must be a flat colour, so a
+/// column of the neighbouring region's colour along an edge means either the source rectangle
+/// is sampled too wide or the atlas did not pack in key order.
 fn case_texture_atlas_multiple_regions(graphics: &mut gfx::GraphicsContext) {
     background(graphics);
     let mut surfaces = HashMap::new();

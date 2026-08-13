@@ -1,8 +1,5 @@
 // Shaders for the whole toolkit. There are only two: everything draws textured, tinted
 // triangles, and the blur is the one effect with a kernel.
-//
-// This is a port of the GLSL 330 the OpenGL backend used, kept deliberately literal so the
-// golden images stay comparable across the change.
 
 struct Uniforms {
     transform: mat3x3<f32>,
@@ -55,9 +52,9 @@ const GAUSS = array<f32, 13>(
 
 @fragment
 fn fragment_blur(in: VertexOutput) -> @location(0) vec4<f32> {
-    // The alpha starts at 255 rather than at 0. That is not a unit value, so it saturates
-    // the channel and the blurred region comes out opaque. It is a quirk of the original
-    // GLSL, kept because the goldens record what it produces.
+    // The alpha starts at 255 rather than at 0. That is not a unit value, so it saturates the
+    // channel and the blurred region comes out opaque. A quirk, kept because the goldens
+    // record what it produces.
     var color = vec4<f32>(0.0, 0.0, 0.0, 255.0);
     let low = vec2<f32>(uniforms.limit.z, uniforms.limit.w);
     let high = vec2<f32>(uniforms.limit.x, uniforms.limit.y);

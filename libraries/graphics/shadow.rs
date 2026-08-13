@@ -2,47 +2,48 @@ use crate::libraries::graphics as gfx;
 
 use super::draw_list::DrawTarget;
 
-/// `ShadowContext` is a struct that contains the information needed to draw a shadow.
+/// Half the width of the gaussian falloff, and the size of a corner piece.
+const FADE: f32 = 200.0;
+/// The size of the baked texture: an opaque core with a `FADE` wide falloff on each side.
+const TEXTURE_SIZE: f32 = 700.0;
+/// How far a piece may reach along an edge before the middle has to be tiled instead.
+const MAX_EDGE: f32 = 350.0;
+
+/// Draws a soft drop shadow around a rectangle, from a gaussian baked into a texture once.
 pub struct ShadowContext {
     pub shadow_texture: gfx::Texture,
 }
 
 impl ShadowContext {
-    /// Sets the pixel at the given position to the given color.
-    /// The color is blended with the previous color using the alpha channel.
-    /// The alpha channel is calculated using a gaussian curve.
-    fn set_gaussian_pixel(h: i32, pixel: &mut gfx::Color) {
+    /// Multiplies a pixel's alpha by a gaussian `h` pixels into the falloff.
+    fn fade_pixel(h: i32, pixel: &mut gfx::Color) {
         let alpha = std::f32::consts::E.powf(-((h * h) as f32 / 2000.0));
         let prev_alpha = pixel.a as f32 / 255.0;
         *pixel = gfx::Color::new(0, 0, 0, (alpha * prev_alpha * 255.0) as u8);
     }
 
-    /// Creates a new `ShadowContext`.
+    /// Bakes a black square whose edges fade out along a gaussian: opaque in the middle
+    /// 300x300, falling off over the 200px border on each side. `render` then draws the eight
+    /// pieces of that border around whatever rectangle wants a shadow.
     pub fn new() -> Self {
-        // A black square whose edges fade out along a gaussian: opaque in the middle 300x300,
-        // falling off over the 200px border on each side. `render` then draws the eight
-        // pieces of that border around whatever rectangle wants a shadow.
-        //
-        // One pass over the half million pixels, not two - filling with opaque black and
-        // then fading it are the same loop.
-        let mut surface = gfx::Surface::new(gfx::IntSize(700, 700));
+        let mut surface = gfx::Surface::new(gfx::IntSize(TEXTURE_SIZE as u32, TEXTURE_SIZE as u32));
+        let fade = FADE as i32;
+        let far = (TEXTURE_SIZE - FADE) as i32;
         for (pos, pixel) in surface.iter_mut() {
+            // One pass, not two: filling with opaque black and fading it are the same loop.
             *pixel = gfx::Color::new(0, 0, 0, 255);
 
-            if pos.1 < 200 {
-                Self::set_gaussian_pixel(200 - pos.1, pixel);
+            if pos.1 < fade {
+                Self::fade_pixel(fade - pos.1, pixel);
             }
-
-            if pos.0 < 200 {
-                Self::set_gaussian_pixel(200 - pos.0, pixel);
+            if pos.0 < fade {
+                Self::fade_pixel(fade - pos.0, pixel);
             }
-
-            if pos.1 > 500 {
-                Self::set_gaussian_pixel(pos.1 - 500, pixel);
+            if pos.1 > far {
+                Self::fade_pixel(pos.1 - far, pixel);
             }
-
-            if pos.0 > 500 {
-                Self::set_gaussian_pixel(pos.0 - 500, pixel);
+            if pos.0 > far {
+                Self::fade_pixel(pos.0 - far, pixel);
             }
         }
 
@@ -51,85 +52,71 @@ impl ShadowContext {
         }
     }
 
-    /// Renders the shadow.
+    /// Renders the shadow around `rect`.
     ///
-    /// The gaussian is baked into a CPU `Surface` once in `new`, so this is nothing but a
-    /// handful of ordinary nearest-neighbour texture draws - no shader is involved, which
-    /// is why the shadow's golden images can be exact.
-    #[allow(clippy::too_many_lines)]
+    /// Nothing but nearest-neighbour texture draws - the gaussian was baked in `new` and no
+    /// shader is involved, which is why the shadow's golden images can be exact.
     pub fn render(&self, target: &dyn DrawTarget, rect: &gfx::Rect, shadow_intensity: f32) {
-        let shadow_color = gfx::Color::new(0, 0, 0, (80.0 * shadow_intensity) as u8);
+        let color = gfx::Color::new(0, 0, 0, (80.0 * shadow_intensity) as u8);
+        // A piece may cover at most half the rectangle plus the falloff, so that opposite
+        // corners meet in the middle rather than overlapping.
+        let edge_width = f32::min(FADE + rect.size.0 / 2.0, MAX_EDGE);
+        let edge_height = f32::min(FADE + rect.size.1 / 2.0, MAX_EDGE);
 
-        let shadow_edge_width = f32::min(200.0 + rect.size.0 / 2.0, 350.0);
-        let shadow_edge_height = f32::min(200.0 + rect.size.1 / 2.0, 350.0);
-
-        let mut elements = vec![
+        // (offset from the rectangle's top left, region of the texture).
+        let mut pieces = vec![
+            (gfx::FloatPos(-FADE, -FADE), gfx::FloatPos(0.0, 0.0), gfx::FloatSize(edge_width, FADE)),
+            (gfx::FloatPos(-FADE, 0.0), gfx::FloatPos(0.0, FADE), gfx::FloatSize(FADE, edge_height - FADE)),
             (
-                rect.pos - gfx::FloatPos(200.0, 200.0),
-                gfx::Rect::new(gfx::FloatPos(0.0, 0.0), gfx::FloatSize(shadow_edge_width, 200.0)),
+                gfx::FloatPos(rect.size.0 - edge_width + FADE, -FADE),
+                gfx::FloatPos(TEXTURE_SIZE - edge_width, 0.0),
+                gfx::FloatSize(edge_width, FADE),
+            ),
+            (gfx::FloatPos(rect.size.0, 0.0), gfx::FloatPos(TEXTURE_SIZE - FADE, FADE), gfx::FloatSize(FADE, edge_height - FADE)),
+            (
+                gfx::FloatPos(-FADE, rect.size.1 - edge_height + FADE),
+                gfx::FloatPos(0.0, TEXTURE_SIZE - edge_height),
+                gfx::FloatSize(FADE, edge_height - FADE),
+            ),
+            (gfx::FloatPos(-FADE, rect.size.1), gfx::FloatPos(0.0, TEXTURE_SIZE - FADE), gfx::FloatSize(edge_width, FADE)),
+            (
+                gfx::FloatPos(rect.size.0, rect.size.1 - edge_height + FADE),
+                gfx::FloatPos(TEXTURE_SIZE - FADE, TEXTURE_SIZE - edge_height),
+                gfx::FloatSize(FADE, edge_height - FADE),
             ),
             (
-                rect.pos - gfx::FloatPos(200.0, 0.0),
-                gfx::Rect::new(gfx::FloatPos(0.0, 200.0), gfx::FloatSize(200.0, shadow_edge_height - 200.0)),
-            ),
-            (
-                rect.pos + gfx::FloatPos(rect.size.0 - shadow_edge_width + 200.0, -200.0),
-                gfx::Rect::new(gfx::FloatPos(700.0 - shadow_edge_width, 0.0), gfx::FloatSize(shadow_edge_width, 200.0)),
-            ),
-            (
-                rect.pos + gfx::FloatPos(rect.size.0, 0.0),
-                gfx::Rect::new(gfx::FloatPos(500.0, 200.0), gfx::FloatSize(200.0, shadow_edge_height - 200.0)),
-            ),
-            (
-                rect.pos + gfx::FloatPos(-200.0, rect.size.1 - shadow_edge_height + 200.0),
-                gfx::Rect::new(gfx::FloatPos(0.0, 700.0 - shadow_edge_height), gfx::FloatSize(200.0, shadow_edge_height - 200.0)),
-            ),
-            (
-                rect.pos + gfx::FloatPos(-200.0, rect.size.1),
-                gfx::Rect::new(gfx::FloatPos(0.0, 500.0), gfx::FloatSize(shadow_edge_width, 200.0)),
-            ),
-            (
-                rect.pos + gfx::FloatPos(rect.size.0, rect.size.1 - shadow_edge_height + 200.0),
-                gfx::Rect::new(gfx::FloatPos(500.0, 700.0 - shadow_edge_height), gfx::FloatSize(200.0, shadow_edge_height - 200.0)),
-            ),
-            (
-                rect.pos + gfx::FloatPos(rect.size.0 - shadow_edge_width + 200.0, rect.size.1),
-                gfx::Rect::new(gfx::FloatPos(700.0 - shadow_edge_width, 500.0), gfx::FloatSize(shadow_edge_width, 200.0)),
+                gfx::FloatPos(rect.size.0 - edge_width + FADE, rect.size.1),
+                gfx::FloatPos(TEXTURE_SIZE - edge_width, TEXTURE_SIZE - FADE),
+                gfx::FloatSize(edge_width, FADE),
             ),
         ];
 
-        if (shadow_edge_height - 350.0).abs() < f32::EPSILON {
-            let mut height_to_render = rect.size.1 - 300.0;
-            while height_to_render > 0.0 {
-                elements.push((
-                    rect.pos + gfx::FloatPos(-200.0, rect.size.1 - 150.0 - height_to_render),
-                    gfx::Rect::new(gfx::FloatPos(0.0, 300.0), gfx::FloatSize(200.0, f32::min(100.0, height_to_render))),
-                ));
-                elements.push((
-                    rect.pos + gfx::FloatPos(rect.size.0, rect.size.1 - 150.0 - height_to_render),
-                    gfx::Rect::new(gfx::FloatPos(500.0, 300.0), gfx::FloatSize(200.0, f32::min(100.0, height_to_render))),
-                ));
-                height_to_render -= 100.0;
+        // A rectangle too tall or too wide for the pieces above to meet gets the middle of the
+        // texture tiled along the gap, 100px at a time.
+        if (edge_height - MAX_EDGE).abs() < f32::EPSILON {
+            let mut left = rect.size.1 - 300.0;
+            while left > 0.0 {
+                let y = rect.size.1 - 150.0 - left;
+                let size = gfx::FloatSize(FADE, f32::min(100.0, left));
+                pieces.push((gfx::FloatPos(-FADE, y), gfx::FloatPos(0.0, 300.0), size));
+                pieces.push((gfx::FloatPos(rect.size.0, y), gfx::FloatPos(TEXTURE_SIZE - FADE, 300.0), size));
+                left -= 100.0;
             }
         }
 
-        if (shadow_edge_width - 350.0).abs() < f32::EPSILON {
-            let mut width_to_render = rect.size.0 - 300.0;
-            while width_to_render > 0.0 {
-                elements.push((
-                    rect.pos + gfx::FloatPos(rect.size.0 - 150.0 - width_to_render, -200.0),
-                    gfx::Rect::new(gfx::FloatPos(300.0, 0.0), gfx::FloatSize(f32::min(100.0, width_to_render), 200.0)),
-                ));
-                elements.push((
-                    rect.pos + gfx::FloatPos(rect.size.0 - 150.0 - width_to_render, rect.size.1),
-                    gfx::Rect::new(gfx::FloatPos(300.0, 500.0), gfx::FloatSize(f32::min(100.0, width_to_render), 200.0)),
-                ));
-                width_to_render -= 100.0;
+        if (edge_width - MAX_EDGE).abs() < f32::EPSILON {
+            let mut left = rect.size.0 - 300.0;
+            while left > 0.0 {
+                let x = rect.size.0 - 150.0 - left;
+                let size = gfx::FloatSize(f32::min(100.0, left), FADE);
+                pieces.push((gfx::FloatPos(x, -FADE), gfx::FloatPos(300.0, 0.0), size));
+                pieces.push((gfx::FloatPos(x, rect.size.1), gfx::FloatPos(300.0, TEXTURE_SIZE - FADE), size));
+                left -= 100.0;
             }
         }
 
-        for (pos, src_rect) in elements {
-            self.shadow_texture.render(target, 1.0, pos, Some(src_rect), false, Some(shadow_color));
+        for (offset, src_pos, src_size) in pieces {
+            self.shadow_texture.render(target, 1.0, rect.pos + offset, Some(gfx::Rect::new(src_pos, src_size)), false, Some(color));
         }
     }
 }

@@ -1,30 +1,18 @@
 //! The wgpu half of the renderer: how a `DrawList` becomes pixels.
 //!
-//! This replaced a hand-written OpenGL 3.3 backend. The draw list is what made that a
-//! contained change - the toolkit above this file describes a frame as data and never knew
-//! which API drew it, so only this file, the two resource types and the window setup moved.
-//!
-//! # Shape of a frame
-//!
 //! `execute` runs in two phases. The first walks the command list and turns it into a flat
 //! list of `Segment`s plus one `Uniforms` entry per draw, because wgpu wants all the uniform
 //! data written before any of it is encoded. The second encodes the segments into render
 //! passes. A `Blur` command splits the frame, since blurring means sampling what has already
 //! been drawn and wgpu cannot sample the texture it is currently drawing into.
 //!
-//! # Differences from the OpenGL backend that are visible in the goldens
+//! Two things about the output are deliberate and easy to undo by accident:
 //!
-//! - **Rectangle outlines are four thin quads, not `GL_LINES`.** Line rasterisation rules
-//!   differ between Metal, Vulkan and DX12, so a line primitive would have made the output
-//!   depend on the machine, which is the opposite of what the golden images are for. Quads
-//!   put the border exactly on the rectangle's own pixels.
-//! - **The offscreen texture is stored top down.** OpenGL's framebuffer origin is at the
-//!   bottom left, so the old code flipped in two places: `glReadPixels` output, and the blur's
-//!   texture transform, which negated y and relied on `GL_REPEAT` wrapping to land back in
-//!   the right place. wgpu's origin is top left, so both flips are gone.
-//!
-//! Everything else - the transform arithmetic, the blend factors, nearest sampling, the
-//! gaussian weights - is a faithful port, which is why the rest of the goldens survived.
+//! - **Rectangle outlines are four thin quads, not line primitives.** Line rasterisation rules
+//!   differ between Metal, Vulkan and DX12, which would make the output depend on the machine
+//!   - the opposite of what the golden images are for. Quads put the border exactly on the
+//!   rectangle's own pixels.
+//! - **Texture draws are snapped to a whole pixel** of the offscreen. See `plan_command`.
 
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -33,8 +21,7 @@ use anyhow::{anyhow, Result};
 
 use crate::libraries::graphics as gfx;
 
-use super::blend_mode::BlendMode;
-use super::draw_list::{DrawCommand, DrawList};
+use super::draw_list::{BlendMode, DrawCommand, DrawList};
 use super::gpu_device::{self, GpuDevice, MeshEntry};
 use super::transformation::Transformation;
 
@@ -101,6 +88,42 @@ enum Segment {
     BlurPass { uniform: u32, to_back: bool },
 }
 
+/// A frame being planned: what to encode, and the uniform data it indexes into.
+struct Plan {
+    uniforms: Vec<Uniforms>,
+    segments: Vec<Segment>,
+    /// The blend mode in force at this point in the list.
+    blend: BlendMode,
+}
+
+impl Plan {
+    const fn new() -> Self {
+        Self {
+            uniforms: Vec::new(),
+            segments: Vec::new(),
+            blend: BlendMode::Alpha,
+        }
+    }
+
+    fn draw(&mut self, uniform: Uniforms, texture: Option<u32>, geometry: Geometry) {
+        self.segments.push(Segment::Draw {
+            uniform: self.uniforms.len() as u32,
+            blend: self.blend,
+            texture,
+            geometry,
+        });
+        self.uniforms.push(uniform);
+    }
+
+    fn blur_pass(&mut self, uniform: Uniforms, to_back: bool) {
+        self.segments.push(Segment::BlurPass {
+            uniform: self.uniforms.len() as u32,
+            to_back,
+        });
+        self.uniforms.push(uniform);
+    }
+}
+
 /// The two offscreen textures the frame is drawn into and blurred between.
 struct Offscreen {
     /// Only the golden-image readback needs the texture itself; the view keeps it alive.
@@ -158,6 +181,8 @@ pub struct WgpuBackend {
     uniform_capacity: u64,
     /// Distance between consecutive uniform entries, rounded up to the device's alignment.
     uniform_stride: u32,
+    /// Staging bytes for `write_uniforms`, kept so a frame does not allocate.
+    uniform_bytes: Vec<u8>,
 
     normalization_transform: Transformation,
     blur_enabled: bool,
@@ -261,6 +286,7 @@ impl WgpuBackend {
             uniform_bind_group,
             uniform_capacity,
             uniform_stride,
+            uniform_bytes: Vec::new(),
             normalization_transform: Transformation::new(),
             blur_enabled: true,
             blur_intensity: 0.0,
@@ -347,49 +373,36 @@ impl WgpuBackend {
     pub(super) fn execute(&mut self, list: &DrawList, window_size: gfx::FloatSize) {
         let Some(gpu) = gpu_device::get() else { return };
 
-        let mut uniforms: Vec<Uniforms> = Vec::new();
-        let mut segments: Vec<Segment> = Vec::new();
-        let mut blend = BlendMode::Alpha;
-
+        let mut plan = Plan::new();
         for command in list.get_commands() {
-            self.plan_command(command, window_size, &mut blend, &mut uniforms, &mut segments);
+            self.plan_command(command, window_size, &mut plan);
         }
 
         let clear = std::mem::take(&mut self.clear_next_frame);
-        if uniforms.is_empty() && !clear {
+        if plan.uniforms.is_empty() && !clear {
             gpu.collect();
             return;
         }
 
-        self.write_uniforms(gpu, &uniforms);
+        self.write_uniforms(gpu, &plan.uniforms);
 
         let mut encoder = gpu.device.create_command_encoder(&wgpu::CommandEncoderDescriptor { label: Some("frame") });
-        self.encode(gpu, &mut encoder, &segments, clear);
+        self.encode(gpu, &mut encoder, &plan.segments, clear);
         gpu.queue.submit(Some(encoder.finish()));
 
         gpu.collect();
     }
 
-    fn plan_command(&self, command: &DrawCommand, window_size: gfx::FloatSize, blend: &mut BlendMode, uniforms: &mut Vec<Uniforms>, segments: &mut Vec<Segment>) {
-        let push = |uniform: Uniforms, texture: Option<u32>, geometry: Geometry, uniforms: &mut Vec<Uniforms>, segments: &mut Vec<Segment>| {
-            segments.push(Segment::Draw {
-                uniform: uniforms.len() as u32,
-                blend: *blend,
-                texture,
-                geometry,
-            });
-            uniforms.push(uniform);
-        };
-
+    fn plan_command(&self, command: &DrawCommand, window_size: gfx::FloatSize, plan: &mut Plan) {
         match *command {
             DrawCommand::Rect { rect, color } => {
-                push(self.rect_uniform(rect, color), None, Geometry::Quad, uniforms, segments);
+                plan.draw(self.rect_uniform(rect, color), None, Geometry::Quad);
             }
             DrawCommand::RectOutline { rect, color } => {
                 // Four one pixel quads on the rectangle's own edge pixels. See the module
                 // docs: a line primitive would rasterise differently per backend.
                 for edge in outline_edges(rect) {
-                    push(self.rect_uniform(edge, color), None, Geometry::Quad, uniforms, segments);
+                    plan.draw(self.rect_uniform(edge, color), None, Geometry::Quad);
                 }
             }
             DrawCommand::Texture {
@@ -401,21 +414,22 @@ impl WgpuBackend {
                 flipped,
                 color,
             } => {
-                // **Snapped to a whole pixel**, which is what keeps a texel from coming out a
-                // pixel wider than its neighbour.
+                // **Snapped to a whole pixel**, which keeps a texel from coming out a pixel
+                // wider than its neighbour.
                 //
                 // Sampling is `NEAREST`, so a destination pixel takes whichever texel its
                 // centre falls in. With the quad starting on a whole pixel and an integer
                 // scale, those centres land halfway through a texel and every texel gets the
-                // same number of pixels. Off by half and they land exactly *on* the
-                // boundaries instead, where which side they fall on comes down to the last
-                // bit of a float interpolated across the quad - so a 3x glyph pixel comes out
-                // 2 or 4 wide, and does it differently along the string. That is the uneven,
-                // faintly slanted look text had wherever layout put it between pixels, which
-                // in the world list was every row.
+                // same number of pixels. Off by half and they land exactly *on* the boundaries
+                // instead, where which side they fall on comes down to the last bit of a float
+                // interpolated across the quad - so a 3x glyph pixel comes out 2 or 4 wide,
+                // and differently along the string, which reads as uneven, faintly slanted
+                // text. Layout puts things on half pixels constantly.
                 //
                 // The grid is the offscreen's, not the logical one, so on a `HiDPI` display
-                // this still leaves half a logical pixel of movement to animate along.
+                // this still leaves half a logical pixel of movement to animate along. Meshes
+                // are **not** snapped: `RectArray` maps texture coordinates per vertex, and
+                // the world would jitter against the camera.
                 let pos = self.snap_to_pixel(pos, window_size);
 
                 let mut transform = self.normalization_transform.clone();
@@ -427,18 +441,19 @@ impl WgpuBackend {
                 transform.stretch((src_rect.size.0 * scale, src_rect.size.1 * scale));
 
                 // The unit square maps onto the source rectangle and then onto [0,1] of the
-                // whole texture. The stretch is by exactly `src_rect.size`: sampling happens
-                // at texel centres, so the last output column already lands strictly inside
-                // the region. There used to be a `+ 0.1` fudge here, and it pushed that
-                // column into the neighbouring texel.
+                // whole texture. The stretch is by exactly `src_rect.size` - **no fudge
+                // factor**. Sampling happens at texel centres, so the last output column
+                // already lands strictly inside the region; inflating the region pushes it
+                // into the neighbouring texel, which shows up as a sliver of the wrong sprite.
                 let mut texture_transform = texel_scale(texture_size);
                 texture_transform.translate(src_rect.pos);
                 texture_transform.stretch((src_rect.size.0, src_rect.size.1));
 
-                push(Uniforms::new(&transform, &texture_transform, color, true), Some(texture.get_id()), Geometry::Quad, uniforms, segments);
+                plan.draw(Uniforms::new(&transform, &texture_transform, color, true), Some(texture.get_id()), Geometry::Quad);
             }
             DrawCommand::Mesh { mesh, texture, pos } => {
-                // to avoid artifacts
+                // A hundredth of a pixel, to keep a vertex that lands exactly on a pixel
+                // boundary from rasterising into the wrong one and seaming the chunk grid.
                 let pos = gfx::FloatPos(pos.0 + 0.01, pos.1 + 0.01);
                 let mut transform = self.normalization_transform.clone();
                 transform.translate(pos);
@@ -448,16 +463,14 @@ impl WgpuBackend {
                     None => (None, Transformation::new()),
                 };
 
-                push(
+                plan.draw(
                     Uniforms::new(&transform, &texture_transform, gfx::Color::new(255, 255, 255, 255), texture.is_some()),
                     texture_id,
                     Geometry::Mesh(mesh.get_id()),
-                    uniforms,
-                    segments,
                 );
             }
-            DrawCommand::Blur { rect, radius } => self.plan_blur(rect, radius, window_size, uniforms, segments),
-            DrawCommand::SetBlendMode(mode) => *blend = mode,
+            DrawCommand::Blur { rect, radius } => self.plan_blur(rect, radius, window_size, plan),
+            DrawCommand::SetBlendMode(mode) => plan.blend = mode,
         }
     }
 
@@ -468,13 +481,9 @@ impl WgpuBackend {
         Uniforms::new(&transform, &Transformation::new(), color, false)
     }
 
-    /// Turns one blur command into its ping-pong passes.
-    ///
-    /// A faithful port of the OpenGL version, including the pass count and the offsets. The
-    /// one change is that the texture transform no longer negates y: OpenGL stored the
-    /// framebuffer bottom up, so the old code flipped and leaned on `GL_REPEAT` to wrap back
-    /// into range.
-    fn plan_blur(&self, rect: gfx::Rect, radius: i32, window_size: gfx::FloatSize, uniforms: &mut Vec<Uniforms>, segments: &mut Vec<Segment>) {
+    /// Turns one blur command into its ping-pong passes: two per axis, plus a wider pair once
+    /// the radius is large enough to need it.
+    fn plan_blur(&self, rect: gfx::Rect, radius: i32, window_size: gfx::FloatSize, plan: &mut Plan) {
         let radius = radius as f32 * self.blur_intensity / 5.0;
         if radius < 1.0 {
             return;
@@ -519,16 +528,13 @@ impl WgpuBackend {
             uniform.limit = [x2, y2, x1, y1];
             uniform.blur_offset = offset;
 
-            segments.push(Segment::BlurPass {
-                uniform: uniforms.len() as u32,
-                // Even passes read the front and write the back, odd ones read it back. The
-                // count is always even, so the result ends up in the front texture.
-                to_back: index % 2 == 0,
-            });
-            uniforms.push(uniform);
+            // Even passes read the front and write the back, odd ones the other way round. The
+            // count is always even, so the result ends up in the front texture.
+            plan.blur_pass(uniform, index % 2 == 0);
         }
     }
 
+    /// Packs one frame's uniforms into the buffer, one per stride, growing it if needed.
     fn write_uniforms(&mut self, gpu: &GpuDevice, uniforms: &[Uniforms]) {
         let needed = u64::from(self.uniform_stride) * uniforms.len() as u64;
         if needed > self.uniform_capacity {
@@ -542,15 +548,17 @@ impl WgpuBackend {
             self.uniform_bind_group = build_uniform_bind_group(gpu, &self.uniform_layout, &self.uniform_buffer);
         }
 
+        // Kept between frames so a steady state frame does not allocate.
         let stride = self.uniform_stride as usize;
-        let mut bytes = vec![0u8; stride * uniforms.len()];
+        self.uniform_bytes.clear();
+        self.uniform_bytes.resize(stride * uniforms.len(), 0);
         for (index, uniform) in uniforms.iter().enumerate() {
             let start = index * stride;
-            if let Some(slot) = bytes.get_mut(start..start + std::mem::size_of::<Uniforms>()) {
+            if let Some(slot) = self.uniform_bytes.get_mut(start..start + std::mem::size_of::<Uniforms>()) {
                 slot.copy_from_slice(bytemuck::bytes_of(uniform));
             }
         }
-        gpu.queue.write_buffer(&self.uniform_buffer, 0, &bytes);
+        gpu.queue.write_buffer(&self.uniform_buffer, 0, &self.uniform_bytes);
     }
 
     /// Turns the planned segments into render passes.
@@ -635,10 +643,8 @@ impl WgpuBackend {
 
     /// Copies the offscreen texture onto the window.
     ///
-    /// OpenGL did this with `glBlitFramebuffer` and a hardcoded 2x, which was wrong on any
-    /// display that is not `HiDPI`. Here the surface is configured at the real drawable size
-    /// and the offscreen texture is drawn as a nearest-sampled quad over it, so the upscale
-    /// is whatever the display actually needs.
+    /// The surface is configured at the real drawable size and the offscreen is drawn over it
+    /// as a nearest-sampled quad, so this is normally a copy rather than a scale.
     pub(super) fn present(&mut self) -> Result<()> {
         let Some(gpu) = gpu_device::get() else { return Ok(()) };
 
@@ -679,10 +685,7 @@ impl WgpuBackend {
     pub(super) fn update_blur(&mut self) {
         let target = if self.blur_enabled { 1.0 } else { 0.0 };
         while self.blur_animation_timer.frame_ready() {
-            self.blur_intensity += (target - self.blur_intensity) / 10.0;
-            if f32::abs(self.blur_intensity - target) < 0.001 {
-                self.blur_intensity = target;
-            }
+            self.blur_intensity = gfx::approach(self.blur_intensity, target, 10.0, 0.001);
         }
     }
 
@@ -705,9 +708,8 @@ impl WgpuBackend {
 
     /// Reads the offscreen texture back into a `Surface`.
     ///
-    /// Upstream of `present`, so what a golden records is what the game drew rather than
-    /// what the display scaled it to. Unlike OpenGL's `glReadPixels` this needs no vertical
-    /// flip: row zero is the top.
+    /// Upstream of `present`, so what a golden records is what the game drew rather than what
+    /// the display scaled it to.
     #[cfg(feature = "render-tests")]
     pub(super) fn read_pixels(&self) -> Result<gfx::Surface> {
         let gpu = gpu_device::get().ok_or_else(|| anyhow!("no gpu device"))?;
@@ -869,10 +871,10 @@ fn texel_scale(texture_size: gfx::FloatSize) -> Transformation {
     result
 }
 
-/// The OpenGL blend functions, which applied to the alpha channel as well as to colour.
+/// The blend factors, which apply to the alpha channel as well as to colour.
 ///
-/// Keeping that is deliberate: it is what makes a translucent draw lower the framebuffer's
-/// alpha, which is invisible on screen but shows up in a capture, and the goldens record it.
+/// That means a translucent draw lowers the framebuffer's alpha. Invisible on screen, because
+/// the final blit ignores alpha, but it shows up in a capture and the goldens record it.
 const fn blend_state(mode: BlendMode) -> wgpu::BlendState {
     let component = match mode {
         BlendMode::Alpha => wgpu::BlendComponent {
@@ -898,7 +900,7 @@ fn begin_pass<'encoder>(encoder: &'encoder mut wgpu::CommandEncoder, view: &wgpu
             resolve_target: None,
             ops: wgpu::Operations {
                 // The game never clears: it draws an opaque background over the whole window
-                // every frame, exactly as it did under OpenGL.
+                // every frame. Only the golden-image harness asks for one.
                 load: if clear { wgpu::LoadOp::Clear(wgpu::Color::TRANSPARENT) } else { wgpu::LoadOp::Load },
                 store: wgpu::StoreOp::Store,
             },
@@ -929,12 +931,10 @@ fn build_quad_buffer(gpu: &GpuDevice) -> wgpu::Buffer {
 /// A 1x1 white texture, bound whenever a draw has no texture of its own.
 ///
 /// WGSL has no way to leave a binding empty, and the shader ignores the sample when
-/// `has_texture` is zero, so what this contains never reaches the output.
-///
-/// Built straight off the device rather than through `gpu_device`'s registry: this one lives
-/// for the whole process, so an id nothing owns and nothing can ever release would only be
-/// something for the sweep to walk past. Dropping the `wgpu::Texture` here is fine - the view
-/// and the bind group hold their own references to it.
+/// `has_texture` is zero, so what this contains never reaches the output. It lives for the
+/// whole process, so it is built straight off the device rather than through the registry;
+/// dropping the `wgpu::Texture` here is fine, since the view and the bind group hold their own
+/// references to it.
 fn build_white_bind_group(gpu: &GpuDevice) -> wgpu::BindGroup {
     let size = wgpu::Extent3d {
         width: 1,

@@ -1,44 +1,39 @@
-//! The GPU device, and the registry that maps a `DrawCommand`'s handles back to real
-//! wgpu resources.
+//! The GPU device, and the registry that maps a `DrawCommand`'s handles back to real wgpu
+//! resources.
 //!
 //! # Why the device is global
 //!
 //! `Texture::load_from_surface(&surface)` is called from about eighty places and takes no
-//! context. Under OpenGL that worked because the context was an implicit thread-global; wgpu
-//! has no such thing, so the choice was to thread a `&Device` through every one of those
-//! call sites or to keep the implicit global and make it explicit. This is the latter. It is
-//! the same coupling the code already had, just written down.
-//!
-//! One consequence is an improvement: creating a texture with no device no longer explodes,
-//! it produces a `Texture` that knows its size but owns nothing. Layout code works headlessly
-//! and `cargo test` can construct real textures.
+//! context. The choice was to thread a `&Device` through every one of those call sites or to
+//! keep the coupling and write it down; this is the latter. Creating a texture with no device
+//! is not an error, it produces a `Texture` that knows its size but owns nothing, which is
+//! what lets layout code and `cargo test` run with no window.
 //!
 //! # Why resources are handles into a registry
 //!
-//! A `DrawCommand` has to outlive the borrow of whatever recorded it, so it names resources
-//! by id. The registry owns the wgpu objects and hands out ids. `Texture` and `VertexBuffer`
-//! are then just RAII wrappers over an id.
+//! A `DrawCommand` has to outlive the borrow of whatever recorded it, so it names resources by
+//! id. The registry owns the wgpu objects and hands out ids; `Texture` and `VertexBuffer` are
+//! RAII wrappers over one.
 //!
-//! Dropping one does not remove its entry immediately - it parks the id, and the backend
-//! sweeps after the frame's commands have executed. That gap is not an edge case: `login.rs`
-//! builds a text texture inside `render_inner` and drops it there, every world chunk replaces
-//! its whole `RectArray` when it changes, and the golden-image cases draw from temporaries
-//! that die at the end of the statement. Removing the entry at drop time would leave those
-//! commands pointing at nothing.
+//! Dropping one parks the id rather than removing the entry, and the backend sweeps once the
+//! frame's commands have executed. That gap is not an edge case: `login.rs` builds a text
+//! texture inside `render_inner` and drops it there, every world chunk replaces its whole
+//! `RectArray` when it changes, and the golden-image cases draw from temporaries that die at
+//! the end of the statement. **Removing an entry at drop time would make those draws silently
+//! vanish.**
 
 use std::collections::HashMap;
 use std::sync::atomic::{AtomicU32, Ordering};
-use std::sync::{Mutex, OnceLock, PoisonError};
+use std::sync::{Mutex, MutexGuard, OnceLock, PoisonError};
 
 use crate::libraries::graphics as gfx;
 
 /// Flattens a surface's pixels into the `Rgba8Unorm` byte order the GPU wants.
 ///
-/// A copy rather than a reinterpret of the `Vec<Color>`. Making `Color` `bytemuck::Pod`
-/// would be free, but `color.rs` is one of the leaf files `build_main.rs` compiles into the
-/// build script, and that deliberately has none of the game's dependencies. Textures are
-/// created when a menu or a font is built, never per frame, so the extra pass does not
-/// matter.
+/// A copy rather than a reinterpret of the `Vec<Color>`: making `Color` `bytemuck::Pod` would
+/// pull a dependency into `color.rs`, which `build_main.rs` compiles into the build script and
+/// which deliberately has none. Textures are created when a menu or a font is built, never per
+/// frame, so the extra pass does not matter.
 fn surface_bytes(surface: &gfx::Surface) -> Vec<u8> {
     let mut bytes = Vec::with_capacity(surface.pixels.len() * 4);
     for pixel in &surface.pixels {
@@ -47,8 +42,7 @@ fn surface_bytes(surface: &gfx::Surface) -> Vec<u8> {
     bytes
 }
 
-/// An uploaded vertex buffer. There is no index buffer: the OpenGL version had one, but its
-/// indices were always `0..n`, so it described nothing the vertex order did not.
+/// An uploaded vertex buffer. There is no index buffer: the indices would always be `0..n`.
 pub(super) struct MeshEntry {
     pub buffer: wgpu::Buffer,
     pub vertex_count: u32,
@@ -60,8 +54,8 @@ pub(super) struct GpuDevice {
     /// Shared by every texture bind group and by the backend's pipeline layout.
     pub texture_bind_group_layout: wgpu::BindGroupLayout,
     pub sampler: wgpu::Sampler,
-    /// The bind group is all a draw needs. wgpu keeps the texture and the view behind it
-    /// alive by reference, so there is nothing else to hold on to.
+    /// The bind group is all a draw needs; wgpu keeps the texture and the view behind it alive
+    /// by reference.
     textures: Mutex<HashMap<u32, wgpu::BindGroup>>,
     meshes: Mutex<HashMap<u32, MeshEntry>>,
     next_id: AtomicU32,
@@ -71,11 +65,9 @@ pub(super) struct GpuDevice {
 
 static GPU: OnceLock<GpuDevice> = OnceLock::new();
 
-/// Publishes the device. Called once, by the renderer, as soon as wgpu hands one over.
-///
-/// A second call is ignored rather than an error: two `GraphicsContext`s in one process
-/// would share the first device, which is exactly what the OpenGL version did with its
-/// context.
+/// Publishes the device. Called once, by the renderer, as soon as wgpu hands one over. A
+/// second call is ignored rather than an error: two `GraphicsContext`s in one process share
+/// the first device.
 pub(super) fn init(device: wgpu::Device, queue: wgpu::Queue) {
     let texture_bind_group_layout = device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
         label: Some("texture"),
@@ -84,9 +76,9 @@ pub(super) fn init(device: wgpu::Device, queue: wgpu::Queue) {
                 binding: 0,
                 visibility: wgpu::ShaderStages::FRAGMENT,
                 ty: wgpu::BindingType::Texture {
-                    // Nearest only, everywhere. Filtering is what a pixel art game must not
-                    // do, and declaring it non-filterable makes that a validation error
-                    // rather than a soft blur nobody notices.
+                    // Nearest only, everywhere. Filtering is what a pixel art game must not do,
+                    // and declaring it non-filterable makes that a validation error rather than
+                    // a soft blur nobody notices.
                     sample_type: wgpu::TextureSampleType::Float { filterable: false },
                     view_dimension: wgpu::TextureViewDimension::D2,
                     multisampled: false,
@@ -113,7 +105,6 @@ pub(super) fn init(device: wgpu::Device, queue: wgpu::Queue) {
         ..Default::default()
     });
 
-    // A second call is a no-op: the first device wins.
     drop(GPU.set(GpuDevice {
         device,
         queue,
@@ -131,6 +122,23 @@ pub(super) fn init(device: wgpu::Device, queue: wgpu::Queue) {
 /// The device, or `None` in a process that never opened a window.
 pub(super) fn get() -> Option<&'static GpuDevice> {
     GPU.get()
+}
+
+fn lock<T>(mutex: &Mutex<T>) -> MutexGuard<'_, T> {
+    mutex.lock().unwrap_or_else(PoisonError::into_inner)
+}
+
+/// Removes every parked id from its registry, taking the registry lock only if there is
+/// anything to remove.
+fn sweep<T>(pending: &Mutex<Vec<u32>>, registry: &Mutex<HashMap<u32, T>>) {
+    let ids = std::mem::take(&mut *lock(pending));
+    if ids.is_empty() {
+        return;
+    }
+    let mut registry = lock(registry);
+    for id in ids {
+        registry.remove(&id);
+    }
 }
 
 impl GpuDevice {
@@ -151,9 +159,8 @@ impl GpuDevice {
             mip_level_count: 1,
             sample_count: 1,
             dimension: wgpu::TextureDimension::D2,
-            // Not the sRGB variant. The game's surfaces are raw bytes that the OpenGL
-            // renderer uploaded as RGBA8 and blended in that space; asking the hardware to
-            // convert would change every colour it ever drew.
+            // Not the sRGB variant: the game's surfaces are raw bytes blended in that space,
+            // and asking the hardware to convert would change every colour it ever drew.
             format: wgpu::TextureFormat::Rgba8Unorm,
             usage: wgpu::TextureUsages::TEXTURE_BINDING | wgpu::TextureUsages::COPY_DST,
             view_formats: &[],
@@ -183,7 +190,7 @@ impl GpuDevice {
 
         let id = self.take_id();
         let bind_group = self.create_texture_bind_group(&texture.create_view(&wgpu::TextureViewDescriptor::default()));
-        self.textures.lock().unwrap_or_else(PoisonError::into_inner).insert(id, bind_group);
+        lock(&self.textures).insert(id, bind_group);
         id
     }
 
@@ -218,54 +225,41 @@ impl GpuDevice {
         }
 
         let id = self.take_id();
-        self.meshes.lock().unwrap_or_else(PoisonError::into_inner).insert(id, MeshEntry { buffer, vertex_count });
+        lock(&self.meshes).insert(id, MeshEntry { buffer, vertex_count });
         id
     }
 
     /// Locks the texture registry for the length of a frame's encoding.
     ///
-    /// Taking a guard rather than a closure per lookup is what lets the backend hold the
-    /// bind group references it needs across a whole render pass. The mesh registry is
-    /// always locked after this one, and nothing else takes both, so the order is fixed.
-    pub(super) fn lock_textures(&self) -> std::sync::MutexGuard<'_, HashMap<u32, wgpu::BindGroup>> {
-        self.textures.lock().unwrap_or_else(PoisonError::into_inner)
+    /// A guard rather than a closure per lookup, so the backend can hold the bind group
+    /// references it needs across a whole render pass. The mesh registry is always locked
+    /// after this one, and nothing else takes both, so the order is fixed.
+    pub(super) fn lock_textures(&self) -> MutexGuard<'_, HashMap<u32, wgpu::BindGroup>> {
+        lock(&self.textures)
     }
 
-    pub(super) fn lock_meshes(&self) -> std::sync::MutexGuard<'_, HashMap<u32, MeshEntry>> {
-        self.meshes.lock().unwrap_or_else(PoisonError::into_inner)
+    pub(super) fn lock_meshes(&self) -> MutexGuard<'_, HashMap<u32, MeshEntry>> {
+        lock(&self.meshes)
     }
 
-    /// Releases everything parked since the last sweep. Only the backend calls this, and
-    /// only once the frame's commands have been submitted.
+    /// Releases everything parked since the last sweep. Only the backend calls this, and only
+    /// once the frame's commands have been submitted.
     pub(super) fn collect(&self) {
-        let textures = std::mem::take(&mut *self.pending_textures.lock().unwrap_or_else(PoisonError::into_inner));
-        let meshes = std::mem::take(&mut *self.pending_meshes.lock().unwrap_or_else(PoisonError::into_inner));
-
-        if !textures.is_empty() {
-            let mut registry = self.textures.lock().unwrap_or_else(PoisonError::into_inner);
-            for id in textures {
-                registry.remove(&id);
-            }
-        }
-        if !meshes.is_empty() {
-            let mut registry = self.meshes.lock().unwrap_or_else(PoisonError::into_inner);
-            for id in meshes {
-                registry.remove(&id);
-            }
-        }
+        sweep(&self.pending_textures, &self.textures);
+        sweep(&self.pending_meshes, &self.meshes);
     }
 }
 
 /// Parks a texture id. See the module docs for why this is not an immediate removal.
 pub(super) fn delete_texture_later(id: u32) {
     if let Some(gpu) = get() {
-        gpu.pending_textures.lock().unwrap_or_else(PoisonError::into_inner).push(id);
+        lock(&gpu.pending_textures).push(id);
     }
 }
 
 pub(super) fn delete_mesh_later(id: u32) {
     if let Some(gpu) = get() {
-        gpu.pending_meshes.lock().unwrap_or_else(PoisonError::into_inner).push(id);
+        lock(&gpu.pending_meshes).push(id);
     }
 }
 
@@ -273,10 +267,5 @@ pub(super) fn delete_mesh_later(id: u32) {
 /// nothing to park.
 #[cfg(test)]
 pub fn get_pending_counts() -> (usize, usize) {
-    get().map_or((0, 0), |gpu| {
-        (
-            gpu.pending_textures.lock().unwrap_or_else(PoisonError::into_inner).len(),
-            gpu.pending_meshes.lock().unwrap_or_else(PoisonError::into_inner).len(),
-        )
-    })
+    get().map_or((0, 0), |gpu| (lock(&gpu.pending_textures).len(), lock(&gpu.pending_meshes).len()))
 }

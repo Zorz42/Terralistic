@@ -1,9 +1,8 @@
 use crate::libraries::graphics as gfx;
 use crate::libraries::graphics::{BaseUiElement, UiElement};
 
-/// Sprite is a struct that represents a texture that can be rendered to the screen.
-/// It has a position, a scale, and an orientation. It can also be flipped and has
-/// a color.
+/// A texture that positions itself like a UI element: a position, a scale and an orientation,
+/// plus a flip, a tint and a source rectangle.
 pub struct Sprite {
     texture: gfx::Texture,
     pub pos: gfx::FloatPos,
@@ -15,7 +14,6 @@ pub struct Sprite {
 }
 
 impl Sprite {
-    /// Creates a new Sprite with default values.
     #[must_use]
     pub const fn new() -> Self {
         Self {
@@ -29,10 +27,11 @@ impl Sprite {
         }
     }
 
+    /// Replaces the texture and resets the source rectangle to the whole of it, so a sprite
+    /// reused for a new texture does not keep cropping to the old one.
     pub fn set_texture(&mut self, texture: gfx::Texture) {
         self.texture = texture;
-        self.src_rect.size = self.texture.get_texture_size();
-        self.src_rect.pos = gfx::FloatPos(0.0, 0.0);
+        self.src_rect = gfx::Rect::new(gfx::FloatPos(0.0, 0.0), self.texture.get_texture_size());
     }
 
     #[must_use]
@@ -40,9 +39,11 @@ impl Sprite {
         &self.texture
     }
 
+    /// The drawn size, which is the *source rectangle* scaled rather than the whole texture -
+    /// layout and drawing have to agree when a sprite crops.
     #[must_use]
     pub fn get_size(&self) -> gfx::FloatSize {
-        gfx::FloatSize(self.texture.get_texture_size().0 * self.scale, self.texture.get_texture_size().1 * self.scale)
+        gfx::FloatSize(self.src_rect.size.0 * self.scale, self.src_rect.size.1 * self.scale)
     }
 }
 
@@ -55,17 +56,12 @@ impl UiElement for Sprite {
         Vec::new()
     }
 
-    /// Renders the sprite.
     fn render_inner(&mut self, graphics: &mut gfx::GraphicsContext, parent: &gfx::Container) {
-        let size = gfx::FloatSize(self.src_rect.size.0 * self.scale, self.src_rect.size.1 * self.scale);
-
-        let container = gfx::Container::new(graphics, self.pos, size, self.orientation, Some(parent));
-
+        let container = self.get_container(graphics, parent);
         self.texture
             .render(graphics, self.scale, container.get_absolute_rect().pos, Some(self.src_rect), self.flip, Some(self.color));
     }
 
-    /// Generates containers for the sprite.
     fn get_container(&self, graphics: &dyn gfx::UiContext, parent: &gfx::Container) -> gfx::Container {
         gfx::Container::new(graphics, self.pos, self.get_size(), self.orientation, Some(parent))
     }
