@@ -95,11 +95,6 @@ impl TextInput {
     }
 
     #[must_use]
-    pub fn is_hovered(&self, graphics: &dyn gfx::UiContext, parent_container: &gfx::Container) -> bool {
-        self.get_container(graphics, parent_container).get_absolute_rect().contains(graphics.get_mouse_pos())
-    }
-
-    #[must_use]
     pub const fn get_text(&self) -> &String {
         &self.text
     }

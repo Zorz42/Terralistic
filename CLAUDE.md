@@ -18,7 +18,7 @@ cargo build --profile dist # what you ship: release + LTO, 4.63 MB vs 5.49 MB
 cargo run -- server       # server with GUI
 cargo run -- server nogui # headless server
 cargo run -- version      # print version
-cargo test                # 387 tests, all should pass
+cargo test                # 402 tests, all should pass
 cargo clippy --all-targets
 ./coverage.sh             # coverage via config-coverage.toml
 
@@ -201,7 +201,13 @@ Layout is `Container` + `Orientation` (`TOP_LEFT`, `CENTER`, …): a child posit
 relative to a parent container by orientation plus offset. Theme constants (colors, `SPACING`,
 `BLUR`, `TRANSPARENCY`, and the widget defaults) are in `theme.rs` — use them rather than
 literals. Every fade and slide in the toolkit is `gfx::approach(value, target, smooth_factor,
-epsilon)` per ready `AnimationTimer` frame; don't hand-roll another one.
+epsilon)` per ready `AnimationTimer` frame; don't hand-roll another one. The epsilon is not
+decoration — it is what makes an animation *land* on its target instead of nearing it forever,
+which a hand-rolled `value -= value / factor` does not.
+
+Hit testing is `UiElement::is_hovered`, a default method over `get_container`. Override it
+only where an element is hoverable on other terms; `Button` does, because a disabled one is
+never hovered.
 
 #### `UiContext`: the line between layout and drawing
 
@@ -223,6 +229,12 @@ row's y. It used to be `get_scroll_x` reading `rect.pos.0`, and only produced th
 because both menus leave their x at zero and added the y offset back by hand — so setting the
 scrollable's x would have slid the rows vertically. If you ever want a horizontal one, add the
 axis rather than reinterpreting this one.
+
+`update_inner` takes a `&mut GraphicsContext` because a few of the game's menus genuinely
+build textures in one, which leaves any animation stepped there unreachable from `cargo test`.
+Where the stepping needs nothing from the context, split it into a `pub(super)` method and
+call that — `Scrollable::advance_frame` and `TextInput`'s three geometry methods are the
+pattern, and both were untestable before.
 
 `UiContext` (`ui_context.rs`) is the whole non-rendering surface of `GraphicsContext`:
 window size, mouse position, key states, clipboard. `GraphicsContext` implements it, and so
@@ -412,6 +424,10 @@ draw at all (`RectArray`, `TextureAtlas`, `ShadowContext`, fonts). They are also
 of deferred release: `fixture_texture().render(..)` drops the texture at the end of the
 statement, well before the frame executes.
 
+`CASES` is built by the `cases!` macro from the drawing functions' own names, so a golden
+cannot end up compared against a different case's image. Adding one is a line: `case_foo`, or
+`case_foo: BLURRY` where `EXACT` will not do.
+
 Determinism is the whole game, and the toolkit fights it in three places. Each has a
 `#[cfg(feature = "render-tests")]` hook: wall-clock animations (`AnimationTimer::freeze`,
 `Button::settle_hover`, `Toggle::settle_animation`, `TextInput::settle_animation`), the blur
@@ -484,6 +500,17 @@ measuring and rasterising from drifting apart — a test asserts they agree. `re
 the odd one out: it draws **one line** straight from the glyph textures and honours neither
 `\n` nor a width limit, so anything that might wrap goes through `create_text_surface` and a
 `Texture`, which is what `Sprite` does.
+
+**`get_text_size` is an advance width**, and it has to be: `TextInput` places its cursor by
+measuring the text before it, so measuring a prefix must land exactly where the next glyph is
+drawn. A space advances `SPACE_WIDTH` further than its (empty) glyph, and sampling the width
+before adding that put the cursor two pixels left of whatever followed a space.
+
+`TextInput`'s view into a value too long for the box follows the cursor while the field is
+selected, and shows the tail when it is not. Nothing in this toolkit clips, so a cursor
+allowed off the left edge does not disappear — it goes on painting a white bar over the
+widget beside it. The geometry is `view_offset` / `visible_text_rect` / `cursor_rect`, kept
+out of `render_inner` so that a `Font::new_headless` is all a test needs to drive it.
 
 Several older UI pieces predate the `UiElement` trait and are hand-rolled — the `//TODO make
 this a UI element` comments in `client/game/chat.rs`, `pause_menu.rs`, `debug_menu.rs`,
@@ -622,9 +649,21 @@ Things worth knowing before adding one:
   not implement `Hash`.** Quantising them to hash would break the hash/eq contract: two
   values that compare equal land in different buckets. Don't add it to make one a map key —
   round to integers first.
-- `AnimationTimer` and the `timer_counter` in `Button`/`Toggle` hold absolute milliseconds
-  since construction. They are 64-bit for a reason: as `i32`/`u32` they overflowed after
-  24.8 and 49.7 days of uptime, and every animation in the game stopped for good.
+- **`AnimationTimer` counts absolute milliseconds since construction**, and every widget
+  that animates owns one. Two things follow. It is 64-bit because as `i32`/`u32` it
+  overflowed after 24.8 days of uptime and every animation in the game stopped for good. And
+  the frames it owes are owed for *elapsed* time, not for time anyone was looking, so it
+  gives up after `MAX_CATCHUP_FRAMES` — the pause menu's buttons are built when the world
+  loads and first drawn when the player opens it, which after an hour of play was 3.6 million
+  animation steps on one frame.
+- **A `gfx::Button` fires on the release of a press it saw land on itself**, so half a click
+  does nothing in either direction. The remembered press is deliberately *not* cleared by the
+  release that consumes it, because several menus hold their buttons as sub-elements **and**
+  dispatch to them again from `on_event_inner` — so one release reaches a button twice, fires
+  its closure twice, and the menu reads the second answer. Worth knowing before adding a
+  button with a side effect in its closure. A menu that dispatches to buttons itself has to
+  forward *every* event, not only the release; `choice_menu` did the latter and its buttons
+  went dead the moment the press started mattering.
 - `shared/liquids/` is not just dead, it is **entirely commented out** — both `liquids.rs`
   and `liquid_type.rs` are one `/* .. */` block from first line to last, so the module
   compiles to nothing. Don't assume any of it works.

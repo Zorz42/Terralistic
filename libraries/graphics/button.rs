@@ -65,13 +65,6 @@ impl Button {
         )
     }
 
-    /// Whether the mouse is over the button. A disabled button is never hovered, which is also
-    /// what stops it reacting to clicks.
-    #[must_use]
-    pub fn is_hovered(&self, graphics: &dyn gfx::UiContext, parent_container: &gfx::Container) -> bool {
-        !self.disabled && self.get_container(graphics, parent_container).get_absolute_rect().contains(graphics.get_mouse_pos())
-    }
-
     pub fn press(&self) {
         (self.on_click)();
     }
@@ -158,5 +151,11 @@ impl UiElement for Button {
 
     fn get_container(&self, graphics: &dyn gfx::UiContext, parent_container: &gfx::Container) -> gfx::Container {
         gfx::Container::new(graphics, self.pos, self.get_size(), self.orientation, Some(parent_container))
+    }
+
+    /// A disabled button is never hovered, which is what stops it reacting to clicks as well
+    /// as what keeps it from lighting up under the pointer.
+    fn is_hovered(&self, graphics: &dyn gfx::UiContext, parent_container: &gfx::Container) -> bool {
+        !self.disabled && self.get_container(graphics, parent_container).get_absolute_rect().contains(graphics.get_mouse_pos())
     }
 }

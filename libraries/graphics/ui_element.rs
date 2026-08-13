@@ -49,4 +49,13 @@ pub trait UiElement {
     }
     /// Layout only, so this also takes a `UiContext`.
     fn get_container(&self, graphics: &dyn gfx::UiContext, parent_container: &gfx::Container) -> gfx::Container;
+
+    /// Whether the pointer is inside this element's rectangle.
+    ///
+    /// Hit testing is layout, so it belongs here rather than being written out again by each
+    /// widget that wants it. Override it where an element is hoverable on other terms - a
+    /// disabled `Button` is never hovered, which is also what stops it reacting to clicks.
+    fn is_hovered(&self, graphics: &dyn gfx::UiContext, parent_container: &gfx::Container) -> bool {
+        self.get_container(graphics, parent_container).get_absolute_rect().contains(graphics.get_mouse_pos())
+    }
 }
