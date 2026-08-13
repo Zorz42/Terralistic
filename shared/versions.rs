@@ -11,11 +11,21 @@ pub const VERSION: &str = env!("CARGO_PKG_VERSION");
 ///
 /// 1: the original layout, written with bincode 1 (fixed width integers)
 /// 2: the same layout written with bincode 2 (tagged variable length integers)
-/// 3: the same layout written with postcard (LEB128 variable length integers)
+/// 3: the same layout written with postcard, behind the header below
 pub const WORLD_SAVE_VERSION: u32 = 3;
 
-/// The key the save version is stored under inside the world file.
-pub const WORLD_SAVE_VERSION_KEY: &str = "version";
+/// What every world file starts with, ahead of anything a serializer wrote.
+///
+/// **This exists so that a change of encoding stays diagnosable.** Versions 1 and 2 kept the
+/// save version *inside* the serialized map, which works right up until the encoding is the
+/// thing that changed - and then the version cannot be read either, and a player who upgrades
+/// gets "Hit the end of buffer, expected more data" instead of being told their world is from
+/// an older build. The magic and the version are fixed width little endian bytes that no
+/// serializer touches, so they stay readable across any future format change.
+pub const WORLD_SAVE_MAGIC: &[u8; 8] = b"TERRAWLD";
+
+/// Magic plus a `u32` version.
+pub const WORLD_SAVE_HEADER_LEN: usize = WORLD_SAVE_MAGIC.len() + 4;
 
 /// Sent by the client as the first packet of the handshake, before `NamePacket`.
 ///

@@ -15,7 +15,7 @@ use crate::server::server_core::items::ServerItems;
 use crate::server::server_core::networking::{DisconnectEvent, NewConnectionEvent};
 use crate::server::server_core::players::ServerPlayers;
 use crate::server::server_ui::{ConsoleMessageType, PlayerEventType, ServerState, UiMessageType};
-use crate::shared::versions::{WORLD_SAVE_VERSION, WORLD_SAVE_VERSION_KEY};
+use crate::shared::versions::{WORLD_SAVE_HEADER_LEN, WORLD_SAVE_MAGIC, WORLD_SAVE_VERSION};
 
 use super::blocks::ServerBlocks;
 use super::commands::CommandManager;
@@ -379,26 +379,12 @@ impl Server {
     }
 
     fn load_world(&mut self, world_path: &Path) -> Result<()> {
-        // load world file into Vec<u8>
         let world_file = std::fs::read(world_path)?;
-        // decode world file as HashMap<String, Vec<u8>>
-        let world: HashMap<String, Vec<u8>> = serialization::deserialize(&world_file)?;
+        // The header is read before the body on purpose, so that a world this build cannot
+        // read is *named* rather than handed to a decoder that will make nonsense of it.
+        let body = read_world_header(&world_file)?;
 
-        match world.get(WORLD_SAVE_VERSION_KEY) {
-            // A world with no version key was written before versioning existed. That
-            // encoding is not readable now, so there is nothing useful to do with it. Note
-            // this branch is best effort: the outer decode above usually fails first,
-            // because the version key lives *inside* the encoded map and so cannot be read
-            // when it is the encoding itself that changed.
-            None => bail!("this world has no save version, so it predates versioning and cannot be read by this build"),
-            Some(bytes) => {
-                let version: u32 = serialization::deserialize(bytes)?;
-                if version != WORLD_SAVE_VERSION {
-                    bail!("this world is save version {version}, but this build reads version {WORLD_SAVE_VERSION}");
-                }
-            }
-        }
-
+        let world: HashMap<String, Vec<u8>> = serialization::deserialize(body)?;
         self.blocks.get_blocks().deserialize(world.get("blocks").unwrap_or(&Vec::new()))?;
         self.walls.get_walls().deserialize(world.get("walls").unwrap_or(&Vec::new()))?;
         self.players.deserialize(world.get("players").unwrap_or(&Vec::new()))?;
@@ -407,18 +393,50 @@ impl Server {
 
     fn save_world(&self, world_path: &Path) -> Result<()> {
         let mut world = HashMap::new();
-        world.insert(WORLD_SAVE_VERSION_KEY.to_owned(), serialization::serialize(&WORLD_SAVE_VERSION)?);
         world.insert("blocks".to_owned(), self.blocks.get_blocks().serialize()?);
         world.insert("walls".to_owned(), self.walls.get_walls().serialize()?);
         world.insert("players".to_owned(), self.players.serialize()?);
 
-        let world_file = serialization::serialize(&world)?;
+        let mut world_file = world_save_header();
+        serialization::serialize_into(&mut world_file, &world)?;
         if !world_path.exists() {
             std::fs::create_dir_all(world_path.parent().ok_or_else(|| anyhow!("could not get parent folder"))?)?;
         }
         std::fs::write(world_path, world_file)?;
         Ok(())
     }
+}
+
+/// The bytes every world file starts with: the magic, then the save version.
+///
+/// Both are fixed width and little endian, deliberately not touched by the serializer - see
+/// `WORLD_SAVE_MAGIC`.
+#[must_use]
+pub fn world_save_header() -> Vec<u8> {
+    let mut header = Vec::with_capacity(WORLD_SAVE_HEADER_LEN);
+    header.extend_from_slice(WORLD_SAVE_MAGIC);
+    header.extend_from_slice(&WORLD_SAVE_VERSION.to_le_bytes());
+    header
+}
+
+/// Checks a world file's header and returns the body after it.
+///
+/// Every rejection here names what is wrong, which is the entire reason the header exists.
+fn read_world_header(file: &[u8]) -> Result<&[u8]> {
+    let Some((header, body)) = file.split_at_checked(WORLD_SAVE_HEADER_LEN) else {
+        bail!("this world file is too short to be a world - it is {} bytes", file.len());
+    };
+    let (magic, version) = header.split_at(WORLD_SAVE_MAGIC.len());
+
+    if magic != WORLD_SAVE_MAGIC {
+        bail!("this world was saved by a build older than the versioned save format (save version 2 or earlier) and cannot be read");
+    }
+
+    let version = u32::from_le_bytes(version.try_into().unwrap_or([0; 4]));
+    if version != WORLD_SAVE_VERSION {
+        bail!("this world is save version {version}, but this build reads version {WORLD_SAVE_VERSION}");
+    }
+    Ok(body)
 }
 
 /// The channel back to the server ui. It is process global because `print_to_console` and

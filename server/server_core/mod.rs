@@ -1,6 +1,10 @@
 pub use core_server::{print_to_console, send_to_ui, Server, MULTIPLAYER_PORT, SINGLEPLAYER_PORT};
 pub use networking::BindAddress;
 
+/// Same again: a hand written save needs the same header a real one gets, and writing the
+/// magic out by hand in the harness would just be a second place to get it wrong.
+#[cfg(test)]
+pub use core_server::world_save_header;
 /// Reached only by the integration tests, which drive the networking layer directly
 /// against a real client instead of going through `Server`. Not part of the server's
 /// surface in a normal build.

@@ -11,7 +11,7 @@ mod tests {
     use crate::integration_tests::harness::{expect_start_error, write_world_save, TempDir, TestServer};
     use crate::libraries::events::EventManager;
     use crate::libraries::serialization;
-    use crate::shared::versions::{WORLD_SAVE_VERSION, WORLD_SAVE_VERSION_KEY};
+    use crate::shared::versions::{WORLD_SAVE_HEADER_LEN, WORLD_SAVE_MAGIC, WORLD_SAVE_VERSION};
 
     /// The round trip that matters: a block placed in one run is still there in the next.
     ///
@@ -83,14 +83,14 @@ mod tests {
         let server = TestServer::start_on_small_world("persist-keys", (30, 20)).unwrap();
         let dir = server.stop().unwrap();
 
-        let world: HashMap<String, Vec<u8>> = serialization::deserialize(&std::fs::read(dir.world_path()).unwrap()).unwrap();
+        let file = std::fs::read(dir.world_path()).unwrap();
+        assert!(file.starts_with(WORLD_SAVE_MAGIC), "the save does not start with the magic");
+        assert_eq!(file.get(8..12), Some(WORLD_SAVE_VERSION.to_le_bytes().as_slice()), "wrong version in the header");
 
-        for key in [WORLD_SAVE_VERSION_KEY, "blocks", "walls", "players"] {
+        let world: HashMap<String, Vec<u8>> = serialization::deserialize(file.get(WORLD_SAVE_HEADER_LEN..).unwrap()).unwrap();
+        for key in ["blocks", "walls", "players"] {
             assert!(world.contains_key(key), "the save has no {key} in it");
         }
-
-        let version: u32 = serialization::deserialize(world.get(WORLD_SAVE_VERSION_KEY).unwrap()).unwrap();
-        assert_eq!(version, WORLD_SAVE_VERSION);
     }
 
     /// A world from a future version is refused with an explanation rather than being
@@ -100,28 +100,29 @@ mod tests {
         let dir = TempDir::new("persist-newer");
         write_world_save(&dir.world_path(), (20, 20));
 
-        // rewrite just the version, leaving a save that is otherwise perfectly valid
-        let mut world: HashMap<String, Vec<u8>> = serialization::deserialize(&std::fs::read(dir.world_path()).unwrap()).unwrap();
-        world.insert(WORLD_SAVE_VERSION_KEY.to_owned(), serialization::serialize(&(WORLD_SAVE_VERSION + 1)).unwrap());
-        std::fs::write(dir.world_path(), serialization::serialize(&world).unwrap()).unwrap();
+        // rewrite just the version in the header, leaving a body that is perfectly valid
+        let mut file = std::fs::read(dir.world_path()).unwrap();
+        file.splice(8..12, (WORLD_SAVE_VERSION + 1).to_le_bytes());
+        std::fs::write(dir.world_path(), file).unwrap();
 
         let error = expect_start_error(dir, "persist-newer");
         assert!(error.contains("save version"), "unexpected error: {error}");
     }
 
-    /// A save with no version key at all predates versioning, which also means it was
-    /// written by an older serialization format and cannot be read now. It has to say so rather than
-    /// producing a world of nonsense.
+    /// A save with no header predates the versioned format, which also means it was written
+    /// by an older serialization format and cannot be read now. It has to say so rather than
+    /// producing a world of nonsense - which is exactly what the header is for, since the
+    /// body alone would just fail to decode with no explanation.
     #[test]
-    fn test_a_save_without_a_version_is_refused() {
+    fn test_a_save_without_a_header_is_refused() {
         let dir = TempDir::new("persist-unversioned");
         write_world_save(&dir.world_path(), (20, 20));
 
-        let mut world: HashMap<String, Vec<u8>> = serialization::deserialize(&std::fs::read(dir.world_path()).unwrap()).unwrap();
-        world.remove(WORLD_SAVE_VERSION_KEY);
-        std::fs::write(dir.world_path(), serialization::serialize(&world).unwrap()).unwrap();
+        let file = std::fs::read(dir.world_path()).unwrap();
+        std::fs::write(dir.world_path(), file.get(WORLD_SAVE_HEADER_LEN..).unwrap()).unwrap();
 
-        expect_start_error(dir, "persist-unversioned");
+        let error = expect_start_error(dir, "persist-unversioned");
+        assert!(error.contains("older"), "unexpected error: {error}");
     }
 
     /// A truncated or corrupted file is an error, not a panic. Worlds get cut short by

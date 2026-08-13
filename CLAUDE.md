@@ -508,13 +508,22 @@ otherwise force-corrects (`server/server_core/players.rs`).
 
 ### Persistence
 
-World save is `postcard(HashMap<String, Vec<u8>>)` with keys `blocks`, `walls`, `players`.
-Blocks and walls are additionally snap-compressed. Written to `server_data/server.world`
-relative to the process CWD. Client settings are JSON at
+A world save is a fixed header followed by `postcard(HashMap<String, Vec<u8>>)` with keys
+`blocks`, `walls`, `players`. Blocks and walls are additionally snap-compressed. Written to
+`server_data/server.world` relative to the process CWD. Client settings are JSON at
 `<data_dir>/Terralistic/settings.txt`.
 
-**There is no save format version field.** Any change to `BlocksData`, `SavedPlayerData`,
-or the wall equivalent silently breaks existing worlds.
+The header is `b"TERRAWLD"` then `WORLD_SAVE_VERSION` as a little endian `u32`, and it is
+deliberately **outside** anything a serializer wrote. Versions 1 and 2 kept the version
+*inside* the encoded map, which works right until the encoding is the thing that changed —
+and then the version cannot be read either. Both format migrations hit exactly that: the
+check was unreachable and the player got a decode error instead of being told their world
+was old. `read_world_header` runs before the body is touched, so a world this build cannot
+read is now named rather than guessed at.
+
+**The header versions the container, not the contents.** Any change to the shape of
+`BlocksData`, `SavedPlayerData` or the wall equivalent still breaks existing worlds silently
+unless you bump `WORLD_SAVE_VERSION` by hand — that is what it is for.
 
 ### Build pipeline
 

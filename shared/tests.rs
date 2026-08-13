@@ -11,7 +11,7 @@ mod tests {
     use crate::shared::mod_data::GameModData;
     use crate::shared::mod_manager::{GameMod, ModManager};
     use crate::shared::players::{spawn_player, MovingType, PlayerComponent, PLAYER_HEIGHT, PLAYER_INVENTORY_SIZE, PLAYER_MAX_HEALTH, PLAYER_WIDTH};
-    use crate::shared::versions::{VersionPacket, VERSION, WORLD_SAVE_VERSION, WORLD_SAVE_VERSION_KEY};
+    use crate::shared::versions::{VersionPacket, VERSION, WORLD_SAVE_HEADER_LEN, WORLD_SAVE_MAGIC, WORLD_SAVE_VERSION};
     use std::collections::BTreeMap;
 
     // ---------------- lights ----------------
@@ -510,9 +510,12 @@ mod tests {
     /// lowered it without changing the format back.
     const _: () = assert!(WORLD_SAVE_VERSION >= 3);
 
+    /// The header is what makes a version mismatch reportable, so its shape is pinned:
+    /// eight bytes of magic then a little endian `u32`.
     #[test]
-    fn test_world_save_version_key() {
-        assert_eq!(WORLD_SAVE_VERSION_KEY, "version");
+    fn test_world_save_header_shape() {
+        assert_eq!(WORLD_SAVE_MAGIC, b"TERRAWLD");
+        assert_eq!(WORLD_SAVE_HEADER_LEN, 12);
     }
 
     #[test]

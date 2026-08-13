@@ -21,10 +21,10 @@ use message_io::node::{NodeEvent, NodeHandler};
 use crate::client::game::{ClientNetworking, WelcomePacketEvent};
 use crate::libraries::events::EventManager;
 use crate::libraries::serialization;
+use crate::server::server_core::world_save_header;
 use crate::server::server_core::{BindAddress, Connection, DisconnectEvent, NewConnectionEvent, PacketFromClientEvent, SavedPlayerData, Server, ServerNetworking};
 use crate::shared::blocks::Blocks;
 use crate::shared::packet::{Packet, WelcomeCompletePacket};
-use crate::shared::versions::{WORLD_SAVE_VERSION, WORLD_SAVE_VERSION_KEY};
 use crate::shared::walls::Walls;
 
 /// The same mod bytes the real game ships, so these tests exercise the lua that players
@@ -122,7 +122,6 @@ pub fn write_world_save(path: &Path, size: (u32, u32)) {
     walls.create_from_wall_ids(&vec![vec![walls.clear; size.1 as usize]; size.0 as usize]).unwrap();
 
     let mut world = HashMap::new();
-    world.insert(WORLD_SAVE_VERSION_KEY.to_owned(), serialization::serialize(&WORLD_SAVE_VERSION).unwrap());
     world.insert("blocks".to_owned(), blocks.serialize().unwrap());
     world.insert("walls".to_owned(), walls.serialize().unwrap());
     world.insert("players".to_owned(), serialization::serialize(&HashMap::<String, SavedPlayerData>::new()).unwrap());
@@ -130,7 +129,9 @@ pub fn write_world_save(path: &Path, size: (u32, u32)) {
     if let Some(parent) = path.parent() {
         std::fs::create_dir_all(parent).unwrap();
     }
-    std::fs::write(path, serialization::serialize(&world).unwrap()).unwrap();
+    let mut file = world_save_header();
+    serialization::serialize_into(&mut file, &world).unwrap();
+    std::fs::write(path, file).unwrap();
 }
 
 /// A full `Server` on a temp world, stepped by hand.
