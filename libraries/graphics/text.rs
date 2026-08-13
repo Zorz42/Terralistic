@@ -115,7 +115,10 @@ impl Font {
                 height += line_height;
                 continue;
             }
-            if width_limit.is_some_and(|limit| x + advance > limit) {
+            // `x > 0` so a glyph too wide for the limit on its own goes on the line it is
+            // already on. Wrapping there instead leaves a blank line above it and counts its
+            // height, and then does the same for every character after it.
+            if x > 0 && width_limit.is_some_and(|limit| x + advance > limit) {
                 x = 0;
                 y += line_height;
                 height += line_height;

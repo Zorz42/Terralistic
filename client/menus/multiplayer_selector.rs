@@ -190,7 +190,7 @@ impl UiElement for MultiplayerSelector {
         let elements_height = (server_height + gfx::SPACING) * self.server_list.servers.len() as f32 - gfx::SPACING;
 
         self.update_top_bottom_rects(graphics, parent_container, elements_height);
-        self.server_list.scrolled = self.scrollable.get_scroll_x(graphics, parent_container);
+        self.server_list.scrolled = self.scrollable.get_scroll_x();
         self.server_list.top_rect_size = self.top_rect.size.1;
     }
 

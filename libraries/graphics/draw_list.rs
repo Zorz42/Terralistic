@@ -48,19 +48,17 @@ impl TextureHandle {
 
 /// An uploaded triangle mesh living in the renderer backend.
 ///
-/// Same contract as `TextureHandle`, except that the vertex count rides along so `execute`
-/// can issue the draw without reaching back into the `VertexBuffer` that owns the resource.
+/// Same contract as `TextureHandle`. The vertex count is not carried here: the registry entry
+/// is the one that survives a `VertexBuffer` being replaced mid-frame, so it is the only
+/// honest answer to how many vertices the command should draw.
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
-pub struct MeshHandle {
-    pub(super) id: u32,
-    pub(super) vertex_count: u32,
-}
+pub struct MeshHandle(pub(super) u32);
 
 impl MeshHandle {
     /// The backend's raw id for this resource. Only useful to a backend or a test.
     #[must_use]
     pub const fn get_id(self) -> u32 {
-        self.id
+        self.0
     }
 }
 

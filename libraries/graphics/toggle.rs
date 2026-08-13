@@ -75,7 +75,7 @@ impl UiElement for Toggle {
     }
 
     fn render_inner(&mut self, graphics: &mut gfx::GraphicsContext, parent_container: &gfx::Container) {
-        let mut container = self.get_container(graphics, parent_container);
+        let container = self.get_container(graphics, parent_container);
         let toggle_target = if self.toggled { 1.0 } else { 0.0 };
         let hover_target = if self.is_hovered(graphics, parent_container) { 1.0 } else { 0.0 };
 
@@ -90,20 +90,27 @@ impl UiElement for Toggle {
         let dimmed = gfx::Color::new((fill_color.r as f32 * 0.8) as u8, (fill_color.g as f32 * 0.8) as u8, (fill_color.b as f32 * 0.8) as u8, 255);
         let fill_color = gfx::interpolate_colors(dimmed, fill_color, self.hover_progress);
 
-        // The border is the container itself; the bar is the same rectangle inset by the
-        // padding, which is why the container is resized in place here.
-        container.rect.render(graphics, self.border_color);
-        container.rect.size = container.rect.size - gfx::FloatSize(self.padding * 2.0, self.padding * 2.0);
-        container.update(graphics, parent_container);
-        container.get_absolute_rect().render(graphics, fill_color);
-
-        let knob_size = gfx::FloatSize(container.rect.size.1 - 2.0 * self.padding, container.rect.size.1 - 2.0 * self.padding);
-        let knob_pos = gfx::FloatPos(
-            self.padding * (1.0 - self.toggle_progress) + (container.rect.size.0 - knob_size.0 - self.padding) * self.toggle_progress,
-            0.0,
+        // The border is the container itself; the bar is that rectangle inset by the padding.
+        //
+        // Inset in absolute coordinates, **not** by re-laying out a smaller container: a
+        // container is placed by its orientation, so shrinking one moves it by the orientation
+        // too. That is only symmetric at `CENTER` - a `RIGHT` toggle, which is what the
+        // settings menu uses, came out flush against its right edge with twice the padding
+        // showing on the left.
+        let border = *container.get_absolute_rect();
+        border.render(graphics, self.border_color);
+        let bar = gfx::Rect::new(
+            border.pos + gfx::FloatPos(self.padding, self.padding),
+            border.size - gfx::FloatSize(self.padding * 2.0, self.padding * 2.0),
         );
-        let knob = gfx::Container::new(graphics, knob_pos, knob_size, gfx::LEFT, Some(&container));
-        knob.get_absolute_rect().render(graphics, self.button_color);
+        bar.render(graphics, fill_color);
+
+        // The knob is a square inset from the bar by the padding again, sliding from one end
+        // to the other as the toggle animates.
+        let knob_size = bar.size.1 - 2.0 * self.padding;
+        let knob_x = self.padding * (1.0 - self.toggle_progress) + (bar.size.0 - knob_size - self.padding) * self.toggle_progress;
+        let knob = gfx::Rect::new(bar.pos + gfx::FloatPos(knob_x, (bar.size.1 - knob_size) / 2.0), gfx::FloatSize(knob_size, knob_size));
+        knob.render(graphics, self.button_color);
     }
 
     fn update_inner(&mut self, graphics: &mut gfx::GraphicsContext, parent_container: &gfx::Container) {

@@ -257,7 +257,10 @@ impl WgpuBackend {
         let quad_buffer = build_quad_buffer(gpu);
         let white_bind_group = build_white_bind_group(gpu);
 
-        let uniform_stride = gpu.device.limits().min_uniform_buffer_offset_alignment.max(std::mem::size_of::<Uniforms>() as u32);
+        // Rounded up to the alignment rather than just `max`ed against it: a dynamic offset has
+        // to be a multiple of it, and `max` only happens to give one because the requested
+        // limits pin the alignment at 256 and `Uniforms` is smaller than that.
+        let uniform_stride = (std::mem::size_of::<Uniforms>() as u32).next_multiple_of(gpu.device.limits().min_uniform_buffer_offset_alignment);
         let uniform_capacity = u64::from(uniform_stride) * 256;
         let uniform_buffer = gpu.device.create_buffer(&wgpu::BufferDescriptor {
             label: Some("uniforms"),

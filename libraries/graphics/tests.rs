@@ -604,16 +604,14 @@ mod tests {
         assert_close(scrollable.get_scroll_pos(), 0.0);
     }
 
-    /// `get_scroll_x` is the container position less the scroll offset, which is how the
+    /// `get_scroll_x` is the scrollable's own position less the scroll offset, which is how the
     /// server and world lists slide their rows.
     #[test]
     fn test_get_scroll_x_is_the_container_position_when_unscrolled() {
-        let graphics = gfx::HeadlessContext::new();
         let mut scrollable = gfx::Scrollable::new();
         scrollable.rect.pos = FloatPos(30.0, 40.0);
-        let root = root_container(&graphics);
 
-        assert_close(scrollable.get_scroll_x(&graphics, &root), 30.0);
+        assert_close(scrollable.get_scroll_x(), 30.0);
     }
 
     #[test]
@@ -1139,6 +1137,17 @@ mod tests {
 
         assert!(wrapped.1 > unwrapped.1, "wrapping should make the text taller");
         assert!(wrapped.0 <= 50 + 16, "wrapped text should stay near the limit, got {}", wrapped.0);
+    }
+
+    /// A limit narrower than a single glyph cannot be satisfied, so the glyph stays on the line
+    /// it is already on. Wrapping instead would leave a blank line above it, count that line's
+    /// height, and then do the same again for every character after it.
+    #[test]
+    fn test_a_limit_narrower_than_a_glyph_does_not_wrap_every_character() {
+        let font = font();
+
+        assert_eq!(font.get_text_size("a", Some(1)).1, 16, "one glyph cannot need two lines");
+        assert_eq!(font.get_text_size("ab", Some(1)).1, 33, "one wrap between the two, not one before each");
     }
 
     #[test]

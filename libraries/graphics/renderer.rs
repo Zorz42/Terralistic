@@ -42,7 +42,9 @@ pub struct GraphicsContext {
     /// past - a UI element asks "is shift down" far more often than it reacts to shift.
     key_states: HashMap<gfx::Key, bool>,
     pub(super) shadow_context: ShadowContext,
-    clipboard_context: Clipboard,
+    /// `None` where the system has no clipboard to offer. Copy and paste stop working; nothing
+    /// else does, which is why this is not a reason to refuse to open the window.
+    clipboard_context: Option<Clipboard>,
     pub block_key_states: bool,
     pub scale: f32,
     real_scale: f32,
@@ -94,7 +96,7 @@ impl GraphicsContext {
             polled_this_frame: false,
             render_at_logical_resolution: !visible,
             window_open: true,
-            clipboard_context: Clipboard::new()?,
+            clipboard_context: Clipboard::new().map_err(|error| println!("No clipboard available, copy and paste will do nothing: {error}")).ok(),
             block_key_states: false,
             scale: 1.0,
             real_scale: 1.0,
@@ -195,9 +197,8 @@ impl GraphicsContext {
 
     /// The next event, or `None` once there are none left this frame.
     ///
-    /// This normally just drains the queue `update_window` filled at the end of the previous
-    /// frame. It only pumps the window itself when nothing has yet this frame, which happens
-    /// before the first frame and for a caller that never presents.
+    /// This just drains the queue `update_window` filled at the end of the previous frame. It
+    /// only pumps the window itself before the very first one, when nothing has yet.
     pub fn get_event(&mut self) -> Option<gfx::Event> {
         if self.events_queue.is_empty() && !self.polled_this_frame {
             self.poll_window();
@@ -245,7 +246,6 @@ impl GraphicsContext {
         // can be most of a frame. `client/game/core_client.rs` gives `walls.rs` and `lights.rs`
         // the first 10ms of its loop to rebuild chunk meshes; a pump inside that window spends
         // the budget on waiting and the world takes minutes to finish drawing.
-        self.polled_this_frame = false;
         self.poll_window();
     }
 
@@ -257,6 +257,13 @@ impl GraphicsContext {
     /// behind. The accumulators are `f64` because they only ever grow: as `f32` a 16ms
     /// increment stops being representable after about four hours, the elapsed side stalls
     /// while the target side climbs, and the sleep grows without bound.
+    ///
+    /// **The debt is capped at one frame.** Without that the ledger is repaid at full speed
+    /// however long it took to run up, so anything that stops the loop for a while - a world
+    /// loading, a laptop waking, a breakpoint - bought that many frames of completely uncapped
+    /// rendering afterwards. A five minute pause at a 60 fps limit is eighteen thousand of them.
+    /// Making up a frame or two of jitter is the point; making up a stall the player did not ask
+    /// for is not.
     fn limit_framerate(&mut self) {
         let now = std::time::Instant::now();
         let elapsed = now.duration_since(self.prev_frame_time);
@@ -272,6 +279,8 @@ impl GraphicsContext {
         let owed = self.min_ms_per_frame * self.frames_so_far as f64 - self.ms_so_far;
         if owed > 0.0 {
             std::thread::sleep(std::time::Duration::from_secs_f64(owed / 1000.0));
+        } else if owed < -self.min_ms_per_frame {
+            self.ms_so_far = self.min_ms_per_frame * (self.frames_so_far as f64 + 1.0);
         }
     }
 
@@ -327,11 +336,12 @@ impl UiContext for GraphicsContext {
     }
 
     fn get_clipboard_text(&mut self) -> Option<String> {
-        self.clipboard_context.get_text().ok()
+        self.clipboard_context.as_mut()?.get_text().ok()
     }
 
     fn set_clipboard_text(&mut self, text: &str) {
-        if let Err(error) = self.clipboard_context.set_text(text.to_owned()) {
+        let Some(clipboard) = self.clipboard_context.as_mut() else { return };
+        if let Err(error) = clipboard.set_text(text.to_owned()) {
             println!("Error setting clipboard contents: {error}");
         }
     }

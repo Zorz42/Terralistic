@@ -59,11 +59,16 @@ const WINDOW_WIDTH: u32 = 320;
 const WINDOW_HEIGHT: u32 = 240;
 
 /// How far a capture may drift from its golden before the case fails.
+///
+/// The two knobs compose: a pixel is *over tolerance* when a channel moved further than
+/// `max_channel_delta`, and the case fails when more than `max_differing_fraction` of the frame
+/// is over tolerance. Small drift everywhere is allowed, and so is a handful of pixels that
+/// moved a lot - but not a whole region that did.
 #[derive(Clone, Copy)]
 struct Tolerance {
-    /// Largest allowed difference on any single channel of any single pixel.
+    /// Largest difference on any single channel that still counts as the same pixel.
     max_channel_delta: u8,
-    /// Largest allowed fraction of pixels that may differ at all.
+    /// Largest allowed fraction of pixels that may exceed `max_channel_delta`.
     max_differing_fraction: f32,
 }
 
@@ -572,6 +577,28 @@ fn case_toggle_mid_travel(graphics: &mut gfx::GraphicsContext) {
     toggle_at(gfx::CENTER, true, 0.5).render(graphics, &parent);
 }
 
+/// A toggle that is not centred, laid out against the right edge of a row the way the settings
+/// menu does it.
+///
+/// The border has to show evenly on all four sides. It used not to: the bar was drawn by
+/// shrinking the toggle's container and laying it out again, which also moves it by the
+/// orientation, so at `RIGHT` the bar came out flush against the right edge with twice the
+/// padding on the left. Every other toggle case is `CENTER`, where that happens to be correct,
+/// which is why nothing caught it.
+fn case_toggle_right_oriented(graphics: &mut gfx::GraphicsContext) {
+    background(graphics);
+    let root = parent_of(graphics);
+    let row = gfx::Container::new(graphics, gfx::FloatPos(0.0, 0.0), gfx::FloatSize(240.0, 80.0), gfx::CENTER, Some(&root));
+    row.get_absolute_rect().render(graphics, gfx::Color::new(70, 70, 90, 255));
+
+    let mut toggle = toggle_at(gfx::RIGHT, false, 0.0);
+    toggle.pos = gfx::FloatPos(-gfx::SPACING, 0.0);
+    // Bright, unlike the theme's, so the frame the padding leaves is what the eye lands on when
+    // this case is dumped - the default border is a grey nobody can measure by looking at it.
+    toggle.border_color = gfx::Color::new(255, 255, 255, 255);
+    toggle.render(graphics, &row);
+}
+
 fn case_text_input_with_text(graphics: &mut gfx::GraphicsContext) {
     background(graphics);
     let parent = parent_of(graphics);
@@ -811,6 +838,11 @@ const CASES: &[Case] = &[
         draw: case_toggle_mid_travel,
     },
     Case {
+        name: "toggle_right_oriented",
+        tolerance: Tolerance::EXACT,
+        draw: case_toggle_right_oriented,
+    },
+    Case {
         name: "text_input_with_text",
         tolerance: Tolerance::EXACT,
         draw: case_text_input_with_text,
@@ -831,24 +863,31 @@ const CASES: &[Case] = &[
 
 struct Diff {
     differing_pixels: u32,
+    /// Of those, the ones that moved further than the tolerance allows.
+    pixels_over_tolerance: u32,
     total_pixels: u32,
     max_channel_delta: u8,
     first_difference: Option<(gfx::IntPos, gfx::Color, gfx::Color)>,
 }
 
 impl Diff {
+    /// The share of the frame that moved further than a channel delta the tolerance forgives.
     fn fraction(&self) -> f32 {
         if self.total_pixels == 0 {
             0.0
         } else {
-            self.differing_pixels as f32 / self.total_pixels as f32
+            self.pixels_over_tolerance as f32 / self.total_pixels as f32
         }
     }
 
-    /// A case passes if no pixel drifted further than the allowed channel delta, or if the
-    /// pixels that did drift are a small enough share of the frame.
+    /// A case passes when the pixels that drifted past the allowed channel delta are a small
+    /// enough share of the frame.
+    ///
+    /// Both halves have to hold. This used to be an `||`, which made the channel limit
+    /// unreachable: at `BLURRY` any 2% of the frame could change by any amount at all - 1500
+    /// pixels, where the blurred region is only 28000 - and the case still passed.
     fn within(&self, tolerance: Tolerance) -> bool {
-        self.max_channel_delta <= tolerance.max_channel_delta || self.fraction() <= tolerance.max_differing_fraction
+        self.fraction() <= tolerance.max_differing_fraction
     }
 }
 
@@ -857,13 +896,14 @@ fn channel_delta(a: gfx::Color, b: gfx::Color) -> u8 {
     deltas.into_iter().max().unwrap_or(0)
 }
 
-fn compare(actual: &gfx::Surface, expected: &gfx::Surface) -> Result<Diff> {
+fn compare(actual: &gfx::Surface, expected: &gfx::Surface, tolerance: Tolerance) -> Result<Diff> {
     if actual.get_size() != expected.get_size() {
         bail!("size mismatch: captured {:?}, golden {:?}", actual.get_size(), expected.get_size());
     }
 
     let mut diff = Diff {
         differing_pixels: 0,
+        pixels_over_tolerance: 0,
         total_pixels: actual.get_size().0 * actual.get_size().1,
         max_channel_delta: 0,
         first_difference: None,
@@ -878,6 +918,9 @@ fn compare(actual: &gfx::Surface, expected: &gfx::Surface) -> Result<Diff> {
             if diff.first_difference.is_none() {
                 diff.first_difference = Some((pos, *actual_pixel, *expected_pixel));
             }
+        }
+        if delta > tolerance.max_channel_delta {
+            diff.pixels_over_tolerance += 1;
         }
     }
 
@@ -985,21 +1028,22 @@ pub fn run(regenerate: bool, dump: bool, font: &[u8], font_mono: &[u8]) -> Resul
 
         let expected = gfx::Surface::deserialize_from_bytes(&std::fs::read(&golden_path).with_context(|| format!("reading {}", golden_path.display()))?)?;
 
-        match compare(&actual, &expected) {
+        match compare(&actual, &expected, case.tolerance) {
             Ok(diff) if diff.within(case.tolerance) => {
                 passed += 1;
             }
             Ok(diff) => {
                 failed += 1;
                 println!(
-                    "FAIL     {}: {} of {} pixels differ ({:.3}%), largest channel delta {} (allowed: delta {} or {:.3}% of pixels)",
+                    "FAIL     {}: {} of {} pixels differ, {} of them by more than {} ({:.3}%, allowed {:.3}%); largest channel delta {}",
                     case.name,
                     diff.differing_pixels,
                     diff.total_pixels,
-                    diff.fraction() * 100.0,
-                    diff.max_channel_delta,
+                    diff.pixels_over_tolerance,
                     case.tolerance.max_channel_delta,
+                    diff.fraction() * 100.0,
                     case.tolerance.max_differing_fraction * 100.0,
+                    diff.max_channel_delta,
                 );
                 if let Some((pos, actual_pixel, expected_pixel)) = diff.first_difference {
                     println!("         first at ({}, {}): got {actual_pixel:?}, want {expected_pixel:?}", pos.0, pos.1);

@@ -29,10 +29,12 @@ impl Scrollable {
         }
     }
 
+    /// Where a list should start drawing: the scrollable's own offset, less how far it has been
+    /// scrolled. Laying a container out to read this back would give the same number -
+    /// `Container::rect` is the position and size it was handed - so it does not need one.
     #[must_use]
-    pub fn get_scroll_x(&self, graphics: &dyn gfx::UiContext, parent_container: &gfx::Container) -> f32 {
-        let container = self.get_container(graphics, parent_container);
-        container.rect.pos.0 - self.scroll_pos
+    pub const fn get_scroll_x(&self) -> f32 {
+        self.rect.pos.0 - self.scroll_pos
     }
 
     #[must_use]

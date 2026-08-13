@@ -408,7 +408,7 @@ impl UiElement for SingleplayerSelector {
             world.set_enabled(hoverable);
         }
 
-        self.world_list.scrolled = self.scrollable.get_scroll_x(graphics, parent_container);
+        self.world_list.scrolled = self.scrollable.get_scroll_x();
         self.world_list.top_rect_size = self.top_rect.size.1;
 
         self.top_rect.size.0 = parent_container.get_absolute_rect().size.0;

@@ -18,11 +18,11 @@ cargo build --profile dist # what you ship: release + LTO, 4.63 MB vs 5.49 MB
 cargo run -- server       # server with GUI
 cargo run -- server nogui # headless server
 cargo run -- version      # print version
-cargo test                # 385 tests, all should pass
+cargo test                # 386 tests, all should pass
 cargo clippy --all-targets
 ./coverage.sh             # coverage via config-coverage.toml
 
-cargo run --features render-tests -- rendertest             # 44 golden-image tests
+cargo run --features render-tests -- rendertest             # 45 golden-image tests
 cargo run --features render-tests -- rendertest dump        # + viewable PPMs of every case
 cargo run --features render-tests -- rendertest regenerate  # rewrite the goldens
 ```
@@ -352,6 +352,12 @@ Mutating a live mesh mid-frame would still be wrong, but nothing does it: every 
 mutation replaces the whole object, so the old buffer keeps its old contents until it is
 collected.
 
+That build-once-then-only-draw pattern is also why **`VertexBuffer::upload` takes the staged
+vertices rather than borrowing them**: once the GPU has the data, keeping a copy is a second
+`RectArray` in RAM for every chunk — ~50 KB each across three caches of `MAX_LOADED_CHUNKS`.
+An `upload` with nothing staged therefore leaves an already uploaded mesh alone instead of
+replacing it with an empty one.
+
 ##### Outlines
 
 `render_outline` draws **four one-pixel quads on the rectangle's own edge pixels**, not a
@@ -361,7 +367,7 @@ is exactly the rect's footprint, which is also what a UI border should be.
 
 #### Golden-image tests
 
-`libraries/graphics/render_tests.rs` renders 44 cases into the offscreen texture,
+`libraries/graphics/render_tests.rs` renders 45 cases into the offscreen texture,
 reads them back with `GraphicsContext::capture_frame`, and compares against committed
 `Surface`s in `libraries/graphics/goldens/*.opa`. They cover rects and outlines, `RectArray`,
 textures (scale, flip, source rect, tint), blend modes, both fonts, containers and all nine
@@ -394,9 +400,12 @@ and scale fades (`GraphicsContext::settle_animations`), and hover states that re
 mouse — which the settle hooks also neutralise. **If you add a case, run it five times before
 committing the golden.**
 
-Tolerances are per case, and **43 of the 44 are `EXACT`** — bit-identical. Only
+Tolerances are per case, and **44 of the 45 are `EXACT`** — bit-identical. Only
 `render_rect_blur` is `BLURRY`, because the gaussian blur shader's float error differs
-between drivers. The shadow looks like it belongs in that group and does not: `ShadowContext`
+between drivers. The two knobs compose rather than alternate: a pixel is over tolerance when a
+channel moved further than `max_channel_delta`, and the case fails when more than
+`max_differing_fraction` of the frame is over tolerance. As an `||` the channel limit was
+unreachable — any 2% of a `BLURRY` frame could change by any amount at all. The shadow looks like it belongs in that group and does not: `ShadowContext`
 bakes its gaussian into a CPU `Surface` once and draws it as an ordinary `NEAREST` texture.
 Keep new cases `EXACT` unless a shader is genuinely involved — a loose tolerance once
 absorbed a real one-pixel shift in the text input cases.
@@ -515,7 +524,7 @@ unless you bump `WORLD_SAVE_VERSION` by hand — that is what it is for.
 
 `base_game/base_game.mod` and `Build/Resources/*` are `include_bytes!`-ed into the binary but
 are **not** committed — `.gitignore` carries `Build/` and `**/*.mod`, so every checkout builds
-its own. The only `.opa` files in git are the 44 golden images. That means a change to the
+its own. The only `.opa` files in git are the 45 golden images. That means a change to the
 serialization format costs nothing here, but it does mean the goldens have to be converted:
 they are `snap(postcard(Surface))` too.
 
