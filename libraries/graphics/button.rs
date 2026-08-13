@@ -20,6 +20,17 @@ pub struct Button {
     /// One hover step per elapsed millisecond, bounded so that a button built long before it
     /// is first drawn - the pause menu's, say - does not owe a step for every one of them.
     animation_timer: gfx::AnimationTimer,
+    /// Whether the most recent press of the left button landed on this one.
+    ///
+    /// A click is a press *and* a release on the same button. Without this only the release
+    /// was checked, so a press that landed anywhere else - on the menu behind, or in the menu
+    /// this one replaced - activated whatever the pointer happened to be over when it came
+    /// back up.
+    ///
+    /// Deliberately not cleared by the release that consumes it. Several menus hold their
+    /// buttons as sub-elements *and* dispatch to them again from `on_event_inner`, so a
+    /// release reaches a button twice and the menu reads the second answer.
+    pressed_inside: bool,
     on_click: Box<dyn Fn()>,
 }
 
@@ -40,6 +51,7 @@ impl Button {
             darken_on_disabled: false,
             hover_progress: 0.0,
             animation_timer: gfx::AnimationTimer::new(1),
+            pressed_inside: false,
             on_click: Box::new(closure),
         }
     }
@@ -128,14 +140,18 @@ impl UiElement for Button {
         }
     }
 
-    /// Fires on release rather than press, so pressing a button and moving away before letting
-    /// go does not trigger it.
+    /// Fires on the release of a press that landed on this same button, so neither half of a
+    /// click that started or finished somewhere else counts.
     fn on_event_inner(&mut self, graphics: &mut dyn gfx::UiContext, event: &gfx::Event, parent_container: &gfx::Container) -> bool {
-        if let gfx::Event::KeyRelease(gfx::Key::MouseLeft, ..) = event {
-            if self.is_hovered(graphics, parent_container) {
+        match event {
+            gfx::Event::KeyPress(gfx::Key::MouseLeft, ..) => {
+                self.pressed_inside = self.is_hovered(graphics, parent_container);
+            }
+            gfx::Event::KeyRelease(gfx::Key::MouseLeft, ..) if self.pressed_inside && self.is_hovered(graphics, parent_container) => {
                 (self.on_click)();
                 return true;
             }
+            _ => {}
         }
         false
     }

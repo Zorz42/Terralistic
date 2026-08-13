@@ -93,6 +93,14 @@ impl gfx::UiElement for ChoiceMenu {
     }
 
     fn on_event_inner(&mut self, graphics: &mut dyn gfx::UiContext, event: &gfx::Event, _parent_container: &gfx::Container) -> bool {
+        // Every event, not only the release: a `gfx::Button` fires on a release that completes
+        // a press it saw land on itself, so handing it one half of a click does nothing.
+        // The buttons are not sub-elements - they are positioned against `button_container`
+        // rather than against this menu - so this loop is the only thing that reaches them.
+        for button in &mut self.buttons {
+            button.on_event(graphics, event, &self.button_container);
+        }
+
         if let gfx::Event::KeyRelease(key, ..) = event {
             match key {
                 gfx::Key::Escape => {
@@ -106,11 +114,6 @@ impl gfx::UiElement for ChoiceMenu {
                         button.press();
                     }
                     return true;
-                } //temporarily disabled
-                gfx::Key::MouseLeft => {
-                    for button in &mut self.buttons {
-                        button.on_event(graphics, event, &self.button_container);
-                    }
                 }
                 _ => {}
             }

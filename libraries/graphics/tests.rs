@@ -470,10 +470,76 @@ mod tests {
         let root = root_container(&graphics);
         graphics.set_mouse_pos(FloatPos(50.0, 25.0));
 
+        button.on_event(&mut graphics, &press(gfx::Key::MouseLeft), &root);
         let consumed = button.on_event(&mut graphics, &release(gfx::Key::MouseLeft), &root);
 
         assert_eq!(clicks.get(), 1);
         assert!(consumed, "a handled click should be reported as consumed");
+    }
+
+    /// A click is a press *and* a release on the same button. Only the release used to be
+    /// checked, so a press that landed anywhere else - on the menu behind it, or in the menu
+    /// this one replaced - activated whatever the pointer was over when it came back up.
+    #[test]
+    fn test_a_release_the_button_never_saw_the_press_for_does_nothing() {
+        let mut graphics = gfx::HeadlessContext::new();
+        let (mut button, clicks) = counting_button(FloatSize(100.0, 50.0));
+        let root = root_container(&graphics);
+        graphics.set_mouse_pos(FloatPos(50.0, 25.0));
+
+        let consumed = button.on_event(&mut graphics, &release(gfx::Key::MouseLeft), &root);
+
+        assert_eq!(clicks.get(), 0);
+        assert!(!consumed, "a release that completes nothing is not this button's to consume");
+    }
+
+    /// The other half of the same rule, and the one it always got right: pressing a button and
+    /// dragging off it before letting go is how a user backs out of a click.
+    #[test]
+    fn test_pressing_a_button_and_letting_go_elsewhere_does_nothing() {
+        let mut graphics = gfx::HeadlessContext::new();
+        let (mut button, clicks) = counting_button(FloatSize(100.0, 50.0));
+        let root = root_container(&graphics);
+
+        graphics.set_mouse_pos(FloatPos(50.0, 25.0));
+        button.on_event(&mut graphics, &press(gfx::Key::MouseLeft), &root);
+        graphics.set_mouse_pos(FloatPos(500.0, 500.0));
+        button.on_event(&mut graphics, &release(gfx::Key::MouseLeft), &root);
+
+        assert_eq!(clicks.get(), 0);
+    }
+
+    /// Backing out of backing out. The press is remembered, not the pointer's whole path.
+    #[test]
+    fn test_dragging_off_a_pressed_button_and_back_still_fires() {
+        let mut graphics = gfx::HeadlessContext::new();
+        let (mut button, clicks) = counting_button(FloatSize(100.0, 50.0));
+        let root = root_container(&graphics);
+
+        graphics.set_mouse_pos(FloatPos(50.0, 25.0));
+        button.on_event(&mut graphics, &press(gfx::Key::MouseLeft), &root);
+        graphics.set_mouse_pos(FloatPos(500.0, 500.0));
+        graphics.set_mouse_pos(FloatPos(50.0, 25.0));
+        button.on_event(&mut graphics, &release(gfx::Key::MouseLeft), &root);
+
+        assert_eq!(clicks.get(), 1);
+    }
+
+    /// Several menus hold their buttons as sub-elements *and* dispatch to them again from
+    /// `on_event_inner`, so one release reaches a button twice - and the menu reads the second
+    /// answer. Remembering the press must not turn into consuming it.
+    #[test]
+    fn test_a_release_delivered_twice_is_answered_twice() {
+        let mut graphics = gfx::HeadlessContext::new();
+        let (mut button, clicks) = counting_button(FloatSize(100.0, 50.0));
+        let root = root_container(&graphics);
+        graphics.set_mouse_pos(FloatPos(50.0, 25.0));
+
+        button.on_event(&mut graphics, &press(gfx::Key::MouseLeft), &root);
+        assert!(button.on_event(&mut graphics, &release(gfx::Key::MouseLeft), &root));
+        assert!(button.on_event(&mut graphics, &release(gfx::Key::MouseLeft), &root));
+
+        assert_eq!(clicks.get(), 2);
     }
 
     /// The press half of a click does nothing; only the release fires. That is what lets
@@ -498,6 +564,7 @@ mod tests {
         let root = root_container(&graphics);
         graphics.set_mouse_pos(FloatPos(500.0, 500.0));
 
+        button.on_event(&mut graphics, &press(gfx::Key::MouseLeft), &root);
         button.on_event(&mut graphics, &release(gfx::Key::MouseLeft), &root);
 
         assert_eq!(clicks.get(), 0);
@@ -511,6 +578,7 @@ mod tests {
         let root = root_container(&graphics);
         graphics.set_mouse_pos(FloatPos(50.0, 25.0));
 
+        button.on_event(&mut graphics, &press(gfx::Key::MouseLeft), &root);
         button.on_event(&mut graphics, &release(gfx::Key::MouseLeft), &root);
 
         assert_eq!(clicks.get(), 0);
@@ -523,8 +591,10 @@ mod tests {
         let root = root_container(&graphics);
         graphics.set_mouse_pos(FloatPos(50.0, 25.0));
 
-        button.on_event(&mut graphics, &release(gfx::Key::Enter), &root);
-        button.on_event(&mut graphics, &release(gfx::Key::MouseRight), &root);
+        for key in [gfx::Key::Enter, gfx::Key::MouseRight] {
+            button.on_event(&mut graphics, &press(key), &root);
+            button.on_event(&mut graphics, &release(key), &root);
+        }
 
         assert_eq!(clicks.get(), 0);
     }
@@ -1395,14 +1465,18 @@ mod tests {
         };
         let root = root_container(&graphics);
 
+        let mut click_at = |graphics: &mut gfx::HeadlessContext, pos| {
+            graphics.set_mouse_pos(pos);
+            panel.on_event(graphics, &press(gfx::Key::MouseLeft), &root);
+            panel.on_event(graphics, &release(gfx::Key::MouseLeft), &root);
+        };
+
         // inside the button once the panel's offset is applied
-        graphics.set_mouse_pos(FloatPos(225.0, 125.0));
-        panel.on_event(&mut graphics, &release(gfx::Key::MouseLeft), &root);
+        click_at(&mut graphics, FloatPos(225.0, 125.0));
         assert_eq!(clicks.get(), 1, "the click should have reached the button");
 
         // where the button would be if the panel's offset were ignored
-        graphics.set_mouse_pos(FloatPos(25.0, 25.0));
-        panel.on_event(&mut graphics, &release(gfx::Key::MouseLeft), &root);
+        click_at(&mut graphics, FloatPos(25.0, 25.0));
         assert_eq!(clicks.get(), 1, "a click at the unoffset position should have missed");
     }
 
@@ -1420,9 +1494,11 @@ mod tests {
         let root = root_container(&graphics);
 
         graphics.set_mouse_pos(FloatPos(25.0, 25.0));
+        panel.on_event(&mut graphics, &press(gfx::Key::MouseLeft), &root);
         assert!(panel.on_event(&mut graphics, &release(gfx::Key::MouseLeft), &root));
 
         graphics.set_mouse_pos(FloatPos(900.0, 700.0));
+        panel.on_event(&mut graphics, &press(gfx::Key::MouseLeft), &root);
         assert!(!panel.on_event(&mut graphics, &release(gfx::Key::MouseLeft), &root));
     }
 
