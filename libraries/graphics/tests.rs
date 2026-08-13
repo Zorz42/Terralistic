@@ -1337,6 +1337,68 @@ mod tests {
         assert_close(input.visible_text_rect(&font).pos.0, hidden);
     }
 
+    /// A selection is as wide as the text it covers, and the text is allowed to be wider than
+    /// the box - so the highlight has to be clipped to the widget. Nothing here clips, and the
+    /// highlight is a filled rectangle, so one let past the left edge paints a bar over
+    /// whatever sits beside the input. Selecting the whole of a long value reached ~120 pixels
+    /// past it.
+    #[test]
+    fn test_a_selection_wider_than_the_box_is_clipped_to_it() {
+        let mut graphics = gfx::HeadlessContext::new();
+        let mut input = overflowing_input(&mut graphics);
+        let root = root_container(&graphics);
+        let font = font();
+        let size = input.get_size();
+
+        // select the whole value, one character at a time, from each end
+        for key in [gfx::Key::Left, gfx::Key::Right] {
+            graphics.set_key_state(gfx::Key::LeftShift, true);
+            for _ in 0..input.get_text().len() {
+                input.on_event(&mut graphics, &press(key), &root);
+                let highlight = input.cursor_rect(&font, size);
+                assert!(
+                    highlight.pos.0 >= 0.0 && highlight.pos.0 + highlight.size.0 <= size.0,
+                    "the selection {highlight:?} left the {size:?} box at offset {:?}",
+                    input.get_cursor_range()
+                );
+            }
+            graphics.set_key_state(gfx::Key::LeftShift, false);
+            // collapse the selection and go back to the other end for the second pass
+            input.on_event(&mut graphics, &press(key), &root);
+        }
+    }
+
+    /// A selection the box has room for has to be visible in full.
+    ///
+    /// The view is placed from the end of the cursor the user is moving. Holding that end
+    /// against the *left* edge - which is what it used to do - scrolls everything selected by
+    /// shift and the right arrow off the screen behind it, so making a selection showed no
+    /// selection at all.
+    #[test]
+    fn test_a_selection_that_fits_is_shown_in_full() {
+        let mut graphics = gfx::HeadlessContext::new();
+        let mut input = overflowing_input(&mut graphics);
+        let root = root_container(&graphics);
+        let font = font();
+
+        while input.get_cursor_range().0 > 0 {
+            input.on_event(&mut graphics, &press(gfx::Key::Left), &root);
+        }
+        graphics.set_key_state(gfx::Key::LeftShift, true);
+        for _ in 0..8 {
+            input.on_event(&mut graphics, &press(gfx::Key::Right), &root);
+        }
+
+        let selected = font.get_text_size(input.get_text().get(..input.get_cursor_range().1).unwrap(), None).0 as f32;
+        assert!(selected < input.get_size().0, "the fixture has to select less than the box holds");
+
+        // On screen at all, and all of it: the clipping in `cursor_rect` is what makes the
+        // first half of that assertion mean anything.
+        let highlight = input.cursor_rect(&font, input.get_size());
+        assert!(highlight.pos.0 >= 0.0, "the selection starts at {}, outside the box", highlight.pos.0);
+        assert!(highlight.size.0 >= selected, "only {} of the selection's {selected} pixels are on screen", highlight.size.0);
+    }
+
     /// Text that fits is never cropped, wherever the cursor is.
     #[test]
     fn test_a_value_that_fits_is_shown_from_the_start() {
@@ -1507,6 +1569,27 @@ mod tests {
         let wide = mono.get_text_size("MMMM", None).0;
 
         assert_eq!(narrow, wide, "a mono font should give 'iiii' and 'MMMM' the same width");
+    }
+
+    /// **Including the space.** It is the one character whose advance is not its glyph's width:
+    /// trimming leaves a proportional font's space empty, so it is given a width of its own -
+    /// and adding that on top of a mono font's padded space made the space two pixels wider
+    /// than every other character, which is the whole of what a mono font promises not to do.
+    /// The server console is a column of timestamps drawn in this font.
+    #[test]
+    fn test_a_mono_space_advances_like_every_other_character() {
+        let mono = gfx::Font::new_headless(FONT_MONO, true).unwrap();
+
+        assert_eq!(mono.get_text_size("i i", None).0, mono.get_text_size("iii", None).0);
+        assert_eq!(mono.get_text_size(" ", None).0, mono.get_text_size("i", None).0);
+    }
+
+    /// The proportional font still needs it: its space glyph is trimmed to nothing, so without
+    /// a width of its own a space would be a single pixel of character spacing.
+    #[test]
+    fn test_a_proportional_space_is_wider_than_its_empty_glyph() {
+        let font = font();
+        assert!(font.get_text_size(" ", None).0 > 1);
     }
 
     #[test]

@@ -210,8 +210,13 @@ impl TextInput {
     /// Text wider than the box is cropped, and by default it is cropped from the left so that
     /// the end being typed stays visible. That alone is not enough once the field is selected:
     /// the cursor has to stay inside the box too, or moving it left through a long value walks
-    /// it out of the left edge and paints a white bar over whatever is beside the input. So the
-    /// window is pulled back to whichever end of it the cursor has left.
+    /// it out of the left edge and paints a white bar over whatever is beside the input.
+    ///
+    /// So a selected field centres the box on the end of the cursor the user is moving, and
+    /// clamps that against both ends of the text. Centring rather than pulling the window just
+    /// far enough is what makes the two directions behave the same: with the moving end held
+    /// against the *left* edge instead, everything selected by shift and the right arrow was
+    /// scrolled off behind it, so making a selection showed no selection.
     fn view_offset(&self, font: &gfx::Font) -> f32 {
         // How far the text has to slide left for its end to sit against the right edge, which
         // is zero as long as the whole value fits.
@@ -220,9 +225,9 @@ impl TextInput {
             return furthest;
         }
         // The second half of the cursor is the end the user is moving, so that is the one that
-        // has to stay on screen. No clamping is needed on top of this: a prefix is never wider
-        // than the whole string, so the result is already inside `0..=furthest`.
-        f32::min(furthest, self.width_up_to(font, self.cursor.1))
+        // has to stay on screen. The clamp leaves it half a box from either edge at worst,
+        // which is still inside.
+        (self.width_up_to(font, self.cursor.1) - self.visible_width() / 2.0).clamp(0.0, furthest)
     }
 
     /// How much of the text fits between the two paddings, unscaled.
@@ -255,6 +260,11 @@ impl TextInput {
 
     /// The cursor or selection rectangle, relative to the input's own top left.
     ///
+    /// **Clipped to the widget**, which the cursor never needs but a selection does: a
+    /// selection is as wide as the text it covers, and the text is allowed to be wider than the
+    /// box. Nothing in this toolkit clips, so a highlight let past the edge goes on painting a
+    /// bar over whatever sits beside the input.
+    ///
     /// Split out of `render_inner` together with the two above because none of this needs a
     /// GPU - a `Font` to measure with is the whole of it, and `Font::new_headless` is one.
     pub(super) fn cursor_rect(&self, font: &gfx::Font, size: gfx::FloatSize) -> gfx::Rect {
@@ -262,8 +272,8 @@ impl TextInput {
         let (start, end) = self.get_cursor();
         // A pixel of lead-in and lead-out, so a collapsed cursor is a visible bar rather than
         // nothing at all.
-        let x1 = text_begin_x + self.width_up_to(font, start) * self.scale - 3.0;
-        let x2 = text_begin_x + self.width_up_to(font, end) * self.scale + 1.0;
+        let x1 = (text_begin_x + self.width_up_to(font, start) * self.scale - 3.0).clamp(0.0, size.0);
+        let x2 = (text_begin_x + self.width_up_to(font, end) * self.scale + 1.0).clamp(x1, size.0);
 
         gfx::Rect::new(gfx::FloatPos(x1, self.padding * self.scale), gfx::FloatSize(x2 - x1, size.1 - self.padding * self.scale * 2.0))
     }

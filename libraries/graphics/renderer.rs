@@ -1,5 +1,5 @@
 use std::cell::RefCell;
-use std::collections::{HashMap, VecDeque};
+use std::collections::{HashSet, VecDeque};
 
 use anyhow::Result;
 use arboard::Clipboard;
@@ -41,7 +41,7 @@ pub struct GraphicsContext {
     window_open: bool,
     /// Which keys are currently held, maintained from the press and release events as they go
     /// past - a UI element asks "is shift down" far more often than it reacts to shift.
-    key_states: HashMap<gfx::Key, bool>,
+    key_states: HashSet<gfx::Key>,
     pub(super) shadow_context: ShadowContext,
     /// `None` where the system has no clipboard to offer. Copy and paste stop working; nothing
     /// else does, which is why this is not a reason to refuse to open the window.
@@ -91,7 +91,7 @@ impl GraphicsContext {
             backend,
             window,
             draw_list: RefCell::new(DrawList::new()),
-            key_states: HashMap::new(),
+            key_states: HashSet::new(),
             shadow_context,
             events_queue: VecDeque::new(),
             window_pumped: false,
@@ -189,8 +189,12 @@ impl GraphicsContext {
 
         for event in poll.events {
             match event {
-                gfx::Event::KeyPress(key, ..) => self.set_key_state(key, true),
-                gfx::Event::KeyRelease(key, ..) => self.set_key_state(key, false),
+                gfx::Event::KeyPress(key, ..) => {
+                    self.key_states.insert(key);
+                }
+                gfx::Event::KeyRelease(key, ..) => {
+                    self.key_states.remove(&key);
+                }
                 _ => {}
             }
             self.events_queue.push_back(event);
@@ -296,10 +300,6 @@ impl GraphicsContext {
         self.window.set_min_size(size);
     }
 
-    fn set_key_state(&mut self, key: gfx::Key, state: bool) {
-        self.key_states.insert(key, state);
-    }
-
     /// Records a blur of whatever has already been drawn inside `rect`.
     pub(super) fn blur_rect(&self, rect: gfx::Rect, radius: i32) {
         self.push_draw_command(DrawCommand::Blur { rect, radius });
@@ -348,7 +348,7 @@ impl UiContext for GraphicsContext {
     }
 
     fn get_key_state(&self, key: gfx::Key) -> bool {
-        !self.block_key_states && *self.key_states.get(&key).unwrap_or(&false)
+        !self.block_key_states && self.key_states.contains(&key)
     }
 
     fn get_clipboard_text(&mut self) -> Option<String> {

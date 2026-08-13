@@ -39,11 +39,9 @@ impl Color {
     }
 }
 
+/// Mixes two colours channel by channel, `t` of the way from `a` to `b`.
 #[must_use]
 pub fn interpolate_colors(a: Color, b: Color, t: f32) -> Color {
-    let color_a = (a.a as f32 * (1.0 - t) + b.a as f32 * t) as u8;
-    let color_r = (a.r as f32 * (1.0 - t) + b.r as f32 * t) as u8;
-    let color_g = (a.g as f32 * (1.0 - t) + b.g as f32 * t) as u8;
-    let color_b = (a.b as f32 * (1.0 - t) + b.b as f32 * t) as u8;
-    Color::new(color_r, color_g, color_b, color_a)
+    let mix = |from: u8, to: u8| (from as f32 * (1.0 - t) + to as f32 * t) as u8;
+    Color::new(mix(a.r, b.r), mix(a.g, b.g), mix(a.b, b.b), mix(a.a, b.a))
 }

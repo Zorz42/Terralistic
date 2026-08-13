@@ -80,15 +80,11 @@ impl Surface {
         self.size
     }
 
-    /// Copies another surface to the specified location.
+    /// Copies another surface to the specified location, multiplied by `color`.
     pub fn draw(&mut self, pos: gfx::IntPos, surface: &Self, color: Color) -> Result<()> {
-        for (pos2, surface_color) in surface.iter() {
-            *self.get_pixel_mut(pos + pos2)? = Color {
-                r: (surface_color.r as f32 * (color.r as f32 / 255.0)) as u8,
-                g: (surface_color.g as f32 * (color.g as f32 / 255.0)) as u8,
-                b: (surface_color.b as f32 * (color.b as f32 / 255.0)) as u8,
-                a: (surface_color.a as f32 * (color.a as f32 / 255.0)) as u8,
-            };
+        let tint = |channel: u8, by: u8| (channel as f32 * (by as f32 / 255.0)) as u8;
+        for (source_pos, source) in surface.iter() {
+            *self.get_pixel_mut(pos + source_pos)? = Color::new(tint(source.r, color.r), tint(source.g, color.g), tint(source.b, color.b), tint(source.a, color.a));
         }
 
         Ok(())

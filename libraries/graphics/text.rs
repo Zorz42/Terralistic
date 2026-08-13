@@ -9,6 +9,9 @@ use super::surface::Surface;
 pub struct Font {
     font_surfaces: Vec<Surface>,
     font_textures: Vec<gfx::Texture>,
+    /// Every glyph was padded out to the same width, so the space needs no width of its own.
+    /// See `advance`.
+    mono: bool,
 }
 
 const CHAR_SPACING: i32 = 1;
@@ -76,7 +79,7 @@ impl Font {
     pub fn new(font_data: &[u8], mono: bool) -> Result<Self> {
         let font_surfaces = Self::load_surfaces(font_data, mono)?;
         let font_textures = font_surfaces.iter().map(gfx::Texture::load_from_surface).collect();
-        Ok(Self { font_surfaces, font_textures })
+        Ok(Self { font_surfaces, font_textures, mono })
     }
 
     /// A font that can measure and rasterise text but not render it, for tests. Skipping the
@@ -86,7 +89,27 @@ impl Font {
         Ok(Self {
             font_surfaces: Self::load_surfaces(font_data, mono)?,
             font_textures: Vec::new(),
+            mono,
         })
+    }
+
+    /// How far the pen moves after `c`, whose glyph is `glyph`.
+    ///
+    /// Shared by `layout` and `render_text` because the two have to agree to the pixel and are
+    /// otherwise two copies of the same rule - `TextInput` places its cursor by measuring, and
+    /// then the glyph is drawn wherever this says.
+    ///
+    /// A space is the one character whose glyph is not what it advances by: trimming leaves a
+    /// proportional font's space empty, so it gets a width of its own. **A mono font's does
+    /// not** - `load_surfaces` already padded it out to the common width, and adding more would
+    /// make the space the one character that breaks the grid the font exists to keep.
+    const fn advance(&self, c: char, glyph: &Surface) -> i32 {
+        let advance = glyph.get_size().0 as i32 + CHAR_SPACING;
+        if c == ' ' && !self.mono {
+            advance + SPACE_WIDTH
+        } else {
+            advance
+        }
     }
 
     /// Walks `text`, handing each character's glyph and its position to `place`, and returns
@@ -95,6 +118,10 @@ impl Font {
     /// Measuring and rasterising are the same walk, so they share this one - having two copies
     /// of the wrapping rules is how they drift apart.
     fn layout<F: FnMut(gfx::IntPos, &Surface)>(&self, text: &str, width_limit: Option<i32>, mut place: F) -> gfx::IntSize {
+        // Every glyph is cut from the atlas at the full cell height, so a line is as tall as a
+        // cell wherever the characters on it came from.
+        const LINE_HEIGHT: i32 = GLYPH_SIZE + CHAR_SPACING;
+
         let mut x = 0;
         let mut y = 0;
         let mut max_width = 1;
@@ -106,33 +133,29 @@ impl Font {
             let Some(glyph) = self.font_surfaces.get(c as usize) else {
                 continue;
             };
-            let line_height = glyph.get_size().1 as i32 + CHAR_SPACING;
-            let advance = glyph.get_size().0 as i32 + CHAR_SPACING;
 
             if c == '\n' {
                 x = 0;
-                y += line_height;
-                height += line_height;
+                y += LINE_HEIGHT;
+                height += LINE_HEIGHT;
                 continue;
             }
             // `x > 0` so a glyph too wide for the limit on its own goes on the line it is
             // already on. Wrapping there instead leaves a blank line above it and counts its
             // height, and then does the same for every character after it.
+            let advance = self.advance(c, glyph);
             if x > 0 && width_limit.is_some_and(|limit| x + advance > limit) {
                 x = 0;
-                y += line_height;
-                height += line_height;
+                y += LINE_HEIGHT;
+                height += LINE_HEIGHT;
             }
 
             place(gfx::IntPos(x, y), glyph);
+            // The advance is part of the width, not something that only the *next* character
+            // sees. `TextInput` measures the text before the cursor with `get_text_size`, and
+            // sampling the width before adding a space's extra gap left the cursor two pixels
+            // short of the glyph that `create_text_surface` then drew.
             x += advance;
-            // The extra gap after a space is part of the width, not something that only the
-            // *next* character sees. `TextInput` measures the text before the cursor with
-            // `get_text_size`, and sampling the width before adding this left the cursor two
-            // pixels short of the glyph that `create_text_surface` then drew.
-            if c == ' ' {
-                x += SPACE_WIDTH;
-            }
             max_width = max_width.max(x);
         }
 
@@ -177,10 +200,7 @@ impl Font {
                 continue;
             };
             texture.render(target, scale, pos, None, false, None);
-            pos.0 += (glyph.get_size().0 as i32 + CHAR_SPACING) as f32 * scale;
-            if c == ' ' {
-                pos.0 += SPACE_WIDTH as f32 * scale;
-            }
+            pos.0 += self.advance(c, glyph) as f32 * scale;
         }
     }
 }

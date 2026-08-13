@@ -18,7 +18,7 @@ cargo build --profile dist # what you ship: release + LTO, 4.63 MB vs 5.49 MB
 cargo run -- server       # server with GUI
 cargo run -- server nogui # headless server
 cargo run -- version      # print version
-cargo test                # 406 tests, all should pass
+cargo test                # 410 tests, all should pass
 cargo clippy --all-targets
 ./coverage.sh             # coverage via config-coverage.toml
 
@@ -503,14 +503,26 @@ the odd one out: it draws **one line** straight from the glyph textures and hono
 
 **`get_text_size` is an advance width**, and it has to be: `TextInput` places its cursor by
 measuring the text before it, so measuring a prefix must land exactly where the next glyph is
-drawn. A space advances `SPACE_WIDTH` further than its (empty) glyph, and sampling the width
-before adding that put the cursor two pixels left of whatever followed a space.
+drawn. `Font::advance` is the one rule for how far the pen moves, shared by `layout` and
+`render_text` so the two cannot drift; sampling the width before adding a space's extra gap
+put the cursor two pixels left of whatever followed a space.
 
-`TextInput`'s view into a value too long for the box follows the cursor while the field is
-selected, and shows the tail when it is not. Nothing in this toolkit clips, so a cursor
-allowed off the left edge does not disappear — it goes on painting a white bar over the
-widget beside it. The geometry is `view_offset` / `visible_text_rect` / `cursor_rect`, kept
-out of `render_inner` so that a `Font::new_headless` is all a test needs to drive it.
+**The space is the only character whose advance is not its glyph's width**, and only in a
+proportional font: trimming leaves its glyph empty, so it gets `SPACE_WIDTH` of its own. A
+mono font's space was already padded out to the common width by `load_surfaces`, and adding
+`SPACE_WIDTH` on top made the space two pixels wider than every other character — which is the
+one thing a mono font promises not to do, and the server console is a column of timestamps
+drawn in it.
+
+`TextInput`'s view into a value too long for the box centres on the cursor while the field is
+selected, and shows the tail when it is not. Nothing in this toolkit clips, so anything let off
+the left edge does not disappear — it goes on painting a white bar over the widget beside it.
+That is why `cursor_rect` clips itself to the widget: a *selection* is as wide as the text it
+covers, which the box has no obligation to be. Centring rather than pulling the view back just
+far enough is what makes both directions behave: with the cursor's moving end held against the
+left edge, everything shift-and-right-arrow selected was scrolled off behind it. The geometry
+is `view_offset` / `visible_text_rect` / `cursor_rect`, kept out of `render_inner` so that a
+`Font::new_headless` is all a test needs to drive it.
 
 Several older UI pieces predate the `UiElement` trait and are hand-rolled — the `//TODO make
 this a UI element` comments in `client/game/chat.rs`, `pause_menu.rs`, `debug_menu.rs`,

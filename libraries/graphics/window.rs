@@ -298,7 +298,11 @@ impl ApplicationHandler for State {
                 self.geometry = Geometry::new(physical, scale_factor);
                 self.resized = true;
             }
-            WindowEvent::Focused(focused) => self.focus_lost = !focused,
+            // Only ever set, like `resized` and `closed`, and cleared by the `poll` that
+            // collects it. Assigning `!focused` instead loses a loss that is followed by a
+            // regain inside the same pump - which is a fast alt-tab, and leaves exactly the
+            // keys stuck down that clearing them exists to prevent.
+            WindowEvent::Focused(focused) => self.focus_lost |= !focused,
             WindowEvent::CursorMoved { position, .. } => {
                 let position = position.to_logical::<f64>(self.geometry.scale_factor);
                 self.mouse_pos = gfx::FloatPos(position.x as f32, position.y as f32);
