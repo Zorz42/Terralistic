@@ -101,12 +101,12 @@ Consequences to keep in mind:
 ### Networking
 
 `shared/packet/packet.rs` is the whole protocol. A `Packet` is `{ id: u64, data: Vec<u8> }`,
-where `id` is an FNV hash of `TypeId::of::<T>()` and `data` is bincode.
+where `id` is an FNV hash of `TypeId::of::<T>()` and `data` is postcard.
 
-**All bincode goes through `libraries/serialization.rs`** — packets, world saves and `.mod`
-files alike. That module picks the format (bincode 2's default: little endian, varint) in
-one place. Don't call `bincode::` directly; if the backend ever changes, that file is meant
-to be the only edit. Receivers call
+**All serialization goes through `libraries/serialization.rs`** — packets, world saves and
+`.mod` files alike. That module picks the format (postcard: little endian, LEB128 varint) in
+one place. Don't call `postcard::` directly; when the backend changes, that file is meant to
+be the only edit — and when bincode went unmaintained, it very nearly was. Receivers call
 `packet.try_deserialize::<SomeType>()`, which returns `None` if the type hash doesn't match.
 
 This means: **there is no packet registry and no version negotiation.** Any serializable
@@ -137,7 +137,7 @@ main loop only ever touches the channels, never the socket.
 a `HashMap<String, Vec<u8>>` of resources. Resource keys use `:` as separator, e.g.
 `blocks:dirt.opa`.
 
-The on-disk `.mod` format is `snap(bincode(GameModData))` — see `shared/mod_data.rs`, which
+The on-disk `.mod` format is `snap(postcard(GameModData))` — see `shared/mod_data.rs`, which
 is deliberately a dependency-free leaf module so the build script can write mods without
 pulling in Lua.
 
@@ -508,7 +508,7 @@ otherwise force-corrects (`server/server_core/players.rs`).
 
 ### Persistence
 
-World save is `bincode(HashMap<String, Vec<u8>>)` with keys `blocks`, `walls`, `players`.
+World save is `postcard(HashMap<String, Vec<u8>>)` with keys `blocks`, `walls`, `players`.
 Blocks and walls are additionally snap-compressed. Written to `server_data/server.world`
 relative to the process CWD. Client settings are JSON at
 `<data_dir>/Terralistic/settings.txt`.
@@ -523,11 +523,13 @@ or the wall equivalent silently breaks existing worlds.
 1. `compile_resource_pack(resources/ → Build/Resources/)` — converts PNG to the custom
    `.opa` format (raw serialized `gfx::Surface`), copies everything else.
 2. `compile_mod(base_game/)` — concatenates the Lua, minifies it with darklua, bundles
-   resources, bincode + snap, writes `base_game/base_game.mod`.
+   resources, postcard + snap, writes `base_game/base_game.mod`.
 
-`base_game/base_game.mod` and `Build/Resources/*` are **build artifacts that are committed**
-and `include_bytes!`-ed into the binary. If you edit `base_game/*.lua` or `resources/*`, the
-regenerated `.mod`/`.opa` files show up as diffs — that's expected, not a mistake.
+`base_game/base_game.mod` and `Build/Resources/*` are `include_bytes!`-ed into the binary but
+are **not** committed — `.gitignore` carries `Build/` and `**/*.mod`, so every checkout builds
+its own. The only `.opa` files in git are the 44 golden images. That means a change to the
+serialization format costs nothing here, but it does mean the goldens have to be converted:
+they are `snap(postcard(Surface))` too.
 
 The `.mod` build is reproducible: identical sources produce identical bytes. It used not to
 be, because resources were serialized from a `HashMap` whose iteration order Rust randomises

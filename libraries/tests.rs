@@ -74,7 +74,7 @@ mod tests {
     }
 
     /// The format uses variable length integers, so small numbers are cheap. This is the
-    /// property that made the world save shrink when moving off bincode 1.
+    /// property that made the world save shrink when moving off bincode 1's fixed width integers.
     #[test]
     fn test_small_integers_are_compact() {
         let small = serialization::serialize(&1_u64).unwrap();

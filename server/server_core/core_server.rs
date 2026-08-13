@@ -385,11 +385,12 @@ impl Server {
         let world: HashMap<String, Vec<u8>> = serialization::deserialize(&world_file)?;
 
         match world.get(WORLD_SAVE_VERSION_KEY) {
-            // A world with no version key was written before versioning existed, which also
-            // means it was written with bincode 1. That encoding is not readable now, so
-            // there is nothing useful to do with it. Note this branch is best effort: the
-            // outer decode above usually fails first on such a file.
-            None => bail!("this world has no save version, so it was written with the old bincode 1 format and cannot be read by this build"),
+            // A world with no version key was written before versioning existed. That
+            // encoding is not readable now, so there is nothing useful to do with it. Note
+            // this branch is best effort: the outer decode above usually fails first,
+            // because the version key lives *inside* the encoded map and so cannot be read
+            // when it is the encoding itself that changed.
+            None => bail!("this world has no save version, so it predates versioning and cannot be read by this build"),
             Some(bytes) => {
                 let version: u32 = serialization::deserialize(bytes)?;
                 if version != WORLD_SAVE_VERSION {

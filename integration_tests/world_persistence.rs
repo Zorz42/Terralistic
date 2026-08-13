@@ -110,7 +110,7 @@ mod tests {
     }
 
     /// A save with no version key at all predates versioning, which also means it was
-    /// written by bincode 1 and cannot be read now. It has to say so rather than
+    /// written by an older serialization format and cannot be read now. It has to say so rather than
     /// producing a world of nonsense.
     #[test]
     fn test_a_save_without_a_version_is_refused() {

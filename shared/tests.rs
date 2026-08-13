@@ -506,9 +506,9 @@ mod tests {
         assert_eq!(serialization::deserialize::<VersionPacket>(&bytes).unwrap().version, VERSION);
     }
 
-    /// The bincode 2 format is save version 2 or later; anything lower means someone
+    /// The postcard format is save version 3 or later; anything lower means someone
     /// lowered it without changing the format back.
-    const _: () = assert!(WORLD_SAVE_VERSION >= 2);
+    const _: () = assert!(WORLD_SAVE_VERSION >= 3);
 
     #[test]
     fn test_world_save_version_key() {

@@ -24,7 +24,7 @@ impl Surface {
     }
 
     /// Serializes the surface into a vector of bytes.
-    /// It is serialized with bincode and compressed with snap.
+    /// It goes through `libraries::serialization` and is compressed with snap.
     pub fn serialize_to_bytes(&self) -> Result<Vec<u8>> {
         let mut buffer = Vec::new();
         serialization::serialize_into(&mut buffer, &self)?;
