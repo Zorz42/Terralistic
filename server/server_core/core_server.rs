@@ -9,6 +9,7 @@ use std::time::Duration;
 use anyhow::{anyhow, bail, Result};
 
 use crate::libraries::events::EventManager;
+use crate::libraries::timing::{DeltaTimer, FixedStep};
 use crate::server::server_core::chat::server_chat_on_event;
 use crate::server::server_core::entities::ServerEntities;
 use crate::server::server_core::items::ServerItems;
@@ -56,14 +57,12 @@ pub struct Server {
     players: ServerPlayers,
     ui_event_receiver: Option<Receiver<UiMessageType>>,
     commands: CommandManager,
-    /// Simulated milliseconds already stepped, used to catch the fixed 5ms tick up to real time.
-    ms_counter: i32,
+    /// The fixed 5ms tick the player and entity physics run on, caught up to real time.
+    simulation_tick: FixedStep,
     /// Whole seconds already stepped, used to rate limit entity syncing.
     seconds_counter: i32,
-    /// Set on the first update, then used as the origin that `ms_counter` counts from.
-    ms_timer: Option<std::time::Instant>,
-    /// Time of the previous update, used to measure delta time.
-    last_time: Option<std::time::Instant>,
+    /// Measures how long the previous update took.
+    delta_timer: DeltaTimer,
 }
 
 impl Server {
@@ -89,10 +88,9 @@ impl Server {
             players: ServerPlayers::new(),
             ui_event_receiver,
             commands,
-            ms_counter: 0,
+            simulation_tick: FixedStep::new(5),
             seconds_counter: 0,
-            ms_timer: None,
-            last_time: None,
+            delta_timer: DeltaTimer::new(),
         }
     }
 
@@ -253,37 +251,13 @@ impl Server {
         Ok(())
     }
 
-    /// Advances the frame timers and returns the tick origin and the previous frame time.
-    /// Returns `None` on the first update, when there is not yet a previous frame to
-    /// measure a delta against, so that update is skipped.
-    ///
-    /// The second guard is kept from the original implementation for safety, but is
-    /// unreachable: the first branch always sets `last_time` alongside `ms_timer`.
-    fn advance_timers(&mut self) -> Option<(std::time::Instant, std::time::Instant)> {
-        let Some(ms_timer) = self.ms_timer else {
-            self.ms_timer = Some(std::time::Instant::now());
-            self.last_time = self.ms_timer;
-            return None; //we skip this time
-        };
-
-        let Some(last_time) = self.last_time else {
-            self.last_time = Some(std::time::Instant::now());
-            return None; //we skip this time
-        };
-
-        self.last_time = Some(std::time::Instant::now());
-
-        Some((ms_timer, last_time))
-    }
-
     /// Updates the server - manual way. It updates the server once and returns
     pub fn update(&mut self) -> Result<()> {
-        // the counters are private fields so outside functions cannot mismanage them
-        let Some((ms_timer, last_time)) = self.advance_timers() else {
-            return Ok(()); //we return early this time
+        // The first update has no previous one to measure a delta against, so it is skipped
+        // rather than handed however long starting the server took.
+        let Some(delta_time) = self.delta_timer.tick() else {
+            return Ok(());
         };
-
-        let delta_time = last_time.elapsed().as_secs_f32() * 1000.0;
 
         // update modules
         self.networking.update(&mut self.events)?;
@@ -296,7 +270,7 @@ impl Server {
         // handle events
         self.handle_events()?;
 
-        while self.ms_counter < ms_timer.elapsed().as_millis() as i32 {
+        while self.simulation_tick.step() {
             self.players.update(
                 &mut self.entities.get_entities(),
                 &self.blocks.get_blocks(),
@@ -308,12 +282,12 @@ impl Server {
             self.entities
                 .get_entities()
                 .update_entities_ms(&self.blocks.get_blocks(), &self.liquids.get_liquids(), &mut self.events)?;
-            self.ms_counter += 5;
         }
 
-        if self.seconds_counter < self.ms_counter / 1000 {
+        let simulated_seconds = (self.simulation_tick.stepped_ms() / 1000) as i32;
+        if self.seconds_counter < simulated_seconds {
             self.entities.sync_entities(&mut self.networking)?;
-            self.seconds_counter = self.ms_counter / 1000;
+            self.seconds_counter = simulated_seconds;
         }
 
         Ok(())

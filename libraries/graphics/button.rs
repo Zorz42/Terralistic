@@ -1,4 +1,5 @@
 use crate::libraries::graphics as gfx;
+use crate::libraries::timing;
 use gfx::{UiContext, UiElement};
 
 use super::theme::{BUTTON_BORDER_COLOR, BUTTON_COLOR, BUTTON_PADDING, HOVERED_BUTTON_BORDER_COLOR, HOVERED_BUTTON_COLOR};
@@ -19,7 +20,7 @@ pub struct Button {
     pub hover_progress: f32,
     /// One hover step per elapsed millisecond, bounded so that a button built long before it
     /// is first drawn - the pause menu's, say - does not owe a step for every one of them.
-    animation_timer: gfx::AnimationTimer,
+    animation_timer: timing::FixedStep,
     click: gfx::ClickTracker,
     on_click: Box<dyn Fn()>,
 }
@@ -40,7 +41,7 @@ impl Button {
             disabled: false,
             darken_on_disabled: false,
             hover_progress: 0.0,
-            animation_timer: gfx::AnimationTimer::new(1),
+            animation_timer: timing::FixedStep::for_animation(1),
             click: gfx::ClickTracker::default(),
             on_click: Box::new(closure),
         }
@@ -85,7 +86,7 @@ impl UiElement for Button {
             0.0
         };
 
-        while self.animation_timer.frame_ready() {
+        while self.animation_timer.step() {
             self.hover_progress = gfx::approach(self.hover_progress, hover_target, 40.0, 0.01);
         }
 

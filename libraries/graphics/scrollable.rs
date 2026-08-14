@@ -1,4 +1,5 @@
 use crate::libraries::graphics as gfx;
+use crate::libraries::timing;
 use gfx::UiElement;
 
 /// A scroll position with momentum, which the world and server lists offset their rows by.
@@ -9,7 +10,7 @@ pub struct Scrollable {
     scroll_velocity: f32,
     scroll_pos: f32,
     pub scroll_size: f32,
-    animation_timer: gfx::AnimationTimer,
+    animation_timer: timing::FixedStep,
     pub scroll_smooth_factor: f32,
     pub boundary_smooth_factor: f32,
 }
@@ -23,7 +24,7 @@ impl Scrollable {
             scroll_velocity: 0.0,
             scroll_pos: 0.0,
             scroll_size: 0.0,
-            animation_timer: gfx::AnimationTimer::new(1),
+            animation_timer: timing::FixedStep::for_animation(1),
             scroll_smooth_factor: 1.0,
             boundary_smooth_factor: 1.0,
         }
@@ -80,7 +81,7 @@ impl UiElement for Scrollable {
     /// `update_inner`, which the recursion in `BaseUiElement::update` runs first, so it sees
     /// the previous frame's position.
     fn update_inner(&mut self, _: &mut gfx::GraphicsContext, _: &gfx::Container) {
-        while self.animation_timer.frame_ready() {
+        while self.animation_timer.step() {
             self.advance_frame();
         }
     }

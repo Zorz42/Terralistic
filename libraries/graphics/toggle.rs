@@ -1,4 +1,5 @@
 use crate::libraries::graphics as gfx;
+use crate::libraries::timing;
 use gfx::theme::BUTTON_BORDER_COLOR;
 use gfx::UiElement;
 
@@ -16,7 +17,7 @@ pub struct Toggle {
     toggle_progress: f32,
     hover_progress: f32,
     /// See `Button::animation_timer`.
-    animation_timer: gfx::AnimationTimer,
+    animation_timer: timing::FixedStep,
     click: gfx::ClickTracker,
     pub changed: bool,
 }
@@ -36,7 +37,7 @@ impl Toggle {
             toggled: false,
             toggle_progress: 0.0,
             hover_progress: 0.0,
-            animation_timer: gfx::AnimationTimer::new(1),
+            animation_timer: timing::FixedStep::for_animation(1),
             click: gfx::ClickTracker::default(),
             changed: true,
         }
@@ -62,7 +63,7 @@ impl UiElement for Toggle {
         let toggle_target = if self.toggled { 1.0 } else { 0.0 };
         let hover_target = if self.is_hovered(graphics, parent_container) { 1.0 } else { 0.0 };
 
-        while self.animation_timer.frame_ready() {
+        while self.animation_timer.step() {
             self.toggle_progress = gfx::approach(self.toggle_progress, toggle_target, 40.0, 0.01);
             self.hover_progress = gfx::approach(self.hover_progress, hover_target, 40.0, 0.01);
         }

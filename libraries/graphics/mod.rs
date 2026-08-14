@@ -1,6 +1,5 @@
 use anyhow::Result;
 
-pub use animation_timer::{approach, AnimationTimer};
 pub use button::Button;
 pub use color::{interpolate_colors, Color};
 pub use container::{Container, Orientation, BOTTOM, BOTTOM_LEFT, BOTTOM_RIGHT, CENTER, LEFT, RIGHT, TOP, TOP_LEFT, TOP_RIGHT};
@@ -8,6 +7,7 @@ pub use container::{Container, Orientation, BOTTOM, BOTTOM_LEFT, BOTTOM_RIGHT, C
 pub use draw_list::DrawRecorder;
 pub use draw_list::{BlendMode, DrawCommand, DrawList, DrawTarget};
 pub use events::{Event, Key};
+pub use interpolate::approach;
 pub use position::{FloatPos, FloatSize, IntPos, IntSize};
 pub use rect::Rect;
 pub use rect_array::RectArray;
@@ -27,7 +27,6 @@ pub use ui_context::HeadlessContext;
 pub use ui_context::UiContext;
 pub use ui_element::{BaseUiElement, ClickTracker, UiElement};
 
-mod animation_timer;
 mod button;
 mod color;
 mod container;
@@ -36,6 +35,7 @@ pub mod draw_list;
 mod events;
 /// The GPU device and the registry a `DrawCommand`'s handles resolve against.
 pub(crate) mod gpu_device;
+mod interpolate;
 mod position;
 mod rect;
 mod rect_array;

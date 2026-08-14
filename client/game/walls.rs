@@ -4,6 +4,7 @@ use std::sync::{Arc, Mutex, MutexGuard, PoisonError};
 use crate::libraries::events::{Event, EventManager};
 use crate::libraries::graphics as gfx;
 use crate::libraries::grid::ChunkTracker;
+use crate::libraries::timing::Budget;
 use crate::shared::blocks::{Blocks, BLOCK_WIDTH, RENDER_BLOCK_WIDTH, RENDER_SCALE};
 use crate::shared::mod_manager::ModManager;
 use crate::shared::walls::{init_walls_mod_interface, WallId, Walls, WallsWelcomePacket};
@@ -38,8 +39,8 @@ impl RenderWallChunk {
         self.needs_update = true;
     }
 
-    pub fn update(&mut self, atlas: &gfx::TextureAtlas<WallId>, world_x: i32, world_y: i32, walls: &Walls, frame_timer: &std::time::Instant) -> Result<bool> {
-        if self.needs_update && frame_timer.elapsed().as_millis() < 10 {
+    pub fn update(&mut self, atlas: &gfx::TextureAtlas<WallId>, world_x: i32, world_y: i32, walls: &Walls, budget: &Budget) -> Result<bool> {
+        if self.needs_update && budget.has_time_left() {
             self.needs_update = false;
 
             self.rect_array = gfx::RectArray::new();
@@ -186,7 +187,7 @@ impl ClientWalls {
         Ok(())
     }
 
-    pub fn render(&mut self, graphics: &gfx::GraphicsContext, camera: &Camera, frame_timer: &std::time::Instant) -> Result<()> {
+    pub fn render(&mut self, graphics: &gfx::GraphicsContext, camera: &Camera, budget: &Budget) -> Result<()> {
         let width = self.get_walls().get_size().0 as i32;
         let height = self.get_walls().get_size().1 as i32;
 
@@ -212,7 +213,7 @@ impl ClientWalls {
                 let chunk = self.chunks.get_mut(chunk_index).ok_or_else(|| anyhow!("chunks array malformed"))?;
                 let walls = self.walls.lock().unwrap_or_else(PoisonError::into_inner);
 
-                let has_updated = chunk.update(&self.atlas, x * CHUNK_SIZE, y * CHUNK_SIZE, &walls, frame_timer)?;
+                let has_updated = chunk.update(&self.atlas, x * CHUNK_SIZE, y * CHUNK_SIZE, &walls, budget)?;
                 if has_updated {
                     self.chunk_tracker.update(chunk_index)?;
                 }

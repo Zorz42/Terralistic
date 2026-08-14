@@ -2,6 +2,7 @@ use crate::client::global_settings::GlobalSettings;
 use crate::client::settings::SliderSelection;
 use crate::client::settings::{Setting, Settings};
 use crate::libraries::graphics as gfx;
+use crate::libraries::timing;
 use gfx::{BaseUiElement, UiElement};
 use std::borrow::Borrow;
 use std::cell::RefCell;
@@ -46,7 +47,7 @@ enum SettingUi {
         hovered: bool,
         selected: bool,
         hovered_progress: f32,
-        animation_timer: gfx::AnimationTimer,
+        animation_timer: timing::FixedStep,
         slider_chosen: bool,
     },
 }
@@ -136,7 +137,7 @@ impl SettingUi {
                     hovered: false,
                     selected: false,
                     hovered_progress: 0.0,
-                    animation_timer: gfx::AnimationTimer::new(10),
+                    animation_timer: timing::FixedStep::for_animation(10),
                     slider_chosen: false,
                 }
             }
@@ -348,7 +349,7 @@ impl UiElement for SettingUi {
                 );
                 let slider_absolute_rect = slider_container.get_absolute_rect();
                 *hovered = slider_absolute_rect.contains(graphics.get_mouse_pos());
-                while animation_timer.frame_ready() {
+                while animation_timer.step() {
                     let hover_progress_target = if *hovered || *selected { 1.0 } else { 0.0 };
                     *hovered_progress += (hover_progress_target - *hovered_progress) / 10.0;
                 }

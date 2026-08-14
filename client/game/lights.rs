@@ -8,6 +8,7 @@ use crate::libraries::events::Event;
 use crate::libraries::graphics as gfx;
 use crate::libraries::graphics::DrawTarget;
 use crate::libraries::grid::ChunkTracker;
+use crate::libraries::timing::Budget;
 use crate::shared::blocks::{Blocks, RENDER_BLOCK_WIDTH};
 use crate::shared::lights::Lights;
 use crate::shared::CHUNK_SIZE;
@@ -32,8 +33,8 @@ impl LightChunk {
         self.needs_update = true;
     }
 
-    pub fn update(&mut self, world_x: i32, world_y: i32, lights: &Lights, frame_timer: &std::time::Instant) -> Result<bool> {
-        if self.needs_update && frame_timer.elapsed().as_millis() < 10 {
+    pub fn update(&mut self, world_x: i32, world_y: i32, lights: &Lights, budget: &Budget) -> Result<bool> {
+        if self.needs_update && budget.has_time_left() {
             self.needs_update = false;
 
             self.rect_array = gfx::RectArray::new();
@@ -128,7 +129,7 @@ impl ClientLights {
         Ok(())
     }
 
-    pub fn render(&mut self, graphics: &gfx::GraphicsContext, camera: &Camera, blocks: &Blocks, settings: &Rc<RefCell<Settings>>, frame_timer: &std::time::Instant) -> Result<()> {
+    pub fn render(&mut self, graphics: &gfx::GraphicsContext, camera: &Camera, blocks: &Blocks, settings: &Rc<RefCell<Settings>>, budget: &Budget) -> Result<()> {
         if let Setting::Toggle { toggled, .. } = settings.borrow_mut().get_setting(self.lights_setting)? {
             if !toggled {
                 return Ok(());
@@ -192,7 +193,7 @@ impl ClientLights {
                 let chunk_index = self.get_chunk_index(chunk_x, chunk_y)?;
                 let chunk = self.chunks.get_mut(chunk_index).ok_or_else(|| anyhow!("Chunk array malformed"))?;
 
-                let has_updated = chunk.update(chunk_x * CHUNK_SIZE, chunk_y * CHUNK_SIZE, &self.lights, frame_timer)?;
+                let has_updated = chunk.update(chunk_x * CHUNK_SIZE, chunk_y * CHUNK_SIZE, &self.lights, budget)?;
                 if has_updated {
                     self.chunk_tracker.update(chunk_index)?;
                 }

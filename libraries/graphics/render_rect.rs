@@ -1,4 +1,5 @@
 use crate::libraries::graphics as gfx;
+use crate::libraries::timing;
 
 /// A rectangle that slides towards its target instead of jumping to it.
 ///
@@ -16,7 +17,7 @@ pub struct RenderRect {
     pub orientation: gfx::Orientation,
     pub blur_radius: i32,
     pub shadow_intensity: i32,
-    animation_timer: gfx::AnimationTimer,
+    animation_timer: timing::FixedStep,
 }
 
 impl RenderRect {
@@ -33,7 +34,7 @@ impl RenderRect {
             orientation: gfx::TOP_LEFT,
             blur_radius: 0,
             shadow_intensity: 0,
-            animation_timer: gfx::AnimationTimer::new(1),
+            animation_timer: timing::FixedStep::for_animation(1),
         }
     }
 
@@ -64,7 +65,7 @@ impl gfx::UiElement for RenderRect {
     }
 
     fn update_inner(&mut self, _: &mut gfx::GraphicsContext, _: &gfx::Container) {
-        while self.animation_timer.frame_ready() {
+        while self.animation_timer.step() {
             self.render_pos.0 = gfx::approach(self.render_pos.0, self.pos.0, self.smooth_factor, 0.01);
             self.render_pos.1 = gfx::approach(self.render_pos.1, self.pos.1, self.smooth_factor, 0.01);
             self.render_size.0 = gfx::approach(self.render_size.0, self.size.0, self.smooth_factor, 0.01);

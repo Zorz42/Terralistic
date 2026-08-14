@@ -11,7 +11,6 @@ use crate::client::game::chat::ClientChat;
 use crate::client::game::debug_menu::DebugMenu;
 use crate::client::game::entities::ClientEntities;
 use crate::client::game::floating_text::FloatingTextManager;
-use crate::client::game::framerate_measurer::FramerateMeasurer;
 use crate::client::game::health::ClientHealth;
 use crate::client::game::inventory::ClientInventory;
 use crate::client::game::items::ClientItems;
@@ -26,6 +25,7 @@ use crate::client::settings::Settings;
 use crate::libraries::events;
 use crate::libraries::events::EventManager;
 use crate::libraries::graphics as gfx;
+use crate::libraries::timing::{Budget, FixedStep, FrameStats};
 use crate::shared::entities::PositionComponent;
 use gfx::BaseUiElement;
 
@@ -168,7 +168,9 @@ pub fn run_game(
     let mut block_selector = BlockSelector::new();
     let mut pause_menu = PauseMenu::new(graphics, settings.clone(), global_settings.clone());
     let mut debug_menu = DebugMenu::new();
-    let mut framerate_measurer = FramerateMeasurer::new();
+    let mut frame_stats = FrameStats::new();
+    // the client simulates its own player on the same fixed tick the server runs
+    let mut simulation_tick = FixedStep::new(5);
     let mut chat = ClientChat::new(graphics);
     let mut health = ClientHealth::new();
     let mut floating_text = FloatingTextManager::new();
@@ -198,9 +200,12 @@ pub fn run_game(
     println!("Game joined in {}ms", timer.elapsed().as_millis());
 
     'main_loop: while graphics.is_window_open() {
-        framerate_measurer.update();
+        frame_stats.begin_frame();
 
-        let frame_timer = std::time::Instant::now();
+        // What the chunk mesh rebuilds in walls and lights are allowed to spend. Anything
+        // slow before them eats it, and the symptom is a world that draws its blocks at
+        // once and takes minutes to finish its walls and lighting.
+        let frame_budget = Budget::of_ms(10);
 
         while let Some(event) = graphics.get_event() {
             events.push_event(events::Event::new(event));
@@ -210,8 +215,8 @@ pub fn run_game(
 
         networking.update(&mut events)?;
         mods.update()?;
-        blocks.update(framerate_measurer.get_delta_time(), &mut events)?;
-        walls.update(framerate_measurer.get_delta_time(), &mut events)?;
+        blocks.update(frame_stats.get_delta_time(), &mut events)?;
+        walls.update(frame_stats.get_delta_time(), &mut events)?;
 
         if let Some(main_player) = players.get_main_player() {
             let player_pos = entities.get_entities().ecs.get::<&PositionComponent>(main_player)?.deref().clone();
@@ -219,7 +224,7 @@ pub fn run_game(
             camera.set_position(player_pos.x(), player_pos.y());
         }
 
-        while framerate_measurer.has_5ms_passed() {
+        while simulation_tick.step() {
             camera.update_ms(graphics);
             players.controls_enabled = !camera.is_detached();
             players.update(graphics, &mut entities.get_entities(), &mut networking, &blocks.get_blocks(), &liquids.get_liquids())?;
@@ -231,8 +236,8 @@ pub fn run_game(
         items.update(&mut events);
 
         background.render(graphics, &camera);
-        walls.render(graphics, &camera, &frame_timer)?;
-        blocks.render(graphics, &camera /*&frame_timer*/)?;
+        walls.render(graphics, &camera, &frame_budget)?;
+        blocks.render(graphics, &camera /*&frame_budget*/)?;
         players.render(graphics, &mut entities.get_entities(), &camera);
         items.render(graphics, &camera, &mut entities.get_entities())?;
         // after everything that stands in it, so a player wading through water is behind
@@ -240,7 +245,7 @@ pub fn run_game(
         // which has to stay readable.
         liquids.render(graphics, &camera)?;
         floating_text.render(graphics, &camera);
-        lights.render(graphics, &camera, &blocks.get_blocks(), settings, &frame_timer)?;
+        lights.render(graphics, &camera, &blocks.get_blocks(), settings, &frame_budget)?;
         camera.render(graphics);
         block_selector.render(graphics, &mut networking, &camera)?;
         inventory.render(graphics, &items, &mut networking, &blocks.get_blocks())?;
@@ -253,9 +258,9 @@ pub fn run_game(
         debug_menu.render(
             graphics,
             &[
-                format!("FPS: {}", framerate_measurer.get_fps()),
-                format!("{:.2} ms max", framerate_measurer.get_max_frame_time()),
-                format!("{:.2} ms avg", framerate_measurer.get_avg_frame_time()),
+                format!("FPS: {}", frame_stats.get_fps()),
+                format!("{:.2} ms max", frame_stats.get_max_frame_time()),
+                format!("{:.2} ms avg", frame_stats.get_avg_frame_time()),
             ],
         );
 
@@ -282,7 +287,7 @@ pub fn run_game(
             respawn_screen.on_event(&event, graphics, &mut networking)?;
         }
 
-        framerate_measurer.update_post_render();
+        frame_stats.end_frame();
 
         graphics.update_window();
     }

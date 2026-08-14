@@ -1,6 +1,6 @@
 use std::collections::BTreeSet;
 
-use anyhow::{anyhow, bail, Result};
+use anyhow::{bail, Result};
 use serde_derive::{Deserialize, Serialize};
 use snap;
 
@@ -8,6 +8,7 @@ use crate::libraries::events::{Event, EventManager};
 use crate::libraries::grid::Grid;
 use crate::libraries::registry::{Registry, RegistryId};
 use crate::libraries::serialization;
+use crate::libraries::timing::Interval;
 use crate::shared::blocks::Blocks;
 use crate::shared::liquids::LiquidType;
 
@@ -85,9 +86,9 @@ pub struct Liquids {
     /// `GameModData.resources` a `BTreeMap`.
     scheduled: BTreeSet<(i32, i32)>,
 
-    /// Milliseconds of simulated time, and the time each liquid type next flows at.
+    /// Milliseconds of simulated time, and the clock each liquid type flows on.
     elapsed_ms: f64,
-    next_flow: Vec<f64>,
+    flow_intervals: Vec<Interval>,
 }
 
 impl Liquids {
@@ -102,7 +103,7 @@ impl Liquids {
             scheduled: BTreeSet::new(),
 
             elapsed_ms: 0.0,
-            next_flow: Vec::new(),
+            flow_intervals: Vec::new(),
         };
 
         let mut empty = LiquidType::new();
@@ -252,18 +253,8 @@ impl Liquids {
     pub fn update_liquids(&mut self, blocks: &Blocks, events: &mut EventManager, frame_length: f32) -> Result<()> {
         self.elapsed_ms += f64::from(frame_length);
 
-        let mut due = vec![false; self.liquid_types.len()];
-        for (id, liquid_type) in self.liquid_types.iter().enumerate() {
-            if liquid_type.flow_time <= 0 {
-                continue;
-            }
-
-            let next = self.next_flow.get_mut(id).ok_or_else(|| anyhow!("Liquid type has no flow schedule"))?;
-            if self.elapsed_ms >= *next {
-                *due.get_mut(id).ok_or_else(|| anyhow!("Liquid type has no flow schedule"))? = true;
-                *next = self.elapsed_ms + f64::from(liquid_type.flow_time);
-            }
-        }
+        let elapsed_ms = self.elapsed_ms;
+        let due: Vec<bool> = self.flow_intervals.iter_mut().map(|interval| interval.is_due(elapsed_ms)).collect();
 
         if !due.contains(&true) {
             return Ok(());
@@ -369,9 +360,7 @@ impl Liquids {
 
     /// This function adds a new liquid type, and is used by mods.
     pub fn register_new_liquid_type(&mut self, liquid_type: LiquidType) -> LiquidId {
-        // its first step is one whole flow time away, not immediately: a type registered
-        // with a flow time of a second should not get a free step the moment it appears
-        self.next_flow.push(self.elapsed_ms + f64::from(liquid_type.flow_time));
+        self.flow_intervals.push(Interval::starting_at(self.elapsed_ms, f64::from(liquid_type.flow_time)));
         self.liquid_types.register(liquid_type)
     }
 

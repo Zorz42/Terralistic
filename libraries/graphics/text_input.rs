@@ -1,4 +1,5 @@
 use crate::libraries::graphics as gfx;
+use crate::libraries::timing;
 use gfx::{BaseUiElement, UiElement};
 
 use super::theme::{SHADOW_INTENSITY, TEXT_INPUT_BORDER_COLOR, TEXT_INPUT_COLOR, TEXT_INPUT_HOVER_BORDER_COLOR, TEXT_INPUT_HOVER_COLOR, TEXT_INPUT_PADDING, TEXT_INPUT_WIDTH};
@@ -20,7 +21,7 @@ pub struct TextInput {
     hover_progress: f32,
     cursor_color_progress: f32,
     hint_color_progress: f32,
-    animation_timer: gfx::AnimationTimer,
+    animation_timer: timing::FixedStep,
     text: String,
     text_texture: gfx::Texture,
     text_changed: bool,
@@ -69,7 +70,7 @@ impl TextInput {
             hover_progress: 0.0,
             cursor_color_progress: 0.0,
             hint_color_progress: 1.0,
-            animation_timer: gfx::AnimationTimer::new(1),
+            animation_timer: timing::FixedStep::for_animation(1),
             text: String::new(),
             text_texture,
             text_changed: true,
@@ -322,7 +323,7 @@ impl UiElement for TextInput {
         let cursor_target = if self.selected { 0.5 } else { 0.0 };
         let hint_target = if self.text.is_empty() { 1.0 } else { 0.0 };
 
-        while self.animation_timer.frame_ready() {
+        while self.animation_timer.step() {
             // Fading out is ten times slower than fading in, so the box lingers under the
             // pointer instead of snapping back.
             let smooth_factor = if hover_target < self.hover_progress { 400.0 } else { 40.0 };

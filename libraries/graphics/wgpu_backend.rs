@@ -23,6 +23,7 @@ use std::sync::Arc;
 use anyhow::{anyhow, Result};
 
 use crate::libraries::graphics as gfx;
+use crate::libraries::timing;
 
 use super::draw_list::{BlendMode, DrawCommand, DrawList};
 use super::gpu_device::{self, GpuDevice, MeshEntry};
@@ -267,7 +268,7 @@ pub struct WgpuBackend {
     normalization_transform: Transformation,
     blur_enabled: bool,
     blur_intensity: f32,
-    blur_animation_timer: gfx::AnimationTimer,
+    blur_animation_timer: timing::FixedStep,
     /// Set by the golden-image harness so the next frame starts from a known buffer.
     clear_next_frame: bool,
 }
@@ -377,7 +378,7 @@ impl WgpuBackend {
             normalization_transform: Transformation::new(),
             blur_enabled: true,
             blur_intensity: 0.0,
-            blur_animation_timer: gfx::AnimationTimer::new(10),
+            blur_animation_timer: timing::FixedStep::for_animation(10),
             clear_next_frame: false,
         };
         result.configure_surface();
@@ -855,7 +856,7 @@ impl WgpuBackend {
     /// Advances the blur fade by however many 10 ms frames have elapsed.
     pub(super) fn update_blur(&mut self) {
         let target = if self.blur_enabled { 1.0 } else { 0.0 };
-        while self.blur_animation_timer.frame_ready() {
+        while self.blur_animation_timer.step() {
             self.blur_intensity = gfx::approach(self.blur_intensity, target, 10.0, 0.001);
         }
     }

@@ -160,6 +160,7 @@ pub mod libraries {
     pub mod registry;
     pub mod serialization;
     mod tests;
+    pub mod timing;
 }
 
 pub mod shared;

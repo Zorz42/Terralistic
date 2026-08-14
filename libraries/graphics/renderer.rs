@@ -11,6 +11,7 @@ use crate::libraries::graphics::wgpu_backend::WgpuBackend;
 use crate::libraries::graphics::window::Window;
 use crate::libraries::graphics::Font;
 use crate::libraries::graphics::UiContext;
+use crate::libraries::timing;
 
 /// How many unread events to keep before the oldest start falling off. A frame produces a
 /// handful, so this is only ever reached by a loop that presents without reading its input.
@@ -49,71 +50,11 @@ pub struct GraphicsContext {
     pub block_key_states: bool,
     pub scale: f32,
     real_scale: f32,
-    scale_animation_timer: gfx::AnimationTimer,
-    frame_limiter: FrameLimiter,
+    scale_animation_timer: timing::FixedStep,
+    frame_limiter: timing::FrameLimiter,
     prev_frame_time: std::time::Instant,
     pub font: Font,
     pub font_mono: Option<Font>,
-}
-
-/// How long the frames so far *should* have taken against how long they did, in milliseconds.
-///
-/// The limit is an **average** rather than a per-frame cap: the sleep at the end of a frame is
-/// the difference between the two sides, so a frame that overran is made up by the next ones
-/// instead of pushing the whole session behind.
-///
-/// Both sides only ever grow, which is why they are `f64`: as `f32` a 16ms increment stops
-/// being representable after about four hours, the elapsed side stalls while the target side
-/// climbs, and the sleep grows without bound.
-#[derive(Default)]
-pub(super) struct FrameLimiter {
-    /// Zero means unlimited.
-    min_ms_per_frame: f64,
-    frames_so_far: u64,
-    ms_so_far: f64,
-}
-
-impl FrameLimiter {
-    /// Caps the frame rate at `fps`. A non-positive `fps` means no limit, rather than a
-    /// division by zero and a sleep measured in centuries.
-    ///
-    /// The ledger is only cleared when the limit actually changes: it means nothing across a
-    /// change of target, but re-setting the *same* limit has to be free, because the settings
-    /// menu applies every setting on every event it sees. Clearing it each time would leave the
-    /// limiter capping each frame on its own rather than averaging over them.
-    pub(super) fn set_fps_limit(&mut self, fps: f32) {
-        let min_ms_per_frame = if fps > 0.0 { 1000.0 / f64::from(fps) } else { 0.0 };
-        if (min_ms_per_frame - self.min_ms_per_frame).abs() > f64::EPSILON {
-            *self = Self {
-                min_ms_per_frame,
-                frames_so_far: 0,
-                ms_so_far: 0.0,
-            };
-        }
-    }
-
-    /// Books a frame that took `elapsed_ms` and answers how long to sleep for.
-    ///
-    /// **The debt is capped at one frame.** Without that the ledger is repaid at full speed
-    /// however long it took to run up, so anything that stops the loop for a while - a world
-    /// loading, a laptop waking, a breakpoint - buys that many frames of completely uncapped
-    /// rendering afterwards. A five minute pause at a 60 fps limit is eighteen thousand of them.
-    /// Making up a frame or two of jitter is the point; making up a stall the player did not ask
-    /// for is not.
-    pub(super) fn owed_ms(&mut self, elapsed_ms: f64) -> f64 {
-        if self.min_ms_per_frame <= 0.0 {
-            return 0.0;
-        }
-
-        self.frames_so_far += 1;
-        self.ms_so_far += elapsed_ms;
-
-        let owed = self.min_ms_per_frame * self.frames_so_far as f64 - self.ms_so_far;
-        if owed < -self.min_ms_per_frame {
-            self.ms_so_far = self.min_ms_per_frame * (self.frames_so_far as f64 + 1.0);
-        }
-        f64::max(owed, 0.0)
-    }
 }
 
 impl GraphicsContext {
@@ -157,8 +98,8 @@ impl GraphicsContext {
             block_key_states: false,
             scale: 1.0,
             real_scale: 1.0,
-            scale_animation_timer: gfx::AnimationTimer::new(10),
-            frame_limiter: FrameLimiter::default(),
+            scale_animation_timer: timing::FixedStep::for_animation(10),
+            frame_limiter: timing::FrameLimiter::default(),
             prev_frame_time: std::time::Instant::now(),
             font,
             font_mono,
@@ -293,7 +234,7 @@ impl GraphicsContext {
 
         self.backend.update_blur();
 
-        while self.scale_animation_timer.frame_ready() {
+        while self.scale_animation_timer.step() {
             self.real_scale = gfx::approach(self.real_scale, self.scale, 10.0, 0.001);
         }
 
