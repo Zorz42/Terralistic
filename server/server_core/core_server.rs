@@ -164,13 +164,17 @@ impl Server {
                 status_text,
             )?;
 
-            let width = self.blocks.get_blocks().get_size().0;
-            let height = self.blocks.get_blocks().get_size().1;
-            for x in 0..width as i32 {
-                for y in 0..height as i32 {
-                    self.blocks.update_block(x, y, &mut self.events)?;
-                }
-            }
+            // Only the multiblocks need updating, and this grows them where they stand.
+            //
+            // This used to be `update_block` on every cell in the world, and the cost was not
+            // the sweep itself: it pushed a `BlockUpdateEvent` per cell, 5.4 million of them for
+            // the default world, which sat in the queue until the first `update()` and were then
+            // offered to every subsystem and handed to lua's `on_block_update` one at a time.
+            // That first update took 18 seconds in a debug build and held about a gigabyte of
+            // queued events - all of it after the loading screen had closed and while the client
+            // was already connected and waiting to be welcomed, so joining a world that had just
+            // been generated looked exactly like a game that had hung.
+            self.blocks.expand_big_blocks(&mut self.events)?;
         }
 
         // The liquid grid is the same size as the block grid, always. A save that disagrees
@@ -373,6 +377,14 @@ impl Server {
     #[must_use]
     pub fn is_listening(&self) -> bool {
         self.networking.is_listening()
+    }
+
+    /// How many events are waiting to be handled, for the test that checks generation does not
+    /// leave one per block behind it.
+    #[cfg(test)]
+    #[must_use]
+    pub fn queued_event_count(&self) -> usize {
+        self.events.queued_count()
     }
 
     #[cfg(test)]

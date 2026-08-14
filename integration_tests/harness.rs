@@ -374,10 +374,10 @@ impl TestClient {
 
     /// Disconnects and joins the networking thread.
     ///
-    /// Only safe once the handshake has finished one way or the other: while welcoming,
-    /// the thread never looks at the running flag, so joining it would block forever.
-    /// `run_game` has the same constraint - it only stops a client it has already waited
-    /// for - so tests use `complete_handshake` first rather than working around it.
+    /// Safe at any point, including mid-handshake: the welcome loop runs a timer of its own
+    /// that watches the running flag. It was not always - the thread only looked at that flag
+    /// once the welcome was over, so a client that gave up while a world was still loading had
+    /// nothing to join, and `run_game` could not offer to quit during a join at all.
     pub fn stop(&mut self) -> Result<()> {
         self.net.stop()
     }

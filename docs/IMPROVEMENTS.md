@@ -42,6 +42,45 @@ Found while doing the above, not in the original catalogue:
 | The client hung forever on the loading screen when the server was down or refused it | done — see 5.5 |
 | World generation ignored its seed for the biome layout, so the same seed gave a different world every run | done — see 5.5 |
 | `despawn_entity` left every despawned id resolvable, and the id maps only ever grew | done — see 5.5 |
+| Joining a world that had just been generated froze the window for tens of seconds with no way out | done — see below |
+
+### Joining a newly generated world looked like a hang
+
+Reported as "sometimes when I generate a new world it just hangs forever". Three separate
+things, all of them only visible on the *generation* path — loading an existing world takes
+none of them.
+
+**The event flood.** After generating, `Server::start` ran `update_block` on every cell in the
+world, each pushing a `BlockUpdateEvent`. On the default 4514x1200 world that is 5.4 million
+events queued before the first `update()`, which then offered each to every subsystem and handed
+it to lua's `on_block_update`. Measured on the default world: the first update took **17.7s** in
+a debug build (4.4s optimised) and peak RSS was **1.28 GB**. Nothing consumes `BlockUpdateEvent`
+except that lua hook, and the sweep's actual job is growing multiblocks — a tree's canopy is 5x5
+and the generator places one cell of it. `ServerBlocks::expand_big_blocks` now walks the
+multiblocks only: **150ms** and 890 MB, with the canopies identical.
+
+**Nothing rendered during the join.** `run_game` waited for the handshake in a `sleep(1ms)` loop
+and then did every bit of setup without drawing a frame, all inside the menu loop's
+`open_menu` — so the window stopped repainting the moment the server's loading screen closed and
+stayed that way for the whole join. It also had a dead `Arc<Mutex<String>>` of loading text that
+was never shown to anything. `JoinScreen` draws the menus' own `LoadingScreen` once per phase,
+each phase named.
+
+**The close button did nothing.** The join loop never looked at the window, and the networking
+thread's welcome loop never looked at `is_running`, so there was no way to abandon a join and
+`stop()` would have blocked forever if anyone had tried. The welcome loop now runs a 1ms signal
+timer, `stop()` is safe at any point, and closing the window during a join returns.
+
+Regression tests: `test_generation_does_not_queue_an_event_per_block`,
+`test_generation_grows_the_tree_canopies`,
+`test_a_client_can_be_stopped_while_it_is_still_welcoming`.
+
+Not reproduced: the report also mentioned the server saying something about a wrong packet. The
+only such message is `[peer] sent a packet that could not be deserialized, ignoring it`, which
+drops one frame and keeps serving, and nothing here produced it — the handshake, including
+multi-megabyte welcome packets over 64 KB socket reads, was checked packet by packet against a
+real generated world. The version handshake's refusals (`[peer] refused: it is version …`) read
+similarly and would explain a *failed* join rather than a slow one.
 
 ### The `TextInput` selection panic
 

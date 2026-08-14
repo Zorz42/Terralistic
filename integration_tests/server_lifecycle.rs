@@ -93,6 +93,74 @@ mod tests {
         server.stop().unwrap();
     }
 
+    /// The trees a generated world is decorated with have a 5x5 canopy on top, and the biome
+    /// generator places a single cell of it - growing that into the full footprint is what the
+    /// post-generation sweep over the blocks is for.
+    ///
+    /// It is checked before the server is ever stepped, because `start` has to return a world
+    /// that is finished: the client is welcomed with a copy of it, and a save written before
+    /// the first update has to be the same world when it is loaded again.
+    #[test]
+    fn test_generation_grows_the_tree_canopies() {
+        let server = TestServer::start_on_generated_world("gen-canopies", SMALL, SEED).unwrap();
+        let blocks = server.server.get_blocks();
+        let canopy = blocks.get_block_id_by_name("canopy").unwrap();
+        let (width, height) = blocks.get_size();
+        let footprint = blocks.get_block_type(canopy).unwrap().width;
+
+        let mut mains = 0;
+        for x in 0..width as i32 {
+            for y in 0..height as i32 {
+                if blocks.get_block(x, y).unwrap() != canopy || blocks.get_block_from_main(x, y).unwrap() != (0, 0) {
+                    continue;
+                }
+                mains += 1;
+
+                // every cell of the footprint is the same canopy, and each one knows where its
+                // main cell is - which is what makes the whole thing break as one block
+                for offset_x in 0..footprint {
+                    for offset_y in 0..footprint {
+                        let (cell_x, cell_y) = (x + offset_x, y + offset_y);
+                        assert!(blocks.get_block(cell_x, cell_y).unwrap() == canopy, "the canopy at ({x}, {y}) did not grow into ({cell_x}, {cell_y})");
+                        assert_eq!(
+                            blocks.get_block_from_main(cell_x, cell_y).unwrap(),
+                            (offset_x, offset_y),
+                            "the cell at ({cell_x}, {cell_y}) does not point back at the canopy at ({x}, {y})"
+                        );
+                    }
+                }
+            }
+        }
+
+        assert!(mains > 0, "the generated world has no trees to check");
+
+        drop(blocks);
+        server.stop().unwrap();
+    }
+
+    /// Generation queues the events its own work produced, not one per block in the world.
+    ///
+    /// The sweep above used to run over every cell, and each one pushed a `BlockUpdateEvent`:
+    /// 5.4 million of them for the default world, waiting in the queue for the first `update()`
+    /// to offer each to every subsystem and hand it to lua's `on_block_update`. That update took
+    /// 18 seconds in a debug build and held about a gigabyte, and it happened after the loading
+    /// screen had closed, with a client already connected and waiting to be welcomed - so a
+    /// newly generated world looked like a game that had hung.
+    #[test]
+    fn test_generation_does_not_queue_an_event_per_block() {
+        let server = TestServer::start_on_generated_world("gen-event-queue", SMALL, SEED).unwrap();
+
+        let (width, height) = server.server.get_blocks().get_size();
+        let cells = (width * height) as usize;
+        let queued = server.server.queued_event_count();
+
+        // the bound is loose on purpose: what matters is that the number belongs to the trees
+        // rather than to the size of the world, and the old sweep queued more than `cells`
+        assert!(queued < cells / 10, "generating a {cells} cell world queued {queued} events");
+
+        server.stop().unwrap();
+    }
+
     /// Every column has ground under sky: the world is open at the top and solid at the
     /// bottom. A generator that got the vertical order wrong would still produce a mix of
     /// blocks and pass the test above.

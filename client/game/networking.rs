@@ -110,6 +110,12 @@ impl ClientNetworking {
         Self::send_packet_internal(&handler, &Packet::new(VersionPacket::current())?, server_endpoint)?;
         Self::send_packet_internal(&handler, &Packet::new(NamePacket { name: player_name.to_owned() })?, server_endpoint)?;
 
+        // The signal chain starts here rather than when the welcome finishes, because the
+        // welcome phase is otherwise driven entirely by what the server sends: with nothing
+        // ticking, a caller that has given up - a player who closed the window while the world
+        // was still on its way - could not be noticed until the server said something.
+        handler.signals().send_with_timer((), std::time::Duration::from_millis(1));
+
         listener.for_each(move |event| {
             if !error_returned.lock().unwrap_or_else(PoisonError::into_inner).is_empty() {
                 // if there is an error, we don't want to receive any more events
@@ -121,8 +127,16 @@ impl ClientNetworking {
 
             if is_welcoming.load(Ordering::Relaxed) {
                 // welcoming loop
-                if let NodeEvent::Network(event) = event {
-                    match event {
+                match event {
+                    NodeEvent::Signal(()) => {
+                        // the only thing that can end the welcome phase from this side
+                        if !is_running.load(Ordering::Relaxed) {
+                            handler.stop();
+                            return;
+                        }
+                        handler.signals().send_with_timer((), std::time::Duration::from_millis(1));
+                    }
+                    NodeEvent::Network(event) => match event {
                         NetEvent::Accepted(..) => {}
                         // `connect` is not blocking, so a server that is down or refusing
                         // is reported here rather than by an error from `init`. This used
@@ -157,11 +171,18 @@ impl ClientNetworking {
                                 |packet| {
                                     if packet.try_deserialize::<WelcomeCompletePacket>().is_some() {
                                         is_welcoming.store(false, Ordering::Relaxed);
-                                        while !should_start_receiving.load(Ordering::Relaxed) {
+                                        // The game drains the welcome packets and then says it
+                                        // is ready, so nothing that arrives next is read
+                                        // before it has. `is_running` is watched as well
+                                        // because a caller can also give up here, and then
+                                        // nothing would ever say it was ready.
+                                        while !should_start_receiving.load(Ordering::Relaxed) && is_running.load(Ordering::Relaxed) {
                                             // wait 1 ms
                                             std::thread::sleep(std::time::Duration::from_millis(1));
                                         }
-                                        handler.signals().send(());
+                                        // no signal is sent here: the timer armed before this
+                                        // loop is still in flight, and a second one would mean
+                                        // two chains ticking against each other forever
                                     }
 
                                     // send welcome packet event
@@ -172,7 +193,7 @@ impl ClientNetworking {
                                 },
                             );
                         }
-                    }
+                    },
                 }
             } else {
                 // normal loop
@@ -281,6 +302,12 @@ impl ClientNetworking {
         self.should_start_receiving.store(true, Ordering::Relaxed);
     }
 
+    /// Disconnects and joins the networking thread.
+    ///
+    /// Safe to call at any point, including while the handshake is still going: the welcome
+    /// loop has a timer of its own that watches the running flag, and the wait for the game to
+    /// start receiving watches it too. Before those, a caller that gave up mid-handshake -
+    /// somebody closing the window while a world loaded - had nothing to join.
     pub fn stop(&mut self) -> Result<()> {
         // disconnect the socket
         self.is_running.store(false, Ordering::Relaxed);

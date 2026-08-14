@@ -3,7 +3,7 @@
 //! Neither networking module had a test before: they are the two halves of a protocol
 //! with no registry and no negotiation beyond the version packet, so the only way to
 //! check they still agree is to run them against each other.
-#![allow(clippy::unwrap_used)] // tests assert on results directly
+#![allow(clippy::unwrap_used, clippy::panic)] // tests assert on results directly
 mod tests {
     use crate::integration_tests::harness::{complete_handshake, free_port, wait_until, NetServer, RawClient, TestClient};
     use crate::libraries::serialization;
@@ -360,6 +360,40 @@ mod tests {
         assert!(error.contains("refused to let this client join"), "unexpected error: {error}");
 
         client.stop().unwrap();
+    }
+
+    /// A client that gives up in the middle of the handshake can be stopped.
+    ///
+    /// This is a player closing the window while a world is still loading. The welcome phase is
+    /// driven entirely by what the server sends, so with nothing else ticking there was no point
+    /// at which the thread looked at the running flag, and `stop` waited on a thread that was
+    /// never going to end. The game could not offer to quit during a join at all.
+    ///
+    /// The stop runs on a thread of its own so that a regression fails this test instead of
+    /// hanging it - which, in a suite with no per-test timeout, is the difference between a red
+    /// build and a job that runs until CI kills it.
+    #[test]
+    fn test_a_client_can_be_stopped_while_it_is_still_welcoming() {
+        let port = free_port();
+        let mut server = NetServer::start(port);
+        let mut client = TestClient::connect(port, "Player").unwrap();
+
+        // the server takes the socket and says nothing back, the way one that is still
+        // generating a world does
+        wait_until("the server to see the client", || {
+            server.pump_without_answering()?;
+            Ok(!server.connections.is_empty())
+        });
+        assert!(client.net.is_welcoming(), "the client should still be waiting to be welcomed");
+
+        let (stopped_sender, stopped_receiver) = std::sync::mpsc::channel();
+        std::thread::spawn(move || stopped_sender.send(client.stop()).unwrap_or(()));
+
+        let stopped = stopped_receiver.recv_timeout(std::time::Duration::from_secs(10));
+        assert!(stopped.is_ok(), "stopping a client that was still welcoming never returned");
+        stopped.unwrap().unwrap();
+
+        server.stop().unwrap();
     }
 
     /// Packet ids are a hash of the rust type, so the same struct has to hash the same on

@@ -20,11 +20,13 @@ use crate::client::game::pause_menu::PauseMenu;
 use crate::client::game::players::ClientPlayers;
 use crate::client::game::respawn_screen::RespawnScreen;
 use crate::client::global_settings::GlobalSettings;
+use crate::client::menus::{BackgroundRect, LoadingScreen, MenuBack, MENU_WIDTH};
 use crate::client::settings::Settings;
 use crate::libraries::events;
 use crate::libraries::events::EventManager;
 use crate::libraries::graphics as gfx;
 use crate::shared::entities::PositionComponent;
+use gfx::BaseUiElement;
 
 use super::background::Background;
 use super::block_selector::BlockSelector;
@@ -33,6 +35,57 @@ use super::camera::Camera;
 use super::mod_manager::ClientModManager;
 use super::networking::ClientNetworking;
 use super::walls::ClientWalls;
+
+/// The loading screen the client draws for itself while it joins a world.
+///
+/// Everything that happens before the main loop below - connecting, waiting for the world to
+/// arrive, and building the client's copy of it - runs inside a single call from the menu loop,
+/// so that loop is not drawing while any of it happens. Left to itself the window stopped
+/// repainting the moment the server's own loading screen closed and stayed frozen for the whole
+/// join, which on a freshly generated world is seconds of a window the system reports as not
+/// responding - indistinguishable from a game that has hung. So every phase names itself and
+/// draws a frame, which also keeps the window answering the system and lets the close button
+/// work while a world is still loading.
+struct JoinScreen {
+    back: MenuBack,
+    screen: LoadingScreen,
+    /// What the screen says. `LoadingScreen` reads its text through a shared handle because
+    /// the server writes its own from another thread; here it is only ever this thread.
+    text: Arc<Mutex<String>>,
+}
+
+impl JoinScreen {
+    fn new(graphics: &gfx::GraphicsContext) -> Self {
+        let text = Arc::new(Mutex::new(String::new()));
+        let mut back = MenuBack::new(graphics);
+        // the same panel the menu the player just came from uses, so the join looks like a
+        // continuation of it rather than a different screen
+        back.set_back_rect_width(MENU_WIDTH, true);
+
+        Self {
+            back,
+            screen: LoadingScreen::new(text.clone()),
+            text,
+        }
+    }
+
+    /// Names the phase that is about to run and draws one frame of it.
+    fn frame(&mut self, graphics: &mut gfx::GraphicsContext, status: &str) {
+        status.clone_into(&mut self.text.lock().unwrap_or_else(PoisonError::into_inner));
+
+        // The events are drained rather than handled: nothing here is interactive. But a
+        // window whose queue is never read is a window the system thinks has stopped
+        // responding, and the pump inside `update_window` is what notices a close request.
+        while graphics.get_event().is_some() {}
+
+        let container = gfx::Container::default(graphics);
+        self.back.update(graphics, &container);
+        self.screen.update(graphics, &container);
+        self.back.render(graphics, &container);
+        self.screen.render(graphics, &container);
+        graphics.update_window();
+    }
+}
 
 #[allow(clippy::too_many_lines)]
 pub fn run_game(
@@ -45,12 +98,21 @@ pub fn run_game(
 ) -> Result<()> {
     // load base game mod
     let mut pre_events = EventManager::new();
+    let mut join_screen = JoinScreen::new(graphics);
     let mut networking = ClientNetworking::new(server_port, server_address);
     networking.init(player_name.to_owned())?;
     while networking.is_welcoming() {
-        // wait 1 ms
-        std::thread::sleep(std::time::Duration::from_millis(1));
+        // a frame is also the wait: `update_window` sleeps out the rest of the frame's share
+        // of the clock, which is what the 1ms sleep this replaced was for
+        join_screen.frame(graphics, "Joining the world");
         networking.check_thread_for_errors()?;
+
+        // Closing the window during a join used to be ignored until the whole world had
+        // finished loading, because nothing here looked at the window at all.
+        if !graphics.is_window_open() {
+            networking.stop()?;
+            return Ok(());
+        }
     }
 
     networking.update(&mut pre_events)?;
@@ -58,47 +120,30 @@ pub fn run_game(
 
     let timer = std::time::Instant::now();
 
-    let loading_text = Arc::new(Mutex::new("Loading".to_owned()));
-    let loading_text2 = loading_text;
+    join_screen.frame(graphics, "Loading mods");
+    let mut mods = ClientModManager::new();
+    let mut blocks = ClientBlocks::new();
+    let mut walls = ClientWalls::new(&mut blocks.get_blocks());
+    let mut liquids = ClientLiquids::new();
+    let entities = ClientEntities::new();
+    let mut items = ClientItems::new();
 
-    let temp_fn = || -> Result<(ClientModManager, ClientBlocks, ClientWalls, ClientLiquids, ClientEntities, ClientItems, ClientNetworking)> {
-        "Loading mods".clone_into(&mut loading_text2.lock().unwrap_or_else(PoisonError::into_inner));
-        let mut mods = ClientModManager::new();
-        let mut blocks = ClientBlocks::new();
-        let walls = ClientWalls::new(&mut blocks.get_blocks());
-        let mut liquids = ClientLiquids::new();
-        let entities = ClientEntities::new();
-        let mut items = ClientItems::new();
+    // the welcome packets, which carry the mods and the whole world
+    while let Some(event) = pre_events.pop_event() {
+        mods.on_event(&event)?;
+        blocks.on_event(&event, &mut pre_events, &mut networking)?;
+        walls.on_event(&event)?;
+        liquids.on_event(&event, &mut pre_events)?;
+        items.on_event(&event, &mut entities.get_entities(), &mut pre_events)?;
+    }
 
-        while let Some(event) = pre_events.pop_event() {
-            mods.on_event(&event)?;
-            blocks.on_event(&event, &mut pre_events, &mut networking)?;
-            walls.on_event(&event)?;
-            liquids.on_event(&event, &mut pre_events)?;
-            items.on_event(&event, &mut entities.get_entities(), &mut pre_events)?;
-        }
+    blocks.init(&mut mods.mod_manager)?;
+    walls.init(&mut mods.mod_manager)?;
+    liquids.init(&mut mods.mod_manager)?;
+    items.init(&mut mods.mod_manager, &entities.get_entities_arc())?;
 
-        blocks.init(&mut mods.mod_manager)?;
-        walls.init(&mut mods.mod_manager)?;
-        liquids.init(&mut mods.mod_manager)?;
-        items.init(&mut mods.mod_manager, &entities.get_entities_arc())?;
-
-        "Initializing mods".clone_into(&mut loading_text2.lock().unwrap_or_else(PoisonError::into_inner));
-        mods.init()?;
-
-        anyhow::Ok((mods, blocks, walls, liquids, entities, items, networking))
-    };
-    // if the init fails, we clear the loading text so the error can be displayed
-    let result = temp_fn()?;
-    loading_text2.lock().unwrap_or_else(PoisonError::into_inner).clear();
-
-    let mut mods = result.0;
-    let mut blocks = result.1;
-    let mut walls = result.2;
-    let mut liquids = result.3;
-    let entities = result.4;
-    let mut items = result.5;
-    let mut networking = result.6;
+    join_screen.frame(graphics, "Initializing mods");
+    mods.init()?;
 
     let mut background = Background::new();
     let mut inventory = ClientInventory::new();
@@ -115,10 +160,13 @@ pub fn run_game(
     let mut floating_text = FloatingTextManager::new();
     let mut respawn_screen = RespawnScreen::new();
 
+    // the light grid is as big as the world, so this is the last of the phases worth naming
+    join_screen.frame(graphics, "Lighting the world");
     background.init()?;
     inventory.init(graphics);
     lights.init(&blocks.get_blocks(), settings)?;
 
+    join_screen.frame(graphics, "Loading resources");
     blocks.load_resources(&mods.mod_manager)?;
     walls.load_resources(&mods.mod_manager)?;
     liquids.load_resources(&mods.mod_manager)?;

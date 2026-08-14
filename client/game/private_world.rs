@@ -15,26 +15,45 @@ use crate::libraries::graphics as gfx;
 use crate::server::server_core::Server;
 use crate::server::server_core::{BindAddress, SINGLEPLAYER_PORT};
 
+/// Marks the server as gone and empties the loading text, however the server thread ends.
+///
+/// The loading screen closes when the text empties and nothing else can close it, so a server
+/// thread that ends without emptying it leaves the player watching a loading screen for good.
+/// A `Drop` covers a panic as well as an error return, which an `if result.is_err()` does not.
+///
+/// The flag is cleared *before* the text, because clearing the text is what lets the menu move
+/// on: the other order leaves a window in which the menu sees the loading screen finish and the
+/// server still marked as running, and tries to join a world that is not there.
+struct ServerEndedGuard {
+    server_running: Arc<AtomicBool>,
+    loading_text: Arc<Mutex<String>>,
+}
+
+impl Drop for ServerEndedGuard {
+    fn drop(&mut self) {
+        self.server_running.store(false, Ordering::Relaxed);
+        self.loading_text.lock().unwrap_or_else(PoisonError::into_inner).clear();
+    }
+}
+
 fn start_private_world_server(world_path: &Path) -> Result<(std::thread::JoinHandle<std::result::Result<(), anyhow::Error>>, Arc<AtomicBool>, Arc<Mutex<String>>)> {
     let server_running = Arc::new(AtomicBool::new(true));
-    let server_running2 = server_running.clone();
-
     let loading_text = Arc::new(Mutex::new("Loading".to_owned()));
+
+    let guard = ServerEndedGuard {
+        server_running: server_running.clone(),
+        loading_text: loading_text.clone(),
+    };
     let loading_text2 = loading_text.clone();
+    let server_running2 = server_running.clone();
 
     let world_path = world_path.to_owned();
 
     let server_thread = std::thread::Builder::new().name("Private server".to_owned()).spawn(move || {
+        let _guard = guard;
         // loopback only: a singleplayer world must not be reachable from the network
         let mut server = Server::new(SINGLEPLAYER_PORT, BindAddress::Loopback, None, None);
-        let result = server.run(&server_running2, &loading_text2, vec![include_bytes!("../../base_game/base_game.mod").to_vec()], &world_path);
-
-        if result.is_err() {
-            loading_text2.lock().unwrap_or_else(PoisonError::into_inner).clear();
-            server_running2.store(false, Ordering::Relaxed);
-        }
-
-        result
+        server.run(&server_running2, &loading_text2, vec![include_bytes!("../../base_game/base_game.mod").to_vec()], &world_path)
     })?;
 
     Ok((server_thread, server_running, loading_text))

@@ -47,6 +47,63 @@ impl ServerBlocks {
         self.blocks.lock().unwrap_or_else(PoisonError::into_inner)
     }
 
+    /// Whether the cell holds a block type that covers more than one cell. Out of bounds is
+    /// not a big block rather than an error, because this is asked about neighbours.
+    fn is_big_block(&self, x: i32, y: i32) -> bool {
+        let blocks = self.get_blocks();
+        let (width, height) = blocks.get_size();
+
+        if x < 0 || y < 0 || x >= width as i32 || y >= height as i32 {
+            return false;
+        }
+
+        blocks.get_block_type_at(x, y).is_ok_and(|block_type| block_type.width > 1 || block_type.height > 1)
+    }
+
+    /// Grows every multiblock in the world into its full footprint.
+    ///
+    /// This is what a freshly generated world needs: the generator places only a multiblock's
+    /// main cell - a tree's canopy is 5x5 in `blocks.lua` and one entry in the biome's `terrain`
+    /// table - and `update_block` is what fills in the rest. It only reaches one cell right and
+    /// one cell down, so the remaining cells come from updating the ones it just filled in;
+    /// while the server is running that continues by itself through `BlockChangeEvent`, but
+    /// generation has to finish before anyone can look at the world, so the walk happens here.
+    ///
+    /// The scan for where to start takes the lock once and clones nothing. On the default world
+    /// it visits 5.4 million cells, which is enough for the difference between reading two
+    /// `i32`s and cloning a `Block` with two `Vec`s in it to be seconds of startup.
+    pub fn expand_big_blocks(&self, events: &mut EventManager) -> Result<()> {
+        let mut queue = std::collections::VecDeque::new();
+
+        {
+            let blocks = self.get_blocks();
+            let (width, height) = blocks.get_size();
+            for x in 0..width as i32 {
+                for y in 0..height as i32 {
+                    let block_type = blocks.get_block_type_at(x, y)?;
+                    if block_type.width > 1 || block_type.height > 1 {
+                        queue.push_back((x, y));
+                    }
+                }
+            }
+        }
+
+        let mut queued: std::collections::HashSet<(i32, i32)> = queue.iter().copied().collect();
+
+        while let Some((x, y)) = queue.pop_front() {
+            self.update_block(x, y, events)?;
+
+            // whatever the update just filled in has a footprint of its own to grow
+            for neighbor in [(x + 1, y), (x, y + 1)] {
+                if self.is_big_block(neighbor.0, neighbor.1) && queued.insert(neighbor) {
+                    queue.push_back(neighbor);
+                }
+            }
+        }
+
+        Ok(())
+    }
+
     /// Updates the block at the specified coordinates.
     pub fn update_block(&self, x: i32, y: i32, events: &mut EventManager) -> Result<()> {
         // check multiblock (big blocks)

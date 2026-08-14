@@ -136,6 +136,14 @@ buffered into `pre_events` in `client/game/core_client.rs` and drained before th
 Both networking modules run a dedicated thread with an mpsc channel pair in and out. The
 main loop only ever touches the channels, never the socket.
 
+**The client's welcome phase runs a 1ms signal timer of its own**, and that is what makes it
+cancellable. Everything else in that phase happens in reaction to something the server sent, so
+with no timer there was no point at which the thread looked at `is_running` — `stop()` waited
+forever on a thread that was not listening, and the game could not offer to quit during a join
+at all. The timer is armed once before `listener.for_each` and re-armed by whichever branch
+handles it, so there is exactly one chain: don't send a second signal when the welcome
+completes.
+
 ### Mod system (Lua via rlua)
 
 `shared/mod_manager.rs`. Each `GameMod` owns its own `Lua` state, its minified source, and
@@ -185,6 +193,23 @@ that adding a parameter means editing every call site in `base_game/`.
    biome's Lua `generator_function` for decoration (trees, etc.).
 5. Flood everything below sea level that the sky can reach, with each column's biome's
    `base_liquid`.
+6. Grow the multiblocks (`ServerBlocks::expand_big_blocks`), which is what turns a tree's one
+   canopy cell into its 5x5 footprint.
+
+**Step 6 visits multiblocks only, and that is load-bearing for how long joining takes.**
+`update_block` on every cell in the world pushed a `BlockUpdateEvent` per cell — 5.4M of them
+for the default world — which sat in the queue until the first `update()` and were then offered
+to every subsystem and handed to lua's `on_block_update` one at a time. That first update took
+18 seconds in a debug build and held about a gigabyte, and it ran *after* the loading screen had
+closed, with the client already connected and waiting to be welcomed: a newly generated world
+looked exactly like a game that had hung. The scan for where to start still reads every cell, so
+it takes the lock once and clones nothing — cloning a `Block` (two `Vec`s) 5.4M times was
+seconds of its own.
+
+`start` has to return a **finished** world, which is why the growth is a local walk rather than
+being left to the `BlockChangeEvent`s it queues: the client is welcomed with a copy of the world
+and a save can be written before the first update, so a canopy half grown at that moment is a
+canopy half grown on disk.
 
 **Sea level is a percentile of the terrain, not a constant.** `FLOODED_COLUMN_FRACTION` is
 0.15, so sea level is the height that 15% of the columns are lower than: the lowest ground
@@ -642,6 +667,17 @@ Client-side prediction: the client simulates its own player and periodically sen
 `PlayerPositionPacketToServer`; the server accepts it if within a tolerance of 2.0 blocks,
 otherwise force-corrects (`server/server_core/players.rs`).
 
+**The join draws its own frames, because nothing else is drawing.** `run_game` is called from
+inside the menu loop's `open_menu`, so that loop is stopped for the whole of the join — waiting
+for the handshake, unpacking the welcome packets, initialising mods, allocating the light grid,
+loading resources. It used to draw nothing at all for the duration and sleep 1ms at a time,
+which on a freshly generated world is seconds of a window the system reports as not responding,
+and the close button did nothing until the world had finished loading. `JoinScreen` in
+`core_client.rs` is the answer: a `MenuBack` plus the menus' own `LoadingScreen`, one frame per
+phase, with the phase named. Anything long added to the join belongs behind a `frame` call with
+a name on it, and the wait for the handshake is a frame per iteration rather than a sleep —
+`update_window` sleeps out the rest of the frame's share of the clock anyway.
+
 ### Persistence
 
 A world save is a fixed header followed by `postcard(HashMap<String, Vec<u8>>)` with keys
@@ -752,6 +788,12 @@ Things worth knowing before adding one:
   channel back to the ui is still process-global (`UI_EVENT_SENDER`), because
   `print_to_console` is a free function with no `Server` to reach through: the first
   non-`None` sender wins and later ones are ignored.
+- **The singleplayer loading screen closes on an empty status string and nothing else**, so a
+  private server thread that ends without emptying it strands the player there for good. That is
+  a `Drop` guard in `private_world.rs` rather than an `if result.is_err()`, because a panic in
+  the server thread is exactly the case that leaves nobody to clear it. The guard clears the
+  running flag *before* the text: the other order lets the menu see the loading screen finish
+  while the server still looks alive, and try to join a world that is not there.
 - Server `Blocks`/`Walls`/`Items`/`Entities` are behind `Arc<Mutex<_>>` and accessed via
   `get_blocks()` etc. that lock. Holding two of these at once in the wrong order is a
   deadlock waiting to happen; the codebase currently always takes them one at a time.
