@@ -1277,4 +1277,109 @@ mod tests {
         let mut graphics = ui::HeadlessContext::new();
         assert!(graphics.as_graphics_context().is_none());
     }
+
+    // --- Dock ---
+
+    use crate::libraries::ui::{area_at_path, DockArea, DockNode, DockSplit, SplitType};
+
+    fn split(orientation: SplitType, at: f32, first: DockNode, second: DockNode) -> DockNode {
+        DockNode::Split(Box::new(DockSplit {
+            orientation,
+            split_pos: at,
+            first,
+            second,
+        }))
+    }
+
+    fn pane(name: &str) -> DockNode {
+        DockNode::Pane(name.to_owned())
+    }
+
+    #[track_caller]
+    fn assert_area(area: DockArea, pos: (f32, f32), size: (f32, f32)) {
+        assert_eq!(area.pos, FloatPos(pos.0, pos.1));
+        assert_eq!(area.size, FloatSize(size.0, size.1));
+    }
+
+    #[test]
+    fn test_a_leaf_is_the_whole_area() {
+        let (area, depth) = area_at_path(&pane("only"), &[], 3);
+
+        assert_area(area, (0.0, 0.0), (1.0, 1.0));
+        assert_eq!(depth, 0, "a leaf is as deep as the walk gets");
+    }
+
+    #[test]
+    fn test_a_vertical_split_divides_left_and_right() {
+        let root = split(SplitType::Vertical, 0.25, pane("left"), pane("right"));
+
+        assert_area(area_at_path(&root, &[false], 1).0, (0.0, 0.0), (0.25, 1.0));
+        assert_area(area_at_path(&root, &[true], 1).0, (0.25, 0.0), (0.75, 1.0));
+    }
+
+    #[test]
+    fn test_a_horizontal_split_divides_top_and_bottom() {
+        let root = split(SplitType::Horizontal, 0.4, pane("top"), pane("bottom"));
+
+        assert_area(area_at_path(&root, &[false], 1).0, (0.0, 0.0), (1.0, 0.4));
+        assert_area(area_at_path(&root, &[true], 1).0, (0.0, 0.4), (1.0, 0.6));
+    }
+
+    /// Nesting multiplies: the right half of the bottom half is a quarter of the window in
+    /// the far corner. Getting this wrong is what makes a nested pane draw over its sibling.
+    #[test]
+    fn test_nested_splits_multiply() {
+        let inner = split(SplitType::Vertical, 0.5, pane("bottom left"), pane("bottom right"));
+        let root = split(SplitType::Horizontal, 0.5, pane("top"), inner);
+
+        let (area, depth) = area_at_path(&root, &[true, true], 2);
+
+        assert_area(area, (0.5, 0.5), (0.5, 0.5));
+        assert_eq!(depth, 2);
+    }
+
+    /// A path longer than the tree stops where the tree does, and says so - which is what
+    /// keeps a selection from claiming a depth that does not exist.
+    #[test]
+    fn test_a_path_past_the_end_stops_at_the_leaf() {
+        let root = split(SplitType::Vertical, 0.5, pane("left"), pane("right"));
+
+        let (area, depth) = area_at_path(&root, &[true, true, true], 5);
+
+        assert_eq!(depth, 1, "the tree is only one split deep");
+        assert_area(area, (0.5, 0.0), (0.5, 1.0));
+    }
+
+    #[test]
+    fn test_a_path_finds_its_node() {
+        let inner = split(SplitType::Vertical, 0.5, pane("a"), pane("b"));
+        let mut root = split(SplitType::Horizontal, 0.5, pane("top"), inner);
+
+        assert!(matches!(root.at_path(&[false]), DockNode::Pane(name) if name == "top"));
+        assert!(matches!(root.at_path(&[true, true]), DockNode::Pane(name) if name == "b"));
+        assert!(matches!(root.at_path_mut(&[true, false]), DockNode::Pane(name) if name == "a"));
+    }
+
+    #[test]
+    fn test_find_pane_searches_the_whole_tree() {
+        let inner = split(SplitType::Vertical, 0.5, pane("buried"), DockNode::Nothing);
+        let mut root = split(SplitType::Horizontal, 0.5, pane("top"), inner);
+
+        assert!(root.find_pane_mut("buried").is_some());
+        assert!(root.find_pane_mut("top").is_some());
+        assert!(root.find_pane_mut("not here").is_none());
+    }
+
+    #[test]
+    fn test_an_area_becomes_pixels() {
+        let area = DockArea {
+            pos: FloatPos(0.5, 0.25),
+            size: FloatSize(0.5, 0.75),
+        };
+
+        let rect = area.to_rect(FloatSize(800.0, 400.0));
+
+        assert_eq!(rect.pos, FloatPos(400.0, 100.0));
+        assert_eq!(rect.size, FloatSize(400.0, 300.0));
+    }
 }

@@ -9,8 +9,9 @@ use std::thread::sleep;
 use crate::libraries::graphics as gfx;
 use crate::libraries::ui;
 use crate::libraries::ui::BaseUiElement;
+use crate::libraries::ui::{DockNode, DockSplit, SplitType};
 use crate::server::server_core::Server;
-use crate::server::server_ui::ui_module_manager::{ModuleManager, ModuleTreeNodeType, ModuleTreeSplit, SplitType};
+use crate::server::server_ui::ui_module_manager::ModuleManager;
 use crate::server::server_ui::{console, empty_module, player_list, server_info};
 use crate::server::server_ui::{ServerState, UiMessageType};
 
@@ -220,7 +221,7 @@ impl UiManager {
 
         //swap the module tree with nothing to avoid double borrow
         let temp_1 = self.module_manager.get_root_mut();
-        let temp_2 = &mut ModuleTreeNodeType::Nothing;
+        let temp_2 = &mut DockNode::Nothing;
         core::mem::swap(temp_1, temp_2);
         self.tile_modules(gfx::FloatPos(0.0, 0.0), self.window_size, temp_2)?;
         let temp_1 = self.module_manager.get_root_mut();
@@ -255,26 +256,26 @@ impl UiManager {
     }
 
     /// Moves and resizes the modules according to the config
-    fn tile_modules(&mut self, pos: gfx::FloatPos, size: gfx::FloatSize, node: &ModuleTreeNodeType) -> Result<()> {
+    fn tile_modules(&mut self, pos: gfx::FloatPos, size: gfx::FloatSize, node: &DockNode) -> Result<()> {
         //recursively tile the node
         match &node {
             //node is a module. Transform it to its dedicated position and size
-            ModuleTreeNodeType::Module(module_name) => {
+            DockNode::Pane(module_name) => {
                 self.transform_module(module_name, pos, size)?;
             }
             //node is a split. Tile it
-            ModuleTreeNodeType::Split(node) => {
+            DockNode::Split(node) => {
                 self.tile_module_split(pos, size, node)?;
             }
             //node is nothing. Do nothing
-            ModuleTreeNodeType::Nothing => {}
+            DockNode::Nothing => {}
         }
 
         Ok(())
     }
 
     /// Tiles a split node
-    fn tile_module_split(&mut self, pos: gfx::FloatPos, size: gfx::FloatSize, node: &ModuleTreeSplit) -> Result<()> {
+    fn tile_module_split(&mut self, pos: gfx::FloatPos, size: gfx::FloatSize, node: &DockSplit) -> Result<()> {
         //calculate pos and size for both sides of the split
         let (first_size, second_size, first_pos, second_pos) = if matches!(node.orientation, SplitType::Vertical) {
             (

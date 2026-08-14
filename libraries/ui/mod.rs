@@ -25,6 +25,7 @@
 
 pub use button::Button;
 pub use container::{Container, Orientation, BOTTOM, BOTTOM_LEFT, BOTTOM_RIGHT, CENTER, LEFT, RIGHT, TOP, TOP_LEFT, TOP_RIGHT};
+pub use dock::{area_at_path, DockArea, DockNode, DockSplit, SplitType};
 pub use interpolate::approach;
 pub use list_page::{ListPage, ListRow};
 pub use menu::{Menu, MenuStack};
@@ -41,6 +42,7 @@ pub use ui_element::{BaseUiElement, ClickTracker, UiElement};
 
 mod button;
 mod container;
+mod dock;
 mod interpolate;
 mod list_page;
 mod menu;
