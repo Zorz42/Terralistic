@@ -7,9 +7,8 @@
 #![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic, clippy::let_underscore_must_use)] // a failing helper should fail the test loudly
 
 use std::collections::HashMap;
-use std::net::TcpListener;
 use std::path::{Path, PathBuf};
-use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex};
 use std::time::{Duration, Instant};
 
@@ -21,6 +20,9 @@ use message_io::node::{NodeEvent, NodeHandler};
 use crate::client::game::{ClientNetworking, WelcomePacketEvent};
 use crate::libraries::events::EventManager;
 use crate::libraries::serialization;
+use crate::libraries::testing;
+pub use crate::libraries::testing::free_port;
+use crate::libraries::testing::TIMEOUT;
 use crate::server::server_core::world_save_header;
 use crate::server::server_core::{BindAddress, Connection, DisconnectEvent, NewConnectionEvent, PacketFromClientEvent, SavedPlayerData, Server, ServerNetworking};
 use crate::shared::blocks::Blocks;
@@ -31,80 +33,35 @@ use crate::shared::walls::Walls;
 /// actually run rather than a stub.
 pub const BASE_GAME_MOD: &[u8] = include_bytes!("../base_game/base_game.mod");
 
-/// How long a test waits for the network before giving up. Generous, because it only
-/// matters when something is broken - a passing test reaches its condition in
-/// milliseconds.
-const TIMEOUT: Duration = Duration::from_secs(30);
-
-/// A port no other test in this process is using, and that nothing else holds right now.
-///
-/// Tests run in parallel threads of one process, so they cannot share the game's fixed
-/// ports. Asking the OS for port 0 is not enough on its own: two tests that probe one
-/// after the other can be handed the same port, and then one test's client connects to
-/// the other test's server. The counter is what makes the numbers distinct; the bind is
-/// only there to skip ports something outside this process already holds.
-///
-/// The range sits below the ephemeral range so it does not fight the OS for numbers, and
-/// clear of the game's own 49152/49153.
-pub fn free_port() -> u16 {
-    static NEXT_PORT: AtomicU64 = AtomicU64::new(0);
-    const FIRST_PORT: u64 = 41_000;
-    const PORT_COUNT: u64 = 4_000;
-
-    for _ in 0..PORT_COUNT {
-        let port = (FIRST_PORT + NEXT_PORT.fetch_add(1, Ordering::Relaxed) % PORT_COUNT) as u16;
-        if let Ok(listener) = TcpListener::bind(("127.0.0.1", port)) {
-            drop(listener);
-            return port;
-        }
-    }
-    panic!("no free port in the test range");
-}
-
-/// Runs `step` until it returns true, or panics with `what` when the timeout runs out.
-pub fn wait_until(what: &str, mut step: impl FnMut() -> Result<bool>) {
-    let deadline = Instant::now() + TIMEOUT;
-    loop {
-        if step().unwrap() {
-            return;
-        }
-        assert!(Instant::now() < deadline, "timed out waiting for {what}");
-        std::thread::sleep(Duration::from_millis(1));
-    }
-}
-
-/// A directory under the system temp dir that deletes itself when it goes out of scope.
-///
-/// The crate has no dev-dependencies and this is all the tests need from one, so it is
-/// spelled out here rather than pulling in `tempfile`.
+/// The world path inside a temp dir, and the `Result` flavoured wait the tests below use.
+/// The temp dir, the port allocator and the spin itself are `libraries::testing`; what is
+/// here is what knows this is a game.
 pub struct TempDir {
-    path: PathBuf,
+    inner: testing::TempDir,
 }
 
 impl TempDir {
     pub fn new(tag: &str) -> Self {
-        static COUNTER: AtomicU64 = AtomicU64::new(0);
-
-        let path = std::env::temp_dir().join(format!("terralistic-test-{tag}-{}-{}", std::process::id(), COUNTER.fetch_add(1, Ordering::Relaxed)));
-        std::fs::create_dir_all(&path).expect("could not create a temp dir for the test");
-        Self { path }
+        Self { inner: testing::TempDir::new(tag) }
     }
 
     pub fn path(&self) -> &Path {
-        &self.path
+        self.inner.path()
     }
 
     /// The path a `Server` should save to, matching the layout the game uses.
     pub fn world_path(&self) -> PathBuf {
-        self.path.join("server.world")
+        self.inner.path().join("server.world")
     }
 }
 
-impl Drop for TempDir {
-    fn drop(&mut self) {
-        // a failed cleanup must not turn a passing test red, so this is best effort
-        let _ = std::fs::remove_dir_all(&self.path);
-    }
+/// Runs `step` until it returns true, or fails the test when the timeout runs out.
+///
+/// Takes a `Result` because almost every step here drives a real server or client, and both
+/// answer with one. A step that errors fails the test where it happened.
+#[track_caller]
+pub fn wait_until(what: &str, mut step: impl FnMut() -> Result<bool>) {
+    testing::wait_until(what, || step().unwrap());
 }
 
 /// Writes a world save of `size` full of air, so a `Server` started against it takes the

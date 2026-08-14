@@ -1,7 +1,7 @@
 #![allow(clippy::unwrap_used)] // tests assert on results directly
 #![cfg(test)]
 mod tests {
-    use crate::server::server_core::world_generator::noise::{convolve, turbulence};
+    use crate::libraries::procgen::{convolve, turbulence};
     use noise::Perlin;
 
     // --- convolve ---

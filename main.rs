@@ -161,9 +161,12 @@ pub mod libraries {
     pub mod grid;
     pub mod log;
     pub mod net;
+    pub mod procgen;
     pub mod registry;
     pub mod scripting;
     pub mod serialization;
+    #[cfg(test)]
+    pub mod testing;
     mod tests;
     pub mod timing;
 }

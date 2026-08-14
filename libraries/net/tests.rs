@@ -5,6 +5,7 @@ mod tests {
 
     use crate::libraries::net::{no_logging, BindAddress, ClientError, LogLevel, Logger, Packet, PacketClient, PacketServer, ServerEvent};
     use crate::libraries::serialization;
+    use crate::libraries::testing::{free_port, wait_until};
 
     #[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
     struct Greeting {
@@ -70,27 +71,6 @@ mod tests {
     }
 
     // --- the transport, over a real loopback socket ---
-
-    /// Ports are counted rather than asked of the OS, because two tests probing one after
-    /// the other can otherwise be handed the same port.
-    fn free_port() -> u16 {
-        use std::sync::atomic::{AtomicU16, Ordering};
-        static NEXT: AtomicU16 = AtomicU16::new(50_600);
-        NEXT.fetch_add(1, Ordering::Relaxed)
-    }
-
-    /// Spins until `condition` holds, or fails the test rather than hanging the suite.
-    #[track_caller]
-    fn wait_until(what: &str, mut condition: impl FnMut() -> bool) {
-        let deadline = std::time::Instant::now() + std::time::Duration::from_secs(10);
-        while std::time::Instant::now() < deadline {
-            if condition() {
-                return;
-            }
-            std::thread::sleep(std::time::Duration::from_millis(1));
-        }
-        panic!("timed out waiting for {what}");
-    }
 
     fn collecting_logger() -> (Logger, std::sync::Arc<std::sync::Mutex<Vec<String>>>) {
         let lines = std::sync::Arc::new(std::sync::Mutex::new(Vec::new()));

@@ -8,9 +8,9 @@ use rand::rngs::StdRng;
 use rand::{Rng, SeedableRng};
 
 use crate::libraries::events::EventManager;
+use crate::libraries::procgen::{convolve, pick_weighted, turbulence};
 use crate::libraries::scripting::ScriptHost;
 use crate::server::server_core::world_generator::biome::Biome;
-use crate::server::server_core::world_generator::noise::{convolve, turbulence};
 use crate::shared::blocks::{BlockId, Blocks};
 use crate::shared::liquids::{LiquidId, Liquids, MAX_LIQUID_LEVEL};
 use crate::shared::walls::{WallId, Walls};
@@ -57,20 +57,12 @@ impl WorldGenerator {
             }
             width += biome_width;
 
-            // determine the next biome
-            // the next biome is chosen randomly based on the weights of the edges
-            let mut total_weight = 0;
-            for (weight, _) in &biome.adjacent_biomes {
-                total_weight += weight;
-            }
-            let mut rand = (rng.next_u32() % total_weight as u32) as i32;
-            for (weight, next_biome) in &biome.adjacent_biomes {
-                rand -= weight;
-                if rand < 0 {
-                    curr_biome = *next_biome;
-                    break;
-                }
-            }
+            // the next biome is chosen randomly based on the weights of the edges out of
+            // this one. A biome with no way out ends the walk where it stands.
+            let Some(next_biome) = pick_weighted(&biome.adjacent_biomes, rng) else {
+                break;
+            };
+            curr_biome = *next_biome;
         }
 
         Ok((biome_ids, width))
