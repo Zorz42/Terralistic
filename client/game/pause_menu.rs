@@ -2,7 +2,7 @@ use crate::client::global_settings::GlobalSettings;
 use crate::client::menus::Menu;
 use crate::client::menus::SettingsMenu;
 use crate::client::menus::MENU_WIDTH;
-use crate::client::settings::Settings;
+use crate::libraries::config::Settings;
 use crate::libraries::events::Event;
 use crate::libraries::graphics as gfx;
 use gfx::{BaseUiElement, UiElement};

@@ -1,6 +1,6 @@
 use crate::client::global_settings::GlobalSettings;
-use crate::client::settings::SliderSelection;
-use crate::client::settings::{Setting, Settings};
+use crate::libraries::config::SliderSelection;
+use crate::libraries::config::{Setting, Settings};
 use crate::libraries::graphics as gfx;
 use crate::libraries::timing;
 use gfx::{BaseUiElement, UiElement};

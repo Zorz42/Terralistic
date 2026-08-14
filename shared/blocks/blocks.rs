@@ -2,12 +2,11 @@ use std::collections::HashMap;
 
 use anyhow::{bail, Result};
 use serde_derive::{Deserialize, Serialize};
-use snap;
 
+use crate::libraries::container_file;
 use crate::libraries::events::{Event, EventManager};
 use crate::libraries::grid::Grid;
 use crate::libraries::registry::{Registry, RegistryId};
-use crate::libraries::serialization;
 use crate::shared::blocks::{Block, BlockBreakEvent, BreakingBlock, Tool, ToolId};
 use crate::shared::items::ItemStack;
 
@@ -200,11 +199,11 @@ impl Blocks {
     }
 
     pub fn serialize(&self) -> Result<Vec<u8>> {
-        Ok(snap::raw::Encoder::new().compress_vec(&serialization::serialize(&self.block_data)?)?)
+        container_file::pack(&self.block_data)
     }
 
     pub fn deserialize(&mut self, serial: &[u8]) -> Result<()> {
-        self.block_data = serialization::deserialize(&snap::raw::Decoder::new().decompress_vec(serial)?)?;
+        self.block_data = container_file::unpack(serial)?;
         Ok(())
     }
 

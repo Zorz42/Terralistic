@@ -6,9 +6,10 @@ use std::sync::{Arc, Mutex, PoisonError};
 use std::thread::sleep;
 use std::time::Duration;
 
-use anyhow::{anyhow, bail, Result};
+use anyhow::{anyhow, Result};
 
 use crate::libraries::events::EventManager;
+use crate::libraries::log::{log, LogLevel};
 use crate::libraries::timing::{DeltaTimer, FixedStep};
 use crate::server::server_core::chat::server_chat_on_event;
 use crate::server::server_core::entities::ServerEntities;
@@ -16,7 +17,7 @@ use crate::server::server_core::items::ServerItems;
 use crate::server::server_core::networking::{DisconnectEvent, NewConnectionEvent};
 use crate::server::server_core::players::ServerPlayers;
 use crate::server::server_ui::{ConsoleMessageType, PlayerEventType, ServerState, UiMessageType};
-use crate::shared::versions::{WORLD_SAVE_HEADER_LEN, WORLD_SAVE_MAGIC, WORLD_SAVE_VERSION};
+use crate::shared::versions::WORLD_SAVE_FORMAT;
 
 use super::blocks::ServerBlocks;
 use super::commands::CommandManager;
@@ -428,12 +429,9 @@ impl Server {
     }
 
     fn load_world(&mut self, world_path: &Path) -> Result<()> {
-        let world_file = std::fs::read(world_path)?;
-        // The header is read before the body on purpose, so that a world this build cannot
-        // read is *named* rather than handed to a decoder that will make nonsense of it.
-        let body = read_world_header(&world_file)?;
-
-        let world: HashMap<String, Vec<u8>> = serialization::deserialize(body)?;
+        // The header is checked before the body on purpose, so that a world this build
+        // cannot read is *named* rather than handed to a decoder that makes nonsense of it.
+        let world = WORLD_SAVE_FORMAT.read(&std::fs::read(world_path)?)?;
         self.blocks.get_blocks().deserialize(world.get("blocks").unwrap_or(&Vec::new()))?;
         self.walls.get_walls().deserialize(world.get("walls").unwrap_or(&Vec::new()))?;
         self.players.deserialize(world.get("players").unwrap_or(&Vec::new()))?;
@@ -453,8 +451,7 @@ impl Server {
         world.insert("liquids".to_owned(), self.liquids.get_liquids().serialize()?);
         world.insert("players".to_owned(), self.players.serialize()?);
 
-        let mut world_file = world_save_header();
-        serialization::serialize_into(&mut world_file, &world)?;
+        let world_file = WORLD_SAVE_FORMAT.write(&world)?;
         if !world_path.exists() {
             std::fs::create_dir_all(world_path.parent().ok_or_else(|| anyhow!("could not get parent folder"))?)?;
         }
@@ -463,36 +460,11 @@ impl Server {
     }
 }
 
-/// The bytes every world file starts with: the magic, then the save version.
-///
-/// Both are fixed width and little endian, deliberately not touched by the serializer - see
-/// `WORLD_SAVE_MAGIC`.
+/// The bytes every world file starts with, for the tests that check them.
+#[cfg(test)]
 #[must_use]
 pub fn world_save_header() -> Vec<u8> {
-    let mut header = Vec::with_capacity(WORLD_SAVE_HEADER_LEN);
-    header.extend_from_slice(WORLD_SAVE_MAGIC);
-    header.extend_from_slice(&WORLD_SAVE_VERSION.to_le_bytes());
-    header
-}
-
-/// Checks a world file's header and returns the body after it.
-///
-/// Every rejection here names what is wrong, which is the entire reason the header exists.
-fn read_world_header(file: &[u8]) -> Result<&[u8]> {
-    let Some((header, body)) = file.split_at_checked(WORLD_SAVE_HEADER_LEN) else {
-        bail!("this world file is too short to be a world - it is {} bytes", file.len());
-    };
-    let (magic, version) = header.split_at(WORLD_SAVE_MAGIC.len());
-
-    if magic != WORLD_SAVE_MAGIC {
-        bail!("this world was saved by a build older than the versioned save format (save version 2 or earlier) and cannot be read");
-    }
-
-    let version = u32::from_le_bytes(version.try_into().unwrap_or([0; 4]));
-    if version != WORLD_SAVE_VERSION {
-        bail!("this world is save version {version}, but this build reads version {WORLD_SAVE_VERSION}");
-    }
-    Ok(body)
+    WORLD_SAVE_FORMAT.header()
 }
 
 /// The channel back to the server ui. It is process global because `print_to_console` and
@@ -506,8 +478,11 @@ static UI_EVENT_SENDER: Mutex<Option<Sender<UiMessageType>>> = Mutex::new(None);
 pub fn send_to_ui(data: UiMessageType, ui_event_sender: Option<Sender<UiMessageType>>) {
     let mut sender = UI_EVENT_SENDER.lock().unwrap_or_else(PoisonError::into_inner);
 
-    if sender.is_none() {
+    if sender.is_none() && ui_event_sender.is_some() {
         *sender = ui_event_sender;
+        drop(sender);
+        install_console_sink();
+        sender = UI_EVENT_SENDER.lock().unwrap_or_else(PoisonError::into_inner);
     }
 
     if let Some(sender) = sender.as_ref() {
@@ -517,40 +492,30 @@ pub fn send_to_ui(data: UiMessageType, ui_event_sender: Option<Sender<UiMessageT
     }
 }
 
-/// prints to the terminal the server was started in and sends it to the ui
+/// Prints to the terminal the server was started in. The server ui, if there is one, is
+/// reached through the log sink installed in `install_console_sink`.
 pub fn print_to_console(text: &str, warn_level: u8) {
-    if text.is_empty() {
-        return;
-    }
-
-    if text.contains('\n') {
-        for line in text.split('\n') {
-            print_to_console(line, warn_level);
-        }
-        return;
-    }
-
-    let mut formatted_text;
-    if warn_level == 0 {
-        formatted_text = format!("[INFO] {text}");
-    } else if warn_level == 1 {
-        formatted_text = format!("[WARNING] {text}");
-    } else {
-        formatted_text = format!("[ERROR] {text}");
-    }
-    formatted_text = format_timestamp(&formatted_text);
-    println!("{formatted_text}");
-    let text_with_type = match warn_level {
-        0 => ConsoleMessageType::Info(formatted_text),
-        1 => ConsoleMessageType::Warning(formatted_text),
-        _ => ConsoleMessageType::Error(formatted_text),
-    };
-    send_to_ui(UiMessageType::SrvToUiConsoleMessage(text_with_type), None);
+    log(
+        match warn_level {
+            0 => LogLevel::Info,
+            1 => LogLevel::Warning,
+            _ => LogLevel::Error,
+        },
+        text,
+    );
 }
 
-/// This function formats the string to add the timestamp
-fn format_timestamp(message: &String) -> String {
-    let timestamp = chrono::Local::now().naive_local().and_utc().timestamp();
-    let timestamp = chrono::DateTime::from_timestamp(timestamp, 0);
-    format!("[{}] {}", timestamp.map_or_else(|| "???".to_owned(), |time| time.format("%m-%d %H:%M:%S").to_string(),), message)
+/// Points the log library at the server ui, so anything logged from anywhere reaches the
+/// console panel as well as the terminal.
+///
+/// Installed once, by whoever first hands `send_to_ui` a sender.
+fn install_console_sink() {
+    crate::libraries::log::set_sink(Box::new(|level, line| {
+        let message = match level {
+            LogLevel::Info => ConsoleMessageType::Info(line.to_owned()),
+            LogLevel::Warning => ConsoleMessageType::Warning(line.to_owned()),
+            LogLevel::Error => ConsoleMessageType::Error(line.to_owned()),
+        };
+        send_to_ui(UiMessageType::SrvToUiConsoleMessage(message), None);
+    }));
 }

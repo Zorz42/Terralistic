@@ -11,7 +11,7 @@ use crate::client::game::core_client::run_game;
 use crate::client::global_settings::GlobalSettings;
 use crate::client::menus::choice_menu::ChoiceMenu;
 use crate::client::menus::{LoadingScreen, Menu};
-use crate::client::settings::Settings;
+use crate::libraries::config::Settings;
 use crate::libraries::graphics as gfx;
 use crate::server::server_core::Server;
 use crate::server::server_core::{BindAddress, SINGLEPLAYER_PORT};

@@ -1,17 +1,11 @@
 use std::sync::mpsc::Sender;
 
 use crate::libraries::graphics as gfx;
+use crate::libraries::log::format_timestamp;
 use crate::server::server_ui::{ConsoleMessageType, UiMessageType, EDGE_SPACING};
 use gfx::BaseUiElement;
 
 use super::ui_manager;
-
-//this function formats the string to add the timestamp
-fn format_timestamp(message: &String) -> String {
-    let timestamp = chrono::Local::now().naive_local().and_utc().timestamp();
-    let timestamp = chrono::DateTime::from_timestamp(timestamp, 0);
-    format!("[{}] {}", timestamp.map_or_else(|| "???".to_owned(), |time| time.format("%m-%d %H:%M:%S").to_string(),), message)
-}
 
 pub struct ConsoleLine {
     //currently kinda useless but can be used for sprite loading/unloading to prevent gpu memory usage when not on screen. Will only be useful when a lot of messages get sent to the ui console

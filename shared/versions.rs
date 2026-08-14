@@ -18,6 +18,15 @@ pub const VERSION: &str = env!("CARGO_PKG_VERSION");
 ///    their size after, so the two halves swapped places
 pub const WORLD_SAVE_VERSION: u32 = 5;
 
+/// The world file's container format: what it starts with, and which version this build
+/// reads. `libraries::container_file` owns the mechanism; this is the game's instance of it.
+pub const WORLD_SAVE_FORMAT: crate::libraries::container_file::ContainerFormat = crate::libraries::container_file::ContainerFormat {
+    magic: WORLD_SAVE_MAGIC,
+    version: WORLD_SAVE_VERSION,
+    version_noun: "save version",
+    no_magic_message: "this world was saved by a build older than the versioned save format (save version 2 or earlier) and cannot be read",
+};
+
 /// What every world file starts with, ahead of anything a serializer wrote.
 ///
 /// **This exists so that a change of encoding stays diagnosable.** Versions 1 and 2 kept the

@@ -3,7 +3,7 @@ use std::cell::RefCell;
 use std::rc::Rc;
 
 use crate::client::game::camera::Camera;
-use crate::client::settings::{Setting, Settings};
+use crate::libraries::config::{Setting, Settings};
 use crate::libraries::events::Event;
 use crate::libraries::graphics as gfx;
 use crate::libraries::graphics::DrawTarget;

@@ -1,4 +1,4 @@
-use crate::client::settings::{Setting, Settings, SliderSelection};
+use crate::libraries::config::{Setting, Settings, SliderSelection};
 use crate::libraries::graphics as gfx;
 use std::cell::RefCell;
 use std::rc::Rc;

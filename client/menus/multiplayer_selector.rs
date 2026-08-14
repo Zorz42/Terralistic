@@ -8,7 +8,7 @@ use directories::BaseDirs;
 use serde_derive::{Deserialize, Serialize};
 
 use crate::client::global_settings::GlobalSettings;
-use crate::client::settings::Settings;
+use crate::libraries::config::Settings;
 use crate::libraries::graphics as gfx;
 
 use super::{AddServerMenu, Menu, StartMultiplayer};

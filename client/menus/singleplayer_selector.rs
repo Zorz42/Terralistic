@@ -9,7 +9,7 @@ use directories::BaseDirs;
 
 use crate::client::global_settings::GlobalSettings;
 use crate::client::menus::choice_menu::ChoiceMenu;
-use crate::client::settings::Settings;
+use crate::libraries::config::Settings;
 use crate::libraries::graphics as gfx;
 use gfx::{BaseUiElement, UiElement};
 

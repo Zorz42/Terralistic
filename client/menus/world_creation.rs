@@ -8,7 +8,7 @@ use std::rc::Rc;
 use crate::client::game::private_world::PrivateWorld;
 use crate::client::global_settings::GlobalSettings;
 use crate::client::menus::BackgroundRect;
-use crate::client::settings::Settings;
+use crate::libraries::config::Settings;
 use crate::libraries::graphics as gfx;
 use gfx::{BaseUiElement, UiElement};
 

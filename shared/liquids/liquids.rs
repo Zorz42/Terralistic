@@ -2,12 +2,11 @@ use std::collections::BTreeSet;
 
 use anyhow::{bail, Result};
 use serde_derive::{Deserialize, Serialize};
-use snap;
 
+use crate::libraries::container_file;
 use crate::libraries::events::{Event, EventManager};
 use crate::libraries::grid::Grid;
 use crate::libraries::registry::{Registry, RegistryId};
-use crate::libraries::serialization;
 use crate::libraries::timing::Interval;
 use crate::shared::blocks::Blocks;
 use crate::shared::liquids::LiquidType;
@@ -346,13 +345,12 @@ impl Liquids {
 
     /// Serializes liquids for saving.
     pub fn serialize(&self) -> Result<Vec<u8>> {
-        Ok(snap::raw::Encoder::new().compress_vec(&serialization::serialize(&self.liquids_data)?)?)
+        container_file::pack(&self.liquids_data)
     }
 
     /// Deserializes liquids from u8 vector.
     pub fn deserialize(&mut self, data: &[u8]) -> Result<()> {
-        let decompressed = snap::raw::Decoder::new().decompress_vec(data)?;
-        self.liquids_data = serialization::deserialize(&decompressed)?;
+        self.liquids_data = container_file::unpack(data)?;
         self.scheduled.clear();
 
         Ok(())

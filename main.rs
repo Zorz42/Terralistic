@@ -147,16 +147,19 @@ use directories::BaseDirs;
 
 use crate::client::global_settings::GlobalSettings;
 use crate::client::menus::{run_title_screen, MenuBack};
-use crate::client::settings::Settings;
+use crate::libraries::config::Settings;
 use crate::libraries::graphics as gfx;
 use crate::server::server_core::{BindAddress, Server, MULTIPLAYER_PORT};
 use crate::server::server_ui::UiManager;
 
 use crate::libraries::graphics::UiContext;
 pub mod libraries {
+    pub mod config;
+    pub mod container_file;
     pub mod events;
     pub mod graphics;
     pub mod grid;
+    pub mod log;
     pub mod net;
     pub mod registry;
     pub mod scripting;
@@ -180,7 +183,6 @@ pub mod client {
     pub mod game;
     pub mod global_settings;
     pub mod menus;
-    pub mod settings;
     mod tests;
 }
 

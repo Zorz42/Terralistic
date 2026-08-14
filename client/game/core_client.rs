@@ -21,7 +21,7 @@ use crate::client::game::players::ClientPlayers;
 use crate::client::game::respawn_screen::RespawnScreen;
 use crate::client::global_settings::GlobalSettings;
 use crate::client::menus::{BackgroundRect, LoadingScreen, MenuBack, MENU_WIDTH};
-use crate::client::settings::Settings;
+use crate::libraries::config::Settings;
 use crate::libraries::events;
 use crate::libraries::events::EventManager;
 use crate::libraries::graphics as gfx;
