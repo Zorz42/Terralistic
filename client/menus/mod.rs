@@ -28,7 +28,7 @@ mod loading_screen;
 
 mod world_creation;
 
-mod choice_menu;
+pub mod choice_menu;
 
 mod multiplayer_selector;
 

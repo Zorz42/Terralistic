@@ -667,6 +667,14 @@ Client-side prediction: the client simulates its own player and periodically sen
 `PlayerPositionPacketToServer`; the server accepts it if within a tolerance of 2.0 blocks,
 otherwise force-corrects (`server/server_core/players.rs`).
 
+**A singleplayer client watches its own server's flag** (`run_game`'s `server_alive`, which is
+`PrivateWorld`'s `server_running`). A welcome that is not coming is otherwise indistinguishable
+from one that is slow: the client would wait forever on a port whose server has died, or that
+something else on the machine happens to be holding. Multiplayer passes `None` — a remote
+server's health is not this process's to know. Whatever kills the join, singleplayer now ends on
+a `ChoiceMenu` naming the error, the same way `start_multiplayer.rs` always has; it used to
+`println!` and drop the player back on the menu with nothing said.
+
 **The join draws its own frames, because nothing else is drawing.** `run_game` is called from
 inside the menu loop's `open_menu`, so that loop is stopped for the whole of the join — waiting
 for the handshake, unpacking the welcome packets, initialising mods, allocating the light grid,
@@ -794,6 +802,14 @@ Things worth knowing before adding one:
   the server thread is exactly the case that leaves nobody to clear it. The guard clears the
   running flag *before* the text: the other order lets the menu see the loading screen finish
   while the server still looks alive, and try to join a world that is not there.
+- **`Server::run` shuts the networking thread down on every exit path**, which is why it wraps
+  `run_until_stopped` instead of being it. `start` binds the port early and everything after it
+  can fail; a `?` that returned while that thread ran left it holding the port with the receiving
+  end of its channel already dropped, so it accepted clients it could tell nobody about
+  (`Failed to send NewConnectionEvent: sending on a closed channel`) and they waited for a
+  welcome forever. The port stayed taken for the rest of the process too, so every world opened
+  afterwards failed to bind and hung the same way. The world is deliberately *not* saved on that
+  path — the error may be about the world.
 - Server `Blocks`/`Walls`/`Items`/`Entities` are behind `Arc<Mutex<_>>` and accessed via
   `get_blocks()` etc. that lock. Holding two of these at once in the wrong order is a
   deadlock waiting to happen; the codebase currently always takes them one at a time.

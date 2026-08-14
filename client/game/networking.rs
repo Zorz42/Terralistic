@@ -260,8 +260,12 @@ impl ClientNetworking {
                 SendStatus::MaxPacketSizeExceeded => {
                     bail!("Max packet size exceeded");
                 }
+                // `message_io` drops the connection's resource when a pending connect is
+                // refused, so this is also what a port with nothing behind it looks like from
+                // here - and it is the first thing the handshake finds out, since the version
+                // packet goes before anything else.
                 SendStatus::ResourceNotFound => {
-                    bail!("Resource not found");
+                    bail!("no connection to the server at {endpoint}: nothing is listening there, or it closed the connection");
                 }
                 SendStatus::ResourceNotAvailable => {
                     std::thread::sleep(std::time::Duration::from_millis(1));

@@ -332,7 +332,9 @@ mod tests {
             Ok(false)
         });
 
-        assert!(!error.is_empty());
+        // the wording matters: this is what a player sees when the world's own server has died
+        // and left its port empty, so "Resource not found" is not good enough
+        assert!(error.contains("nothing is listening"), "unexpected error: {error}");
     }
 
     /// And the same for a server that accepts the socket and then refuses the client.

@@ -9,6 +9,7 @@ use anyhow::Result;
 
 use crate::client::game::core_client::run_game;
 use crate::client::global_settings::GlobalSettings;
+use crate::client::menus::choice_menu::ChoiceMenu;
 use crate::client::menus::{LoadingScreen, Menu};
 use crate::client::settings::Settings;
 use crate::libraries::graphics as gfx;
@@ -65,6 +66,7 @@ enum PrivateWorldState {
     Loading,
     Playing,
     StoppingServer,
+    ShowingError,
     Stopped,
 }
 
@@ -73,6 +75,13 @@ pub struct PrivateWorld {
     server_running: Arc<AtomicBool>,
     loading_text: Arc<Mutex<String>>,
     state: PrivateWorldState,
+    /// What went wrong, to be shown once the server has stopped.
+    ///
+    /// A singleplayer world that fails used to print to the terminal and drop the player back
+    /// on the menu with nothing said, which is how a broken world looks exactly like a menu
+    /// button that did nothing. Multiplayer has always shown its errors - see
+    /// `start_multiplayer.rs` - and this is the same `ChoiceMenu`.
+    error: Option<String>,
     settings: Rc<RefCell<Settings>>,
     global_settings: Rc<RefCell<GlobalSettings>>,
 }
@@ -85,6 +94,7 @@ impl PrivateWorld {
             server_running,
             loading_text,
             state: PrivateWorldState::StartingServer,
+            error: None,
             settings,
             global_settings,
         })
@@ -115,10 +125,19 @@ impl Menu for PrivateWorld {
             PrivateWorldState::Loading => {
                 self.state = PrivateWorldState::Playing;
                 if self.server_running.load(Ordering::Relaxed) {
-                    let res = run_game(graphics, SINGLEPLAYER_PORT, String::from("127.0.0.1"), "_", &self.settings, &self.global_settings);
+                    let res = run_game(
+                        graphics,
+                        SINGLEPLAYER_PORT,
+                        String::from("127.0.0.1"),
+                        "_",
+                        &self.settings,
+                        &self.global_settings,
+                        Some(&self.server_running),
+                    );
 
                     if let Err(e) = res {
                         println!("{e}");
+                        self.error = Some(e.to_string());
                     }
 
                     // stop server
@@ -136,16 +155,41 @@ impl Menu for PrivateWorld {
                     let thread_result = thread.join();
 
                     match thread_result {
-                        Err(e) => println!("{e:?}"),
+                        Err(e) => {
+                            println!("{e:?}");
+                            // a panic's payload is not worth showing, but the fact of it is
+                            self.error = Some("the world's server crashed - see the console".to_owned());
+                        }
                         Ok(res) => {
                             if let Err(e) = res {
                                 println!("{e}");
+                                // the server's own error is the cause of whatever the client
+                                // then made of it, so it wins over one from `run_game`
+                                self.error = Some(e.to_string());
                             }
                         }
                     }
-
-                    self.state = PrivateWorldState::Stopped;
                 }
+
+                let Some(error) = self.error.take() else {
+                    self.state = PrivateWorldState::Stopped;
+                    return None;
+                };
+
+                self.state = PrivateWorldState::ShowingError;
+                Some((
+                    Box::new(ChoiceMenu::new(
+                        &format!("Could not play this world:\n{error}"),
+                        graphics,
+                        vec![("Ok", Box::new(|| {}))],
+                        Some(0),
+                        Some(0),
+                    )),
+                    "f WorldError".to_owned(),
+                ))
+            }
+            PrivateWorldState::ShowingError => {
+                self.state = PrivateWorldState::Stopped;
                 None
             }
             _ => None,

@@ -5,8 +5,9 @@
 //! world generation at all outside of someone playing the game.
 #![allow(clippy::unwrap_used, clippy::panic)] // tests assert on results directly
 mod tests {
-    use crate::integration_tests::harness::{TempDir, TestServer};
+    use crate::integration_tests::harness::{free_port, write_world_save, TempDir, TestServer, BASE_GAME_MOD};
     use crate::libraries::events::EventManager;
+    use crate::server::server_core::{BindAddress, Server};
     use crate::server::server_ui::ServerState;
     use crate::shared::liquids::MAX_LIQUID_LEVEL;
 
@@ -18,6 +19,45 @@ mod tests {
     /// there is no sky left to assert about.
     const SMALL: (i32, i32) = (200, 300);
     const SEED: u64 = 1234;
+
+    /// A `run` that fails still takes its networking thread with it.
+    ///
+    /// This is the bug behind a report of a newly generated world hanging on its loading screen.
+    /// `start` binds the port early and everything after it can fail, and a `?` out of `start` or
+    /// `update` used to return while the networking thread was still running - and the `Server`
+    /// that owns the receiving end of its channel was dropped a moment later. The thread went on
+    /// holding the port and accepting connections it could no longer report to anyone: the server
+    /// printed `Failed to send NewConnectionEvent: sending on a closed channel` and the client
+    /// that connected was accepted and then never welcomed, which is a loading screen that never
+    /// moves. The port also stayed taken for the rest of the process, so every world opened after
+    /// it failed to bind and hung the same way.
+    ///
+    /// The failure here is a truncated world file, which is the cheapest way to fail `start`
+    /// after the bind. What is being tested is the cleanup, not the parsing.
+    #[test]
+    fn test_a_server_that_fails_to_start_releases_its_port() {
+        let dir = TempDir::new("lifecycle-failed-start");
+        write_world_save(&dir.world_path(), (20, 20));
+        let mut bytes = std::fs::read(dir.world_path()).unwrap();
+        bytes.truncate(bytes.len() / 2);
+        std::fs::write(dir.world_path(), &bytes).unwrap();
+
+        let port = free_port();
+        let mut server = Server::new(port, BindAddress::Loopback, None, None);
+        let status = std::sync::Mutex::new(String::new());
+        server
+            .run(&std::sync::atomic::AtomicBool::new(true), &status, vec![BASE_GAME_MOD.to_vec()], &dir.world_path())
+            .unwrap_err();
+        assert!(server.get_state() == ServerState::Stopped, "a server that failed to start still says it is running");
+        drop(server);
+
+        // A live listener cannot be bound over, `SO_REUSEADDR` or not, so this succeeding is
+        // exactly the statement that nothing is listening any more.
+        assert!(
+            std::net::TcpListener::bind(("127.0.0.1", port)).is_ok(),
+            "the failed server left its networking thread holding port {port}"
+        );
+    }
 
     /// The states the ui shows a player, in the order they happen.
     #[test]

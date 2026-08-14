@@ -71,9 +71,31 @@ thread's welcome loop never looked at `is_running`, so there was no way to aband
 `stop()` would have blocked forever if anyone had tried. The welcome loop now runs a 1ms signal
 timer, `stop()` is safe at any point, and closing the window during a join returns.
 
+**The orphaned networking thread.** This is the one that hangs *for good* rather than for
+seconds, and the console line that identified it was
+`Failed to send NewConnectionEvent: sending on a closed channel`. `Server::run` returned early
+through `?` whenever `start` or `update` failed, which skips `stop` — and `start` binds the port
+long before anything that can fail. The `Server` was then dropped with the networking thread
+still running, so that thread kept the port and went on accepting clients whose
+`NewConnectionEvent` had nowhere to go. A client that connected to one was accepted and never
+welcomed: it waited forever, showing the last frame it drew, which is the loading screen. The
+port also stayed taken for the rest of the process, so every world opened afterwards failed to
+bind and hung the same way — which is how one failure turns into a session where nothing works.
+`run` now wraps `run_until_stopped` and stops networking however it exits.
+
+Two smaller guards on the same path, since a server can always fail for some new reason:
+the client gives up on a singleplayer server whose flag has been cleared instead of waiting for
+a welcome that is not coming, and a failed world now ends on a `ChoiceMenu` naming the error
+rather than a `println!` and a silent return to the menu.
+
 Regression tests: `test_generation_does_not_queue_an_event_per_block`,
 `test_generation_grows_the_tree_canopies`,
-`test_a_client_can_be_stopped_while_it_is_still_welcoming`.
+`test_a_client_can_be_stopped_while_it_is_still_welcoming`,
+`test_a_server_that_fails_to_start_releases_its_port`.
+
+Still unknown: what made the server fail in the first place on that run. Every path from
+"the server failed" to "the game hangs" is closed now, and all three of them report what
+happened, so a recurrence should say so rather than sit there.
 
 Not reproduced: the report also mentioned the server saying something about a wrong packet. The
 only such message is `[peer] sent a packet that could not be deserialized, ignoring it`, which
@@ -81,6 +103,12 @@ drops one frame and keeps serving, and nothing here produced it — the handshak
 multi-megabyte welcome packets over 64 KB socket reads, was checked packet by packet against a
 real generated world. The version handshake's refusals (`[peer] refused: it is version …`) read
 similarly and would explain a *failed* join rather than a slow one.
+
+Found while testing this, unrelated to it: `test_a_player_is_remembered_across_a_restart`
+sampled the player's position before the disconnect and compared it against the position the
+server saved when it noticed, with a block of slack for the fall in between. On a loaded machine
+that is not enough slack, and the test failed at random. It keeps the last position it saw
+instead, so there is no race to be slack about.
 
 ### The `TextInput` selection panic
 

@@ -197,7 +197,36 @@ impl Server {
     }
 
     /// Runs the server - automated way. It starts (initializes) the server, runs it until it has top be stopped, then stops it and returns
+    ///
+    /// A failure anywhere inside still shuts the networking thread down, which is the whole
+    /// reason this wraps `run_until_stopped` rather than being it. `start` binds the port early
+    /// and every step after it can fail, so a `?` used to return while that thread was still
+    /// running - and the `Server` that owns the receiving end of its channel was dropped
+    /// immediately afterwards. The thread went on holding the port and accepting connections it
+    /// could no longer tell anyone about: the client that connected to one was accepted and then
+    /// never welcomed, the server printed `Failed to send NewConnectionEvent: sending on a closed
+    /// channel`, and the player watched a loading screen that would never move. Worse, the port
+    /// stayed taken for the rest of the process, so every world opened afterwards failed to bind
+    /// and hung the same way.
+    ///
+    /// The world is deliberately not saved on that path. Whatever went wrong may well be about
+    /// the world itself, and overwriting the save with it is not a favour to anyone.
     pub fn run(&mut self, is_running: &AtomicBool, status_text: &Mutex<String>, mods_serialized: Vec<Vec<u8>>, world_path: &Path) -> Result<()> {
+        let result = self.run_until_stopped(is_running, status_text, mods_serialized, world_path);
+
+        if result.is_err() {
+            if let Err(error) = self.networking.stop(&mut self.events) {
+                print_to_console(&format!("could not stop networking after the server failed: {error}"), 2);
+            }
+            // so that anything that stops this server afterwards does not try to save the world
+            // it never finished starting
+            self.set_state(ServerState::Stopped);
+        }
+
+        result
+    }
+
+    fn run_until_stopped(&mut self, is_running: &AtomicBool, status_text: &Mutex<String>, mods_serialized: Vec<Vec<u8>>, world_path: &Path) -> Result<()> {
         let mut last_time;
 
         self.start(status_text, mods_serialized, world_path)?;

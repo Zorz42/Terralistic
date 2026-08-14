@@ -11,7 +11,7 @@ mod tests {
     use crate::libraries::events::EventManager;
     use crate::shared::blocks::{BlockBreakStartPacket, BlockChangePacket, Blocks, BlocksWelcomePacket, ClientBlockBreakStartPacket};
     use crate::shared::chat::ChatPacket;
-    use crate::shared::entities::PositionComponent;
+    use crate::shared::entities::{EntityId, PositionComponent};
     use crate::shared::liquids::{LiquidChangesPacket, LiquidType, Liquids, LiquidsWelcomePacket};
     use crate::shared::mod_manager::ModsWelcomePacket;
     use crate::shared::packet::{Packet, WelcomeCompletePacket};
@@ -20,6 +20,17 @@ mod tests {
 
     fn server(tag: &str) -> TestServer {
         TestServer::start_on_small_world(tag, (60, 40)).unwrap()
+    }
+
+    /// Where the server currently has the entity with this id, or `None` once it is gone.
+    ///
+    /// One lock at a time: the guard is dropped before this returns, so a caller can step the
+    /// server again on the next line.
+    fn position_of(server: &TestServer, id: EntityId) -> Option<(f32, f32)> {
+        let entities = server.server.get_entities();
+        let entity = entities.get_entity_from_id(id).ok()?;
+        let position = entities.ecs.get::<&PositionComponent>(entity).ok()?;
+        Some((position.x(), position.y()))
     }
 
     /// The welcome sequence, in full: everything the client needs before it can render a
@@ -412,19 +423,22 @@ mod tests {
             client.pump().unwrap();
         }
 
-        let left_at = {
-            let entities = server.server.get_entities();
-            let entity = entities.get_entity_from_id(first_spawn.id).unwrap();
-            let position = entities.ecs.get::<&PositionComponent>(entity).unwrap();
-            (position.x(), position.y())
-        };
+        let mut left_at = position_of(&server, first_spawn.id).unwrap();
         assert!(left_at.1 > first_spawn.y + 1.0, "the player did not move, so this would pass without remembering anything");
 
         client.stop().unwrap();
 
+        // The saved position is the one the player had when the server noticed the disconnect,
+        // and they go on falling until it does, so this keeps the last position seen rather
+        // than the one sampled above. Comparing against that one instead meant the test held a
+        // whole block of slack and still failed on a loaded machine.
         wait_until("the player to be despawned", || {
             server.server.update()?;
-            Ok(server.server.get_entities().get_entity_from_id(first_spawn.id).is_err())
+            let Some(position) = position_of(&server, first_spawn.id) else {
+                return Ok(true);
+            };
+            left_at = position;
+            Ok(false)
         });
 
         let dir = server.stop().unwrap();
@@ -441,8 +455,8 @@ mod tests {
         let second_spawn = client.find::<PlayerSpawnPacket>().unwrap();
         assert_eq!(second_spawn.name, "Returning");
 
-        // a block of slack: the player keeps falling for the few milliseconds between
-        // reading the position above and the server noticing the disconnect
+        // a tick of slack, for the physics step between the last position this saw and the one
+        // the disconnect saved
         assert!(
             (second_spawn.x - left_at.0).abs() < 1.0 && (second_spawn.y - left_at.1).abs() < 1.0,
             "the player came back somewhere else: left at ({}, {}), came back at ({}, {})",

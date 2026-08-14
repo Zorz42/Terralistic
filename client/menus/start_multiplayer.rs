@@ -60,7 +60,16 @@ impl Menu for StartMultiplayer {
             }
             MultiplayerState::NameMenu => {
                 self.state = MultiplayerState::Playing;
-                let game_result = run_game(graphics, self.server.port, self.server.ip.clone(), &self.player_name.take()?, &self.settings, &self.global_settings);
+                // no flag: a remote server's health is not this process's to know
+                let game_result = run_game(
+                    graphics,
+                    self.server.port,
+                    self.server.ip.clone(),
+                    &self.player_name.take()?,
+                    &self.settings,
+                    &self.global_settings,
+                    None,
+                );
                 if let Err(error) = game_result {
                     println!("Game error: {error}");
                     self.state = MultiplayerState::ErrorMenu;

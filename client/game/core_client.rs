@@ -1,10 +1,11 @@
 use std::cell::RefCell;
 use std::ops::Deref;
 use std::rc::Rc;
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
 use std::sync::{Mutex, PoisonError};
 
-use anyhow::Result;
+use anyhow::{bail, Result};
 
 use crate::client::game::chat::ClientChat;
 use crate::client::game::debug_menu::DebugMenu;
@@ -87,6 +88,13 @@ impl JoinScreen {
     }
 }
 
+/// Joins a server and plays the game, until the player leaves or the window closes.
+///
+/// `server_alive` is how a singleplayer client knows its own server is still there - the flag
+/// `PrivateWorld` runs the private server with, cleared however that server's thread ends.
+/// Without it the client can only wait, and there is no welcome coming from a port whose server
+/// has died or that something else is holding. Multiplayer passes `None`: a remote server's
+/// health is not this process's to know, and the connection itself reports what it can.
 #[allow(clippy::too_many_lines)]
 pub fn run_game(
     graphics: &mut gfx::GraphicsContext,
@@ -95,6 +103,7 @@ pub fn run_game(
     player_name: &str,
     settings: &Rc<RefCell<Settings>>,
     global_settings: &Rc<RefCell<GlobalSettings>>,
+    server_alive: Option<&AtomicBool>,
 ) -> Result<()> {
     // load base game mod
     let mut pre_events = EventManager::new();
@@ -106,6 +115,11 @@ pub fn run_game(
         // of the clock, which is what the 1ms sleep this replaced was for
         join_screen.frame(graphics, "Joining the world");
         networking.check_thread_for_errors()?;
+
+        if server_alive.is_some_and(|alive| !alive.load(Ordering::Relaxed)) {
+            networking.stop()?;
+            bail!("the world's server stopped before it could let this client in");
+        }
 
         // Closing the window during a join used to be ignored until the whole world had
         // finished loading, because nothing here looked at the window at all.
