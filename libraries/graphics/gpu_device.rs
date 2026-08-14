@@ -56,6 +56,10 @@ pub(super) struct GpuDevice {
     /// Shared by every texture bind group and by the backend's pipeline layout.
     pub texture_bind_group_layout: wgpu::BindGroupLayout,
     pub sampler: wgpu::Sampler,
+    /// The blur's layout: the same two bindings, but declared filterable. See `filtering_sampler`.
+    pub filtering_texture_bind_group_layout: wgpu::BindGroupLayout,
+    /// Linear, for the blur alone. Everything else in the toolkit samples `sampler`.
+    pub filtering_sampler: wgpu::Sampler,
     /// The bind group is all a draw needs; wgpu keeps the texture and the view behind it alive
     /// by reference.
     textures: Mutex<HashMap<u32, wgpu::BindGroup>>,
@@ -96,6 +100,32 @@ pub(super) fn init(device: wgpu::Device, queue: wgpu::Queue) {
         ],
     });
 
+    // The one exception to "nearest only", and it needs a layout of its own to stay one: the
+    // blur runs on a reduced-resolution copy of the region and is stretched back over it, which
+    // `NEAREST` would turn into visible blocks. Interpolating *is* the effect here rather than
+    // an accident, so it gets its own layout and sampler and nothing else can reach them.
+    let filtering_texture_bind_group_layout = device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
+        label: Some("filtering texture"),
+        entries: &[
+            wgpu::BindGroupLayoutEntry {
+                binding: 0,
+                visibility: wgpu::ShaderStages::FRAGMENT,
+                ty: wgpu::BindingType::Texture {
+                    sample_type: wgpu::TextureSampleType::Float { filterable: true },
+                    view_dimension: wgpu::TextureViewDimension::D2,
+                    multisampled: false,
+                },
+                count: None,
+            },
+            wgpu::BindGroupLayoutEntry {
+                binding: 1,
+                visibility: wgpu::ShaderStages::FRAGMENT,
+                ty: wgpu::BindingType::Sampler(wgpu::SamplerBindingType::Filtering),
+                count: None,
+            },
+        ],
+    });
+
     let sampler = device.create_sampler(&wgpu::SamplerDescriptor {
         label: Some("nearest clamp"),
         address_mode_u: wgpu::AddressMode::ClampToEdge,
@@ -107,11 +137,24 @@ pub(super) fn init(device: wgpu::Device, queue: wgpu::Queue) {
         ..Default::default()
     });
 
+    let filtering_sampler = device.create_sampler(&wgpu::SamplerDescriptor {
+        label: Some("linear clamp"),
+        address_mode_u: wgpu::AddressMode::ClampToEdge,
+        address_mode_v: wgpu::AddressMode::ClampToEdge,
+        address_mode_w: wgpu::AddressMode::ClampToEdge,
+        mag_filter: wgpu::FilterMode::Linear,
+        min_filter: wgpu::FilterMode::Linear,
+        mipmap_filter: wgpu::MipmapFilterMode::Nearest,
+        ..Default::default()
+    });
+
     drop(GPU.set(GpuDevice {
         device,
         queue,
         texture_bind_group_layout,
         sampler,
+        filtering_texture_bind_group_layout,
+        filtering_sampler,
         textures: Mutex::new(HashMap::new()),
         meshes: Mutex::new(HashMap::new()),
         // 0 is never handed out, so it can mean "no resource" in a handle.
@@ -208,6 +251,24 @@ impl GpuDevice {
                 wgpu::BindGroupEntry {
                     binding: 1,
                     resource: wgpu::BindingResource::Sampler(&self.sampler),
+                },
+            ],
+        })
+    }
+
+    /// The same view bound for linear sampling. Only the blur's pipelines take this layout.
+    pub(super) fn create_filtering_texture_bind_group(&self, view: &wgpu::TextureView) -> wgpu::BindGroup {
+        self.device.create_bind_group(&wgpu::BindGroupDescriptor {
+            label: Some("filtering texture"),
+            layout: &self.filtering_texture_bind_group_layout,
+            entries: &[
+                wgpu::BindGroupEntry {
+                    binding: 0,
+                    resource: wgpu::BindingResource::TextureView(view),
+                },
+                wgpu::BindGroupEntry {
+                    binding: 1,
+                    resource: wgpu::BindingResource::Sampler(&self.filtering_sampler),
                 },
             ],
         })

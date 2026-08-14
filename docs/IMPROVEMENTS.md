@@ -43,6 +43,7 @@ Found while doing the above, not in the original catalogue:
 | World generation ignored its seed for the biome layout, so the same seed gave a different world every run | done — see 5.5 |
 | `despawn_entity` left every despawned id resolvable, and the id maps only ever grew | done — see 5.5 |
 | Joining a world that had just been generated froze the window for tens of seconds with no way out | done — see below |
+| A large blur region in a fullscreen window cost 7.3 ms of GPU a frame, dropping the game to 45 fps | done — see below |
 
 ### Joining a newly generated world looked like a hang
 
@@ -109,6 +110,38 @@ sampled the player's position before the disconnect and compared it against the 
 server saved when it noticed, with a block of slack for the fall in between. On a loaded machine
 that is not enough slack, and the test failed at random. It keeps the last position it saw
 instead, so there is no race to be slack about.
+
+### A big blur in a fullscreen window cost more than the rest of the frame
+
+Reported as "if the blur region is big and the window is fullscreened, fps drops to 45".
+
+The blur was the one effect in the toolkit priced by the *area* it covers, and it paid that
+price four to six times over: `plan_blur` emitted a thirteen tap gaussian pass per axis, twice,
+plus a two pixel pair once the radius was large enough, each of them a full render pass over
+every pixel of the region at the offscreen's resolution — which is the display's real one. A
+menu blurring most of a 3340x2100 fullscreen window is seven million pixels through half a
+billion samples, and on a tiled GPU each of those passes also loads and stores the whole frame
+texture because that is what it was attached to.
+
+Measured with a hidden 3340x2100 context, timing frames with and against the same frame drawn
+without the blur: **7.3 ms of GPU for the blur alone**, against a 16.7 ms budget at 60 fps.
+
+The blur now runs on a shrunken copy. The first pass reads the region out of the frame into a
+scratch texture at a quarter to a half of the frame's resolution, the rest of the gaussian
+passes ping-pong on the scratch pair, and an ordinary draw stretches the result back over the
+region. **The tap spacings are untouched** — still the same distances in window coordinates — so
+the output is the same blur sampled on a coarser grid, and a blur holds nothing finer than its
+own kernel. Against vertical one pixel stripes, the worst content available, no channel moved
+more than 6 of 255 from the full resolution result, and `render_rect_blur` passes its committed
+golden unchanged. The same measurement now puts the blur below the half millisecond the harness
+can resolve.
+
+Three details are worth keeping in mind, and are written up in `wgpu_backend.rs`: the downscale
+follows the radius, because the round trip is itself a blur about a texel wide and a fade's
+first frames ask for a radius of one or two pixels; the upsample is a `Segment::Draw` rather
+than a pass of its own, so it joins the draw pass that follows the blur instead of costing
+another full-frame attachment; and it samples linearly, through a bind group layout of its own,
+so the toolkit's shared layout can go on declaring itself non-filterable.
 
 ### The `TextInput` selection panic
 

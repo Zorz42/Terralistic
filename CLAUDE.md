@@ -451,14 +451,45 @@ Consequences worth knowing:
   neither was ever noticed; removing the call is how you get them back.
 - **A `Blur` command splits the frame into separate render passes**, because wgpu cannot
   sample the texture it is currently drawing into. Everything before the blur is in one
-  pass, the gaussian ping-pongs between the two offscreen textures, and the rest resumes
+  pass, the gaussian ping-pongs between the two scratch textures, and the rest resumes
   with `LoadOp::Load`.
-- **The clear gets a render pass of its own**, on the front texture, before any of that.
-  Folding it into the first pass instead is wrong precisely when the frame opens with a
-  blur: that pass writes the *back* texture, so the clear lands there, the front keeps the
-  previous frame, and the blur samples it straight back in. Only the golden harness ever
-  asks for a clear — the game draws an opaque background over the whole window — and
-  `blur_over_a_cleared_frame` is the case that pins it.
+- **The clear gets a render pass of its own**, on the frame texture, before any of that. Only
+  the golden harness ever asks for a clear — the game draws an opaque background over the whole
+  window — and `blur_over_a_cleared_frame` is the case that pins it. It used to have to be its
+  own pass for a second reason too: the blur's first pass wrote the *back* offscreen, so a clear
+  folded into it landed on the wrong texture and the blur read the previous frame straight back
+  in.
+
+##### The blur is the frame's one area-priced effect, so it runs small
+
+Every pass is thirteen taps for every pixel of the region and there are four to six of them, so
+a menu blurring most of a fullscreen `HiDPI` window is seven million pixels through half a
+billion samples. Measured at 3340x2100 on an M-series Mac that was **7.3 ms of GPU in one
+command** — most of a 60 fps frame before the game has drawn anything — which is what made a big
+blur region drop a fullscreen window to 45 fps.
+
+So the region is shrunk into a scratch texture, blurred there, and stretched back
+(`plan_blur`). The tap spacings are unchanged — they are still the same distances in window
+coordinates — so it is the same blur, sampled on a coarser grid, and a blur has nothing in it
+finer than its own kernel to lose. Over vertical one pixel stripes, the worst case there is, no
+channel moved more than 6 of 255 against the full resolution result, and the blur no longer
+measures above the harness's noise.
+
+Four things about it are load-bearing:
+
+- **The downscale follows the radius** (`BLUR_TEXELS_PER_RADIUS`), because the round trip is
+  itself a blur about a texel wide. Fixing it would over-blur a small radius, which is what a
+  fade spends its first frames on.
+- **The scratch pair is allocated at `MIN_BLUR_DOWNSCALE`**, so a whole-window region fits at
+  the finest downscale and `plan_blur` never has to fit a region that does not. A region smaller
+  than that uses the top left corner of the pair and clamps its sampling to it.
+- **The blur samples linearly, and it is the only thing in the toolkit that does.** Stretching
+  the result back with `NEAREST` is visible blocks. It gets its own bind group layout and
+  sampler in `gpu_device` rather than relaxing the shared one, which declares itself
+  non-filterable precisely so that a pixel art game cannot smooth anything by accident.
+- **The upsample is an ordinary `Segment::Draw`**, not a pass of its own, so it joins whatever
+  draw pass follows the blur. On a tiled GPU a render pass costs its whole attachment to load
+  and store however small the quad in it is, and the attachment here is the frame.
 
 `execute` plans before it encodes: `Plan` collects a `Uniforms` per draw plus a flat list of
 `Segment`s, because wgpu wants all the uniform data written before any of it is encoded.
