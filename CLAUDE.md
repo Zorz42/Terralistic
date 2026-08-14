@@ -6,8 +6,14 @@ window and input.
 Game content (blocks, items, walls, liquids, biomes, recipes, commands) lives in **Lua
 mods**, not in Rust — `base_game` is itself a mod.
 
-~22k lines of Rust across 143 files, plus ~8k lines of tests in 25 more. Small enough to
-read in full; do that before large refactors.
+~15k lines of game Rust, on top of ~7k lines of libraries that know nothing about it, plus
+~8k lines of tests. Small enough to read in full; do that before large refactors.
+
+**`libraries/` is the boundary that keeps it that way.** Nothing under it may name a game
+concept or import `crate::shared`, `crate::client` or `crate::server` - which is true today
+and worth checking before you add to one. Each library's `mod.rs` opens with what it does
+**and what it deliberately does not do**; the second half is what stops game logic drifting
+in. See `docs/LIBRARIES.md` for what is extracted and what is still a candidate.
 
 ## Commands
 
@@ -18,7 +24,7 @@ cargo build --profile dist # what you ship: release + LTO, 4.63 MB vs 5.49 MB
 cargo run -- server       # server with GUI
 cargo run -- server nogui # headless server
 cargo run -- version      # print version
-cargo test                # 447 tests, all should pass
+cargo test                # 499 tests, all should pass
 cargo clippy --all-targets
 ./coverage.sh             # coverage via config-coverage.toml
 
@@ -60,8 +66,14 @@ currently clippy clean, so keep it that way rather than dropping the flag.
 | `server/server_ui/` | Optional GUI for the server (console, player list, stats) |
 | `client/game/` | In-game client: rendering, input, prediction |
 | `client/menus/` | Title screen, world selector, settings, multiplayer, login |
-| `libraries/graphics/` | The UI toolkit + wgpu renderer (no game knowledge) |
+| `libraries/graphics/` | The UI toolkit + wgpu renderer |
 | `libraries/events/` | Type-erased event queue (`Box<dyn Any>` + downcast) |
+| `libraries/grid/` | Bounded 2D grids, chunk addressing, least-recently-used eviction |
+| `libraries/registry/` | Register a value, get a typed id back; look up by id or name |
+| `libraries/timing/` | Fixed-step accumulators, frame limiter, work budgets, frame stats |
+| `libraries/net/` | Typed-message TCP transport, both halves. No protocol |
+| `libraries/scripting/` | Sandboxed lua modules with resources. No game hooks |
+| `libraries/serialization.rs` | The one place the binary format is chosen |
 | `base_game/` | Lua mod: all actual game content |
 | `resources/` | Client-side assets (fonts, icons, UI textures) |
 | `integration_tests/` | Tests that drive several subsystems against each other |
@@ -100,8 +112,13 @@ Consequences to keep in mind:
 
 ### Networking
 
-`shared/packet/packet.rs` is the whole protocol. A `Packet` is `{ id: u64, data: Vec<u8> }`,
-where `id` is an FNV hash of `TypeId::of::<T>()` and `data` is postcard.
+**The transport is `libraries/net`; the protocol is the game's.** `PacketServer` and
+`PacketClient` own the sockets, the threads and the channels. `shared/packet/` and the two
+`networking.rs` files own what is said: the version, the name, the welcome, and who counts as
+"everyone".
+
+A `Packet` (`libraries/net/packet.rs`) is `{ id: u64, data: Vec<u8> }`, where `id` is an FNV
+hash of `TypeId::of::<T>()` and `data` is postcard.
 
 **All serialization goes through `libraries/serialization.rs`** — packets, world saves and
 `.mod` files alike. That module picks the format (postcard: little endian, LEB128 varint) in
@@ -129,6 +146,19 @@ Caveats worth knowing before touching it:
   port is taken therefore looks like it started and then accepts nobody forever, so the
   error names the address it could not bind rather than being a bare `AddrInUse`.
 
+Three seams keep the policy out of the library, and they are where to look when changing it:
+
+- The server hands over **every** packet from every connected peer, including one it is about
+  to refuse. `ServerNetworking::handle_packet` is the version and name check, and
+  `PacketServer::disconnect` is how it acts. That check used to live on the networking thread.
+- The client's handshake is two things the game supplies: a greeting to send on connecting
+  (version, then name) and a predicate saying which packet ends it
+  (`WelcomeCompletePacket`). `Received::during_handshake` is how the game still knows which
+  traffic was the welcome.
+- `net::ClientError` is a *kind*, not a string. The transport knows the socket shut; only
+  `ClientNetworking::explain` knows that a close mid-handshake means the server refused this
+  client. Player-facing wording lives there.
+
 Connection handshake: client sends `NamePacket` → server replies `WelcomeCompletePacket` →
 client stops "welcoming" mode and starts the normal receive loop. Welcome-phase packets are
 buffered into `pre_events` in `client/game/core_client.rs` and drained before the game starts.
@@ -146,17 +176,20 @@ completes.
 
 ### Mod system (Lua via rlua)
 
-`shared/mod_manager.rs`. Each `GameMod` owns its own `Lua` state, its minified source, and
+`libraries/scripting`. Each `ScriptModule` owns its own `Lua` state, its minified source, and
 a `HashMap<String, Vec<u8>>` of resources. Resource keys use `:` as separator, e.g.
-`blocks:dirt.opa`.
+`blocks:dirt.opa`. A `ScriptHost` drives a set of them.
 
-The on-disk `.mod` format is `snap(postcard(GameModData))` — see `shared/mod_data.rs`, which
-is deliberately a dependency-free leaf module so the build script can write mods without
-pulling in Lua.
+The on-disk `.mod` format is `snap(postcard(ScriptModuleData))` — see
+`libraries/scripting/module_data.rs`, which is deliberately a dependency-free leaf module so
+the build script can write mods without pulling in Lua. `build_main.rs` names that leaf file
+rather than the `scripting` module, which is what keeps rlua out of `[build-dependencies]`.
 
-Rust exposes functions to Lua with the `terralistic_` prefix — `ModManager::add_global_function`
-adds that prefix automatically, so `add_global_function("get_block", ..)` is called as
-`terralistic_get_block(x, y)` from Lua. The registration sites are the `mod_interface.rs`
+Rust exposes functions to Lua with the `terralistic_` prefix — `ScriptHost::add_global_function`
+adds it automatically, so `add_global_function("get_block", ..)` is called as
+`terralistic_get_block(x, y)` from Lua. The prefix is `shared::MOD_FUNCTION_PREFIX`, handed to
+the host at construction: it is what keeps *this* game's names out of a mod's way, so it lives
+with the game rather than in the library. The registration sites are the `mod_interface.rs`
 files:
 
 - `shared/blocks/mod_interface.rs` — `register_block_type`, `connect_blocks`, `get_block`, `register_tool`, block inventories
@@ -269,7 +302,7 @@ neighbours hold *less*. Both halves matter: a neighbour holding more is left alo
 evening a pair out from both sides is how liquid sloshes forever, and the integer remainder
 stays with the source cell so a row that will not divide evenly settles instead of passing
 the last drop back and forth. Each type flows on its own clock (`flow_time`, in ms) and is
-not owed steps it missed, the same rule `AnimationTimer` follows.
+not owed steps it missed - `timing::Interval`, which is that rule written down once.
 
 Physics is in `shared/entities/entities.rs`: `liquid_submersion` samples the cell the
 entity's middle is in, and the level scales both the extra drag (through the type's
@@ -303,7 +336,7 @@ Layout is `Container` + `Orientation` (`TOP_LEFT`, `CENTER`, …): a child posit
 relative to a parent container by orientation plus offset. Theme constants (colors, `SPACING`,
 `BLUR`, `TRANSPARENCY`, and the widget defaults) are in `theme.rs` — use them rather than
 literals. Every fade and slide in the toolkit is `gfx::approach(value, target, smooth_factor,
-epsilon)` per ready `AnimationTimer` frame; don't hand-roll another one. The epsilon is not
+epsilon)` per ready `timing::FixedStep::for_animation` frame; don't hand-roll another one. The epsilon is not
 decoration — it is what makes an animation *land* on its target instead of nearing it forever,
 which a hand-rolled `value -= value / factor` does not.
 
@@ -570,7 +603,7 @@ cannot end up compared against a different case's image. Adding one is a line: `
 `case_foo: BLURRY` where `EXACT` will not do.
 
 Determinism is the whole game, and the toolkit fights it in three places. Each has a
-`#[cfg(feature = "render-tests")]` hook: wall-clock animations (`AnimationTimer::freeze`,
+`#[cfg(feature = "render-tests")]` hook: wall-clock animations (`FixedStep::freeze`,
 `Button::settle_hover`, `Toggle::settle_animation`, `TextInput::settle_animation`), the blur
 and scale fades (`GraphicsContext::settle_animations`), and hover states that read the real
 mouse — which the settle hooks also neutralise. **If you add a case, run it five times before
@@ -680,27 +713,45 @@ this a UI element` comments in `client/game/chat.rs`, `pause_menu.rs`, `debug_me
 
 ### Timing
 
-- Server: fixed 20 TPS (`tps_limit`), with a 5 ms accumulator inside `update()` driving
+**Every clock in the game is a `libraries/timing` type**, and there is one accumulator behind
+all of them. There used to be five hand-rolled ones, and two had already been fixed for the
+same class of bug months apart — an `i32` of milliseconds that overflowed after 24.8 days and
+an `f32` ledger that stalled after four hours.
+
+- Server: fixed 20 TPS (`tps_limit`), with a `FixedStep::new(5)` inside `update()` driving
   player and entity physics.
 - Client: renders as fast as allowed (vsync / fps limit configurable), with the same 5 ms
-  accumulator via `FramerateMeasurer::has_5ms_passed()` for simulation.
+  `FixedStep` for simulation and a `FrameStats` for the debug menu's numbers.
+- **The two `FixedStep` constructors are the catch-up policy, and picking the wrong one is a
+  bug.** `new` owes every step, because a simulation that skips one has silently run slower
+  and nothing downstream can tell. `for_animation` caps the backlog at `MAX_CATCHUP_FRAMES`,
+  because frames nobody saw are worth nothing — the pause menu's buttons are built when the
+  world loads and first drawn when the player opens it, which after an hour of play was 3.6
+  million animation steps on one frame. Every widget that animates owns a `for_animation` one.
+- `Interval` is the third rule: a set of things sharing one simulated clock, each at its own
+  rate, and **a missed one is not owed**. That is the opposite of `FixedStep::new`, and it is
+  what each liquid type's `flow_time` runs on.
+- `DeltaTimer::tick` answers `None` on its first call, because the time since construction is
+  however long starting up took rather than a frame anybody rendered. That is exactly the
+  server's "skip this update".
 - Physics constants live in `shared/entities/entities.rs` and `shared/players.rs`. The
   `/ 200.0` divisors there are the 5 ms tick expressed as a fraction of a second.
-- The fps limit is an **average**, not a per-frame cap: `renderer.rs`'s `FrameLimiter` keeps a
-  ledger of what the frames so far should have taken against what they did, so an overrun is
-  made up by the next frames. The debt is capped at one frame, because otherwise a stall — a
-  world loading, a laptop waking, a breakpoint — bought that many frames of uncapped rendering
+- The fps limit is an **average**, not a per-frame cap: `timing::FrameLimiter` keeps a ledger
+  of what the frames so far should have taken against what they did, so an overrun is made up
+  by the next frames. The debt is capped at one frame, because otherwise a stall — a world
+  loading, a laptop waking, a breakpoint — bought that many frames of uncapped rendering
   afterwards.
 
 **The frame's first 10 ms are a budget, and it is easy to spend by accident.**
-`core_client.rs` starts a `frame_timer` at the top of its loop and passes it to
-`walls.rs` and `lights.rs`, which rebuild chunk meshes only while
-`frame_timer.elapsed() < 10ms`. That is the whole mechanism keeping the frame rate up while a
+`core_client.rs` starts a `timing::Budget::of_ms(10)` at the top of its loop and passes it to
+`walls.rs` and `lights.rs`, which rebuild chunk meshes only while `budget.has_time_left()`.
+The limit travels with the clock rather than being a literal rewritten at each check — it used
+to be a bare `&Instant` and a `< 10`, and `blocks.rs` still has its copy commented out. That is the whole mechanism keeping the frame rate up while a
 world loads. Anything slow *before* `walls.render` starves it, and the failure mode is not a
 crash but a world that draws its blocks immediately and takes minutes to finish its walls and
 lighting. Two things have done this already, both from the winit port: querying the window
 size per call, and pumping the event loop at the top of the frame instead of at the end of
-`update_window`. Measure `frame_timer.elapsed()` at `walls.render` if chunk loading ever
+`update_window`. Measure `frame_budget.elapsed()` at `walls.render` if chunk loading ever
 looks slow — healthy is under 0.1 ms.
 
 Client-side prediction: the client simulates its own player and periodically sends
@@ -750,7 +801,7 @@ knowing that a dry world pays it too.
 **The header versions the container, not the contents.** Any change to the shape of
 `BlocksData`, `SavedPlayerData` or the wall and liquid equivalents still breaks existing
 worlds silently unless you bump `WORLD_SAVE_VERSION` by hand — that is what it is for.
-Adding the liquid grid is what took it to 4.
+Adding the liquid grid took it to 4; `Grid` carrying its own size took it to 5.
 
 ### Build pipeline
 
@@ -827,15 +878,19 @@ Things worth knowing before adding one:
   `settings_menu` used to place each row at `id * row height` and the lights toggle drifted a
   row further down the screen each time; it lays out by position in the sorted list instead.
 - **`build_main.rs` declares its own narrow module tree.** It names individual leaf files
-  (`libraries/graphics/{color,position,surface}.rs`, `shared/mod_data.rs`) rather than
-  `pub mod graphics;` / `pub mod shared;`, so the build script does not compile the game's
-  dependency tree. Module *paths* must still match `main.rs`, because those files refer to
-  themselves as `crate::libraries::graphics` and `crate::shared`. If the build script ever
+  (`libraries/graphics/{color,position,surface}.rs`, `libraries/scripting/module_data.rs`)
+  rather than `pub mod graphics;` / `pub mod scripting;`, so the build script does not compile
+  the game's dependency tree — naming `scripting` would pull in rlua. Module *paths* must
+  still match `main.rs`, because those files refer to themselves as
+  `crate::libraries::graphics` and `crate::libraries::scripting`. If the build script ever
   needs another type, prefer moving that type to a dependency-free leaf module over
   widening the declaration.
-- `shared/world_map/world_map.rs` has two coordinate schemes that disagree:
-  `translate_coords` is `x * height + y` (column-major), `translate_chunk_coords` is
-  `x + y * width` (row-major). Both are internally consistent; don't "fix" one in isolation.
+- **`libraries/grid` has two coordinate schemes that disagree, on purpose.** `Grid` indexes
+  cells column-major (`x * height + y`); `Chunks` indexes chunks row-major (`x + y * width`).
+  Both are internally consistent, and swapping either to match the other silently
+  reinterprets every index computed with the old one. Don't "fix" one in isolation — there is
+  a test pinning the disagreement. `CHUNK_SIZE` stays in `shared/mod.rs`, because the
+  partition size is the game's tuning choice and `Chunks` takes it as an argument.
 - `server/server_core/core_server.rs` keeps the tick counters as `Server` fields, so two
   servers in one process no longer share them — the integration tests rely on that. The
   channel back to the ui is still process-global (`UI_EVENT_SENDER`), because
@@ -871,13 +926,15 @@ Things worth knowing before adding one:
   not implement `Hash`.** Quantising them to hash would break the hash/eq contract: two
   values that compare equal land in different buckets. Don't add it to make one a map key —
   round to integers first.
-- **`AnimationTimer` counts absolute milliseconds since construction**, and every widget
-  that animates owns one. Two things follow. It is 64-bit because as `i32`/`u32` it
-  overflowed after 24.8 days of uptime and every animation in the game stopped for good. And
-  the frames it owes are owed for *elapsed* time, not for time anyone was looking, so it
-  gives up after `MAX_CATCHUP_FRAMES` — the pause menu's buttons are built when the world
-  loads and first drawn when the player opens it, which after an hour of play was 3.6 million
-  animation steps on one frame.
+- **A registry id is a handle, not a position.** `libraries/registry` hands them out in
+  registration order and never reuses one, and `RegistryId::index` is an implementation
+  detail of the lookup. Don't lay anything out by it — that is exactly the bug that made the
+  lights toggle drift down the settings menu. `index` returns `Option` so the "undefined"
+  value every one of these newtypes has resolves to nothing rather than to whatever entry a
+  negative index casts to.
+- **`timing::FixedStep` counts absolute milliseconds since construction**, and is 64-bit
+  because as `i32`/`u32` it overflowed after 24.8 days of uptime and every animation in the
+  game stopped for good. See *Timing* for the catch-up policies.
 - **A click is a press and a release on the same widget** — `gfx::ClickTracker`, which
   `Button` and `Toggle` both hold. Half a click does nothing in either direction. The
   remembered press is deliberately *not* cleared by the release that consumes it, because
@@ -903,10 +960,11 @@ Things worth knowing before adding one:
 - Server `Liquids` is created empty and sized in `Server::start`, *after* the world is
   loaded or generated, because the grid has to be exactly as big as the block grid. A save
   whose liquid grid disagrees is discarded rather than read.
-- Two `create` methods differ: `Blocks::create` fills the map with air, `Walls::create`
+- Two `create` methods differ: `Blocks::create` fills the grid with air, `Walls::create`
   fills it with `WallId::undefined()`, so reading a wall before setting one errors. Only
   `create_from_wall_ids` calls it, and that overwrites everything, so the game never hits
-  it — but calling `Walls::create` directly is a trap.
+  it — but calling `Walls::create` directly is a trap. The fill is now an argument to
+  `Grid::filled` at both call sites, so it is at least visible rather than implied.
 - Serialization saves the block, wall and liquid **grids**, not the type registries. On load
   the server registers types from mods first, then deserializes, so ids line up. Tests have
   to do the same.

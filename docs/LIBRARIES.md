@@ -1,6 +1,21 @@
 # Extracting libraries
 
-A proposal, not a record of work done. Written from a full read of the tree at `1d3004c7`.
+Written from a full read of the tree at `1d3004c7`. **Tiers 1 and 2's `timing` are now done** —
+`grid`, `registry`, `timing`, `net` and `scripting` are extracted, one commit each. What
+follows is the original survey; the sections for the five that landed describe what was built,
+and the rest are still proposals.
+
+## Done
+
+| Library | Lines | What it replaced |
+|---|---|---|
+| `grid` | 589 | Four hand-rolled grids over one `WorldMap`, in four different styles |
+| `registry` | 342 | Twenty near-identical register/get/by-name functions across six registries |
+| `timing` | 723 | Five hand-rolled clocks, no two alike, plus a bare `Instant` used as a budget |
+| `net` | 1149 | Two networking halves duplicating the thread, the timer, the retry loop |
+| `scripting` | 471 | `shared/mod_manager.rs` + `shared/mod_data.rs`, verbatim but for the prefix |
+
+Game code (`shared` + `server` + `client`) went from 16,271 lines to 15,388.
 
 ## Why
 
