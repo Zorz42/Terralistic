@@ -1503,6 +1503,48 @@ mod tests {
         assert_eq!(font.get_text_size("ab", Some(1)).1, 33, "one wrap between the two, not one before each");
     }
 
+    /// Whether line `line` of `surface` is exactly `expected` drawn against its left edge,
+    /// with nothing else anywhere on it. A line is a glyph cell plus one pixel of spacing.
+    fn line_is(surface: &Surface, line: i32, expected: &Surface) -> bool {
+        let transparent = Color::new(0, 0, 0, 0);
+        (0..surface.get_size().0 as i32).all(|x| {
+            (0..16).all(|y| {
+                let drawn = surface.get_pixel(IntPos(x, line * 17 + y)).copied().unwrap_or(transparent);
+                let wanted = expected.get_pixel(IntPos(x, y)).copied().unwrap_or(transparent);
+                drawn == wanted
+            })
+        })
+    }
+
+    /// A width limit breaks between words, not inside them. Testing the limit one character at
+    /// a time put the front of a word on one line and its tail on the next, which is how the
+    /// error menus - the only text in the game that wraps - used to read.
+    #[test]
+    fn test_a_width_limit_wraps_whole_words() {
+        let font = font();
+        let width = |text| font.get_text_size(text, None).0 as i32;
+        // Room for "aaa" and the space after it, but one pixel short of "bbb" as well.
+        let limit = width("aaa ") + width("bbb") - 1;
+        let wrapped = font.create_text_surface("aaa bbb", Some(limit));
+
+        assert_eq!(wrapped.get_size().1, 33, "the two words belong on two lines");
+        assert!(line_is(&wrapped, 0, &font.create_text_surface("aaa", None)), "the first word should be whole on the first line");
+        assert!(line_is(&wrapped, 1, &font.create_text_surface("bbb", None)), "the second word should be whole, and flush left");
+    }
+
+    /// A word that cannot fit on a line of its own has to be broken somewhere, so it keeps the
+    /// character-by-character wrap - one line down, rather than looping on a line it will never
+    /// fit on either.
+    #[test]
+    fn test_a_word_wider_than_the_limit_still_breaks() {
+        let font = font();
+        let limit = font.get_text_size("aaa", None).0;
+        let wrapped = font.get_text_size("aa bbbbbbbb", Some(limit as i32));
+
+        assert!(wrapped.0 <= limit, "nothing should be drawn past the limit, got {}", wrapped.0);
+        assert!(wrapped.1 > 33, "the long word needs lines of its own, got {}", wrapped.1);
+    }
+
     #[test]
     fn test_created_surface_matches_the_measured_size() {
         let font = font();

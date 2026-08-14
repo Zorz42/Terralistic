@@ -617,6 +617,15 @@ drawn. `Font::advance` is the one rule for how far the pen moves, shared by `lay
 `render_text` so the two cannot drift; sampling the width before adding a space's extra gap
 put the cursor two pixels left of whatever followed a space.
 
+**A width limit breaks between words, not inside them.** `layout` measures the whole word at
+its first character and moves all of it down together; only a word too wide for a line of its
+own falls back to breaking at whichever character overruns, which is what keeps a narrow limit
+from wrapping forever. The space a wrap steps over is neither drawn nor counted — it would
+indent the line it lands on and push the block past the limit it just wrapped to — and both of
+those apply *only* when there is a limit, so measuring a prefix (which `TextInput` does, always
+without one) stays additive. The only text in the game that wraps is `ChoiceMenu`'s title, which
+is where an error message is shown.
+
 **The space is the only character whose advance is not its glyph's width**, and only in a
 proportional font: trimming leaves its glyph empty, so it gets `SPACE_WIDTH` of its own. A
 mono font's space was already padded out to the common width by `load_surfaces`, and adding
@@ -781,6 +790,11 @@ Things worth knowing before adding one:
 
 ## Gotchas
 
+- **A setting's id is a handle, not a row.** `Settings::register_setting` hands out numbers
+  from a counter that never reuses one, and the in-game lights toggle is registered when a
+  world loads and removed when it closes — so it is a higher id on every world opened.
+  `settings_menu` used to place each row at `id * row height` and the lights toggle drifted a
+  row further down the screen each time; it lays out by position in the sorted list instead.
 - **`build_main.rs` declares its own narrow module tree.** It names individual leaf files
   (`libraries/graphics/{color,position,surface}.rs`, `shared/mod_data.rs`) rather than
   `pub mod graphics;` / `pub mod shared;`, so the build script does not compile the game's

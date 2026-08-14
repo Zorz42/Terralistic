@@ -10,6 +10,10 @@ use std::rc::Rc;
 use crate::libraries::graphics::UiContext;
 const SETTINGS_WIDTH: f32 = 700.0;
 const SETTINGS_BOX_HEIGHT: f32 = 70.0;
+const SETTINGS_ROW_HEIGHT: f32 = gfx::SPACING + SETTINGS_BOX_HEIGHT;
+/// Where the first row starts: one row down, since the title is drawn at the top of the same
+/// container.
+const SETTINGS_TOP: f32 = gfx::SPACING + SETTINGS_ROW_HEIGHT;
 const TOGGLE_BUTTON_WIDTH: f32 = 35.0;
 const TOGGLE_BOX_WIDTH: f32 = 70.0;
 const TOGGLE_BOX_HEIGHT: f32 = 43.0;
@@ -20,17 +24,20 @@ const SLIDER_HEIGHT: f32 = 50.0;
 enum SettingUi {
     Toggle {
         setting_id: i32,
+        row: i32,
         text: gfx::Sprite,
         toggle: gfx::Toggle,
     },
     Choice {
         setting_id: i32,
+        row: i32,
         text: gfx::Sprite,
         buttons: Vec<gfx::Button>,
         choice_rect: gfx::RenderRect,
     },
     Slider {
         setting_id: i32,
+        row: i32,
         text: gfx::Sprite,
         buttons: Vec<gfx::Button>,
         choice_rect: gfx::RenderRect,
@@ -45,7 +52,11 @@ enum SettingUi {
 }
 
 impl SettingUi {
-    pub fn from_settings(graphics: &gfx::GraphicsContext, setting: &Setting, setting_id: i32) -> Self {
+    /// `row` is the setting's place in the menu, which is **not** its id: ids come from a
+    /// counter that never reuses a number, so the in-game lights setting - registered when a
+    /// world loads and removed when it closes - is a higher id every time a world is opened.
+    /// Laying out by id left it a row further down the screen on each one.
+    pub fn from_settings(graphics: &gfx::GraphicsContext, setting: &Setting, setting_id: i32, row: i32) -> Self {
         let text = match setting {
             Setting::Toggle { text, .. } | Setting::Choice { text, .. } | Setting::Slider { text, .. } => text,
         };
@@ -64,6 +75,7 @@ impl SettingUi {
                 temp_toggle.padding = (TOGGLE_BOX_HEIGHT - TOGGLE_BUTTON_WIDTH) / 2.0;
                 Self::Toggle {
                     setting_id,
+                    row,
                     text: text_sprite,
                     toggle: temp_toggle,
                 }
@@ -86,6 +98,7 @@ impl SettingUi {
 
                 Self::Choice {
                     setting_id,
+                    row,
                     text: text_sprite,
                     buttons,
                     choice_rect,
@@ -114,6 +127,7 @@ impl SettingUi {
 
                 Self::Slider {
                     setting_id,
+                    row,
                     text: text_sprite,
                     buttons,
                     choice_rect,
@@ -128,9 +142,9 @@ impl SettingUi {
             }
         }
     }
-    const fn get_id(&self) -> i32 {
+    const fn get_row(&self) -> i32 {
         match self {
-            Self::Toggle { setting_id, .. } | Self::Choice { setting_id, .. } | Self::Slider { setting_id, .. } => *setting_id,
+            Self::Toggle { row, .. } | Self::Choice { row, .. } | Self::Slider { row, .. } => *row,
         }
     }
 
@@ -348,7 +362,7 @@ impl UiElement for SettingUi {
     }
 
     fn get_container(&self, graphics: &dyn gfx::UiContext, parent_container: &gfx::Container) -> gfx::Container {
-        let y = gfx::SPACING + self.get_id() as f32 * (gfx::SPACING + SETTINGS_BOX_HEIGHT);
+        let y = SETTINGS_TOP + self.get_row() as f32 * SETTINGS_ROW_HEIGHT;
         gfx::Container::new(graphics, gfx::FloatPos(0.0, y), gfx::FloatSize(SETTINGS_WIDTH, SETTINGS_BOX_HEIGHT), gfx::TOP, Some(parent_container))
     }
 }
@@ -390,9 +404,9 @@ impl SettingsMenu {
         let binding = self.settings.borrow_mut();
         let mut keys: Vec<&i32> = binding.get_all_settings().keys().collect();
         keys.sort();
-        for id in keys {
+        for (row, id) in keys.into_iter().enumerate() {
             if let Ok(setting) = binding.get_setting(*id) {
-                self.settings_ui.push(SettingUi::from_settings(graphics, setting, *id));
+                self.settings_ui.push(SettingUi::from_settings(graphics, setting, *id, row as i32));
             }
         }
     }

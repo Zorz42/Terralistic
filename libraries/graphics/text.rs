@@ -113,11 +113,25 @@ impl Font {
         }
     }
 
+    /// How far the pen moves over the run of non-whitespace characters `text` starts with -
+    /// one word, as far as wrapping is concerned.
+    fn word_advance(&self, text: &str) -> i32 {
+        text.chars()
+            .take_while(|c| !c.is_whitespace())
+            .filter_map(|c| self.font_surfaces.get(c as usize).map(|glyph| self.advance(c, glyph)))
+            .sum()
+    }
+
     /// Walks `text`, handing each character's glyph and its position to `place`, and returns
     /// the size of the whole block.
     ///
     /// Measuring and rasterising are the same walk, so they share this one - having two copies
     /// of the wrapping rules is how they drift apart.
+    ///
+    /// **A width limit breaks between words, not inside them.** The limit used to be tested
+    /// against one character at a time, which put the front of a word on one line and its tail
+    /// on the next - and the only text in the game that wraps is an error message, which is
+    /// exactly where a reader needs the words whole.
     fn layout<F: FnMut(gfx::IntPos, &Surface)>(&self, text: &str, width_limit: Option<i32>, mut place: F) -> gfx::IntSize {
         // Every glyph is cut from the atlas at the full cell height, so a line is as tall as a
         // cell wherever the characters on it came from.
@@ -130,26 +144,52 @@ impl Font {
         // counted twice.
         let mut height = if text.ends_with('\n') { 0 } else { GLYPH_SIZE };
 
-        for c in text.chars() {
-            let Some(glyph) = self.font_surfaces.get(c as usize) else {
-                continue;
-            };
+        let mut rest = text;
+        let mut word_start = true;
+        while let Some(c) = rest.chars().next() {
+            let from_here = rest;
+            rest = rest.get(c.len_utf8()..).unwrap_or("");
 
             if c == '\n' {
                 x = 0;
                 y += LINE_HEIGHT;
                 height += LINE_HEIGHT;
+                word_start = true;
                 continue;
             }
-            // `x > 0` so a glyph too wide for the limit on its own goes on the line it is
-            // already on. Wrapping there instead leaves a blank line above it and counts its
-            // height, and then does the same for every character after it.
-            let advance = self.advance(c, glyph);
-            if x > 0 && width_limit.is_some_and(|limit| x + advance > limit) {
-                x = 0;
-                y += LINE_HEIGHT;
-                height += LINE_HEIGHT;
+
+            if c.is_whitespace() {
+                word_start = true;
+                // A space that a wrap has already stepped over is not drawn: it would indent
+                // the line it lands on by the width of a gap that is no longer between
+                // anything. Only when wrapping, so that measuring a prefix - which is how
+                // `TextInput` places its cursor, and never has a limit - stays additive.
+                if width_limit.is_some() && x == 0 {
+                    continue;
+                }
             }
+
+            let Some(glyph) = self.font_surfaces.get(c as usize) else {
+                continue;
+            };
+
+            let advance = self.advance(c, glyph);
+            if let Some(limit) = width_limit {
+                // At the first character of a word the whole word is what has to fit, so the
+                // whole word moves down together. A word wider than a line of its own can
+                // never fit, and `min` is what stops it wrapping forever: it falls back to
+                // breaking at whichever character overruns, one line down.
+                let needed = if word_start { self.word_advance(from_here).min(limit) } else { advance };
+                // `x > 0` so a glyph too wide for the limit on its own goes on the line it is
+                // already on. Wrapping there instead leaves a blank line above it and counts
+                // its height, and then does the same for every character after it.
+                if x > 0 && x + needed > limit {
+                    x = 0;
+                    y += LINE_HEIGHT;
+                    height += LINE_HEIGHT;
+                }
+            }
+            word_start = c.is_whitespace();
 
             place(gfx::IntPos(x, y), glyph);
             // The advance is part of the width, not something that only the *next* character
@@ -157,7 +197,12 @@ impl Font {
             // sampling the width before adding a space's extra gap left the cursor two pixels
             // short of the glyph that `create_text_surface` then drew.
             x += advance;
-            max_width = max_width.max(x);
+            // A space is only part of the width if something follows it on its line: left
+            // hanging by a wrap it fills a gap between words that is no longer there, and
+            // counting it is what would push a wrapped block past the limit it wrapped to.
+            if !(c.is_whitespace() && width_limit.is_some()) {
+                max_width = max_width.max(x);
+            }
         }
 
         gfx::IntSize(max_width as u32, height as u32)
