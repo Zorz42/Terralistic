@@ -1,8 +1,10 @@
+use crate::libraries::ui;
 use std::sync::{Arc, Mutex, PoisonError};
 
-use crate::libraries::graphics::{self as gfx, BaseUiElement, UiElement};
+use crate::libraries::graphics as gfx;
+use crate::libraries::ui::{BaseUiElement, UiElement};
 
-use super::Menu;
+use crate::libraries::ui::Menu;
 
 const PROGRESS_BAR_WIDTH: i32 = 400;
 const PROGRESS_BAR_HEIGHT: i32 = 50;
@@ -10,37 +12,37 @@ const PROGRESS_BAR_Y_OFFSET: i32 = 100;
 const PERCENTAGE_TEXT_Y_OFFSET: i32 = 50;
 
 pub struct LoadingScreen {
-    loading_text_sprite: gfx::Sprite,
-    progress_bar_percentage: gfx::Sprite,
+    loading_text_sprite: ui::Sprite,
+    progress_bar_percentage: ui::Sprite,
     loading_text: Arc<Mutex<String>>,
     curr_text: String,
-    loading_back_bar: gfx::RenderRect,
-    loading_bar: gfx::RenderRect,
+    loading_back_bar: ui::RenderRect,
+    loading_bar: ui::RenderRect,
 }
 
 impl LoadingScreen {
     pub fn new(loading_text: Arc<Mutex<String>>) -> Self {
-        let mut loading_text_sprite = gfx::Sprite::new();
-        loading_text_sprite.orientation = gfx::CENTER;
+        let mut loading_text_sprite = ui::Sprite::new();
+        loading_text_sprite.orientation = ui::CENTER;
         loading_text_sprite.scale = 3.0;
 
-        let mut progress_bar_percentage = gfx::Sprite::new();
-        progress_bar_percentage.orientation = gfx::CENTER;
+        let mut progress_bar_percentage = ui::Sprite::new();
+        progress_bar_percentage.orientation = ui::CENTER;
         progress_bar_percentage.scale = 2.0;
         progress_bar_percentage.pos.1 = PERCENTAGE_TEXT_Y_OFFSET as f32;
-        progress_bar_percentage.color = gfx::GREY;
+        progress_bar_percentage.color = ui::GREY;
 
         let curr_text = String::new();
 
-        let mut loading_back_bar = gfx::RenderRect::new(gfx::FloatPos(0.0, PROGRESS_BAR_Y_OFFSET as f32), gfx::FloatSize(0.0, 0.0));
-        loading_back_bar.orientation = gfx::CENTER;
-        loading_back_bar.fill_color = gfx::BLACK;
-        loading_back_bar.fill_color.a = gfx::TRANSPARENCY;
+        let mut loading_back_bar = ui::RenderRect::new(gfx::FloatPos(0.0, PROGRESS_BAR_Y_OFFSET as f32), gfx::FloatSize(0.0, 0.0));
+        loading_back_bar.orientation = ui::CENTER;
+        loading_back_bar.fill_color = ui::BLACK;
+        loading_back_bar.fill_color.a = ui::TRANSPARENCY;
         loading_back_bar.smooth_factor = 60.0;
 
-        let mut loading_bar = gfx::RenderRect::new(gfx::FloatPos(0.0, PROGRESS_BAR_Y_OFFSET as f32), gfx::FloatSize(0.0, 0.0));
-        loading_bar.orientation = gfx::CENTER;
-        loading_bar.fill_color = gfx::LIGHT_GREY;
+        let mut loading_bar = ui::RenderRect::new(gfx::FloatPos(0.0, PROGRESS_BAR_Y_OFFSET as f32), gfx::FloatSize(0.0, 0.0));
+        loading_bar.orientation = ui::CENTER;
+        loading_bar.fill_color = ui::LIGHT_GREY;
         loading_bar.smooth_factor = 60.0;
 
         Self {
@@ -62,7 +64,7 @@ impl UiElement for LoadingScreen {
         vec![&self.loading_text_sprite, &self.loading_back_bar, &self.loading_bar, &self.progress_bar_percentage]
     }
 
-    fn update_inner(&mut self, graphics: &mut gfx::GraphicsContext, _: &gfx::Container) {
+    fn update_inner(&mut self, graphics: &mut gfx::GraphicsContext, _: &ui::Container) {
         if self.curr_text != *self.loading_text.lock().unwrap_or_else(PoisonError::into_inner) {
             self.curr_text.clone_from(&self.loading_text.lock().unwrap_or_else(PoisonError::into_inner));
             if !self.curr_text.is_empty() {
@@ -111,8 +113,8 @@ impl UiElement for LoadingScreen {
         }
     }
 
-    fn get_container(&self, graphics: &dyn gfx::UiContext, parent_container: &gfx::Container) -> gfx::Container {
-        gfx::Container::new(graphics, gfx::FloatPos(0.0, 0.0), parent_container.rect.size, parent_container.orientation, Some(parent_container))
+    fn get_container(&self, graphics: &dyn ui::UiContext, parent_container: &ui::Container) -> ui::Container {
+        ui::Container::new(graphics, gfx::FloatPos(0.0, 0.0), parent_container.rect.size, parent_container.orientation, Some(parent_container))
     }
 }
 

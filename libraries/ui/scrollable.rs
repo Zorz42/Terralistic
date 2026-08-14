@@ -1,12 +1,12 @@
+use super::UiElement;
 use crate::libraries::graphics as gfx;
 use crate::libraries::timing;
-use gfx::UiElement;
 
 /// A scroll position with momentum, which the world and server lists offset their rows by.
 /// It draws nothing itself.
 pub struct Scrollable {
     pub rect: gfx::Rect,
-    pub orientation: gfx::Orientation,
+    pub orientation: super::Orientation,
     scroll_velocity: f32,
     scroll_pos: f32,
     pub scroll_size: f32,
@@ -20,7 +20,7 @@ impl Scrollable {
     pub fn new() -> Self {
         Self {
             rect: gfx::Rect::new(gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, 0.0)),
-            orientation: gfx::TOP_LEFT,
+            orientation: super::TOP_LEFT,
             scroll_velocity: 0.0,
             scroll_pos: 0.0,
             scroll_size: 0.0,
@@ -51,7 +51,7 @@ impl Scrollable {
     /// One frame of scrolling: the velocity moves the position, the position is pulled back
     /// inside its bounds, and the velocity decays.
     ///
-    /// Both pulls are `gfx::approach`, like every other animation in the toolkit, which is
+    /// Both pulls are `super::approach`, like every other animation in the toolkit, which is
     /// what makes them *land* rather than close in on the target forever. Subtracting a
     /// fraction of the remaining distance - which is all this used to do - leaves a list
     /// flicked past its end a fraction of a pixel past it for as long as the menu is open.
@@ -63,12 +63,12 @@ impl Scrollable {
 
         let upper_bound = f32::max(self.scroll_size - self.rect.size.1, 0.0);
         if self.scroll_pos < 0.0 {
-            self.scroll_pos = gfx::approach(self.scroll_pos, 0.0, self.boundary_smooth_factor, 0.01);
+            self.scroll_pos = super::approach(self.scroll_pos, 0.0, self.boundary_smooth_factor, 0.01);
         } else if self.scroll_pos > upper_bound {
-            self.scroll_pos = gfx::approach(self.scroll_pos, upper_bound, self.boundary_smooth_factor, 0.01);
+            self.scroll_pos = super::approach(self.scroll_pos, upper_bound, self.boundary_smooth_factor, 0.01);
         }
 
-        self.scroll_velocity = gfx::approach(self.scroll_velocity, 0.0, self.scroll_smooth_factor, 0.01);
+        self.scroll_velocity = super::approach(self.scroll_velocity, 0.0, self.scroll_smooth_factor, 0.01);
     }
 }
 
@@ -80,13 +80,13 @@ impl UiElement for Scrollable {
     /// menu sliding offscreen for instance. The parent reads `get_scroll_y` from its own
     /// `update_inner`, which the recursion in `BaseUiElement::update` runs first, so it sees
     /// the previous frame's position.
-    fn update_inner(&mut self, _: &mut gfx::GraphicsContext, _: &gfx::Container) {
+    fn update_inner(&mut self, _: &mut gfx::GraphicsContext, _: &super::Container) {
         while self.animation_timer.step() {
             self.advance_frame();
         }
     }
 
-    fn on_event_inner(&mut self, _: &mut dyn gfx::UiContext, event: &gfx::Event, _: &gfx::Container) -> bool {
+    fn on_event_inner(&mut self, _: &mut dyn super::UiContext, event: &gfx::Event, _: &super::Container) -> bool {
         if let gfx::Event::MouseScroll(delta) = event {
             let delta = -*delta * 0.8;
             if delta > 0.0 {
@@ -98,7 +98,7 @@ impl UiElement for Scrollable {
         false
     }
 
-    fn get_container(&self, graphics: &dyn gfx::UiContext, parent_container: &gfx::Container) -> gfx::Container {
-        gfx::Container::new(graphics, self.rect.pos, self.rect.size, self.orientation, Some(parent_container))
+    fn get_container(&self, graphics: &dyn super::UiContext, parent_container: &super::Container) -> super::Container {
+        super::Container::new(graphics, self.rect.pos, self.rect.size, self.orientation, Some(parent_container))
     }
 }

@@ -1,6 +1,6 @@
 use anyhow::Result;
 
-use super::Menu;
+use crate::libraries::ui::Menu;
 use directories::BaseDirs;
 use std::cell::RefCell;
 use std::rc::Rc;
@@ -10,7 +10,8 @@ use crate::client::global_settings::GlobalSettings;
 use crate::client::menus::BackgroundRect;
 use crate::libraries::config::Settings;
 use crate::libraries::graphics as gfx;
-use gfx::{BaseUiElement, UiElement};
+use crate::libraries::ui;
+use crate::libraries::ui::{BaseUiElement, UiElement};
 
 use super::MENU_WIDTH;
 
@@ -24,11 +25,11 @@ fn world_name_exists(worlds_list: &Vec<String>, name: &str) -> bool {
 }
 
 pub struct WorldCreationMenu {
-    title: gfx::Sprite,
-    back_button: gfx::Button,
-    create_button: gfx::Button,
-    world_name_input: gfx::TextInput,
-    world_seed_input: gfx::TextInput,
+    title: ui::Sprite,
+    back_button: ui::Button,
+    create_button: ui::Button,
+    world_name_input: ui::TextInput,
+    world_seed_input: ui::TextInput,
     base_dirs: BaseDirs,
     worlds_list: Vec<String>,
     settings: Rc<RefCell<Settings>>,
@@ -42,39 +43,39 @@ impl WorldCreationMenu {
     pub fn new(graphics: &gfx::GraphicsContext, worlds_list: Vec<String>, settings: Rc<RefCell<Settings>>, global_settings: Rc<RefCell<GlobalSettings>>) -> Result<Self> {
         let base_dirs = BaseDirs::new().ok_or_else(|| anyhow::anyhow!("Failed to get base directories"))?;
         let world_path = base_dirs.data_dir().to_path_buf();
-        let mut title = gfx::Sprite::new();
+        let mut title = ui::Sprite::new();
         title.scale = 3.0;
         title.set_texture(gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Create a new world:", None)));
-        title.pos.1 = gfx::SPACING;
-        title.orientation = gfx::TOP;
+        title.pos.1 = ui::SPACING;
+        title.orientation = ui::TOP;
 
-        let mut back_button = gfx::Button::new(|| {});
+        let mut back_button = ui::Button::new(|| {});
         back_button.scale = 3.0;
         back_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Back", None));
-        back_button.orientation = gfx::BOTTOM;
+        back_button.orientation = ui::BOTTOM;
 
-        let mut create_button = gfx::Button::new(|| {});
+        let mut create_button = ui::Button::new(|| {});
         create_button.scale = 3.0;
         create_button.darken_on_disabled = true;
         create_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Create world", None));
-        create_button.pos.0 = back_button.get_size().0 + gfx::SPACING;
-        create_button.orientation = gfx::BOTTOM;
+        create_button.pos.0 = back_button.get_size().0 + ui::SPACING;
+        create_button.orientation = ui::BOTTOM;
 
-        back_button.pos = gfx::FloatPos(-create_button.get_size().0 / 2.0 - gfx::SPACING, -gfx::SPACING);
-        create_button.pos = gfx::FloatPos(back_button.get_size().0 / 2.0 + gfx::SPACING, -gfx::SPACING);
+        back_button.pos = gfx::FloatPos(-create_button.get_size().0 / 2.0 - ui::SPACING, -ui::SPACING);
+        create_button.pos = gfx::FloatPos(back_button.get_size().0 / 2.0 + ui::SPACING, -ui::SPACING);
 
-        let mut world_name_input = gfx::TextInput::new(graphics);
+        let mut world_name_input = ui::TextInput::new(graphics);
         world_name_input.scale = 3.0;
         world_name_input.set_hint(graphics, "World name");
-        world_name_input.orientation = gfx::CENTER;
+        world_name_input.orientation = ui::CENTER;
         world_name_input.selected = true;
-        world_name_input.pos.1 = -(world_name_input.get_size().1 + gfx::SPACING) / 2.0;
+        world_name_input.pos.1 = -(world_name_input.get_size().1 + ui::SPACING) / 2.0;
 
-        let mut world_seed_input = gfx::TextInput::new(graphics);
+        let mut world_seed_input = ui::TextInput::new(graphics);
         world_seed_input.scale = 3.0;
         world_seed_input.set_hint(graphics, "World seed");
-        world_seed_input.orientation = gfx::CENTER;
-        world_seed_input.pos.1 = f32::midpoint(world_seed_input.get_size().1, gfx::SPACING);
+        world_seed_input.orientation = ui::CENTER;
+        world_seed_input.pos.1 = f32::midpoint(world_seed_input.get_size().1, ui::SPACING);
 
         world_name_input.text_processing = Some(Box::new(|text: char| {
             // this closure only accepts letters, numbers and _ symbol
@@ -111,7 +112,7 @@ impl WorldCreationMenu {
     fn create_world(&mut self, graphics: &mut gfx::GraphicsContext) {
         let mut menu_back = crate::MenuBack::new(graphics);
         menu_back.set_back_rect_width(MENU_WIDTH, true);
-        menu_back.update(graphics, &gfx::Container::default(graphics));
+        menu_back.update(graphics, &ui::Container::default(graphics));
 
         if let Ok(menu) = PrivateWorld::new(&self.world_path.clone(), self.settings.clone(), self.global_settings.clone()) {
             self.open_menu = Some((Box::new(menu), "f LoadingScreen".to_owned()));
@@ -130,13 +131,13 @@ impl UiElement for WorldCreationMenu {
         vec![&self.title, &self.back_button, &self.create_button, &self.world_name_input, &self.world_seed_input]
     }
 
-    fn update_inner(&mut self, _graphics: &mut gfx::GraphicsContext, _parent_container: &gfx::Container) {
+    fn update_inner(&mut self, _graphics: &mut gfx::GraphicsContext, _parent_container: &ui::Container) {
         self.world_path = self.base_dirs.data_dir().join("Terralistic").join("Worlds").join(self.world_name_input.get_text().clone() + ".world");
 
         self.create_button.disabled = world_name_exists(&self.worlds_list, self.world_name_input.get_text()) || self.world_name_input.get_text().is_empty();
     }
 
-    fn on_event_inner(&mut self, graphics: &mut dyn gfx::UiContext, event: &gfx::Event, parent_container: &gfx::Container) -> bool {
+    fn on_event_inner(&mut self, graphics: &mut dyn ui::UiContext, event: &gfx::Event, parent_container: &ui::Container) -> bool {
         let container = self.get_container(graphics, parent_container);
         if self.create_button.on_event(graphics, event, &container) {
             if let Some(graphics) = graphics.as_graphics_context() {
@@ -172,8 +173,8 @@ impl UiElement for WorldCreationMenu {
         false
     }
 
-    fn get_container(&self, graphics: &dyn gfx::UiContext, parent_container: &gfx::Container) -> gfx::Container {
-        gfx::Container::new(graphics, parent_container.rect.pos, parent_container.rect.size, parent_container.orientation, None)
+    fn get_container(&self, graphics: &dyn ui::UiContext, parent_container: &ui::Container) -> ui::Container {
+        ui::Container::new(graphics, parent_container.rect.pos, parent_container.rect.size, parent_container.orientation, None)
     }
 }
 

@@ -3,18 +3,20 @@ use crate::libraries::config::SliderSelection;
 use crate::libraries::config::{Setting, Settings};
 use crate::libraries::graphics as gfx;
 use crate::libraries::timing;
-use gfx::{BaseUiElement, UiElement};
+use crate::libraries::ui;
+use crate::libraries::ui::Menu;
+use crate::libraries::ui::{BaseUiElement, UiElement};
 use std::borrow::Borrow;
 use std::cell::RefCell;
 use std::rc::Rc;
 
-use crate::libraries::graphics::UiContext;
+use crate::libraries::ui::UiContext;
 const SETTINGS_WIDTH: f32 = 700.0;
 const SETTINGS_BOX_HEIGHT: f32 = 70.0;
-const SETTINGS_ROW_HEIGHT: f32 = gfx::SPACING + SETTINGS_BOX_HEIGHT;
+const SETTINGS_ROW_HEIGHT: f32 = ui::SPACING + SETTINGS_BOX_HEIGHT;
 /// Where the first row starts: one row down, since the title is drawn at the top of the same
 /// container.
-const SETTINGS_TOP: f32 = gfx::SPACING + SETTINGS_ROW_HEIGHT;
+const SETTINGS_TOP: f32 = ui::SPACING + SETTINGS_ROW_HEIGHT;
 const TOGGLE_BUTTON_WIDTH: f32 = 35.0;
 const TOGGLE_BOX_WIDTH: f32 = 70.0;
 const TOGGLE_BOX_HEIGHT: f32 = 43.0;
@@ -26,23 +28,23 @@ enum SettingUi {
     Toggle {
         setting_id: i32,
         row: i32,
-        text: gfx::Sprite,
-        toggle: gfx::Toggle,
+        text: ui::Sprite,
+        toggle: ui::Toggle,
     },
     Choice {
         setting_id: i32,
         row: i32,
-        text: gfx::Sprite,
-        buttons: Vec<gfx::Button>,
-        choice_rect: gfx::RenderRect,
+        text: ui::Sprite,
+        buttons: Vec<ui::Button>,
+        choice_rect: ui::RenderRect,
     },
     Slider {
         setting_id: i32,
         row: i32,
-        text: gfx::Sprite,
-        buttons: Vec<gfx::Button>,
-        choice_rect: gfx::RenderRect,
-        slider_text: gfx::Sprite,
+        text: ui::Sprite,
+        buttons: Vec<ui::Button>,
+        choice_rect: ui::RenderRect,
+        slider_text: ui::Sprite,
         slider_text_string: String,
         hovered: bool,
         selected: bool,
@@ -62,15 +64,15 @@ impl SettingUi {
             Setting::Toggle { text, .. } | Setting::Choice { text, .. } | Setting::Slider { text, .. } => text,
         };
 
-        let mut text_sprite = gfx::Sprite::new();
+        let mut text_sprite = ui::Sprite::new();
         text_sprite.scale = 2.0;
-        text_sprite.orientation = gfx::LEFT;
-        text_sprite.pos = gfx::FloatPos(gfx::SPACING, 0.0);
+        text_sprite.orientation = ui::LEFT;
+        text_sprite.pos = gfx::FloatPos(ui::SPACING, 0.0);
         text_sprite.set_texture(gfx::Texture::load_from_surface(&graphics.font.create_text_surface(text, None)));
 
         match setting {
             Setting::Toggle { toggled, .. } => {
-                let mut temp_toggle = gfx::Toggle::new();
+                let mut temp_toggle = ui::Toggle::new();
                 temp_toggle.toggled = *toggled;
                 temp_toggle.size = gfx::FloatSize(TOGGLE_BOX_WIDTH, TOGGLE_BOX_HEIGHT);
                 temp_toggle.padding = (TOGGLE_BOX_HEIGHT - TOGGLE_BUTTON_WIDTH) / 2.0;
@@ -85,17 +87,17 @@ impl SettingUi {
                 let mut buttons = Vec::new();
 
                 for choice in choices {
-                    let mut button = gfx::Button::new(|| {});
+                    let mut button = ui::Button::new(|| {});
                     button.scale = 2.0;
                     button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface(choice, None));
-                    button.orientation = gfx::RIGHT;
+                    button.orientation = ui::RIGHT;
                     buttons.push(button);
                 }
 
-                let mut choice_rect = gfx::RenderRect::new(gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, 0.0));
-                choice_rect.fill_color = gfx::GREY.set_a(gfx::TRANSPARENCY);
+                let mut choice_rect = ui::RenderRect::new(gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, 0.0));
+                choice_rect.fill_color = ui::GREY.set_a(ui::TRANSPARENCY);
                 choice_rect.smooth_factor = 30.0;
-                choice_rect.orientation = gfx::RIGHT;
+                choice_rect.orientation = ui::RIGHT;
 
                 Self::Choice {
                     setting_id,
@@ -109,22 +111,22 @@ impl SettingUi {
                 let mut buttons = Vec::new();
 
                 for choice in choices {
-                    let mut button = gfx::Button::new(|| {});
+                    let mut button = ui::Button::new(|| {});
                     button.scale = 2.0;
                     button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface(choice, None));
-                    button.orientation = gfx::RIGHT;
+                    button.orientation = ui::RIGHT;
                     buttons.push(button);
                 }
 
-                let mut choice_rect = gfx::RenderRect::new(gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, 0.0));
-                choice_rect.fill_color = gfx::GREY.set_a(gfx::TRANSPARENCY);
+                let mut choice_rect = ui::RenderRect::new(gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, 0.0));
+                choice_rect.fill_color = ui::GREY.set_a(ui::TRANSPARENCY);
                 choice_rect.smooth_factor = 30.0;
-                choice_rect.orientation = gfx::RIGHT;
+                choice_rect.orientation = ui::RIGHT;
 
-                let mut slider_text = gfx::Sprite::new();
+                let mut slider_text = ui::Sprite::new();
                 slider_text.scale = 2.0;
-                slider_text.orientation = gfx::RIGHT;
-                slider_text.pos = gfx::FloatPos(-gfx::SPACING - SLIDER_WIDTH / 2.0, 0.0); //TODO this is shit, make it centered on the slider
+                slider_text.orientation = ui::RIGHT;
+                slider_text.pos = gfx::FloatPos(-ui::SPACING - SLIDER_WIDTH / 2.0, 0.0); //TODO this is shit, make it centered on the slider
 
                 Self::Slider {
                     setting_id,
@@ -149,7 +151,7 @@ impl SettingUi {
         }
     }
 
-    fn update_with_setting(&mut self, graphics: &gfx::GraphicsContext, settings: &Rc<RefCell<Settings>>, parent_container: &gfx::Container) {
+    fn update_with_setting(&mut self, graphics: &gfx::GraphicsContext, settings: &Rc<RefCell<Settings>>, parent_container: &ui::Container) {
         let setting_container = self.get_container(graphics, parent_container);
         match self {
             Self::Toggle { setting_id, toggle, .. } => {
@@ -198,7 +200,7 @@ impl SettingUi {
                     SliderSelection::Slider(slider_choice) => {
                         choice_rect.size = gfx::FloatSize(SLIDER_BUTTON_WIDTH, SLIDER_HEIGHT);
                         let pos_x = (slider_choice - slider_val_low) as f32 * (SLIDER_WIDTH - SLIDER_BUTTON_WIDTH) / (slider_val_high - slider_val_low) as f32;
-                        choice_rect.pos = gfx::FloatPos(pos_x - gfx::SPACING - SLIDER_WIDTH + SLIDER_BUTTON_WIDTH, 0.0);
+                        choice_rect.pos = gfx::FloatPos(pos_x - ui::SPACING - SLIDER_WIDTH + SLIDER_BUTTON_WIDTH, 0.0);
                         *slider_chosen = true;
 
                         if slider_choice.to_string() != *slider_text_string {
@@ -214,11 +216,11 @@ impl SettingUi {
                     }
                 }
 
-                let slider_container = gfx::Container::new(
+                let slider_container = ui::Container::new(
                     graphics,
-                    gfx::FloatPos(-gfx::SPACING, 0.0),
+                    gfx::FloatPos(-ui::SPACING, 0.0),
                     gfx::FloatSize(SLIDER_WIDTH, SLIDER_HEIGHT),
-                    gfx::RIGHT,
+                    ui::RIGHT,
                     Some(&setting_container),
                 );
 
@@ -302,34 +304,34 @@ impl UiElement for SettingUi {
         }
     }
 
-    fn render_inner(&mut self, graphics: &mut gfx::GraphicsContext, parent_container: &gfx::Container) {
+    fn render_inner(&mut self, graphics: &mut gfx::GraphicsContext, parent_container: &ui::Container) {
         let setting_container = self.get_container(graphics, parent_container);
-        let mut back_rect = gfx::RenderRect::new(setting_container.rect.pos, setting_container.rect.size);
-        back_rect.fill_color = gfx::BLACK.set_a(gfx::TRANSPARENCY);
-        back_rect.orientation = gfx::TOP;
+        let mut back_rect = ui::RenderRect::new(setting_container.rect.pos, setting_container.rect.size);
+        back_rect.fill_color = ui::BLACK.set_a(ui::TRANSPARENCY);
+        back_rect.orientation = ui::TOP;
         back_rect.render(graphics, parent_container);
         if let Self::Slider { hovered_progress, .. } = self {
-            let mut slider_rect = gfx::RenderRect::new(gfx::FloatPos(-gfx::SPACING, 0.0), gfx::FloatSize(SLIDER_WIDTH, SLIDER_HEIGHT));
-            slider_rect.fill_color = gfx::interpolate_colors(gfx::Color::new(0, 0, 0, gfx::TRANSPARENCY), gfx::Color::new(30, 30, 30, gfx::TRANSPARENCY), *hovered_progress);
+            let mut slider_rect = ui::RenderRect::new(gfx::FloatPos(-ui::SPACING, 0.0), gfx::FloatSize(SLIDER_WIDTH, SLIDER_HEIGHT));
+            slider_rect.fill_color = gfx::interpolate_colors(gfx::Color::new(0, 0, 0, ui::TRANSPARENCY), gfx::Color::new(30, 30, 30, ui::TRANSPARENCY), *hovered_progress);
             slider_rect.border_color = gfx::interpolate_colors(gfx::Color::new(0, 0, 0, 0), gfx::Color::new(50, 50, 50, 255), *hovered_progress);
-            slider_rect.orientation = gfx::RIGHT;
+            slider_rect.orientation = ui::RIGHT;
             slider_rect.render(graphics, &self.get_container(graphics, parent_container));
         }
     }
 
-    fn update_inner(&mut self, graphics: &mut gfx::GraphicsContext, parent_container: &gfx::Container) {
+    fn update_inner(&mut self, graphics: &mut gfx::GraphicsContext, parent_container: &ui::Container) {
         let setting_container = self.get_container(graphics, parent_container);
         match self {
             Self::Toggle { toggle, .. } => {
-                toggle.pos = gfx::FloatPos(-gfx::SPACING, 0.0);
+                toggle.pos = gfx::FloatPos(-ui::SPACING, 0.0);
                 toggle.size = gfx::FloatSize(TOGGLE_BOX_WIDTH, TOGGLE_BOX_HEIGHT);
-                toggle.orientation = gfx::RIGHT;
+                toggle.orientation = ui::RIGHT;
             }
             Self::Choice { buttons, .. } => {
-                let mut curr_x = -gfx::SPACING;
+                let mut curr_x = -ui::SPACING;
                 for button in buttons {
                     button.pos = gfx::FloatPos(curr_x, 0.0);
-                    curr_x -= button.get_size().0 + gfx::SPACING;
+                    curr_x -= button.get_size().0 + ui::SPACING;
                 }
             }
             Self::Slider {
@@ -340,37 +342,37 @@ impl UiElement for SettingUi {
                 buttons,
                 ..
             } => {
-                let slider_container = gfx::Container::new(
+                let slider_container = ui::Container::new(
                     graphics,
-                    gfx::FloatPos(-gfx::SPACING, 0.0),
+                    gfx::FloatPos(-ui::SPACING, 0.0),
                     gfx::FloatSize(SLIDER_WIDTH, SLIDER_HEIGHT),
-                    gfx::RIGHT,
+                    ui::RIGHT,
                     Some(&setting_container),
                 );
                 let slider_absolute_rect = slider_container.get_absolute_rect();
                 *hovered = slider_absolute_rect.contains(graphics.get_mouse_pos());
                 while animation_timer.step() {
                     let hover_progress_target = if *hovered || *selected { 1.0 } else { 0.0 };
-                    *hovered_progress = gfx::approach(*hovered_progress, hover_progress_target, 10.0, 0.001);
+                    *hovered_progress = ui::approach(*hovered_progress, hover_progress_target, 10.0, 0.001);
                 }
-                let mut curr_x = -2.0 * gfx::SPACING - SLIDER_WIDTH;
+                let mut curr_x = -2.0 * ui::SPACING - SLIDER_WIDTH;
                 for button in buttons {
                     button.pos = gfx::FloatPos(curr_x, 0.0);
-                    curr_x -= button.get_size().0 + gfx::SPACING;
+                    curr_x -= button.get_size().0 + ui::SPACING;
                 }
             }
         }
     }
 
-    fn get_container(&self, graphics: &dyn gfx::UiContext, parent_container: &gfx::Container) -> gfx::Container {
+    fn get_container(&self, graphics: &dyn ui::UiContext, parent_container: &ui::Container) -> ui::Container {
         let y = SETTINGS_TOP + self.get_row() as f32 * SETTINGS_ROW_HEIGHT;
-        gfx::Container::new(graphics, gfx::FloatPos(0.0, y), gfx::FloatSize(SETTINGS_WIDTH, SETTINGS_BOX_HEIGHT), gfx::TOP, Some(parent_container))
+        ui::Container::new(graphics, gfx::FloatPos(0.0, y), gfx::FloatSize(SETTINGS_WIDTH, SETTINGS_BOX_HEIGHT), ui::TOP, Some(parent_container))
     }
 }
 
 pub struct SettingsMenu {
-    title: gfx::Sprite,
-    back_button: gfx::Button,
+    title: ui::Sprite,
+    back_button: ui::Button,
     settings_ui: Vec<SettingUi>,
     settings: Rc<RefCell<Settings>>,
     global_settings: Rc<RefCell<GlobalSettings>>,
@@ -380,15 +382,15 @@ pub struct SettingsMenu {
 impl SettingsMenu {
     #[must_use]
     pub fn new(graphics: &gfx::GraphicsContext, settings: Rc<RefCell<Settings>>, global_settings: Rc<RefCell<GlobalSettings>>) -> Self {
-        let mut title = gfx::Sprite::new();
+        let mut title = ui::Sprite::new();
         title.scale = 3.0;
         title.set_texture(gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Settings", None)));
-        title.pos.1 = gfx::SPACING;
-        title.orientation = gfx::TOP;
+        title.pos.1 = ui::SPACING;
+        title.orientation = ui::TOP;
 
         Self {
             title,
-            back_button: gfx::Button::new(|| {}),
+            back_button: ui::Button::new(|| {}),
             settings_ui: Vec::new(),
             settings,
             global_settings,
@@ -396,11 +398,11 @@ impl SettingsMenu {
         }
     }
 
-    pub fn init(&mut self, graphics: &gfx::GraphicsContext, _: &gfx::Container) {
+    pub fn init(&mut self, graphics: &gfx::GraphicsContext, _: &ui::Container) {
         self.back_button.scale = 3.0;
         self.back_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Back", None));
-        self.back_button.pos.1 = -gfx::SPACING;
-        self.back_button.orientation = gfx::BOTTOM;
+        self.back_button.pos.1 = -ui::SPACING;
+        self.back_button.orientation = ui::BOTTOM;
 
         let binding = self.settings.borrow_mut();
         let mut keys: Vec<&i32> = binding.get_all_settings().keys().collect();
@@ -430,14 +432,14 @@ impl UiElement for SettingsMenu {
         elements_vec
     }
 
-    fn update_inner(&mut self, graphics: &mut gfx::GraphicsContext, parent_container: &gfx::Container) {
+    fn update_inner(&mut self, graphics: &mut gfx::GraphicsContext, parent_container: &ui::Container) {
         for element in &mut self.settings_ui {
             element.update_with_setting(graphics, &self.settings, parent_container);
         }
     }
 
     /// returns true, if settings menu has been closed
-    fn on_event_inner(&mut self, graphics: &mut dyn gfx::UiContext, event: &gfx::Event, parent_container: &gfx::Container) -> bool {
+    fn on_event_inner(&mut self, graphics: &mut dyn ui::UiContext, event: &gfx::Event, parent_container: &ui::Container) -> bool {
         if let gfx::Event::KeyRelease(gfx::Key::MouseLeft, ..) = event {
             for setting in &mut self.settings_ui {
                 let setting_container = setting.get_container(graphics, parent_container);
@@ -497,19 +499,19 @@ impl UiElement for SettingsMenu {
         false
     }
 
-    fn get_container(&self, graphics: &dyn gfx::UiContext, parent_container: &gfx::Container) -> gfx::Container {
-        gfx::Container::new(graphics, parent_container.rect.pos, parent_container.rect.size, parent_container.orientation, None)
+    fn get_container(&self, graphics: &dyn ui::UiContext, parent_container: &ui::Container) -> ui::Container {
+        ui::Container::new(graphics, parent_container.rect.pos, parent_container.rect.size, parent_container.orientation, None)
     }
 }
 
-impl super::Menu for SettingsMenu {
+impl Menu for SettingsMenu {
     fn should_close(&mut self) -> bool {
         let ret_val = self.close_self;
         self.close_self = false;
         ret_val
     }
 
-    fn open_menu(&mut self, _: &mut gfx::GraphicsContext) -> Option<(Box<dyn super::Menu>, String)> {
+    fn open_menu(&mut self, _: &mut gfx::GraphicsContext) -> Option<(Box<dyn Menu>, String)> {
         None
     }
 }

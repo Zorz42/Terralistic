@@ -5,14 +5,15 @@ use anyhow::Result;
 use crate::client::game::networking::ClientNetworking;
 use crate::libraries::events::Event;
 use crate::libraries::graphics as gfx;
+use crate::libraries::ui;
+use crate::libraries::ui::{BaseUiElement, UiElement};
 use crate::shared::chat::ChatPacket;
 use crate::shared::packet::Packet;
-use gfx::{BaseUiElement, UiElement};
 
-use crate::libraries::graphics::UiContext;
+use crate::libraries::ui::UiContext;
 pub struct ChatLine {
     texture: gfx::Texture,
-    back_rect: gfx::RenderRect,
+    back_rect: ui::RenderRect,
     creation_time: std::time::Instant,
     transparency: i32,
 }
@@ -20,7 +21,7 @@ pub struct ChatLine {
 impl ChatLine {
     pub fn new(graphics: &gfx::GraphicsContext, text: &str, pos: gfx::FloatPos) -> Self {
         let texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface(text, None));
-        let mut back_rect = gfx::RenderRect::new(pos + gfx::FloatPos(-texture.get_texture_size().0 * 3.0, -texture.get_texture_size().1 * 3.0), gfx::FloatSize(0.0, 0.0));
+        let mut back_rect = ui::RenderRect::new(pos + gfx::FloatPos(-texture.get_texture_size().0 * 3.0, -texture.get_texture_size().1 * 3.0), gfx::FloatSize(0.0, 0.0));
         back_rect.smooth_factor = 60.0;
 
         Self {
@@ -46,7 +47,7 @@ impl ChatLine {
             return;
         }
 
-        let window_container = gfx::Container::default(graphics); //TODO this doesn't make sense
+        let window_container = ui::Container::default(graphics); //TODO this doesn't make sense
         self.back_rect.update(graphics, &window_container);
         self.back_rect.render(graphics, &window_container);
         let pos = self.back_rect.get_container(graphics, &window_container).rect.pos;
@@ -63,8 +64,8 @@ impl ChatLine {
 }
 
 pub struct ClientChat {
-    back_rect: gfx::RenderRect,
-    text_input: gfx::TextInput,
+    back_rect: ui::RenderRect,
+    text_input: ui::TextInput,
     chat_lines: Vec<ChatLine>,
     waiting_for_t: bool,
 }
@@ -73,34 +74,34 @@ pub struct ClientChat {
 impl ClientChat {
     pub fn new(graphics: &gfx::GraphicsContext) -> Self {
         Self {
-            text_input: gfx::TextInput::new(graphics),
-            back_rect: gfx::RenderRect::new(gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, 0.0)),
+            text_input: ui::TextInput::new(graphics),
+            back_rect: ui::RenderRect::new(gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, 0.0)),
             chat_lines: Vec::new(),
             waiting_for_t: false,
         }
     }
 
     pub fn init(&mut self) {
-        self.text_input.orientation = gfx::BOTTOM_LEFT;
-        self.text_input.pos = gfx::FloatPos(gfx::SPACING, -gfx::SPACING);
+        self.text_input.orientation = ui::BOTTOM_LEFT;
+        self.text_input.pos = gfx::FloatPos(ui::SPACING, -ui::SPACING);
         self.text_input.scale = 3.0;
-        self.text_input.border_color = gfx::BORDER_COLOR;
+        self.text_input.border_color = ui::BORDER_COLOR;
 
-        self.back_rect.fill_color = gfx::TRANSPARENT;
-        self.back_rect.orientation = gfx::BOTTOM_LEFT;
-        self.back_rect.pos = gfx::FloatPos(gfx::SPACING, -gfx::SPACING);
+        self.back_rect.fill_color = ui::TRANSPARENT;
+        self.back_rect.orientation = ui::BOTTOM_LEFT;
+        self.back_rect.pos = gfx::FloatPos(ui::SPACING, -ui::SPACING);
         self.back_rect.size.1 = self.text_input.get_size().1;
-        self.back_rect.blur_radius = gfx::BLUR;
+        self.back_rect.blur_radius = ui::BLUR;
         self.back_rect.smooth_factor = 60.0;
-        self.back_rect.shadow_intensity = gfx::SHADOW_INTENSITY;
+        self.back_rect.shadow_intensity = ui::SHADOW_INTENSITY;
     }
 
     pub fn render(&mut self, graphics: &mut gfx::GraphicsContext) {
-        let window_container = gfx::Container::default(graphics);
+        let window_container = ui::Container::default(graphics);
         if self.text_input.selected {
-            self.back_rect.size.0 = gfx::TEXT_INPUT_WIDTH * self.text_input.scale;
+            self.back_rect.size.0 = ui::TEXT_INPUT_WIDTH * self.text_input.scale;
         } else {
-            self.back_rect.size.0 = gfx::TEXT_INPUT_WIDTH * self.text_input.scale * 0.6;
+            self.back_rect.size.0 = ui::TEXT_INPUT_WIDTH * self.text_input.scale * 0.6;
         }
 
         self.back_rect.update(graphics, &window_container);
@@ -110,10 +111,10 @@ impl ClientChat {
         self.text_input.update(graphics, &window_container);
         self.text_input.render(graphics, &window_container);
 
-        let mut curr_y = graphics.get_window_size().1 - gfx::SPACING - self.text_input.get_size().1;
+        let mut curr_y = graphics.get_window_size().1 - ui::SPACING - self.text_input.get_size().1;
         for line in self.chat_lines.iter_mut().rev() {
             curr_y -= line.get_size().1;
-            line.set_pos(gfx::FloatPos(gfx::SPACING, curr_y));
+            line.set_pos(gfx::FloatPos(ui::SPACING, curr_y));
             line.render(graphics, self.text_input.selected);
         }
     }
@@ -127,7 +128,7 @@ impl ClientChat {
                 }
             }
 
-            let container = gfx::Container::default(graphics);
+            let container = ui::Container::default(graphics);
             self.text_input.on_event(graphics, event, &container);
 
             if let gfx::Event::KeyPress(gfx::Key::Enter, ..) = event {
@@ -154,7 +155,7 @@ impl ClientChat {
                 self.chat_lines.push(ChatLine::new(
                     graphics,
                     &packet.message,
-                    gfx::FloatPos(0.0, graphics.get_window_size().1 - gfx::SPACING - self.text_input.get_size().1),
+                    gfx::FloatPos(0.0, graphics.get_window_size().1 - ui::SPACING - self.text_input.get_size().1),
                 ));
             }
         }

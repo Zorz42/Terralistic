@@ -5,13 +5,14 @@ use crate::client::game::items::ClientItems;
 use crate::client::game::networking::ClientNetworking;
 use crate::libraries::events::{Event, EventManager};
 use crate::libraries::graphics as gfx;
+use crate::libraries::ui;
+use crate::libraries::ui::{BaseUiElement, UiElement};
 use crate::shared::blocks::Blocks;
 use crate::shared::inventory::{Inventory, InventoryCraftPacket, InventoryPacket, InventorySelectPacket, InventorySwapPacket, Slot};
 use crate::shared::items::{ItemStack, RecipeId};
 use crate::shared::packet::Packet;
-use gfx::{BaseUiElement, UiElement};
 
-use crate::libraries::graphics::UiContext;
+use crate::libraries::ui::UiContext;
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 enum OpenState {
     Closed,
@@ -30,15 +31,15 @@ enum HoveredSlot {
 #[derive(Debug)]
 pub struct ClientInventory {
     open_state: OpenState,
-    back_rect: gfx::RenderRect,
+    back_rect: ui::RenderRect,
     inventory: Inventory,
     open_progress: f32,
     hovered_slot: HoveredSlot,
-    hovered_slot_rect: gfx::RenderRect,
+    hovered_slot_rect: ui::RenderRect,
     lower_slots_pos: [f32; 10],
     craftable_recipes: Vec<RecipeId>,
-    crafting_back_rect: gfx::RenderRect,
-    hover_back_rect: gfx::RenderRect,
+    crafting_back_rect: ui::RenderRect,
+    hover_back_rect: ui::RenderRect,
 }
 
 const INVENTORY_SLOT_SIZE: f32 = 50.0;
@@ -72,7 +73,7 @@ fn render_item_stack(graphics: &gfx::GraphicsContext, items: &ClientItems, pos: 
 fn render_inventory_slot(graphics: &gfx::GraphicsContext, items: &ClientItems, pos: gfx::FloatPos, item: Option<&ItemStack>) -> bool {
     let rect = gfx::Rect::new(pos, gfx::FloatSize(INVENTORY_SLOT_SIZE, INVENTORY_SLOT_SIZE));
     let hovered = rect.contains(graphics.get_mouse_pos());
-    rect.render(graphics, if hovered { gfx::GREY } else { gfx::DARK_GREY });
+    rect.render(graphics, if hovered { ui::GREY } else { ui::DARK_GREY });
 
     render_item_stack(graphics, items, pos, item);
 
@@ -84,43 +85,43 @@ impl ClientInventory {
     pub fn new() -> Self {
         Self {
             open_state: OpenState::Closed,
-            back_rect: gfx::RenderRect::new(gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, 0.0)),
+            back_rect: ui::RenderRect::new(gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, 0.0)),
             inventory: Inventory::new(20),
             open_progress: 0.0,
             hovered_slot: HoveredSlot::None,
-            hovered_slot_rect: gfx::RenderRect::new(gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, 0.0)),
+            hovered_slot_rect: ui::RenderRect::new(gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, 0.0)),
             lower_slots_pos: [0.0; 10],
             craftable_recipes: Vec::new(),
-            crafting_back_rect: gfx::RenderRect::new(gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, 0.0)),
-            hover_back_rect: gfx::RenderRect::new(gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, INVENTORY_SLOT_SIZE + 2.0 * INVENTORY_SPACING)),
+            crafting_back_rect: ui::RenderRect::new(gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, 0.0)),
+            hover_back_rect: ui::RenderRect::new(gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, INVENTORY_SLOT_SIZE + 2.0 * INVENTORY_SPACING)),
         }
     }
 
     pub fn init(&mut self, graphics: &mut gfx::GraphicsContext) {
-        self.back_rect.orientation = gfx::TOP;
+        self.back_rect.orientation = ui::TOP;
         self.back_rect.pos = gfx::FloatPos(0.0, INVENTORY_SPACING);
         self.back_rect.size = gfx::FloatSize(10.0 * (INVENTORY_SLOT_SIZE + INVENTORY_SPACING) + INVENTORY_SPACING, 2.0 * INVENTORY_SPACING + INVENTORY_SLOT_SIZE);
-        self.back_rect.fill_color = gfx::BLACK;
-        self.back_rect.fill_color.a = gfx::TRANSPARENCY;
-        self.back_rect.blur_radius = gfx::BLUR / 2;
-        self.back_rect.shadow_intensity = gfx::SHADOW_INTENSITY / 2;
-        self.back_rect.update(graphics, &gfx::Container::default(graphics));
+        self.back_rect.fill_color = ui::BLACK;
+        self.back_rect.fill_color.a = ui::TRANSPARENCY;
+        self.back_rect.blur_radius = ui::BLUR / 2;
+        self.back_rect.shadow_intensity = ui::SHADOW_INTENSITY / 2;
+        self.back_rect.update(graphics, &ui::Container::default(graphics));
 
         self.hovered_slot_rect.size = gfx::FloatSize(INVENTORY_SLOT_SIZE + 2.0 * INVENTORY_SPACING, INVENTORY_SLOT_SIZE + 2.0 * INVENTORY_SPACING);
-        self.hovered_slot_rect.fill_color = gfx::BLACK.set_a(gfx::TRANSPARENCY);
+        self.hovered_slot_rect.fill_color = ui::BLACK.set_a(ui::TRANSPARENCY);
         self.hovered_slot_rect.smooth_factor = 40.0;
 
         self.crafting_back_rect.pos.1 = INVENTORY_SPACING;
         self.crafting_back_rect.size.0 = INVENTORY_SLOT_SIZE + 2.0 * INVENTORY_SPACING;
-        self.crafting_back_rect.fill_color = gfx::BLACK;
-        self.crafting_back_rect.fill_color.a = gfx::TRANSPARENCY;
-        self.crafting_back_rect.blur_radius = gfx::BLUR / 2;
-        self.crafting_back_rect.shadow_intensity = gfx::SHADOW_INTENSITY / 2;
+        self.crafting_back_rect.fill_color = ui::BLACK;
+        self.crafting_back_rect.fill_color.a = ui::TRANSPARENCY;
+        self.crafting_back_rect.blur_radius = ui::BLUR / 2;
+        self.crafting_back_rect.shadow_intensity = ui::SHADOW_INTENSITY / 2;
 
-        self.hover_back_rect.fill_color = gfx::BLACK;
-        self.hover_back_rect.fill_color.a = gfx::TRANSPARENCY;
-        self.hover_back_rect.blur_radius = gfx::BLUR / 2;
-        self.hover_back_rect.shadow_intensity = gfx::SHADOW_INTENSITY / 2;
+        self.hover_back_rect.fill_color = ui::BLACK;
+        self.hover_back_rect.fill_color.a = ui::TRANSPARENCY;
+        self.hover_back_rect.blur_radius = ui::BLUR / 2;
+        self.hover_back_rect.shadow_intensity = ui::SHADOW_INTENSITY / 2;
     }
 
     fn update_craftable_recipes(&mut self, items: &ClientItems) {
@@ -135,7 +136,7 @@ impl ClientInventory {
     }
 
     fn render_inventory(&mut self, graphics: &mut gfx::GraphicsContext, items: &ClientItems) -> Result<()> {
-        let window_container = gfx::Container::default(graphics);
+        let window_container = ui::Container::default(graphics);
         self.back_rect.size.1 = self.open_progress * (3.0 * INVENTORY_SPACING + 2.0 * INVENTORY_SLOT_SIZE) + (1.0 - self.open_progress) * (2.0 * INVENTORY_SPACING + INVENTORY_SLOT_SIZE);
         self.back_rect.update(graphics, &window_container);
         self.back_rect.render(graphics, &window_container);
@@ -184,7 +185,7 @@ impl ClientInventory {
                     0.0
                 };
 
-                *pos_y = gfx::approach(*pos_y, target_y, 5.0, 0.01);
+                *pos_y = ui::approach(*pos_y, target_y, 5.0, 0.01);
 
                 let item = if self.open_state != OpenState::Closed && self.inventory.selected_slot == Some(i) {
                     None
@@ -210,7 +211,7 @@ impl ClientInventory {
     }
 
     fn render_crafting(&mut self, graphics: &mut gfx::GraphicsContext, items: &ClientItems) -> Result<()> {
-        let window_container = gfx::Container::default(graphics);
+        let window_container = ui::Container::default(graphics);
         if self.open_progress > 0.0 {
             self.crafting_back_rect.pos.0 = INVENTORY_SPACING * self.open_progress + (-self.crafting_back_rect.size.0 - INVENTORY_SPACING) * (1.0 - self.open_progress);
 
@@ -295,7 +296,7 @@ impl ClientInventory {
     #[allow(clippy::too_many_lines)]
     pub fn render(&mut self, graphics: &mut gfx::GraphicsContext, items: &ClientItems, networking: &mut ClientNetworking, blocks: &Blocks) -> Result<()> {
         let open_target = if self.open_state == OpenState::Closed { 0.0 } else { 1.0 };
-        self.open_progress = gfx::approach(self.open_progress, open_target, 5.0, 0.001);
+        self.open_progress = ui::approach(self.open_progress, open_target, 5.0, 0.001);
 
         if self.open_state == OpenState::Closed {
             if self.inventory.selected_slot.is_none() {

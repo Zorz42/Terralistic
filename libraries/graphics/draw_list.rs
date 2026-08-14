@@ -159,7 +159,7 @@ pub trait DrawTarget {
 }
 
 /// A `DrawTarget` with no GPU behind it, for tests. The draw-list counterpart of
-/// `gfx::HeadlessContext`.
+/// `ui::HeadlessContext`.
 #[cfg(test)]
 pub struct DrawRecorder {
     commands: std::cell::RefCell<DrawList>,

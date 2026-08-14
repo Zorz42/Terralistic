@@ -2,25 +2,26 @@ use std::sync::mpsc::Sender;
 
 use crate::libraries::graphics as gfx;
 use crate::libraries::log::format_timestamp;
+use crate::libraries::ui;
 use crate::server::server_ui::{ConsoleMessageType, UiMessageType, EDGE_SPACING};
-use gfx::BaseUiElement;
+use ui::BaseUiElement;
 
 use super::ui_manager;
 
 pub struct ConsoleLine {
     //currently kinda useless but can be used for sprite loading/unloading to prevent gpu memory usage when not on screen. Will only be useful when a lot of messages get sent to the ui console
     _text: String,
-    sprite: gfx::Sprite,
+    sprite: ui::Sprite,
 }
 
 impl ConsoleLine {
     pub fn new(graphics_context: &gfx::GraphicsContext, text: String) -> Self {
-        let mut sprite = gfx::Sprite::new();
+        let mut sprite = ui::Sprite::new();
         let font = graphics_context.font_mono.as_ref().map_or(&graphics_context.font, |mono_font| mono_font);
         sprite.set_texture(gfx::Texture::load_from_surface(&font.create_text_surface(&text, None)));
-        sprite.orientation = gfx::BOTTOM_LEFT;
-        sprite.color = gfx::WHITE;
-        sprite.pos = gfx::FloatPos(gfx::SPACING / 3.0, 0.0);
+        sprite.orientation = ui::BOTTOM_LEFT;
+        sprite.color = ui::WHITE;
+        sprite.pos = gfx::FloatPos(ui::SPACING / 3.0, 0.0);
 
         Self { _text: text, sprite }
     }
@@ -29,7 +30,7 @@ impl ConsoleLine {
         //TODO fix rendering, multiline sprites have less spacing than normal lines
         &mut self,
         graphics_context: &mut gfx::GraphicsContext,
-        container: &mut gfx::Container,
+        container: &mut ui::Container,
         max_y: f32,
         min_y: f32,
     ) {
@@ -41,20 +42,20 @@ impl ConsoleLine {
                 gfx::FloatSize(self.sprite.get_texture().get_texture_size().0, self.sprite.get_texture().get_texture_size().1 - top_crop - bottom_crop),
             );
             container.rect.pos.1 -= bottom_crop;
-            container.update(graphics_context, &gfx::Container::default(graphics_context));
+            container.update(graphics_context, &ui::Container::default(graphics_context));
             self.sprite.src_rect = src_rect;
             self.sprite.render(graphics_context, container);
             container.rect.pos.1 += bottom_crop;
-            container.update(graphics_context, &gfx::Container::default(graphics_context));
+            container.update(graphics_context, &ui::Container::default(graphics_context));
         }
     }
 }
 
 pub struct Console {
     text_lines: Vec<ConsoleLine>,
-    container: gfx::Container,
+    container: ui::Container,
     sender: Option<Sender<UiMessageType>>,
-    input: gfx::TextInput,
+    input: ui::TextInput,
     scroll: f32,
     enabled: bool,
 }
@@ -63,9 +64,9 @@ impl Console {
     pub fn new(graphics_context: &gfx::GraphicsContext) -> Self {
         Self {
             text_lines: Vec::new(),
-            container: gfx::Container::new(graphics_context, gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, 0.0), gfx::TOP_LEFT, None),
+            container: ui::Container::new(graphics_context, gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, 0.0), ui::TOP_LEFT, None),
             sender: None,
-            input: gfx::TextInput::new(graphics_context),
+            input: ui::TextInput::new(graphics_context),
             scroll: 0.0,
             enabled: false,
         }
@@ -82,7 +83,7 @@ impl Console {
     //repositions the lines when new lines are added or the view is scrolled. TODO: Is inefficient. Fix
     fn position_lines(&mut self) {
         let mut offset;
-        let mut y = -self.input.pos.1 - self.input.get_size().1 - gfx::SPACING / 2.0;
+        let mut y = -self.input.pos.1 - self.input.get_size().1 - ui::SPACING / 2.0;
         for line in self.text_lines.iter_mut().rev() {
             offset = line.sprite.get_texture().get_texture_size().1 + EDGE_SPACING;
             line.sprite.pos.1 = y + self.scroll;
@@ -96,7 +97,7 @@ impl ui_manager::ModuleTrait for Console {
         //initializes the input box
         self.input.pos = gfx::FloatPos(EDGE_SPACING, -EDGE_SPACING);
         self.input.scale = 2.0;
-        self.input.orientation = gfx::BOTTOM_LEFT;
+        self.input.orientation = ui::BOTTOM_LEFT;
 
         self.input.text_processing = Some(Box::new(|text: char| text.is_ascii().then_some(text)));
 
@@ -108,7 +109,7 @@ impl ui_manager::ModuleTrait for Console {
     }
 
     fn render(&mut self, graphics_context: &mut gfx::GraphicsContext) {
-        let max_y = -self.input.pos.1 - self.input.get_size().1 - gfx::SPACING / 2.0 + 1.0;
+        let max_y = -self.input.pos.1 - self.input.get_size().1 - ui::SPACING / 2.0 + 1.0;
         let min_y = -self.container.rect.size.1 - max_y;
         for line in &mut self.text_lines {
             line.render(graphics_context, &mut self.container, max_y, min_y);
@@ -136,7 +137,7 @@ impl ui_manager::ModuleTrait for Console {
         }
     }
 
-    fn get_container_mut(&mut self) -> &mut gfx::Container {
+    fn get_container_mut(&mut self) -> &mut ui::Container {
         &mut self.container
     }
 

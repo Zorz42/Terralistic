@@ -51,7 +51,9 @@ use std::path::{Path, PathBuf};
 use anyhow::{bail, Context, Result};
 
 use crate::libraries::graphics as gfx;
-use crate::libraries::graphics::{BaseUiElement, DrawTarget, UiContext};
+use crate::libraries::graphics::DrawTarget;
+use crate::libraries::ui;
+use crate::libraries::ui::{BaseUiElement, UiContext};
 
 /// Small on purpose: the goldens are committed, and a diff a human has to look at is much
 /// easier to read at this size than at window size.
@@ -173,8 +175,8 @@ fn striped_background(graphics: &gfx::GraphicsContext) {
     }
 }
 
-fn parent_of(graphics: &gfx::GraphicsContext) -> gfx::Container {
-    gfx::Container::default(graphics)
+fn parent_of(graphics: &gfx::GraphicsContext) -> ui::Container {
+    ui::Container::default(graphics)
 }
 
 // --- cases: rect ----------------------------------------------------------------------
@@ -373,17 +375,17 @@ fn case_container_orientations(graphics: &mut gfx::GraphicsContext) {
     let parent = parent_of(graphics);
     let size = gfx::FloatSize(60.0, 40.0);
     for (orientation, color) in [
-        (gfx::TOP_LEFT, gfx::Color::new(255, 0, 0, 255)),
-        (gfx::TOP, gfx::Color::new(255, 128, 0, 255)),
-        (gfx::TOP_RIGHT, gfx::Color::new(255, 255, 0, 255)),
-        (gfx::LEFT, gfx::Color::new(0, 255, 0, 255)),
-        (gfx::CENTER, gfx::Color::new(255, 255, 255, 255)),
-        (gfx::RIGHT, gfx::Color::new(0, 255, 255, 255)),
-        (gfx::BOTTOM_LEFT, gfx::Color::new(0, 0, 255, 255)),
-        (gfx::BOTTOM, gfx::Color::new(128, 0, 255, 255)),
-        (gfx::BOTTOM_RIGHT, gfx::Color::new(255, 0, 255, 255)),
+        (ui::TOP_LEFT, gfx::Color::new(255, 0, 0, 255)),
+        (ui::TOP, gfx::Color::new(255, 128, 0, 255)),
+        (ui::TOP_RIGHT, gfx::Color::new(255, 255, 0, 255)),
+        (ui::LEFT, gfx::Color::new(0, 255, 0, 255)),
+        (ui::CENTER, gfx::Color::new(255, 255, 255, 255)),
+        (ui::RIGHT, gfx::Color::new(0, 255, 255, 255)),
+        (ui::BOTTOM_LEFT, gfx::Color::new(0, 0, 255, 255)),
+        (ui::BOTTOM, gfx::Color::new(128, 0, 255, 255)),
+        (ui::BOTTOM_RIGHT, gfx::Color::new(255, 0, 255, 255)),
     ] {
-        let container = gfx::Container::new(graphics, gfx::FloatPos(0.0, 0.0), size, orientation, Some(&parent));
+        let container = ui::Container::new(graphics, gfx::FloatPos(0.0, 0.0), size, orientation, Some(&parent));
         container.get_absolute_rect().render(graphics, color);
     }
 }
@@ -393,15 +395,15 @@ fn case_container_orientations(graphics: &mut gfx::GraphicsContext) {
 fn case_container_nested(graphics: &mut gfx::GraphicsContext) {
     background(graphics);
     let root = parent_of(graphics);
-    let outer = gfx::Container::new(graphics, gfx::FloatPos(0.0, 0.0), gfx::FloatSize(160.0, 120.0), gfx::CENTER, Some(&root));
+    let outer = ui::Container::new(graphics, gfx::FloatPos(0.0, 0.0), gfx::FloatSize(160.0, 120.0), ui::CENTER, Some(&root));
     outer.get_absolute_rect().render(graphics, gfx::Color::new(80, 80, 110, 255));
 
     for (orientation, color) in [
-        (gfx::TOP_LEFT, gfx::Color::new(255, 80, 80, 255)),
-        (gfx::CENTER, gfx::Color::new(255, 255, 255, 255)),
-        (gfx::BOTTOM_RIGHT, gfx::Color::new(80, 160, 255, 255)),
+        (ui::TOP_LEFT, gfx::Color::new(255, 80, 80, 255)),
+        (ui::CENTER, gfx::Color::new(255, 255, 255, 255)),
+        (ui::BOTTOM_RIGHT, gfx::Color::new(80, 160, 255, 255)),
     ] {
-        let inner = gfx::Container::new(graphics, gfx::FloatPos(0.0, 0.0), gfx::FloatSize(40.0, 30.0), orientation, Some(&outer));
+        let inner = ui::Container::new(graphics, gfx::FloatPos(0.0, 0.0), gfx::FloatSize(40.0, 30.0), orientation, Some(&outer));
         inner.get_absolute_rect().render(graphics, color);
     }
 }
@@ -411,7 +413,7 @@ fn case_container_nested(graphics: &mut gfx::GraphicsContext) {
 fn case_render_rect_fill_and_border(graphics: &mut gfx::GraphicsContext) {
     background(graphics);
     let parent = parent_of(graphics);
-    let mut rect = gfx::RenderRect::new(gfx::FloatPos(30.0, 30.0), gfx::FloatSize(180.0, 120.0));
+    let mut rect = ui::RenderRect::new(gfx::FloatPos(30.0, 30.0), gfx::FloatSize(180.0, 120.0));
     rect.fill_color = gfx::Color::new(60, 120, 200, 255);
     rect.border_color = gfx::Color::new(255, 255, 255, 255);
     rect.jump_to_target();
@@ -421,8 +423,8 @@ fn case_render_rect_fill_and_border(graphics: &mut gfx::GraphicsContext) {
 fn case_render_rect_translucent(graphics: &mut gfx::GraphicsContext) {
     striped_background(graphics);
     let parent = parent_of(graphics);
-    let mut rect = gfx::RenderRect::new(gfx::FloatPos(0.0, 0.0), gfx::FloatSize(180.0, 120.0));
-    rect.orientation = gfx::CENTER;
+    let mut rect = ui::RenderRect::new(gfx::FloatPos(0.0, 0.0), gfx::FloatSize(180.0, 120.0));
+    rect.orientation = ui::CENTER;
     rect.fill_color = gfx::Color::new(0, 0, 0, 150);
     rect.jump_to_target();
     rect.render(graphics, &parent);
@@ -431,8 +433,8 @@ fn case_render_rect_translucent(graphics: &mut gfx::GraphicsContext) {
 fn case_render_rect_shadow(graphics: &mut gfx::GraphicsContext) {
     background(graphics);
     let parent = parent_of(graphics);
-    let mut rect = gfx::RenderRect::new(gfx::FloatPos(0.0, 0.0), gfx::FloatSize(140.0, 100.0));
-    rect.orientation = gfx::CENTER;
+    let mut rect = ui::RenderRect::new(gfx::FloatPos(0.0, 0.0), gfx::FloatSize(140.0, 100.0));
+    rect.orientation = ui::CENTER;
     rect.fill_color = gfx::Color::new(220, 220, 220, 255);
     rect.shadow_intensity = 255;
     rect.jump_to_target();
@@ -442,8 +444,8 @@ fn case_render_rect_shadow(graphics: &mut gfx::GraphicsContext) {
 fn case_render_rect_blur(graphics: &mut gfx::GraphicsContext) {
     striped_background(graphics);
     let parent = parent_of(graphics);
-    let mut rect = gfx::RenderRect::new(gfx::FloatPos(0.0, 0.0), gfx::FloatSize(200.0, 140.0));
-    rect.orientation = gfx::CENTER;
+    let mut rect = ui::RenderRect::new(gfx::FloatPos(0.0, 0.0), gfx::FloatSize(200.0, 140.0));
+    rect.orientation = ui::CENTER;
     rect.fill_color = gfx::Color::new(0, 0, 0, 60);
     rect.blur_radius = 30;
     rect.jump_to_target();
@@ -470,7 +472,7 @@ fn case_blur_over_a_cleared_frame(graphics: &mut gfx::GraphicsContext) {
 fn case_render_rect_lags_behind_target(graphics: &mut gfx::GraphicsContext) {
     background(graphics);
     let parent = parent_of(graphics);
-    let mut rect = gfx::RenderRect::new(gfx::FloatPos(20.0, 20.0), gfx::FloatSize(80.0, 60.0));
+    let mut rect = ui::RenderRect::new(gfx::FloatPos(20.0, 20.0), gfx::FloatSize(80.0, 60.0));
     rect.fill_color = gfx::Color::new(240, 160, 40, 255);
     rect.smooth_factor = 10.0;
     // moving the target does not move what is drawn until the animation runs
@@ -483,7 +485,7 @@ fn case_render_rect_lags_behind_target(graphics: &mut gfx::GraphicsContext) {
 fn case_sprite_basic(graphics: &mut gfx::GraphicsContext) {
     background(graphics);
     let parent = parent_of(graphics);
-    let mut sprite = gfx::Sprite::new();
+    let mut sprite = ui::Sprite::new();
     sprite.set_texture(fixture_texture());
     sprite.scale = 10.0;
     sprite.pos = gfx::FloatPos(20.0, 20.0);
@@ -493,11 +495,11 @@ fn case_sprite_basic(graphics: &mut gfx::GraphicsContext) {
 fn case_sprite_flipped_tinted_centered(graphics: &mut gfx::GraphicsContext) {
     background(graphics);
     let parent = parent_of(graphics);
-    let mut sprite = gfx::Sprite::new();
+    let mut sprite = ui::Sprite::new();
     sprite.set_texture(fixture_texture());
     sprite.scale = 12.0;
     sprite.flip = true;
-    sprite.orientation = gfx::CENTER;
+    sprite.orientation = ui::CENTER;
     sprite.color = gfx::Color::new(120, 255, 180, 255);
     sprite.render(graphics, &parent);
 }
@@ -547,11 +549,11 @@ fn case_texture_atlas_empty(graphics: &mut gfx::GraphicsContext) {
 
 // --- cases: widgets -----------------------------------------------------------------------
 
-fn button_with_label(graphics: &gfx::GraphicsContext, label: &str) -> gfx::Button {
-    let mut button = gfx::Button::new(|| {});
+fn button_with_label(graphics: &gfx::GraphicsContext, label: &str) -> ui::Button {
+    let mut button = ui::Button::new(|| {});
     button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface(label, None));
     button.scale = 2.0;
-    button.orientation = gfx::CENTER;
+    button.orientation = ui::CENTER;
     button
 }
 
@@ -589,8 +591,8 @@ fn case_button_disabled_darkened(graphics: &mut gfx::GraphicsContext) {
     button.render(graphics, &parent);
 }
 
-fn toggle_at(orientation: gfx::Orientation, toggled: bool, progress: f32) -> gfx::Toggle {
-    let mut toggle = gfx::Toggle::new();
+fn toggle_at(orientation: ui::Orientation, toggled: bool, progress: f32) -> ui::Toggle {
+    let mut toggle = ui::Toggle::new();
     toggle.orientation = orientation;
     toggle.toggled = toggled;
     toggle.settle_animation(progress, 0.0);
@@ -600,19 +602,19 @@ fn toggle_at(orientation: gfx::Orientation, toggled: bool, progress: f32) -> gfx
 fn case_toggle_off(graphics: &mut gfx::GraphicsContext) {
     background(graphics);
     let parent = parent_of(graphics);
-    toggle_at(gfx::CENTER, false, 0.0).render(graphics, &parent);
+    toggle_at(ui::CENTER, false, 0.0).render(graphics, &parent);
 }
 
 fn case_toggle_on(graphics: &mut gfx::GraphicsContext) {
     background(graphics);
     let parent = parent_of(graphics);
-    toggle_at(gfx::CENTER, true, 1.0).render(graphics, &parent);
+    toggle_at(ui::CENTER, true, 1.0).render(graphics, &parent);
 }
 
 fn case_toggle_mid_travel(graphics: &mut gfx::GraphicsContext) {
     background(graphics);
     let parent = parent_of(graphics);
-    toggle_at(gfx::CENTER, true, 0.5).render(graphics, &parent);
+    toggle_at(ui::CENTER, true, 0.5).render(graphics, &parent);
 }
 
 /// A toggle that is not centred, laid out against the right edge of a row the way the settings
@@ -626,11 +628,11 @@ fn case_toggle_mid_travel(graphics: &mut gfx::GraphicsContext) {
 fn case_toggle_right_oriented(graphics: &mut gfx::GraphicsContext) {
     background(graphics);
     let root = parent_of(graphics);
-    let row = gfx::Container::new(graphics, gfx::FloatPos(0.0, 0.0), gfx::FloatSize(240.0, 80.0), gfx::CENTER, Some(&root));
+    let row = ui::Container::new(graphics, gfx::FloatPos(0.0, 0.0), gfx::FloatSize(240.0, 80.0), ui::CENTER, Some(&root));
     row.get_absolute_rect().render(graphics, gfx::Color::new(70, 70, 90, 255));
 
-    let mut toggle = toggle_at(gfx::RIGHT, false, 0.0);
-    toggle.pos = gfx::FloatPos(-gfx::SPACING, 0.0);
+    let mut toggle = toggle_at(ui::RIGHT, false, 0.0);
+    toggle.pos = gfx::FloatPos(-ui::SPACING, 0.0);
     // Bright, unlike the theme's, so the frame the padding leaves is what the eye lands on when
     // this case is dumped - the default border is a grey nobody can measure by looking at it.
     toggle.border_color = gfx::Color::new(255, 255, 255, 255);
@@ -640,8 +642,8 @@ fn case_toggle_right_oriented(graphics: &mut gfx::GraphicsContext) {
 fn case_text_input_with_text(graphics: &mut gfx::GraphicsContext) {
     background(graphics);
     let parent = parent_of(graphics);
-    let mut input = gfx::TextInput::new(graphics);
-    input.orientation = gfx::CENTER;
+    let mut input = ui::TextInput::new(graphics);
+    input.orientation = ui::CENTER;
     input.set_text("Terralistic".to_owned());
     input.settle_animation();
     input.render(graphics, &parent);
@@ -651,8 +653,8 @@ fn case_text_input_with_text(graphics: &mut gfx::GraphicsContext) {
 fn case_text_input_hint(graphics: &mut gfx::GraphicsContext) {
     background(graphics);
     let parent = parent_of(graphics);
-    let mut input = gfx::TextInput::new(graphics);
-    input.orientation = gfx::CENTER;
+    let mut input = ui::TextInput::new(graphics);
+    input.orientation = ui::CENTER;
     input.set_hint(graphics, "type here");
     input.settle_animation();
     input.render(graphics, &parent);
@@ -662,8 +664,8 @@ fn case_text_input_hint(graphics: &mut gfx::GraphicsContext) {
 fn case_text_input_overflowing_text(graphics: &mut gfx::GraphicsContext) {
     background(graphics);
     let parent = parent_of(graphics);
-    let mut input = gfx::TextInput::new(graphics);
-    input.orientation = gfx::CENTER;
+    let mut input = ui::TextInput::new(graphics);
+    input.orientation = ui::CENTER;
     input.set_text("a very long value that does not fit in the box".to_owned());
     input.settle_animation();
     input.render(graphics, &parent);

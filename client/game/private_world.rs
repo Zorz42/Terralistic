@@ -10,9 +10,11 @@ use anyhow::Result;
 use crate::client::game::core_client::run_game;
 use crate::client::global_settings::GlobalSettings;
 use crate::client::menus::choice_menu::ChoiceMenu;
-use crate::client::menus::{LoadingScreen, Menu};
+use crate::client::menus::LoadingScreen;
 use crate::libraries::config::Settings;
 use crate::libraries::graphics as gfx;
+use crate::libraries::ui;
+use crate::libraries::ui::Menu;
 use crate::server::server_core::Server;
 use crate::server::server_core::{BindAddress, SINGLEPLAYER_PORT};
 
@@ -101,9 +103,9 @@ impl PrivateWorld {
     }
 }
 
-impl gfx::UiElement for PrivateWorld {
-    fn get_container(&self, graphics: &dyn gfx::UiContext, _: &gfx::Container) -> gfx::Container {
-        gfx::Container::default(graphics)
+impl ui::UiElement for PrivateWorld {
+    fn get_container(&self, graphics: &dyn ui::UiContext, _: &ui::Container) -> ui::Container {
+        ui::Container::default(graphics)
     }
 }
 

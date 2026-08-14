@@ -1,13 +1,13 @@
+use super::{UiContext, UiElement};
 use crate::libraries::graphics as gfx;
 use crate::libraries::timing;
-use gfx::{UiContext, UiElement};
 
 use super::theme::{BUTTON_BORDER_COLOR, BUTTON_COLOR, BUTTON_PADDING, HOVERED_BUTTON_BORDER_COLOR, HOVERED_BUTTON_COLOR};
 
 /// A clickable rectangle with an image in it and a hover animation.
 pub struct Button {
     pub pos: gfx::FloatPos,
-    pub orientation: gfx::Orientation,
+    pub orientation: super::Orientation,
     pub texture: gfx::Texture,
     pub padding: f32,
     pub scale: f32,
@@ -21,7 +21,7 @@ pub struct Button {
     /// One hover step per elapsed millisecond, bounded so that a button built long before it
     /// is first drawn - the pause menu's, say - does not owe a step for every one of them.
     animation_timer: timing::FixedStep,
-    click: gfx::ClickTracker,
+    click: super::ClickTracker,
     on_click: Box<dyn Fn()>,
 }
 
@@ -30,7 +30,7 @@ impl Button {
     pub fn new<F: 'static + Fn()>(closure: F) -> Self {
         Self {
             pos: gfx::FloatPos(0.0, 0.0),
-            orientation: gfx::TOP_LEFT,
+            orientation: super::TOP_LEFT,
             texture: gfx::Texture::new(),
             padding: BUTTON_PADDING,
             scale: 1.0,
@@ -42,7 +42,7 @@ impl Button {
             darken_on_disabled: false,
             hover_progress: 0.0,
             animation_timer: timing::FixedStep::for_animation(1),
-            click: gfx::ClickTracker::default(),
+            click: super::ClickTracker::default(),
             on_click: Box::new(closure),
         }
     }
@@ -72,7 +72,7 @@ impl Button {
 }
 
 impl UiElement for Button {
-    fn render_inner(&mut self, graphics: &mut gfx::GraphicsContext, parent_container: &gfx::Container) {
+    fn render_inner(&mut self, graphics: &mut gfx::GraphicsContext, parent_container: &super::Container) {
         let container = self.get_container(graphics, parent_container);
         let rect = container.get_absolute_rect();
 
@@ -87,7 +87,7 @@ impl UiElement for Button {
         };
 
         while self.animation_timer.step() {
-            self.hover_progress = gfx::approach(self.hover_progress, hover_target, 40.0, 0.01);
+            self.hover_progress = super::approach(self.hover_progress, hover_target, 40.0, 0.01);
         }
 
         let button_color = gfx::interpolate_colors(self.color, self.hover_color, self.hover_progress);
@@ -117,7 +117,7 @@ impl UiElement for Button {
     }
 
     /// Fires on the release of a press that landed on this same button - see `ClickTracker`.
-    fn on_event_inner(&mut self, graphics: &mut dyn gfx::UiContext, event: &gfx::Event, parent_container: &gfx::Container) -> bool {
+    fn on_event_inner(&mut self, graphics: &mut dyn super::UiContext, event: &gfx::Event, parent_container: &super::Container) -> bool {
         let hovered = self.is_hovered(graphics, parent_container);
         if self.click.completes_a_click(event, hovered) {
             (self.on_click)();
@@ -126,13 +126,13 @@ impl UiElement for Button {
         false
     }
 
-    fn get_container(&self, graphics: &dyn gfx::UiContext, parent_container: &gfx::Container) -> gfx::Container {
-        gfx::Container::new(graphics, self.pos, self.get_size(), self.orientation, Some(parent_container))
+    fn get_container(&self, graphics: &dyn super::UiContext, parent_container: &super::Container) -> super::Container {
+        super::Container::new(graphics, self.pos, self.get_size(), self.orientation, Some(parent_container))
     }
 
     /// A disabled button is never hovered, which is what stops it reacting to clicks as well
     /// as what keeps it from lighting up under the pointer.
-    fn is_hovered(&self, graphics: &dyn gfx::UiContext, parent_container: &gfx::Container) -> bool {
+    fn is_hovered(&self, graphics: &dyn super::UiContext, parent_container: &super::Container) -> bool {
         !self.disabled && self.get_container(graphics, parent_container).get_absolute_rect().contains(graphics.get_mouse_pos())
     }
 }

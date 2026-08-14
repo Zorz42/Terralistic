@@ -24,6 +24,7 @@ use anyhow::{anyhow, Result};
 
 use crate::libraries::graphics as gfx;
 use crate::libraries::timing;
+use crate::libraries::ui;
 
 use super::draw_list::{BlendMode, DrawCommand, DrawList};
 use super::gpu_device::{self, GpuDevice, MeshEntry};
@@ -857,7 +858,7 @@ impl WgpuBackend {
     pub(super) fn update_blur(&mut self) {
         let target = if self.blur_enabled { 1.0 } else { 0.0 };
         while self.blur_animation_timer.step() {
-            self.blur_intensity = gfx::approach(self.blur_intensity, target, 10.0, 0.001);
+            self.blur_intensity = ui::approach(self.blur_intensity, target, 10.0, 0.001);
         }
     }
 

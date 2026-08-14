@@ -1,5 +1,5 @@
+use super::UiElement;
 use crate::libraries::graphics as gfx;
-use crate::libraries::graphics::UiElement;
 
 /// A texture that positions itself like a UI element: a position, a scale and an orientation,
 /// plus a flip, a tint and a source rectangle.
@@ -7,7 +7,7 @@ pub struct Sprite {
     texture: gfx::Texture,
     pub pos: gfx::FloatPos,
     pub scale: f32,
-    pub orientation: gfx::Orientation,
+    pub orientation: super::Orientation,
     pub flip: bool,
     pub color: gfx::Color,
     pub src_rect: gfx::Rect,
@@ -20,7 +20,7 @@ impl Sprite {
             texture: gfx::Texture::new(),
             pos: gfx::FloatPos(0.0, 0.0),
             scale: 1.0,
-            orientation: gfx::TOP_LEFT,
+            orientation: super::TOP_LEFT,
             flip: false,
             color: gfx::Color::new(255, 255, 255, 255),
             src_rect: gfx::Rect::new(gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, 0.0)),
@@ -48,13 +48,13 @@ impl Sprite {
 }
 
 impl UiElement for Sprite {
-    fn render_inner(&mut self, graphics: &mut gfx::GraphicsContext, parent: &gfx::Container) {
+    fn render_inner(&mut self, graphics: &mut gfx::GraphicsContext, parent: &super::Container) {
         let container = self.get_container(graphics, parent);
         self.texture
             .render(graphics, self.scale, container.get_absolute_rect().pos, Some(self.src_rect), self.flip, Some(self.color));
     }
 
-    fn get_container(&self, graphics: &dyn gfx::UiContext, parent: &gfx::Container) -> gfx::Container {
-        gfx::Container::new(graphics, self.pos, self.get_size(), self.orientation, Some(parent))
+    fn get_container(&self, graphics: &dyn super::UiContext, parent: &super::Container) -> super::Container {
+        super::Container::new(graphics, self.pos, self.get_size(), self.orientation, Some(parent))
     }
 }

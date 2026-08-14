@@ -1,13 +1,13 @@
+use super::theme::BUTTON_BORDER_COLOR;
+use super::UiElement;
 use crate::libraries::graphics as gfx;
 use crate::libraries::timing;
-use gfx::theme::BUTTON_BORDER_COLOR;
-use gfx::UiElement;
 
 /// A two state switch: a rounded bar with a knob that slides from one end to the other.
 pub struct Toggle {
     pub pos: gfx::FloatPos,
     pub size: gfx::FloatSize,
-    pub orientation: gfx::Orientation,
+    pub orientation: super::Orientation,
     pub padding: f32,
     pub left_color: gfx::Color,
     pub right_color: gfx::Color,
@@ -18,7 +18,7 @@ pub struct Toggle {
     hover_progress: f32,
     /// See `Button::animation_timer`.
     animation_timer: timing::FixedStep,
-    click: gfx::ClickTracker,
+    click: super::ClickTracker,
     pub changed: bool,
 }
 
@@ -28,17 +28,17 @@ impl Toggle {
         Self {
             pos: gfx::FloatPos(0.0, 0.0),
             size: gfx::FloatSize(82.0, 50.0),
-            orientation: gfx::TOP_LEFT,
+            orientation: super::TOP_LEFT,
             padding: 5.0,
             left_color: gfx::Color::new(210, 0, 0, 255),
             right_color: gfx::Color::new(0, 210, 0, 255),
             border_color: BUTTON_BORDER_COLOR,
-            button_color: gfx::WHITE,
+            button_color: super::WHITE,
             toggled: false,
             toggle_progress: 0.0,
             hover_progress: 0.0,
             animation_timer: timing::FixedStep::for_animation(1),
-            click: gfx::ClickTracker::default(),
+            click: super::ClickTracker::default(),
             changed: true,
         }
     }
@@ -58,14 +58,14 @@ impl Toggle {
 }
 
 impl UiElement for Toggle {
-    fn render_inner(&mut self, graphics: &mut gfx::GraphicsContext, parent_container: &gfx::Container) {
+    fn render_inner(&mut self, graphics: &mut gfx::GraphicsContext, parent_container: &super::Container) {
         let container = self.get_container(graphics, parent_container);
         let toggle_target = if self.toggled { 1.0 } else { 0.0 };
         let hover_target = if self.is_hovered(graphics, parent_container) { 1.0 } else { 0.0 };
 
         while self.animation_timer.step() {
-            self.toggle_progress = gfx::approach(self.toggle_progress, toggle_target, 40.0, 0.01);
-            self.hover_progress = gfx::approach(self.hover_progress, hover_target, 40.0, 0.01);
+            self.toggle_progress = super::approach(self.toggle_progress, toggle_target, 40.0, 0.01);
+            self.hover_progress = super::approach(self.hover_progress, hover_target, 40.0, 0.01);
         }
 
         // The bar is dimmed to 80% until the mouse is over it.
@@ -97,7 +97,7 @@ impl UiElement for Toggle {
     }
 
     /// Flips on the release of a press that landed on this same toggle - see `ClickTracker`.
-    fn on_event_inner(&mut self, graphics: &mut dyn gfx::UiContext, event: &gfx::Event, parent_container: &gfx::Container) -> bool {
+    fn on_event_inner(&mut self, graphics: &mut dyn super::UiContext, event: &gfx::Event, parent_container: &super::Container) -> bool {
         let hovered = self.is_hovered(graphics, parent_container);
         if self.click.completes_a_click(event, hovered) {
             self.toggled = !self.toggled;
@@ -107,7 +107,7 @@ impl UiElement for Toggle {
         false
     }
 
-    fn get_container(&self, graphics: &dyn gfx::UiContext, parent_container: &gfx::Container) -> gfx::Container {
-        gfx::Container::new(graphics, self.pos, self.get_size(), self.orientation, Some(parent_container))
+    fn get_container(&self, graphics: &dyn super::UiContext, parent_container: &super::Container) -> super::Container {
+        super::Container::new(graphics, self.pos, self.get_size(), self.orientation, Some(parent_container))
     }
 }

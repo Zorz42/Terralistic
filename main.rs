@@ -152,7 +152,7 @@ use crate::libraries::graphics as gfx;
 use crate::server::server_core::{BindAddress, Server, MULTIPLAYER_PORT};
 use crate::server::server_ui::UiManager;
 
-use crate::libraries::graphics::UiContext;
+use crate::libraries::ui::UiContext;
 pub mod libraries {
     pub mod config;
     pub mod container_file;
@@ -169,6 +169,7 @@ pub mod libraries {
     pub mod testing;
     mod tests;
     pub mod timing;
+    pub mod ui;
 }
 
 pub mod shared;

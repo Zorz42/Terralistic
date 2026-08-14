@@ -1,16 +1,18 @@
+use crate::libraries::ui;
 use std::cell::RefCell;
 use std::rc::Rc;
 
-use crate::libraries::graphics::{self as gfx, UiElement};
-use gfx::BaseUiElement;
+use crate::libraries::graphics as gfx;
+use crate::libraries::ui::UiElement;
+use ui::BaseUiElement;
 
-use super::Menu;
+use crate::libraries::ui::Menu;
 
 pub struct TextInputMenu {
-    title: gfx::Sprite,
-    back_button: gfx::Button,
-    confirm_button: gfx::Button,
-    input_field: gfx::TextInput,
+    title: ui::Sprite,
+    back_button: ui::Button,
+    confirm_button: ui::Button,
+    input_field: ui::TextInput,
     text: Rc<RefCell<Option<String>>>,
     close_menu: bool,
 }
@@ -18,30 +20,30 @@ pub struct TextInputMenu {
 impl TextInputMenu {
     pub fn new(graphics: &gfx::GraphicsContext, title_text: &str, text: Rc<RefCell<Option<String>>>) -> Self {
         let back_str = "Back";
-        let mut back_button = gfx::Button::new(|| {});
+        let mut back_button = ui::Button::new(|| {});
         back_button.scale = 3.0;
         back_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface(back_str, None));
-        back_button.orientation = gfx::BOTTOM;
+        back_button.orientation = ui::BOTTOM;
 
         let confirm_str = "Continue";
-        let mut confirm_button = gfx::Button::new(|| {});
+        let mut confirm_button = ui::Button::new(|| {});
         confirm_button.scale = 3.0;
         confirm_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface(confirm_str, None));
-        confirm_button.pos.0 = back_button.get_size().0 + gfx::SPACING;
-        confirm_button.orientation = gfx::BOTTOM;
+        confirm_button.pos.0 = back_button.get_size().0 + ui::SPACING;
+        confirm_button.orientation = ui::BOTTOM;
 
-        back_button.pos = gfx::FloatPos(-confirm_button.get_size().0 / 2.0 - gfx::SPACING, -gfx::SPACING);
-        confirm_button.pos = gfx::FloatPos(back_button.get_size().0 / 2.0 + gfx::SPACING, -gfx::SPACING);
+        back_button.pos = gfx::FloatPos(-confirm_button.get_size().0 / 2.0 - ui::SPACING, -ui::SPACING);
+        confirm_button.pos = gfx::FloatPos(back_button.get_size().0 / 2.0 + ui::SPACING, -ui::SPACING);
 
-        let mut input_field = gfx::TextInput::new(graphics);
+        let mut input_field = ui::TextInput::new(graphics);
         input_field.scale = 3.0;
-        input_field.orientation = gfx::CENTER;
+        input_field.orientation = ui::CENTER;
 
-        let mut title_sprite = gfx::Sprite::new();
+        let mut title_sprite = ui::Sprite::new();
         title_sprite.set_texture(gfx::Texture::load_from_surface(&graphics.font.create_text_surface(title_text, None)));
         title_sprite.scale = 3.0;
-        title_sprite.orientation = gfx::CENTER;
-        title_sprite.pos.1 = -input_field.get_size().1 / 2.0 - title_sprite.get_size().1 / 2.0 - gfx::SPACING;
+        title_sprite.orientation = ui::CENTER;
+        title_sprite.pos.1 = -input_field.get_size().1 / 2.0 - title_sprite.get_size().1 / 2.0 - ui::SPACING;
 
         Self {
             title: title_sprite,
@@ -63,7 +65,7 @@ impl UiElement for TextInputMenu {
         vec![&self.back_button, &self.confirm_button, &self.input_field, &self.title]
     }
 
-    fn on_event_inner(&mut self, graphics: &mut dyn gfx::UiContext, event: &gfx::Event, parent_container: &gfx::Container) -> bool {
+    fn on_event_inner(&mut self, graphics: &mut dyn ui::UiContext, event: &gfx::Event, parent_container: &ui::Container) -> bool {
         if self.back_button.on_event_inner(graphics, event, parent_container) {
             self.close_menu = true;
             return true;
@@ -93,8 +95,8 @@ impl UiElement for TextInputMenu {
         false
     }
 
-    fn get_container(&self, graphics: &dyn gfx::UiContext, parent_container: &gfx::Container) -> gfx::Container {
-        gfx::Container::new(graphics, parent_container.rect.pos, parent_container.rect.size, parent_container.orientation, None)
+    fn get_container(&self, graphics: &dyn ui::UiContext, parent_container: &ui::Container) -> ui::Container {
+        ui::Container::new(graphics, parent_container.rect.pos, parent_container.rect.size, parent_container.orientation, None)
     }
 }
 

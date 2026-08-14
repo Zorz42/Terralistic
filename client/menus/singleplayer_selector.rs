@@ -11,12 +11,14 @@ use crate::client::global_settings::GlobalSettings;
 use crate::client::menus::choice_menu::ChoiceMenu;
 use crate::libraries::config::Settings;
 use crate::libraries::graphics as gfx;
-use gfx::{BaseUiElement, UiElement};
+use crate::libraries::ui;
+use crate::libraries::ui::{BaseUiElement, UiElement};
 
 use super::world_creation::WorldCreationMenu;
-use super::{BackgroundRect, Menu};
+use super::BackgroundRect;
+use crate::libraries::ui::Menu;
 
-use crate::libraries::graphics::UiContext;
+use crate::libraries::ui::UiContext;
 pub const MENU_WIDTH: f32 = 800.0;
 
 /// This function returns formatted string "%d %B %Y %H:%M" of the time
@@ -42,12 +44,12 @@ pub fn get_last_modified_time(file_path: &str) -> String {
 pub struct World {
     pub name: String,
     pub pos: gfx::FloatPos,
-    rect: gfx::RenderRect,
-    play_button: gfx::Button,
-    delete_button: gfx::Button,
-    last_modified: gfx::Sprite,
-    title: gfx::Sprite,
-    icon: gfx::Sprite,
+    rect: ui::RenderRect,
+    play_button: ui::Button,
+    delete_button: ui::Button,
+    last_modified: ui::Sprite,
+    title: ui::Sprite,
+    icon: ui::Sprite,
     file_path: PathBuf,
 }
 
@@ -56,51 +58,51 @@ impl World {
         let stem = file_path.file_stem();
         let name = stem.map_or("incorrect_file_path", |name_| name_.to_str().unwrap_or("invalid_text_format")).to_owned();
 
-        let mut rect = gfx::RenderRect::new(gfx::FloatPos(0.0, 0.0), gfx::FloatSize(MENU_WIDTH - 2.0 * gfx::SPACING, 0.0));
-        rect.orientation = gfx::TOP;
+        let mut rect = ui::RenderRect::new(gfx::FloatPos(0.0, 0.0), gfx::FloatSize(MENU_WIDTH - 2.0 * ui::SPACING, 0.0));
+        rect.orientation = ui::TOP;
         rect.fill_color.a = 100;
 
-        let mut icon = gfx::Sprite::new();
+        let mut icon = ui::Sprite::new();
         icon.set_texture(gfx::Texture::load_from_bytes(include_bytes!("../../Build/Resources/world_icon.opa")));
-        rect.size.1 = icon.get_size().1 + 2.0 * gfx::SPACING;
-        icon.pos.0 = gfx::SPACING;
-        icon.orientation = gfx::LEFT;
+        rect.size.1 = icon.get_size().1 + 2.0 * ui::SPACING;
+        icon.pos.0 = ui::SPACING;
+        icon.orientation = ui::LEFT;
 
-        let mut title = gfx::Sprite::new();
+        let mut title = ui::Sprite::new();
         title.set_texture(gfx::Texture::load_from_surface(&graphics.font.create_text_surface(&name, None)));
-        title.pos.0 = icon.pos.0 + icon.get_size().0 + gfx::SPACING;
-        title.pos.1 = gfx::SPACING;
+        title.pos.0 = icon.pos.0 + icon.get_size().0 + ui::SPACING;
+        title.pos.1 = ui::SPACING;
         title.scale = 3.0;
 
         let temp_button_press = button_press.clone();
-        let mut play_button = gfx::Button::new(move || {
+        let mut play_button = ui::Button::new(move || {
             *temp_button_press.borrow_mut() = Some((index, 0));
         });
         play_button.texture = gfx::Texture::load_from_bytes(include_bytes!("../../Build/Resources/play_button.opa"));
         play_button.scale = 3.0;
         play_button.padding = 5.0;
-        play_button.pos.0 = icon.pos.0 + icon.get_size().0 + gfx::SPACING;
-        play_button.pos.1 = -gfx::SPACING;
-        play_button.orientation = gfx::BOTTOM_LEFT;
+        play_button.pos.0 = icon.pos.0 + icon.get_size().0 + ui::SPACING;
+        play_button.pos.1 = -ui::SPACING;
+        play_button.orientation = ui::BOTTOM_LEFT;
 
-        let mut delete_button = gfx::Button::new(move || {
+        let mut delete_button = ui::Button::new(move || {
             *button_press.borrow_mut() = Some((index, 1));
         });
         delete_button.texture = gfx::Texture::load_from_bytes(include_bytes!("../../Build/Resources/delete_button.opa"));
         delete_button.scale = 3.0;
         delete_button.padding = 5.0;
-        delete_button.pos.0 = play_button.pos.0 + play_button.get_size().0 + gfx::SPACING;
-        delete_button.pos.1 = -gfx::SPACING;
-        delete_button.orientation = gfx::BOTTOM_LEFT;
+        delete_button.pos.0 = play_button.pos.0 + play_button.get_size().0 + ui::SPACING;
+        delete_button.pos.1 = -ui::SPACING;
+        delete_button.orientation = ui::BOTTOM_LEFT;
 
-        let mut last_modified = gfx::Sprite::new();
+        let mut last_modified = ui::Sprite::new();
         last_modified.set_texture(gfx::Texture::load_from_surface(
             &graphics.font.create_text_surface(get_last_modified_time(file_path.as_path().to_str().unwrap_or("")).as_str(), None),
         ));
-        last_modified.color = gfx::GREY;
-        last_modified.orientation = gfx::BOTTOM_RIGHT;
-        last_modified.pos.0 = -gfx::SPACING;
-        last_modified.pos.1 = -gfx::SPACING;
+        last_modified.color = ui::GREY;
+        last_modified.orientation = ui::BOTTOM_RIGHT;
+        last_modified.pos.0 = -ui::SPACING;
+        last_modified.pos.1 = -ui::SPACING;
         last_modified.scale = 2.0;
 
         Self {
@@ -142,17 +144,17 @@ impl UiElement for World {
     }
 
     /// This function renders the world card on the x and y position.
-    fn render_inner(&mut self, graphics: &mut gfx::GraphicsContext, parent_container: &gfx::Container) {
+    fn render_inner(&mut self, graphics: &mut gfx::GraphicsContext, parent_container: &ui::Container) {
         self.rect.render(graphics, parent_container);
     }
 
-    fn update_inner(&mut self, graphics: &mut gfx::GraphicsContext, parent_container: &gfx::Container) {
+    fn update_inner(&mut self, graphics: &mut gfx::GraphicsContext, parent_container: &ui::Container) {
         self.rect.pos = self.pos;
         self.rect.update(graphics, parent_container);
     }
 
     /// This function returns the container of the world card.
-    fn get_container(&self, graphics: &dyn gfx::UiContext, parent_container: &gfx::Container) -> gfx::Container {
+    fn get_container(&self, graphics: &dyn ui::UiContext, parent_container: &ui::Container) -> ui::Container {
         self.rect.get_container(graphics, parent_container)
     }
 }
@@ -222,30 +224,30 @@ impl UiElement for WorldList {
         element_vec
     }
 
-    fn update_inner(&mut self, _: &mut gfx::GraphicsContext, _: &gfx::Container) {
-        // `scrolled` already carries the scrollable's own `gfx::SPACING` offset - see
+    fn update_inner(&mut self, _: &mut gfx::GraphicsContext, _: &ui::Container) {
+        // `scrolled` already carries the scrollable's own `ui::SPACING` offset - see
         // `Scrollable::get_scroll_y`.
         let mut current_y = self.scrolled + self.top_rect_size;
         for world in &mut self.worlds {
             world.pos = gfx::FloatPos(0.0, current_y);
-            current_y += world.get_height() + gfx::SPACING;
+            current_y += world.get_height() + ui::SPACING;
         }
     }
 
-    fn get_container(&self, graphics: &dyn gfx::UiContext, parent_container: &gfx::Container) -> gfx::Container {
-        gfx::Container::new(graphics, parent_container.rect.pos, parent_container.rect.size, parent_container.orientation, None)
+    fn get_container(&self, graphics: &dyn ui::UiContext, parent_container: &ui::Container) -> ui::Container {
+        ui::Container::new(graphics, parent_container.rect.pos, parent_container.rect.size, parent_container.orientation, None)
         //this might benefit from having its own container
     }
 }
 
 pub struct SingleplayerSelector {
     world_list: WorldList,
-    title: gfx::Sprite,
-    back_button: gfx::Button,
-    new_world_button: gfx::Button,
-    top_rect: gfx::RenderRect,
-    bottom_rect: gfx::RenderRect,
-    scrollable: gfx::Scrollable,
+    title: ui::Sprite,
+    back_button: ui::Button,
+    new_world_button: ui::Button,
+    top_rect: ui::RenderRect,
+    bottom_rect: ui::RenderRect,
+    scrollable: ui::Scrollable,
     top_rect_visibility: f32,
     settings: Rc<RefCell<Settings>>,
     global_settings: Rc<RefCell<GlobalSettings>>,
@@ -260,47 +262,47 @@ impl SingleplayerSelector {
     pub fn new(graphics: &gfx::GraphicsContext, settings: Rc<RefCell<Settings>>, global_settings: Rc<RefCell<GlobalSettings>>) -> Self {
         let world_button_press = Rc::new(RefCell::new(None));
         let world_list = WorldList::new(graphics, &world_button_press);
-        let mut title = gfx::Sprite::new();
+        let mut title = ui::Sprite::new();
         title.scale = 3.0;
         title.set_texture(gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Select a world to play!", None)));
-        title.pos.1 = gfx::SPACING;
-        title.orientation = gfx::TOP;
+        title.pos.1 = ui::SPACING;
+        title.orientation = ui::TOP;
 
-        let mut back_button = gfx::Button::new(|| {});
+        let mut back_button = ui::Button::new(|| {});
         back_button.scale = 3.0;
         back_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Back", None));
-        back_button.pos.1 = -gfx::SPACING;
-        back_button.orientation = gfx::BOTTOM;
+        back_button.pos.1 = -ui::SPACING;
+        back_button.orientation = ui::BOTTOM;
 
         let new_world_press = Rc::new(RefCell::new(false));
         let temp_new_world_press = new_world_press.clone();
-        let mut new_world_button = gfx::Button::new(move || {
+        let mut new_world_button = ui::Button::new(move || {
             *temp_new_world_press.borrow_mut() = true;
         });
         new_world_button.scale = 3.0;
         new_world_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("New", None));
-        new_world_button.pos.0 = -gfx::SPACING;
-        new_world_button.pos.1 = -gfx::SPACING;
-        new_world_button.orientation = gfx::BOTTOM_RIGHT;
+        new_world_button.pos.0 = -ui::SPACING;
+        new_world_button.pos.1 = -ui::SPACING;
+        new_world_button.orientation = ui::BOTTOM_RIGHT;
 
-        let top_height = title.get_size().1 + 2.0 * gfx::SPACING;
-        let bottom_height = back_button.get_size().1 + 2.0 * gfx::SPACING;
+        let top_height = title.get_size().1 + 2.0 * ui::SPACING;
+        let bottom_height = back_button.get_size().1 + 2.0 * ui::SPACING;
 
-        let mut top_rect = gfx::RenderRect::new(gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, top_height));
-        top_rect.orientation = gfx::TOP;
+        let mut top_rect = ui::RenderRect::new(gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, top_height));
+        top_rect.orientation = ui::TOP;
 
-        let mut bottom_rect = gfx::RenderRect::new(gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, bottom_height));
-        bottom_rect.fill_color.a = gfx::TRANSPARENCY / 2;
-        bottom_rect.shadow_intensity = gfx::SHADOW_INTENSITY;
-        bottom_rect.blur_radius = gfx::BLUR;
-        bottom_rect.orientation = gfx::BOTTOM;
+        let mut bottom_rect = ui::RenderRect::new(gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, bottom_height));
+        bottom_rect.fill_color.a = ui::TRANSPARENCY / 2;
+        bottom_rect.shadow_intensity = ui::SHADOW_INTENSITY;
+        bottom_rect.blur_radius = ui::BLUR;
+        bottom_rect.orientation = ui::BOTTOM;
 
-        let mut scrollable = gfx::Scrollable::new();
-        scrollable.rect.pos.1 = gfx::SPACING;
+        let mut scrollable = ui::Scrollable::new();
+        scrollable.rect.pos.1 = ui::SPACING;
         scrollable.rect.size.0 = MENU_WIDTH;
         scrollable.scroll_smooth_factor = 100.0;
         scrollable.boundary_smooth_factor = 40.0;
-        scrollable.orientation = gfx::TOP;
+        scrollable.orientation = ui::TOP;
 
         Self {
             world_list,
@@ -320,11 +322,11 @@ impl SingleplayerSelector {
         }
     }
 
-    fn do_world_action(&mut self, graphics: &mut gfx::GraphicsContext, world: usize, action: usize, parent_container: &gfx::Container) -> Option<()> {
+    fn do_world_action(&mut self, graphics: &mut gfx::GraphicsContext, world: usize, action: usize, parent_container: &ui::Container) -> Option<()> {
         if action == 0 {
             let mut menu_back = super::MenuBack::new(graphics);
             menu_back.set_back_rect_width(parent_container.rect.size.0, false);
-            menu_back.update(graphics, &gfx::Container::default(graphics));
+            menu_back.update(graphics, &ui::Container::default(graphics));
             menu_back.render_back(graphics);
             if let Ok(menu) = PrivateWorld::new(self.world_list.worlds.get(world)?.get_file_path(), self.settings.clone(), self.global_settings.clone()) {
                 self.open_menu = Some((Box::new(menu), "f LoadingScreen".to_owned()));
@@ -388,7 +390,7 @@ impl UiElement for SingleplayerSelector {
         elements_vec
     }
 
-    fn update_inner(&mut self, graphics: &mut gfx::GraphicsContext, parent_container: &gfx::Container) {
+    fn update_inner(&mut self, graphics: &mut gfx::GraphicsContext, parent_container: &ui::Container) {
         if *self.new_world_press.borrow_mut() {
             let mut names_vec = Vec::new();
             for world in &self.world_list.worlds {
@@ -414,16 +416,16 @@ impl UiElement for SingleplayerSelector {
         // the two `if`s this replaces were the epsilon, written out by hand: snap to 0 below
         // 0.01 and to 1 above 0.99, which is what `approach` does for either target
         let visible_target = if self.scrollable.get_scroll_pos() > 5.0 { 1.0 } else { 0.0 };
-        self.top_rect_visibility = gfx::approach(self.top_rect_visibility, visible_target, 20.0, 0.01);
+        self.top_rect_visibility = ui::approach(self.top_rect_visibility, visible_target, 20.0, 0.01);
 
-        self.top_rect.fill_color.a = (self.top_rect_visibility * gfx::TRANSPARENCY as f32 / 2.0) as u8;
-        self.top_rect.blur_radius = (self.top_rect_visibility * gfx::BLUR as f32) as i32;
-        self.top_rect.shadow_intensity = (self.top_rect_visibility * gfx::SHADOW_INTENSITY as f32) as i32;
+        self.top_rect.fill_color.a = (self.top_rect_visibility * ui::TRANSPARENCY as f32 / 2.0) as u8;
+        self.top_rect.blur_radius = (self.top_rect_visibility * ui::BLUR as f32) as i32;
+        self.top_rect.shadow_intensity = (self.top_rect_visibility * ui::SHADOW_INTENSITY as f32) as i32;
 
         self.bottom_rect.size.0 = parent_container.get_absolute_rect().size.0;
 
         let world_height = self.world_list.worlds.first().map_or(0.0, World::get_height);
-        self.scrollable.scroll_size = (world_height + gfx::SPACING) * self.world_list.worlds.len() as f32 - gfx::SPACING;
+        self.scrollable.scroll_size = (world_height + ui::SPACING) * self.world_list.worlds.len() as f32 - ui::SPACING;
         self.scrollable.rect.size.1 = graphics.get_window_size().1 - self.top_rect.size.1 - self.bottom_rect.size.1;
 
         let res = *self.world_button_press.borrow_mut();
@@ -433,7 +435,7 @@ impl UiElement for SingleplayerSelector {
         *self.world_button_press.borrow_mut() = None;
     }
 
-    fn on_event_inner(&mut self, graphics: &mut dyn gfx::UiContext, event: &gfx::Event, parent_container: &gfx::Container) -> bool {
+    fn on_event_inner(&mut self, graphics: &mut dyn ui::UiContext, event: &gfx::Event, parent_container: &ui::Container) -> bool {
         if let gfx::Event::KeyRelease(key, ..) = event {
             if key == &gfx::Key::Escape {
                 self.close_self = true;
@@ -447,8 +449,8 @@ impl UiElement for SingleplayerSelector {
         false
     }
 
-    fn get_container(&self, graphics: &dyn gfx::UiContext, parent_container: &gfx::Container) -> gfx::Container {
-        gfx::Container::new(graphics, parent_container.rect.pos, parent_container.rect.size, parent_container.orientation, None)
+    fn get_container(&self, graphics: &dyn ui::UiContext, parent_container: &ui::Container) -> ui::Container {
+        ui::Container::new(graphics, parent_container.rect.pos, parent_container.rect.size, parent_container.orientation, None)
     }
 }
 

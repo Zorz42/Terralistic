@@ -1,5 +1,6 @@
 use crate::client::game::floating_text::{FloatingText, FloatingTextManager};
 use crate::client::game::players::ClientPlayers;
+use crate::libraries::ui;
 use anyhow::Result;
 
 use crate::gfx;
@@ -9,7 +10,7 @@ use crate::shared::entities::{Entities, HealthChangePacket, PositionComponent};
 use crate::shared::packet::Packet;
 use crate::shared::players::PLAYER_WIDTH;
 
-use crate::libraries::graphics::UiContext;
+use crate::libraries::ui::UiContext;
 const HEART_WIDTH: f32 = 33.0;
 
 pub struct ClientHealth {
@@ -69,8 +70,8 @@ impl ClientHealth {
     }
 
     pub fn render(&self, graphics: &gfx::GraphicsContext) {
-        let pos_x = graphics.get_window_size().0 - 10.0 * HEART_WIDTH - gfx::SPACING;
-        self.hearts_rect_array.render(graphics, Some(&self.heart_texture), gfx::FloatPos(pos_x, gfx::SPACING));
+        let pos_x = graphics.get_window_size().0 - 10.0 * HEART_WIDTH - ui::SPACING;
+        self.hearts_rect_array.render(graphics, Some(&self.heart_texture), gfx::FloatPos(pos_x, ui::SPACING));
     }
 
     pub fn on_event(&mut self, event: &Event, graphics: &gfx::GraphicsContext, floating_texts: &mut FloatingTextManager, players: &ClientPlayers, entities: &Entities) {

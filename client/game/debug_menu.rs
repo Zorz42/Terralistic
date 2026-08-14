@@ -1,40 +1,41 @@
 use crate::libraries::events::Event;
 use crate::libraries::graphics as gfx;
-use gfx::{BaseUiElement, UiElement};
+use crate::libraries::ui;
+use crate::libraries::ui::{BaseUiElement, UiElement};
 
 /// The debug menu shows useful information about the game.
 /// Like fps, time per frame, position, etc.
-use crate::libraries::graphics::UiContext;
+use crate::libraries::ui::UiContext;
 pub struct DebugMenu {
     open: bool,
-    back_rect: gfx::RenderRect,
+    back_rect: ui::RenderRect,
 }
 
 impl DebugMenu {
     pub fn new() -> Self {
         Self {
             open: false,
-            back_rect: gfx::RenderRect::new(gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, 0.0)),
+            back_rect: ui::RenderRect::new(gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, 0.0)),
         }
     }
 
     pub fn init(&mut self) {
-        self.back_rect.fill_color = gfx::BLACK;
-        self.back_rect.fill_color.a = gfx::TRANSPARENCY;
-        self.back_rect.border_color = gfx::BORDER_COLOR;
-        self.back_rect.blur_radius = gfx::BLUR;
-        self.back_rect.shadow_intensity = gfx::SHADOW_INTENSITY;
+        self.back_rect.fill_color = ui::BLACK;
+        self.back_rect.fill_color.a = ui::TRANSPARENCY;
+        self.back_rect.border_color = ui::BORDER_COLOR;
+        self.back_rect.blur_radius = ui::BLUR;
+        self.back_rect.shadow_intensity = ui::SHADOW_INTENSITY;
         self.back_rect.smooth_factor = 60.0;
-        self.back_rect.orientation = gfx::BOTTOM_RIGHT;
-        self.back_rect.pos.1 = -gfx::SPACING;
+        self.back_rect.orientation = ui::BOTTOM_RIGHT;
+        self.back_rect.pos.1 = -ui::SPACING;
         self.back_rect.size.0 = 300.0;
         self.back_rect.size.1 = 200.0;
     }
 
     pub fn render(&mut self, graphics: &mut gfx::GraphicsContext, lines: &[String]) {
         //TODO UI element
-        let window_container = gfx::Container::default(graphics);
-        self.back_rect.pos.0 = if self.open { -gfx::SPACING } else { self.back_rect.size.0 + 100.0 };
+        let window_container = ui::Container::default(graphics);
+        self.back_rect.pos.0 = if self.open { -ui::SPACING } else { self.back_rect.size.0 + 100.0 };
         self.back_rect.update(graphics, &window_container);
         self.back_rect.render(graphics, &window_container);
 
@@ -50,19 +51,16 @@ impl DebugMenu {
                 height += size.1;
             }
 
-            self.back_rect.size.0 = width + 2.0 * gfx::SPACING;
-            self.back_rect.size.1 = height + 2.0 * gfx::SPACING;
+            self.back_rect.size.0 = width + 2.0 * ui::SPACING;
+            self.back_rect.size.1 = height + 2.0 * ui::SPACING;
 
-            let mut y = gfx::SPACING;
+            let mut y = ui::SPACING;
             let debug_menu_rect_container = self.back_rect.get_container(graphics, &window_container);
             let debug_menu_rect_container = debug_menu_rect_container.get_absolute_rect();
             for line in lines {
-                graphics.font.render_text(
-                    graphics,
-                    line,
-                    gfx::FloatPos(debug_menu_rect_container.pos.0 + gfx::SPACING, debug_menu_rect_container.pos.1 + y),
-                    scale,
-                );
+                graphics
+                    .font
+                    .render_text(graphics, line, gfx::FloatPos(debug_menu_rect_container.pos.0 + ui::SPACING, debug_menu_rect_container.pos.1 + y), scale);
 
                 let size = graphics.font.get_text_size_scaled(line, scale, None);
                 y += size.1;
@@ -78,6 +76,6 @@ impl DebugMenu {
 
     fn is_visible(&self, graphics: &gfx::GraphicsContext) -> bool {
         //TODO UI element
-        (self.back_rect.get_container(graphics, &gfx::Container::default(graphics)).rect.pos.0 as i32) < (graphics.get_window_size().0 as i32)
+        (self.back_rect.get_container(graphics, &ui::Container::default(graphics)).rect.pos.0 as i32) < (graphics.get_window_size().0 as i32)
     }
 }

@@ -26,8 +26,9 @@ use crate::libraries::events;
 use crate::libraries::events::EventManager;
 use crate::libraries::graphics as gfx;
 use crate::libraries::timing::{Budget, FixedStep, FrameStats};
+use crate::libraries::ui;
 use crate::shared::entities::PositionComponent;
-use gfx::BaseUiElement;
+use ui::BaseUiElement;
 
 use super::background::Background;
 use super::block_selector::BlockSelector;
@@ -79,7 +80,7 @@ impl JoinScreen {
         // responding, and the pump inside `update_window` is what notices a close request.
         while graphics.get_event().is_some() {}
 
-        let container = gfx::Container::default(graphics);
+        let container = ui::Container::default(graphics);
         self.back.update(graphics, &container);
         self.screen.update(graphics, &container);
         self.back.render(graphics, &container);

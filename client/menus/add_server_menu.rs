@@ -1,8 +1,10 @@
 use std::path::PathBuf;
 
 use crate::libraries::graphics as gfx;
+use crate::libraries::ui;
+use crate::libraries::ui::Menu;
+use crate::libraries::ui::{BaseUiElement, UiElement};
 use crate::server::server_core::MULTIPLAYER_PORT;
-use gfx::{BaseUiElement, UiElement};
 
 use super::multiplayer_selector::ServerInfo;
 
@@ -32,11 +34,11 @@ fn server_exists(name: &str, servers_list: &Vec<ServerInfo>) -> bool {
 }
 
 pub struct AddServerMenu {
-    title: gfx::Sprite,
-    back_button: gfx::Button,
-    add_button: gfx::Button,
-    server_name_input: gfx::TextInput,
-    server_ip_input: gfx::TextInput,
+    title: ui::Sprite,
+    back_button: ui::Button,
+    add_button: ui::Button,
+    server_name_input: ui::TextInput,
+    server_ip_input: ui::TextInput,
     server_file: PathBuf,
     close_self: bool,
     servers: Vec<ServerInfo>,
@@ -48,39 +50,39 @@ impl AddServerMenu {
         let file = std::fs::read_to_string(server_file.clone()).unwrap_or_else(|_| String::new());
         let servers: Vec<ServerInfo> = serde_json::from_str(&file).unwrap_or_else(|_| Vec::new());
 
-        let mut title = gfx::Sprite::new();
+        let mut title = ui::Sprite::new();
         title.scale = 3.0;
         title.set_texture(gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Add a new server:", None)));
-        title.pos.1 = gfx::SPACING;
-        title.orientation = gfx::TOP;
+        title.pos.1 = ui::SPACING;
+        title.orientation = ui::TOP;
 
-        let mut back_button = gfx::Button::new(|| {});
+        let mut back_button = ui::Button::new(|| {});
         back_button.scale = 3.0;
         back_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Back", None));
-        back_button.orientation = gfx::BOTTOM;
+        back_button.orientation = ui::BOTTOM;
 
-        let mut add_button = gfx::Button::new(|| {});
+        let mut add_button = ui::Button::new(|| {});
         add_button.scale = 3.0;
         add_button.darken_on_disabled = true;
         add_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Add server", None));
-        add_button.pos.0 = back_button.get_size().0 + gfx::SPACING;
-        add_button.orientation = gfx::BOTTOM;
+        add_button.pos.0 = back_button.get_size().0 + ui::SPACING;
+        add_button.orientation = ui::BOTTOM;
 
-        back_button.pos = gfx::FloatPos(-add_button.get_size().0 / 2.0 - gfx::SPACING, -gfx::SPACING);
-        add_button.pos = gfx::FloatPos(back_button.get_size().0 / 2.0 + gfx::SPACING, -gfx::SPACING);
+        back_button.pos = gfx::FloatPos(-add_button.get_size().0 / 2.0 - ui::SPACING, -ui::SPACING);
+        add_button.pos = gfx::FloatPos(back_button.get_size().0 / 2.0 + ui::SPACING, -ui::SPACING);
 
-        let mut server_name_input = gfx::TextInput::new(graphics);
+        let mut server_name_input = ui::TextInput::new(graphics);
         server_name_input.scale = 3.0;
         server_name_input.set_hint(graphics, "Server name");
-        server_name_input.orientation = gfx::CENTER;
+        server_name_input.orientation = ui::CENTER;
         server_name_input.selected = true;
-        server_name_input.pos.1 = -(server_name_input.get_size().1 + gfx::SPACING) / 2.0;
+        server_name_input.pos.1 = -(server_name_input.get_size().1 + ui::SPACING) / 2.0;
 
-        let mut server_ip_input = gfx::TextInput::new(graphics);
+        let mut server_ip_input = ui::TextInput::new(graphics);
         server_ip_input.scale = 3.0;
         server_ip_input.set_hint(graphics, "Server ip");
-        server_ip_input.orientation = gfx::CENTER;
-        server_ip_input.pos.1 = f32::midpoint(server_ip_input.get_size().1, gfx::SPACING);
+        server_ip_input.orientation = ui::CENTER;
+        server_ip_input.pos.1 = f32::midpoint(server_ip_input.get_size().1, ui::SPACING);
 
         server_name_input.text_processing = Some(Box::new(|text: char| {
             // this closure only accepts letters, numbers and _ symbol
@@ -130,11 +132,11 @@ impl UiElement for AddServerMenu {
         vec![&self.title, &self.back_button, &self.add_button, &self.server_name_input, &self.server_ip_input]
     }
 
-    fn update_inner(&mut self, _graphics: &mut gfx::GraphicsContext, _parent_container: &gfx::Container) {
+    fn update_inner(&mut self, _graphics: &mut gfx::GraphicsContext, _parent_container: &ui::Container) {
         self.add_button.disabled = self.server_name_input.get_text().is_empty() || server_exists(self.server_name_input.get_text(), &self.servers);
     }
 
-    fn on_event_inner(&mut self, graphics: &mut dyn gfx::UiContext, event: &gfx::Event, parent_container: &gfx::Container) -> bool {
+    fn on_event_inner(&mut self, graphics: &mut dyn ui::UiContext, event: &gfx::Event, parent_container: &ui::Container) -> bool {
         let container = self.get_container(graphics, parent_container);
         if self.add_button.on_event(graphics, event, &container) {
             self.add_server();
@@ -163,19 +165,19 @@ impl UiElement for AddServerMenu {
         false
     }
 
-    fn get_container(&self, graphics: &dyn gfx::UiContext, parent_container: &gfx::Container) -> gfx::Container {
-        gfx::Container::new(graphics, parent_container.rect.pos, parent_container.rect.size, parent_container.orientation, None)
+    fn get_container(&self, graphics: &dyn ui::UiContext, parent_container: &ui::Container) -> ui::Container {
+        ui::Container::new(graphics, parent_container.rect.pos, parent_container.rect.size, parent_container.orientation, None)
     }
 }
 
-impl super::Menu for AddServerMenu {
+impl Menu for AddServerMenu {
     fn should_close(&mut self) -> bool {
         let ret_val = self.close_self;
         self.close_self = false;
         ret_val
     }
 
-    fn open_menu(&mut self, _: &mut gfx::GraphicsContext) -> Option<(Box<dyn super::Menu>, String)> {
+    fn open_menu(&mut self, _: &mut gfx::GraphicsContext) -> Option<(Box<dyn Menu>, String)> {
         None
     }
 }

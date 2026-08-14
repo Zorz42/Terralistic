@@ -10,8 +10,9 @@ use crate::libraries::graphics::shadow::ShadowContext;
 use crate::libraries::graphics::wgpu_backend::WgpuBackend;
 use crate::libraries::graphics::window::Window;
 use crate::libraries::graphics::Font;
-use crate::libraries::graphics::UiContext;
 use crate::libraries::timing;
+use crate::libraries::ui;
+use crate::libraries::ui::UiContext;
 
 /// How many unread events to keep before the oldest start falling off. A frame produces a
 /// handful, so this is only ever reached by a loop that presents without reading its input.
@@ -43,7 +44,10 @@ pub struct GraphicsContext {
     /// Which keys are currently held, maintained from the press and release events as they go
     /// past - a UI element asks "is shift down" far more often than it reacts to shift.
     key_states: HashSet<gfx::Key>,
-    pub(super) shadow_context: ShadowContext,
+    /// `pub(crate)` rather than private because `RenderRect` draws its own shadow and lives
+    /// in `libraries::ui`. Nothing outside the libraries should reach for either of these -
+    /// the widget that needs them is the interface.
+    pub(crate) shadow_context: ShadowContext,
     /// `None` where the system has no clipboard to offer. Copy and paste stop working; nothing
     /// else does, which is why this is not a reason to refuse to open the window.
     clipboard_context: Option<Clipboard>,
@@ -235,7 +239,7 @@ impl GraphicsContext {
         self.backend.update_blur();
 
         while self.scale_animation_timer.step() {
-            self.real_scale = gfx::approach(self.real_scale, self.scale, 10.0, 0.001);
+            self.real_scale = ui::approach(self.real_scale, self.scale, 10.0, 0.001);
         }
 
         let window_size = self.get_window_size();
@@ -273,7 +277,7 @@ impl GraphicsContext {
     }
 
     /// Records a blur of whatever has already been drawn inside `rect`.
-    pub(super) fn blur_rect(&self, rect: gfx::Rect, radius: i32) {
+    pub(crate) fn blur_rect(&self, rect: gfx::Rect, radius: i32) {
         self.push_draw_command(DrawCommand::Blur { rect, radius });
     }
 
@@ -295,7 +299,7 @@ impl GraphicsContext {
 }
 
 /// The window, pointer, keyboard and clipboard, which is everything a UI element is allowed to
-/// observe. Kept deliberately separate from rendering - see `gfx::UiContext`.
+/// observe. Kept deliberately separate from rendering - see `ui::UiContext`.
 impl UiContext for GraphicsContext {
     fn get_window_size(&self) -> gfx::FloatSize {
         let size = self.window.size();

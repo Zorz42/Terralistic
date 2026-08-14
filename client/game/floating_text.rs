@@ -1,6 +1,7 @@
 use crate::client::game::camera::Camera;
 use crate::libraries::graphics as gfx;
 use crate::libraries::timing;
+use crate::libraries::ui;
 use crate::shared::blocks::RENDER_BLOCK_WIDTH;
 
 const FADE_OUT_TIME_MS: i32 = 1000;
@@ -45,8 +46,8 @@ impl FloatingText {
         let fade_progress = (self.lifetime_ms - self.spawn_time.elapsed().as_millis() as i32 + FADE_OUT_TIME_MS).min(FADE_OUT_TIME_MS) as f32 / FADE_OUT_TIME_MS as f32;
 
         while self.animation_timer.step() {
-            self.x = gfx::approach(self.x, self.target_x, 10.0, 0.01);
-            self.y = gfx::approach(self.y, self.target_y, 10.0, 0.01);
+            self.x = ui::approach(self.x, self.target_x, 10.0, 0.01);
+            self.y = ui::approach(self.y, self.target_y, 10.0, 0.01);
         }
 
         self.text_texture.render(

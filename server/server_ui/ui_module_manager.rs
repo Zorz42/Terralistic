@@ -6,7 +6,8 @@ use std::sync::mpsc::Sender;
 use anyhow::{anyhow, Result};
 
 use crate::libraries::graphics as gfx;
-use crate::libraries::graphics::BaseUiElement;
+use crate::libraries::ui;
+use crate::libraries::ui::BaseUiElement;
 use crate::server::server_ui::UiMessageType;
 
 /// This enum indicates the type of the `ModuleTree` Node.
@@ -14,7 +15,7 @@ use crate::server::server_ui::UiMessageType;
 /// `Split` means that the node's window area splits into 2 more nodes.
 /// `Module` means that the node is a module which takes up the node's window area.
 /// Ideally Nothing should never be used as that means the upper node splits into a module ans nothing, when it itself should just be a module. Nothing may be used for editing the tree in the future
-use crate::libraries::graphics::UiContext;
+use crate::libraries::ui::UiContext;
 #[derive(serde_derive::Serialize, serde_derive::Deserialize)]
 pub enum ModuleTreeNodeType {
     Nothing,
@@ -462,26 +463,26 @@ impl ModuleManager {
 }
 
 struct ModuleManagerRenderer {
-    name_sprite: gfx::Sprite,
-    vertical_arrow_sprite: gfx::Sprite,
-    horizontal_arrow_sprite: gfx::Sprite,
+    name_sprite: ui::Sprite,
+    vertical_arrow_sprite: ui::Sprite,
+    horizontal_arrow_sprite: ui::Sprite,
     split_orientation: SplitType,
 }
 
 impl ModuleManagerRenderer {
     fn new() -> Self {
-        let mut name_sprite = gfx::Sprite::new();
-        name_sprite.orientation = gfx::CENTER;
+        let mut name_sprite = ui::Sprite::new();
+        name_sprite.orientation = ui::CENTER;
         name_sprite.scale = 3.0;
 
-        let mut vertical_arrow_sprite = gfx::Sprite::new();
+        let mut vertical_arrow_sprite = ui::Sprite::new();
         vertical_arrow_sprite.set_texture(gfx::Texture::load_from_bytes(include_bytes!("../../Build/Resources/vertical_resize_arrow.opa")));
-        vertical_arrow_sprite.orientation = gfx::CENTER;
+        vertical_arrow_sprite.orientation = ui::CENTER;
         vertical_arrow_sprite.scale = 4.0;
 
-        let mut horizontal_arrow_sprite = gfx::Sprite::new();
+        let mut horizontal_arrow_sprite = ui::Sprite::new();
         horizontal_arrow_sprite.set_texture(gfx::Texture::load_from_bytes(include_bytes!("../../Build/Resources/horizontal_resize_arrow.opa")));
-        horizontal_arrow_sprite.orientation = gfx::CENTER;
+        horizontal_arrow_sprite.orientation = ui::CENTER;
         horizontal_arrow_sprite.scale = 4.0;
 
         Self {
@@ -501,7 +502,7 @@ impl ModuleManagerRenderer {
 
     fn render_selection(graphics_context: &gfx::GraphicsContext, fraction_rect: &gfx::Rect) {
         let rect = Self::get_pos_size(fraction_rect, graphics_context);
-        rect.render(graphics_context, gfx::WHITE);
+        rect.render(graphics_context, ui::WHITE);
     }
 
     fn render_overlay(&mut self, graphics_context: &mut gfx::GraphicsContext, fraction_rect: &gfx::Rect, edit_mode: &EditMode) {
@@ -521,12 +522,12 @@ impl ModuleManagerRenderer {
     }
 
     fn render_rename_overlay(&mut self, graphics_context: &mut gfx::GraphicsContext, rect: &gfx::Rect) {
-        let container = gfx::Container::new(graphics_context, rect.pos, rect.size, gfx::TOP_LEFT, None);
+        let container = ui::Container::new(graphics_context, rect.pos, rect.size, ui::TOP_LEFT, None);
         self.name_sprite.render(graphics_context, &container);
     }
 
     fn render_resize_overlay(&mut self, graphics_context: &mut gfx::GraphicsContext, rect: &gfx::Rect) {
-        let container = gfx::Container::new(graphics_context, rect.pos, rect.size, gfx::TOP_LEFT, None);
+        let container = ui::Container::new(graphics_context, rect.pos, rect.size, ui::TOP_LEFT, None);
         if self.split_orientation == SplitType::Horizontal {
             self.vertical_arrow_sprite.render(graphics_context, &container);
         } else {

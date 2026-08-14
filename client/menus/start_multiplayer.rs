@@ -4,12 +4,12 @@ use crate::client::game::core_client::run_game;
 use crate::client::global_settings::GlobalSettings;
 use crate::client::menus::choice_menu::ChoiceMenu;
 use crate::libraries::config::Settings;
-use crate::libraries::graphics as gfx;
-use gfx::UiElement;
+use crate::libraries::ui;
+use ui::UiElement;
 
 use super::multiplayer_selector::ServerInfo;
-use super::Menu;
 use super::TextInputMenu;
+use crate::libraries::ui::Menu;
 
 #[derive(Clone, Copy)]
 enum MultiplayerState {
@@ -41,8 +41,8 @@ impl StartMultiplayer {
 }
 
 impl UiElement for StartMultiplayer {
-    fn get_container(&self, graphics: &dyn crate::libraries::graphics::UiContext, parent_container: &crate::libraries::graphics::Container) -> crate::libraries::graphics::Container {
-        gfx::Container::new(graphics, parent_container.rect.pos, parent_container.rect.size, parent_container.orientation, None)
+    fn get_container(&self, graphics: &dyn crate::libraries::ui::UiContext, parent_container: &crate::libraries::ui::Container) -> crate::libraries::ui::Container {
+        ui::Container::new(graphics, parent_container.rect.pos, parent_container.rect.size, parent_container.orientation, None)
     }
 }
 

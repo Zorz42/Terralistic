@@ -3,7 +3,7 @@ use crate::libraries::graphics as gfx;
 use super::camera::Camera;
 
 /// Background is a struct that holds the background image and renders it.
-use crate::libraries::graphics::UiContext;
+use crate::libraries::ui::UiContext;
 pub struct Background {
     image: gfx::Texture,
 }

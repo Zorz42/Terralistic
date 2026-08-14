@@ -1,4 +1,4 @@
-use super::color::Color;
+use crate::libraries::graphics::Color;
 
 pub const WHITE: Color = Color { r: 230, g: 230, b: 230, a: 255 };
 pub const LIGHT_GREY: Color = Color { r: 200, g: 200, b: 200, a: 255 };

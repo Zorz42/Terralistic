@@ -10,13 +10,15 @@ use serde_derive::{Deserialize, Serialize};
 use crate::client::global_settings::GlobalSettings;
 use crate::libraries::config::Settings;
 use crate::libraries::graphics as gfx;
+use crate::libraries::ui;
 
-use super::{AddServerMenu, Menu, StartMultiplayer};
+use super::{AddServerMenu, StartMultiplayer};
+use crate::libraries::ui::Menu;
 
 use super::background_rect::BackgroundRect;
-use gfx::{BaseUiElement, UiElement};
+use crate::libraries::ui::{BaseUiElement, UiElement};
 
-use crate::libraries::graphics::UiContext;
+use crate::libraries::ui::UiContext;
 pub const MENU_WIDTH: f32 = 800.0;
 
 #[derive(Serialize, Deserialize, Clone)]
@@ -34,16 +36,16 @@ impl ServerInfo {
 
 /// struct to pass around UI elements for rendering and updating
 pub struct MultiplayerSelector {
-    top_rect: gfx::RenderRect,
-    bottom_rect: gfx::RenderRect,
-    title: gfx::Sprite,
-    back_button: gfx::Button,
-    new_server_button: gfx::Button,
+    top_rect: ui::RenderRect,
+    bottom_rect: ui::RenderRect,
+    title: ui::Sprite,
+    back_button: ui::Button,
+    new_server_button: ui::Button,
     server_list: ServerList,
     top_height: f32,
     bottom_height: f32,
     servers_file: PathBuf,
-    scrollable: gfx::Scrollable,
+    scrollable: ui::Scrollable,
     settings: Rc<RefCell<Settings>>,
     global_settings: Rc<RefCell<GlobalSettings>>,
     top_rect_visibility: f32,
@@ -58,43 +60,43 @@ impl MultiplayerSelector {
 
         let server_list = ServerList::new(graphics, servers_file.clone());
 
-        let mut title = gfx::Sprite::new();
+        let mut title = ui::Sprite::new();
         title.scale = 3.0;
         title.set_texture(gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Select a server to play!", None)));
-        title.pos.1 = gfx::SPACING;
-        title.orientation = gfx::TOP;
+        title.pos.1 = ui::SPACING;
+        title.orientation = ui::TOP;
 
-        let mut back_button = gfx::Button::new(|| {});
+        let mut back_button = ui::Button::new(|| {});
         back_button.scale = 3.0;
         back_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Back", None));
-        back_button.pos.1 = -gfx::SPACING;
-        back_button.orientation = gfx::BOTTOM;
+        back_button.pos.1 = -ui::SPACING;
+        back_button.orientation = ui::BOTTOM;
 
-        let mut new_server_button = gfx::Button::new(|| {});
+        let mut new_server_button = ui::Button::new(|| {});
         new_server_button.scale = 3.0;
         new_server_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("New", None));
-        new_server_button.pos.1 = -gfx::SPACING;
-        new_server_button.pos.0 = -gfx::SPACING;
-        new_server_button.orientation = gfx::BOTTOM_RIGHT;
+        new_server_button.pos.1 = -ui::SPACING;
+        new_server_button.pos.0 = -ui::SPACING;
+        new_server_button.orientation = ui::BOTTOM_RIGHT;
 
-        let top_height = title.get_size().1 + 2.0 * gfx::SPACING;
-        let bottom_height = back_button.get_size().1 + 2.0 * gfx::SPACING;
+        let top_height = title.get_size().1 + 2.0 * ui::SPACING;
+        let bottom_height = back_button.get_size().1 + 2.0 * ui::SPACING;
 
-        let mut top_rect = gfx::RenderRect::new(gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, top_height));
-        top_rect.orientation = gfx::TOP;
+        let mut top_rect = ui::RenderRect::new(gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, top_height));
+        top_rect.orientation = ui::TOP;
 
-        let mut bottom_rect = gfx::RenderRect::new(gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, bottom_height));
-        bottom_rect.fill_color.a = gfx::TRANSPARENCY / 2;
-        bottom_rect.shadow_intensity = gfx::SHADOW_INTENSITY;
-        bottom_rect.blur_radius = gfx::BLUR;
-        bottom_rect.orientation = gfx::BOTTOM;
+        let mut bottom_rect = ui::RenderRect::new(gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, bottom_height));
+        bottom_rect.fill_color.a = ui::TRANSPARENCY / 2;
+        bottom_rect.shadow_intensity = ui::SHADOW_INTENSITY;
+        bottom_rect.blur_radius = ui::BLUR;
+        bottom_rect.orientation = ui::BOTTOM;
 
-        let mut scrollable = gfx::Scrollable::new();
-        scrollable.rect.pos.1 = gfx::SPACING;
+        let mut scrollable = ui::Scrollable::new();
+        scrollable.rect.pos.1 = ui::SPACING;
         scrollable.rect.size.0 = MENU_WIDTH;
         scrollable.scroll_smooth_factor = 100.0;
         scrollable.boundary_smooth_factor = 40.0;
-        scrollable.orientation = gfx::TOP;
+        scrollable.orientation = ui::TOP;
 
         Ok(Self {
             top_rect,
@@ -123,17 +125,17 @@ impl MultiplayerSelector {
         }
     }
 
-    fn update_top_bottom_rects(&mut self, graphics: &gfx::GraphicsContext, parent_container: &gfx::Container, elements_height: f32) {
+    fn update_top_bottom_rects(&mut self, graphics: &gfx::GraphicsContext, parent_container: &ui::Container, elements_height: f32) {
         self.top_rect.size.0 = parent_container.rect.size.0;
 
         // the two `if`s this replaces were the epsilon, written out by hand: snap to 0 below
         // 0.01 and to 1 above 0.99, which is what `approach` does for either target
         let visible_target = if self.scrollable.get_scroll_pos() > 5.0 { 1.0 } else { 0.0 };
-        self.top_rect_visibility = gfx::approach(self.top_rect_visibility, visible_target, 20.0, 0.01);
+        self.top_rect_visibility = ui::approach(self.top_rect_visibility, visible_target, 20.0, 0.01);
 
-        self.top_rect.fill_color.a = (self.top_rect_visibility * gfx::TRANSPARENCY as f32 / 2.0) as u8;
-        self.top_rect.blur_radius = (self.top_rect_visibility * gfx::BLUR as f32) as i32;
-        self.top_rect.shadow_intensity = (self.top_rect_visibility * gfx::SHADOW_INTENSITY as f32) as i32;
+        self.top_rect.fill_color.a = (self.top_rect_visibility * ui::TRANSPARENCY as f32 / 2.0) as u8;
+        self.top_rect.blur_radius = (self.top_rect_visibility * ui::BLUR as f32) as i32;
+        self.top_rect.shadow_intensity = (self.top_rect_visibility * ui::SHADOW_INTENSITY as f32) as i32;
 
         self.bottom_rect.size.0 = parent_container.rect.size.0;
 
@@ -177,19 +179,19 @@ impl UiElement for MultiplayerSelector {
         elements_vec
     }
 
-    fn update_inner(&mut self, graphics: &mut gfx::GraphicsContext, parent_container: &gfx::Container) {
+    fn update_inner(&mut self, graphics: &mut gfx::GraphicsContext, parent_container: &ui::Container) {
         self.update_server_list(graphics);
 
         let server_height = self.server_list.servers.first().map_or(0.0, super::multiplayer_selector::ServerCard::get_height);
 
-        let elements_height = (server_height + gfx::SPACING) * self.server_list.servers.len() as f32 - gfx::SPACING;
+        let elements_height = (server_height + ui::SPACING) * self.server_list.servers.len() as f32 - ui::SPACING;
 
         self.update_top_bottom_rects(graphics, parent_container, elements_height);
         self.server_list.scrolled = self.scrollable.get_scroll_y();
         self.server_list.top_rect_size = self.top_rect.size.1;
     }
 
-    fn on_event_inner(&mut self, graphics: &mut dyn gfx::UiContext, event: &gfx::Event, parent_container: &gfx::Container) -> bool {
+    fn on_event_inner(&mut self, graphics: &mut dyn ui::UiContext, event: &gfx::Event, parent_container: &ui::Container) -> bool {
         let inner_container = self.get_container(graphics, parent_container);
         if self.back_button.on_event(graphics, event, parent_container) {
             self.close_self = true;
@@ -215,7 +217,7 @@ impl UiElement for MultiplayerSelector {
                 if let Some(graphics) = graphics.as_graphics_context() {
                     let mut menu_back = super::MenuBack::new(graphics);
                     menu_back.set_back_rect_width(parent_container.rect.size.0, false);
-                    let default_container = gfx::Container::default(graphics);
+                    let default_container = ui::Container::default(graphics);
                     menu_back.update(graphics, &default_container);
                     menu_back.render_back(graphics);
                 }
@@ -244,8 +246,8 @@ impl UiElement for MultiplayerSelector {
         false
     }
 
-    fn get_container(&self, graphics: &dyn gfx::UiContext, parent_container: &gfx::Container) -> gfx::Container {
-        gfx::Container::new(graphics, parent_container.rect.pos, parent_container.rect.size, parent_container.orientation, None)
+    fn get_container(&self, graphics: &dyn ui::UiContext, parent_container: &ui::Container) -> ui::Container {
+        ui::Container::new(graphics, parent_container.rect.pos, parent_container.rect.size, parent_container.orientation, None)
     }
 }
 
@@ -277,46 +279,46 @@ impl Menu for MultiplayerSelector {
 /// render the server in server selector.
 pub struct ServerCard {
     pub server_info: ServerInfo,
-    rect: gfx::RenderRect,
-    play_button: gfx::Button,
-    delete_button: gfx::Button,
-    title: gfx::Sprite,
-    icon: gfx::Sprite,
+    rect: ui::RenderRect,
+    play_button: ui::Button,
+    delete_button: ui::Button,
+    title: ui::Sprite,
+    icon: ui::Sprite,
 }
 
 impl ServerCard {
     pub fn new(graphics: &gfx::GraphicsContext, name: String, ip: String, port: u16) -> Self {
-        let mut rect = gfx::RenderRect::new(gfx::FloatPos(0.0, 0.0), gfx::FloatSize(MENU_WIDTH - 2.0 * gfx::SPACING, 0.0));
-        rect.orientation = gfx::TOP;
+        let mut rect = ui::RenderRect::new(gfx::FloatPos(0.0, 0.0), gfx::FloatSize(MENU_WIDTH - 2.0 * ui::SPACING, 0.0));
+        rect.orientation = ui::TOP;
         rect.fill_color.a = 100;
 
-        let mut icon = gfx::Sprite::new();
+        let mut icon = ui::Sprite::new();
         icon.set_texture(gfx::Texture::load_from_bytes(include_bytes!("../../Build/Resources/world_icon.opa")));
-        rect.size.1 = icon.get_size().1 + 2.0 * gfx::SPACING;
-        icon.pos.0 = gfx::SPACING;
-        icon.orientation = gfx::LEFT;
+        rect.size.1 = icon.get_size().1 + 2.0 * ui::SPACING;
+        icon.pos.0 = ui::SPACING;
+        icon.orientation = ui::LEFT;
 
-        let mut title = gfx::Sprite::new();
+        let mut title = ui::Sprite::new();
         title.set_texture(gfx::Texture::load_from_surface(&graphics.font.create_text_surface(&name, None)));
-        title.pos.0 = icon.pos.0 + icon.get_size().1 + gfx::SPACING;
-        title.pos.1 = gfx::SPACING;
+        title.pos.0 = icon.pos.0 + icon.get_size().1 + ui::SPACING;
+        title.pos.1 = ui::SPACING;
         title.scale = 3.0;
 
-        let mut play_button = gfx::Button::new(|| {});
+        let mut play_button = ui::Button::new(|| {});
         play_button.texture = gfx::Texture::load_from_bytes(include_bytes!("../../Build/Resources/join_button.opa"));
         play_button.scale = 3.0;
         play_button.padding = 5.0;
-        play_button.pos.0 = icon.pos.0 + icon.get_size().0 + gfx::SPACING;
-        play_button.pos.1 = -gfx::SPACING;
-        play_button.orientation = gfx::BOTTOM_LEFT;
+        play_button.pos.0 = icon.pos.0 + icon.get_size().0 + ui::SPACING;
+        play_button.pos.1 = -ui::SPACING;
+        play_button.orientation = ui::BOTTOM_LEFT;
 
-        let mut delete_button = gfx::Button::new(|| {});
+        let mut delete_button = ui::Button::new(|| {});
         delete_button.texture = gfx::Texture::load_from_bytes(include_bytes!("../../Build/Resources/remove_button.opa"));
         delete_button.scale = 3.0;
         delete_button.padding = 5.0;
-        delete_button.pos.0 = play_button.pos.0 + play_button.get_size().0 + gfx::SPACING;
-        delete_button.pos.1 = -gfx::SPACING;
-        delete_button.orientation = gfx::BOTTOM_LEFT;
+        delete_button.pos.0 = play_button.pos.0 + play_button.get_size().0 + ui::SPACING;
+        delete_button.pos.1 = -ui::SPACING;
+        delete_button.orientation = ui::BOTTOM_LEFT;
 
         Self {
             server_info: ServerInfo::new(name, ip, port),
@@ -353,16 +355,16 @@ impl UiElement for ServerCard {
         vec![&self.icon, &self.title, &self.play_button, &self.delete_button]
     }
 
-    fn render_inner(&mut self, graphics: &mut gfx::GraphicsContext, parent_container: &gfx::Container) {
+    fn render_inner(&mut self, graphics: &mut gfx::GraphicsContext, parent_container: &ui::Container) {
         self.rect.render(graphics, parent_container);
     }
 
-    fn update_inner(&mut self, graphics: &mut gfx::GraphicsContext, parent_container: &gfx::Container) {
+    fn update_inner(&mut self, graphics: &mut gfx::GraphicsContext, parent_container: &ui::Container) {
         self.rect.update(graphics, parent_container);
     }
 
     /// This function returns the container of the server card.
-    fn get_container(&self, graphics: &dyn gfx::UiContext, parent_container: &gfx::Container) -> gfx::Container {
+    fn get_container(&self, graphics: &dyn ui::UiContext, parent_container: &ui::Container) -> ui::Container {
         self.rect.get_container(graphics, parent_container)
     }
 }
@@ -425,17 +427,17 @@ impl UiElement for ServerList {
         elements_vec
     }
 
-    fn update_inner(&mut self, _: &mut gfx::GraphicsContext, _: &gfx::Container) {
-        // `scrolled` already carries the scrollable's own `gfx::SPACING` offset - see
+    fn update_inner(&mut self, _: &mut gfx::GraphicsContext, _: &ui::Container) {
+        // `scrolled` already carries the scrollable's own `ui::SPACING` offset - see
         // `Scrollable::get_scroll_y`.
         let mut current_y = self.scrolled + self.top_rect_size;
         for server in &mut self.servers {
             server.set_pos(gfx::FloatPos(0.0, current_y));
-            current_y += server.get_height() + gfx::SPACING;
+            current_y += server.get_height() + ui::SPACING;
         }
     }
 
-    fn get_container(&self, graphics: &dyn gfx::UiContext, parent_container: &gfx::Container) -> gfx::Container {
-        gfx::Container::new(graphics, parent_container.rect.pos, parent_container.rect.size, parent_container.orientation, None)
+    fn get_container(&self, graphics: &dyn ui::UiContext, parent_container: &ui::Container) -> ui::Container {
+        ui::Container::new(graphics, parent_container.rect.pos, parent_container.rect.size, parent_container.orientation, None)
     }
 }

@@ -7,13 +7,14 @@ use std::sync::Mutex;
 use std::thread::sleep;
 
 use crate::libraries::graphics as gfx;
-use crate::libraries::graphics::BaseUiElement;
+use crate::libraries::ui;
+use crate::libraries::ui::BaseUiElement;
 use crate::server::server_core::Server;
 use crate::server::server_ui::ui_module_manager::{ModuleManager, ModuleTreeNodeType, ModuleTreeSplit, SplitType};
 use crate::server::server_ui::{console, empty_module, player_list, server_info};
 use crate::server::server_ui::{ServerState, UiMessageType};
 
-use crate::libraries::graphics::UiContext;
+use crate::libraries::ui::UiContext;
 pub const SCALE: f32 = 2.0;
 pub const EDGE_SPACING: f32 = 4.0;
 
@@ -150,7 +151,7 @@ impl UiManager {
 
     fn render(&mut self) {
         //renders the background
-        gfx::Rect::new(gfx::FloatPos(0.0, 0.0), self.graphics_context.get_window_size()).render(&self.graphics_context, gfx::DARK_GREY);
+        gfx::Rect::new(gfx::FloatPos(0.0, 0.0), self.graphics_context.get_window_size()).render(&self.graphics_context, ui::DARK_GREY);
 
         if self.module_edit_mode {
             self.module_manager.render_selection(&self.graphics_context);
@@ -226,7 +227,7 @@ impl UiManager {
         core::mem::swap(temp_1, temp_2);
 
         //loop through the modules and update their containers
-        let parent_container = gfx::Container::default(&self.graphics_context);
+        let parent_container = ui::Container::default(&self.graphics_context);
         for module in &mut self.modules {
             module.get_container_mut().update(&mut self.graphics_context, &parent_container);
         }
@@ -240,7 +241,7 @@ impl UiManager {
                 continue;
             }
             //background
-            module.get_container_mut().rect.render(&self.graphics_context, gfx::GREY);
+            module.get_container_mut().rect.render(&self.graphics_context, ui::GREY);
             module.render(&mut self.graphics_context);
         }
     }
@@ -340,7 +341,7 @@ pub trait ModuleTrait {
     /// relay messages from the server to the module
     fn on_server_message(&mut self, message: &UiMessageType, graphics_context: &mut gfx::GraphicsContext);
     /// returns the mutable reference to the module's rect
-    fn get_container_mut(&mut self) -> &mut gfx::Container;
+    fn get_container_mut(&mut self) -> &mut ui::Container;
     /// returns the name of the module
     fn get_name(&self) -> &str;
     /// gives the event sender to the module, so it can send data to the server

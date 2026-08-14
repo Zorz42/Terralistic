@@ -1,6 +1,6 @@
+use super::{BaseUiElement, UiElement};
 use crate::libraries::graphics as gfx;
 use crate::libraries::timing;
-use gfx::{BaseUiElement, UiElement};
 
 use super::theme::{SHADOW_INTENSITY, TEXT_INPUT_BORDER_COLOR, TEXT_INPUT_COLOR, TEXT_INPUT_HOVER_BORDER_COLOR, TEXT_INPUT_HOVER_COLOR, TEXT_INPUT_PADDING, TEXT_INPUT_WIDTH};
 
@@ -9,7 +9,7 @@ const WORD_DELIMITERS: &str = " /\\()\"\'-.,:;<>~!@#$%^&*|+=[]{}~?\u{2502}";
 /// A single line editable text field, with a selection, a clipboard and a hint.
 pub struct TextInput {
     pub pos: gfx::FloatPos,
-    pub orientation: gfx::Orientation,
+    pub orientation: super::Orientation,
     pub width: f32,
     hint_texture: gfx::Texture,
     pub padding: f32,
@@ -30,7 +30,7 @@ pub struct TextInput {
     /// Both ends of the selection, as **byte** offsets into `text`. They are in no particular
     /// order - `get_cursor` sorts them - and the second one is the end the user is dragging.
     cursor: (usize, usize),
-    cursor_rect: gfx::RenderRect,
+    cursor_rect: super::RenderRect,
     /// Filters every character on its way in, whether typed or pasted. Returning `None` drops
     /// the character.
     pub text_processing: Option<Box<dyn Fn(char) -> Option<char>>>,
@@ -52,13 +52,13 @@ impl TextInput {
     }
 
     fn with_text_texture(text_texture: gfx::Texture) -> Self {
-        let mut cursor_rect = gfx::RenderRect::new(gfx::FloatPos(0.0, 0.0), gfx::FloatSize(1.0, 1.0));
+        let mut cursor_rect = super::RenderRect::new(gfx::FloatPos(0.0, 0.0), gfx::FloatSize(1.0, 1.0));
         cursor_rect.smooth_factor = 30.0;
-        cursor_rect.fill_color = gfx::WHITE;
+        cursor_rect.fill_color = super::WHITE;
 
         Self {
             pos: gfx::FloatPos(0.0, 0.0),
-            orientation: gfx::TOP_LEFT,
+            orientation: super::TOP_LEFT,
             width: TEXT_INPUT_WIDTH,
             hint_texture: gfx::Texture::new(),
             padding: TEXT_INPUT_PADDING,
@@ -296,7 +296,7 @@ impl TextInput {
 
 /// Whether the shortcut modifier is held. Control on every platform, and the command key too,
 /// which is what a mac keyboard reaches for.
-fn shortcut_held(graphics: &dyn gfx::UiContext) -> bool {
+fn shortcut_held(graphics: &dyn super::UiContext) -> bool {
     [gfx::Key::LeftControl, gfx::Key::RightControl, gfx::Key::LeftSuper, gfx::Key::RightSuper]
         .into_iter()
         .any(|key| graphics.get_key_state(key))
@@ -311,7 +311,7 @@ impl UiElement for TextInput {
         vec![&self.cursor_rect]
     }
 
-    fn render_inner(&mut self, graphics: &mut gfx::GraphicsContext, parent_container: &gfx::Container) {
+    fn render_inner(&mut self, graphics: &mut gfx::GraphicsContext, parent_container: &super::Container) {
         let container = self.get_container(graphics, parent_container);
         let rect = container.get_absolute_rect();
 
@@ -327,9 +327,9 @@ impl UiElement for TextInput {
             // Fading out is ten times slower than fading in, so the box lingers under the
             // pointer instead of snapping back.
             let smooth_factor = if hover_target < self.hover_progress { 400.0 } else { 40.0 };
-            self.hover_progress = gfx::approach(self.hover_progress, hover_target, smooth_factor, 0.01);
-            self.cursor_color_progress = gfx::approach(self.cursor_color_progress, cursor_target, 40.0, 0.0);
-            self.hint_color_progress = gfx::approach(self.hint_color_progress, hint_target, 40.0, 0.0);
+            self.hover_progress = super::approach(self.hover_progress, hover_target, smooth_factor, 0.01);
+            self.cursor_color_progress = super::approach(self.cursor_color_progress, cursor_target, 40.0, 0.0);
+            self.hint_color_progress = super::approach(self.hint_color_progress, hint_target, 40.0, 0.0);
         }
 
         rect.render(graphics, gfx::interpolate_colors(self.color, self.hover_color, self.hover_progress));
@@ -345,7 +345,7 @@ impl UiElement for TextInput {
             ),
             None,
             false,
-            Some(gfx::GREY.set_a((255.0 * self.hint_color_progress) as u8)),
+            Some(super::GREY.set_a((255.0 * self.hint_color_progress) as u8)),
         );
 
         if !self.text.is_empty() {
@@ -379,7 +379,7 @@ impl UiElement for TextInput {
         self.text_changed = false;
     }
 
-    fn on_event_inner(&mut self, graphics: &mut dyn gfx::UiContext, event: &gfx::Event, parent_container: &gfx::Container) -> bool {
+    fn on_event_inner(&mut self, graphics: &mut dyn super::UiContext, event: &gfx::Event, parent_container: &super::Container) -> bool {
         match event {
             gfx::Event::TextInput(text) => {
                 if self.selected {
@@ -461,7 +461,7 @@ impl UiElement for TextInput {
         false
     }
 
-    fn get_container(&self, graphics: &dyn gfx::UiContext, parent_container: &gfx::Container) -> gfx::Container {
-        gfx::Container::new(graphics, self.pos, self.get_size(), self.orientation, Some(parent_container))
+    fn get_container(&self, graphics: &dyn super::UiContext, parent_container: &super::Container) -> super::Container {
+        super::Container::new(graphics, self.pos, self.get_size(), self.orientation, Some(parent_container))
     }
 }

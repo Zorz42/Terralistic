@@ -1,6 +1,7 @@
 use crate::libraries::events::Event;
 use crate::libraries::graphics as gfx;
-use crate::libraries::graphics::BaseUiElement;
+use crate::libraries::ui;
+use crate::libraries::ui::BaseUiElement;
 use crate::shared::blocks::RENDER_BLOCK_WIDTH;
 
 /// How fast the camera closes the distance to the player, and how near counts as arrived.
@@ -9,14 +10,14 @@ const CAMERA_SMOOTH_FACTOR: f32 = 33.3;
 const CAMERA_EPSILON: f32 = 0.01;
 
 /// Camera is a struct that handles the camera position.
-use crate::libraries::graphics::UiContext;
+use crate::libraries::ui::UiContext;
 pub struct Camera {
     target_position_x: f32,
     target_position_y: f32,
     position_x: f32,
     position_y: f32,
     detached: bool,
-    detached_text: gfx::Sprite,
+    detached_text: ui::Sprite,
 }
 
 impl Camera {
@@ -27,15 +28,15 @@ impl Camera {
             position_x: 0.0,
             position_y: 0.0,
             detached: false,
-            detached_text: gfx::Sprite::new(),
+            detached_text: ui::Sprite::new(),
         }
     }
 
     pub fn load_resources(&mut self, graphics: &gfx::GraphicsContext) {
         self.detached_text
             .set_texture(gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Camera is detached", None)));
-        self.detached_text.orientation = gfx::BOTTOM;
-        self.detached_text.pos = gfx::FloatPos(0.0, -gfx::SPACING);
+        self.detached_text.orientation = ui::BOTTOM;
+        self.detached_text.pos = gfx::FloatPos(0.0, -ui::SPACING);
         self.detached_text.scale = 3.0;
         self.detached_text.color = gfx::Color::new(255, 0, 0, 255);
     }
@@ -54,8 +55,8 @@ impl Camera {
     pub fn update_ms(&mut self, graphics: &gfx::GraphicsContext) {
         // 0.03 is 1/33.3, which is what this used to be written as - the only smoothing in
         // the game that was spelled as a multiply
-        self.position_x = gfx::approach(self.position_x, self.target_position_x, CAMERA_SMOOTH_FACTOR, CAMERA_EPSILON);
-        self.position_y = gfx::approach(self.position_y, self.target_position_y, CAMERA_SMOOTH_FACTOR, CAMERA_EPSILON);
+        self.position_x = ui::approach(self.position_x, self.target_position_x, CAMERA_SMOOTH_FACTOR, CAMERA_EPSILON);
+        self.position_y = ui::approach(self.position_y, self.target_position_y, CAMERA_SMOOTH_FACTOR, CAMERA_EPSILON);
 
         if self.detached {
             if graphics.get_key_state(gfx::Key::W) {
@@ -78,7 +79,7 @@ impl Camera {
 
     pub fn render(&mut self, graphics: &mut gfx::GraphicsContext) {
         if self.detached {
-            self.detached_text.render(graphics, &gfx::Container::default(graphics));
+            self.detached_text.render(graphics, &ui::Container::default(graphics));
         }
     }
 

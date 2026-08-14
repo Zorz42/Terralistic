@@ -1,5 +1,7 @@
 use crate::libraries::graphics as gfx;
-use crate::libraries::graphics::{Container, GraphicsContext};
+use crate::libraries::graphics::GraphicsContext;
+use crate::libraries::ui;
+use crate::libraries::ui::Container;
 use crate::server::server_ui::UiMessageType;
 
 use super::ui_manager;
@@ -14,7 +16,7 @@ pub struct EmptyModule {
 impl EmptyModule {
     pub fn new(graphics_context: &GraphicsContext, name: String) -> Self {
         Self {
-            container: Container::new(graphics_context, gfx::FloatPos(EDGE_SPACING, 0.0), gfx::FloatSize(0.0, 0.0), gfx::TOP_LEFT, None),
+            container: Container::new(graphics_context, gfx::FloatPos(EDGE_SPACING, 0.0), gfx::FloatSize(0.0, 0.0), ui::TOP_LEFT, None),
             name,
             enabled: false,
         }

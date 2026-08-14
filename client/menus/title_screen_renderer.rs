@@ -3,7 +3,8 @@ use crate::client::menus::singleplayer_selector::MENU_WIDTH;
 use crate::client::menus::{MainMenu, SecondaryMenu};
 use crate::libraries::config::Settings;
 use crate::libraries::graphics as gfx;
-use gfx::{BaseUiElement, UiElement};
+use crate::libraries::ui;
+use crate::libraries::ui::{BaseUiElement, UiElement};
 use std::cell::Cell;
 use std::cell::RefCell;
 use std::rc::Rc;
@@ -12,7 +13,7 @@ use super::background_rect::BackgroundRect;
 use super::MenuBack;
 
 // when menu is off-screen, how much is it off-screen by
-use crate::libraries::graphics::UiContext;
+use crate::libraries::ui::UiContext;
 const INVISIBLE_PADDING: f32 = 50.0;
 
 enum TitleScreenState {
@@ -28,7 +29,7 @@ struct MenuRenderer {
 }
 
 impl MenuRenderer {
-    fn on_event(&mut self, graphics: &mut gfx::GraphicsContext, event: &gfx::Event, main_back_container: &gfx::Container, secondary_back_container: &gfx::Container) -> bool {
+    fn on_event(&mut self, graphics: &mut gfx::GraphicsContext, event: &gfx::Event, main_back_container: &ui::Container, secondary_back_container: &ui::Container) -> bool {
         match self.state {
             TitleScreenState::MainMenu => self.main_menu.on_event(graphics, event, main_back_container),
             TitleScreenState::BothMenus => self.main_menu.on_event(graphics, event, main_back_container) || self.secondary_menu.on_event(graphics, event, secondary_back_container),
@@ -36,7 +37,7 @@ impl MenuRenderer {
         }
     }
 
-    fn update(&mut self, graphics: &mut gfx::GraphicsContext, main_back_container: &gfx::Container, secondary_back_container: &gfx::Container) {
+    fn update(&mut self, graphics: &mut gfx::GraphicsContext, main_back_container: &ui::Container, secondary_back_container: &ui::Container) {
         match self.state {
             TitleScreenState::MainMenu => self.main_menu.update(graphics, main_back_container),
             TitleScreenState::BothMenus => {
@@ -47,7 +48,7 @@ impl MenuRenderer {
         }
     }
 
-    fn render(&mut self, graphics: &mut gfx::GraphicsContext, main_back_container: &gfx::Container, secondary_back_container: &gfx::Container) {
+    fn render(&mut self, graphics: &mut gfx::GraphicsContext, main_back_container: &ui::Container, secondary_back_container: &ui::Container) {
         match self.state {
             TitleScreenState::MainMenu => self.main_menu.render(graphics, main_back_container),
             TitleScreenState::BothMenus => {
@@ -71,24 +72,24 @@ pub fn run_title_screen(graphics: &mut gfx::GraphicsContext, settings: &Rc<RefCe
 
     let mut max_width = 0.0;
     for button in menus.main_menu.get_sub_elements() {
-        if button.get_container(graphics, &gfx::Container::default(graphics)).rect.size.0 > max_width {
-            max_width = button.get_container(graphics, &gfx::Container::default(graphics)).rect.size.0;
+        if button.get_container(graphics, &ui::Container::default(graphics)).rect.size.0 > max_width {
+            max_width = button.get_container(graphics, &ui::Container::default(graphics)).rect.size.0;
         }
     }
     main_back_rect.set_back_rect_width(max_width + 100.0, true);
 
-    let mut secondary_back_rect = gfx::RenderRect::new(gfx::FloatPos(graphics.get_window_size().0, 0.0), gfx::FloatSize(MENU_WIDTH, graphics.get_window_size().1));
-    secondary_back_rect.orientation = gfx::TOP;
-    secondary_back_rect.blur_radius = gfx::BLUR;
+    let mut secondary_back_rect = ui::RenderRect::new(gfx::FloatPos(graphics.get_window_size().0, 0.0), gfx::FloatSize(MENU_WIDTH, graphics.get_window_size().1));
+    secondary_back_rect.orientation = ui::TOP;
+    secondary_back_rect.blur_radius = ui::BLUR;
     secondary_back_rect.smooth_factor = 60.0;
-    secondary_back_rect.shadow_intensity = gfx::SHADOW_INTENSITY;
-    secondary_back_rect.fill_color.a = gfx::TRANSPARENCY;
-    secondary_back_rect.border_color = gfx::BORDER_COLOR;
+    secondary_back_rect.shadow_intensity = ui::SHADOW_INTENSITY;
+    secondary_back_rect.fill_color.a = ui::TRANSPARENCY;
+    secondary_back_rect.border_color = ui::BORDER_COLOR;
 
     while graphics.is_window_open() {
         position_back_menus(graphics, &menus.state, &mut main_back_rect, &mut secondary_back_rect);
 
-        let window_container = gfx::Container::default(graphics);
+        let window_container = ui::Container::default(graphics);
         main_back_rect.update(graphics, &window_container);
         secondary_back_rect.update(graphics, &window_container);
         let main_back_container = main_back_rect.get_container(graphics, &window_container);
@@ -103,7 +104,7 @@ pub fn run_title_screen(graphics: &mut gfx::GraphicsContext, settings: &Rc<RefCe
                 menus.state = TitleScreenState::BothMenus;
             }
         }
-        if matches!(menus.state, TitleScreenState::MainMenu) && secondary_back_container.get_absolute_rect().pos.0 > graphics.get_window_size().0 - gfx::SPACING {
+        if matches!(menus.state, TitleScreenState::MainMenu) && secondary_back_container.get_absolute_rect().pos.0 > graphics.get_window_size().0 - ui::SPACING {
             menus.secondary_menu = SecondaryMenu::None;
         }
 
@@ -138,8 +139,8 @@ pub fn run_title_screen(graphics: &mut gfx::GraphicsContext, settings: &Rc<RefCe
     }
 }
 
-fn position_back_menus(graphics: &gfx::GraphicsContext, state: &TitleScreenState, main_back_rect: &mut MenuBack, secondary_back_rect: &mut gfx::RenderRect) {
-    let max_width = main_back_rect.get_back_rect_width() + gfx::SPACING + secondary_back_rect.render_size.0;
+fn position_back_menus(graphics: &gfx::GraphicsContext, state: &TitleScreenState, main_back_rect: &mut MenuBack, secondary_back_rect: &mut ui::RenderRect) {
+    let max_width = main_back_rect.get_back_rect_width() + ui::SPACING + secondary_back_rect.render_size.0;
     match state {
         TitleScreenState::MainMenu => {
             main_back_rect.set_x_position(0.0);

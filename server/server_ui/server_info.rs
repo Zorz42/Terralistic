@@ -1,5 +1,6 @@
 use crate::libraries::graphics as gfx;
-use crate::libraries::graphics::BaseUiElement;
+use crate::libraries::ui;
+use crate::libraries::ui::BaseUiElement;
 use crate::server::server_ui::{PlayerEventType, ServerState, UiMessageType};
 
 use super::ui_manager;
@@ -25,14 +26,14 @@ fn format_seconds(seconds: u64) -> String {
 }
 
 pub struct ServerInfo {
-    player_count_sprite: gfx::Sprite,
+    player_count_sprite: ui::Sprite,
     players_count: u32,
     server_state_enum: ServerState,
-    server_state_sprite: gfx::Sprite,
-    mspt_sprite: gfx::Sprite,
+    server_state_sprite: ui::Sprite,
+    mspt_sprite: ui::Sprite,
     mspt: (f64, f64),
-    uptime: gfx::Sprite,
-    container: gfx::Container,
+    uptime: ui::Sprite,
+    container: ui::Container,
     server_start: std::time::Instant,
     last_update: std::time::Instant,
     updated_ui: i32,
@@ -43,15 +44,15 @@ pub struct ServerInfo {
 impl ServerInfo {
     pub fn new(graphics_context: &gfx::GraphicsContext) -> Self {
         Self {
-            player_count_sprite: gfx::Sprite::new(),
+            player_count_sprite: ui::Sprite::new(),
             players_count: 0,
             server_state_enum: ServerState::Nothing,
-            server_state_sprite: gfx::Sprite::new(),
-            mspt_sprite: gfx::Sprite::new(),
+            server_state_sprite: ui::Sprite::new(),
+            mspt_sprite: ui::Sprite::new(),
             mspt: (0.0, 0.0),
-            uptime: gfx::Sprite::new(),
+            uptime: ui::Sprite::new(),
             //container math will be redone
-            container: gfx::Container::new(graphics_context, gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, 0.0), gfx::TOP_LEFT, None),
+            container: ui::Container::new(graphics_context, gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, 0.0), ui::TOP_LEFT, None),
             server_start: std::time::Instant::now(),
             last_update: std::time::Instant::now(),
             updated_ui: 0,
@@ -82,23 +83,23 @@ impl ui_manager::ModuleTrait for ServerInfo {
     fn init(&mut self, graphics_context: &mut gfx::GraphicsContext) {
         self.server_state_sprite
             .set_texture(gfx::Texture::load_from_surface(&graphics_context.font.create_text_surface("test", None)));
-        self.server_state_sprite.color = gfx::WHITE;
+        self.server_state_sprite.color = ui::WHITE;
         self.server_state_sprite.scale = SCALE;
-        self.server_state_sprite.orientation = gfx::TOP;
+        self.server_state_sprite.orientation = ui::TOP;
 
-        self.uptime.color = gfx::WHITE;
+        self.uptime.color = ui::WHITE;
         self.uptime.scale = SCALE;
-        self.uptime.orientation = gfx::TOP_RIGHT;
-        self.uptime.pos = gfx::FloatPos(-gfx::SPACING, gfx::SPACING);
+        self.uptime.orientation = ui::TOP_RIGHT;
+        self.uptime.pos = gfx::FloatPos(-ui::SPACING, ui::SPACING);
 
-        self.mspt_sprite.color = gfx::WHITE;
+        self.mspt_sprite.color = ui::WHITE;
         self.mspt_sprite.scale = SCALE;
-        self.mspt_sprite.orientation = gfx::TOP;
+        self.mspt_sprite.orientation = ui::TOP;
 
-        self.player_count_sprite.color = gfx::WHITE;
+        self.player_count_sprite.color = ui::WHITE;
         self.player_count_sprite.scale = SCALE;
-        self.player_count_sprite.orientation = gfx::TOP_LEFT;
-        self.player_count_sprite.pos = gfx::FloatPos(gfx::SPACING, gfx::SPACING);
+        self.player_count_sprite.orientation = ui::TOP_LEFT;
+        self.player_count_sprite.pos = gfx::FloatPos(ui::SPACING, ui::SPACING);
         self.player_count_sprite
             .set_texture(gfx::Texture::load_from_surface(&graphics_context.font.create_text_surface("Players: 0", None)));
     }
@@ -116,17 +117,14 @@ impl ui_manager::ModuleTrait for ServerInfo {
         //if the server is running, move the running text slightly to the right and add the mspt_sprite text so they are centered together, otherwise keep it in the center and don't show mspt_sprite
         if self.server_state_enum == ServerState::Running {
             //move server state sprite to the left
-            self.server_state_sprite.pos = gfx::FloatPos(
-                (self.server_state_sprite.get_texture().get_texture_size().0 / 2.0 * SCALE) - (combined_size / 2.0 * SCALE),
-                gfx::SPACING,
-            );
+            self.server_state_sprite.pos = gfx::FloatPos((self.server_state_sprite.get_texture().get_texture_size().0 / 2.0 * SCALE) - (combined_size / 2.0 * SCALE), ui::SPACING);
         } else {
             //move server state sprite to the center
-            self.server_state_sprite.pos = gfx::FloatPos(0.0, gfx::SPACING);
+            self.server_state_sprite.pos = gfx::FloatPos(0.0, ui::SPACING);
         }
 
         //move mspt_sprite sprite to the right
-        self.mspt_sprite.pos = gfx::FloatPos((combined_size / 2.0 * SCALE) - (self.mspt_sprite.get_texture().get_texture_size().0 / 2.0 * SCALE), gfx::SPACING);
+        self.mspt_sprite.pos = gfx::FloatPos((combined_size / 2.0 * SCALE) - (self.mspt_sprite.get_texture().get_texture_size().0 / 2.0 * SCALE), ui::SPACING);
     }
 
     fn render(&mut self, graphics_context: &mut gfx::GraphicsContext) {
@@ -193,7 +191,7 @@ impl ui_manager::ModuleTrait for ServerInfo {
             _ => {}
         }
     }
-    fn get_container_mut(&mut self) -> &mut gfx::Container {
+    fn get_container_mut(&mut self) -> &mut ui::Container {
         &mut self.container
     }
 
