@@ -7,8 +7,8 @@ use darklua_core::Parser;
 
 use crate::build_project::png_to_opa::png_file_to_opa_bytes;
 use crate::libraries::graphics as gfx;
+use crate::libraries::scripting::ScriptModuleData;
 use crate::libraries::serialization;
-use crate::shared::mod_data::GameModData;
 
 /// This function compiles a game mod from a directory.
 /// It takes the path to the directory as input.
@@ -47,11 +47,11 @@ pub fn compile_mod(mod_path: PathBuf) {
 
     let minified_lua_code = generator.into_string();
     let resources = generate_resources(mod_path.join("resources"), String::new());
-    // GameMod serializes through exactly this type, so writing it directly produces the
+    // ScriptModule serializes through exactly this type, so writing it directly produces the
     // same bytes without needing to construct a Lua state at build time
-    let mod_obj = GameModData {
+    let mod_obj = ScriptModuleData {
         name: mod_path.file_name().unwrap().to_str().unwrap().to_owned(),
-        lua_code: minified_lua_code,
+        source: minified_lua_code,
         resources,
     };
 

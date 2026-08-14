@@ -6,9 +6,9 @@ use anyhow::{anyhow, bail, Result};
 use crate::libraries::events::{Event, EventManager};
 use crate::libraries::graphics as gfx;
 use crate::libraries::grid::ChunkTracker;
+use crate::libraries::scripting::ScriptHost;
 use crate::shared::blocks::RENDER_BLOCK_WIDTH;
 use crate::shared::liquids::{init_liquids_mod_interface, LiquidChangeEvent, LiquidChangesPacket, LiquidId, Liquids, LiquidsWelcomePacket, MAX_LIQUID_LEVEL};
-use crate::shared::mod_manager::ModManager;
 use crate::shared::packet::Packet;
 use crate::shared::CHUNK_SIZE;
 
@@ -117,7 +117,7 @@ impl ClientLiquids {
         self.liquids.lock().unwrap_or_else(PoisonError::into_inner)
     }
 
-    pub fn init(&self, mods: &mut ModManager) -> Result<()> {
+    pub fn init(&self, mods: &mut ScriptHost) -> Result<()> {
         init_liquids_mod_interface(mods, &self.liquids)
     }
 
@@ -154,7 +154,7 @@ impl ClientLiquids {
         Ok(())
     }
 
-    pub fn load_resources(&mut self, mods: &ModManager) -> Result<()> {
+    pub fn load_resources(&mut self, mods: &ScriptHost) -> Result<()> {
         let width = self.get_liquids().get_size().0 as i32 / CHUNK_SIZE;
         let height = self.get_liquids().get_size().1 as i32 / CHUNK_SIZE;
         for _ in 0..width * height {

@@ -9,9 +9,9 @@
 #![allow(clippy::unwrap_used, clippy::panic)] // tests assert on results directly
 mod tests {
     use crate::integration_tests::harness::{TestServer, BASE_GAME_MOD};
+    use crate::libraries::scripting::ScriptModule;
+    use crate::libraries::scripting::ScriptModuleData;
     use crate::libraries::serialization;
-    use crate::shared::mod_data::GameModData;
-    use crate::shared::mod_manager::GameMod;
 
     /// A server on a small world, with the real `base_game` mod loaded and initialised.
     fn started_server(tag: &str) -> TestServer {
@@ -23,10 +23,10 @@ mod tests {
     #[test]
     fn test_the_committed_mod_artifact_decodes() {
         let decompressed = snap::raw::Decoder::new().decompress_vec(BASE_GAME_MOD).unwrap();
-        let data: GameModData = serialization::deserialize(&decompressed).unwrap();
+        let data: ScriptModuleData = serialization::deserialize(&decompressed).unwrap();
 
         assert_eq!(data.name, "base_game");
-        assert!(!data.lua_code.is_empty(), "the mod carries no lua");
+        assert!(!data.source.is_empty(), "the mod carries no lua");
         assert!(!data.resources.is_empty(), "the mod carries no resources");
     }
 
@@ -35,8 +35,8 @@ mod tests {
     #[test]
     fn test_the_mod_keeps_the_hooks_the_game_calls() {
         let decompressed = snap::raw::Decoder::new().decompress_vec(BASE_GAME_MOD).unwrap();
-        let data: GameModData = serialization::deserialize(&decompressed).unwrap();
-        let game_mod = GameMod::new(data.name, data.lua_code, data.resources.into_iter().collect());
+        let data: ScriptModuleData = serialization::deserialize(&decompressed).unwrap();
+        let game_mod = ScriptModule::new(data.name, data.source, data.resources.into_iter().collect());
 
         // the mod has to be initialised before its globals exist, and that is exactly
         // what a server start does, so this test only checks what survives the build

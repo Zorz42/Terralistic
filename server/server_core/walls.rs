@@ -2,9 +2,9 @@ use anyhow::Result;
 use std::sync::{Arc, Mutex, MutexGuard, PoisonError};
 
 use crate::libraries::events::{Event, EventManager};
+use crate::libraries::scripting::ScriptHost;
 use crate::server::server_core::networking::SendTarget;
 use crate::shared::blocks::Blocks;
-use crate::shared::mod_manager::ModManager;
 use crate::shared::packet::Packet;
 use crate::shared::walls::{init_walls_mod_interface, Walls, WallsWelcomePacket};
 
@@ -21,7 +21,7 @@ impl ServerWalls {
         }
     }
 
-    pub fn init(&self, mods: &mut ModManager) -> Result<()> {
+    pub fn init(&self, mods: &mut ScriptHost) -> Result<()> {
         init_walls_mod_interface(mods, &self.walls)
     }
 

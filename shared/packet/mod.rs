@@ -15,3 +15,10 @@ mod tests;
 /// This packet is sent when all the welcome packets have been sent.
 #[derive(Serialize, Deserialize)]
 pub struct WelcomeCompletePacket;
+
+/// The mods themselves, as serialized `ScriptModule`s. The server sends the client the
+/// content it is about to be asked to render.
+#[derive(Serialize, Deserialize)]
+pub struct ModsWelcomePacket {
+    pub mods: Vec<Vec<u8>>,
+}

@@ -3,8 +3,8 @@ use std::sync::{Mutex, PoisonError};
 
 use anyhow::Result;
 
+use crate::libraries::scripting::ScriptHost;
 use crate::shared::blocks::{Block, BlockId, Blocks, Tool, ToolId};
-use crate::shared::mod_manager::ModManager;
 
 // make BlockId lua compatible
 impl rlua::FromLua<'_> for BlockId {
@@ -25,7 +25,7 @@ impl rlua::UserData for BlockId {
 
 /// initialize the mod interface for the blocks module
 #[allow(clippy::too_many_lines)]
-pub fn init_blocks_mod_interface(blocks: &Arc<Mutex<Blocks>>, mods: &mut ModManager) -> Result<()> {
+pub fn init_blocks_mod_interface(blocks: &Arc<Mutex<Blocks>>, mods: &mut ScriptHost) -> Result<()> {
     let blocks_clone = blocks.clone();
     mods.add_global_function(
         "register_block_type",

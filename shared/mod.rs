@@ -5,8 +5,6 @@ pub mod inventory;
 pub mod items;
 pub mod lights;
 pub mod liquids;
-pub mod mod_data;
-pub mod mod_manager;
 pub mod packet;
 pub mod players;
 // login disabled: the account server is unreachable, see docs/LOGIN.md
@@ -22,3 +20,10 @@ pub mod walls;
 /// Everything that partitions the world - the light update counts and the client's three
 /// chunk mesh caches - uses this one, so they all line up.
 pub const CHUNK_SIZE: i32 = 16;
+
+/// What every function the game exposes to lua is called from lua.
+///
+/// `ScriptHost` adds it, so `add_global_function("get_block", ..)` is `terralistic_get_block`
+/// in a mod. It is here rather than in the scripting library because the prefix is what keeps
+/// *this* game's names out of a mod's way, and a different host would want its own.
+pub const MOD_FUNCTION_PREFIX: &str = "terralistic_";

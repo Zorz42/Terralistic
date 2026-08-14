@@ -3,6 +3,7 @@ use std::fmt::Write;
 use anyhow::{bail, Result};
 
 use crate::libraries::events::Event;
+use crate::libraries::scripting::ScriptHost;
 use crate::server::server_core::entities::ServerEntities;
 use crate::server::server_core::networking::{PacketFromClientEvent, SendTarget, ServerNetworking};
 use crate::server::server_core::players::ServerPlayers;
@@ -10,7 +11,6 @@ use crate::server::server_core::send_to_ui;
 use crate::server::server_ui::{ConsoleMessageType, UiMessageType};
 use crate::shared::chat::ChatPacket;
 use crate::shared::entities::EntityId;
-use crate::shared::mod_manager::ModManager;
 use crate::shared::packet::Packet;
 use crate::shared::players::PlayerComponent;
 
@@ -29,8 +29,8 @@ impl CommandManager {
         Self { commands: Vec::new() }
     }
 
-    pub fn init(&mut self, mod_manager: &mut ModManager) {
-        for game_mod in mod_manager.mods_iter_mut() {
+    pub fn init(&mut self, mod_manager: &mut ScriptHost) {
+        for game_mod in mod_manager.modules_iter_mut() {
             for global_symbol in game_mod.get_all_symbols() {
                 if global_symbol.starts_with("command_") {
                     let command_name = global_symbol.get(8..).unwrap_or("").to_owned();
@@ -49,7 +49,7 @@ impl CommandManager {
     }
 
     /// receives an event and executes the command
-    pub fn on_event(&self, event: &Event, players: &ServerPlayers, entities: &ServerEntities, networking: &mut ServerNetworking, mod_manager: &mut ModManager) -> Result<()> {
+    pub fn on_event(&self, event: &Event, players: &ServerPlayers, entities: &ServerEntities, networking: &mut ServerNetworking, mod_manager: &mut ScriptHost) -> Result<()> {
         if let Some(event) = event.downcast::<PacketFromClientEvent>() {
             if let Some(packet) = event.packet.try_deserialize::<ChatPacket>() {
                 let mut command = packet.message;
@@ -86,7 +86,7 @@ impl CommandManager {
         Ok(())
     }
 
-    pub fn execute_command(&self, command: &str, mod_manager: &mut ModManager, executor: Option<EntityId>) -> Result<String> {
+    pub fn execute_command(&self, command: &str, mod_manager: &mut ScriptHost, executor: Option<EntityId>) -> Result<String> {
         // split the command into Vec<String>
         let mut arguments = command.split_whitespace().map(std::borrow::ToOwned::to_owned).collect::<Vec<_>>();
         // a command that is empty or only whitespace has no name to look up
@@ -101,7 +101,7 @@ impl CommandManager {
         }
 
         // go through all mods and search for the function
-        for game_mod in mod_manager.mods_iter_mut() {
+        for game_mod in mod_manager.modules_iter_mut() {
             if game_mod.is_symbol_defined(&function_name)? {
                 let result = game_mod.call_function(&function_name, (arguments, executor))?;
                 return Ok(result);

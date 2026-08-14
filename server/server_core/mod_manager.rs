@@ -1,10 +1,12 @@
 use anyhow::Result;
 
 use crate::libraries::events::Event;
+use crate::libraries::scripting::{ScriptHost, ScriptModule};
 use crate::server::server_core::networking::SendTarget;
 use crate::server::server_core::print_to_console;
-use crate::shared::mod_manager::{GameMod, ModManager, ModsWelcomePacket};
+use crate::shared::packet::ModsWelcomePacket;
 use crate::shared::packet::Packet;
+use crate::shared::MOD_FUNCTION_PREFIX;
 
 use super::networking::{NewConnectionEvent, ServerNetworking};
 use crate::libraries::serialization;
@@ -15,13 +17,15 @@ use crate::libraries::serialization;
 /// It gets all the mods from the world
 /// and always loads the base game mod.
 pub struct ServerModManager {
-    pub mod_manager: ModManager,
+    pub mod_manager: ScriptHost,
 }
 
 impl ServerModManager {
     /// Creates a new server mod manager.
-    pub const fn new(mods: Vec<GameMod>) -> Self {
-        Self { mod_manager: ModManager::new(mods) }
+    pub const fn new(mods: Vec<ScriptModule>) -> Self {
+        Self {
+            mod_manager: ScriptHost::new(mods, MOD_FUNCTION_PREFIX),
+        }
     }
 
     /// This function initializes the server mod manager.
@@ -34,7 +38,7 @@ impl ServerModManager {
         })?;
 
         self.mod_manager.init()?;
-        for game_mod in self.mod_manager.mods_iter_mut() {
+        for game_mod in self.mod_manager.modules_iter_mut() {
             game_mod.call_function::<(), ()>("init_server", ())?;
         }
         Ok(())
@@ -43,7 +47,7 @@ impl ServerModManager {
     pub fn on_event(&mut self, event: &Event, networking: &mut ServerNetworking) -> Result<()> {
         if let Some(event) = event.downcast::<NewConnectionEvent>() {
             let mut mods = Vec::new();
-            for game_mod in self.mod_manager.mods_iter_mut() {
+            for game_mod in self.mod_manager.modules_iter_mut() {
                 mods.push(serialization::serialize(game_mod)?);
             }
             let welcome_packet = Packet::new(ModsWelcomePacket { mods })?;

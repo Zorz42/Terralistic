@@ -2,14 +2,15 @@
 #![cfg(test)]
 mod tests {
     use crate::libraries::events::EventManager;
+    use crate::libraries::scripting::ScriptHost;
     use crate::server::server_core::commands::CommandManager;
     use crate::server::server_core::networking::{BindAddress, ServerNetworking};
-    use crate::shared::mod_manager::ModManager;
+    use crate::shared::MOD_FUNCTION_PREFIX;
 
     /// Runs a command against a `CommandManager` that has no mods loaded.
     fn execute(command: &str) -> anyhow::Result<String> {
         let commands = CommandManager::new();
-        let mut mods = ModManager::new(Vec::new());
+        let mut mods = ScriptHost::new(Vec::new(), MOD_FUNCTION_PREFIX);
         commands.execute_command(command, &mut mods, None)
     }
 

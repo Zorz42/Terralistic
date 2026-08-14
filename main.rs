@@ -159,6 +159,7 @@ pub mod libraries {
     pub mod grid;
     pub mod net;
     pub mod registry;
+    pub mod scripting;
     pub mod serialization;
     mod tests;
     pub mod timing;

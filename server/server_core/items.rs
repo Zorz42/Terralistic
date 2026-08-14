@@ -4,11 +4,11 @@ use std::sync::{Arc, Mutex, MutexGuard, PoisonError};
 use anyhow::Result;
 
 use crate::libraries::events::{Event, EventManager};
+use crate::libraries::scripting::ScriptHost;
 use crate::server::server_core::networking::{SendTarget, ServerNetworking};
 use crate::shared::blocks::BlockBreakEvent;
 use crate::shared::entities::{Entities, PhysicsComponent, PositionComponent};
 use crate::shared::items::{init_items_mod_interface, ItemComponent, ItemSpawnEvent, ItemSpawnPacket, Items};
-use crate::shared::mod_manager::ModManager;
 use crate::shared::packet::Packet;
 
 pub struct ServerItems {
@@ -24,7 +24,7 @@ impl ServerItems {
         }
     }
 
-    pub fn init(&mut self, mods: &mut ModManager, entities: &Arc<Mutex<Entities>>) -> Result<()> {
+    pub fn init(&mut self, mods: &mut ScriptHost, entities: &Arc<Mutex<Entities>>) -> Result<()> {
         self.event_receiver = Some(init_items_mod_interface(&self.items, entities, mods)?);
         Ok(())
     }

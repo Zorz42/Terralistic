@@ -1,7 +1,9 @@
 use anyhow::Result;
 
 use crate::libraries::events::Event;
-use crate::shared::mod_manager::{ModManager, ModsWelcomePacket};
+use crate::libraries::scripting::ScriptHost;
+use crate::shared::packet::ModsWelcomePacket;
+use crate::shared::MOD_FUNCTION_PREFIX;
 
 use super::networking::WelcomePacketEvent;
 use crate::libraries::serialization;
@@ -12,14 +14,14 @@ use crate::libraries::serialization;
 /// It also gets mods from the server and adds them to the shared mod manager
 /// and always loads the `base_game` mod.
 pub struct ClientModManager {
-    pub mod_manager: ModManager,
+    pub mod_manager: ScriptHost,
 }
 
 impl ClientModManager {
     /// Creates a new client mod manager.
     pub const fn new() -> Self {
         Self {
-            mod_manager: ModManager::new(Vec::new()),
+            mod_manager: ScriptHost::new(Vec::new(), MOD_FUNCTION_PREFIX),
         }
     }
 
@@ -48,7 +50,7 @@ impl ClientModManager {
                     let game_mod = serialization::deserialize(&mod_data)?;
                     game_mods.push(game_mod);
                 }
-                self.mod_manager = ModManager::new(game_mods);
+                self.mod_manager = ScriptHost::new(game_mods, MOD_FUNCTION_PREFIX);
             }
         }
         Ok(())

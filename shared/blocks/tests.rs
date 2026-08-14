@@ -460,8 +460,9 @@ mod tests {
     /// type from lua, then read it back from Rust.
     #[test]
     fn test_lua_can_register_a_block_type() {
+        use crate::libraries::scripting::{ScriptHost, ScriptModule};
         use crate::shared::blocks::init_blocks_mod_interface;
-        use crate::shared::mod_manager::{GameMod, ModManager};
+        use crate::shared::MOD_FUNCTION_PREFIX;
         use std::sync::{Arc, Mutex};
 
         let lua = r#"
@@ -487,7 +488,7 @@ mod tests {
         "#;
 
         let blocks = Arc::new(Mutex::new(Blocks::new()));
-        let mut mods = ModManager::new(vec![GameMod::new("test".to_owned(), lua.to_owned(), std::collections::HashMap::new())]);
+        let mut mods = ScriptHost::new(vec![ScriptModule::new("test".to_owned(), lua.to_owned(), std::collections::HashMap::new())], MOD_FUNCTION_PREFIX);
         init_blocks_mod_interface(&blocks, &mut mods).unwrap();
         mods.init().unwrap();
 
@@ -506,8 +507,9 @@ mod tests {
     /// `connect_blocks` is symmetric: each type ends up listing the other.
     #[test]
     fn test_lua_connect_blocks_is_symmetric() {
+        use crate::libraries::scripting::{ScriptHost, ScriptModule};
         use crate::shared::blocks::init_blocks_mod_interface;
-        use crate::shared::mod_manager::{GameMod, ModManager};
+        use crate::shared::MOD_FUNCTION_PREFIX;
         use std::sync::{Arc, Mutex};
 
         let lua = r#"
@@ -524,7 +526,7 @@ mod tests {
         "#;
 
         let blocks = Arc::new(Mutex::new(Blocks::new()));
-        let mut mods = ModManager::new(vec![GameMod::new("test".to_owned(), lua.to_owned(), std::collections::HashMap::new())]);
+        let mut mods = ScriptHost::new(vec![ScriptModule::new("test".to_owned(), lua.to_owned(), std::collections::HashMap::new())], MOD_FUNCTION_PREFIX);
         init_blocks_mod_interface(&blocks, &mut mods).unwrap();
         mods.init().unwrap();
 
@@ -540,8 +542,9 @@ mod tests {
     /// default.
     #[test]
     fn test_lua_unknown_block_name_is_an_error() {
+        use crate::libraries::scripting::{ScriptHost, ScriptModule};
         use crate::shared::blocks::init_blocks_mod_interface;
-        use crate::shared::mod_manager::{GameMod, ModManager};
+        use crate::shared::MOD_FUNCTION_PREFIX;
         use std::sync::{Arc, Mutex};
 
         let lua = r#"
@@ -552,17 +555,18 @@ mod tests {
         "#;
 
         let blocks = Arc::new(Mutex::new(Blocks::new()));
-        let mut mods = ModManager::new(vec![GameMod::new("test".to_owned(), lua.to_owned(), std::collections::HashMap::new())]);
+        let mut mods = ScriptHost::new(vec![ScriptModule::new("test".to_owned(), lua.to_owned(), std::collections::HashMap::new())], MOD_FUNCTION_PREFIX);
         init_blocks_mod_interface(&blocks, &mut mods).unwrap();
         mods.init().unwrap();
 
-        mods.get_mod(0).unwrap().call_function::<(), i32>("look_up", ()).unwrap_err();
+        mods.get_module(0).unwrap().call_function::<(), i32>("look_up", ()).unwrap_err();
     }
 
     #[test]
     fn test_lua_can_register_a_tool() {
+        use crate::libraries::scripting::{ScriptHost, ScriptModule};
         use crate::shared::blocks::init_blocks_mod_interface;
-        use crate::shared::mod_manager::{GameMod, ModManager};
+        use crate::shared::MOD_FUNCTION_PREFIX;
         use std::sync::{Arc, Mutex};
 
         let lua = r#"
@@ -572,7 +576,7 @@ mod tests {
         "#;
 
         let blocks = Arc::new(Mutex::new(Blocks::new()));
-        let mut mods = ModManager::new(vec![GameMod::new("test".to_owned(), lua.to_owned(), std::collections::HashMap::new())]);
+        let mut mods = ScriptHost::new(vec![ScriptModule::new("test".to_owned(), lua.to_owned(), std::collections::HashMap::new())], MOD_FUNCTION_PREFIX);
         init_blocks_mod_interface(&blocks, &mut mods).unwrap();
         mods.init().unwrap();
 

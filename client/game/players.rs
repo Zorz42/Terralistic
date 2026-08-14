@@ -6,10 +6,10 @@ use crate::client::game::networking::ClientNetworking;
 use crate::libraries::events::Event;
 use crate::libraries::graphics as gfx;
 use crate::libraries::graphics::UiContext;
+use crate::libraries::scripting::ScriptHost;
 use crate::shared::blocks::{Blocks, BLOCK_WIDTH, RENDER_BLOCK_WIDTH, RENDER_SCALE};
 use crate::shared::entities::{Entities, EntityDespawnEvent, HealthComponent, PhysicsComponent, PositionComponent};
 use crate::shared::liquids::Liquids;
-use crate::shared::mod_manager::ModManager;
 use crate::shared::packet::Packet;
 use crate::shared::players::{
     spawn_player, update_players_ms, Direction, MovingType, PlayerComponent, PlayerMovingPacketToClient, PlayerMovingPacketToServer, PlayerSpawnPacket, PLAYER_HEIGHT, PLAYER_MAX_HEALTH, PLAYER_WIDTH,
@@ -34,7 +34,7 @@ impl ClientPlayers {
         }
     }
 
-    pub fn load_resources(&mut self, mods: &ModManager) -> Result<()> {
+    pub fn load_resources(&mut self, mods: &ScriptHost) -> Result<()> {
         let mut template_surface = gfx::Surface::deserialize_from_bytes(
             mods.get_resource("misc:skin_template.opa")
                 .ok_or_else(|| anyhow::anyhow!("Failed to load misc:skin_template.opa from mod manager"))?,

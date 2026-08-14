@@ -2,10 +2,10 @@ use std::sync::{Arc, Mutex, PoisonError};
 
 use anyhow::Result;
 
+use crate::libraries::scripting::ScriptHost;
 use crate::shared::liquids::{LiquidId, LiquidType, Liquids};
-use crate::shared::mod_manager::ModManager;
 
-pub fn init_liquids_mod_interface(mods: &mut ModManager, liquids: &Arc<Mutex<Liquids>>) -> Result<()> {
+pub fn init_liquids_mod_interface(mods: &mut ScriptHost, liquids: &Arc<Mutex<Liquids>>) -> Result<()> {
     let liquids2 = liquids.clone();
     mods.add_global_function("register_liquid_type", move |_lua, (name, flow_time, speed_multiplier): (String, i32, f32)| {
         let mut liquid_type = LiquidType::new();

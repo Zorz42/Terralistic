@@ -4,11 +4,11 @@ use std::sync::{Arc, Mutex, PoisonError};
 use crate::libraries::events::{Event, EventManager};
 use anyhow::Result;
 
+use crate::libraries::scripting::ScriptHost;
 use crate::shared::blocks::{BlockId, ToolId};
 use crate::shared::entities::{Entities, EntityId, PositionComponent};
 use crate::shared::inventory::Inventory;
 use crate::shared::items::{Item, ItemId, ItemStack, Items, Recipe, TileDrop};
-use crate::shared::mod_manager::ModManager;
 use crate::shared::walls::WallId;
 
 // make ItemId lua compatible
@@ -31,7 +31,7 @@ impl rlua::UserData for ItemId {
 /// this function initializes the items mod interface
 /// it adds lua functions to the lua context
 #[allow(clippy::too_many_lines)]
-pub fn init_items_mod_interface(items: &Arc<Mutex<Items>>, entities: &Arc<Mutex<Entities>>, mods: &mut ModManager) -> Result<Receiver<Event>> {
+pub fn init_items_mod_interface(items: &Arc<Mutex<Items>>, entities: &Arc<Mutex<Entities>>, mods: &mut ScriptHost) -> Result<Receiver<Event>> {
     let items_clone = items.clone();
     mods.add_global_function(
         "register_item_type",

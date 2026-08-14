@@ -1,8 +1,8 @@
+use crate::libraries::scripting::{get_module_id, ScriptHost};
 use crate::server::server_core::world_generator::biome::{Biome, Ore};
 use crate::server::server_core::world_generator::WorldGenerator;
 use crate::shared::blocks::BlockId;
 use crate::shared::liquids::LiquidId;
-use crate::shared::mod_manager::{get_mod_id, ModManager};
 use crate::shared::walls::WallId;
 use anyhow::Result;
 use rlua::prelude::LuaUserData;
@@ -81,9 +81,9 @@ impl LuaUserData for Biome {
 }
 
 impl WorldGenerator {
-    pub fn init(&self, mods: &mut ModManager) -> Result<()> {
+    pub fn init(&self, mods: &mut ScriptHost) -> Result<()> {
         mods.add_global_function("new_biome", move |lua_ctx, ()| {
-            let mod_id = get_mod_id(lua_ctx)?;
+            let mod_id = get_module_id(lua_ctx)?;
             Ok(Biome::new(mod_id))
         })?;
 

@@ -4,9 +4,9 @@ use std::sync::{Arc, Mutex, MutexGuard, PoisonError};
 use crate::libraries::events::{Event, EventManager};
 use crate::libraries::graphics as gfx;
 use crate::libraries::grid::ChunkTracker;
+use crate::libraries::scripting::ScriptHost;
 use crate::libraries::timing::Budget;
 use crate::shared::blocks::{Blocks, BLOCK_WIDTH, RENDER_BLOCK_WIDTH, RENDER_SCALE};
-use crate::shared::mod_manager::ModManager;
 use crate::shared::walls::{init_walls_mod_interface, WallId, Walls, WallsWelcomePacket};
 use crate::shared::CHUNK_SIZE;
 use anyhow::{anyhow, bail, Result};
@@ -152,11 +152,11 @@ impl ClientWalls {
         Ok(())
     }
 
-    pub fn init(&self, mods: &mut ModManager) -> Result<()> {
+    pub fn init(&self, mods: &mut ScriptHost) -> Result<()> {
         init_walls_mod_interface(mods, &self.walls)
     }
 
-    pub fn load_resources(&mut self, mods: &ModManager) -> Result<()> {
+    pub fn load_resources(&mut self, mods: &ScriptHost) -> Result<()> {
         let walls_width = self.get_walls().get_size().0 as i32;
         let walls_height = self.get_walls().get_size().1 as i32;
         let chunk_count = (walls_width / CHUNK_SIZE * walls_height / CHUNK_SIZE) as usize;

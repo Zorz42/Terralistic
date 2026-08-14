@@ -6,9 +6,9 @@ use crate::client::game::block_selector::BlockRightClickEvent;
 use crate::libraries::events::{Event, EventManager};
 use crate::libraries::graphics as gfx;
 use crate::libraries::grid::ChunkTracker;
+use crate::libraries::scripting::ScriptHost;
 use crate::shared::blocks::{init_blocks_mod_interface, BlockBreakStartPacket, BlockBreakStopPacket, BlockChangeEvent, BlockChangePacket, BlockId, BlockRightClickPacket};
 use crate::shared::blocks::{Blocks, BlocksWelcomePacket, BLOCK_WIDTH, RENDER_BLOCK_WIDTH, RENDER_SCALE};
-use crate::shared::mod_manager::ModManager;
 use crate::shared::packet::Packet;
 use crate::shared::CHUNK_SIZE;
 use anyhow::{anyhow, bail, Result};
@@ -175,12 +175,12 @@ impl ClientBlocks {
         Ok(())
     }
 
-    pub fn init(&self, mods: &mut ModManager) -> Result<()> {
+    pub fn init(&self, mods: &mut ScriptHost) -> Result<()> {
         init_blocks_mod_interface(&self.blocks, mods)?;
         Ok(())
     }
 
-    pub fn load_resources(&mut self, mods: &ModManager) -> Result<()> {
+    pub fn load_resources(&mut self, mods: &ScriptHost) -> Result<()> {
         let width = self.get_blocks().get_size().0 as i32 / CHUNK_SIZE;
         let height = self.get_blocks().get_size().1 as i32 / CHUNK_SIZE;
         for _ in 0..width * height {

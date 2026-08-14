@@ -5,10 +5,10 @@ use std::sync::{Arc, Mutex, MutexGuard, PoisonError};
 use anyhow::Result;
 
 use crate::libraries::events::{Event, EventManager};
+use crate::libraries::scripting::ScriptHost;
 use crate::server::server_core::networking::SendTarget;
 use crate::shared::blocks::{BlockChangeEvent, Blocks};
 use crate::shared::liquids::{init_liquids_mod_interface, LiquidChange, LiquidChangeEvent, LiquidChangesPacket, LiquidId, Liquids, LiquidsWelcomePacket};
-use crate::shared::mod_manager::ModManager;
 use crate::shared::packet::Packet;
 
 use super::networking::{NewConnectionEvent, ServerNetworking};
@@ -32,7 +32,7 @@ impl ServerLiquids {
         }
     }
 
-    pub fn init(&mut self, mods: &mut ModManager) -> Result<()> {
+    pub fn init(&mut self, mods: &mut ScriptHost) -> Result<()> {
         init_liquids_mod_interface(mods, &self.liquids)?;
         self.event_receiver = Some(init_liquids_mod_interface_server(&self.liquids, mods)?);
         Ok(())
@@ -102,7 +102,7 @@ impl ServerLiquids {
 /// Placing liquid is server side for the same reason breaking a block is: the client's copy
 /// is a replica, and anything that changes the world has to happen where the authority is
 /// and come back as a packet.
-pub fn init_liquids_mod_interface_server(liquids: &Arc<Mutex<Liquids>>, mods: &mut ModManager) -> Result<Receiver<Event>> {
+pub fn init_liquids_mod_interface_server(liquids: &Arc<Mutex<Liquids>>, mods: &mut ScriptHost) -> Result<Receiver<Event>> {
     let (sender, receiver) = std::sync::mpsc::channel();
 
     let liquids_clone = liquids.clone();

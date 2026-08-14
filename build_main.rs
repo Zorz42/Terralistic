@@ -12,7 +12,7 @@ pub mod build_project {
 }
 
 // The build script only needs a handful of plain data types: Surface/Color/IntPos/IntSize
-// to convert PNGs to .opa, and GameModData to write .mod files.
+// to convert PNGs to .opa, and ScriptModuleData to write .mod files.
 //
 // Declaring the real `libraries::graphics` and `shared` modules here would compile their
 // whole module trees into the build script, which is what dragged SDL2, OpenGL, rustls,
@@ -24,6 +24,12 @@ pub mod build_project {
 pub mod libraries {
     pub mod serialization;
 
+    pub mod scripting {
+        mod module_data;
+
+        pub use module_data::*;
+    }
+
     pub mod graphics {
         mod color;
         mod position;
@@ -33,10 +39,6 @@ pub mod libraries {
         pub use position::*;
         pub use surface::*;
     }
-}
-
-pub mod shared {
-    pub mod mod_data;
 }
 
 fn main() {

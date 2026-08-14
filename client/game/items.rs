@@ -7,10 +7,10 @@ use anyhow::{anyhow, Result};
 use crate::client::game::camera::Camera;
 use crate::libraries::events::{Event, EventManager};
 use crate::libraries::graphics as gfx;
+use crate::libraries::scripting::ScriptHost;
 use crate::shared::blocks::{RENDER_BLOCK_WIDTH, RENDER_SCALE};
 use crate::shared::entities::{Entities, PhysicsComponent, PositionComponent};
 use crate::shared::items::{init_items_mod_interface, ItemComponent, ItemId, ItemSpawnPacket, Items};
-use crate::shared::mod_manager::ModManager;
 use crate::shared::packet::Packet;
 
 pub struct ClientItems {
@@ -28,7 +28,7 @@ impl ClientItems {
         }
     }
 
-    pub fn init(&mut self, mods: &mut ModManager, entities: &Arc<Mutex<Entities>>) -> Result<()> {
+    pub fn init(&mut self, mods: &mut ScriptHost, entities: &Arc<Mutex<Entities>>) -> Result<()> {
         self.receiver = Some(init_items_mod_interface(&self.items, entities, mods)?);
         Ok(())
     }
@@ -41,7 +41,7 @@ impl ClientItems {
         }
     }
 
-    pub fn load_resources(&mut self, mods: &ModManager) -> Result<()> {
+    pub fn load_resources(&mut self, mods: &ScriptHost) -> Result<()> {
         // go through all the item types get their images and load them
         let mut surfaces = HashMap::new();
         let item_ids = self.get_items().get_all_item_type_ids();

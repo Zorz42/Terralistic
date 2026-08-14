@@ -13,7 +13,7 @@ mod tests {
     use crate::shared::chat::ChatPacket;
     use crate::shared::entities::{EntityId, PositionComponent};
     use crate::shared::liquids::{LiquidChangesPacket, LiquidType, Liquids, LiquidsWelcomePacket};
-    use crate::shared::mod_manager::ModsWelcomePacket;
+    use crate::shared::packet::ModsWelcomePacket;
     use crate::shared::packet::{Packet, WelcomeCompletePacket};
     use crate::shared::players::PlayerSpawnPacket;
     use crate::shared::walls::WallsWelcomePacket;

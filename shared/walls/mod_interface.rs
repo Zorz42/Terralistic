@@ -1,9 +1,9 @@
-use crate::shared::mod_manager::ModManager;
+use crate::libraries::scripting::ScriptHost;
 use crate::shared::walls::{Wall, WallId, Walls};
 use anyhow::Result;
 use std::sync::{Arc, Mutex};
 
-pub fn init_walls_mod_interface(mods: &mut ModManager, walls: &Arc<Mutex<Walls>>) -> Result<()> {
+pub fn init_walls_mod_interface(mods: &mut ScriptHost, walls: &Arc<Mutex<Walls>>) -> Result<()> {
     let walls2 = walls.clone();
     mods.add_global_function("register_wall_type", move |_lua, (name, break_time): (String, Option<i32>)| {
         let mut wall_type = Wall::new();

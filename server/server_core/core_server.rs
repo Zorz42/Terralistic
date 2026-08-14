@@ -417,7 +417,7 @@ impl Server {
 
     /// The mods as the server loaded them, so a test can call into their lua.
     #[cfg(test)]
-    pub const fn get_mods(&mut self) -> &mut crate::shared::mod_manager::ModManager {
+    pub const fn get_mods(&mut self) -> &mut crate::libraries::scripting::ScriptHost {
         &mut self.mods.mod_manager
     }
 

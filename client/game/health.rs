@@ -4,8 +4,8 @@ use anyhow::Result;
 
 use crate::gfx;
 use crate::libraries::events::Event;
+use crate::libraries::scripting::ScriptHost;
 use crate::shared::entities::{Entities, HealthChangePacket, PositionComponent};
-use crate::shared::mod_manager::ModManager;
 use crate::shared::packet::Packet;
 use crate::shared::players::PLAYER_WIDTH;
 
@@ -59,7 +59,7 @@ impl ClientHealth {
         self.hearts_rect_array.update();
     }
 
-    pub fn load_resources(&mut self, mods: &ModManager) -> Result<()> {
+    pub fn load_resources(&mut self, mods: &ScriptHost) -> Result<()> {
         let hearts_surface = gfx::Surface::deserialize_from_bytes(mods.get_resource("misc:hearts.opa").ok_or_else(|| anyhow::anyhow!("Failed to load misc:hearts.opa from mod manager"))?)?;
 
         self.heart_texture = gfx::Texture::load_from_surface(&hearts_surface);

@@ -83,7 +83,7 @@ pub struct Liquids {
     /// Cells that might still have somewhere to flow. A `BTreeSet` rather than a `HashSet`
     /// because the order cells are processed in decides how a stream splits, and Rust
     /// randomises hash iteration per process - the same class of bug that made
-    /// `GameModData.resources` a `BTreeMap`.
+    /// `ScriptModuleData.resources` a `BTreeMap`.
     scheduled: BTreeSet<(i32, i32)>,
 
     /// Milliseconds of simulated time, and the clock each liquid type flows on.

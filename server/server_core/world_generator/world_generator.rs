@@ -8,11 +8,11 @@ use rand::rngs::StdRng;
 use rand::{Rng, SeedableRng};
 
 use crate::libraries::events::EventManager;
+use crate::libraries::scripting::ScriptHost;
 use crate::server::server_core::world_generator::biome::Biome;
 use crate::server::server_core::world_generator::noise::{convolve, turbulence};
 use crate::shared::blocks::{BlockId, Blocks};
 use crate::shared::liquids::{LiquidId, Liquids, MAX_LIQUID_LEVEL};
-use crate::shared::mod_manager::ModManager;
 use crate::shared::walls::{WallId, Walls};
 
 pub struct WorldGenerator {
@@ -307,12 +307,12 @@ impl WorldGenerator {
     }
 
     /// This lets the mod finish generating terrain
-    fn call_mod_to_generate(&self, mods: &mut ModManager, biome_id: i32, mut curr_terrain: Vec<Vec<BlockId>>, curr_heights: &[i32], width: i32, height: i32) -> Result<Vec<Vec<BlockId>>> {
+    fn call_mod_to_generate(&self, mods: &mut ScriptHost, biome_id: i32, mut curr_terrain: Vec<Vec<BlockId>>, curr_heights: &[i32], width: i32, height: i32) -> Result<Vec<Vec<BlockId>>> {
         let biomes = self.get_biomes();
         let curr_biome2 = biomes.get(biome_id as usize).ok_or_else(|| anyhow!("invalid biome id"))?;
         if let Some(generator_function) = &curr_biome2.generator_function {
             curr_terrain = mods
-                .get_mod(curr_biome2.mod_id)
+                .get_module(curr_biome2.mod_id)
                 .ok_or_else(|| anyhow!("invalid mod id"))?
                 .call_function(generator_function, (curr_terrain, curr_heights.to_owned(), width, height))?;
         }
@@ -321,7 +321,7 @@ impl WorldGenerator {
     }
 
     #[allow(clippy::too_many_lines)] // TODO: split this function up
-    pub fn generate(&self, world: (&mut Blocks, &mut Walls, &mut Liquids), mods: &mut ModManager, min_width: i32, height: i32, seed: u64, status_text: &Mutex<String>) -> Result<()> {
+    pub fn generate(&self, world: (&mut Blocks, &mut Walls, &mut Liquids), mods: &mut ScriptHost, min_width: i32, height: i32, seed: u64, status_text: &Mutex<String>) -> Result<()> {
         let start_time = std::time::Instant::now();
 
         let blocks = world.0;
