@@ -195,7 +195,13 @@ impl Liquids {
     /// scheduled set is not saved - it is derived state, and a settled ocean would be
     /// millions of entries of it. So this scans once on load and keeps only the cells that
     /// actually have room next to them, which for a settled world is none of them.
+    ///
+    /// It **replaces** the schedule rather than adding to it, which is what makes it right
+    /// for a freshly generated world too: filling an ocean a cell at a time schedules every
+    /// cell of it and all their neighbours, and almost none of that has anywhere to go.
     pub fn schedule_all_unsettled(&mut self, blocks: &Blocks) -> Result<()> {
+        self.scheduled.clear();
+
         let (width, height) = self.get_size();
         for x in 0..width as i32 {
             for y in 0..height as i32 {

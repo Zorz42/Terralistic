@@ -156,7 +156,7 @@ impl Server {
         } else {
             self.set_state(ServerState::GeneratingWorld);
             generator.generate(
-                (&mut *self.blocks.get_blocks(), &mut self.walls.get_walls()),
+                (&mut *self.blocks.get_blocks(), &mut self.walls.get_walls(), &mut self.liquids.get_liquids()),
                 &mut self.mods.mod_manager,
                 self.world_size.0,
                 self.world_size.1,

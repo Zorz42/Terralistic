@@ -7,9 +7,11 @@ use noise::Perlin;
 use rand::rngs::StdRng;
 use rand::{Rng, SeedableRng};
 
+use crate::libraries::events::EventManager;
 use crate::server::server_core::world_generator::biome::Biome;
 use crate::server::server_core::world_generator::noise::{convolve, turbulence};
 use crate::shared::blocks::{BlockId, Blocks};
+use crate::shared::liquids::{LiquidId, Liquids, MAX_LIQUID_LEVEL};
 use crate::shared::mod_manager::ModManager;
 use crate::shared::walls::{WallId, Walls};
 
@@ -248,6 +250,62 @@ impl WorldGenerator {
         Ok((curr_block_terrain, curr_wall_terrain))
     }
 
+    /// How much of the world ends up under water: sea level is the height that this
+    /// fraction of the columns are lower than.
+    ///
+    /// Sea level is taken from the terrain rather than being a constant because how high
+    /// the ground is depends entirely on the mod - `min_terrain_height` and
+    /// `max_terrain_height` are lua, and `base_game`'s happen to sit two thirds of the way up
+    /// a 1200 block world. A fixed y would be either underground or in the sky for anyone
+    /// who picked different numbers, whereas a percentile floods the lowest ground of
+    /// whatever world it is handed, and a perfectly flat one not at all.
+    const FLOODED_COLUMN_FRACTION: f32 = 0.15;
+
+    /// The height, measured from the bottom of the world the way `heights` is, that water
+    /// fills up to.
+    fn sea_level(heights: &[i32]) -> i32 {
+        let mut sorted = heights.to_owned();
+        sorted.sort_unstable();
+
+        let index = ((sorted.len() as f32 * Self::FLOODED_COLUMN_FRACTION) as usize).min(sorted.len().saturating_sub(1));
+        sorted.get(index).copied().unwrap_or(0)
+    }
+
+    /// Pours each biome's liquid into everything below sea level that the sky can reach.
+    ///
+    /// **The walk starts at the top of the world, not at sea level**, and stops at the first
+    /// block that is not a ghost. That is what keeps this to oceans and lakes: starting at
+    /// sea level instead fills any cave that happens to cross that line, whether or not
+    /// anything could ever have poured into it, and a third of the columns of a test world
+    /// came out with water hidden inside a hillside. Coming down from the sky, a column
+    /// whose ground is above sea level stops at its own surface and stays dry, while a pit
+    /// or a cave mouth that opens below sea level floods, which is what a hole in a
+    /// shoreline should do.
+    fn fill_water(blocks: &Blocks, liquids: &mut Liquids, column_liquids: &[LiquidId], heights: &[i32], height: i32) -> Result<()> {
+        let sea_level_y = height - Self::sea_level(heights);
+
+        // The world is not live yet - no one is connected and nothing is listening to the
+        // event bus - so the changes go into an event manager that is dropped here.
+        let mut events = EventManager::new();
+
+        for (x, liquid) in column_liquids.iter().enumerate() {
+            if liquids.get_liquid_type(*liquid).is_err() {
+                continue; // a biome that never set base_liquid stays dry
+            }
+
+            for y in 0..height {
+                if !blocks.get_block_type_at(x as i32, y)?.ghost {
+                    break;
+                }
+                if y >= sea_level_y {
+                    liquids.set_liquid(x as i32, y, *liquid, MAX_LIQUID_LEVEL, &mut events)?;
+                }
+            }
+        }
+
+        Ok(())
+    }
+
     /// This lets the mod finish generating terrain
     fn call_mod_to_generate(&self, mods: &mut ModManager, biome_id: i32, mut curr_terrain: Vec<Vec<BlockId>>, curr_heights: &[i32], width: i32, height: i32) -> Result<Vec<Vec<BlockId>>> {
         let biomes = self.get_biomes();
@@ -263,11 +321,12 @@ impl WorldGenerator {
     }
 
     #[allow(clippy::too_many_lines)] // TODO: split this function up
-    pub fn generate(&self, world: (&mut Blocks, &mut Walls), mods: &mut ModManager, min_width: i32, height: i32, seed: u64, status_text: &Mutex<String>) -> Result<()> {
+    pub fn generate(&self, world: (&mut Blocks, &mut Walls, &mut Liquids), mods: &mut ModManager, min_width: i32, height: i32, seed: u64, status_text: &Mutex<String>) -> Result<()> {
         let start_time = std::time::Instant::now();
 
         let blocks = world.0;
         let walls = world.1;
+        let liquids = world.2;
         // create a random number generator with seed
         let mut rng = StdRng::seed_from_u64(seed);
 
@@ -279,6 +338,7 @@ impl WorldGenerator {
 
         let mut min_heights = Vec::new();
         let mut max_heights = Vec::new();
+        let mut column_liquids = Vec::new();
 
         println!("Creating a world with size {width}x{height}");
 
@@ -288,6 +348,7 @@ impl WorldGenerator {
             let biome = biomes.get(*biome_id as usize).ok_or_else(|| anyhow!("Biome with id {} does not exist!", *biome_id))?;
             min_heights.push(biome.min_terrain_height as f32);
             max_heights.push(biome.max_terrain_height as f32);
+            column_liquids.push(biome.base_liquid);
         }
 
         // tasks are for loading bar
@@ -382,6 +443,11 @@ impl WorldGenerator {
 
         blocks.create_from_block_ids(&block_terrain)?;
         walls.create_from_wall_ids(&wall_terrain)?;
+
+        // after the blocks are in place, so that the walk down a column sees the world the
+        // mod's generator function left behind rather than the one before it decorated
+        liquids.create((width as u32, height as u32));
+        Self::fill_water(blocks, liquids, &column_liquids, &heights, height)?;
 
         println!("World generated in {}ms", start_time.elapsed().as_millis());
 

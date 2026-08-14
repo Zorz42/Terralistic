@@ -9,6 +9,7 @@ function register_biomes()
     biome["max_width"] = 300
     biome["base_block"] = blocks.dirt
     biome["base_wall"] = walls.dirt
+    biome["base_liquid"] = liquids.water
     biome["generator_function"] = "generate_plains"
     biome:add_ore(blocks.stone_block, -2.0, 3.0);
     biome:add_ore(blocks.copper_ore, -0.8, -0.3);
@@ -24,6 +25,7 @@ function register_biomes()
     biome["max_width"] = 300
     biome["base_block"] = blocks.dirt
     biome["base_wall"] = walls.dirt
+    biome["base_liquid"] = liquids.water
     biome["generator_function"] = "generate_plains"
     biome:add_ore(blocks.stone_block, -2.0, 3.0);
     biome:add_ore(blocks.copper_ore, -0.8, -0.3);
@@ -40,6 +42,7 @@ function register_biomes()
     biome["max_width"] = 300
     biome["base_block"] = blocks.dirt
     biome["base_wall"] = walls.dirt
+    biome["base_liquid"] = liquids.water
     biome:add_ore(blocks.stone_block, 1.0, 1.0);
     biome:add_ore(blocks.copper_ore, -0.42, -0.38);
     biome:add_ore(blocks.tin_ore, -0.42, -0.38);

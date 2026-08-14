@@ -6,7 +6,9 @@
 #![allow(clippy::unwrap_used, clippy::panic)] // tests assert on results directly
 mod tests {
     use crate::integration_tests::harness::{TempDir, TestServer};
+    use crate::libraries::events::EventManager;
     use crate::server::server_ui::ServerState;
+    use crate::shared::liquids::MAX_LIQUID_LEVEL;
 
     /// A world small enough to generate and assert about in a test. The real game asks
     /// for 4400x1200, which would take long enough to make this suite useless.
@@ -125,6 +127,84 @@ mod tests {
         server.stop().unwrap();
     }
 
+    /// The generator floods the lowest ground, and what it pours is settled: every cell of
+    /// it is full, sits in something a player could walk through, and has ground or more
+    /// water directly beneath it. Water hanging in the air would mean the fill walked past
+    /// a surface it should have stopped at.
+    #[test]
+    fn test_the_generated_world_has_water_and_it_is_settled() {
+        let server = TestServer::start_on_generated_world("gen-water", SMALL, SEED).unwrap();
+
+        let (width, height) = server.server.get_blocks().get_size();
+        let mut water_cells = 0;
+        let mut deepest_water = 0;
+
+        for x in 0..width as i32 {
+            for y in 0..height as i32 {
+                // one lock at a time - both of these take a mutex on the server
+                let level = server.server.get_liquids().get_liquid_level(x, y).unwrap();
+                if level == 0 {
+                    continue;
+                }
+
+                water_cells += 1;
+                deepest_water = deepest_water.max(y);
+
+                assert_eq!(level, MAX_LIQUID_LEVEL, "the generator left a half filled cell at ({x}, {y})");
+                assert!(server.server.get_blocks().get_block_type_at(x, y).unwrap().ghost, "there is water inside a solid block at ({x}, {y})");
+
+                let supported = server.server.get_liquids().get_liquid_level(x, y + 1).unwrap_or(0) > 0 || !server.server.get_blocks().get_block_type_at(x, y + 1).unwrap().ghost;
+                assert!(supported, "the water at ({x}, {y}) is hanging in mid air");
+            }
+        }
+
+        assert!(water_cells > 0, "the generated world has no water in it at all");
+        assert!(deepest_water < height as i32 - 1, "water reached the bottom row, so it is not sitting on the surface");
+
+        server.stop().unwrap();
+    }
+
+    /// Once the world is live, the simulation moves the generator's water around but never
+    /// makes or loses any. The lakes sit on the surface, so nothing is buried in a block for
+    /// the flow step to legitimately delete - every drop that leaves a cell has to arrive in
+    /// another one.
+    #[test]
+    fn test_the_simulation_conserves_the_generated_water() {
+        let server = TestServer::start_on_generated_world("gen-water-conserved", SMALL, SEED).unwrap();
+
+        let poured: u32 = liquid_grid(&server).iter().map(|level| u32::from(*level)).sum();
+        assert!(poured > 0, "the generator poured no water, so this proves nothing");
+
+        // stepped directly rather than through `Server::update`, which paces flow off the
+        // measured frame length - a few hundred flow steps would be a few seconds of test
+        let mut events = EventManager::new();
+        for _ in 0..300 {
+            let blocks = server.server.get_blocks();
+            server.server.get_liquids().update_liquids(&blocks, &mut events, 100.0).unwrap();
+        }
+
+        let after: u32 = liquid_grid(&server).iter().map(|level| u32::from(*level)).sum();
+        assert_eq!(after, poured, "the simulation changed how much water the world holds");
+
+        server.stop().unwrap();
+    }
+
+    /// Water is part of the world the same way blocks are, so the same seed has to put it
+    /// in the same places.
+    #[test]
+    fn test_water_is_reproducible_from_the_seed() {
+        let first = TestServer::start_on_generated_world("gen-water-seed-a", SMALL, SEED).unwrap();
+        let first_levels = liquid_grid(&first);
+        first.stop().unwrap();
+
+        let second = TestServer::start_on_generated_world("gen-water-seed-b", SMALL, SEED).unwrap();
+        let second_levels = liquid_grid(&second);
+        second.stop().unwrap();
+
+        assert!(!first_levels.is_empty());
+        assert!(first_levels == second_levels, "the same seed generated water in different places");
+    }
+
     /// Only blocks the mods registered end up in the world. An id the registry does not
     /// know would render as nothing and break on the next save.
     #[test]
@@ -198,6 +278,15 @@ mod tests {
         (0..width as i32)
             .flat_map(|x| (0..height as i32).map(move |y| (x, y)))
             .map(|(x, y)| blocks.get_block(x, y).unwrap())
+            .collect()
+    }
+
+    fn liquid_grid(server: &TestServer) -> Vec<u8> {
+        let liquids = server.server.get_liquids();
+        let (width, height) = liquids.get_size();
+        (0..width as i32)
+            .flat_map(|x| (0..height as i32).map(move |y| (x, y)))
+            .map(|(x, y)| liquids.get_liquid_level(x, y).unwrap())
             .collect()
     }
 

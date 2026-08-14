@@ -1,6 +1,7 @@
 use crate::server::server_core::world_generator::biome::{Biome, Ore};
 use crate::server::server_core::world_generator::WorldGenerator;
 use crate::shared::blocks::BlockId;
+use crate::shared::liquids::LiquidId;
 use crate::shared::mod_manager::{get_mod_id, ModManager};
 use crate::shared::walls::WallId;
 use anyhow::Result;
@@ -44,6 +45,12 @@ impl LuaUserData for Biome {
                         Ok(b) => this.base_wall = *b,
                         Err(_) => {
                             return Err(rlua::Error::RuntimeError("value is not a valid value for base_wall".to_owned()));
+                        }
+                    },
+                    "base_liquid" => match b.borrow::<LiquidId>() {
+                        Ok(b) => this.base_liquid = *b,
+                        Err(_) => {
+                            return Err(rlua::Error::RuntimeError("value is not a valid value for base_liquid".to_owned()));
                         }
                     },
                     _ => {

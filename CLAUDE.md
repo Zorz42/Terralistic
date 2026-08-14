@@ -18,7 +18,7 @@ cargo build --profile dist # what you ship: release + LTO, 4.63 MB vs 5.49 MB
 cargo run -- server       # server with GUI
 cargo run -- server nogui # headless server
 cargo run -- version      # print version
-cargo test                # 444 tests, all should pass
+cargo test                # 447 tests, all should pass
 cargo clippy --all-targets
 ./coverage.sh             # coverage via config-coverage.toml
 
@@ -183,6 +183,23 @@ that adding a parameter means editing every call site in `base_game/`.
 3. Perlin turbulence for terrain height, caves, and each ore.
 4. Generate column by column; at each biome boundary hand the accumulated columns to the
    biome's Lua `generator_function` for decoration (trees, etc.).
+5. Flood everything below sea level that the sky can reach, with each column's biome's
+   `base_liquid`.
+
+**Sea level is a percentile of the terrain, not a constant.** `FLOODED_COLUMN_FRACTION` is
+0.15, so sea level is the height that 15% of the columns are lower than: the lowest ground
+of whatever world the generator is handed floods, and a perfectly flat one does not. A fixed
+y would be underground or in the sky for any mod that picked different terrain heights,
+which are lua.
+
+**The fill walks down from the top of the world, not from sea level**, stopping at the first
+non-ghost block. That is the difference between lakes and a hillside with water hidden
+inside it: starting at sea level fills any cave that happens to cross that line, whether or
+not anything could have poured into it, and it put water in a third of the columns of a test
+world instead of the intended 15%. Coming down from the sky, a column whose ground is above
+sea level stops at its own surface, while a pit or a cave mouth open to the sky below sea
+level floods — which is what a hole in a shoreline should do, and the flow simulation drains
+it from there.
 
 Default world is 4400×1200, seed 423657 — `Server::world_size` and `Server::world_seed`,
 defaulted in `Server::new` from the `DEFAULT_WORLD_*` constants. They are fields rather
@@ -238,9 +255,12 @@ side's own copy, which is what keeps prediction agreeing with the authority.
 Content is `base_game/liquids.lua` — water, and nothing else yet. The lua interface is
 `register_liquid_type`, `get_liquid_id_by_name`, `get_liquid`, `get_liquid_level`, plus
 `set_liquid` which is **server only**, like `set_block`, because the client's grid is a
-replica. `/water <x> <y> [level]` pours some in. The obvious next steps are a bucket item
-(`places_liquid` alongside `places_block`) and a world generator that fills caves and oceans;
-neither exists.
+replica. `/water <x> <y> [level]` pours some in by hand. The obvious next step is a bucket
+item (`places_liquid` alongside `places_block`), which does not exist.
+
+**Liquids draw in front of the player**, after the entities and before the floating damage
+text (`core_client.rs`). Water is translucent, so a player wading through a lake is seen
+through its surface rather than pasted on top of it.
 
 ### Rendering and UI
 

@@ -171,9 +171,12 @@ pub fn run_game(
         background.render(graphics, &camera);
         walls.render(graphics, &camera, &frame_timer)?;
         blocks.render(graphics, &camera /*&frame_timer*/)?;
-        liquids.render(graphics, &camera)?;
         players.render(graphics, &mut entities.get_entities(), &camera);
         items.render(graphics, &camera, &mut entities.get_entities())?;
+        // after everything that stands in it, so a player wading through water is behind
+        // the surface rather than pasted on top of it. Before the floating damage text,
+        // which has to stay readable.
+        liquids.render(graphics, &camera)?;
         floating_text.render(graphics, &camera);
         lights.render(graphics, &camera, &blocks.get_blocks(), settings, &frame_timer)?;
         camera.render(graphics);

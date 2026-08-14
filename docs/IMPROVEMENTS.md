@@ -77,17 +77,17 @@ What is there:
 - **Persistence** — a `liquids` key in the world save, and `WORLD_SAVE_VERSION` bumped to 4.
 - **Physics** — drag and buoyancy scaled by how deep an entity sits, and swimming on the
   jump key, shared by client prediction and the server.
-- **Content** — `base_game/liquids.lua` registers water, and `/water <x> <y> [level]` pours
-  some in.
+- **Content** — `base_game/liquids.lua` registers water, biomes name a `base_liquid`, and
+  the generator floods everything below sea level that the sky can reach. `/water <x> <y>
+  [level]` pours some in by hand.
 
 The rewrite kept the original's shape (a type registry, `flow_time`, `speed_multiplier`) and
 dropped what did not survive contact with the rest of the codebase: `Rc<LiquidType>` handles,
 raw indexing with `assert!`, and the three `//TODO` holes where events and serialization
 should have been.
 
-Not done, and worth knowing before someone expects it: no bucket item, so the command is the
-only way to place liquid; the world generator never places any, so a fresh world is dry; and
-liquids do not drown anyone or interact with lighting.
+Not done, and worth knowing before someone expects it: no bucket item, so a player cannot
+carry water; and liquids neither drown anyone nor interact with lighting.
 
 
 ---

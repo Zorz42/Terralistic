@@ -1,4 +1,5 @@
 use crate::shared::blocks::BlockId;
+use crate::shared::liquids::LiquidId;
 use crate::shared::walls::WallId;
 
 #[derive(Clone)]
@@ -16,6 +17,9 @@ pub(super) struct Biome {
     pub max_terrain_height: u32,
     pub base_block: BlockId,
     pub base_wall: WallId,
+    /// What fills this biome's dips up to sea level. Undefined leaves it dry, which is
+    /// what a biome that never sets it gets.
+    pub base_liquid: LiquidId,
     // the first element is connection weight, the second is the biome id
     pub adjacent_biomes: Vec<(i32, i32)>,
     pub mod_id: i32,
@@ -32,6 +36,7 @@ impl Biome {
             max_terrain_height: 0,
             base_block: BlockId::undefined(),
             base_wall: WallId::undefined(),
+            base_liquid: LiquidId::undefined(),
             adjacent_biomes: Vec::new(),
             mod_id,
             generator_function: None,
