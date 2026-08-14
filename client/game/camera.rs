@@ -3,6 +3,11 @@ use crate::libraries::graphics as gfx;
 use crate::libraries::graphics::BaseUiElement;
 use crate::shared::blocks::RENDER_BLOCK_WIDTH;
 
+/// How fast the camera closes the distance to the player, and how near counts as arrived.
+/// The epsilon is in blocks, so a hundredth of a block is far inside one pixel.
+const CAMERA_SMOOTH_FACTOR: f32 = 33.3;
+const CAMERA_EPSILON: f32 = 0.01;
+
 /// Camera is a struct that handles the camera position.
 use crate::libraries::graphics::UiContext;
 pub struct Camera {
@@ -47,8 +52,10 @@ impl Camera {
     }
 
     pub fn update_ms(&mut self, graphics: &gfx::GraphicsContext) {
-        self.position_x += (self.target_position_x - self.position_x) * 0.03;
-        self.position_y += (self.target_position_y - self.position_y) * 0.03;
+        // 0.03 is 1/33.3, which is what this used to be written as - the only smoothing in
+        // the game that was spelled as a multiply
+        self.position_x = gfx::approach(self.position_x, self.target_position_x, CAMERA_SMOOTH_FACTOR, CAMERA_EPSILON);
+        self.position_y = gfx::approach(self.position_y, self.target_position_y, CAMERA_SMOOTH_FACTOR, CAMERA_EPSILON);
 
         if self.detached {
             if graphics.get_key_state(gfx::Key::W) {

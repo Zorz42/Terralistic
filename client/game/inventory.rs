@@ -184,7 +184,7 @@ impl ClientInventory {
                     0.0
                 };
 
-                *pos_y += (target_y - *pos_y) / 5.0;
+                *pos_y = gfx::approach(*pos_y, target_y, 5.0, 0.01);
 
                 let item = if self.open_state != OpenState::Closed && self.inventory.selected_slot == Some(i) {
                     None
@@ -295,7 +295,7 @@ impl ClientInventory {
     #[allow(clippy::too_many_lines)]
     pub fn render(&mut self, graphics: &mut gfx::GraphicsContext, items: &ClientItems, networking: &mut ClientNetworking, blocks: &Blocks) -> Result<()> {
         let open_target = if self.open_state == OpenState::Closed { 0.0 } else { 1.0 };
-        self.open_progress += (open_target - self.open_progress) / 5.0;
+        self.open_progress = gfx::approach(self.open_progress, open_target, 5.0, 0.001);
 
         if self.open_state == OpenState::Closed {
             if self.inventory.selected_slot.is_none() {

@@ -351,7 +351,7 @@ impl UiElement for SettingUi {
                 *hovered = slider_absolute_rect.contains(graphics.get_mouse_pos());
                 while animation_timer.step() {
                     let hover_progress_target = if *hovered || *selected { 1.0 } else { 0.0 };
-                    *hovered_progress += (hover_progress_target - *hovered_progress) / 10.0;
+                    *hovered_progress = gfx::approach(*hovered_progress, hover_progress_target, 10.0, 0.001);
                 }
                 let mut curr_x = -2.0 * gfx::SPACING - SLIDER_WIDTH;
                 for button in buttons {

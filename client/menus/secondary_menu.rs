@@ -58,8 +58,8 @@ impl SecondaryMenu {
                 top_menu_container,
                 bottom_menu_container,
             } => {
-                *transition_state += (1.0 - *transition_state) / 5.0;
-                if *transition_state > 0.999 {
+                *transition_state = gfx::approach(*transition_state, 1.0, 5.0, 0.001);
+                if *transition_state >= 1.0 {
                     stop_transition = true;
                 }
                 let offset = if *direction {

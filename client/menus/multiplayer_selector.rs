@@ -126,15 +126,10 @@ impl MultiplayerSelector {
     fn update_top_bottom_rects(&mut self, graphics: &gfx::GraphicsContext, parent_container: &gfx::Container, elements_height: f32) {
         self.top_rect.size.0 = parent_container.rect.size.0;
 
-        self.top_rect_visibility += ((if self.scrollable.get_scroll_pos() > 5.0 { 1.0 } else { 0.0 }) - self.top_rect_visibility) / 20.0;
-
-        if self.top_rect_visibility < 0.01 {
-            self.top_rect_visibility = 0.0;
-        }
-
-        if self.top_rect_visibility > 0.99 {
-            self.top_rect_visibility = 1.0;
-        }
+        // the two `if`s this replaces were the epsilon, written out by hand: snap to 0 below
+        // 0.01 and to 1 above 0.99, which is what `approach` does for either target
+        let visible_target = if self.scrollable.get_scroll_pos() > 5.0 { 1.0 } else { 0.0 };
+        self.top_rect_visibility = gfx::approach(self.top_rect_visibility, visible_target, 20.0, 0.01);
 
         self.top_rect.fill_color.a = (self.top_rect_visibility * gfx::TRANSPARENCY as f32 / 2.0) as u8;
         self.top_rect.blur_radius = (self.top_rect_visibility * gfx::BLUR as f32) as i32;
