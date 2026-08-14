@@ -1,19 +1,12 @@
 use std::any::TypeId;
 use std::hash::{Hash, Hasher};
 
-use crate::libraries::serialization;
 use anyhow::Result;
 use fnv::FnvHasher;
 use serde::de::DeserializeOwned;
 use serde_derive::{Deserialize, Serialize};
 
-/// Packet has an id and data. Id is determined by the hash of the object
-/// that data is serialized from. You can serialize and deserialize it.
-#[derive(Serialize, Deserialize)]
-pub struct Packet {
-    pub id: u64,
-    pub data: Vec<u8>,
-}
+use crate::libraries::serialization;
 
 /// This function returns a hash of a type. The hash is always the same for the same type
 /// on every run of the program and on every machine and is unique for every type.
@@ -22,6 +15,26 @@ fn get_type_id<Type: 'static>() -> u64 {
     let type_id = TypeId::of::<Type>();
     type_id.hash(&mut hasher);
     hasher.finish()
+}
+
+/// A message on the wire: an id and some bytes.
+///
+/// The id is a hash of the rust type the bytes were serialized from, so **any serializable
+/// type is a packet** - there is no registry to add to, no id to allocate, and no way for
+/// two packet types to end up sharing a number. A receiver offers an incoming packet to each
+/// type it knows about with `try_deserialize`, and only the right one answers.
+///
+/// The price of that is written down here because it is easy to be caught by:
+///
+/// - `TypeId` is not stable across compiler versions, so both ends must be built by the same
+///   rustc. Nothing in here can detect that; a protocol version packet sent first is how a
+///   caller makes it diagnosable.
+/// - Renaming a packet struct silently changes its id, which is a wire break with no
+///   compile error anywhere.
+#[derive(Serialize, Deserialize)]
+pub struct Packet {
+    pub id: u64,
+    pub data: Vec<u8>,
 }
 
 impl Packet {
@@ -43,8 +56,10 @@ impl Packet {
             None
         }
     }
-}
 
-/// This packet is sent when all the welcome packets have been sent.
-#[derive(Serialize, Deserialize)]
-pub struct WelcomeCompletePacket;
+    /// Whether this packet carries a `T`, without paying to decode it.
+    #[must_use]
+    pub fn is<T: 'static>(&self) -> bool {
+        self.id == get_type_id::<T>()
+    }
+}

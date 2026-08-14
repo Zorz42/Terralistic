@@ -1,40 +1,15 @@
-use std::collections::HashMap;
-use std::hash::{Hash, Hasher};
-use std::sync::atomic::AtomicBool;
-use std::sync::atomic::Ordering;
-use std::sync::mpsc;
-use std::sync::mpsc::{Receiver, Sender};
-use std::sync::Arc;
+use std::collections::{HashMap, HashSet};
 
-use anyhow::{anyhow, bail, Result};
-use message_io::network::{Endpoint, NetEvent, SendStatus, Transport};
-use message_io::node;
-use message_io::node::{NodeEvent, NodeHandler};
+use anyhow::Result;
 
 use crate::libraries::events::{Event, EventManager};
-use crate::libraries::serialization;
+use crate::libraries::net::{LogLevel, Logger, PacketServer, ServerEvent};
 use crate::server::server_core::print_to_console;
 use crate::shared::packet::{Packet, WelcomeCompletePacket};
 use crate::shared::players::NamePacket;
 use crate::shared::versions::{VersionPacket, VERSION};
 
-/// This struct holds the address of a connection.
-#[derive(Clone, Eq)]
-pub struct Connection {
-    pub(super) address: Endpoint,
-}
-
-impl Hash for Connection {
-    fn hash<H: Hasher>(&self, state: &mut H) {
-        self.address.addr().hash(state);
-    }
-}
-
-impl PartialEq for Connection {
-    fn eq(&self, other: &Self) -> bool {
-        self.address.addr() == other.address.addr()
-    }
-}
+pub use crate::libraries::net::{BindAddress, Connection};
 
 pub enum SendTarget {
     All,
@@ -42,70 +17,41 @@ pub enum SendTarget {
     AllExcept(Connection),
 }
 
-/// Which interfaces a server accepts connections on.
-#[derive(Clone, Copy, PartialEq, Eq, Debug)]
-pub enum BindAddress {
-    /// Only this machine can connect. This is what the singleplayer server uses, and it
-    /// must stay that way - a singleplayer world should never be reachable from the network.
-    Loopback,
-    /// Every interface, so players on other machines can join. Used by the dedicated server.
-    AllInterfaces,
-}
-
-impl BindAddress {
-    #[must_use]
-    pub const fn as_ip(self) -> &'static str {
-        match self {
-            Self::Loopback => "127.0.0.1",
-            Self::AllInterfaces => "0.0.0.0",
-        }
-    }
-}
-
-/// This handles all the networking for the server.
-/// server listens for connections and sends and receives packets
-/// for each client.
+/// The game's half of the server protocol: who is let in, and on what terms.
+///
+/// The socket, the thread and the packets themselves are `libraries::net::PacketServer`.
+/// What is left here is the handshake - a version that has to match, then a name - and the
+/// notion of a connection being *welcomed*, which is what `SendTarget::All` means and is not
+/// the same as a peer having completed a TCP connection.
 pub struct ServerNetworking {
-    server_port: u16,
-    bind_address: BindAddress,
+    server: PacketServer,
+    /// Peers that have been welcomed. A peer mid-handshake is connected but not one of these.
     connections: Vec<Connection>,
     connection_names: HashMap<Connection, String>,
-    event_receiver: Option<Receiver<Event>>,
-    packet_sender: Option<Sender<(Vec<u8>, Connection)>>,
-    is_running: Arc<AtomicBool>,
-    is_listening: Arc<AtomicBool>,
-    net_loop_thread: Option<std::thread::JoinHandle<Result<()>>>,
+    /// Peers that sent a version this build accepts. A `NamePacket` from anyone else means a
+    /// client too old to send a version at all.
+    accepted_peers: HashSet<Connection>,
 }
 
 impl ServerNetworking {
     #[must_use]
     pub fn new(server_port: u16, bind_address: BindAddress) -> Self {
         Self {
-            server_port,
-            bind_address,
+            server: PacketServer::new(server_port, bind_address, server_console_logger()),
             connections: Vec::new(),
             connection_names: HashMap::new(),
-            event_receiver: None,
-            packet_sender: None,
-            is_running: Arc::new(AtomicBool::new(true)),
-            is_listening: Arc::new(AtomicBool::new(false)),
-            net_loop_thread: None,
+            accepted_peers: HashSet::new(),
         }
     }
 
     /// True once the networking thread has actually bound the port and is accepting.
     ///
-    /// `init` only spawns that thread, so there is a window where the server exists and
-    /// nothing is listening yet. Anyone who needs to know the difference has to be told by
-    /// the thread that binds - probing the port from outside means *binding* it, which
-    /// races the bind being waited for and can lose it the port entirely.
-    ///
-    /// Only the tests need to know: the game's own server has a world to load before
-    /// anyone can connect, which is a far longer wait than the bind.
+    /// Only the tests need to know: the game's own server has a world to load before anyone
+    /// can connect, which is a far longer wait than the bind.
     #[cfg(test)]
     #[must_use]
     pub fn is_listening(&self) -> bool {
-        self.is_listening.load(Ordering::Relaxed)
+        self.server.is_listening()
     }
 
     #[must_use]
@@ -115,144 +61,14 @@ impl ServerNetworking {
     }
 
     pub fn init(&mut self) {
-        // start listening for connections
-        let (event_sender, event_receiver) = mpsc::channel();
-        let (packet_sender, packet_receiver) = mpsc::channel();
-        self.event_receiver = Some(event_receiver);
-        self.packet_sender = Some(packet_sender);
+        self.server.listen();
 
-        let is_running = self.is_running.clone();
-        let is_listening = self.is_listening.clone();
-        let server_port = self.server_port;
-        let bind_address = self.bind_address;
-
-        self.net_loop_thread = Some(
-            //this panics with normal thread creation anyway
-            #[allow(clippy::unwrap_used)]
-            std::thread::Builder::new()
-                .name("Server networking".to_owned())
-                .spawn(move || Self::net_receive_loop(&event_sender, &packet_receiver, &is_running, &is_listening, server_port, bind_address))
-                .unwrap(),
-        );
-    }
-
-    fn net_receive_loop(
-        event_sender: &Sender<Event>,
-        packet_receiver: &Receiver<(Vec<u8>, Connection)>,
-        is_running: &Arc<AtomicBool>,
-        is_listening: &Arc<AtomicBool>,
-        server_port: u16,
-        bind_address: BindAddress,
-    ) -> Result<()> {
-        let (handler, listener) = node::split::<()>();
-
-        let listen_addr = format!("{}:{server_port}", bind_address.as_ip());
-        // the error is worth naming: a port already in use is the common way this fails, and
-        // it otherwise surfaces only as a server that silently never accepts anyone
-        handler
-            .network()
-            .listen(Transport::FramedTcp, &listen_addr)
-            .map_err(|e| anyhow!("could not listen on {listen_addr}: {e}"))?;
-        is_listening.store(true, Ordering::Relaxed);
-        print_to_console(&format!("listening on {listen_addr}"), 0);
-
-        if bind_address == BindAddress::AllInterfaces {
+        if self.server.bind_address() == BindAddress::AllInterfaces {
             print_to_console(
                 "this server is reachable from the network and has no authentication, so anyone who can reach this port can join and change the world",
                 1,
             );
         }
-
-        handler.signals().send(());
-
-        // peers that have sent a version we accept; a NamePacket from anyone else means a
-        // client too old to send one at all
-        let mut accepted_peers = std::collections::HashSet::new();
-
-        listener.for_each(|event| match event {
-            NodeEvent::Network(net_event) => match net_event {
-                NetEvent::Connected(..) => {}
-                NetEvent::Accepted(peer, _) => {
-                    print_to_console(&format!("[{peer}] connected"), 0);
-                }
-                NetEvent::Disconnected(peer) => {
-                    accepted_peers.remove(&peer);
-                    print_to_console(&format!("[{peer}] disconnected"), 0);
-                    match event_sender.send(Event::new(DisconnectEvent { conn: Connection { address: peer } })) {
-                        Ok(()) => {}
-                        Err(e) => {
-                            println!("Failed to send DisconnectEvent: {e}");
-                        }
-                    }
-                }
-                NetEvent::Message(peer, packet) => {
-                    // a malformed frame from one client must not take down networking for
-                    // everyone, so drop the packet and keep serving the other connections
-                    let packet: Packet = match serialization::deserialize(packet) {
-                        Ok(packet) => packet,
-                        Err(e) => {
-                            print_to_console(&format!("[{peer}] sent a packet that could not be deserialized, ignoring it: {e}"), 1);
-                            return;
-                        }
-                    };
-                    if let Some(packet) = packet.try_deserialize::<VersionPacket>() {
-                        if packet.version == VERSION {
-                            accepted_peers.insert(peer);
-                        } else {
-                            print_to_console(&format!("[{peer}] refused: it is version {}, this server is {VERSION}", packet.version), 1);
-                            handler.network().remove(peer.resource_id());
-                        }
-                        return;
-                    }
-
-                    if let Some(packet) = packet.try_deserialize::<NamePacket>() {
-                        if !accepted_peers.contains(&peer) {
-                            print_to_console(&format!("[{peer}] refused: it did not send a version, so it is older than {VERSION}"), 1);
-                            handler.network().remove(peer.resource_id());
-                            return;
-                        }
-
-                        print_to_console(&format!("[{:?}] joined the game", packet.name), 0);
-                        match event_sender.send(Event::new(NewConnectionEvent {
-                            conn: Connection { address: peer },
-                            name: packet.name,
-                        })) {
-                            Ok(()) => {}
-                            Err(e) => {
-                                print_to_console(&format!("Failed to send NewConnectionEvent: {e}"), 2);
-                            }
-                        }
-                    } else {
-                        match event_sender.send(Event::new(PacketFromClientEvent {
-                            packet,
-                            conn: Connection { address: peer },
-                        })) {
-                            Ok(()) => {}
-                            Err(e) => {
-                                print_to_console(&format!("Failed to send PacketFromClientEvent: {e}"), 2);
-                            }
-                        }
-                    }
-                }
-            },
-            NodeEvent::Signal(()) => {
-                if !is_running.load(Ordering::Relaxed) {
-                    handler.stop();
-                }
-
-                while let Ok((packet_data, conn)) = packet_receiver.try_recv() {
-                    // sending routinely fails when the peer has gone away between queueing
-                    // and sending, which is normal and must not kill the networking thread
-                    if let Err(e) = Self::send_packet_internal(&handler, &packet_data, &conn) {
-                        print_to_console(&format!("Failed to send a packet to [{}]: {e}", conn.address), 1);
-                    }
-                }
-
-                handler.signals().send_with_timer((), std::time::Duration::from_millis(1));
-            }
-        });
-
-        Ok(())
     }
 
     pub fn on_event(&mut self, event: &Event, events: &mut EventManager) -> Result<()> {
@@ -273,92 +89,71 @@ impl ServerNetworking {
     }
 
     pub fn update(&mut self, events: &mut EventManager) -> Result<()> {
-        if let Some(event_receiver) = &self.event_receiver {
-            while let Ok(event) = event_receiver.try_recv() {
-                events.push_event(event);
-            }
-        }
-
-        let mut net_loop_finished = false;
-        if let Some(thread_handle) = &self.net_loop_thread {
-            if thread_handle.is_finished() {
-                net_loop_finished = true;
-            }
-        }
-
-        if net_loop_finished {
-            if let Some(thread_handle) = self.net_loop_thread.take() {
-                let result = match thread_handle.join() {
-                    Ok(result) => result,
-                    Err(_e) => {
-                        bail!("Failed to join net loop thread");
-                    }
-                };
-                return result;
+        for net_event in self.server.poll()? {
+            match net_event {
+                // a peer that has connected has said nothing yet, so there is nothing to
+                // tell the rest of the server about until the handshake gets somewhere
+                ServerEvent::Connected(_conn) => {}
+                ServerEvent::Disconnected(conn) => {
+                    self.accepted_peers.remove(&conn);
+                    events.push_event(Event::new(DisconnectEvent { conn }));
+                }
+                ServerEvent::Received { conn, packet } => self.handle_packet(conn, packet, events)?,
             }
         }
 
         Ok(())
     }
 
-    fn send_packet_internal(net_server: &NodeHandler<()>, packet_data: &[u8], conn: &Connection) -> Result<()> {
-        loop {
-            let status = net_server.network().send(conn.address, packet_data);
-            match status {
-                SendStatus::Sent => break,
-                SendStatus::MaxPacketSizeExceeded => bail!("Max packet size exceeded"),
-                SendStatus::ResourceNotFound => bail!("Resource not found"),
-                SendStatus::ResourceNotAvailable => {
-                    // wait a bit and try again
-                    std::thread::sleep(std::time::Duration::from_millis(1));
-                }
+    /// The handshake, one packet at a time.
+    ///
+    /// The version goes first and is checked before anything else is believed, because packet
+    /// ids are a hash of the rust type: a client built against a different protocol does not
+    /// fail to understand this server so much as fail to recognise it at all, and would
+    /// otherwise hang with no explanation.
+    fn handle_packet(&mut self, conn: Connection, packet: Packet, events: &mut EventManager) -> Result<()> {
+        if let Some(version) = packet.try_deserialize::<VersionPacket>() {
+            if version.version == VERSION {
+                self.accepted_peers.insert(conn);
+            } else {
+                print_to_console(&format!("[{conn}] refused: it is version {}, this server is {VERSION}", version.version), 1);
+                self.server.disconnect(&conn)?;
             }
+            return Ok(());
         }
 
+        if let Some(name) = packet.try_deserialize::<NamePacket>() {
+            if !self.accepted_peers.contains(&conn) {
+                print_to_console(&format!("[{conn}] refused: it did not send a version, so it is older than {VERSION}"), 1);
+                self.server.disconnect(&conn)?;
+                return Ok(());
+            }
+
+            print_to_console(&format!("[{:?}] joined the game", name.name), 0);
+            events.push_event(Event::new(NewConnectionEvent { conn, name: name.name }));
+            return Ok(());
+        }
+
+        events.push_event(Event::new(PacketFromClientEvent { packet, conn }));
         Ok(())
     }
 
     pub fn send_packet(&mut self, packet: &Packet, target: SendTarget) -> Result<()> {
-        let packet_data = serialization::serialize(&packet)?;
-
         match target {
             SendTarget::All => {
-                for conn in &self.connections {
-                    self.packet_sender
-                        .as_mut()
-                        .ok_or_else(|| anyhow!("packet_sender not constructed yet"))?
-                        .send((packet_data.clone(), conn.clone()))?;
-                }
+                let connections = self.connections.clone();
+                self.server.send(packet, &connections)
             }
-            SendTarget::Connection(conn) => {
-                self.packet_sender.as_mut().ok_or_else(|| anyhow!("packet_sender not constructed yet"))?.send((packet_data, conn))?;
-            }
+            SendTarget::Connection(conn) => self.server.send(packet, &[conn]),
             SendTarget::AllExcept(conn) => {
-                for c in &self.connections {
-                    if c != &conn {
-                        self.packet_sender
-                            .as_mut()
-                            .ok_or_else(|| anyhow!("packet_sender not constructed yet"))?
-                            .send((packet_data.clone(), c.clone()))?;
-                    }
-                }
+                let connections: Vec<Connection> = self.connections.iter().filter(|c| **c != conn).cloned().collect();
+                self.server.send(packet, &connections)
             }
         }
-        Ok(())
     }
 
     pub fn stop(&mut self, events: &mut EventManager) -> Result<()> {
-        // close all connections
-
-        self.is_running.store(false, Ordering::Relaxed);
-        if let Some(thread_handle) = self.net_loop_thread.take() {
-            match thread_handle.join() {
-                Ok(_) => {}
-                Err(_) => {
-                    bail!("Failed to join net loop thread");
-                }
-            }
-        }
+        self.server.stop()?;
 
         for conn in &self.connections {
             events.push_event(Event::new(DisconnectEvent { conn: conn.clone() }));
@@ -366,6 +161,21 @@ impl ServerNetworking {
 
         Ok(())
     }
+}
+
+/// Sends the transport's commentary to the server console, which is where the rest of the
+/// server's output goes.
+fn server_console_logger() -> Logger {
+    std::sync::Arc::new(|level, message| {
+        print_to_console(
+            message,
+            match level {
+                LogLevel::Info => 0,
+                LogLevel::Warning => 1,
+                LogLevel::Error => 2,
+            },
+        );
+    })
 }
 
 pub struct PacketFromClientEvent {

@@ -1,18 +1,8 @@
-use std::net::ToSocketAddrs;
-use std::sync::atomic::{AtomicBool, Ordering};
-use std::sync::mpsc::{Receiver, Sender};
-use std::sync::Arc;
-use std::sync::{mpsc, Mutex, PoisonError};
-use std::thread::JoinHandle;
-
-use anyhow::{anyhow, bail, Result};
-use message_io::network::{Endpoint, NetEvent, SendStatus, ToRemoteAddr, Transport};
-use message_io::node;
-use message_io::node::{NodeEvent, NodeHandler};
+use anyhow::{anyhow, Result};
 
 use crate::libraries::events;
 use crate::libraries::events::EventManager;
-use crate::libraries::serialization;
+use crate::libraries::net::{no_logging, ClientError, PacketClient};
 use crate::shared::packet::{Packet, WelcomeCompletePacket};
 use crate::shared::players::NamePacket;
 use crate::shared::versions::VersionPacket;
@@ -22,307 +12,90 @@ pub struct WelcomePacketEvent {
     pub packet: Packet,
 }
 
-/// This handles all the networking for the client.
-/// client connects to a server and sends and receives packets.
+/// The game's half of the client protocol.
+///
+/// The socket, the thread and the handshake *phase* are `libraries::net::PacketClient`.
+/// What is left here is what the game says and means: the version and the name go out as the
+/// greeting, `WelcomeCompletePacket` is what ends the welcome, and everything that arrives
+/// before it becomes a `WelcomePacketEvent` rather than an ordinary packet.
 pub struct ClientNetworking {
-    server_port: u16,
-    server_address: String,
-    is_running: Arc<AtomicBool>,
-    is_welcoming: Arc<AtomicBool>,
-    should_start_receiving: Arc<AtomicBool>,
-    net_loop_thread: Option<JoinHandle<Result<()>>>,
-    event_receiver: Option<Receiver<events::Event>>,
-    packet_sender: Option<Sender<Packet>>,
-    receive_loop_error: Arc<Mutex<String>>,
+    client: PacketClient,
 }
 
 impl ClientNetworking {
     #[must_use]
     pub fn new(server_port: u16, server_address: String) -> Self {
+        // the client has no console of its own to write a transport's commentary to
         Self {
-            server_port,
-            server_address,
-            is_running: Arc::new(AtomicBool::new(true)),
-            is_welcoming: Arc::new(AtomicBool::new(true)),
-            should_start_receiving: Arc::new(AtomicBool::new(false)),
-            net_loop_thread: None,
-            event_receiver: None,
-            packet_sender: None,
-            receive_loop_error: Arc::new(Mutex::new(String::new())),
+            client: PacketClient::new(server_address, server_port, no_logging()),
         }
     }
 
     pub fn init(&mut self, name: String) -> Result<()> {
-        // connect to the server
+        // The version goes first, so a mismatched server can say so instead of silently
+        // failing to understand everything that follows.
+        let greeting = vec![Packet::new(VersionPacket::current())?, Packet::new(NamePacket { name })?];
 
-        let (event_sender, event_receiver) = mpsc::channel();
-        let (packet_sender, packet_receiver) = mpsc::channel();
-        self.event_receiver = Some(event_receiver);
-        self.packet_sender = Some(packet_sender);
-
-        let is_running = self.is_running.clone();
-        let is_welcoming = self.is_welcoming.clone();
-        let should_start_receiving = self.should_start_receiving.clone();
-        let server_address = self.server_address.clone();
-        let server_port = self.server_port;
-        let receive_loop_error = self.receive_loop_error.clone();
-
-        let net_loop_thread = std::thread::Builder::new().name("Client Networking".to_owned()).spawn(move || {
-            Self::net_receive_loop(
-                &event_sender,
-                &packet_receiver,
-                &is_running,
-                &is_welcoming,
-                &should_start_receiving,
-                &receive_loop_error,
-                &server_address,
-                server_port,
-                &name,
-            )
-        })?;
-
-        self.net_loop_thread = Some(net_loop_thread);
-        Ok(())
-    }
-
-    fn net_receive_loop(
-        event_sender: &Sender<events::Event>,
-        packet_receiver: &Receiver<Packet>,
-        is_running: &Arc<AtomicBool>,
-        is_welcoming: &Arc<AtomicBool>,
-        should_start_receiving: &Arc<AtomicBool>,
-        error_returned: &Arc<Mutex<String>>,
-        server_address: &str,
-        server_port: u16,
-        player_name: &str,
-    ) -> Result<()> {
-        let (handler, listener) = node::split();
-
-        let server_addr = format!("{server_address}:{server_port}")
-            .to_remote_addr()?
-            .to_socket_addrs()?
-            .next()
-            .ok_or_else(|| anyhow!("server address not found"))?;
-        let (server_endpoint, _) = handler.network().connect(Transport::FramedTcp, server_addr)?;
-
-        // the version goes first, so a mismatched server can say so instead of silently
-        // failing to understand everything that follows
-        Self::send_packet_internal(&handler, &Packet::new(VersionPacket::current())?, server_endpoint)?;
-        Self::send_packet_internal(&handler, &Packet::new(NamePacket { name: player_name.to_owned() })?, server_endpoint)?;
-
-        // The signal chain starts here rather than when the welcome finishes, because the
-        // welcome phase is otherwise driven entirely by what the server sends: with nothing
-        // ticking, a caller that has given up - a player who closed the window while the world
-        // was still on its way - could not be noticed until the server said something.
-        handler.signals().send_with_timer((), std::time::Duration::from_millis(1));
-
-        listener.for_each(move |event| {
-            if !error_returned.lock().unwrap_or_else(PoisonError::into_inner).is_empty() {
-                // if there is an error, we don't want to receive any more events
-                // so we just ignore them
-                // this is to prevent the error from spamming the console
-                // and to prevent the game from crashing
-                return;
-            }
-
-            if is_welcoming.load(Ordering::Relaxed) {
-                // welcoming loop
-                match event {
-                    NodeEvent::Signal(()) => {
-                        // the only thing that can end the welcome phase from this side
-                        if !is_running.load(Ordering::Relaxed) {
-                            handler.stop();
-                            return;
-                        }
-                        handler.signals().send_with_timer((), std::time::Duration::from_millis(1));
-                    }
-                    NodeEvent::Network(event) => match event {
-                        NetEvent::Accepted(..) => {}
-                        // `connect` is not blocking, so a server that is down or refusing
-                        // is reported here rather than by an error from `init`. This used
-                        // to be ignored, which left the caller spinning on `is_welcoming`
-                        // for as long as the player was willing to watch a loading screen.
-                        NetEvent::Connected(_peer, established) => {
-                            if !established {
-                                error_returned
-                                    .lock()
-                                    .unwrap_or_else(PoisonError::into_inner)
-                                    .push_str("could not connect to the server: it did not accept the connection");
-                                handler.stop();
-                            }
-                        }
-                        // The server drops connections it refuses - a version it does not
-                        // accept, or no version at all. Ignoring that hung the client in
-                        // exactly the case the version handshake was added to explain.
-                        NetEvent::Disconnected(..) => {
-                            error_returned
-                                .lock()
-                                .unwrap_or_else(PoisonError::into_inner)
-                                .push_str("the server closed the connection during the handshake, so it refused to let this client join");
-                            handler.stop();
-                        }
-                        NetEvent::Message(_peer, packet) => {
-                            let packet = serialization::deserialize::<Packet>(packet);
-
-                            packet.map_or_else(
-                                |error| {
-                                    error_returned.lock().unwrap_or_else(PoisonError::into_inner).push_str(&error.to_string());
-                                },
-                                |packet| {
-                                    if packet.try_deserialize::<WelcomeCompletePacket>().is_some() {
-                                        is_welcoming.store(false, Ordering::Relaxed);
-                                        // The game drains the welcome packets and then says it
-                                        // is ready, so nothing that arrives next is read
-                                        // before it has. `is_running` is watched as well
-                                        // because a caller can also give up here, and then
-                                        // nothing would ever say it was ready.
-                                        while !should_start_receiving.load(Ordering::Relaxed) && is_running.load(Ordering::Relaxed) {
-                                            // wait 1 ms
-                                            std::thread::sleep(std::time::Duration::from_millis(1));
-                                        }
-                                        // no signal is sent here: the timer armed before this
-                                        // loop is still in flight, and a second one would mean
-                                        // two chains ticking against each other forever
-                                    }
-
-                                    // send welcome packet event
-                                    let res = event_sender.send(events::Event::new(WelcomePacketEvent { packet }));
-                                    if let Err(err) = res {
-                                        error_returned.lock().unwrap_or_else(PoisonError::into_inner).push_str(&err.to_string());
-                                    }
-                                },
-                            );
-                        }
-                    },
-                }
-            } else {
-                // normal loop
-                match event {
-                    NodeEvent::Network(event) => match event {
-                        NetEvent::Connected(..) | NetEvent::Accepted(..) | NetEvent::Disconnected(..) => {}
-                        NetEvent::Message(_peer, packet) => {
-                            let packet = serialization::deserialize::<Packet>(packet);
-
-                            packet.map_or_else(
-                                |error| {
-                                    error_returned.lock().unwrap_or_else(PoisonError::into_inner).push_str(&error.to_string());
-                                },
-                                |packet| {
-                                    let res = event_sender.send(events::Event::new(packet));
-                                    if let Err(err) = res {
-                                        error_returned.lock().unwrap_or_else(PoisonError::into_inner).push_str(&err.to_string());
-                                    }
-                                },
-                            );
-                        }
-                    },
-                    NodeEvent::Signal(()) => {
-                        if !is_running.load(Ordering::Relaxed) {
-                            handler.stop();
-                        }
-
-                        while let Ok(packet) = packet_receiver.try_recv() {
-                            let res = Self::send_packet_internal(&handler, &packet, server_endpoint);
-                            if let Err(err) = res {
-                                error_returned.lock().unwrap_or_else(PoisonError::into_inner).push_str(&(err.to_string() + " (server closed)"));
-                            }
-                        }
-
-                        handler.signals().send_with_timer((), std::time::Duration::from_millis(1));
-                    }
-                }
-            }
-        });
-
-        Ok(())
+        self.client.connect(greeting, Packet::is::<WelcomeCompletePacket>)
     }
 
     pub fn update(&mut self, events: &mut EventManager) -> Result<()> {
-        if let Some(receiver) = &self.event_receiver {
-            while let Ok(event) = receiver.try_recv() {
-                events.push_event(event);
+        for received in self.client.poll()? {
+            // A welcome packet is the world arriving, and the game drains those into
+            // `pre_events` before it starts playing. Everything after is ordinary traffic and
+            // goes to whichever subsystem recognises it.
+            if received.during_handshake {
+                events.push_event(events::Event::new(WelcomePacketEvent { packet: received.packet }));
+            } else {
+                events.push_event(events::Event::new(received.packet));
             }
         }
-        self.check_thread_for_errors()?;
-        if !self.receive_loop_error.lock().unwrap_or_else(PoisonError::into_inner).is_empty() {
-            return Err(anyhow!(self.receive_loop_error.lock().unwrap_or_else(PoisonError::into_inner).clone()));
+
+        if let Some(error) = self.client.take_error() {
+            return Err(anyhow!(Self::explain(&error)));
         }
+
         Ok(())
     }
 
-    fn send_packet_internal(net_client: &NodeHandler<()>, packet: &Packet, endpoint: Endpoint) -> Result<()> {
-        let packet_data = serialization::serialize(packet)?;
-
-        loop {
-            let status = net_client.network().send(endpoint, &packet_data);
-            match status {
-                SendStatus::Sent => break,
-                SendStatus::MaxPacketSizeExceeded => {
-                    bail!("Max packet size exceeded");
-                }
-                // `message_io` drops the connection's resource when a pending connect is
-                // refused, so this is also what a port with nothing behind it looks like from
-                // here - and it is the first thing the handshake finds out, since the version
-                // packet goes before anything else.
-                SendStatus::ResourceNotFound => {
-                    bail!("no connection to the server at {endpoint}: nothing is listening there, or it closed the connection");
-                }
-                SendStatus::ResourceNotAvailable => {
-                    std::thread::sleep(std::time::Duration::from_millis(1));
-                    // just try again
-                }
-            }
+    /// Says what a transport failure means for somebody trying to join a world.
+    ///
+    /// The transport knows the socket shut; only this side knows that a server which drops a
+    /// connection mid-handshake is a server that has refused this client, which is the whole
+    /// case the version check exists for.
+    fn explain(error: &ClientError) -> String {
+        match error {
+            ClientError::NotAccepted => "could not connect to the server: it did not accept the connection".to_owned(),
+            ClientError::ClosedDuringHandshake => "the server closed the connection during the handshake, so it refused to let this client join".to_owned(),
+            ClientError::Failed(message) => message.clone(),
         }
-        Ok(())
     }
 
     pub fn send_packet(&mut self, packet: Packet) -> Result<()> {
-        self.packet_sender.as_mut().ok_or_else(|| anyhow!("packet sender not constructed yet"))?.send(packet)?;
-        Ok(())
+        self.client.send(packet)
     }
 
     pub fn check_thread_for_errors(&mut self) -> Result<()> {
-        let is_finished = self.net_loop_thread.as_ref().is_some_and(JoinHandle::is_finished);
-
-        if is_finished {
-            let thread = self.net_loop_thread.take().ok_or_else(|| anyhow!("thread not found"))?;
-            let joined = thread.join().ok().ok_or_else(|| anyhow!("thread returned an error"))?;
-            return joined;
-        }
-
-        Ok(())
+        self.client.check_thread_for_errors()
     }
 
     /// Whether the handshake is still in progress.
     ///
-    /// Callers spin on this waiting for the world to arrive, so it has to go false when
-    /// the connection fails too - otherwise there is nothing left to wait for and the
-    /// wait never ends. The failure itself is reported by the next `update`.
+    /// Callers spin on this waiting for the world to arrive, so it goes false when the
+    /// connection fails too - otherwise there is nothing left to wait for and the wait never
+    /// ends. The failure itself is reported by the next `update`.
+    #[must_use]
     pub fn is_welcoming(&self) -> bool {
-        self.is_welcoming.load(Ordering::Relaxed) && self.receive_loop_error.lock().unwrap_or_else(PoisonError::into_inner).is_empty()
+        self.client.is_handshaking()
     }
 
     pub fn start_receiving(&self) {
-        self.should_start_receiving.store(true, Ordering::Relaxed);
+        self.client.resume_receiving();
     }
 
-    /// Disconnects and joins the networking thread.
-    ///
-    /// Safe to call at any point, including while the handshake is still going: the welcome
-    /// loop has a timer of its own that watches the running flag, and the wait for the game to
-    /// start receiving watches it too. Before those, a caller that gave up mid-handshake -
-    /// somebody closing the window while a world loaded - had nothing to join.
+    /// Disconnects and joins the networking thread. Safe to call at any point, including
+    /// while the welcome is still going - somebody closing the window while a world loads.
     pub fn stop(&mut self) -> Result<()> {
-        // disconnect the socket
-        self.is_running.store(false, Ordering::Relaxed);
-        if let Some(net_loop_thread) = self.net_loop_thread.take() {
-            match net_loop_thread.join() {
-                Ok(_) => {}
-                Err(_) => {
-                    bail!("net loop thread returned an error");
-                }
-            }
-        }
-        Ok(())
+        self.client.stop()
     }
 }

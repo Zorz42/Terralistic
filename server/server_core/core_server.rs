@@ -334,10 +334,10 @@ impl Server {
 
         while let Some(event) = self.events.pop_event() {
             if let Some(disconnect) = event.downcast::<DisconnectEvent>() {
-                send_to_ui(UiMessageType::PlayerEvent(PlayerEventType::Leave(disconnect.conn.address.addr())), None);
+                send_to_ui(UiMessageType::PlayerEvent(PlayerEventType::Leave(disconnect.conn.addr())), None);
             }
             if let Some(connect) = event.downcast::<NewConnectionEvent>() {
-                send_to_ui(UiMessageType::PlayerEvent(PlayerEventType::Join((connect.name.clone(), connect.conn.address.addr()))), None);
+                send_to_ui(UiMessageType::PlayerEvent(PlayerEventType::Join((connect.name.clone(), connect.conn.addr()))), None);
             }
             if let Some(event) = event.downcast::<UiMessageType>() {
                 send_to_ui(event.clone(), None);

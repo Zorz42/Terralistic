@@ -157,6 +157,7 @@ pub mod libraries {
     pub mod events;
     pub mod graphics;
     pub mod grid;
+    pub mod net;
     pub mod registry;
     pub mod serialization;
     mod tests;
