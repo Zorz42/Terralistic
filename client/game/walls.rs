@@ -1,13 +1,13 @@
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex, MutexGuard, PoisonError};
 
-use crate::client::game::chunk_tracker::ChunkTracker;
 use crate::libraries::events::{Event, EventManager};
 use crate::libraries::graphics as gfx;
+use crate::libraries::grid::ChunkTracker;
 use crate::shared::blocks::{Blocks, BLOCK_WIDTH, RENDER_BLOCK_WIDTH, RENDER_SCALE};
 use crate::shared::mod_manager::ModManager;
 use crate::shared::walls::{init_walls_mod_interface, WallId, Walls, WallsWelcomePacket};
-use crate::shared::world_map::CHUNK_SIZE;
+use crate::shared::CHUNK_SIZE;
 use anyhow::{anyhow, bail, Result};
 
 use super::camera::Camera;

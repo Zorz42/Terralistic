@@ -32,7 +32,7 @@ impl BreakingBlock {
 impl Blocks {
     /// Gets the breaking progress of a block.
     pub fn get_break_progress(&self, x: i32, y: i32) -> Result<i32> {
-        self.block_data.map.translate_coords(x, y)?;
+        self.block_data.blocks.translate_coords(x, y)?;
 
         for breaking_block in &self.breaking_blocks {
             if breaking_block.coord == (x, y) {
@@ -45,7 +45,7 @@ impl Blocks {
     /// Sets the breaking progress of a block.
     pub fn set_break_progress(&mut self, x: i32, y: i32, progress: i32) -> Result<()> {
         // check if coordinates are out of bounds
-        self.block_data.map.translate_coords(x, y)?;
+        self.block_data.blocks.translate_coords(x, y)?;
 
         // an unbreakable block must never enter the breaking list, or update_breaking_blocks
         // would go on to break it - start_breaking_block already refuses these
@@ -116,7 +116,7 @@ impl Blocks {
 
     /// Stops breaking a block.
     pub fn stop_breaking_block(&mut self, events: &mut EventManager, x: i32, y: i32) -> Result<()> {
-        self.block_data.map.translate_coords(x, y)?;
+        self.block_data.blocks.translate_coords(x, y)?;
 
         for breaking_block in &mut self.breaking_blocks {
             if breaking_block.coord == (x, y) {

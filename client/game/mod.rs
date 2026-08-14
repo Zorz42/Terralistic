@@ -3,7 +3,6 @@ mod block_selector;
 mod blocks;
 mod camera;
 mod chat;
-mod chunk_tracker;
 pub mod core_client;
 mod debug_menu;
 mod entities;

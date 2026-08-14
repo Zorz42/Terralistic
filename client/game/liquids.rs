@@ -3,14 +3,14 @@ use std::sync::{Arc, Mutex, MutexGuard, PoisonError};
 
 use anyhow::{anyhow, bail, Result};
 
-use crate::client::game::chunk_tracker::ChunkTracker;
 use crate::libraries::events::{Event, EventManager};
 use crate::libraries::graphics as gfx;
+use crate::libraries::grid::ChunkTracker;
 use crate::shared::blocks::RENDER_BLOCK_WIDTH;
 use crate::shared::liquids::{init_liquids_mod_interface, LiquidChangeEvent, LiquidChangesPacket, LiquidId, Liquids, LiquidsWelcomePacket, MAX_LIQUID_LEVEL};
 use crate::shared::mod_manager::ModManager;
 use crate::shared::packet::Packet;
-use crate::shared::world_map::CHUNK_SIZE;
+use crate::shared::CHUNK_SIZE;
 
 use super::camera::Camera;
 use super::networking::WelcomePacketEvent;

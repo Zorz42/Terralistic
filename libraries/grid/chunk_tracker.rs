@@ -14,6 +14,7 @@ pub struct ChunkTracker {
 }
 
 impl ChunkTracker {
+    #[must_use]
     pub fn new(size: usize) -> Self {
         Self {
             modified_time: vec![None; size],
@@ -40,6 +41,7 @@ impl ChunkTracker {
         self.queue.first().ok_or_else(|| anyhow!("No chunks in queue")).map(|&(_, chunk)| chunk)
     }
 
+    #[must_use]
     pub fn get_num_chunks(&self) -> usize {
         self.queue.len()
     }

@@ -13,7 +13,10 @@ pub const VERSION: &str = env!("CARGO_PKG_VERSION");
 /// 2: the same layout written with bincode 2 (tagged variable length integers)
 /// 3: the same layout written with postcard, behind the header below
 /// 4: the liquid grid joined blocks, walls and players in the saved map
-pub const WORLD_SAVE_VERSION: u32 = 4;
+/// 5: the block, wall and liquid grids became `libraries::grid::Grid`, which carries its
+///    own size - the walls and liquids containers used to write their cells first and
+///    their size after, so the two halves swapped places
+pub const WORLD_SAVE_VERSION: u32 = 5;
 
 /// What every world file starts with, ahead of anything a serializer wrote.
 ///

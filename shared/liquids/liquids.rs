@@ -5,10 +5,10 @@ use serde_derive::{Deserialize, Serialize};
 use snap;
 
 use crate::libraries::events::{Event, EventManager};
+use crate::libraries::grid::Grid;
 use crate::libraries::serialization;
 use crate::shared::blocks::Blocks;
 use crate::shared::liquids::LiquidType;
-use crate::shared::world_map::WorldMap;
 
 /// A cell filled to the brim.
 ///
@@ -43,16 +43,12 @@ pub struct Liquid {
 
 #[derive(Deserialize, Serialize)]
 pub(super) struct LiquidsData {
-    liquids: Vec<Liquid>,
-    pub(super) map: WorldMap,
+    pub(super) liquids: Grid<Liquid>,
 }
 
 impl LiquidsData {
     pub const fn new() -> Self {
-        Self {
-            liquids: Vec::new(),
-            map: WorldMap::new_empty(),
-        }
+        Self { liquids: Grid::new_empty() }
     }
 }
 
@@ -109,23 +105,18 @@ impl Liquids {
     /// Unlike `Walls::create` this fills the grid with a real registered type rather than
     /// an undefined one, so reading a cell of a freshly created world works.
     pub fn create(&mut self, size: (u32, u32)) {
-        self.liquids_data.map = WorldMap::new(size);
-        self.liquids_data.liquids = vec![Liquid { id: self.empty, level: 0 }; (size.0 * size.1) as usize];
+        self.liquids_data.liquids = Grid::filled(size, Liquid { id: self.empty, level: 0 });
         self.scheduled.clear();
     }
 
     #[must_use]
     pub const fn get_size(&self) -> (u32, u32) {
-        self.liquids_data.map.get_size()
+        self.liquids_data.liquids.get_size()
     }
 
     /// Returns the whole cell at the given position.
     pub fn get_liquid(&self, x: i32, y: i32) -> Result<Liquid> {
-        Ok(*self
-            .liquids_data
-            .liquids
-            .get(self.liquids_data.map.translate_coords(x, y)?)
-            .ok_or_else(|| anyhow!("Liquid is accessed out of the bounds! ({x}, {y})"))?)
+        Ok(*self.liquids_data.liquids.get(x, y)?)
     }
 
     /// Returns the liquid type id at the given position.
@@ -161,14 +152,13 @@ impl Liquids {
         let level = level.min(MAX_LIQUID_LEVEL);
         let new = if level == 0 { Liquid { id: self.empty, level: 0 } } else { Liquid { id: liquid_id, level } };
 
-        let index = self.liquids_data.map.translate_coords(x, y)?;
-        let old = *self.liquids_data.liquids.get(index).ok_or_else(|| anyhow!("Liquid is accessed out of the bounds! ({x}, {y})"))?;
+        let old = *self.liquids_data.liquids.get(x, y)?;
 
         if old == new {
             return Ok(());
         }
 
-        *self.liquids_data.liquids.get_mut(index).ok_or_else(|| anyhow!("Liquid is accessed out of the bounds! ({x}, {y})"))? = new;
+        self.liquids_data.liquids.set(x, y, new)?;
 
         self.schedule_update(x, y);
         events.push_event(Event::new(LiquidChangeEvent { x, y }));
@@ -183,7 +173,7 @@ impl Liquids {
     /// `BlockChangeEvent`.
     pub fn schedule_update(&mut self, x: i32, y: i32) {
         for (x, y) in [(x, y), (x - 1, y), (x + 1, y), (x, y - 1), (x, y + 1)] {
-            if self.liquids_data.map.translate_coords(x, y).is_ok() {
+            if self.liquids_data.liquids.contains(x, y) {
                 self.scheduled.insert((x, y));
             }
         }
@@ -226,7 +216,7 @@ impl Liquids {
     /// world, not inside a solid block, hold either nothing or the same liquid, and have
     /// room left.
     fn can_flow_into(&self, x: i32, y: i32, liquid: Liquid, blocks: &Blocks) -> Result<bool> {
-        if self.liquids_data.map.translate_coords(x, y).is_err() {
+        if !self.liquids_data.liquids.contains(x, y) {
             return Ok(false);
         }
 

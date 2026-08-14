@@ -25,7 +25,7 @@ impl BreakingWall {
 impl Walls {
     /// Returns the break progress of the wall at x and y
     pub fn get_break_progress(&self, x: i32, y: i32) -> Result<i32> {
-        self.walls_data.map.translate_coords(x, y)?;
+        self.walls_data.walls.translate_coords(x, y)?;
 
         for wall in &self.breaking_walls {
             if wall.coord == (x, y) {

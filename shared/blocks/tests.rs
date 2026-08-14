@@ -451,7 +451,7 @@ mod tests {
     #[test]
     fn test_create_from_empty_block_ids_fails() {
         let (mut blocks, _breakable, _unbreakable) = blocks_with_break_types();
-        blocks.create_from_block_ids(&vec![]).unwrap_err();
+        blocks.create_from_block_ids(&[]).unwrap_err();
     }
 
     // --- the lua mod interface ---

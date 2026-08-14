@@ -1,8 +1,9 @@
 use anyhow::{anyhow, Result};
 
 use crate::libraries::events::Event;
+use crate::libraries::grid::{Chunks, Grid};
 use crate::shared::blocks::{BlockChangeEvent, Blocks};
-use crate::shared::world_map::{WorldMap, CHUNK_SIZE};
+use crate::shared::CHUNK_SIZE;
 
 /// struct that contains the light rgb values
 #[derive(PartialEq, Eq, Clone, Copy)]
@@ -57,9 +58,9 @@ impl LightChunk {
 
 /// struct that manages all the lights in the world
 pub struct Lights {
-    lights: Vec<Light>,
+    lights: Grid<Light>,
     light_chunks: Vec<LightChunk>,
-    map: WorldMap,
+    chunks: Chunks,
     sky_heights: Vec<i32>,
 }
 
@@ -67,40 +68,49 @@ impl Lights {
     #[must_use]
     pub const fn new() -> Self {
         Self {
-            lights: Vec::new(),
+            lights: Grid::new_empty(),
             light_chunks: Vec::new(),
-            map: WorldMap::new_empty(),
+            chunks: Chunks::new((0, 0), CHUNK_SIZE),
             sky_heights: Vec::new(),
         }
     }
 
     #[must_use]
     pub const fn get_size(&self) -> (u32, u32) {
-        self.map.get_size()
+        self.lights.get_size()
     }
 
     /// returns the light at the given coordinate
     pub fn get_light(&self, x: i32, y: i32) -> Result<&Light> {
-        self.lights.get(self.map.translate_coords(x, y)?).ok_or_else(|| anyhow!("Light not found! x: {x}, y: {y}"))
+        self.lights.get(x, y)
     }
 
     /// returns mutable light at the given coordinate
     fn get_light_mut(&mut self, x: i32, y: i32) -> Result<&mut Light> {
-        self.lights.get_mut(self.map.translate_coords(x, y)?).ok_or_else(|| anyhow!("Light not found! x: {x}, y: {y}"))
+        self.lights.get_mut(x, y)
     }
 
     /// returns the light chunk at the given coordinate
     pub fn get_light_chunk(&self, x: i32, y: i32) -> Result<&LightChunk> {
         self.light_chunks
-            .get(self.map.translate_chunk_coords(x, y)?)
+            .get(self.chunks.translate_coords(x, y)?)
             .ok_or_else(|| anyhow!("Light chunk not found! x: {x}, y: {y}"))
     }
 
-    /// returns mutable light chunk at the given coordinate
+    /// returns mutable light chunk at the given chunk coordinate
     fn get_light_chunk_mut(&mut self, x: i32, y: i32) -> Result<&mut LightChunk> {
         self.light_chunks
-            .get_mut(self.map.translate_chunk_coords(x, y)?)
+            .get_mut(self.chunks.translate_coords(x, y)?)
             .ok_or_else(|| anyhow!("Light chunk not found! x: {x}, y: {y}"))
+    }
+
+    /// Returns the mutable light chunk containing the given *cell*, rather than the chunk
+    /// with those chunk coordinates. The scheduled update counts are per chunk while
+    /// everything that changes them is per cell, so this is the conversion those callers
+    /// were doing by hand.
+    fn get_light_chunk_mut_at(&mut self, cell_x: i32, cell_y: i32) -> Result<&mut LightChunk> {
+        let (chunk_x, chunk_y) = self.chunks.chunk_at(cell_x, cell_y);
+        self.get_light_chunk_mut(chunk_x, chunk_y)
     }
 
     /// sets the light color at the given coordinate
@@ -118,19 +128,16 @@ impl Lights {
 
     /// creates an empty light vector
     pub fn create(&mut self, size: (u32, u32)) {
-        self.lights = vec![Light::new(); (size.0 * size.1) as usize];
-        // the parentheses matter: `/` and `*` are left associative, so without them this
-        // reads as `((w / CHUNK_SIZE) * h) / CHUNK_SIZE`, which is a different number
-        // whenever the height is not a multiple of CHUNK_SIZE
-        self.light_chunks = vec![LightChunk::new(); ((size.0 as i32 / CHUNK_SIZE) * (size.1 as i32 / CHUNK_SIZE)) as usize];
-        self.map = WorldMap::new(size);
+        self.lights = Grid::filled(size, Light::new());
+        self.chunks = Chunks::new(size, CHUNK_SIZE);
+        self.light_chunks = vec![LightChunk::new(); self.chunks.count()];
         self.sky_heights = vec![-1; size.0 as usize];
     }
 
     /// initializes sky heights
     pub fn init_sky_heights(&mut self, blocks: &Blocks) -> Result<()> {
-        for x in 0..self.map.get_size().0 {
-            for y in 0..self.map.get_size().1 {
+        for x in 0..self.lights.get_size().0 {
+            for y in 0..self.lights.get_size().1 {
                 if blocks.get_block_type_at(x as i32, y as i32)?.transparent {
                     *self.sky_heights.get_mut(x as usize).ok_or_else(|| anyhow!("sky_heights out of bounds"))? = y as i32;
                 } else {
@@ -145,7 +152,7 @@ impl Lights {
     pub fn update_light(&mut self, x: i32, y: i32, blocks: &Blocks) -> Result<()> {
         if self.get_light_mut(x, y)?.scheduled_light_update {
             self.get_light_mut(x, y)?.scheduled_light_update = false;
-            self.get_light_chunk_mut(x / CHUNK_SIZE, y / CHUNK_SIZE)?.scheduled_light_update_count -= 1;
+            self.get_light_chunk_mut_at(x, y)?.scheduled_light_update_count -= 1;
         }
         self.update_light_emitter(x, y, blocks)?;
 
@@ -155,7 +162,7 @@ impl Lights {
                 neighbours[0][0] = x - 1;
                 neighbours[0][1] = y;
             }
-            if x != self.map.get_size().0 as i32 - 1 {
+            if x != self.lights.get_size().0 as i32 - 1 {
                 neighbours[1][0] = x + 1;
                 neighbours[1][1] = y;
             }
@@ -163,7 +170,7 @@ impl Lights {
                 neighbours[2][0] = x;
                 neighbours[2][1] = y - 1;
             }
-            if y != self.map.get_size().1 as i32 - 1 {
+            if y != self.lights.get_size().1 as i32 - 1 {
                 neighbours[3][0] = x;
                 neighbours[3][1] = y + 1;
             }
@@ -217,7 +224,7 @@ impl Lights {
     pub fn schedule_light_update(&mut self, x: i32, y: i32) -> Result<()> {
         if !self.get_light_mut(x, y)?.scheduled_light_update {
             self.get_light_mut(x, y)?.scheduled_light_update = true;
-            self.get_light_chunk_mut(x / CHUNK_SIZE, y / CHUNK_SIZE)?.scheduled_light_update_count += 1;
+            self.get_light_chunk_mut_at(x, y)?.scheduled_light_update_count += 1;
         }
         Ok(())
     }

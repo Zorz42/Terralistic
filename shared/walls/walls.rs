@@ -2,11 +2,11 @@ use anyhow::{anyhow, bail, Result};
 use serde_derive::{Deserialize, Serialize};
 use snap;
 
+use crate::libraries::grid::Grid;
 use crate::libraries::serialization;
 use crate::shared::blocks::Tool;
 use crate::shared::blocks::{Blocks, ToolId};
 use crate::shared::walls::{BreakingWall, Wall};
-use crate::shared::world_map::WorldMap;
 
 /// `WallId` stores id to a type of wall.
 #[derive(Deserialize, Serialize, Clone, Copy, Eq, PartialEq, PartialOrd, Ord, Hash)]
@@ -23,16 +23,12 @@ impl WallId {
 
 #[derive(Deserialize, Serialize)]
 pub(super) struct WallsData {
-    walls: Vec<WallId>,
-    pub(super) map: WorldMap,
+    pub(super) walls: Grid<WallId>,
 }
 
 impl WallsData {
     pub const fn new() -> Self {
-        Self {
-            walls: Vec::new(),
-            map: WorldMap::new_empty(),
-        }
+        Self { walls: Grid::new_empty() }
     }
 }
 
@@ -69,24 +65,23 @@ impl Walls {
         result
     }
 
-    /// Creates an empty map with the given dimensions.
+    /// Creates a map with the given dimensions, every cell holding `WallId::undefined()`.
+    ///
+    /// **That fill is a trap for anyone who calls this directly**: reading a wall before
+    /// setting one gets an id no wall type answers to, and `get_wall_type` errors on it.
+    /// Only `create_from_wall_ids` calls this, and it overwrites every cell immediately.
     pub fn create(&mut self, size: (u32, u32)) {
-        self.walls_data.map = WorldMap::new(size);
-        self.walls_data.walls = vec![WallId::undefined(); (size.0 * size.1) as usize];
+        self.walls_data.walls = Grid::filled(size, WallId::undefined());
     }
 
     /// Returns the wall id at the given position.
     fn get_wall(&self, x: i32, y: i32) -> Result<WallId> {
-        Ok(*self
-            .walls_data
-            .walls
-            .get(self.walls_data.map.translate_coords(x, y)?)
-            .ok_or_else(|| anyhow!("Wall is accessed out of the bounds! ({x}, {y})"))?)
+        Ok(*self.walls_data.walls.get(x, y)?)
     }
 
     #[must_use]
     pub const fn get_size(&self) -> (u32, u32) {
-        self.walls_data.map.get_size()
+        self.walls_data.walls.get_size()
     }
 
     /// Returns the wall type of the wall at given x and y
@@ -106,11 +101,7 @@ impl Walls {
             return Ok(());
         }
 
-        *self
-            .walls_data
-            .walls
-            .get_mut(self.walls_data.map.translate_coords(x, y)?)
-            .ok_or_else(|| anyhow!("Wall is accessed out of the bounds! ({x}, {y})"))? = wall_id;
+        self.walls_data.walls.set(x, y, wall_id)?;
 
         Ok(())
     }
@@ -149,30 +140,8 @@ impl Walls {
     }
 
     /// This function creates a world from a 2d vector of wall type ids
-    pub fn create_from_wall_ids(&mut self, wall_ids: &Vec<Vec<WallId>>) -> Result<()> {
-        let width = wall_ids.len() as u32;
-        let height;
-        if let Some(row) = wall_ids.first() {
-            height = row.len() as u32;
-        } else {
-            bail!("Wall ids must not be empty");
-        }
-
-        // check that all the rows have the same length
-        for row in wall_ids {
-            if row.len() as u32 != height {
-                bail!("All rows must have the same length");
-            }
-        }
-
-        self.create((width, height));
-        self.walls_data.walls.clear();
-        for row in wall_ids {
-            for wall_id in row {
-                self.walls_data.walls.push(*wall_id);
-            }
-        }
-
+    pub fn create_from_wall_ids(&mut self, wall_ids: &[Vec<WallId>]) -> Result<()> {
+        self.walls_data.walls = Grid::from_columns(wall_ids)?;
         Ok(())
     }
 

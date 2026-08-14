@@ -215,6 +215,6 @@ mod tests {
     #[test]
     fn test_create_from_empty_wall_ids_fails() {
         let (mut walls, _breakable, _unbreakable) = walls_with_types();
-        walls.create_from_wall_ids(&vec![]).unwrap_err();
+        walls.create_from_wall_ids(&[]).unwrap_err();
     }
 }

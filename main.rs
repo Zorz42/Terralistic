@@ -156,6 +156,7 @@ use crate::libraries::graphics::UiContext;
 pub mod libraries {
     pub mod events;
     pub mod graphics;
+    pub mod grid;
     pub mod serialization;
     mod tests;
 }

@@ -3,14 +3,14 @@ use std::cell::RefCell;
 use std::rc::Rc;
 
 use crate::client::game::camera::Camera;
-use crate::client::game::chunk_tracker::ChunkTracker;
 use crate::client::settings::{Setting, Settings};
 use crate::libraries::events::Event;
 use crate::libraries::graphics as gfx;
 use crate::libraries::graphics::DrawTarget;
+use crate::libraries::grid::ChunkTracker;
 use crate::shared::blocks::{Blocks, RENDER_BLOCK_WIDTH};
 use crate::shared::lights::Lights;
-use crate::shared::world_map::CHUNK_SIZE;
+use crate::shared::CHUNK_SIZE;
 
 const MAX_LOADED_CHUNKS: usize = 1000;
 

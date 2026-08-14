@@ -5,10 +5,10 @@ use serde_derive::{Deserialize, Serialize};
 use snap;
 
 use crate::libraries::events::{Event, EventManager};
+use crate::libraries::grid::Grid;
 use crate::libraries::serialization;
 use crate::shared::blocks::{Block, BlockBreakEvent, BreakingBlock, Tool};
 use crate::shared::items::ItemStack;
-use crate::shared::world_map::WorldMap;
 
 // width of one block in pixels
 pub const BLOCK_WIDTH: f32 = 8.0;
@@ -19,8 +19,7 @@ pub const RENDER_BLOCK_WIDTH: f32 = BLOCK_WIDTH * RENDER_SCALE;
 
 #[derive(Serialize, Deserialize)]
 pub(super) struct BlocksData {
-    pub map: WorldMap,
-    pub blocks: Vec<BlockId>,
+    pub blocks: Grid<BlockId>,
     // tells how much blocks a block in a big block is from the main block, it is mostly (0, 0) so it is stored in a hashmap
     pub block_from_main: HashMap<usize, (i32, i32)>,
     // saves the extra block data, it is mostly empty so it is stored in a hashmap
@@ -55,10 +54,9 @@ impl Blocks {
     pub fn new() -> Self {
         let mut result = Self {
             block_data: BlocksData {
-                blocks: Vec::new(),
+                blocks: Grid::new_empty(),
                 block_from_main: HashMap::new(),
                 block_data: HashMap::new(),
-                map: WorldMap::new_empty(),
                 block_inventory_data: HashMap::new(),
             },
             breaking_blocks: vec![],
@@ -78,7 +76,7 @@ impl Blocks {
 
     #[must_use]
     pub const fn get_size(&self) -> (u32, u32) {
-        self.block_data.map.get_size()
+        self.block_data.blocks.get_size()
     }
 
     #[must_use]
@@ -87,47 +85,24 @@ impl Blocks {
     }
 
     pub fn create(&mut self, size: (u32, u32)) {
-        self.block_data.map = WorldMap::new(size);
-        self.block_data.blocks = vec![self.air; (size.0 * size.1) as usize];
+        self.block_data.blocks = Grid::filled(size, self.air);
     }
 
-    pub fn create_from_block_ids(&mut self, block_ids: &Vec<Vec<BlockId>>) -> Result<()> {
-        let width = block_ids.len() as u32;
-        let height;
-        if let Some(row) = block_ids.first() {
-            height = row.len() as u32;
-        } else {
-            bail!("Block ids must not be empty");
-        }
-
-        for row in block_ids {
-            if row.len() as u32 != height {
-                bail!("All rows must have the same length");
-            }
-        }
-
-        self.create((width, height));
-        self.block_data.blocks.clear();
-        for row in block_ids {
-            self.block_data.blocks.extend_from_slice(row);
-        }
+    pub fn create_from_block_ids(&mut self, block_ids: &[Vec<BlockId>]) -> Result<()> {
+        self.block_data.blocks = Grid::from_columns(block_ids)?;
         Ok(())
     }
 
     pub fn get_block(&self, x: i32, y: i32) -> Result<BlockId> {
-        // this cannot panic since the blocks vector is always the same size as the map
-        #[allow(clippy::indexing_slicing)]
-        Ok(self.block_data.blocks[self.block_data.map.translate_coords(x, y)?])
+        Ok(*self.block_data.blocks.get(x, y)?)
     }
 
     pub fn set_big_block(&mut self, events: &mut EventManager, x: i32, y: i32, block_id: BlockId, from_main: (i32, i32)) -> Result<()> {
-        #![allow(clippy::indexing_slicing)]
         if block_id != self.get_block(x, y)? || from_main != self.get_block_from_main(x, y)? {
             let prev_block = self.get_block(x, y)?;
 
             self.set_block_data(x, y, vec![])?;
-            // this is fine, since the blocks vector is guaranteed to be big enough
-            self.block_data.blocks[self.block_data.map.translate_coords(x, y)?] = block_id;
+            self.block_data.blocks.set(x, y, block_id)?;
 
             self.breaking_blocks.retain(|b| b.coord != (x, y));
             self.set_block_from_main(x, y, from_main)?;
@@ -146,7 +121,7 @@ impl Blocks {
     }
 
     fn set_block_from_main(&mut self, x: i32, y: i32, from_main: (i32, i32)) -> Result<()> {
-        let index = self.block_data.map.translate_coords(x, y)?;
+        let index = self.block_data.blocks.translate_coords(x, y)?;
 
         if from_main.0 == 0 && from_main.1 == 0 {
             self.block_data.block_from_main.remove(&index);
@@ -157,11 +132,11 @@ impl Blocks {
     }
 
     pub fn get_block_from_main(&self, x: i32, y: i32) -> Result<(i32, i32)> {
-        Ok(self.block_data.block_from_main.get(&self.block_data.map.translate_coords(x, y)?).copied().unwrap_or((0, 0)))
+        Ok(self.block_data.block_from_main.get(&self.block_data.blocks.translate_coords(x, y)?).copied().unwrap_or((0, 0)))
     }
 
     pub fn set_block_data(&mut self, x: i32, y: i32, data: Vec<u8>) -> Result<()> {
-        let index = self.block_data.map.translate_coords(x, y)?;
+        let index = self.block_data.blocks.translate_coords(x, y)?;
         if data.is_empty() {
             self.block_data.block_data.remove(&index);
         } else {
@@ -178,11 +153,16 @@ impl Blocks {
     }
 
     pub fn get_block_inventory_data(&self, x: i32, y: i32) -> Result<Vec<Option<ItemStack>>> {
-        Ok(self.block_data.block_inventory_data.get(&self.block_data.map.translate_coords(x, y)?).cloned().unwrap_or_else(Vec::new))
+        Ok(self
+            .block_data
+            .block_inventory_data
+            .get(&self.block_data.blocks.translate_coords(x, y)?)
+            .cloned()
+            .unwrap_or_else(Vec::new))
     }
 
     pub fn set_block_inventory_data(&mut self, x: i32, y: i32, data: Vec<Option<ItemStack>>, events: &mut EventManager) -> Result<()> {
-        let index = self.block_data.map.translate_coords(x, y)?;
+        let index = self.block_data.blocks.translate_coords(x, y)?;
         let size = self.get_block_inventory_size(x, y)?;
 
         if size != data.len() as i32 {
@@ -203,7 +183,7 @@ impl Blocks {
     }
 
     pub fn get_block_data(&self, x: i32, y: i32) -> Result<Vec<u8>> {
-        Ok(self.block_data.block_data.get(&self.block_data.map.translate_coords(x, y)?).cloned().unwrap_or_else(Vec::new))
+        Ok(self.block_data.block_data.get(&self.block_data.blocks.translate_coords(x, y)?).cloned().unwrap_or_else(Vec::new))
     }
 
     pub fn serialize(&self) -> Result<Vec<u8>> {
