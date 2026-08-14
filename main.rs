@@ -167,7 +167,6 @@ pub mod libraries {
     pub mod serialization;
     #[cfg(test)]
     pub mod testing;
-    mod tests;
     pub mod timing;
     pub mod ui;
 }

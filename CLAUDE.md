@@ -66,6 +66,7 @@ currently clippy clean, so keep it that way rather than dropping the flag.
 | `server/server_ui/` | Optional GUI for the server (console, player list, stats) |
 | `client/game/` | In-game client: rendering, input, prediction |
 | `client/menus/` | Title screen, world selector, settings, multiplayer |
+| `libraries/` | **`libraries/README.md` is the index**: what each one is for, and the rule they all follow |
 | `libraries/graphics/` | The wgpu renderer: draw list, backend, window, textures, glyphs |
 | `libraries/ui/` | The widget toolkit: layout, input, widgets, menus, list pages, docks |
 | `libraries/events/` | Type-erased event queue (`Box<dyn Any>` + downcast) |
@@ -79,7 +80,7 @@ currently clippy clean, so keep it that way rather than dropping the flag.
 | `libraries/log/` | Timestamped levelled lines and one process-global sink |
 | `libraries/procgen/` | Fractal noise, 1D smoothing, weighted picks |
 | `libraries/testing/` | `#[cfg(test)]`: temp dirs, free ports, spin-until-or-fail |
-| `libraries/serialization.rs` | The one place the binary format is chosen |
+| `libraries/serialization/` | The one place the binary format is chosen |
 | `base_game/` | Lua mod: all actual game content |
 | `resources/` | Client-side assets (fonts, icons, UI textures) |
 | `integration_tests/` | Tests that drive several subsystems against each other |

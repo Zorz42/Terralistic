@@ -25,6 +25,8 @@
 //! were tagged differently and bincode 1's were fixed width, so none of the three are
 //! interchangeable - see `WORLD_SAVE_VERSION` in `shared/versions.rs`.
 
+mod tests;
+
 use anyhow::Result;
 use serde::de::DeserializeOwned;
 use serde::Serialize;
