@@ -1,3 +1,4 @@
+use crate::libraries::registry::{NamedEntry, RegistryEntry};
 use crate::shared::liquids::LiquidId;
 
 /// `LiquidType` holds all information about a type of a liquid.
@@ -27,5 +28,17 @@ impl LiquidType {
     #[must_use]
     pub const fn get_id(&self) -> LiquidId {
         self.id
+    }
+}
+
+impl RegistryEntry<LiquidId> for LiquidType {
+    fn set_id(&mut self, id: LiquidId) {
+        self.id = id;
+    }
+}
+
+impl NamedEntry for LiquidType {
+    fn get_name(&self) -> &str {
+        &self.name
     }
 }

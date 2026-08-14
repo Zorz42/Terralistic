@@ -111,16 +111,8 @@ pub fn init_blocks_mod_interface(blocks: &Arc<Mutex<Blocks>>, mods: &mut ModMana
     let blocks_clone = blocks.clone();
     mods.add_global_function("connect_blocks", move |_lua, (block_id1, block_id2): (BlockId, BlockId)| {
         let block_types = &mut blocks_clone.lock().unwrap_or_else(PoisonError::into_inner).block_types;
-        block_types
-            .get_mut(block_id1.id as usize)
-            .ok_or(rlua::Error::RuntimeError("block type id is invalid".to_owned()))?
-            .connects_to
-            .push(block_id2);
-        block_types
-            .get_mut(block_id2.id as usize)
-            .ok_or(rlua::Error::RuntimeError("block type id is invalid".to_owned()))?
-            .connects_to
-            .push(block_id1);
+        block_types.get_mut(block_id1).map_err(|e| rlua::Error::RuntimeError(e.to_string()))?.connects_to.push(block_id2);
+        block_types.get_mut(block_id2).map_err(|e| rlua::Error::RuntimeError(e.to_string()))?.connects_to.push(block_id1);
         Ok(())
     })?;
 

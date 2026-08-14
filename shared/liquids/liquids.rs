@@ -6,6 +6,7 @@ use snap;
 
 use crate::libraries::events::{Event, EventManager};
 use crate::libraries::grid::Grid;
+use crate::libraries::registry::{Registry, RegistryId};
 use crate::libraries::serialization;
 use crate::shared::blocks::Blocks;
 use crate::shared::liquids::LiquidType;
@@ -28,6 +29,18 @@ impl LiquidId {
     #[must_use]
     pub const fn undefined() -> Self {
         Self { id: -1 }
+    }
+}
+
+impl RegistryId for LiquidId {
+    const KIND: &'static str = "liquid type";
+
+    fn from_index(index: usize) -> Self {
+        Self { id: index as i8 }
+    }
+
+    fn index(self) -> Option<usize> {
+        usize::try_from(self.id).ok()
     }
 }
 
@@ -61,7 +74,7 @@ impl LiquidsData {
 /// nothing until something disturbs it.
 pub struct Liquids {
     pub(super) liquids_data: LiquidsData,
-    pub(super) liquid_types: Vec<LiquidType>,
+    pub(super) liquid_types: Registry<LiquidId, LiquidType>,
 
     /// The liquid an empty cell holds. Registered first, so it is always id 0.
     pub empty: LiquidId,
@@ -82,7 +95,7 @@ impl Liquids {
     pub fn new() -> Self {
         let mut result = Self {
             liquids_data: LiquidsData::new(),
-            liquid_types: Vec::new(),
+            liquid_types: Registry::new(),
 
             empty: LiquidId::undefined(),
 
@@ -136,7 +149,7 @@ impl Liquids {
 
     /// Returns the liquid type with the given id.
     pub fn get_liquid_type(&self, id: LiquidId) -> Result<&LiquidType> {
-        self.liquid_types.get(id.id as usize).ok_or_else(|| anyhow!("Liquid type not found"))
+        self.liquid_types.get(id)
     }
 
     /// Sets what a cell holds, and schedules everything the change could make flow.
@@ -355,31 +368,22 @@ impl Liquids {
     }
 
     /// This function adds a new liquid type, and is used by mods.
-    pub fn register_new_liquid_type(&mut self, mut liquid_type: LiquidType) -> LiquidId {
-        let id = self.liquid_types.len() as i8;
-        let result = LiquidId { id };
-        liquid_type.id = result;
+    pub fn register_new_liquid_type(&mut self, liquid_type: LiquidType) -> LiquidId {
         // its first step is one whole flow time away, not immediately: a type registered
         // with a flow time of a second should not get a free step the moment it appears
         self.next_flow.push(self.elapsed_ms + f64::from(liquid_type.flow_time));
-        self.liquid_types.push(liquid_type);
-        result
+        self.liquid_types.register(liquid_type)
     }
 
     /// Returns a liquid id with the given name.
     pub fn get_liquid_id_by_name(&self, name: &str) -> Result<LiquidId> {
-        for liquid_type in &self.liquid_types {
-            if liquid_type.name == name {
-                return Ok(liquid_type.id);
-            }
-        }
-        bail!("No liquid type with name {name} found")
+        self.liquid_types.get_id_by_name(name)
     }
 
     /// Returns all liquid ids.
     #[must_use]
     pub fn get_all_liquid_ids(&self) -> Vec<LiquidId> {
-        self.liquid_types.iter().map(LiquidType::get_id).collect()
+        self.liquid_types.ids()
     }
 }
 

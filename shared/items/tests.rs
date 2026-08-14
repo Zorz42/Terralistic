@@ -112,7 +112,7 @@ mod tests {
 
         assert_eq!(items.get_recipes().len(), 1);
 
-        let id = items.get_recipes().first().unwrap().get_id();
+        let id = items.get_recipes().iter().next().unwrap().get_id();
         let fetched = items.get_recipe(id).unwrap();
         assert_eq!(fetched.result.item, result);
         assert_eq!(fetched.result.count, 4);

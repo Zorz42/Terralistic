@@ -1,8 +1,9 @@
-use anyhow::{anyhow, bail, Result};
+use anyhow::Result;
 use serde_derive::{Deserialize, Serialize};
 use snap;
 
 use crate::libraries::grid::Grid;
+use crate::libraries::registry::{Registry, RegistryId};
 use crate::libraries::serialization;
 use crate::shared::blocks::Tool;
 use crate::shared::blocks::{Blocks, ToolId};
@@ -21,6 +22,18 @@ impl WallId {
     }
 }
 
+impl RegistryId for WallId {
+    const KIND: &'static str = "wall type";
+
+    fn from_index(index: usize) -> Self {
+        Self { id: index as i8 }
+    }
+
+    fn index(self) -> Option<usize> {
+        usize::try_from(self.id).ok()
+    }
+}
+
 #[derive(Deserialize, Serialize)]
 pub(super) struct WallsData {
     pub(super) walls: Grid<WallId>,
@@ -36,7 +49,7 @@ pub struct Walls {
     pub(super) walls_data: WallsData,
 
     pub(super) breaking_walls: Vec<BreakingWall>,
-    pub(super) wall_types: Vec<Wall>,
+    pub(super) wall_types: Registry<WallId, Wall>,
 
     pub clear: WallId,
     pub hammer: ToolId,
@@ -48,7 +61,7 @@ impl Walls {
             walls_data: WallsData::new(),
 
             breaking_walls: Vec::new(),
-            wall_types: Vec::new(),
+            wall_types: Registry::new(),
 
             clear: WallId::undefined(),
             hammer: ToolId::new(),
@@ -89,9 +102,13 @@ impl Walls {
         self.get_wall_type(self.get_wall(x, y)?)
     }
 
-    /// Returns the wall type with the given id
+    /// Returns the wall type with the given id.
+    ///
+    /// A clone rather than a reference, unlike `Blocks::get_block_type` - the callers hold
+    /// a lock while they use it, and handing back a borrow of the guard's contents is a
+    /// separate change from this one.
     pub fn get_wall_type(&self, id: WallId) -> Result<Wall> {
-        Ok(self.wall_types.get(id.id as usize).ok_or_else(|| anyhow!("Wall type not found"))?.clone())
+        Ok(self.wall_types.get(id)?.clone())
     }
 
     /// This function sets the wall type on x and y and sends the `WallChangeEvent`.
@@ -120,23 +137,13 @@ impl Walls {
     }
 
     /// This function adds a new wall type, but is used internally by mods.
-    pub(super) fn register_new_wall_type(wall_types: &mut Vec<Wall>, mut wall_type: Wall) -> WallId {
-        let id = wall_types.len() as i8;
-        let result = WallId { id };
-        wall_type.id = result;
-        wall_types.push(wall_type);
-        result
+    pub(super) fn register_new_wall_type(wall_types: &mut Registry<WallId, Wall>, wall_type: Wall) -> WallId {
+        wall_types.register(wall_type)
     }
 
     /// Returns a wall id type with the given name
     pub fn get_wall_id_by_name(&self, name: &str) -> Result<WallId> {
-        let iter = self.wall_types.iter();
-        for wall_type in iter {
-            if wall_type.name == name {
-                return Ok(wall_type.id);
-            }
-        }
-        bail!("No wall type with name {name} found")
+        self.wall_types.get_id_by_name(name)
     }
 
     /// This function creates a world from a 2d vector of wall type ids
@@ -148,11 +155,7 @@ impl Walls {
     /// Returns all wall ids.
     #[must_use]
     pub fn get_all_wall_ids(&self) -> Vec<WallId> {
-        let mut result = Vec::new();
-        for wall_type in &self.wall_types {
-            result.push(wall_type.id);
-        }
-        result
+        self.wall_types.ids()
     }
 
     /// Returns all breaking walls

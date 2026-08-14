@@ -294,8 +294,8 @@ mod tests {
         pickaxe.name = "pickaxe".to_owned();
         let pickaxe_id = blocks.register_new_tool_type(pickaxe);
 
-        assert!(blocks.get_tool_id_by_name(&"pickaxe".to_owned()) == Some(pickaxe_id));
-        assert!(blocks.get_tool_id_by_name(&"shovel".to_owned()).is_none());
+        assert!(blocks.get_tool_id_by_name("pickaxe") == Some(pickaxe_id));
+        assert!(blocks.get_tool_id_by_name("shovel").is_none());
         assert_eq!(blocks.get_tool_by_id(pickaxe_id).unwrap().name, "pickaxe");
     }
 
@@ -576,6 +576,6 @@ mod tests {
         init_blocks_mod_interface(&blocks, &mut mods).unwrap();
         mods.init().unwrap();
 
-        assert!(blocks.lock().unwrap().get_tool_id_by_name(&"pickaxe".to_owned()).is_some());
+        assert!(blocks.lock().unwrap().get_tool_id_by_name("pickaxe").is_some());
     }
 }

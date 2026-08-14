@@ -1,3 +1,4 @@
+use crate::libraries::registry::{NamedEntry, RegistryEntry};
 use crate::shared::blocks::ToolId;
 
 use super::BlockId;
@@ -74,5 +75,17 @@ impl Block {
 impl PartialEq for Block {
     fn eq(&self, other: &Self) -> bool {
         self.id == other.id
+    }
+}
+
+impl RegistryEntry<BlockId> for Block {
+    fn set_id(&mut self, id: BlockId) {
+        self.id = id;
+    }
+}
+
+impl NamedEntry for Block {
+    fn get_name(&self) -> &str {
+        &self.name
     }
 }

@@ -1,10 +1,11 @@
 use std::collections::HashMap;
 
-use anyhow::{anyhow, bail, Result};
+use anyhow::{anyhow, Result};
 use hecs::Entity;
 use serde_derive::{Deserialize, Serialize};
 
 use crate::libraries::events::{Event, EventManager};
+use crate::libraries::registry::{Registry, RegistryEntry, RegistryId};
 use crate::shared::blocks::BlockId;
 use crate::shared::entities::{Entities, EntityId, PhysicsComponent, PositionComponent};
 use crate::shared::items::Item;
@@ -21,6 +22,18 @@ impl ItemId {
     #[must_use]
     pub const fn new() -> Self {
         Self { id: -1 }
+    }
+}
+
+impl RegistryId for ItemId {
+    const KIND: &'static str = "item type";
+
+    fn from_index(index: usize) -> Self {
+        Self { id: index as i32 }
+    }
+
+    fn index(self) -> Option<usize> {
+        usize::try_from(self.id).ok()
     }
 }
 
@@ -62,6 +75,26 @@ impl RecipeId {
     }
 }
 
+impl RegistryId for RecipeId {
+    const KIND: &'static str = "recipe";
+
+    fn from_index(index: usize) -> Self {
+        Self { id: index as i32 }
+    }
+
+    fn index(self) -> Option<usize> {
+        usize::try_from(self.id).ok()
+    }
+}
+
+/// A recipe has no name to look up by, so it implements only the half of the registry
+/// contract that gives it an id.
+impl RegistryEntry<RecipeId> for Recipe {
+    fn set_id(&mut self, id: RecipeId) {
+        self.id = id;
+    }
+}
+
 #[derive(Clone)]
 pub struct Recipe {
     pub result: ItemStack,
@@ -86,9 +119,9 @@ impl Recipe {
 }
 
 pub struct Items {
-    pub(super) item_types: Vec<Item>,
+    pub(super) item_types: Registry<ItemId, Item>,
     pub(super) block_drops: HashMap<BlockId, TileDrop>,
-    recipes: Vec<Recipe>,
+    recipes: Registry<RecipeId, Recipe>,
     wall_drops: HashMap<WallId, TileDrop>,
 }
 
@@ -96,10 +129,10 @@ impl Items {
     #[must_use]
     pub fn new() -> Self {
         Self {
-            item_types: Vec::new(),
+            item_types: Registry::new(),
             block_drops: HashMap::new(),
             wall_drops: HashMap::new(),
-            recipes: Vec::new(),
+            recipes: Registry::new(),
         }
     }
 
@@ -138,27 +171,18 @@ impl Items {
     }
 
     /// this function registers an item type
-    pub fn register_new_item_type(item_types: &mut Vec<Item>, mut item_type: Item) -> ItemId {
-        item_type.id = ItemId::new();
-        item_type.id.id = item_types.len() as i32;
-        let id = item_type.id;
-        item_types.push(item_type);
-        id
+    pub fn register_new_item_type(item_types: &mut Registry<ItemId, Item>, item_type: Item) -> ItemId {
+        item_types.register(item_type)
     }
 
     /// this function returns the item type with the given id
     pub fn get_item_type(&self, id: ItemId) -> Result<Item> {
-        Ok(self.item_types.get(id.id as usize).ok_or_else(|| anyhow!("item type not found"))?.clone())
+        Ok(self.item_types.get(id)?.clone())
     }
 
     /// this function returns the item type with the given name
     pub fn get_item_type_by_name(&self, name: &str) -> Result<Item> {
-        for item_type in &self.item_types {
-            if item_type.name == name {
-                return Ok(item_type.clone());
-            }
-        }
-        bail!("item type not found")
+        Ok(self.item_types.get_by_name(name)?.clone())
     }
 
     /// this function returns the number of item types
@@ -189,26 +213,21 @@ impl Items {
 
     #[must_use]
     pub fn get_all_item_type_ids(&self) -> Vec<ItemId> {
-        let mut ids = Vec::new();
-        for item in &self.item_types {
-            ids.push(item.id);
-        }
-        ids
+        self.item_types.ids()
     }
 
-    pub fn add_recipe(&mut self, mut recipe: Recipe) {
-        recipe.id = RecipeId { id: self.recipes.len() as i32 };
-        self.recipes.push(recipe);
+    pub fn add_recipe(&mut self, recipe: Recipe) {
+        self.recipes.register(recipe);
     }
 
     #[must_use]
-    pub const fn get_recipes(&self) -> &Vec<Recipe> {
+    pub const fn get_recipes(&self) -> &Registry<RecipeId, Recipe> {
         &self.recipes
     }
 
     /// this function returns the recipe with the given id
     pub fn get_recipe(&self, id: RecipeId) -> Result<&Recipe> {
-        self.recipes.get(id.id as usize).ok_or_else(|| anyhow!("recipe not found"))
+        self.recipes.get(id)
     }
 }
 

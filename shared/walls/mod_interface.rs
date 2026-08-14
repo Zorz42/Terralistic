@@ -17,13 +17,7 @@ pub fn init_walls_mod_interface(mods: &mut ModManager, walls: &Arc<Mutex<Walls>>
     let walls2 = walls.clone();
     mods.add_global_function("get_wall_id_by_name", move |_lua, name: String| {
         let wall_types = &walls2.lock().unwrap_or_else(std::sync::PoisonError::into_inner).wall_types;
-        let iter = wall_types.iter();
-        for wall_type in iter {
-            if wall_type.name == name {
-                return Ok(wall_type.get_id());
-            }
-        }
-        Err(rlua::Error::RuntimeError("Wall type not found".to_owned()))
+        wall_types.get_id_by_name(&name).map_err(|e| rlua::Error::RuntimeError(e.to_string()))
     })?;
     Ok(())
 }

@@ -1,13 +1,14 @@
 use std::collections::HashMap;
 
-use anyhow::{anyhow, bail, Result};
+use anyhow::{bail, Result};
 use serde_derive::{Deserialize, Serialize};
 use snap;
 
 use crate::libraries::events::{Event, EventManager};
 use crate::libraries::grid::Grid;
+use crate::libraries::registry::{Registry, RegistryId};
 use crate::libraries::serialization;
-use crate::shared::blocks::{Block, BlockBreakEvent, BreakingBlock, Tool};
+use crate::shared::blocks::{Block, BlockBreakEvent, BreakingBlock, Tool, ToolId};
 use crate::shared::items::ItemStack;
 
 // width of one block in pixels
@@ -40,12 +41,24 @@ impl BlockId {
     }
 }
 
+impl RegistryId for BlockId {
+    const KIND: &'static str = "block type";
+
+    fn from_index(index: usize) -> Self {
+        Self { id: index as i8 }
+    }
+
+    fn index(self) -> Option<usize> {
+        usize::try_from(self.id).ok()
+    }
+}
+
 /// A world is a 2d array of blocks.
 pub struct Blocks {
     pub(super) block_data: BlocksData,
     pub(super) breaking_blocks: Vec<BreakingBlock>,
-    pub(super) block_types: Vec<Block>,
-    pub(super) tool_types: Vec<Tool>,
+    pub(super) block_types: Registry<BlockId, Block>,
+    pub(super) tool_types: Registry<ToolId, Tool>,
     air: BlockId,
 }
 
@@ -60,8 +73,8 @@ impl Blocks {
                 block_inventory_data: HashMap::new(),
             },
             breaking_blocks: vec![],
-            block_types: vec![],
-            tool_types: vec![],
+            block_types: Registry::new(),
+            tool_types: Registry::new(),
             air: BlockId::undefined(),
         };
 
@@ -195,34 +208,21 @@ impl Blocks {
         Ok(())
     }
 
-    pub fn register_new_block_type(&mut self, mut block_type: Block) -> BlockId {
-        let id = self.block_types.len() as i8;
-        let result = BlockId { id };
-        block_type.id = result;
-        self.block_types.push(block_type);
-        result
+    pub fn register_new_block_type(&mut self, block_type: Block) -> BlockId {
+        self.block_types.register(block_type)
     }
 
     pub fn get_block_id_by_name(&self, name: &str) -> Result<BlockId> {
-        for block_type in &self.block_types {
-            if block_type.name == name {
-                return Ok(block_type.id);
-            }
-        }
-        bail!("Block type not found")
+        self.block_types.get_id_by_name(name)
     }
 
     #[must_use]
     pub fn get_all_block_ids(&self) -> Vec<BlockId> {
-        let mut result = Vec::new();
-        for block_type in &self.block_types {
-            result.push(block_type.id);
-        }
-        result
+        self.block_types.ids()
     }
 
     pub fn get_block_type(&self, id: BlockId) -> Result<&Block> {
-        self.block_types.get(id.id as usize).ok_or_else(|| anyhow!("Invalid block id"))
+        self.block_types.get(id)
     }
 
     pub fn get_block_type_at(&self, x: i32, y: i32) -> Result<&Block> {

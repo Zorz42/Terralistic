@@ -1,5 +1,6 @@
 use serde_derive::{Deserialize, Serialize};
 
+use crate::libraries::registry::{NamedEntry, RegistryEntry, RegistryId};
 use crate::shared::blocks::Blocks;
 
 /// Struct that contains all the information about a tool
@@ -30,29 +31,45 @@ impl ToolId {
     }
 }
 
+impl RegistryId for ToolId {
+    const KIND: &'static str = "tool type";
+
+    fn from_index(index: usize) -> Self {
+        Self { id: index as i32 }
+    }
+
+    fn index(self) -> Option<usize> {
+        usize::try_from(self.id).ok()
+    }
+}
+
+impl RegistryEntry<ToolId> for Tool {
+    fn set_id(&mut self, id: ToolId) {
+        self.id = id;
+    }
+}
+
+impl NamedEntry for Tool {
+    fn get_name(&self) -> &str {
+        &self.name
+    }
+}
+
 impl Blocks {
     /// Adds a new tool type to the world.
-    pub fn register_new_tool_type(&mut self, mut tool: Tool) -> ToolId {
-        let id = self.tool_types.len() as i32;
-        tool.id = ToolId { id };
-        self.tool_types.push(tool);
-        ToolId { id }
+    pub fn register_new_tool_type(&mut self, tool: Tool) -> ToolId {
+        self.tool_types.register(tool)
     }
 
     /// Returns the tool type that has the specified name
     #[must_use]
-    pub fn get_tool_id_by_name(&self, name: &String) -> Option<ToolId> {
-        for tool_type in &self.tool_types {
-            if tool_type.name == *name {
-                return Some(tool_type.id);
-            }
-        }
-        None
+    pub fn get_tool_id_by_name(&self, name: &str) -> Option<ToolId> {
+        self.tool_types.get_id_by_name(name).ok()
     }
 
     /// Returns the reference to the Tool with the specified id.
     #[must_use]
     pub fn get_tool_by_id(&self, id: ToolId) -> Option<&Tool> {
-        self.tool_types.iter().find(|&tool_type| tool_type.id == id)
+        self.tool_types.get(id).ok()
     }
 }

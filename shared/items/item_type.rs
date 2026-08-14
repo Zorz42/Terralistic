@@ -1,3 +1,4 @@
+use crate::libraries::registry::{NamedEntry, RegistryEntry};
 use crate::shared::blocks::{BlockId, ToolId};
 use crate::shared::items::ItemId;
 use crate::shared::walls::WallId;
@@ -32,5 +33,17 @@ impl Item {
     #[must_use]
     pub const fn get_id(&self) -> ItemId {
         self.id
+    }
+}
+
+impl RegistryEntry<ItemId> for Item {
+    fn set_id(&mut self, id: ItemId) {
+        self.id = id;
+    }
+}
+
+impl NamedEntry for Item {
+    fn get_name(&self) -> &str {
+        &self.name
     }
 }
