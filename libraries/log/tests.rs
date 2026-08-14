@@ -9,14 +9,23 @@ mod tests {
     /// runs them on parallel threads within one process.
     static SINK_LOCK: Mutex<()> = Mutex::new(());
 
-    fn capture(body: impl FnOnce()) -> Vec<(LogLevel, String)> {
+    /// Installs a sink, runs `body`, and returns the lines whose message contains `tag`.
+    ///
+    /// **The filter is not cosmetic.** Everything in the process logs through the same sink,
+    /// and the rest of the suite is running servers on other threads while this one holds the
+    /// lock - so a capture that took every line it was handed picked up whatever a server
+    /// happened to say and failed on the count.
+    fn capture(tag: &str, body: impl FnOnce()) -> Vec<(LogLevel, String)> {
         let _guard = SINK_LOCK.lock().unwrap_or_else(std::sync::PoisonError::into_inner);
         clear_sink();
 
         let lines = Arc::new(Mutex::new(Vec::new()));
         let sink = lines.clone();
+        let wanted = tag.to_owned();
         set_sink(Box::new(move |level, line| {
-            sink.lock().unwrap().push((level, line.to_owned()));
+            if line.contains(&wanted) {
+                sink.lock().unwrap().push((level, line.to_owned()));
+            }
         }));
 
         body();
@@ -45,19 +54,19 @@ mod tests {
 
     #[test]
     fn test_the_sink_receives_the_formatted_line() {
-        let lines = capture(|| log(LogLevel::Warning, "careful"));
+        let lines = capture("careful-tag", || log(LogLevel::Warning, "careful-tag"));
 
         assert_eq!(lines.len(), 1);
         assert_eq!(lines[0].0, LogLevel::Warning);
         assert!(lines[0].1.contains("[WARNING]"));
-        assert!(lines[0].1.ends_with("careful"));
+        assert!(lines[0].1.ends_with("careful-tag"));
     }
 
     /// A multi-line message becomes one timestamped line each, rather than one line with the
     /// rest hanging off the end of it.
     #[test]
     fn test_a_multiline_message_becomes_one_line_each() {
-        let lines = capture(|| log(LogLevel::Info, "first\nsecond\nthird"));
+        let lines = capture("multiline-tag", || log(LogLevel::Info, "multiline-tag first\nmultiline-tag second\nmultiline-tag third"));
 
         assert_eq!(lines.len(), 3);
         assert!(lines[0].1.ends_with("first"));
@@ -69,7 +78,7 @@ mod tests {
 
     #[test]
     fn test_an_empty_message_logs_nothing() {
-        assert!(capture(|| log(LogLevel::Info, "")).is_empty());
+        assert!(capture("empty-tag", || log(LogLevel::Info, "")).is_empty());
     }
 
     /// The first sink installed wins, so a second server in one process cannot steal the
@@ -83,11 +92,19 @@ mod tests {
         let second = Arc::new(Mutex::new(Vec::new()));
 
         let sink = first.clone();
-        set_sink(Box::new(move |_level, line| sink.lock().unwrap().push(line.to_owned())));
+        set_sink(Box::new(move |_level, line| {
+            if line.contains("which-sink-tag") {
+                sink.lock().unwrap().push(line.to_owned());
+            }
+        }));
         let sink = second.clone();
-        set_sink(Box::new(move |_level, line| sink.lock().unwrap().push(line.to_owned())));
+        set_sink(Box::new(move |_level, line| {
+            if line.contains("which-sink-tag") {
+                sink.lock().unwrap().push(line.to_owned());
+            }
+        }));
 
-        log(LogLevel::Info, "who gets this");
+        log(LogLevel::Info, "which-sink-tag");
 
         assert_eq!(first.lock().unwrap().len(), 1);
         assert!(second.lock().unwrap().is_empty(), "the second sink should have been ignored");

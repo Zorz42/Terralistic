@@ -18,7 +18,6 @@ use super::world_creation::WorldCreationMenu;
 use super::BackgroundRect;
 use crate::libraries::ui::Menu;
 
-use crate::libraries::ui::UiContext;
 pub const MENU_WIDTH: f32 = 800.0;
 
 /// This function returns formatted string "%d %B %Y %H:%M" of the time
@@ -134,6 +133,20 @@ impl World {
     }
 }
 
+impl ui::ListRow for World {
+    fn get_row_height(&self) -> f32 {
+        self.get_height()
+    }
+
+    fn set_row_pos(&mut self, pos: gfx::FloatPos) {
+        self.pos = pos;
+    }
+
+    fn set_row_enabled(&mut self, enabled: bool) {
+        self.set_enabled(enabled);
+    }
+}
+
 impl UiElement for World {
     fn get_sub_elements_mut(&mut self) -> Vec<&mut dyn BaseUiElement> {
         vec![&mut self.last_modified, &mut self.delete_button, &mut self.play_button, &mut self.title, &mut self.icon]
@@ -163,17 +176,11 @@ impl UiElement for World {
 /// and render them in the singleplayer selector menu.
 pub struct WorldList {
     pub worlds: Vec<World>,
-    pub scrolled: f32,
-    pub top_rect_size: f32,
 }
 
 impl WorldList {
     pub fn new(graphics: &gfx::GraphicsContext, button_press: &Rc<RefCell<Option<(usize, usize)>>>) -> Self {
-        let mut world_list = Self {
-            worlds: Vec::new(),
-            scrolled: 0.0,
-            top_rect_size: 0.0,
-        };
+        let mut world_list = Self { worlds: Vec::new() };
         world_list.refresh(graphics, button_press);
         world_list
     }
@@ -224,16 +231,6 @@ impl UiElement for WorldList {
         element_vec
     }
 
-    fn update_inner(&mut self, _: &mut gfx::GraphicsContext, _: &ui::Container) {
-        // `scrolled` already carries the scrollable's own `ui::SPACING` offset - see
-        // `Scrollable::get_scroll_y`.
-        let mut current_y = self.scrolled + self.top_rect_size;
-        for world in &mut self.worlds {
-            world.pos = gfx::FloatPos(0.0, current_y);
-            current_y += world.get_height() + ui::SPACING;
-        }
-    }
-
     fn get_container(&self, graphics: &dyn ui::UiContext, parent_container: &ui::Container) -> ui::Container {
         ui::Container::new(graphics, parent_container.rect.pos, parent_container.rect.size, parent_container.orientation, None)
         //this might benefit from having its own container
@@ -245,10 +242,7 @@ pub struct SingleplayerSelector {
     title: ui::Sprite,
     back_button: ui::Button,
     new_world_button: ui::Button,
-    top_rect: ui::RenderRect,
-    bottom_rect: ui::RenderRect,
-    scrollable: ui::Scrollable,
-    top_rect_visibility: f32,
+    page: ui::ListPage,
     settings: Rc<RefCell<Settings>>,
     global_settings: Rc<RefCell<GlobalSettings>>,
     new_world_press: Rc<RefCell<bool>>,
@@ -288,31 +282,12 @@ impl SingleplayerSelector {
         let top_height = title.get_size().1 + 2.0 * ui::SPACING;
         let bottom_height = back_button.get_size().1 + 2.0 * ui::SPACING;
 
-        let mut top_rect = ui::RenderRect::new(gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, top_height));
-        top_rect.orientation = ui::TOP;
-
-        let mut bottom_rect = ui::RenderRect::new(gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, bottom_height));
-        bottom_rect.fill_color.a = ui::TRANSPARENCY / 2;
-        bottom_rect.shadow_intensity = ui::SHADOW_INTENSITY;
-        bottom_rect.blur_radius = ui::BLUR;
-        bottom_rect.orientation = ui::BOTTOM;
-
-        let mut scrollable = ui::Scrollable::new();
-        scrollable.rect.pos.1 = ui::SPACING;
-        scrollable.rect.size.0 = MENU_WIDTH;
-        scrollable.scroll_smooth_factor = 100.0;
-        scrollable.boundary_smooth_factor = 40.0;
-        scrollable.orientation = ui::TOP;
-
         Self {
             world_list,
             title,
             back_button,
             new_world_button,
-            top_rect,
-            bottom_rect,
-            scrollable,
-            top_rect_visibility: 0.0,
+            page: ui::ListPage::new(MENU_WIDTH, top_height, bottom_height),
             settings,
             global_settings,
             new_world_press,
@@ -360,32 +335,33 @@ impl SingleplayerSelector {
 impl UiElement for SingleplayerSelector {
     fn get_sub_elements_mut(&mut self) -> Vec<&mut dyn BaseUiElement> {
         let mut elements_vec: Vec<&mut dyn BaseUiElement> = Vec::new();
+        let (top_visible, scrollable) = (self.page.is_top_rect_visible(), self.page.is_scrollable());
         elements_vec.push(&mut self.world_list);
-        if self.top_rect_visibility > 0.0 {
-            elements_vec.push(&mut self.top_rect);
+        if top_visible {
+            elements_vec.push(&mut self.page.top_rect);
         }
-        if self.scrollable.scroll_size > self.scrollable.rect.size.1 {
-            elements_vec.push(&mut self.bottom_rect);
+        if scrollable {
+            elements_vec.push(&mut self.page.bottom_rect);
         }
         elements_vec.push(&mut self.title);
         elements_vec.push(&mut self.back_button);
         elements_vec.push(&mut self.new_world_button);
-        elements_vec.push(&mut self.scrollable);
+        elements_vec.push(&mut self.page.scrollable);
         elements_vec
     }
 
     fn get_sub_elements(&self) -> Vec<&dyn BaseUiElement> {
         let mut elements_vec: Vec<&dyn BaseUiElement> = Vec::new();
         elements_vec.push(&self.world_list);
-        if self.top_rect_visibility > 0.0 {
-            elements_vec.push(&self.top_rect);
+        if self.page.is_top_rect_visible() {
+            elements_vec.push(&self.page.top_rect);
         }
-        if self.scrollable.scroll_size > self.scrollable.rect.size.1 {
-            elements_vec.push(&self.bottom_rect);
+        if self.page.is_scrollable() {
+            elements_vec.push(&self.page.bottom_rect);
         }
         elements_vec.push(&self.back_button);
         elements_vec.push(&self.new_world_button);
-        elements_vec.push(&self.scrollable);
+        elements_vec.push(&self.page.scrollable);
         elements_vec.push(&self.title);
         elements_vec
     }
@@ -402,31 +378,8 @@ impl UiElement for SingleplayerSelector {
         }
         *self.new_world_press.borrow_mut() = false;
 
-        let hoverable = graphics.get_mouse_pos().1 > self.top_rect.size.1 && graphics.get_mouse_pos().1 < graphics.get_window_size().1 - self.bottom_rect.size.1;
-
-        for world in &mut self.world_list.worlds {
-            world.set_enabled(hoverable);
-        }
-
-        self.world_list.scrolled = self.scrollable.get_scroll_y();
-        self.world_list.top_rect_size = self.top_rect.size.1;
-
-        self.top_rect.size.0 = parent_container.get_absolute_rect().size.0;
-
-        // the two `if`s this replaces were the epsilon, written out by hand: snap to 0 below
-        // 0.01 and to 1 above 0.99, which is what `approach` does for either target
-        let visible_target = if self.scrollable.get_scroll_pos() > 5.0 { 1.0 } else { 0.0 };
-        self.top_rect_visibility = ui::approach(self.top_rect_visibility, visible_target, 20.0, 0.01);
-
-        self.top_rect.fill_color.a = (self.top_rect_visibility * ui::TRANSPARENCY as f32 / 2.0) as u8;
-        self.top_rect.blur_radius = (self.top_rect_visibility * ui::BLUR as f32) as i32;
-        self.top_rect.shadow_intensity = (self.top_rect_visibility * ui::SHADOW_INTENSITY as f32) as i32;
-
-        self.bottom_rect.size.0 = parent_container.get_absolute_rect().size.0;
-
-        let world_height = self.world_list.worlds.first().map_or(0.0, World::get_height);
-        self.scrollable.scroll_size = (world_height + ui::SPACING) * self.world_list.worlds.len() as f32 - ui::SPACING;
-        self.scrollable.rect.size.1 = graphics.get_window_size().1 - self.top_rect.size.1 - self.bottom_rect.size.1;
+        let mut rows: Vec<&mut dyn ui::ListRow> = self.world_list.worlds.iter_mut().map(|world| world as &mut dyn ui::ListRow).collect();
+        self.page.update(graphics, parent_container, &mut rows);
 
         let res = *self.world_button_press.borrow_mut();
         if let Some((world, action)) = res {

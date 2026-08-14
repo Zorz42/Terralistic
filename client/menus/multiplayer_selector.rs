@@ -18,7 +18,6 @@ use crate::libraries::ui::Menu;
 use super::background_rect::BackgroundRect;
 use crate::libraries::ui::{BaseUiElement, UiElement};
 
-use crate::libraries::ui::UiContext;
 pub const MENU_WIDTH: f32 = 800.0;
 
 #[derive(Serialize, Deserialize, Clone)]
@@ -36,19 +35,14 @@ impl ServerInfo {
 
 /// struct to pass around UI elements for rendering and updating
 pub struct MultiplayerSelector {
-    top_rect: ui::RenderRect,
-    bottom_rect: ui::RenderRect,
+    page: ui::ListPage,
     title: ui::Sprite,
     back_button: ui::Button,
     new_server_button: ui::Button,
     server_list: ServerList,
-    top_height: f32,
-    bottom_height: f32,
     servers_file: PathBuf,
-    scrollable: ui::Scrollable,
     settings: Rc<RefCell<Settings>>,
     global_settings: Rc<RefCell<GlobalSettings>>,
-    top_rect_visibility: f32,
     close_self: bool,
     open_menu: Option<(Box<dyn Menu>, String)>,
 }
@@ -82,113 +76,61 @@ impl MultiplayerSelector {
         let top_height = title.get_size().1 + 2.0 * ui::SPACING;
         let bottom_height = back_button.get_size().1 + 2.0 * ui::SPACING;
 
-        let mut top_rect = ui::RenderRect::new(gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, top_height));
-        top_rect.orientation = ui::TOP;
-
-        let mut bottom_rect = ui::RenderRect::new(gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, bottom_height));
-        bottom_rect.fill_color.a = ui::TRANSPARENCY / 2;
-        bottom_rect.shadow_intensity = ui::SHADOW_INTENSITY;
-        bottom_rect.blur_radius = ui::BLUR;
-        bottom_rect.orientation = ui::BOTTOM;
-
-        let mut scrollable = ui::Scrollable::new();
-        scrollable.rect.pos.1 = ui::SPACING;
-        scrollable.rect.size.0 = MENU_WIDTH;
-        scrollable.scroll_smooth_factor = 100.0;
-        scrollable.boundary_smooth_factor = 40.0;
-        scrollable.orientation = ui::TOP;
-
         Ok(Self {
-            top_rect,
-            bottom_rect,
+            page: ui::ListPage::new(MENU_WIDTH, top_height, bottom_height),
             title,
             back_button,
             new_server_button,
             server_list,
-            top_height,
-            bottom_height,
             servers_file,
-            scrollable,
             settings,
             global_settings,
-            top_rect_visibility: 0.0,
             open_menu: None,
             close_self: false,
         })
-    }
-
-    fn update_server_list(&mut self, graphics: &gfx::GraphicsContext) {
-        let hoverable = graphics.get_mouse_pos().1 > self.top_height && graphics.get_mouse_pos().1 < graphics.get_window_size().1 - self.bottom_height;
-
-        for server in &mut self.server_list.servers {
-            server.set_enabled(hoverable);
-        }
-    }
-
-    fn update_top_bottom_rects(&mut self, graphics: &gfx::GraphicsContext, parent_container: &ui::Container, elements_height: f32) {
-        self.top_rect.size.0 = parent_container.rect.size.0;
-
-        // the two `if`s this replaces were the epsilon, written out by hand: snap to 0 below
-        // 0.01 and to 1 above 0.99, which is what `approach` does for either target
-        let visible_target = if self.scrollable.get_scroll_pos() > 5.0 { 1.0 } else { 0.0 };
-        self.top_rect_visibility = ui::approach(self.top_rect_visibility, visible_target, 20.0, 0.01);
-
-        self.top_rect.fill_color.a = (self.top_rect_visibility * ui::TRANSPARENCY as f32 / 2.0) as u8;
-        self.top_rect.blur_radius = (self.top_rect_visibility * ui::BLUR as f32) as i32;
-        self.top_rect.shadow_intensity = (self.top_rect_visibility * ui::SHADOW_INTENSITY as f32) as i32;
-
-        self.bottom_rect.size.0 = parent_container.rect.size.0;
-
-        self.scrollable.scroll_size = elements_height;
-        self.scrollable.rect.size.1 = graphics.get_window_size().1 - self.top_height - self.bottom_height;
     }
 }
 
 impl UiElement for MultiplayerSelector {
     fn get_sub_elements_mut(&mut self) -> Vec<&mut dyn BaseUiElement> {
         let mut elements_vec: Vec<&mut dyn BaseUiElement> = Vec::new();
+        let scrollable = self.page.is_scrollable();
         elements_vec.push(&mut self.server_list);
-        if self.scrollable.scroll_size > self.scrollable.rect.size.1 {
-            elements_vec.push(&mut self.top_rect);
+        if scrollable {
+            elements_vec.push(&mut self.page.top_rect);
         }
-        if self.scrollable.scroll_size > self.scrollable.rect.size.1 {
-            elements_vec.push(&mut self.bottom_rect);
+        if scrollable {
+            elements_vec.push(&mut self.page.bottom_rect);
         }
         elements_vec.push(&mut self.title);
         elements_vec.push(&mut self.back_button);
         elements_vec.push(&mut self.new_server_button);
-        elements_vec.push(&mut self.scrollable);
+        elements_vec.push(&mut self.page.scrollable);
 
         elements_vec
     }
 
     fn get_sub_elements(&self) -> Vec<&dyn BaseUiElement> {
         let mut elements_vec: Vec<&dyn BaseUiElement> = Vec::new();
+        let scrollable = self.page.is_scrollable();
         elements_vec.push(&self.server_list);
-        if self.scrollable.scroll_size > self.scrollable.rect.size.1 {
-            elements_vec.push(&self.top_rect);
+        if scrollable {
+            elements_vec.push(&self.page.top_rect);
         }
-        if self.scrollable.scroll_size > self.scrollable.rect.size.1 {
-            elements_vec.push(&self.bottom_rect);
+        if scrollable {
+            elements_vec.push(&self.page.bottom_rect);
         }
         elements_vec.push(&self.title);
         elements_vec.push(&self.back_button);
         elements_vec.push(&self.new_server_button);
-        elements_vec.push(&self.scrollable);
+        elements_vec.push(&self.page.scrollable);
 
         elements_vec
     }
 
     fn update_inner(&mut self, graphics: &mut gfx::GraphicsContext, parent_container: &ui::Container) {
-        self.update_server_list(graphics);
-
-        let server_height = self.server_list.servers.first().map_or(0.0, super::multiplayer_selector::ServerCard::get_height);
-
-        let elements_height = (server_height + ui::SPACING) * self.server_list.servers.len() as f32 - ui::SPACING;
-
-        self.update_top_bottom_rects(graphics, parent_container, elements_height);
-        self.server_list.scrolled = self.scrollable.get_scroll_y();
-        self.server_list.top_rect_size = self.top_rect.size.1;
+        let mut rows: Vec<&mut dyn ui::ListRow> = self.server_list.servers.iter_mut().map(|server| server as &mut dyn ui::ListRow).collect();
+        self.page.update(graphics, parent_container, &mut rows);
     }
 
     fn on_event_inner(&mut self, graphics: &mut dyn ui::UiContext, event: &gfx::Event, parent_container: &ui::Container) -> bool {
@@ -346,6 +288,20 @@ impl ServerCard {
     }
 }
 
+impl ui::ListRow for ServerCard {
+    fn get_row_height(&self) -> f32 {
+        self.get_height()
+    }
+
+    fn set_row_pos(&mut self, pos: gfx::FloatPos) {
+        self.set_pos(pos);
+    }
+
+    fn set_row_enabled(&mut self, enabled: bool) {
+        self.set_enabled(enabled);
+    }
+}
+
 impl UiElement for ServerCard {
     fn get_sub_elements_mut(&mut self) -> Vec<&mut dyn BaseUiElement> {
         vec![&mut self.icon, &mut self.title, &mut self.play_button, &mut self.delete_button]
@@ -373,17 +329,11 @@ impl UiElement for ServerCard {
 /// and render them in the singleplayer selector menu.
 pub struct ServerList {
     pub servers: Vec<ServerCard>,
-    pub scrolled: f32,
-    pub top_rect_size: f32,
 }
 
 impl ServerList {
     pub fn new(graphics: &gfx::GraphicsContext, file_path: PathBuf) -> Self {
-        let mut server_list = Self {
-            servers: Vec::new(),
-            scrolled: 0.0,
-            top_rect_size: 0.0,
-        };
+        let mut server_list = Self { servers: Vec::new() };
         server_list.refresh(graphics, file_path);
         server_list
     }
@@ -425,16 +375,6 @@ impl UiElement for ServerList {
             elements_vec.push(element);
         }
         elements_vec
-    }
-
-    fn update_inner(&mut self, _: &mut gfx::GraphicsContext, _: &ui::Container) {
-        // `scrolled` already carries the scrollable's own `ui::SPACING` offset - see
-        // `Scrollable::get_scroll_y`.
-        let mut current_y = self.scrolled + self.top_rect_size;
-        for server in &mut self.servers {
-            server.set_pos(gfx::FloatPos(0.0, current_y));
-            current_y += server.get_height() + ui::SPACING;
-        }
     }
 
     fn get_container(&self, graphics: &dyn ui::UiContext, parent_container: &ui::Container) -> ui::Container {
