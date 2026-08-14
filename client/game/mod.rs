@@ -23,6 +23,4 @@ mod players;
 pub mod private_world;
 mod respawn_screen;
 mod tests;
-// login disabled: the account server is unreachable, see docs/LOGIN.md
-// pub mod tls_client;
 mod walls;

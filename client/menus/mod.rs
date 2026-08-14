@@ -1,8 +1,6 @@
 pub use add_server_menu::AddServerMenu;
 pub use background_rect::BackgroundRect;
 pub use loading_screen::LoadingScreen;
-// login disabled: the account server is unreachable, see docs/LOGIN.md
-// pub use login::LoginMenu;
 pub use main_menu::MainMenu;
 pub use menu::Menu;
 pub use menu_back::MenuBack;
@@ -35,8 +33,6 @@ mod multiplayer_selector;
 mod add_server_menu;
 
 mod text_input_menu;
-
-// mod login;
 
 mod settings_menu;
 

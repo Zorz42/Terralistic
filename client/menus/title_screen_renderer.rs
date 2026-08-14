@@ -85,31 +85,6 @@ pub fn run_title_screen(graphics: &mut gfx::GraphicsContext, settings: &Rc<RefCe
     secondary_back_rect.fill_color.a = gfx::TRANSPARENCY;
     secondary_back_rect.border_color = gfx::BORDER_COLOR;
 
-    // Login is disabled: the account server (home.susko.si) is not reachable, so the
-    // corner Login button and the connection status dot are commented out along with the
-    // TlsClient they drive. Restoring means uncommenting this, the event and render blocks
-    // below, get_tls_status_color, and the module declarations listed in docs/LOGIN.md.
-    //
-    // let cloud_status_rect = gfx::Rect::new(gfx::FloatPos(10.0, 10.0), gfx::FloatSize(20.0, 20.0));
-    // let copied_open_secondary_menu = open_secondary_menu.clone();
-    // let mut cloud_status_button = gfx::Button::new(move || copied_open_secondary_menu.set(Some(0)));
-    // cloud_status_button.color = gfx::GREY;
-    // cloud_status_button.pos = cloud_status_rect.pos + gfx::FloatPos(cloud_status_rect.size.0 + 5.0, -10.0);
-    // cloud_status_button.orientation = gfx::TOP_LEFT;
-    // cloud_status_button.texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("Login", None));
-    // cloud_status_button.scale = 1.5;
-    //
-    // let tls_client = match TlsClient::new() {
-    //     Err(e) => {
-    //         eprintln!("error getting tls client:\n{e}\n\nbacktrace:\n{}", e.backtrace());
-    //         None
-    //     }
-    //     Ok(mut client) => {
-    //         client.connect();
-    //         Some(client)
-    //     }
-    // };
-
     while graphics.is_window_open() {
         position_back_menus(graphics, &menus.state, &mut main_back_rect, &mut secondary_back_rect);
 
@@ -120,12 +95,6 @@ pub fn run_title_screen(graphics: &mut gfx::GraphicsContext, settings: &Rc<RefCe
         let secondary_back_container = secondary_back_rect.get_container(graphics, &window_container);
 
         while let Some(event) = graphics.get_event() {
-            // login disabled, see above
-            // cloud_status_button.disabled = matches!(menus.state, TitleScreenState::SecondaryMenu);
-            // if cloud_status_button.on_event(graphics, &event, &gfx::Container::default(graphics)) {
-            //     open_secondary_menu.set(Some(0));
-            // }
-
             menus.on_event(graphics, &event, &main_back_container, &secondary_back_container);
         }
 
@@ -165,13 +134,6 @@ pub fn run_title_screen(graphics: &mut gfx::GraphicsContext, settings: &Rc<RefCe
         secondary_back_rect.render(graphics, &window_container);
         menus.render(graphics, &main_back_container, &secondary_back_container);
 
-        // login disabled, see above
-        // if !matches!(menus.state, TitleScreenState::SecondaryMenu) {
-        //     let color = get_tls_status_color(tls_client.as_ref());
-        //     cloud_status_rect.render(graphics, color);
-        //     cloud_status_button.render(graphics, &gfx::Container::default(graphics));
-        // }
-
         graphics.update_window();
     }
 }
@@ -193,18 +155,3 @@ fn position_back_menus(graphics: &gfx::GraphicsContext, state: &TitleScreenState
         }
     }
 }
-
-// login disabled, see above
-// fn get_tls_status_color(tls_client: Option<&TlsClient>) -> gfx::Color {
-//     tls_client.map_or_else(
-//         || gfx::Color::new(255, 0, 0, 255),
-//         |client| match &client.get_connection_state() {
-//             ConnectionState::CONNECTING(_) => gfx::Color::new(255, 255, 0, 255),
-//             _ => match client.get_authentication_state() {
-//                 AuthenticationState::AUTHENTICATING => gfx::Color::new(255, 255, 0, 255),
-//                 AuthenticationState::AUTHENTICATED => gfx::Color::new(0, 255, 0, 255),
-//                 _ => gfx::Color::new(255, 0, 0, 255),
-//             },
-//         },
-//     )
-// }

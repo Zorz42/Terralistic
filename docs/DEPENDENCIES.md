@@ -16,7 +16,7 @@ upstream, which is worth knowing even though there is nothing to bump.
 | everything else | | | moved within its existing range via `cargo update` |
 
 Already at the newest release and left alone: `rlua` 0.20.1, `noise` 0.9.0,
-`winres` 0.1.12, `kvptree` 0.1.0.
+`winres` 0.1.12.
 
 **Since this pass:** `gl` and `sdl2`/`sdl2-sys` are gone. The OpenGL backend was replaced by
 `wgpu` 30, and the window and input by `winit` 0.30; `raw-window-handle` went with them,
@@ -73,5 +73,6 @@ Worth doing, but it is a change to the mod API surface, not a dependency bump.
 
 - `noise` 0.9.0 is the latest and still depends on `rand` 0.8, so both 0.8 and 0.10 are in
   the tree. Upstream's constraint, not something to fix here.
-- `kvptree` has 1513 all-time downloads and one release. It is only used by
-  `shared/tls_client.rs`. Worth knowing if that code ever gets more load-bearing.
+- `kvptree`, `rustls`, `webpki-roots` and `rustls-pki-types` are gone with the account
+  client that was their only user. `kvptree` in particular had 1513 all-time downloads and
+  one release, which was a real supply-chain question the game no longer has to answer.

@@ -15,7 +15,7 @@ pub mod build_project {
 // to convert PNGs to .opa, and ScriptModuleData to write .mod files.
 //
 // Declaring the real `libraries::graphics` and `shared` modules here would compile their
-// whole module trees into the build script, which is what dragged SDL2, OpenGL, rustls,
+// whole module trees into the build script, which is what dragged SDL2, OpenGL,
 // message-io, rlua and friends into [build-dependencies] - all of them then built twice,
 // once for the host and once for the target. So we name the individual leaf files instead.
 //

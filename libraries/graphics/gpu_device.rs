@@ -16,7 +16,7 @@
 //! RAII wrappers over one.
 //!
 //! Dropping one parks the id rather than removing the entry, and the backend sweeps once the
-//! frame's commands have executed. That gap is not an edge case: `login.rs` builds a text
+//! frame's commands have executed. That gap is not an edge case: menus build a text
 //! texture inside `render_inner` and drops it there, every world chunk replaces its whole
 //! `RectArray` when it changes, and the golden-image cases draw from temporaries that die at
 //! the end of the statement. **Removing an entry at drop time would make those draws silently

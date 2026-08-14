@@ -7,8 +7,6 @@ pub mod lights;
 pub mod liquids;
 pub mod packet;
 pub mod players;
-// login disabled: the account server is unreachable, see docs/LOGIN.md
-// pub mod tls_client;
 mod tests;
 pub mod versions;
 pub mod walls;

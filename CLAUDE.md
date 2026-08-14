@@ -65,7 +65,7 @@ currently clippy clean, so keep it that way rather than dropping the flag.
 | `server/server_core/` | Authoritative simulation, networking, world gen, commands |
 | `server/server_ui/` | Optional GUI for the server (console, player list, stats) |
 | `client/game/` | In-game client: rendering, input, prediction |
-| `client/menus/` | Title screen, world selector, settings, multiplayer, login |
+| `client/menus/` | Title screen, world selector, settings, multiplayer |
 | `libraries/graphics/` | The UI toolkit + wgpu renderer |
 | `libraries/events/` | Type-erased event queue (`Box<dyn Any>` + downcast) |
 | `libraries/grid/` | Bounded 2D grids, chunk addressing, least-recently-used eviction |
@@ -540,8 +540,8 @@ produces a `Texture` that knows its size and owns nothing. Layout code works hea
 ##### Deferred release is load-bearing
 
 Resources live in a registry inside `gpu_device` and commands name them by id, so a resource
-can be dropped while a command still refers to it. That is not a corner case: `login.rs`
-builds a text texture inside `render_inner` and drops it there, every world chunk replaces
+can be dropped while a command still refers to it. That is not a corner case: several menus
+build a text texture inside `render_inner` and drop it there, every world chunk replaces
 its whole `RectArray` via `self.rect_array = RectArray::new()` when it changes, and the
 golden cases draw from temporaries that die at the end of the statement. `Drop` therefore
 parks the id and `execute` sweeps after the frame has been submitted.
