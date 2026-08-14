@@ -6,8 +6,8 @@ window and input.
 Game content (blocks, items, walls, liquids, biomes, recipes, commands) lives in **Lua
 mods**, not in Rust — `base_game` is itself a mod.
 
-~15k lines of game Rust, on top of ~7k lines of libraries that know nothing about it, plus
-~8k lines of tests. Small enough to read in full; do that before large refactors.
+~12k lines of game Rust, on top of ~11k lines of libraries that know nothing about it, plus
+~9k lines of tests. Small enough to read in full; do that before large refactors.
 
 **`libraries/` is the boundary that keeps it that way.** Nothing under it may name a game
 concept or import `crate::shared`, `crate::client` or `crate::server` - which is true today
@@ -24,7 +24,7 @@ cargo build --profile dist # what you ship: release + LTO, 4.63 MB vs 5.49 MB
 cargo run -- server       # server with GUI
 cargo run -- server nogui # headless server
 cargo run -- version      # print version
-cargo test                # 499 tests, all should pass
+cargo test                # 532 tests, all should pass
 cargo clippy --all-targets
 ./coverage.sh             # coverage via config-coverage.toml
 
@@ -66,13 +66,19 @@ currently clippy clean, so keep it that way rather than dropping the flag.
 | `server/server_ui/` | Optional GUI for the server (console, player list, stats) |
 | `client/game/` | In-game client: rendering, input, prediction |
 | `client/menus/` | Title screen, world selector, settings, multiplayer |
-| `libraries/graphics/` | The UI toolkit + wgpu renderer |
+| `libraries/graphics/` | The wgpu renderer: draw list, backend, window, textures, glyphs |
+| `libraries/ui/` | The widget toolkit: layout, input, widgets, menus, list pages, docks |
 | `libraries/events/` | Type-erased event queue (`Box<dyn Any>` + downcast) |
 | `libraries/grid/` | Bounded 2D grids, chunk addressing, least-recently-used eviction |
 | `libraries/registry/` | Register a value, get a typed id back; look up by id or name |
 | `libraries/timing/` | Fixed-step accumulators, frame limiter, work budgets, frame stats |
 | `libraries/net/` | Typed-message TCP transport, both halves. No protocol |
 | `libraries/scripting/` | Sandboxed lua modules with resources. No game hooks |
+| `libraries/config/` | Settings registered at runtime, persisted as a flat file |
+| `libraries/container_file/` | Versioned magic-header files holding named sections |
+| `libraries/log/` | Timestamped levelled lines and one process-global sink |
+| `libraries/procgen/` | Fractal noise, 1D smoothing, weighted picks |
+| `libraries/testing/` | `#[cfg(test)]`: temp dirs, free ports, spin-until-or-fail |
 | `libraries/serialization.rs` | The one place the binary format is chosen |
 | `base_game/` | Lua mod: all actual game content |
 | `resources/` | Client-side assets (fonts, icons, UI textures) |
@@ -184,6 +190,11 @@ The on-disk `.mod` format is `snap(postcard(ScriptModuleData))` — see
 `libraries/scripting/module_data.rs`, which is deliberately a dependency-free leaf module so
 the build script can write mods without pulling in Lua. `build_main.rs` names that leaf file
 rather than the `scripting` module, which is what keeps rlua out of `[build-dependencies]`.
+
+A handle type is made passable to lua by `script_handle!(Type)` (or `script_handle!(Type,
+eq)` where lua should be able to compare two), which is a macro because the orphan rule stops
+either side writing the blanket impl. Anything that is not a handle is a lua conversion error
+rather than the `unreachable!()` the six hand written copies each had.
 
 Rust exposes functions to Lua with the `terralistic_` prefix — `ScriptHost::add_global_function`
 adds it automatically, so `add_global_function("get_block", ..)` is called as
@@ -322,10 +333,18 @@ through its surface rather than pasted on top of it.
 
 ### Rendering and UI
 
-`libraries/graphics` is a self-contained immediate-mode-ish toolkit. It has no game
-knowledge — treat it as a vendored library.
+**Two libraries, and the split matters when you go looking.** `libraries/graphics` is the
+renderer - draw list, wgpu backend, window, surfaces, textures, glyphs. `libraries/ui` is the
+widget toolkit - layout, input routing, widgets, menus. Neither has game knowledge; treat
+both as vendored.
 
-The UI contract is `UiElement` / `BaseUiElement` in `ui_element.rs`. You implement
+It is a module split inside one crate, not a crate split, so the two do refer to each other.
+There is one edge that is not going away without a bigger change: `render_inner` and
+`update_inner` take a `&mut GraphicsContext`, because a few widgets genuinely build textures.
+`RenderRect` reaches `GraphicsContext::blur_rect` and `shadow_context`, which are
+`pub(crate)` for it.
+
+The UI contract is `UiElement` / `BaseUiElement` in `ui/ui_element.rs`. You implement
 `UiElement` — `get_container` is the only required method, everything else defaults — and
 `BaseUiElement` is blanket-implemented and handles recursing into children. **Implement
 `UiElement`, call `BaseUiElement`.** The one default worth knowing is `get_sub_elements*`,
@@ -335,8 +354,10 @@ both**, or it is laid out and drawn while its children are not.
 Layout is `Container` + `Orientation` (`TOP_LEFT`, `CENTER`, …): a child positions itself
 relative to a parent container by orientation plus offset. Theme constants (colors, `SPACING`,
 `BLUR`, `TRANSPARENCY`, and the widget defaults) are in `theme.rs` — use them rather than
-literals. Every fade and slide in the toolkit is `gfx::approach(value, target, smooth_factor,
-epsilon)` per ready `timing::FixedStep::for_animation` frame; don't hand-roll another one. The epsilon is not
+literals. **Every fade and slide in the game is `ui::approach(value, target, smooth_factor, epsilon)`**
+per ready `timing::FixedStep::for_animation` frame; don't hand-roll another one. Nine places
+in `client/` used to, none of them with an epsilon, and two of them wrote the epsilon out by
+hand as a pair of `if`s afterwards. The epsilon is not
 decoration — it is what makes an animation *land* on its target instead of nearing it forever,
 which a hand-rolled `value -= value / factor` does not.
 
@@ -711,6 +732,20 @@ Several older UI pieces predate the `UiElement` trait and are hand-rolled — th
 this a UI element` comments in `client/game/chat.rs`, `pause_menu.rs`, `debug_menu.rs`,
 `inventory.rs`, `respawn_screen.rs` mark them. Converting one is a good self-contained task.
 
+#### Composites worth knowing before writing a menu
+
+- **`ui::ListPage`** is a scrolling list between a title bar and a button bar: it owns the
+  two bars, the scrollable, the row layout and the top bar's fade-in. A row implements
+  `ui::ListRow` - a height, a position it accepts, and whether it is hoverable. The world
+  selector and the server selector are both this, and were each half of it written separately
+  until they were merged.
+- **`ui::Menu` / `ui::MenuStack`** is a stack of screens where the top one is live: it gets
+  the events and the updates, `open_menu` pushes a successor, `should_close` pops, and
+  whatever a pop reveals is told it has focus.
+- **`ui::DockNode`** is a binary split-pane layout of named panes, with `area_at_path`
+  turning a path through it into a fraction of the window. The server ui's module layout is
+  this plus its own editing.
+
 ### Timing
 
 **Every clock in the game is a `libraries/timing` type**, and there is one accumulator behind
@@ -947,6 +982,10 @@ Things worth knowing before adding one:
   decided for itself from `Toggle::hovered` and so flipped a setting for any release that
   happened to land on a toggle. It now reads `toggle.toggled` back instead — the toggle is a
   sub-element, so it has already answered the same event by the time the menu sees it.
+- **`gfx::Texture::load_from_bytes` turns a bad asset into an empty texture, not an error.**
+  A missing or corrupt `.opa` should leave a hole in the screen rather than take the process
+  down, and it is one fallback in one place - the ten call sites that spelled this out
+  invented three different fallback sizes between them.
 - **A `gfx::Surface` is checked against its own size when it is deserialized**, because
   nothing downstream re-checks: `GpuDevice::create_texture` tells wgpu the texture is
   `get_size()` big and hands it `pixels`, and a mismatch is a wgpu validation error, which is

@@ -1,21 +1,40 @@
 # Extracting libraries
 
-Written from a full read of the tree at `1d3004c7`. **Tiers 1 and 2's `timing` are now done** —
-`grid`, `registry`, `timing`, `net` and `scripting` are extracted, one commit each. What
-follows is the original survey; the sections for the five that landed describe what was built,
-and the rest are still proposals.
+A survey of the tree written at `1d3004c7`, and a record of what came out of it. **Everything
+in tiers 1 and 2 is done, plus `procgen` and a `testing` module that was not in the original
+list.** What is left is noted at the bottom, with why.
 
 ## Done
 
 | Library | Lines | What it replaced |
 |---|---|---|
-| `grid` | 589 | Four hand-rolled grids over one `WorldMap`, in four different styles |
-| `registry` | 342 | Twenty near-identical register/get/by-name functions across six registries |
-| `timing` | 723 | Five hand-rolled clocks, no two alike, plus a bare `Instant` used as a budget |
-| `net` | 1149 | Two networking halves duplicating the thread, the timer, the retry loop |
-| `scripting` | 471 | `shared/mod_manager.rs` + `shared/mod_data.rs`, verbatim but for the prefix |
+| `grid` | 589 | Four hand-rolled grids over one `WorldMap`, in four styles |
+| `registry` | 342 | 20 near-identical register/get/by-name functions across six registries |
+| `timing` | 723 | Five hand-rolled clocks, plus a bare `Instant` used as a budget |
+| `net` | 1,129 | Two networking halves duplicating thread, timer, retry loop |
+| `scripting` | 530 | `mod_manager.rs` + `mod_data.rs`, and six lua handle impls |
+| `ui` | 3,126 | The widget half of `graphics`, plus `MenuStack`, `ListPage`, `Dock` |
+| `config` | 437 | `client/settings.rs`, verbatim |
+| `container_file` | 214 | The save header and four `snap(postcard(x))` pairs |
+| `log` | 222 | Two verbatim copies of `format_timestamp`, and a global sender |
+| `procgen` | 235 | `world_generator/noise.rs` and the biome walk's weighted pick |
+| `testing` | 104 | `free_port` / `wait_until` / `TempDir`, written twice |
 
-Game code (`shared` + `server` + `client`) went from 16,271 lines to 15,388.
+Game code (`shared` + `server` + `client`) went from 16,271 lines to 13,879, and the login
+system - 861 lines that were commented out of the module tree and did not compile - is gone
+entirely.
+
+## Not done, and why
+
+- **`scheduler`** (a shared "wake your neighbours" update set). The two users do **not** line
+  up. `Liquids` drains its whole `BTreeSet` each step and re-inserts what still has somewhere
+  to go, and the deterministic iteration order is load-bearing. `Lights` never drains: it
+  keeps a per-cell flag *and a per-chunk count*, and the client reads that count to decide
+  whether a chunk's light mesh needs rebuilding. A set cannot answer that without a scan. One
+  name over two mechanisms would fit neither.
+- **`aabb`** (the swept collision against a solid grid). Still recommended against: physics
+  must agree bit-for-bit between client and server, it currently does because both call
+  `shared/`, and the win is small for a boundary added to a correctness-critical path.
 
 ## Why
 
