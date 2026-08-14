@@ -9,13 +9,11 @@ use rlua::prelude::LuaUserData;
 use rlua::UserDataMethods;
 use std::sync::PoisonError;
 
-// make Biome compatible with Lua
+// make Biome compatible with Lua. Not `script_handle!`, because a biome is a mutable
+// record rather than an opaque id and has a `UserData` impl of its own below.
 impl rlua::FromLua<'_> for Biome {
     fn from_lua(value: rlua::Value, _context: rlua::Context) -> rlua::Result<Self> {
-        match value {
-            rlua::Value::UserData(ud) => Ok(ud.borrow::<Self>()?.clone()),
-            _ => unreachable!(),
-        }
+        crate::libraries::scripting::handle_from_lua(value, "Biome")
     }
 }
 

@@ -475,16 +475,12 @@ impl ModuleManagerRenderer {
         name_sprite.scale = 3.0;
 
         let mut vertical_arrow_sprite = gfx::Sprite::new();
-        vertical_arrow_sprite.set_texture(gfx::Texture::load_from_surface(
-            &gfx::Surface::deserialize_from_bytes(include_bytes!("../../Build/Resources/vertical_resize_arrow.opa")).unwrap_or_else(|_| gfx::Surface::new(gfx::IntSize(0, 0))),
-        ));
+        vertical_arrow_sprite.set_texture(gfx::Texture::load_from_bytes(include_bytes!("../../Build/Resources/vertical_resize_arrow.opa")));
         vertical_arrow_sprite.orientation = gfx::CENTER;
         vertical_arrow_sprite.scale = 4.0;
 
         let mut horizontal_arrow_sprite = gfx::Sprite::new();
-        horizontal_arrow_sprite.set_texture(gfx::Texture::load_from_surface(
-            &gfx::Surface::deserialize_from_bytes(include_bytes!("../../Build/Resources/horizontal_resize_arrow.opa")).unwrap_or_else(|_| gfx::Surface::new(gfx::IntSize(0, 0))),
-        ));
+        horizontal_arrow_sprite.set_texture(gfx::Texture::load_from_bytes(include_bytes!("../../Build/Resources/horizontal_resize_arrow.opa")));
         horizontal_arrow_sprite.orientation = gfx::CENTER;
         horizontal_arrow_sprite.scale = 4.0;
 

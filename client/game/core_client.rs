@@ -178,7 +178,7 @@ pub fn run_game(
 
     // the light grid is as big as the world, so this is the last of the phases worth naming
     join_screen.frame(graphics, "Lighting the world");
-    background.init()?;
+    background.init();
     inventory.init(graphics);
     lights.init(&blocks.get_blocks(), settings)?;
 

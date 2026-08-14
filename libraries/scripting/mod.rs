@@ -16,9 +16,11 @@
 //! Isolation is per module, not a sandbox: each module gets its own globals, but lua's own
 //! standard library is whatever `rlua` provides. A module is trusted code.
 
+pub use handle::*;
 pub use host::*;
 pub use module_data::*;
 
+mod handle;
 mod host;
 mod module_data;
 mod tests;

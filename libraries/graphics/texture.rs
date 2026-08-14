@@ -32,6 +32,18 @@ impl Texture {
         }
     }
 
+    /// Uploads a serialized `Surface` - the bytes of an `.opa` file, usually
+    /// `include_bytes!`-ed or pulled out of a script module's resources.
+    ///
+    /// **A surface that will not decode becomes an empty texture rather than an error.** A
+    /// missing or corrupt asset should leave a hole in the screen, not take the process down
+    /// or force every call site to invent a fallback - which is what they were doing, in
+    /// three different sizes.
+    #[must_use]
+    pub fn load_from_bytes(bytes: &[u8]) -> Self {
+        Self::load_from_surface(&Surface::deserialize_from_bytes(bytes).unwrap_or_else(|_| Surface::new(gfx::IntSize(1, 1))))
+    }
+
     /// A texture that reports a size but owns nothing, for tests that want a size and no
     /// pixels. Layout only ever asks for `get_texture_size`, so this is enough to drive a
     /// `Button` or a `Sprite` headlessly.

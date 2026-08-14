@@ -11,22 +11,7 @@ use crate::shared::inventory::Inventory;
 use crate::shared::items::{Item, ItemId, ItemStack, Items, Recipe, TileDrop};
 use crate::shared::walls::WallId;
 
-// make ItemId lua compatible
-impl rlua::FromLua<'_> for ItemId {
-    fn from_lua(value: rlua::Value, _context: rlua::Context) -> rlua::Result<Self> {
-        match value {
-            rlua::Value::UserData(ud) => Ok(*ud.borrow::<Self>()?),
-            _ => unreachable!(),
-        }
-    }
-}
-
-impl rlua::UserData for ItemId {
-    // implement equals comparison for ItemId
-    fn add_methods<'lua, M: rlua::UserDataMethods<'lua, Self>>(methods: &mut M) {
-        methods.add_meta_method(rlua::MetaMethod::Eq, |_, this, other: Self| Ok(this.id == other.id));
-    }
-}
+crate::script_handle!(ItemId, eq);
 
 /// this function initializes the items mod interface
 /// it adds lua functions to the lua context

@@ -291,9 +291,7 @@ impl ServerCard {
         rect.fill_color.a = 100;
 
         let mut icon = gfx::Sprite::new();
-        icon.set_texture(gfx::Texture::load_from_surface(
-            &gfx::Surface::deserialize_from_bytes(include_bytes!("../../Build/Resources/world_icon.opa")).unwrap_or_else(|_| gfx::Surface::new(gfx::IntSize(1, 1))),
-        ));
+        icon.set_texture(gfx::Texture::load_from_bytes(include_bytes!("../../Build/Resources/world_icon.opa")));
         rect.size.1 = icon.get_size().1 + 2.0 * gfx::SPACING;
         icon.pos.0 = gfx::SPACING;
         icon.orientation = gfx::LEFT;
@@ -305,8 +303,7 @@ impl ServerCard {
         title.scale = 3.0;
 
         let mut play_button = gfx::Button::new(|| {});
-        play_button.texture =
-            gfx::Texture::load_from_surface(&gfx::Surface::deserialize_from_bytes(include_bytes!("../../Build/Resources/join_button.opa")).unwrap_or_else(|_| gfx::Surface::new(gfx::IntSize(1, 1))));
+        play_button.texture = gfx::Texture::load_from_bytes(include_bytes!("../../Build/Resources/join_button.opa"));
         play_button.scale = 3.0;
         play_button.padding = 5.0;
         play_button.pos.0 = icon.pos.0 + icon.get_size().0 + gfx::SPACING;
@@ -314,8 +311,7 @@ impl ServerCard {
         play_button.orientation = gfx::BOTTOM_LEFT;
 
         let mut delete_button = gfx::Button::new(|| {});
-        delete_button.texture =
-            gfx::Texture::load_from_surface(&gfx::Surface::deserialize_from_bytes(include_bytes!("../../Build/Resources/remove_button.opa")).unwrap_or_else(|_| gfx::Surface::new(gfx::IntSize(1, 1))));
+        delete_button.texture = gfx::Texture::load_from_bytes(include_bytes!("../../Build/Resources/remove_button.opa"));
         delete_button.scale = 3.0;
         delete_button.padding = 5.0;
         delete_button.pos.0 = play_button.pos.0 + play_button.get_size().0 + gfx::SPACING;

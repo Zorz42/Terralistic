@@ -369,14 +369,4 @@ impl HealthComponent {
     }
 }
 
-impl rlua::FromLua<'_> for EntityId {
-    fn from_lua(value: rlua::Value, _lua: &rlua::Lua) -> rlua::Result<Self> {
-        match value {
-            rlua::Value::UserData(ud) => Ok(*ud.borrow::<Self>()?),
-            _ => unreachable!(),
-        }
-    }
-}
-
-/// make `EntityId` Lua compatible
-impl rlua::UserData for EntityId {}
+crate::script_handle!(EntityId);

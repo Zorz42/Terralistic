@@ -47,19 +47,4 @@ pub fn init_liquids_mod_interface(mods: &mut ScriptHost, liquids: &Arc<Mutex<Liq
     Ok(())
 }
 
-// make LiquidId lua compatible
-impl rlua::FromLua<'_> for LiquidId {
-    fn from_lua(value: rlua::Value, _context: rlua::Context) -> rlua::Result<Self> {
-        match value {
-            rlua::Value::UserData(ud) => Ok(*ud.borrow::<Self>()?),
-            _ => unreachable!(),
-        }
-    }
-}
-
-impl rlua::UserData for LiquidId {
-    // implement equals comparison for LiquidId
-    fn add_methods<'lua, M: rlua::UserDataMethods<'lua, Self>>(methods: &mut M) {
-        methods.add_meta_method(rlua::MetaMethod::Eq, |_, this, other: Self| Ok(this.id == other.id));
-    }
-}
+crate::script_handle!(LiquidId, eq);

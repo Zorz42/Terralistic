@@ -61,9 +61,7 @@ impl World {
         rect.fill_color.a = 100;
 
         let mut icon = gfx::Sprite::new();
-        icon.set_texture(gfx::Texture::load_from_surface(
-            &gfx::Surface::deserialize_from_bytes(include_bytes!("../../Build/Resources/world_icon.opa")).unwrap_or_else(|_| gfx::Surface::new(gfx::IntSize(1, 1))),
-        ));
+        icon.set_texture(gfx::Texture::load_from_bytes(include_bytes!("../../Build/Resources/world_icon.opa")));
         rect.size.1 = icon.get_size().1 + 2.0 * gfx::SPACING;
         icon.pos.0 = gfx::SPACING;
         icon.orientation = gfx::LEFT;
@@ -78,8 +76,7 @@ impl World {
         let mut play_button = gfx::Button::new(move || {
             *temp_button_press.borrow_mut() = Some((index, 0));
         });
-        play_button.texture =
-            gfx::Texture::load_from_surface(&gfx::Surface::deserialize_from_bytes(include_bytes!("../../Build/Resources/play_button.opa")).unwrap_or_else(|_| gfx::Surface::new(gfx::IntSize(1, 1))));
+        play_button.texture = gfx::Texture::load_from_bytes(include_bytes!("../../Build/Resources/play_button.opa"));
         play_button.scale = 3.0;
         play_button.padding = 5.0;
         play_button.pos.0 = icon.pos.0 + icon.get_size().0 + gfx::SPACING;
@@ -89,8 +86,7 @@ impl World {
         let mut delete_button = gfx::Button::new(move || {
             *button_press.borrow_mut() = Some((index, 1));
         });
-        delete_button.texture =
-            gfx::Texture::load_from_surface(&gfx::Surface::deserialize_from_bytes(include_bytes!("../../Build/Resources/delete_button.opa")).unwrap_or_else(|_| gfx::Surface::new(gfx::IntSize(1, 1))));
+        delete_button.texture = gfx::Texture::load_from_bytes(include_bytes!("../../Build/Resources/delete_button.opa"));
         delete_button.scale = 3.0;
         delete_button.padding = 5.0;
         delete_button.pos.0 = play_button.pos.0 + play_button.get_size().0 + gfx::SPACING;

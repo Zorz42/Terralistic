@@ -1,5 +1,3 @@
-use anyhow::Result;
-
 use crate::libraries::graphics as gfx;
 
 use super::camera::Camera;
@@ -15,9 +13,8 @@ impl Background {
         Self { image: gfx::Texture::new() }
     }
 
-    pub fn init(&mut self) -> Result<()> {
-        self.image = gfx::Texture::load_from_surface(&gfx::Surface::deserialize_from_bytes(include_bytes!("../../Build/Resources/background.opa"))?);
-        Ok(())
+    pub fn init(&mut self) {
+        self.image = gfx::Texture::load_from_bytes(include_bytes!("../../Build/Resources/background.opa"));
     }
 
     pub fn render(&self, graphics: &gfx::GraphicsContext, camera: &Camera) {
