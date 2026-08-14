@@ -65,6 +65,35 @@ mod tests {
         reloaded.stop().unwrap();
     }
 
+    /// Liquids are saved as a grid of ids and levels, the same way blocks and walls are,
+    /// and are the one part of the world that is still moving when the server is stopped.
+    #[test]
+    fn test_liquid_survives_a_save_and_reload() {
+        let server = TestServer::start_on_small_world("persist-liquid", (40, 30)).unwrap();
+
+        let water = {
+            let mut liquids = server.server.get_liquids();
+            let water = liquids.get_liquid_id_by_name("water").unwrap();
+            let mut events = EventManager::new();
+            // nothing steps the server between here and the save, so it is still where it
+            // was put - what is being tested is the round trip, not the flow
+            liquids.set_liquid(6, 25, water, 100, &mut events).unwrap();
+            water
+        };
+
+        let dir = server.stop().unwrap();
+
+        let reloaded = TestServer::start_in(dir, "persist-liquid").unwrap();
+        let liquids = reloaded.server.get_liquids();
+
+        assert_eq!(liquids.get_liquid_id_at(6, 25).unwrap(), water, "the liquid did not survive the reload");
+        assert_eq!(liquids.get_liquid_level(6, 25).unwrap(), 100, "the level did not survive the reload");
+        assert_eq!(liquids.get_size(), (40, 30), "the liquid grid is not the size of the world");
+
+        drop(liquids);
+        reloaded.stop().unwrap();
+    }
+
     /// Stopping twice must not write the world twice or fail - `stop` is called from both
     /// the run loop and the caller that asked it to stop.
     #[test]
@@ -88,7 +117,7 @@ mod tests {
         assert_eq!(file.get(8..12), Some(WORLD_SAVE_VERSION.to_le_bytes().as_slice()), "wrong version in the header");
 
         let world: HashMap<String, Vec<u8>> = serialization::deserialize(file.get(WORLD_SAVE_HEADER_LEN..).unwrap()).unwrap();
-        for key in ["blocks", "walls", "players"] {
+        for key in ["blocks", "walls", "liquids", "players"] {
             assert!(world.contains_key(key), "the save has no {key} in it");
         }
     }

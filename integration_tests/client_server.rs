@@ -12,6 +12,7 @@ mod tests {
     use crate::shared::blocks::{BlockBreakStartPacket, BlockChangePacket, Blocks, BlocksWelcomePacket, ClientBlockBreakStartPacket};
     use crate::shared::chat::ChatPacket;
     use crate::shared::entities::PositionComponent;
+    use crate::shared::liquids::{LiquidChangesPacket, LiquidType, Liquids, LiquidsWelcomePacket};
     use crate::shared::mod_manager::ModsWelcomePacket;
     use crate::shared::packet::{Packet, WelcomeCompletePacket};
     use crate::shared::players::PlayerSpawnPacket;
@@ -31,6 +32,7 @@ mod tests {
         assert!(client.received::<ModsWelcomePacket>(), "the client was not sent the mods");
         assert!(client.received::<BlocksWelcomePacket>(), "the client was not sent the blocks");
         assert!(client.received::<WallsWelcomePacket>(), "the client was not sent the walls");
+        assert!(client.received::<LiquidsWelcomePacket>(), "the client was not sent the liquids");
         assert!(client.received::<WelcomeCompletePacket>());
 
         // and all of it arrived during the welcome phase, not after
@@ -254,6 +256,71 @@ mod tests {
                 .filter_map(Packet::try_deserialize::<BlockChangePacket>)
                 .any(|change| change.x == 10 && change.y == 12))
         });
+
+        client.stop().unwrap();
+        server.stop().unwrap();
+    }
+
+    /// Liquids are the one part of the world that moves without anyone touching it, and
+    /// the client never simulates them - it is told. This covers the whole path: a command
+    /// pours water on the server, the flow step moves it, and the batched change packet
+    /// brings the client's copy to the same place.
+    #[test]
+    fn test_water_poured_on_the_server_reaches_the_client() {
+        let mut server = server("liquid-sync");
+        let mut client = join(&mut server, "Player").unwrap();
+
+        // The client's type registry normally comes from running the mods, which this
+        // harness does not do, so it gets one placeholder per type the server has. The ids
+        // line up because both sides register in the same order - the same assumption the
+        // world save makes about blocks.
+        let mut client_liquids = Liquids::new();
+        let server_types = server.server.get_liquids().get_all_liquid_ids().len();
+        for _ in 1..server_types {
+            client_liquids.register_new_liquid_type(LiquidType::new());
+        }
+
+        // the welcome packet is the client's copy of the grid, before anything flows
+        client_liquids.deserialize(&client.find::<LiquidsWelcomePacket>().unwrap().data).unwrap();
+        assert_eq!(client_liquids.get_size(), (60, 40), "the client was sent a liquid grid the wrong size");
+
+        server.server.execute_command("water 10 5 100").unwrap();
+
+        wait_until("the client to be told about the water", || {
+            server.update_slowly()?;
+            client.pump()?;
+            Ok(client.received::<LiquidChangesPacket>())
+        });
+
+        // apply every change the server has sent, the way `ClientLiquids` does
+        let mut events = EventManager::new();
+        for packet in &client.packets {
+            if let Some(packet) = packet.try_deserialize::<LiquidChangesPacket>() {
+                for change in packet.changes {
+                    client_liquids.set_liquid(change.x, change.y, change.liquid, change.level, &mut events).unwrap();
+                }
+            }
+        }
+
+        let mut client_total = 0;
+        let mut server_total = 0;
+        {
+            let server_liquids = server.server.get_liquids();
+            for x in 0..60 {
+                for y in 0..40 {
+                    assert_eq!(
+                        client_liquids.get_liquid_level(x, y).unwrap(),
+                        server_liquids.get_liquid_level(x, y).unwrap(),
+                        "client and server disagree about the water at {x}, {y}"
+                    );
+                    client_total += u32::from(client_liquids.get_liquid_level(x, y).unwrap());
+                    server_total += u32::from(server_liquids.get_liquid_level(x, y).unwrap());
+                }
+            }
+        }
+
+        assert_eq!(server_total, 100, "the water the command poured is not all there");
+        assert_eq!(client_total, server_total);
 
         client.stop().unwrap();
         server.stop().unwrap();

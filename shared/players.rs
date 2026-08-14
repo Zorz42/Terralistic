@@ -4,9 +4,10 @@ use serde_derive::{Deserialize, Serialize};
 
 use crate::libraries::events::EventManager;
 use crate::shared::blocks::{Blocks, BLOCK_WIDTH};
-use crate::shared::entities::{is_touching_ground, reduce_by, Entities, EntityId, HealthComponent, PhysicsComponent, PositionComponent};
+use crate::shared::entities::{is_touching_ground, liquid_submersion, reduce_by, Entities, EntityId, HealthComponent, PhysicsComponent, PositionComponent};
 use crate::shared::inventory::Inventory;
 use crate::shared::items::{ItemComponent, ItemStack, Items};
+use crate::shared::liquids::Liquids;
 
 pub const PLAYER_HEIGHT: f32 = 24.0 / BLOCK_WIDTH;
 pub const PLAYER_WIDTH: f32 = 16.0 / BLOCK_WIDTH;
@@ -14,6 +15,9 @@ pub const PLAYER_MAX_HEALTH: i32 = 100;
 pub const PLAYER_ACCELERATION: f32 = 30.0;
 pub const PLAYER_INITIAL_SPEED: f32 = 5.0;
 pub const PLAYER_JUMP_SPEED: f32 = 30.0;
+/// How hard a swimming player pushes upwards, and how fast that can get them going.
+pub const PLAYER_SWIM_ACCELERATION: f32 = 90.0;
+pub const PLAYER_SWIM_SPEED: f32 = 8.0;
 pub const PLAYER_PICKUP_RADIUS: f32 = 6.0;
 pub const PLAYER_PICKUP_COEFFICIENT: f32 = 0.005;
 pub const PLAYER_PICKUP_MIN_SPEED: f32 = 0.8;
@@ -40,10 +44,21 @@ pub fn spawn_player(entities: &mut Entities, x: f32, y: f32, name: &str, id: Ent
     Ok(entity)
 }
 
-pub fn update_players_ms(entities: &mut Entities, blocks: &Blocks) {
+pub fn update_players_ms(entities: &mut Entities, blocks: &Blocks, liquids: &Liquids) {
     for (position, physics, player) in entities.ecs.query_mut::<(&PositionComponent, &mut PhysicsComponent, &mut PlayerComponent)>() {
-        if player.jumping && is_touching_ground(position, physics, blocks) {
-            physics.velocity_y += -PLAYER_JUMP_SPEED;
+        if player.jumping {
+            if is_touching_ground(position, physics, blocks) {
+                physics.velocity_y += -PLAYER_JUMP_SPEED;
+            } else {
+                // Swimming is the jump key held down in a liquid: an upward push every tick
+                // rather than one impulse, capped, so a player rises steadily to the surface
+                // instead of leaping out of it. It needs the cell to be at least half full,
+                // which is what keeps a puddle from being climbable.
+                let (submersion, _speed_multiplier) = liquid_submersion(position, physics, liquids);
+                if submersion > 0.5 {
+                    physics.velocity_y = (physics.velocity_y - PLAYER_SWIM_ACCELERATION / 200.0).max(-PLAYER_SWIM_SPEED);
+                }
+            }
         }
 
         // animation frame for being in air is 0

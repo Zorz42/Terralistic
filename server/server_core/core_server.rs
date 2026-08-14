@@ -19,6 +19,7 @@ use crate::shared::versions::{WORLD_SAVE_HEADER_LEN, WORLD_SAVE_MAGIC, WORLD_SAV
 
 use super::blocks::ServerBlocks;
 use super::commands::CommandManager;
+use super::liquids::ServerLiquids;
 use super::mod_manager::ServerModManager;
 use super::networking::{BindAddress, ServerNetworking};
 use super::walls::ServerWalls;
@@ -49,6 +50,7 @@ pub struct Server {
     mods: ServerModManager,
     blocks: ServerBlocks,
     walls: ServerWalls,
+    liquids: ServerLiquids,
     entities: ServerEntities,
     items: ServerItems,
     players: ServerPlayers,
@@ -81,6 +83,7 @@ impl Server {
             mods: ServerModManager::new(Vec::new()),
             blocks,
             walls,
+            liquids: ServerLiquids::new(),
             entities: ServerEntities::new(),
             items: ServerItems::new(),
             players: ServerPlayers::new(),
@@ -132,6 +135,7 @@ impl Server {
         self.networking.init();
         self.blocks.init(&mut self.mods.mod_manager)?;
         self.walls.init(&mut self.mods.mod_manager)?;
+        self.liquids.init(&mut self.mods.mod_manager)?;
         self.items.init(&mut self.mods.mod_manager, &self.entities.get_entities_arc())?;
 
         let generator = WorldGenerator::new();
@@ -167,6 +171,18 @@ impl Server {
                     self.blocks.update_block(x, y, &mut self.events)?;
                 }
             }
+        }
+
+        // The liquid grid is the same size as the block grid, always. A save that disagrees
+        // with the world it was saved next to is a save whose liquids cannot be trusted, so
+        // it starts dry rather than reading a cell of a different world.
+        let world_size = self.blocks.get_blocks().get_size();
+        if self.liquids.get_liquids().get_size() == world_size {
+            // a grid that came out of a save may have been mid-splash when it was written,
+            // and the scheduled set is derived rather than saved, so it is rebuilt here
+            self.liquids.get_liquids().schedule_all_unsettled(&self.blocks.get_blocks())?;
+        } else {
+            self.liquids.get_liquids().create(world_size);
         }
 
         self.set_state(ServerState::Running);
@@ -241,6 +257,7 @@ impl Server {
         self.mods.update()?;
         self.blocks.update(&mut self.events, delta_time)?;
         self.walls.update(delta_time, &mut self.events)?;
+        self.liquids.update(&self.blocks.get_blocks(), &mut self.events, &mut self.networking, delta_time)?;
         self.items.update(&mut self.events);
 
         // handle events
@@ -250,11 +267,14 @@ impl Server {
             self.players.update(
                 &mut self.entities.get_entities(),
                 &self.blocks.get_blocks(),
+                &self.liquids.get_liquids(),
                 &mut self.events,
                 &self.items.get_items(),
                 &mut self.networking,
             )?;
-            self.entities.get_entities().update_entities_ms(&self.blocks.get_blocks(), &mut self.events)?;
+            self.entities
+                .get_entities()
+                .update_entities_ms(&self.blocks.get_blocks(), &self.liquids.get_liquids(), &mut self.events)?;
             self.ms_counter += 5;
         }
 
@@ -329,6 +349,7 @@ impl Server {
                 &mut self.mods.mod_manager,
             )?;
             self.walls.on_event(&event, &mut self.networking)?;
+            self.liquids.on_event(&event, &mut self.networking)?;
             self.items.on_event(&event, &mut self.entities.get_entities(), &mut self.events, &mut self.networking)?;
             self.players
                 .on_event(&event, &mut self.entities.get_entities(), &self.blocks, &mut self.networking, &mut self.events, &self.items.get_items())?;
@@ -365,6 +386,11 @@ impl Server {
     }
 
     #[cfg(test)]
+    pub fn get_liquids(&self) -> std::sync::MutexGuard<'_, crate::shared::liquids::Liquids> {
+        self.liquids.get_liquids()
+    }
+
+    #[cfg(test)]
     pub fn get_items(&self) -> std::sync::MutexGuard<'_, crate::shared::items::Items> {
         self.items.get_items()
     }
@@ -396,6 +422,12 @@ impl Server {
         self.blocks.get_blocks().deserialize(world.get("blocks").unwrap_or(&Vec::new()))?;
         self.walls.get_walls().deserialize(world.get("walls").unwrap_or(&Vec::new()))?;
         self.players.deserialize(world.get("players").unwrap_or(&Vec::new()))?;
+        // Liquids arrived with save version 4, so every world this build will read has the
+        // key. It is still handled rather than unwrapped into an empty vector, because a
+        // missing grid means a dry world, not a decode error - `start` sizes it afterwards.
+        if let Some(liquids) = world.get("liquids") {
+            self.liquids.get_liquids().deserialize(liquids)?;
+        }
         Ok(())
     }
 
@@ -403,6 +435,7 @@ impl Server {
         let mut world = HashMap::new();
         world.insert("blocks".to_owned(), self.blocks.get_blocks().serialize()?);
         world.insert("walls".to_owned(), self.walls.get_walls().serialize()?);
+        world.insert("liquids".to_owned(), self.liquids.get_liquids().serialize()?);
         world.insert("players".to_owned(), self.players.serialize()?);
 
         let mut world_file = world_save_header();

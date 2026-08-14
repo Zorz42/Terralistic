@@ -9,9 +9,8 @@ code path) or **suspected** (looks wrong, not proven).
 
 ## Status
 
-Everything catalogued below is done, except item 5.1 which needs a decision from you.
-All of it is on `Claude-testing`; items 1.1-1.7, 2.1, 2.2, 4, 5.2 and 6 also went to
-`master` via PRs #168-#178.
+Everything catalogued below is done. All of it is on `Claude-testing`; items 1.1-1.7, 2.1,
+2.2, 4, 5.2 and 6 also went to `master` via PRs #168-#178.
 
 | Item | State |
 |---|---|
@@ -28,8 +27,8 @@ All of it is on `Claude-testing`; items 1.1-1.7, 2.1, 2.2, 4, 5.2 and 6 also wen
 | 3.2 `message-io` skew | done — removed from build-dependencies entirely |
 | 3.3 Build script error messages | done — failures now name the path |
 | 4 CI gaps | done (#171), plus `-D warnings` once the tree was clean |
-| 5.1 Dead `liquids` module | **open — needs your call, see below** |
-| 5.2 Empty test stubs | done — walls (#175), inventory (#172), items; liquids left with 5.1 |
+| 5.1 Dead `liquids` module | done — finished and wired in, see below |
+| 5.2 Empty test stubs | done — walls (#175), inventory (#172), items; liquids with 5.1 |
 | 6 Duplication and cleanup | done (#178), plus all 107 clippy warnings cleared |
 | 7 Protocol/format robustness | done — version handshake and world save version |
 
@@ -57,21 +56,38 @@ The fix collapses onto the start of the selection, matching what the backspace, 
 paste handlers already did. `test_typing_replaces_the_selection` is the regression test,
 and `test_typing_replaces_a_forwards_selection` pins the other direction.
 
-### The one open decision: 5.1
+### 5.1, resolved: liquids are back
 
-`shared/liquids/` is **entirely commented out**, which is worse than the original scan
-suggested. Both files are a single `/* .. */` block from their first line to their last:
-`liquids.rs` is 271 lines and `liquid_type.rs` is 92, and between them they contain zero
-lines of compiled code. `shared/liquids/mod.rs` declares three modules that build to
-nothing.
+The decision was to finish it. `shared/liquids/` is now compiled code with a `tests.rs` that
+has something to test, and liquids exist in all three layers the way every other subsystem
+does.
 
-So the earlier description, "271 lines that nothing constructs", understated it — it is
-not unused code, it is commented-out code that has been carried in the tree.
+What is there:
 
-Options, roughly in order of effort: delete it (recoverable from git history), move it to
-a branch, or uncomment and finish it. I have not touched it, because throwing away
-unfinished work is your call. `shared/liquids/tests.rs` stays a stub, now with a comment
-explaining that there is literally nothing to test.
+- **`shared/liquids/`** — `Liquid { id, level }` cells on a `WorldMap`, with levels as whole
+  numbers rather than the original `f32`. That is not a style preference: the old code
+  compared `level as i32`, so cells that were never quite equal averaged each other forever
+  and never settled. Flow is down first, then averaging with lower horizontal neighbours,
+  driven off a scheduled set rather than a scan of the world.
+- **`server/server_core/liquids.rs`** — the authority. Sends the grid on join, batches a
+  flow step's changes into one `LiquidChangesPacket`, and reschedules liquid when a block
+  changes next to it.
+- **`client/game/liquids.rs`** — applies those packets and draws partly filled cells as a
+  surface, in per-chunk meshes like walls.
+- **Persistence** — a `liquids` key in the world save, and `WORLD_SAVE_VERSION` bumped to 4.
+- **Physics** — drag and buoyancy scaled by how deep an entity sits, and swimming on the
+  jump key, shared by client prediction and the server.
+- **Content** — `base_game/liquids.lua` registers water, and `/water <x> <y> [level]` pours
+  some in.
+
+The rewrite kept the original's shape (a type registry, `flow_time`, `speed_multiplier`) and
+dropped what did not survive contact with the rest of the codebase: `Rc<LiquidType>` handles,
+raw indexing with `assert!`, and the three `//TODO` holes where events and serialization
+should have been.
+
+Not done, and worth knowing before someone expects it: no bucket item, so the command is the
+only way to place liquid; the world generator never places any, so a fresh world is dry; and
+liquids do not drown anyone or interact with lighting.
 
 
 ---
@@ -333,6 +349,8 @@ the `Result`-returning accessor style used everywhere else.
 
 Decide: finish and wire it in, or move it to a branch. Leaving it gives a false impression
 that liquids work.
+
+**Resolved: finished and wired in — see "5.1, resolved: liquids are back" above.**
 
 ### 5.2 Four empty test modules — CONFIRMED
 

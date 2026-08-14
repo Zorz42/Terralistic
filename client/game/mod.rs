@@ -13,6 +13,7 @@ mod health;
 mod inventory;
 mod items;
 mod lights;
+mod liquids;
 mod mod_manager;
 mod networking;
 /// Reached only by the integration tests, which connect a real client to a real server.

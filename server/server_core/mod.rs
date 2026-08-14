@@ -21,6 +21,7 @@ mod commands;
 mod core_server;
 mod entities;
 mod items;
+mod liquids;
 mod mod_manager;
 mod networking;
 mod players;

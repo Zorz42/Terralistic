@@ -1,271 +1,419 @@
-/*use super::liquid_type::LiquidType;
+use std::collections::BTreeSet;
+
+use anyhow::{anyhow, bail, Result};
+use serde_derive::{Deserialize, Serialize};
+use snap;
+
+use crate::libraries::events::{Event, EventManager};
+use crate::libraries::serialization;
 use crate::shared::blocks::Blocks;
-use std::rc::Rc;
+use crate::shared::liquids::LiquidType;
+use crate::shared::world_map::WorldMap;
 
-const MAX_LIQUID_LEVEL: i32 = 100;
+/// A cell filled to the brim.
+///
+/// Levels are whole numbers, not the floats the first implementation used. A settled row of
+/// liquid has to compare *exactly* equal to stop flowing, and floats only ever got close -
+/// the old code papered over that by comparing `level as i32`, which made a cell holding
+/// 9.7 and one holding 9.2 both "9" and their average drift downwards forever.
+pub const MAX_LIQUID_LEVEL: u8 = 100;
 
-//TODO: new events idk
-
-/// struct with information about a liquid
-struct Liquid {
-    pub id: i32,
-    pub level: f32,
+/// `LiquidId` stores id to a type of liquid.
+#[derive(Deserialize, Serialize, Clone, Copy, Eq, PartialEq, PartialOrd, Ord, Hash, Debug)]
+pub struct LiquidId {
+    pub id: i8,
 }
 
-impl Liquid {
-    pub fn new() -> Self {
+impl LiquidId {
+    #[must_use]
+    pub const fn undefined() -> Self {
+        Self { id: -1 }
+    }
+}
+
+/// One cell of the liquid grid: which liquid, and how much of the cell it fills.
+///
+/// An empty cell is the empty liquid type at level 0, never a level of some real liquid -
+/// `set_liquid` normalizes that, so rendering and physics can trust the pair.
+#[derive(Deserialize, Serialize, Clone, Copy, PartialEq, Eq)]
+pub struct Liquid {
+    pub id: LiquidId,
+    pub level: u8,
+}
+
+#[derive(Deserialize, Serialize)]
+pub(super) struct LiquidsData {
+    liquids: Vec<Liquid>,
+    pub(super) map: WorldMap,
+}
+
+impl LiquidsData {
+    pub const fn new() -> Self {
         Self {
-            id: 0, //TODO: change to Rc<LiquidType>?
-            level: 0.0,
+            liquids: Vec::new(),
+            map: WorldMap::new_empty(),
         }
     }
 }
 
-/// struct that manages all the liquids
+/// A world's liquids: a grid of `Liquid` cells plus the simulation that makes them flow.
+///
+/// The simulation is driven off a set of scheduled cells rather than a scan of the world.
+/// A full scan is 5.28 million cells for the default world, twenty times a second, to move
+/// water that is usually nowhere near the player - so instead every change schedules itself
+/// and its four neighbours, and a cell that has settled falls out of the set and costs
+/// nothing until something disturbs it.
 pub struct Liquids {
-    liquid_types: Vec<Rc<LiquidType>>,
-    liquids: Vec<Liquid>,
-    pub empty: Rc<LiquidType>,
-    width: u32,
-    height: u32,
-    //TODO: new event sender
+    pub(super) liquids_data: LiquidsData,
+    pub(super) liquid_types: Vec<LiquidType>,
+
+    /// The liquid an empty cell holds. Registered first, so it is always id 0.
+    pub empty: LiquidId,
+
+    /// Cells that might still have somewhere to flow. A `BTreeSet` rather than a `HashSet`
+    /// because the order cells are processed in decides how a stream splits, and Rust
+    /// randomises hash iteration per process - the same class of bug that made
+    /// `GameModData.resources` a `BTreeMap`.
+    scheduled: BTreeSet<(i32, i32)>,
+
+    /// Milliseconds of simulated time, and the time each liquid type next flows at.
+    elapsed_ms: f64,
+    next_flow: Vec<f64>,
 }
 
 impl Liquids {
     #[must_use]
-    pub fn new(blocks: &Blocks) -> Self {
-        let temp = LiquidType::new("temp".to_string());
-        let mut liquids_object = Self {
+    pub fn new() -> Self {
+        let mut result = Self {
+            liquids_data: LiquidsData::new(),
             liquid_types: Vec::new(),
-            liquids: Vec::new(),
-            empty: Rc::new(temp), //temporarily assign
-            width: blocks.get_width(),
-            height: blocks.get_height(),
+
+            empty: LiquidId::undefined(),
+
+            scheduled: BTreeSet::new(),
+
+            elapsed_ms: 0.0,
+            next_flow: Vec::new(),
         };
-        let mut empty = LiquidType::new("empty".to_string());
+
+        let mut empty = LiquidType::new();
+        "empty".clone_into(&mut empty.name);
         empty.flow_time = 0;
-        empty.speed_multiplier = 1.0;
-        liquids_object.register_liquid_type(empty);
-        liquids_object.empty = liquids_object.liquid_types[0].clone(); //assign the real empty liquid Rc
-        liquids_object
+        result.empty = result.register_new_liquid_type(empty);
+
+        result
     }
 
-    /// this function returns a liquid at the given position
-    fn get_liquid(&self, x: i32, y: i32) -> &Liquid {
-        assert!(
-            !(x < 0 || y < 0 || x >= self.width as i32 || y >= self.height as i32),
-            "Liquid is accessed out of the bounds! ({x}, {y})"
-        );
-        &self.liquids[(y * self.width as i32 + x) as usize]
+    /// Creates an empty map with the given dimensions.
+    ///
+    /// Unlike `Walls::create` this fills the grid with a real registered type rather than
+    /// an undefined one, so reading a cell of a freshly created world works.
+    pub fn create(&mut self, size: (u32, u32)) {
+        self.liquids_data.map = WorldMap::new(size);
+        self.liquids_data.liquids = vec![Liquid { id: self.empty, level: 0 }; (size.0 * size.1) as usize];
+        self.scheduled.clear();
     }
 
-    /// this function returns a mutable liquid at the given position
-    fn get_liquid_mut(&mut self, x: i32, y: i32) -> &mut Liquid {
-        assert!(
-            !(x < 0 || y < 0 || x >= self.width as i32 || y >= self.height as i32),
-            "Liquid is accessed out of the bounds! ({x}, {y})"
-        );
-        &mut self.liquids[(y * self.width as i32 + x) as usize]
-    }
-
-    /// returns whether the given liquid is flowable
-    fn is_flowable(&self, x: i32, y: i32, blocks: &Blocks) -> bool {
-        blocks.get_block_type_at(x, y).unwrap().ghost
-            && self.get_liquid_type(x, y).id == self.empty.id
-    }
-
-    /// creates the liquid array
-    pub fn create(&mut self, blocks: &Blocks) {
-        self.liquids = Vec::new();
-        self.height = blocks.get_height();
-        self.width = blocks.get_width();
-        self.liquids
-            .resize_with((self.width * self.height) as usize, Liquid::new);
-    }
-
-    /// returns the width of the liquid array
     #[must_use]
-    pub fn get_width(&self) -> u32 {
-        self.width
+    pub const fn get_size(&self) -> (u32, u32) {
+        self.liquids_data.map.get_size()
     }
 
-    /// returns the height of the liquid array
-    #[must_use]
-    pub fn get_height(&self) -> u32 {
-        self.height
+    /// Returns the whole cell at the given position.
+    pub fn get_liquid(&self, x: i32, y: i32) -> Result<Liquid> {
+        Ok(*self
+            .liquids_data
+            .liquids
+            .get(self.liquids_data.map.translate_coords(x, y)?)
+            .ok_or_else(|| anyhow!("Liquid is accessed out of the bounds! ({x}, {y})"))?)
     }
 
-    /// returns the liquid type at the given position
-    #[must_use]
-    pub fn get_liquid_type(&self, x: i32, y: i32) -> Rc<LiquidType> {
-        self.get_liquid_type_by_id(self.get_liquid(x, y).id)
+    /// Returns the liquid type id at the given position.
+    pub fn get_liquid_id_at(&self, x: i32, y: i32) -> Result<LiquidId> {
+        Ok(self.get_liquid(x, y)?.id)
     }
 
-    /// returns the liquid type by id
-    #[must_use]
-    pub fn get_liquid_type_by_id(&self, id: i32) -> Rc<LiquidType> {
-        assert!(
-            !(id < 0 || id >= self.liquid_types.len() as i32),
-            "Liquid type id is out of bounds! ({id})"
-        );
-        self.liquid_types[id as usize].clone()
+    /// Returns how full the cell at the given position is, from 0 to `MAX_LIQUID_LEVEL`.
+    pub fn get_liquid_level(&self, x: i32, y: i32) -> Result<u8> {
+        Ok(self.get_liquid(x, y)?.level)
     }
 
-    /// returns the liquid type by name
-    #[must_use]
-    pub fn get_liquid_type_by_name(&self, name: &str) -> Option<Rc<LiquidType>> {
-        for i in 0..self.liquid_types.len() {
-            if self.liquid_types[i].name == name {
-                return Some(self.liquid_types[i].clone());
+    /// Returns the liquid type of the cell at the given position.
+    pub fn get_liquid_type_at(&self, x: i32, y: i32) -> Result<&LiquidType> {
+        self.get_liquid_type(self.get_liquid_id_at(x, y)?)
+    }
+
+    /// Returns the liquid type with the given id.
+    pub fn get_liquid_type(&self, id: LiquidId) -> Result<&LiquidType> {
+        self.liquid_types.get(id.id as usize).ok_or_else(|| anyhow!("Liquid type not found"))
+    }
+
+    /// Sets what a cell holds, and schedules everything the change could make flow.
+    ///
+    /// A level of 0 always means the empty liquid, whatever id was asked for, and a level
+    /// above the maximum is clamped rather than rejected: callers are handing over a
+    /// physical amount, not an index.
+    pub fn set_liquid(&mut self, x: i32, y: i32, liquid_id: LiquidId, level: u8, events: &mut EventManager) -> Result<()> {
+        if self.get_liquid_type(liquid_id).is_err() {
+            bail!("Liquid type not found");
+        }
+
+        let level = level.min(MAX_LIQUID_LEVEL);
+        let new = if level == 0 { Liquid { id: self.empty, level: 0 } } else { Liquid { id: liquid_id, level } };
+
+        let index = self.liquids_data.map.translate_coords(x, y)?;
+        let old = *self.liquids_data.liquids.get(index).ok_or_else(|| anyhow!("Liquid is accessed out of the bounds! ({x}, {y})"))?;
+
+        if old == new {
+            return Ok(());
+        }
+
+        *self.liquids_data.liquids.get_mut(index).ok_or_else(|| anyhow!("Liquid is accessed out of the bounds! ({x}, {y})"))? = new;
+
+        self.schedule_update(x, y);
+        events.push_event(Event::new(LiquidChangeEvent { x, y }));
+
+        Ok(())
+    }
+
+    /// Marks a cell and its four neighbours as worth looking at on the next flow step.
+    ///
+    /// Public because a liquid does not only move when another liquid moves: breaking the
+    /// block under a pool has to wake it up too, which is what `ServerLiquids` does with
+    /// `BlockChangeEvent`.
+    pub fn schedule_update(&mut self, x: i32, y: i32) {
+        for (x, y) in [(x, y), (x - 1, y), (x + 1, y), (x, y - 1), (x, y + 1)] {
+            if self.liquids_data.map.translate_coords(x, y).is_ok() {
+                self.scheduled.insert((x, y));
             }
         }
-        None
     }
 
-    /// sets the liquid type at the given position without updates
-    pub fn set_liquid_type_siletnly(&mut self, x: i32, y: i32, liquid_type: Rc<LiquidType>) {
-        self.get_liquid_mut(x, y).id = liquid_type.id;
-    }
+    /// Schedules every cell that still has somewhere to flow.
+    ///
+    /// A world that was saved mid-splash has to carry on flowing when it is loaded, but the
+    /// scheduled set is not saved - it is derived state, and a settled ocean would be
+    /// millions of entries of it. So this scans once on load and keeps only the cells that
+    /// actually have room next to them, which for a settled world is none of them.
+    pub fn schedule_all_unsettled(&mut self, blocks: &Blocks) -> Result<()> {
+        let (width, height) = self.get_size();
+        for x in 0..width as i32 {
+            for y in 0..height as i32 {
+                let liquid = self.get_liquid(x, y)?;
+                if liquid.level == 0 {
+                    continue;
+                }
 
-    /// sets the liquid type at the given position with updates
-    pub fn set_liquid_type(&mut self, x: i32, y: i32, liquid_type: Rc<LiquidType>) {
-        if liquid_type.id != self.get_liquid(x, y).id {
-            if liquid_type.id == self.empty.id {
-                self.set_liquid_level(x, y, 0.0);
+                let has_room = [(x, y + 1), (x - 1, y), (x + 1, y)]
+                    .into_iter()
+                    .any(|(nx, ny)| self.can_flow_into(nx, ny, liquid, blocks).unwrap_or(false));
+
+                if has_room || !blocks.get_block_type_at(x, y)?.ghost {
+                    self.scheduled.insert((x, y));
+                }
             }
-            self.set_liquid_type_siletnly(x, y, liquid_type);
-
-            //TODO: implement new events
         }
+        Ok(())
     }
 
-    /// updates the liquid at the given position
-    pub fn update_liquid(&mut self, x: i32, y: i32, blocks: &Blocks) {
-        if self.get_liquid_level(x, y) == 0.0 {
-            self.set_liquid_type(x, y, self.empty.clone());
-            return;
+    /// Whether `liquid` can move into the cell at the given position: it has to be in the
+    /// world, not inside a solid block, hold either nothing or the same liquid, and have
+    /// room left.
+    fn can_flow_into(&self, x: i32, y: i32, liquid: Liquid, blocks: &Blocks) -> Result<bool> {
+        if self.liquids_data.map.translate_coords(x, y).is_err() {
+            return Ok(false);
         }
 
-        if !blocks.get_block_type_at(x, y).unwrap().ghost {
-            self.set_liquid_type(x, y, self.empty.clone());
+        if !blocks.get_block_type_at(x, y)?.ghost {
+            return Ok(false);
         }
 
-        let mut under_exists = false;
-        let mut left_exists = false;
-        let mut right_exists = false;
+        let target = self.get_liquid(x, y)?;
+        Ok((target.level == 0 || target.id == liquid.id) && target.level < MAX_LIQUID_LEVEL)
+    }
 
-        if y < self.get_height() as i32 - 1
-            && (self.is_flowable(x, y + 1, blocks)
-                || (self.get_liquid_type(x, y + 1).id == self.get_liquid_type(x, y).id
-                    && self.get_liquid_level(x, y + 1) as i32 != MAX_LIQUID_LEVEL))
-        {
-            under_exists = true
-        }
+    /// Advances the simulation by `frame_length` milliseconds.
+    ///
+    /// Each liquid type flows on its own schedule, so a slow liquid next to a fast one moves
+    /// at its own pace without either of them being stepped more often than they should.
+    /// A type that falls behind - a server that stalled, a world that was paused - is not
+    /// owed the steps it missed, for the same reason `AnimationTimer` gives up after
+    /// `MAX_CATCHUP_FRAMES`: nobody was watching, and catching up would be a burst of
+    /// hundreds of steps in one tick.
+    pub fn update_liquids(&mut self, blocks: &Blocks, events: &mut EventManager, frame_length: f32) -> Result<()> {
+        self.elapsed_ms += f64::from(frame_length);
 
-        if x > 0
-            && (self.is_flowable(x - 1, y, blocks)
-                || (self.get_liquid_type(x - 1, y).id == self.get_liquid_type(x, y).id
-                    && self.get_liquid_level(x - 1, y) as i32 != MAX_LIQUID_LEVEL))
-        {
-            left_exists = true
-        }
+        let mut due = vec![false; self.liquid_types.len()];
+        for (id, liquid_type) in self.liquid_types.iter().enumerate() {
+            if liquid_type.flow_time <= 0 {
+                continue;
+            }
 
-        if x < self.get_width() as i32 - 1
-            && (self.is_flowable(x + 1, y, blocks)
-                || (self.get_liquid_type(x + 1, y).id == self.get_liquid_type(x, y).id
-                    && self.get_liquid_level(x + 1, y) as i32 != MAX_LIQUID_LEVEL))
-        {
-            right_exists = true
-        }
-
-        if under_exists {
-            self.set_liquid_type(x, y + 1, self.get_liquid_type(x, y));
-
-            let liquid_sum = self.get_liquid_level(x, y) + self.get_liquid_level(x, y + 1);
-            if liquid_sum as i32 > MAX_LIQUID_LEVEL {
-                self.set_liquid_level(x, y, liquid_sum - MAX_LIQUID_LEVEL as f32);
-                self.set_liquid_level(x, y + 1, MAX_LIQUID_LEVEL as f32);
-            } else {
-                self.set_liquid_level(x, y, 0.0);
-                self.set_liquid_level(x, y + 1, liquid_sum);
+            let next = self.next_flow.get_mut(id).ok_or_else(|| anyhow!("Liquid type has no flow schedule"))?;
+            if self.elapsed_ms >= *next {
+                *due.get_mut(id).ok_or_else(|| anyhow!("Liquid type has no flow schedule"))? = true;
+                *next = self.elapsed_ms + f64::from(liquid_type.flow_time);
             }
         }
 
-        if self.get_liquid_level(x, y) == 0.0 {
-            return;
+        if !due.contains(&true) {
+            return Ok(());
         }
 
-        if right_exists {
-            self.set_liquid_type(x + 1, y, self.get_liquid_type(x, y));
+        // taken rather than iterated, because flowing schedules more cells and those belong
+        // to the next step - otherwise a stream of water would run its whole length in one
+        for (x, y) in std::mem::take(&mut self.scheduled) {
+            let liquid = self.get_liquid(x, y)?;
+            let Some(is_due) = usize::try_from(liquid.id.id).ok().and_then(|id| due.get(id).copied()) else {
+                // a type this build does not have, out of a save written by one that did.
+                // Dropping it from the schedule is what keeps it from being retried forever
+                continue;
+            };
+
+            if !is_due {
+                // not this liquid's turn, but it still has somewhere to go
+                if liquid.level != 0 {
+                    self.scheduled.insert((x, y));
+                }
+                continue;
+            }
+
+            self.flow_cell(x, y, blocks, events)?;
         }
-        if left_exists {
-            self.set_liquid_type(x - 1, y, self.get_liquid_type(x, y));
-        }
 
-        if left_exists
-            && right_exists
-            && self.get_liquid_level(x + 1, y) as i32 != self.get_liquid_level(x, y) as i32
-            && self.get_liquid_level(x - 1, y) as i32 != self.get_liquid_level(x, y) as i32
-        {
-            let avg = (self.get_liquid_level(x + 1, y)
-                + self.get_liquid_level(x - 1, y)
-                + self.get_liquid_level(x, y))
-                / 3.0;
-
-            self.set_liquid_level(x, y, avg);
-            self.set_liquid_level(x + 1, y, avg);
-            self.set_liquid_level(x - 1, y, avg);
-        } else if left_exists
-            && self.get_liquid_level(x - 1, y) as i32 != self.get_liquid_level(x, y) as i32
-        {
-            let avg = (self.get_liquid_level(x - 1, y) + self.get_liquid_level(x, y)) / 2.0;
-
-            self.set_liquid_level(x, y, avg);
-            self.set_liquid_level(x - 1, y, avg);
-        } else if right_exists
-            && self.get_liquid_level(x + 1, y) as i32 != self.get_liquid_level(x, y) as i32
-        {
-            let avg = (self.get_liquid_level(x + 1, y) + self.get_liquid_level(x, y)) / 2.0;
-
-            self.set_liquid_level(x, y, avg);
-            self.set_liquid_level(x + 1, y, avg);
-        }
+        Ok(())
     }
 
-    /// returns the liquid level at the given position
+    /// Moves the liquid in one cell down, and then sideways.
+    fn flow_cell(&mut self, x: i32, y: i32, blocks: &Blocks, events: &mut EventManager) -> Result<()> {
+        let liquid = self.get_liquid(x, y)?;
+        if liquid.level == 0 {
+            return Ok(());
+        }
+
+        // a block was placed on top of it
+        if !blocks.get_block_type_at(x, y)?.ghost {
+            return self.set_liquid(x, y, self.empty, 0, events);
+        }
+
+        let mut level = liquid.level;
+
+        if self.can_flow_into(x, y + 1, liquid, blocks)? {
+            let below = self.get_liquid(x, y + 1)?;
+            let moved = level.min(MAX_LIQUID_LEVEL - below.level);
+            self.set_liquid(x, y + 1, liquid.id, below.level + moved, events)?;
+            level -= moved;
+            self.set_liquid(x, y, liquid.id, level, events)?;
+        }
+
+        if level == 0 {
+            return Ok(());
+        }
+
+        // Sideways is an averaging step over this cell and whichever neighbours hold less
+        // than it does. A neighbour holding more is left alone - evening that pair out is
+        // its own turn's job, and doing it from both sides is how liquid ends up sloshing
+        // back and forth forever.
+        let mut targets = Vec::new();
+        let mut total = u32::from(level);
+        for neighbour_x in [x - 1, x + 1] {
+            if self.can_flow_into(neighbour_x, y, liquid, blocks)? {
+                let neighbour = self.get_liquid(neighbour_x, y)?;
+                if neighbour.level < level {
+                    total += u32::from(neighbour.level);
+                    targets.push(neighbour_x);
+                }
+            }
+        }
+
+        if targets.is_empty() {
+            return Ok(());
+        }
+
+        let count = targets.len() as u32 + 1;
+        let share = (total / count) as u8;
+        // the remainder stays with the cell that had the most, so that a row which cannot be
+        // divided evenly settles instead of passing the leftover drop back and forth
+        let remainder = (total % count) as u8;
+
+        for neighbour_x in targets {
+            self.set_liquid(neighbour_x, y, liquid.id, share, events)?;
+        }
+        self.set_liquid(x, y, liquid.id, share + remainder, events)?;
+
+        Ok(())
+    }
+
+    /// Serializes liquids for saving.
+    pub fn serialize(&self) -> Result<Vec<u8>> {
+        Ok(snap::raw::Encoder::new().compress_vec(&serialization::serialize(&self.liquids_data)?)?)
+    }
+
+    /// Deserializes liquids from u8 vector.
+    pub fn deserialize(&mut self, data: &[u8]) -> Result<()> {
+        let decompressed = snap::raw::Decoder::new().decompress_vec(data)?;
+        self.liquids_data = serialization::deserialize(&decompressed)?;
+        self.scheduled.clear();
+
+        Ok(())
+    }
+
+    /// This function adds a new liquid type, and is used by mods.
+    pub fn register_new_liquid_type(&mut self, mut liquid_type: LiquidType) -> LiquidId {
+        let id = self.liquid_types.len() as i8;
+        let result = LiquidId { id };
+        liquid_type.id = result;
+        // its first step is one whole flow time away, not immediately: a type registered
+        // with a flow time of a second should not get a free step the moment it appears
+        self.next_flow.push(self.elapsed_ms + f64::from(liquid_type.flow_time));
+        self.liquid_types.push(liquid_type);
+        result
+    }
+
+    /// Returns a liquid id with the given name.
+    pub fn get_liquid_id_by_name(&self, name: &str) -> Result<LiquidId> {
+        for liquid_type in &self.liquid_types {
+            if liquid_type.name == name {
+                return Ok(liquid_type.id);
+            }
+        }
+        bail!("No liquid type with name {name} found")
+    }
+
+    /// Returns all liquid ids.
     #[must_use]
-    pub fn get_liquid_level(&self, x: i32, y: i32) -> f32 {
-        self.get_liquid(x, y).level
+    pub fn get_all_liquid_ids(&self) -> Vec<LiquidId> {
+        self.liquid_types.iter().map(LiquidType::get_id).collect()
     }
+}
 
-    /// sets the liquid level at the given position without updating
-    pub fn set_liquid_level_siletnly(&mut self, x: i32, y: i32, level: f32) {
-        self.get_liquid_mut(x, y).level = level;
-    }
+pub struct LiquidChangeEvent {
+    pub x: i32,
+    pub y: i32,
+}
 
-    /// sets the liquid level at the given position with updating
-    pub fn set_liquid_level(&mut self, x: i32, y: i32, level: f32) {
-        if level != self.get_liquid_level(x, y) {
-            self.set_liquid_level_siletnly(x, y, level);
-            if level <= 0.0 {
-                self.set_liquid_type(x, y, self.empty.clone());
-            }
-            //TODO: implement new events
-        }
-    }
+/// A welcome packet that carries all the information about the world liquids
+#[derive(Serialize, Deserialize)]
+pub struct LiquidsWelcomePacket {
+    pub data: Vec<u8>,
+}
 
-    //TODO: to_serial, from_serial
+/// One cell's new contents, as sent to clients.
+#[derive(Serialize, Deserialize)]
+pub struct LiquidChange {
+    pub x: i32,
+    pub y: i32,
+    pub liquid: LiquidId,
+    pub level: u8,
+}
 
-    /// registers a new liquid type
-    pub fn register_liquid_type(&mut self, mut liquid_type: LiquidType) {
-        liquid_type.id = self.liquid_types.len() as i32;
-        self.liquid_types
-            .insert(liquid_type.id as usize, Rc::new(liquid_type));
-    }
-
-    /// returns the number of liquid types
-    #[must_use]
-    pub fn get_liquid_type_count(&self) -> u32 {
-        self.liquid_types.len() as u32
-    }
-}*/
+/// Every cell that changed since the last update, in one packet.
+///
+/// Liquids are the one part of the world that changes on its own, ten times a second, over
+/// as many cells as the player has flooded. One packet per cell the way blocks do it turns a
+/// bucket of water into hundreds of packets a second, so the server batches a whole flow
+/// step instead.
+#[derive(Serialize, Deserialize)]
+pub struct LiquidChangesPacket {
+    pub changes: Vec<LiquidChange>,
+}

@@ -15,6 +15,7 @@ use crate::shared::entities::{Entities, EntityPositionVelocityPacket, HealthChan
 use crate::shared::entities::{HealthChangePacket, HealthComponent};
 use crate::shared::inventory::{Inventory, InventoryCraftPacket, InventoryPacket, InventorySelectPacket, InventorySwapPacket, Slot};
 use crate::shared::items::Items;
+use crate::shared::liquids::Liquids;
 use crate::shared::packet::Packet;
 use crate::shared::players::{
     remove_all_picked_items, spawn_player, update_players_ms, PlayerComponent, PlayerMovingPacketToClient, PlayerMovingPacketToServer, PlayerPositionPacketToServer, PlayerSpawnPacket, RespawnPacket,
@@ -292,8 +293,8 @@ impl ServerPlayers {
         Ok(())
     }
 
-    pub fn update(&self, entities: &mut Entities, blocks: &Blocks, events: &mut EventManager, items: &Items, networking: &mut ServerNetworking) -> Result<()> {
-        update_players_ms(entities, blocks);
+    pub fn update(&self, entities: &mut Entities, blocks: &Blocks, liquids: &Liquids, events: &mut EventManager, items: &Items, networking: &mut ServerNetworking) -> Result<()> {
+        update_players_ms(entities, blocks, liquids);
         remove_all_picked_items(entities, events, items)?;
 
         for (conn, player) in &self.conns_to_players {

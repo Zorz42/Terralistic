@@ -6,11 +6,42 @@ use serde_derive::{Deserialize, Serialize};
 
 use crate::libraries::events::{Event, EventManager};
 use crate::shared::blocks::Blocks;
+use crate::shared::liquids::{Liquids, MAX_LIQUID_LEVEL};
 
 pub const DEFAULT_GRAVITY: f32 = 80.0;
 pub const FRICTION_COEFFICIENT: f32 = 0.2;
 pub const AIR_RESISTANCE_COEFFICIENT: f32 = 0.005;
+/// How much of its velocity an entity loses per tick to a liquid that stops it completely
+/// (`speed_multiplier` of 0). A liquid's own multiplier scales this down.
+pub const LIQUID_RESISTANCE_COEFFICIENT: f32 = 0.05;
+/// How much of gravity a liquid holds an entity up against when it is fully submerged.
+/// Below 1.0, so an entity in water still sinks - slowly.
+pub const BUOYANCY_COEFFICIENT: f32 = 0.75;
 const DIRECTION_SIZE: f32 = 0.01;
+
+/// How deeply an entity sits in liquid, from 0.0 to 1.0, and how much that liquid slows it.
+///
+/// Measured from the cell the entity's middle is in, so wading through a puddle barely
+/// counts and being under the surface counts fully. Partly filled cells scale everything by
+/// how full they are, which is what stops a splash of liquid a hundredth of a cell deep from
+/// braking a falling player as hard as an ocean would.
+#[must_use]
+pub fn liquid_submersion(position: &PositionComponent, physics: &PhysicsComponent, liquids: &Liquids) -> (f32, f32) {
+    let x = (position.x + physics.collision_width / 2.0) as i32;
+    let y = (position.y + physics.collision_height / 2.0) as i32;
+
+    let Ok(liquid) = liquids.get_liquid(x, y) else {
+        return (0.0, 1.0);
+    };
+
+    if liquid.level == 0 {
+        return (0.0, 1.0);
+    }
+
+    let speed_multiplier = liquids.get_liquid_type(liquid.id).map_or(1.0, |liquid_type| liquid_type.speed_multiplier);
+
+    (f32::from(liquid.level) / f32::from(MAX_LIQUID_LEVEL), speed_multiplier)
+}
 
 #[must_use]
 pub fn collides_with_blocks(position: &PositionComponent, physics: &PhysicsComponent, blocks: &Blocks) -> bool {
@@ -80,15 +111,22 @@ impl Entities {
         }
     }
 
-    pub fn update_entities_ms(&mut self, blocks: &Blocks, events: &mut EventManager) -> Result<()> {
+    pub fn update_entities_ms(&mut self, blocks: &Blocks, liquids: &Liquids, events: &mut EventManager) -> Result<()> {
         let mut vec = Vec::new();
 
         for (entity, position, physics) in self.ecs.query_mut::<(Entity, &mut PositionComponent, &mut PhysicsComponent)>() {
             let velocity_x_before = physics.velocity_x;
             let velocity_y_before = physics.velocity_y;
 
+            let (submersion, speed_multiplier) = liquid_submersion(position, physics, liquids);
+
             physics.velocity_x += physics.acceleration_x / 200.0;
             physics.velocity_y += physics.acceleration_y / 200.0;
+
+            // buoyancy cancels most of the gravity the entity was just given, rather than
+            // being a force of its own, so an entity in a liquid sinks slowly instead of
+            // fighting a second constant that has to be kept in step with `DEFAULT_GRAVITY`
+            physics.velocity_y -= submersion * BUOYANCY_COEFFICIENT * physics.acceleration_y / 200.0;
 
             let target_x = position.x + physics.velocity_x / 200.0;
             let target_y = position.y + physics.velocity_y / 200.0;
@@ -127,8 +165,9 @@ impl Entities {
                 }
             }
 
-            physics.velocity_x *= 1.0 - AIR_RESISTANCE_COEFFICIENT;
-            physics.velocity_y *= 1.0 - AIR_RESISTANCE_COEFFICIENT;
+            let resistance = AIR_RESISTANCE_COEFFICIENT + submersion * LIQUID_RESISTANCE_COEFFICIENT * (1.0 - speed_multiplier).clamp(0.0, 1.0);
+            physics.velocity_x *= 1.0 - resistance;
+            physics.velocity_y *= 1.0 - resistance;
 
             let velocity_x_change = physics.velocity_x - velocity_x_before;
             let velocity_y_change = physics.velocity_y - velocity_y_before;

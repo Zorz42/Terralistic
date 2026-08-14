@@ -15,6 +15,7 @@ use crate::client::game::health::ClientHealth;
 use crate::client::game::inventory::ClientInventory;
 use crate::client::game::items::ClientItems;
 use crate::client::game::lights::ClientLights;
+use crate::client::game::liquids::ClientLiquids;
 use crate::client::game::pause_menu::PauseMenu;
 use crate::client::game::players::ClientPlayers;
 use crate::client::game::respawn_screen::RespawnScreen;
@@ -60,11 +61,12 @@ pub fn run_game(
     let loading_text = Arc::new(Mutex::new("Loading".to_owned()));
     let loading_text2 = loading_text;
 
-    let temp_fn = || -> Result<(ClientModManager, ClientBlocks, ClientWalls, ClientEntities, ClientItems, ClientNetworking)> {
+    let temp_fn = || -> Result<(ClientModManager, ClientBlocks, ClientWalls, ClientLiquids, ClientEntities, ClientItems, ClientNetworking)> {
         "Loading mods".clone_into(&mut loading_text2.lock().unwrap_or_else(PoisonError::into_inner));
         let mut mods = ClientModManager::new();
         let mut blocks = ClientBlocks::new();
         let walls = ClientWalls::new(&mut blocks.get_blocks());
+        let mut liquids = ClientLiquids::new();
         let entities = ClientEntities::new();
         let mut items = ClientItems::new();
 
@@ -72,17 +74,19 @@ pub fn run_game(
             mods.on_event(&event)?;
             blocks.on_event(&event, &mut pre_events, &mut networking)?;
             walls.on_event(&event)?;
+            liquids.on_event(&event, &mut pre_events)?;
             items.on_event(&event, &mut entities.get_entities(), &mut pre_events)?;
         }
 
         blocks.init(&mut mods.mod_manager)?;
         walls.init(&mut mods.mod_manager)?;
+        liquids.init(&mut mods.mod_manager)?;
         items.init(&mut mods.mod_manager, &entities.get_entities_arc())?;
 
         "Initializing mods".clone_into(&mut loading_text2.lock().unwrap_or_else(PoisonError::into_inner));
         mods.init()?;
 
-        anyhow::Ok((mods, blocks, walls, entities, items, networking))
+        anyhow::Ok((mods, blocks, walls, liquids, entities, items, networking))
     };
     // if the init fails, we clear the loading text so the error can be displayed
     let result = temp_fn()?;
@@ -91,9 +95,10 @@ pub fn run_game(
     let mut mods = result.0;
     let mut blocks = result.1;
     let mut walls = result.2;
-    let entities = result.3;
-    let mut items = result.4;
-    let mut networking = result.5;
+    let mut liquids = result.3;
+    let entities = result.4;
+    let mut items = result.5;
+    let mut networking = result.6;
 
     let mut background = Background::new();
     let mut inventory = ClientInventory::new();
@@ -116,6 +121,7 @@ pub fn run_game(
 
     blocks.load_resources(&mods.mod_manager)?;
     walls.load_resources(&mods.mod_manager)?;
+    liquids.load_resources(&mods.mod_manager)?;
     items.load_resources(&mods.mod_manager)?;
     camera.load_resources(graphics);
     players.load_resources(&mods.mod_manager)?;
@@ -154,8 +160,8 @@ pub fn run_game(
         while framerate_measurer.has_5ms_passed() {
             camera.update_ms(graphics);
             players.controls_enabled = !camera.is_detached();
-            players.update(graphics, &mut entities.get_entities(), &mut networking, &blocks.get_blocks())?;
-            entities.get_entities().update_entities_ms(&blocks.get_blocks(), &mut events)?;
+            players.update(graphics, &mut entities.get_entities(), &mut networking, &blocks.get_blocks(), &liquids.get_liquids())?;
+            entities.get_entities().update_entities_ms(&blocks.get_blocks(), &liquids.get_liquids(), &mut events)?;
         }
 
         respawn_screen.is_shown = players.get_main_player().is_none() && !players.is_waiting_for_player();
@@ -165,6 +171,7 @@ pub fn run_game(
         background.render(graphics, &camera);
         walls.render(graphics, &camera, &frame_timer)?;
         blocks.render(graphics, &camera /*&frame_timer*/)?;
+        liquids.render(graphics, &camera)?;
         players.render(graphics, &mut entities.get_entities(), &camera);
         items.render(graphics, &camera, &mut entities.get_entities())?;
         floating_text.render(graphics, &camera);
@@ -195,6 +202,7 @@ pub fn run_game(
             mods.on_event(&event)?;
             blocks.on_event(&event, &mut events, &mut networking)?;
             walls.on_event(&event)?;
+            liquids.on_event(&event, &mut events)?;
             entities.on_event(&event, &mut events, &players, &mut networking)?;
             items.on_event(&event, &mut entities.get_entities(), &mut events)?;
             block_selector.on_event(graphics, &mut networking, &camera, &event, &mut events)?;

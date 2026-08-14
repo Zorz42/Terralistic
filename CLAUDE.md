@@ -3,10 +3,10 @@
 A Terraria-like 2D sandbox game in Rust. Single binary that runs as client, server, or
 server-with-GUI. Rendering is wgpu through a hand-written UI toolkit, with winit for the
 window and input.
-Game content (blocks, items, walls, biomes, recipes, commands) lives in **Lua mods**, not
-in Rust — `base_game` is itself a mod.
+Game content (blocks, items, walls, liquids, biomes, recipes, commands) lives in **Lua
+mods**, not in Rust — `base_game` is itself a mod.
 
-~21k lines of Rust across 140 files, plus ~7.6k lines of tests in 26 more. Small enough to
+~22k lines of Rust across 143 files, plus ~8k lines of tests in 25 more. Small enough to
 read in full; do that before large refactors.
 
 ## Commands
@@ -18,7 +18,7 @@ cargo build --profile dist # what you ship: release + LTO, 4.63 MB vs 5.49 MB
 cargo run -- server       # server with GUI
 cargo run -- server nogui # headless server
 cargo run -- version      # print version
-cargo test                # 423 tests, all should pass
+cargo test                # 444 tests, all should pass
 cargo clippy --all-targets
 ./coverage.sh             # coverage via config-coverage.toml
 
@@ -74,7 +74,7 @@ Most subsystems exist three times and that's the core pattern to understand:
 - `server/server_core/blocks.rs` — `ServerBlocks`: owns the authoritative copy, sends packets
 - `client/game/blocks.rs` — `ClientBlocks`: applies packets, renders
 
-Same for `walls`, `items`, `entities`, `players`, `mod_manager`. **When changing game
+Same for `walls`, `liquids`, `items`, `entities`, `players`, `mod_manager`. **When changing game
 behaviour, ask which of the three layers it belongs in.** Logic that must agree between
 client and server (physics, collision, inventory rules) goes in `shared/` — putting it in
 one side only causes desync.
@@ -191,6 +191,56 @@ than literals inside `start` so a test can ask for a world small enough to asser
 Generation is reproducible from the seed on the rust side, but **not end to end**: each
 biome's lua `generator_function` decorates with `math.random`, which lua seeds per state.
 So terrain and walls repeat for a given seed and the trees do not.
+
+### Liquids
+
+`shared/liquids/` is the grid and the flow simulation, `server/server_core/liquids.rs` owns
+the authoritative copy, `client/game/liquids.rs` draws what it is told. It was carried in the
+tree commented out for a long time; what is there now is a rewrite in the current style, not
+the original.
+
+A cell is a `Liquid { id: LiquidId, level: u8 }`, where level runs 0 to `MAX_LIQUID_LEVEL`
+(100). Empty is a registered type at id 0, so `create` fills the grid with something real
+rather than `undefined` — the trap `Walls::create` still has. `set_liquid` normalizes level 0
+back to the empty type, so nothing downstream has to handle "20% of nothing".
+
+Four things about it are load-bearing:
+
+- **The simulation is scheduled, not scanned.** A full scan is 5.28M cells at 20 TPS for the
+  default world. Instead every change schedules itself and its four neighbours in a
+  `BTreeSet`, and a settled cell drops out and costs nothing. `BTreeSet` rather than
+  `HashSet` because the order cells flow in decides how a stream splits, and Rust randomises
+  hash iteration per process.
+- **The scheduled set is derived, not saved.** `Liquids::deserialize` clears it and
+  `Server::start` calls `schedule_all_unsettled`, which scans once and keeps only cells with
+  room beside them — for a settled ocean, none of them. A world saved mid-splash carries on
+  flowing; a settled one costs one scan.
+- **A liquid only moves when something wakes it.** `ServerLiquids::on_event` schedules on
+  `BlockChangeEvent` for exactly that reason: digging the floor out from under a pool is not
+  a liquid change, and without it the pool never moves again.
+- **The client never simulates.** The server sends one `LiquidChangesPacket` per update
+  holding every cell that changed, because water flowing through a cave is hundreds of cells
+  a second and one packet each — the way blocks do it — is a different order of traffic.
+
+Flow order per cell is down first, then an averaging step with whichever horizontal
+neighbours hold *less*. Both halves matter: a neighbour holding more is left alone because
+evening a pair out from both sides is how liquid sloshes forever, and the integer remainder
+stays with the source cell so a row that will not divide evenly settles instead of passing
+the last drop back and forth. Each type flows on its own clock (`flow_time`, in ms) and is
+not owed steps it missed, the same rule `AnimationTimer` follows.
+
+Physics is in `shared/entities/entities.rs`: `liquid_submersion` samples the cell the
+entity's middle is in, and the level scales both the extra drag (through the type's
+`speed_multiplier`) and the buoyancy that cancels most of that tick's gravity. Holding jump
+under the surface swims (`update_players_ms`). Both run on client and server, off each
+side's own copy, which is what keeps prediction agreeing with the authority.
+
+Content is `base_game/liquids.lua` — water, and nothing else yet. The lua interface is
+`register_liquid_type`, `get_liquid_id_by_name`, `get_liquid`, `get_liquid_level`, plus
+`set_liquid` which is **server only**, like `set_block`, because the client's grid is a
+replica. `/water <x> <y> [level]` pours some in. The obvious next steps are a bucket item
+(`places_liquid` alongside `places_block`) and a world generator that fills caves and oceans;
+neither exists.
 
 ### Rendering and UI
 
@@ -575,7 +625,8 @@ otherwise force-corrects (`server/server_core/players.rs`).
 ### Persistence
 
 A world save is a fixed header followed by `postcard(HashMap<String, Vec<u8>>)` with keys
-`blocks`, `walls`, `players`. Blocks and walls are additionally snap-compressed. Written to
+`blocks`, `walls`, `liquids`, `players`. Blocks, walls and liquids are additionally
+snap-compressed. Written to
 `server_data/server.world` relative to the process CWD. Client settings are JSON at
 `<data_dir>/Terralistic/settings.txt`.
 
@@ -587,9 +638,15 @@ check was unreachable and the player got a decode error instead of being told th
 was old. `read_world_header` runs before the body is touched, so a world this build cannot
 read is now named rather than guessed at.
 
+The liquid grid is two bytes a cell and is written whether or not there is any liquid in it,
+which on the default world is about 0.5 MB of a 1.6 MB save. That is the price of a dense
+`Vec` grid, and it is the right shape for a world with an ocean in it — but it is worth
+knowing that a dry world pays it too.
+
 **The header versions the container, not the contents.** Any change to the shape of
-`BlocksData`, `SavedPlayerData` or the wall equivalent still breaks existing worlds silently
-unless you bump `WORLD_SAVE_VERSION` by hand — that is what it is for.
+`BlocksData`, `SavedPlayerData` or the wall and liquid equivalents still breaks existing
+worlds silently unless you bump `WORLD_SAVE_VERSION` by hand — that is what it is for.
+Adding the liquid grid is what took it to 4.
 
 ### Build pipeline
 
@@ -682,8 +739,8 @@ Things worth knowing before adding one:
   deliberate — follow it for consistency.
 - Test files follow one convention: a `tests.rs` beside the module it covers, declared in
   the neighbouring `mod.rs`, containing `#![cfg(test)] mod tests { .. }`. Every module
-  directory now has one except `shared/liquids`. Tests that span subsystems live in
-  `integration_tests/` instead — see below.
+  directory has one. Tests that span subsystems live in `integration_tests/` instead — see
+  below.
 - Tests never need a graphics context. UI tests drive real widgets through
   `gfx::HeadlessContext` — see the `UiContext` section above. Nothing in the suite opens a
   window, so it all runs on CI's headless Ubuntu.
@@ -715,16 +772,21 @@ Things worth knowing before adding one:
   `get_size()` big and hands it `pixels`, and a mismatch is a wgpu validation error, which is
   a panic. Surfaces come out of `.mod` files, which are ordinary files on disk, so a
   hand-edited or truncated one used to take the client down on load.
-- `shared/liquids/` is not just dead, it is **entirely commented out** — both `liquids.rs`
-  and `liquid_type.rs` are one `/* .. */` block from first line to last, so the module
-  compiles to nothing. Don't assume any of it works.
+- **Liquid levels are whole numbers, and that is what makes water settle.** The first
+  implementation held them as `f32` and compared `level as i32`, so two cells that were
+  never quite equal averaged each other forever — on a server, a cell that sends a change
+  packet twenty times a second and never stops. See the liquids section above before
+  reaching for floats there.
+- Server `Liquids` is created empty and sized in `Server::start`, *after* the world is
+  loaded or generated, because the grid has to be exactly as big as the block grid. A save
+  whose liquid grid disagrees is discarded rather than read.
 - Two `create` methods differ: `Blocks::create` fills the map with air, `Walls::create`
   fills it with `WallId::undefined()`, so reading a wall before setting one errors. Only
   `create_from_wall_ids` calls it, and that overwrites everything, so the game never hits
   it — but calling `Walls::create` directly is a trap.
-- Serialization saves the block and wall **grids**, not the type registries. On load the
-  server registers types from mods first, then deserializes, so ids line up. Tests have to
-  do the same.
+- Serialization saves the block, wall and liquid **grids**, not the type registries. On load
+  the server registers types from mods first, then deserializes, so ids line up. Tests have
+  to do the same.
 
 ## CI
 

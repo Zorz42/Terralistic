@@ -18,6 +18,7 @@ function init()
     register_tools()
     register_blocks()
     register_walls()
+    register_liquids()
     register_items()
     register_recipes()
 

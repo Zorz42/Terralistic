@@ -42,6 +42,41 @@ function describe_command_give()
 Usage: give <item> [amount] [player] - amount defaults to 1, player defaults to the executor.]]
 end
 
+function command_water(arguments, executor)
+    if #arguments < 2 then
+        return "Command 'water' requires at least two arguments."
+    end
+
+    if #arguments > 3 then
+        return "Command 'water' takes at most three arguments."
+    end
+
+    x = tonumber(arguments[1])
+    y = tonumber(arguments[2])
+
+    if x == nil or y == nil then
+        return "Arguments 1 and 2 must be numbers."
+    end
+
+    level = 100
+    if #arguments >= 3 then
+        level = tonumber(arguments[3])
+        if level == nil then
+            return "Argument 3 must be a number."
+        end
+    end
+
+    terralistic_set_liquid(x, y, liquids.water, level)
+
+    return "Placed water at " .. x .. ", " .. y .. "."
+end
+
+function describe_command_water()
+    return
+[[Places water in the world, which then flows on its own.
+Usage: water <x> <y> [level] - level is how full the block is, from 0 to 100, and defaults to 100.]]
+end
+
 function command_stop(arguments, executor)
     if #arguments ~= 0 then
         return "Command 'stop' does not take any arguments."

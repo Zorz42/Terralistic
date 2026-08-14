@@ -8,6 +8,7 @@ use crate::libraries::graphics as gfx;
 use crate::libraries::graphics::UiContext;
 use crate::shared::blocks::{Blocks, BLOCK_WIDTH, RENDER_BLOCK_WIDTH, RENDER_SCALE};
 use crate::shared::entities::{Entities, EntityDespawnEvent, HealthComponent, PhysicsComponent, PositionComponent};
+use crate::shared::liquids::Liquids;
 use crate::shared::mod_manager::ModManager;
 use crate::shared::packet::Packet;
 use crate::shared::players::{
@@ -86,7 +87,7 @@ impl ClientPlayers {
         Ok(())
     }
 
-    pub fn update(&self, graphics: &gfx::GraphicsContext, entities: &mut Entities, networking: &mut ClientNetworking, blocks: &Blocks) -> Result<()> {
+    pub fn update(&self, graphics: &gfx::GraphicsContext, entities: &mut Entities, networking: &mut ClientNetworking, blocks: &Blocks, liquids: &Liquids) -> Result<()> {
         if let Some(main_player) = self.main_player {
             if let Ok((physics, player_component)) = entities.ecs.query_one_mut::<(&mut PhysicsComponent, &mut PlayerComponent)>(main_player) {
                 Self::set_jumping(networking, player_component, graphics.get_key_state(gfx::Key::Space) && self.controls_enabled)?;
@@ -104,7 +105,7 @@ impl ClientPlayers {
             }
         }
 
-        update_players_ms(entities, blocks);
+        update_players_ms(entities, blocks, liquids);
 
         Ok(())
     }

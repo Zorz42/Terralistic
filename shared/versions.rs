@@ -12,7 +12,8 @@ pub const VERSION: &str = env!("CARGO_PKG_VERSION");
 /// 1: the original layout, written with bincode 1 (fixed width integers)
 /// 2: the same layout written with bincode 2 (tagged variable length integers)
 /// 3: the same layout written with postcard, behind the header below
-pub const WORLD_SAVE_VERSION: u32 = 3;
+/// 4: the liquid grid joined blocks, walls and players in the saved map
+pub const WORLD_SAVE_VERSION: u32 = 4;
 
 /// What every world file starts with, ahead of anything a serializer wrote.
 ///

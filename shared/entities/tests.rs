@@ -4,6 +4,15 @@ mod tests {
     use crate::libraries::events::EventManager;
     use crate::shared::blocks::{Block, BlockId, Blocks};
     use crate::shared::entities::{collides_with_blocks, is_touching_ground, reduce_by, Entities, EntityDespawnEvent, HealthChangeEvent, HealthComponent, PhysicsComponent, PositionComponent};
+    use crate::shared::liquids::Liquids;
+
+    /// A liquid grid the size of `world_with_ground`'s world, with nothing in it. The
+    /// physics step needs one, and an entity in air is what these tests are about.
+    fn dry_world() -> Liquids {
+        let mut liquids = Liquids::new();
+        liquids.create((10, 10));
+        liquids
+    }
 
     /// A 10x10 world that is solid from `ground_y` down, using a non-ghost block.
     fn world_with_ground(ground_y: i32) -> Blocks {
@@ -102,7 +111,7 @@ mod tests {
         entities.assign_id(entity, id).unwrap();
 
         for _ in 0..400 {
-            entities.update_entities_ms(&blocks, &mut events).unwrap();
+            entities.update_entities_ms(&blocks, &dry_world(), &mut events).unwrap();
         }
 
         let position = entities.ecs.get::<&PositionComponent>(entity).unwrap().clone();
@@ -223,7 +232,7 @@ mod tests {
         entities.assign_id(entity, id).unwrap();
 
         for _ in 0..20 {
-            entities.update_entities_ms(&blocks, &mut events).unwrap();
+            entities.update_entities_ms(&blocks, &dry_world(), &mut events).unwrap();
         }
 
         let position = entities.ecs.get::<&PositionComponent>(entity).unwrap();
@@ -242,7 +251,7 @@ mod tests {
         entities.assign_id(entity, id).unwrap();
 
         for _ in 0..400 {
-            entities.update_entities_ms(&blocks, &mut events).unwrap();
+            entities.update_entities_ms(&blocks, &dry_world(), &mut events).unwrap();
         }
 
         let position = entities.ecs.get::<&PositionComponent>(entity).unwrap();
