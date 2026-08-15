@@ -1,26 +1,15 @@
-//! The GPU device, and the registry that maps a `DrawCommand`'s handles back to real wgpu
-//! resources.
+//! The GPU device, and the registry mapping a `DrawCommand`'s handles back to wgpu resources.
 //!
-//! # Why the device is global
+//! **The device is global** because `Texture::load_from_surface(&surface)` is called from ~80
+//! places and takes no context: the choice was threading a `&Device` through all of them or
+//! keeping the coupling and writing it down. Creating a texture with no device is not an
+//! error - it knows its size and owns nothing, which is what lets `cargo test` build one.
 //!
-//! `Texture::load_from_surface(&surface)` is called from about eighty places and takes no
-//! context. The choice was to thread a `&Device` through every one of those call sites or to
-//! keep the coupling and write it down; this is the latter. Creating a texture with no device
-//! is not an error, it produces a `Texture` that knows its size but owns nothing, which is
-//! what lets layout code and `cargo test` run with no window.
-//!
-//! # Why resources are handles into a registry
-//!
-//! A `DrawCommand` has to outlive the borrow of whatever recorded it, so it names resources by
-//! id. The registry owns the wgpu objects and hands out ids; `Texture` and `VertexBuffer` are
-//! RAII wrappers over one.
-//!
-//! Dropping one parks the id rather than removing the entry, and the backend sweeps once the
-//! frame's commands have executed. That gap is not an edge case: menus build a text
-//! texture inside `render_inner` and drops it there, every world chunk replaces its whole
-//! `RectArray` when it changes, and the golden-image cases draw from temporaries that die at
-//! the end of the statement. **Removing an entry at drop time would make those draws silently
-//! vanish.**
+//! **Resources are handles** because a `DrawCommand` outlives the borrow of whatever recorded
+//! it. Dropping one parks the id and the backend sweeps after the frame executes, which is not
+//! an edge case: menus build a text texture inside `render_inner` and drop it there, and every
+//! chunk replaces its whole `RectArray` when it changes. **An immediate removal would make
+//! those draws silently vanish.**
 
 use std::collections::HashMap;
 use std::sync::atomic::{AtomicU32, Ordering};
@@ -30,12 +19,9 @@ use crate::libraries::graphics as gfx;
 
 use super::wgpu_backend::VERTEX_FLOATS;
 
-/// Flattens a surface's pixels into the `Rgba8Unorm` byte order the GPU wants.
-///
-/// A copy rather than a reinterpret of the `Vec<Color>`: making `Color` `bytemuck::Pod` would
-/// pull a dependency into `color.rs`, which `build_main.rs` compiles into the build script and
-/// which deliberately has none. Textures are created when a menu or a font is built, never per
-/// frame, so the extra pass does not matter.
+/// Flattens a surface into the `Rgba8Unorm` byte order the GPU wants. A copy rather than a
+/// reinterpret: `bytemuck::Pod` on `Color` would pull a dependency into `color.rs`, which the
+/// build script compiles and which deliberately has none. Textures are never built per frame.
 fn surface_bytes(surface: &gfx::Surface) -> Vec<u8> {
     let mut bytes = Vec::with_capacity(surface.pixels.len() * 4);
     for pixel in &surface.pixels {
@@ -56,12 +42,11 @@ pub(super) struct GpuDevice {
     /// Shared by every texture bind group and by the backend's pipeline layout.
     pub texture_bind_group_layout: wgpu::BindGroupLayout,
     pub sampler: wgpu::Sampler,
-    /// The blur's layout: the same two bindings, but declared filterable. See `filtering_sampler`.
+    /// The blur's layout: the same two bindings, declared filterable.
     pub filtering_texture_bind_group_layout: wgpu::BindGroupLayout,
-    /// Linear, for the blur alone. Everything else in the toolkit samples `sampler`.
+    /// Linear, for the blur alone. Everything else samples `sampler`.
     pub filtering_sampler: wgpu::Sampler,
-    /// The bind group is all a draw needs; wgpu keeps the texture and the view behind it alive
-    /// by reference.
+    /// The bind group is all a draw needs; wgpu keeps the texture behind it alive.
     textures: Mutex<HashMap<u32, wgpu::BindGroup>>,
     meshes: Mutex<HashMap<u32, MeshEntry>>,
     next_id: AtomicU32,
@@ -71,9 +56,8 @@ pub(super) struct GpuDevice {
 
 static GPU: OnceLock<GpuDevice> = OnceLock::new();
 
-/// Publishes the device. Called once, by the renderer, as soon as wgpu hands one over. A
-/// second call is ignored rather than an error: two `GraphicsContext`s in one process share
-/// the first device.
+/// Publishes the device, once, as soon as wgpu hands one over. A second call is ignored rather
+/// than an error: two `GraphicsContext`s in one process share the first device.
 pub(super) fn init(device: wgpu::Device, queue: wgpu::Queue) {
     let texture_bind_group_layout = device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
         label: Some("texture"),
@@ -82,9 +66,8 @@ pub(super) fn init(device: wgpu::Device, queue: wgpu::Queue) {
                 binding: 0,
                 visibility: wgpu::ShaderStages::FRAGMENT,
                 ty: wgpu::BindingType::Texture {
-                    // Nearest only, everywhere. Filtering is what a pixel art game must not do,
-                    // and declaring it non-filterable makes that a validation error rather than
-                    // a soft blur nobody notices.
+                    // Nearest only. Declaring it non-filterable makes smoothing a pixel art
+                    // game by accident a validation error rather than a blur nobody notices.
                     sample_type: wgpu::TextureSampleType::Float { filterable: false },
                     view_dimension: wgpu::TextureViewDimension::D2,
                     multisampled: false,
@@ -100,10 +83,8 @@ pub(super) fn init(device: wgpu::Device, queue: wgpu::Queue) {
         ],
     });
 
-    // The one exception to "nearest only", and it needs a layout of its own to stay one: the
-    // blur runs on a reduced-resolution copy of the region and is stretched back over it, which
-    // `NEAREST` would turn into visible blocks. Interpolating *is* the effect here rather than
-    // an accident, so it gets its own layout and sampler and nothing else can reach them.
+    // The one exception, and it gets its own layout to stay one: the blur is stretched back
+    // from a reduced-resolution copy, which `NEAREST` would turn into visible blocks.
     let filtering_texture_bind_group_layout = device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
         label: Some("filtering texture"),
         entries: &[
@@ -204,8 +185,8 @@ impl GpuDevice {
             mip_level_count: 1,
             sample_count: 1,
             dimension: wgpu::TextureDimension::D2,
-            // Not the sRGB variant: the game's surfaces are raw bytes blended in that space,
-            // and asking the hardware to convert would change every colour it ever drew.
+            // Not the sRGB variant: the surfaces are raw bytes blended in that space, and
+            // converting in hardware would change every colour the game ever drew.
             format: wgpu::TextureFormat::Rgba8Unorm,
             usage: wgpu::TextureUsages::TEXTURE_BINDING | wgpu::TextureUsages::COPY_DST,
             view_formats: &[],
@@ -274,10 +255,8 @@ impl GpuDevice {
         })
     }
 
-    /// Uploads raw vertex data and returns its registry id.
-    ///
-    /// The vertex count is derived from the data rather than passed alongside it, so a mesh
-    /// cannot be registered claiming to hold more vertices than it was given.
+    /// Uploads raw vertex data and returns its registry id. The count is derived from the data
+    /// rather than passed alongside, so a mesh cannot claim more vertices than it was given.
     pub(super) fn create_mesh(&self, vertices: &[f32]) -> u32 {
         let buffer = self.device.create_buffer(&wgpu::BufferDescriptor {
             label: Some("mesh"),
@@ -301,11 +280,9 @@ impl GpuDevice {
         id
     }
 
-    /// Locks the texture registry for the length of a frame's encoding.
-    ///
-    /// A guard rather than a closure per lookup, so the backend can hold the bind group
-    /// references it needs across a whole render pass. The mesh registry is always locked
-    /// after this one, and nothing else takes both, so the order is fixed.
+    /// Locks the texture registry for a frame's encoding: a guard rather than a closure per
+    /// lookup, so the backend can hold bind group references across a render pass. Meshes are
+    /// always locked after this, and nothing else takes both, so the order is fixed.
     pub(super) fn lock_textures(&self) -> MutexGuard<'_, HashMap<u32, wgpu::BindGroup>> {
         lock(&self.textures)
     }
@@ -314,8 +291,8 @@ impl GpuDevice {
         lock(&self.meshes)
     }
 
-    /// Releases everything parked since the last sweep. Only the backend calls this, and only
-    /// once the frame's commands have been submitted.
+    /// Releases everything parked since the last sweep. Only the backend calls it, and only
+    /// once the frame's commands are submitted.
     pub(super) fn collect(&self) {
         sweep(&self.pending_textures, &self.textures);
         sweep(&self.pending_meshes, &self.meshes);

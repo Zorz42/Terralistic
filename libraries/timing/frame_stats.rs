@@ -1,10 +1,7 @@
 use std::time::Instant;
 
-/// Measures the time between calls.
-///
-/// The first call has no previous call to measure against, so it answers `None` rather than
-/// the time since construction - which is however long the caller spent setting up, and is
-/// not a frame anybody rendered.
+/// Measures the time between calls. The first answers `None` rather than the time since
+/// construction, which is however long starting up took and not a frame anybody rendered.
 #[derive(Default, Debug)]
 pub struct DeltaTimer {
     previous: Option<Instant>,
@@ -26,11 +23,10 @@ impl DeltaTimer {
 
 /// Frame rate and frame time, averaged over the last whole second.
 ///
-/// Wrap the frame in `begin_frame` and `end_frame`: the delta time is measured from one
-/// `begin_frame` to the next, so it is the whole frame including whatever the caller slept
-/// at the end of it, while the frame *time* statistics measure only the work between the two
-/// calls. Those are different numbers on purpose - the first is what a simulation should
-/// advance by, the second is what a performance readout should show.
+/// Wrap the frame in `begin_frame` and `end_frame`: the delta is measured between successive
+/// `begin_frame`s and so includes whatever the caller slept, while the frame *time* covers only the
+/// work in between. Different numbers on purpose - one is what a simulation advances by, the other
+/// is what a performance readout shows.
 #[derive(Debug)]
 pub struct FrameStats {
     delta_timer: DeltaTimer,
@@ -43,8 +39,8 @@ pub struct FrameStats {
     frame_time_total: f32,
     max_frame_time: f32,
 
-    /// What the last whole second measured. These are what callers read, so the numbers on
-    /// screen hold still for a second instead of flickering every frame.
+    /// What the last whole second measured, and what callers read - so the numbers on screen
+    /// hold still for a second instead of flickering every frame.
     fps: i32,
     avg_frame_time: f32,
     max_frame_time_stat: f32,

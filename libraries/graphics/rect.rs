@@ -16,10 +16,8 @@ impl Rect {
         Self { pos, size }
     }
 
-    /// Records a filled rectangle.
-    ///
-    /// Fully transparent and fully offscreen rectangles are dropped here rather than in the
-    /// backend, because the cheapest command is the one that never reaches the list.
+    /// Records a filled rectangle. Transparent and offscreen ones are dropped here rather than
+    /// in the backend: the cheapest command is the one that never reaches the list.
     pub fn render(&self, target: &dyn DrawTarget, color: Color) {
         if color.a == 0 {
             return;
@@ -33,14 +31,13 @@ impl Rect {
         target.push_draw_command(DrawCommand::Rect { rect: *self, color });
     }
 
-    /// Records the rectangle's outline. Unlike `render` this is not culled offscreen, so a
-    /// border that starts off the left edge still draws the edges that are on screen.
+    /// Records the rectangle's outline. Not culled offscreen, unlike `render`, so a border
+    /// starting off the left edge still draws what is on screen.
     ///
-    /// An empty rectangle is dropped, though, because it has no edge pixels to draw and the
-    /// backend's four edge quads would land *outside* it: the bottom edge sits at
-    /// `pos.1 + size.1 - 1.0`, which is a row above the top one once the height is zero. A
-    /// `Button` mid-hover-fade does produce one - its hover rectangle is inset by up to 30
-    /// pixels a side, which is more than a small button has to give.
+    /// An empty rectangle *is* dropped: it has no edge pixels, and the backend's four quads
+    /// would land outside it - the bottom edge sits at `pos.1 + size.1 - 1.0`, a row above the
+    /// top one at zero height. A `Button` mid-hover-fade produces one, its hover rectangle
+    /// being inset by more than a small button has to give.
     pub fn render_outline(&self, target: &dyn DrawTarget, color: Color) {
         if color.a == 0 || self.size.0 <= 0.0 || self.size.1 <= 0.0 {
             return;

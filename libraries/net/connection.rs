@@ -4,10 +4,8 @@ use std::sync::Arc;
 
 use message_io::network::Endpoint;
 
-/// One peer of a `PacketServer`.
-///
-/// Compared and hashed by address, so the same peer is the same `Connection` however many
-/// copies of it have been handed out.
+/// One peer of a `PacketServer`, compared and hashed by address - so the same peer is the same
+/// `Connection` however many copies have been handed out.
 #[derive(Clone, Eq, Debug)]
 pub struct Connection {
     pub(super) endpoint: Endpoint,
@@ -72,9 +70,8 @@ pub enum LogLevel {
 
 /// Where the transport's running commentary goes.
 ///
-/// A callback rather than a `println!`, because the transport runs on a thread of its own
-/// and the owner usually has somewhere specific it wants this to end up - a server console,
-/// a ui panel, a test's buffer. It is `Send + Sync` for the same reason.
+/// A callback rather than a `println!`: it runs on the networking thread, and the owner has
+/// somewhere specific for it - a server console, a ui panel, a test's buffer.
 pub type Logger = Arc<dyn Fn(LogLevel, &str) + Send + Sync>;
 
 /// A logger that throws everything away, for callers that do not want the commentary.

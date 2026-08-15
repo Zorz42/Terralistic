@@ -68,10 +68,9 @@ mod tests {
         assert_eq!(settings.get_all_settings().len(), 2);
     }
 
-    /// An id is a handle, not a position, and a removed setting does not give its number back.
-    /// The in-game lights toggle is registered when a world loads and removed when it closes,
-    /// so it is a higher id on every world opened - which is why the settings menu lays its
-    /// rows out by list position rather than by id.
+    /// An id is a handle, not a position: a removed setting does not give its number back. The
+    /// lights toggle is registered per world, so it is a higher id every time - which is why
+    /// the settings menu lays its rows out by list position.
     #[test]
     fn test_a_removed_setting_does_not_free_its_id() {
         let mut settings = Settings::new(temp_config("id_reuse"));

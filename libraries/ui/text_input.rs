@@ -42,9 +42,8 @@ impl TextInput {
         Self::with_text_texture(gfx::Texture::load_from_surface(&graphics.font.create_text_surface("", None)))
     }
 
-    /// A text input with no GPU textures behind it, for tests. The text texture is given the
-    /// height of one line of the real font and no width, which is what `new` ends up with for
-    /// empty text. Only rendering and the *width* of the drawn text depend on the difference.
+    /// A text input with no GPU textures behind it, for tests. The text texture reports one
+    /// line's height and no width, which is what `new` ends up with for empty text.
     #[cfg(test)]
     #[must_use]
     pub fn new_headless() -> Self {
@@ -127,10 +126,8 @@ impl TextInput {
         }
     }
 
-    /// The byte index of the character boundary immediately before `pos`.
-    ///
-    /// **The cursor is a byte offset that moves by characters**, which is the one thing to
-    /// keep straight in here. Byte offsets are what `replace_range` and `insert_str` want, but
+    /// The character boundary immediately before `pos`. **The cursor is a byte offset that
+    /// moves by characters**: byte offsets are what `replace_range` and `insert_str` want, but
     /// stepping one *byte* lands inside a multi-byte character and the next edit panics.
     fn prev_boundary(&self, pos: usize) -> usize {
         let mut pos = pos.saturating_sub(1);
@@ -140,7 +137,7 @@ impl TextInput {
         pos
     }
 
-    /// The byte index of the character boundary immediately after `pos`, or the end.
+    /// The character boundary immediately after `pos`, or the end.
     fn next_boundary(&self, pos: usize) -> usize {
         let mut pos = pos.saturating_add(1).min(self.text.len());
         while pos < self.text.len() && !self.text.is_char_boundary(pos) {
@@ -199,8 +196,8 @@ impl TextInput {
             return false;
         }
         self.text.replace_range(start..end, "");
-        // Onto the *start*, not onto `cursor.0`: after a right to left selection that is the
-        // end, which no longer exists once the range is gone.
+        // Onto the *start*, not `cursor.0`: after a right to left selection that is the end,
+        // which no longer exists once the range is gone.
         self.cursor = (start, start);
         self.text_changed = true;
         true
@@ -208,26 +205,17 @@ impl TextInput {
 
     /// Where the visible window into the text starts, in **texture** pixels.
     ///
-    /// Text wider than the box is cropped, and by default it is cropped from the left so that
-    /// the end being typed stays visible. That alone is not enough once the field is selected:
-    /// the cursor has to stay inside the box too, or moving it left through a long value walks
-    /// it out of the left edge and paints a white bar over whatever is beside the input.
-    ///
-    /// So a selected field centres the box on the end of the cursor the user is moving, and
-    /// clamps that against both ends of the text. Centring rather than pulling the window just
-    /// far enough is what makes the two directions behave the same: with the moving end held
-    /// against the *left* edge instead, everything selected by shift and the right arrow was
-    /// scrolled off behind it, so making a selection showed no selection.
+    /// Unselected, the view shows the tail, so the end being typed stays visible. Selected, it
+    /// centres on the cursor's moving end instead - nothing here clips, so a cursor let off the
+    /// left edge paints a white bar over the widget beside it. Centring rather than pulling the
+    /// view just far enough is what makes both directions behave: with the moving end held
+    /// against the left edge, everything shift-and-right-arrow selected scrolled off behind it.
     fn view_offset(&self, font: &gfx::Font) -> f32 {
-        // How far the text has to slide left for its end to sit against the right edge, which
-        // is zero as long as the whole value fits.
+        // How far the text slides left for its end to sit against the right edge.
         let furthest = f32::max(self.width_up_to(font, self.text.len()) - self.visible_width(), 0.0);
         if !self.selected {
             return furthest;
         }
-        // The second half of the cursor is the end the user is moving, so that is the one that
-        // has to stay on screen. The clamp leaves it half a box from either edge at worst,
-        // which is still inside.
         (self.width_up_to(font, self.cursor.1) - self.visible_width() / 2.0).clamp(0.0, furthest)
     }
 
@@ -236,14 +224,10 @@ impl TextInput {
         f32::max(self.width - self.padding * 2.0, 0.0)
     }
 
-    /// How wide the text up to `end` is, unscaled.
-    ///
-    /// Measured rather than read off `text_texture`, so it is right even on the frame the
-    /// texture has not been rebuilt on - and so all of this works with no GPU. It is the same
-    /// number: `get_text_size` is what `create_text_surface` sizes itself by. Measuring also
-    /// beats rasterising a throwaway surface on every frame the field is selected.
-    ///
-    /// `get_text_size` never reports a zero width, so an empty prefix is answered directly.
+    /// How wide the text up to `end` is, unscaled. Measured rather than read off
+    /// `text_texture`, so it is right on the frame before the texture is rebuilt and works
+    /// with no GPU; `create_text_surface` sizes itself by the same call. `get_text_size` never
+    /// reports zero, so an empty prefix is answered directly.
     fn width_up_to(&self, font: &gfx::Font, end: usize) -> f32 {
         if end == 0 {
             return 0.0;
@@ -259,30 +243,23 @@ impl TextInput {
         )
     }
 
-    /// The cursor or selection rectangle, relative to the input's own top left.
+    /// The cursor or selection rectangle, relative to the input's top left. **Clipped to the
+    /// widget**: a selection is as wide as the text it covers, which the box need not be.
     ///
-    /// **Clipped to the widget**, which the cursor never needs but a selection does: a
-    /// selection is as wide as the text it covers, and the text is allowed to be wider than the
-    /// box. Nothing in this toolkit clips, so a highlight let past the edge goes on painting a
-    /// bar over whatever sits beside the input.
-    ///
-    /// Split out of `render_inner` together with the two above because none of this needs a
-    /// GPU - a `Font` to measure with is the whole of it, and `Font::new_headless` is one.
+    /// Kept out of `render_inner` with the two above because none of it needs a GPU - a `Font`
+    /// to measure with is the whole of it, and `Font::new_headless` is one.
     pub(super) fn cursor_rect(&self, font: &gfx::Font, size: gfx::FloatSize) -> gfx::Rect {
         let text_begin_x = (self.padding - self.view_offset(font)) * self.scale;
         let (start, end) = self.get_cursor();
-        // A pixel of lead-in and lead-out, so a collapsed cursor is a visible bar rather than
-        // nothing at all.
+        // A pixel each side, so a collapsed cursor is a visible bar rather than nothing.
         let x1 = (text_begin_x + self.width_up_to(font, start) * self.scale - 3.0).clamp(0.0, size.0);
         let x2 = (text_begin_x + self.width_up_to(font, end) * self.scale + 1.0).clamp(x1, size.0);
 
         gfx::Rect::new(gfx::FloatPos(x1, self.padding * self.scale), gfx::FloatSize(x2 - x1, size.1 - self.padding * self.scale * 2.0))
     }
 
-    /// Replaces the selection with `text` and leaves the cursor after it.
-    ///
-    /// Every route text takes into the field goes through here, so that pasting is filtered by
-    /// `text_processing` exactly the way typing is.
+    /// Replaces the selection with `text` and leaves the cursor after it. Every route into the
+    /// field goes through here, so pasting is filtered by `text_processing` the way typing is.
     fn insert(&mut self, text: &str) {
         self.delete_selection();
 
@@ -294,8 +271,7 @@ impl TextInput {
     }
 }
 
-/// Whether the shortcut modifier is held. Control on every platform, and the command key too,
-/// which is what a mac keyboard reaches for.
+/// Whether the shortcut modifier is held: control everywhere, and command for a mac keyboard.
 fn shortcut_held(graphics: &dyn super::UiContext) -> bool {
     [gfx::Key::LeftControl, gfx::Key::RightControl, gfx::Key::LeftSuper, gfx::Key::RightSuper]
         .into_iter()
@@ -367,8 +343,7 @@ impl UiElement for TextInput {
             self.cursor_rect.pos = cursor.pos;
             self.cursor_rect.size = cursor.size;
 
-            // A cursor that has never been positioned starts at the origin; let it appear
-            // where it belongs rather than sliding in from the corner.
+            // An unpositioned cursor starts at the origin: appear there, don't slide in.
             if self.cursor_rect.render_pos == gfx::FloatPos(0.0, 0.0) {
                 self.cursor_rect.jump_to_target();
             }
@@ -395,8 +370,7 @@ impl UiElement for TextInput {
                     return false;
                 }
 
-                // The same modifier that reaches the clipboard also turns a cursor step into a
-                // word step.
+                // The clipboard modifier also turns a cursor step into a word step.
                 let shortcut = shortcut_held(graphics);
                 let shift = graphics.get_key_state(gfx::Key::LeftShift) || graphics.get_key_state(gfx::Key::RightShift);
 
@@ -420,8 +394,7 @@ impl UiElement for TextInput {
                         if shift {
                             self.cursor.1 = self.step_left(self.cursor.1, shortcut);
                         } else {
-                            // An existing selection collapses onto its near end rather than
-                            // moving, which is what every other text field does.
+                            // A selection collapses onto its near end rather than moving.
                             self.cursor.0 = if self.cursor.0 == self.cursor.1 {
                                 self.step_left(self.cursor.0, shortcut)
                             } else {

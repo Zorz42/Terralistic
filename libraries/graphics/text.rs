@@ -25,12 +25,9 @@ fn is_column_empty(surface: &Surface, column: i32) -> bool {
 }
 
 impl Font {
-    /// Cuts a 16x16 font atlas into one surface per character, trimming the empty columns on
-    /// either side so characters are proportionally spaced - or padding them back out to 8
-    /// wide when `mono`.
-    ///
-    /// This is the whole of the font's CPU work; `new` then uploads the result. Keeping it
-    /// separate is what lets `get_text_size` and `create_text_surface` be tested with no GPU.
+    /// Cuts a 16x16 atlas into one surface per character, trimming the empty columns either
+    /// side for proportional spacing - or padding back out to 8 wide when `mono`. All the CPU
+    /// work, kept apart from the upload so measuring and rasterising are testable with no GPU.
     fn load_surfaces(font_data: &[u8], mono: bool) -> Result<Vec<Surface>> {
         let atlas = Surface::deserialize_from_bytes(font_data)?;
         let mut font_surfaces = Vec::new();
@@ -51,10 +48,9 @@ impl Font {
                     right += 1;
                 }
 
-                // Pad a narrow glyph back out to 8 wide, half on each side, so every character
-                // in a mono font advances by the same amount. The trim may go negative here,
-                // which widens the glyph past its cell - the extra columns read out of bounds
-                // and come out transparent, which is exactly the padding wanted.
+                // Pad a narrow glyph back out to 8, half each side, so a mono font advances by
+                // the same amount everywhere. The trim may go negative, widening the glyph
+                // past its cell: those columns read out of bounds and come out transparent.
                 if mono {
                     let width = GLYPH_SIZE - left - right;
                     if width < 8 {
@@ -82,11 +78,8 @@ impl Font {
         Ok(Self { font_surfaces, font_textures, mono })
     }
 
-    /// A font whose glyphs know their size and own no pixels, for tests.
-    ///
-    /// Skipping the upload is the only difference, so measuring, rasterising *and* the draw
-    /// commands `render_text` records are all the real thing - which is what lets a test check
-    /// that the pen lands where `get_text_size` says it does.
+    /// A font whose glyphs know their size and own no pixels, for tests. Only the upload is
+    /// skipped, so measuring, rasterising and the commands `render_text` records are real.
     #[cfg(test)]
     pub fn new_headless(font_data: &[u8], mono: bool) -> Result<Self> {
         let font_surfaces = Self::load_surfaces(font_data, mono)?;
@@ -94,16 +87,13 @@ impl Font {
         Ok(Self { font_surfaces, font_textures, mono })
     }
 
-    /// How far the pen moves after `c`, whose glyph is `glyph`.
+    /// How far the pen moves after `c`. Shared by `layout` and `render_text`, which have to
+    /// agree to the pixel: `TextInput` places its cursor by measuring, and the glyph is then
+    /// drawn wherever this says.
     ///
-    /// Shared by `layout` and `render_text` because the two have to agree to the pixel and are
-    /// otherwise two copies of the same rule - `TextInput` places its cursor by measuring, and
-    /// then the glyph is drawn wherever this says.
-    ///
-    /// A space is the one character whose glyph is not what it advances by: trimming leaves a
-    /// proportional font's space empty, so it gets a width of its own. **A mono font's does
-    /// not** - `load_surfaces` already padded it out to the common width, and adding more would
-    /// make the space the one character that breaks the grid the font exists to keep.
+    /// A space is the one character whose advance is not its glyph's width, trimming having
+    /// left it empty. **Not in a mono font** - `load_surfaces` already padded it to the common
+    /// width, and more would make the space the one character that breaks the grid.
     const fn advance(&self, c: char, glyph: &Surface) -> i32 {
         let advance = glyph.get_size().0 as i32 + CHAR_SPACING;
         if c == ' ' && !self.mono {
@@ -122,26 +112,20 @@ impl Font {
             .sum()
     }
 
-    /// Walks `text`, handing each character's glyph and its position to `place`, and returns
-    /// the size of the whole block.
+    /// Walks `text`, handing each glyph and its position to `place`, and returns the size of
+    /// the block. Measuring and rasterising share this walk rather than each keeping a copy of
+    /// the wrapping rules, which is how the two drift apart.
     ///
-    /// Measuring and rasterising are the same walk, so they share this one - having two copies
-    /// of the wrapping rules is how they drift apart.
-    ///
-    /// **A width limit breaks between words, not inside them.** The limit used to be tested
-    /// against one character at a time, which put the front of a word on one line and its tail
-    /// on the next - and the only text in the game that wraps is an error message, which is
-    /// exactly where a reader needs the words whole.
+    /// **A width limit breaks between words, not inside them** - the only text in the game
+    /// that wraps is an error message, which is where a reader needs the words whole.
     fn layout<F: FnMut(gfx::IntPos, &Surface)>(&self, text: &str, width_limit: Option<i32>, mut place: F) -> gfx::IntSize {
-        // Every glyph is cut from the atlas at the full cell height, so a line is as tall as a
-        // cell wherever the characters on it came from.
+        // Glyphs are cut at the full cell height, so every line is a cell tall.
         const LINE_HEIGHT: i32 = GLYPH_SIZE + CHAR_SPACING;
 
         let mut x = 0;
         let mut y = 0;
         let mut max_width = 1;
-        // A string ending in a newline starts a line lower, so the empty last line is not
-        // counted twice.
+        // A trailing newline starts a line lower, so the empty last line is not counted twice.
         let mut height = if text.ends_with('\n') { 0 } else { GLYPH_SIZE };
 
         let mut rest = text;
@@ -160,10 +144,9 @@ impl Font {
 
             if c.is_whitespace() {
                 word_start = true;
-                // A space that a wrap has already stepped over is not drawn: it would indent
-                // the line it lands on by the width of a gap that is no longer between
-                // anything. Only when wrapping, so that measuring a prefix - which is how
-                // `TextInput` places its cursor, and never has a limit - stays additive.
+                // A space a wrap stepped over is not drawn: it would indent the line it lands
+                // on. Only when wrapping, so measuring a prefix - `TextInput`'s cursor, always
+                // without a limit - stays additive.
                 if width_limit.is_some() && x == 0 {
                     continue;
                 }
@@ -175,14 +158,12 @@ impl Font {
 
             let advance = self.advance(c, glyph);
             if let Some(limit) = width_limit {
-                // At the first character of a word the whole word is what has to fit, so the
-                // whole word moves down together. A word wider than a line of its own can
-                // never fit, and `min` is what stops it wrapping forever: it falls back to
-                // breaking at whichever character overruns, one line down.
+                // At a word's first character the whole word has to fit, so it moves down
+                // together. `min` stops a word too wide for any line wrapping forever: it
+                // falls back to breaking at whichever character overruns, one line down.
                 let needed = if word_start { self.word_advance(from_here).min(limit) } else { advance };
-                // `x > 0` so a glyph too wide for the limit on its own goes on the line it is
-                // already on. Wrapping there instead leaves a blank line above it and counts
-                // its height, and then does the same for every character after it.
+                // `x > 0` keeps an over-wide glyph on the line it is on; wrapping leaves a
+                // blank line above it, counts its height, and repeats for every character.
                 if x > 0 && x + needed > limit {
                     x = 0;
                     y += LINE_HEIGHT;
@@ -192,14 +173,12 @@ impl Font {
             word_start = c.is_whitespace();
 
             place(gfx::IntPos(x, y), glyph);
-            // The advance is part of the width, not something that only the *next* character
-            // sees. `TextInput` measures the text before the cursor with `get_text_size`, and
-            // sampling the width before adding a space's extra gap left the cursor two pixels
-            // short of the glyph that `create_text_surface` then drew.
+            // The advance is part of the width, not something only the *next* character sees:
+            // sampling before a space's extra gap put `TextInput`'s cursor two pixels short of
+            // the glyph `create_text_surface` then drew.
             x += advance;
-            // A space is only part of the width if something follows it on its line: left
-            // hanging by a wrap it fills a gap between words that is no longer there, and
-            // counting it is what would push a wrapped block past the limit it wrapped to.
+            // A space counts only if something follows it on its line - left hanging by a wrap
+            // it would push the block past the limit it just wrapped to.
             if !(c.is_whitespace() && width_limit.is_some()) {
                 max_width = max_width.max(x);
             }
@@ -234,12 +213,9 @@ impl Font {
         surface
     }
 
-    /// Draws one line of text, glyph by glyph, straight from the font's textures.
-    ///
-    /// **One line.** Unlike `get_text_size` and `create_text_surface` this honours neither
-    /// `\n` nor a width limit, so a multi-line string measures as several lines and draws as
-    /// one long one. Anything that might wrap should go through `create_text_surface` and a
-    /// `Texture`, which is what `Sprite` does.
+    /// Draws **one line** of text straight from the glyph textures, honouring neither `\n` nor
+    /// a width limit - so a multi-line string measures as several and draws as one. Anything
+    /// that might wrap goes through `create_text_surface` and a `Texture`, as `Sprite` does.
     pub fn render_text(&self, target: &dyn gfx::DrawTarget, text: &str, mut pos: gfx::FloatPos, scale: f32) {
         for c in text.chars() {
             let (Some(glyph), Some(texture)) = (self.font_surfaces.get(c as usize), self.font_textures.get(c as usize)) else {

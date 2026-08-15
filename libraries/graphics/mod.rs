@@ -1,14 +1,11 @@
 //! The renderer: what to draw, and how it becomes pixels.
 //!
-//! Drawing calls do not touch the graphics API - they record a `DrawCommand` into the
-//! frame's `DrawList`, and `GraphicsContext::update_window` hands the whole list to the
-//! backend. That seam is what makes the widget toolkit in `libraries::ui` testable without a
-//! GPU, and the golden-image tests possible at all.
+//! Drawing calls do not touch the graphics API - they record a `DrawCommand` into the frame's
+//! `DrawList`, and `GraphicsContext::update_window` hands the list to the backend. That seam is
+//! what makes `libraries::ui` testable without a GPU and the golden images possible at all.
 //!
-//! # Not in scope
-//!
-//! Widgets, layout and input routing - those are `libraries::ui`. This library knows about
-//! rectangles, textures, glyphs and a window; it has no notion of a button.
+//! **Not in scope**: widgets, layout and input routing, which are `libraries::ui`. This knows
+//! about rectangles, textures, glyphs and a window; it has no notion of a button.
 
 use anyhow::Result;
 

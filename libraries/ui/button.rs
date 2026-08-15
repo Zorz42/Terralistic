@@ -18,8 +18,8 @@ pub struct Button {
     pub disabled: bool,
     pub darken_on_disabled: bool,
     pub hover_progress: f32,
-    /// One hover step per elapsed millisecond, bounded so that a button built long before it
-    /// is first drawn - the pause menu's, say - does not owe a step for every one of them.
+    /// One hover step per elapsed millisecond, bounded so a button built long before it is
+    /// first drawn - the pause menu's - does not owe a step for every one.
     animation_timer: timing::FixedStep,
     click: super::ClickTracker,
     on_click: Box<dyn Fn()>,
@@ -62,8 +62,8 @@ impl Button {
 
     /// Pins the hover animation at `progress` for the golden-image tests.
     ///
-    /// The animation chases a target that depends on the real mouse position, so freezing the
-    /// timer is what makes the value set here exactly what gets drawn.
+    /// The animation chases the real mouse position, so freezing the timer is what makes the
+    /// value set here exactly what gets drawn.
     #[cfg(feature = "render-tests")]
     pub const fn settle_hover(&mut self, progress: f32) {
         self.hover_progress = progress;
@@ -130,8 +130,8 @@ impl UiElement for Button {
         super::Container::new(graphics, self.pos, self.get_size(), self.orientation, Some(parent_container))
     }
 
-    /// A disabled button is never hovered, which is what stops it reacting to clicks as well
-    /// as what keeps it from lighting up under the pointer.
+    /// A disabled button is never hovered, which is what stops it clicking as well as
+    /// lighting up.
     fn is_hovered(&self, graphics: &dyn super::UiContext, parent_container: &super::Container) -> bool {
         !self.disabled && self.get_container(graphics, parent_container).get_absolute_rect().contains(graphics.get_mouse_pos())
     }

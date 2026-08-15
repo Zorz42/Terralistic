@@ -23,9 +23,8 @@ impl ShadowContext {
         *pixel = gfx::Color::new(0, 0, 0, (alpha * prev_alpha * 255.0) as u8);
     }
 
-    /// Bakes a black square whose edges fade out along a gaussian: opaque in the middle
-    /// 300x300, falling off over the 200px border on each side. `render` then draws the eight
-    /// pieces of that border around whatever rectangle wants a shadow.
+    /// Bakes a black square that fades out along a gaussian: opaque in the middle 300x300,
+    /// falling off over the 200px border. `render` draws pieces of that border around a rect.
     pub fn new() -> Self {
         let mut surface = gfx::Surface::new(gfx::IntSize(TEXTURE_SIZE as u32, TEXTURE_SIZE as u32));
         let fade = FADE as i32;
@@ -53,14 +52,12 @@ impl ShadowContext {
         }
     }
 
-    /// Renders the shadow around `rect`.
-    ///
-    /// Nothing but nearest-neighbour texture draws - the gaussian was baked in `new` and no
-    /// shader is involved, which is why the shadow's golden images can be exact.
+    /// Renders the shadow around `rect`: nearest-neighbour texture draws and nothing else, the
+    /// gaussian having been baked in `new` - which is why its goldens can be exact.
     pub fn render(&self, target: &dyn DrawTarget, rect: &gfx::Rect, shadow_intensity: f32) {
         let color = gfx::Color::new(0, 0, 0, (80.0 * shadow_intensity) as u8);
-        // A piece may cover at most half the rectangle plus the falloff, so that opposite
-        // corners meet in the middle rather than overlapping.
+        // A piece covers at most half the rectangle plus the falloff, so opposite corners meet
+        // in the middle rather than overlapping.
         let edge_width = f32::min(FADE + rect.size.0 / 2.0, MAX_EDGE);
         let edge_height = f32::min(FADE + rect.size.1 / 2.0, MAX_EDGE);
 
@@ -92,9 +89,8 @@ impl ShadowContext {
             ),
         ];
 
-        // A rectangle too tall or too wide for the pieces above to meet gets the middle of the
-        // texture tiled along the gap, 100px at a time. `edge_height` is a `min` against
-        // `MAX_EDGE`, so being capped is the same test as the rectangle being too tall.
+        // A rectangle too tall or wide for those pieces to meet gets the texture's middle
+        // tiled along the gap. Being capped at `MAX_EDGE` is the same test as being too big.
         if edge_height >= MAX_EDGE {
             let mut left = rect.size.1 - 300.0;
             while left > 0.0 {

@@ -9,14 +9,10 @@ pub const TIMEOUT: Duration = Duration::from_secs(30);
 
 /// A port no other test in this process is using, and that nothing else holds right now.
 ///
-/// Tests run in parallel threads of one process, so they cannot share fixed ports. **Asking
-/// the OS for port 0 is not enough on its own**: two tests that probe one after the other
-/// can be handed the same port, and then one test's client connects to the other test's
-/// server. The counter is what makes the numbers distinct; the bind is only there to skip
-/// ports something outside this process already holds.
-///
-/// The range sits below the ephemeral range so it does not fight the OS for numbers, and
-/// clear of the ports the game itself uses.
+/// **Asking the OS for port 0 is not enough**: two tests probing one after the other can be
+/// handed the same port, and then one test's client joins the other test's server. The
+/// counter makes the numbers distinct and the bind only skips ports held from outside. The
+/// range sits below the ephemeral one and clear of the ports the game uses.
 pub fn free_port() -> u16 {
     static NEXT_PORT: AtomicU64 = AtomicU64::new(0);
     const FIRST_PORT: u64 = 41_000;
@@ -32,11 +28,10 @@ pub fn free_port() -> u16 {
     panic!("no free port in the test range");
 }
 
-/// Runs `step` until it returns true, or panics with `what` when the timeout runs out.
+/// Runs `step` until it returns true, or panics with `what` at the timeout.
 ///
-/// Panicking rather than hanging is the point: in a suite with no per-test timeout, a wait
-/// that never ends is the difference between a red build and a job that runs until CI kills
-/// it.
+/// Panicking rather than hanging is the point: with no per-test timeout, a wait that never ends is
+/// the difference between a red build and a job that runs until CI kills it.
 #[track_caller]
 pub fn wait_until(what: &str, mut step: impl FnMut() -> bool) {
     let deadline = Instant::now() + TIMEOUT;
@@ -49,10 +44,8 @@ pub fn wait_until(what: &str, mut step: impl FnMut() -> bool) {
     }
 }
 
-/// A directory under the system temp dir that deletes itself when it goes out of scope.
-///
-/// The crate has no dev-dependencies and this is all the tests need from one, so it is
-/// spelled out here rather than pulling in `tempfile`.
+/// A directory under the system temp dir that deletes itself when it goes out of scope. All
+/// the tests need of `tempfile`, so it is spelled out rather than pulled in.
 pub struct TempDir {
     path: PathBuf,
 }
@@ -75,7 +68,7 @@ impl TempDir {
 
 impl Drop for TempDir {
     fn drop(&mut self) {
-        // a failed cleanup must not turn a passing test red, so this is best effort
+        // Best effort: a failed cleanup must not turn a passing test red.
         drop(std::fs::remove_dir_all(&self.path));
     }
 }

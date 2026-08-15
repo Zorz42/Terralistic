@@ -1,13 +1,10 @@
 use crate::libraries::graphics as gfx;
 
-/// Everything a UI element needs in order to lay itself out and react to input.
+/// Everything a UI element needs to lay itself out and react to input, and deliberately the *whole*
+/// non-rendering surface of `GraphicsContext`: window size, pointer, keyboard, clipboard.
 ///
-/// This is deliberately the *whole* non-rendering surface of `GraphicsContext`: window size,
-/// pointer, keyboard and clipboard. `get_container` and `on_event_inner` take a
-/// `&dyn UiContext`, which is what makes layout and event handling testable without a window.
-///
-/// If you are tempted to add a method here, check first that it is not a rendering operation
-/// in disguise - the value of this trait is entirely in what it leaves out.
+/// `get_container` and `on_event_inner` take one, which is what makes layout and event handling
+/// testable without a window - so the value here is entirely in what it omits.
 pub trait UiContext {
     /// Size of the window in logical (scaled) pixels.
     fn get_window_size(&self) -> gfx::FloatSize;
@@ -15,30 +12,24 @@ pub trait UiContext {
     fn get_mouse_pos(&self) -> gfx::FloatPos;
     /// Whether a key is currently held down.
     fn get_key_state(&self, key: gfx::Key) -> bool;
-    /// Current clipboard contents, or `None` if the clipboard is empty or unavailable.
+    /// Clipboard contents, or `None` if it is empty or unavailable.
     fn get_clipboard_text(&mut self) -> Option<String>;
-    /// Replaces the clipboard contents. Failures are reported and swallowed, since a
-    /// missing clipboard should never take the game down.
+    /// Replaces the clipboard contents. Failures are reported and swallowed - a missing
+    /// clipboard should never take the game down.
     fn set_clipboard_text(&mut self, text: &str);
 
-    /// The full rendering context, if this context has one.
-    ///
-    /// The escape hatch, for the three menus that do genuinely graphical work from an event
-    /// handler: `world_creation` and `multiplayer_selector` build the next menu (whose labels
-    /// are uploaded as textures) and `settings_menu` applies vsync, scale and the fps limit.
-    /// Those branches are `None` headlessly and so are the only UI logic tests cannot reach.
-    ///
-    /// Nothing in the toolkit itself calls this. If you reach for it in a new widget, the work
-    /// almost certainly belongs in `render_inner` or `update_inner` instead.
+    /// The full rendering context, if there is one. The escape hatch for the three menus doing
+    /// graphical work from an event handler: `world_creation` and `multiplayer_selector` build
+    /// the next menu, `settings_menu` applies vsync and scale. Those branches are `None`
+    /// headlessly and so are the only UI logic tests cannot reach. Nothing in the toolkit
+    /// calls it; in a new widget the work belongs in `render_inner` or `update_inner`.
     fn as_graphics_context(&mut self) -> Option<&mut gfx::GraphicsContext> {
         None
     }
 }
 
-/// A `UiContext` with no window, no GPU device and no real clipboard, for tests.
-///
-/// Every input a UI element can observe is a plain field you set directly, so a test reads
-/// as "put the mouse here, hold this key, send this event, assert on the result".
+/// A `UiContext` with no window, GPU or real clipboard, for tests. Every input a UI element
+/// can observe is a plain field, so a test reads as "mouse here, hold this, send that".
 #[cfg(test)]
 pub struct HeadlessContext {
     window_size: gfx::FloatSize,

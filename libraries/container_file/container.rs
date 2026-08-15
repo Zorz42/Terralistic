@@ -6,21 +6,18 @@ use serde::Serialize;
 
 use crate::libraries::serialization;
 
-/// Describes one kind of container file: what it starts with, and which version this build
-/// reads and writes.
+/// One kind of container file: what it starts with, and which version this build reads.
 #[derive(Clone, Copy)]
 pub struct ContainerFormat {
-    /// The bytes every file of this kind starts with. Fixed width, untouched by any
-    /// serializer.
+    /// What every file of this kind starts with. Fixed width, untouched by any serializer.
     pub magic: &'static [u8],
     /// Bumped by hand whenever the contents change shape.
     pub version: u32,
-    /// What to call the version in an error, e.g. "save version". The owner's word for it,
-    /// because "this file is version 4" is less use to whoever reads the message than
-    /// whatever the owner has been calling it everywhere else.
+    /// What to call the version in an error, e.g. "save version" - the owner's word for it is
+    /// more use to a reader than "version 4".
     pub version_noun: &'static str,
-    /// What to say when a file does not start with `magic` at all - which usually means it
-    /// predates the header rather than that it is not a file of this kind.
+    /// What to say when a file does not start with `magic`, which usually means it predates
+    /// the header rather than being the wrong kind of file.
     pub no_magic_message: &'static str,
 }
 
@@ -40,10 +37,8 @@ impl ContainerFormat {
         header
     }
 
-    /// Checks a file's header and returns the body after it.
-    ///
-    /// Every rejection here names what is wrong, which is the entire reason the header
-    /// exists.
+    /// Checks a file's header and returns the body after it. Every rejection names what is
+    /// wrong, which is the entire reason the header exists.
     pub fn read_header<'file>(&self, file: &'file [u8]) -> Result<&'file [u8]> {
         let Some((header, body)) = file.split_at_checked(self.header_len()) else {
             bail!("this file is too short to have a header - it is {} bytes", file.len());
@@ -76,9 +71,9 @@ impl ContainerFormat {
 
 /// Serializes and compresses a value, for a section big enough to be worth it.
 ///
-/// Sections are opaque bytes to the container, so whether one is compressed is the owner's
-/// choice per section - a dense grid pays for itself many times over, a handful of records
-/// does not. This is here so that the choice is spelled the same way everywhere it is made.
+/// Sections are opaque bytes, so compressing one is the owner's choice - a dense grid pays for
+/// itself many times over, a handful of records does not. Here so the choice is spelled the same
+/// way.
 pub fn pack<T: Serialize>(value: &T) -> Result<Vec<u8>> {
     Ok(snap::raw::Encoder::new().compress_vec(&serialization::serialize(value)?)?)
 }

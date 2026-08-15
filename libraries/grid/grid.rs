@@ -3,19 +3,13 @@ use serde_derive::{Deserialize, Serialize};
 
 /// A dense, bounds checked 2D grid of `T`.
 ///
-/// Every access goes through `translate_coords`, so a coordinate outside the grid is an
-/// `Err` rather than a panic or a read of the wrong cell. The grid owns its size, which is
-/// what makes that possible: a `Vec` and a size kept in separate fields can disagree, and
-/// then the bounds check is checking the wrong thing.
+/// Every access goes through `translate_coords`, so a coordinate outside the grid is an `Err`
+/// rather than a panic or the wrong cell. The grid owns its size for that reason: a `Vec` and a
+/// size in separate fields can disagree.
 ///
-/// # Layout
-///
-/// Cells are stored **column major**: `index = x * height + y`, so stepping in `y` is a
-/// step of one. That is the opposite of `Chunks`, which is row major, and the disagreement
-/// is deliberate rather than an oversight - see `Chunks`.
-///
-/// The layout is part of the serialized form, so changing it changes the bytes of anything
-/// that has been written to disk.
+/// Cells are **column major** - `index = x * height + y`, so stepping in `y` is a step of one.
+/// `Chunks` is row major, and the disagreement is deliberate; see it before changing either.
+/// The layout is part of the serialized form, so it is also the bytes on disk.
 #[derive(Serialize, Deserialize, Clone, PartialEq, Eq, Debug)]
 pub struct Grid<T> {
     size: (u32, u32),
@@ -43,8 +37,7 @@ impl<T> Grid<T> {
         Ok((x * self.size.1 as i32 + y) as usize)
     }
 
-    /// Whether a coordinate is inside the grid. The cheap question, for callers that only
-    /// want to skip a cell rather than report it.
+    /// Whether a coordinate is inside the grid, for callers that skip rather than report.
     #[must_use]
     pub fn contains(&self, x: i32, y: i32) -> bool {
         self.translate_coords(x, y).is_ok()
@@ -65,8 +58,8 @@ impl<T> Grid<T> {
         Ok(())
     }
 
-    /// The backing storage, in the layout described above. For callers that want to sweep
-    /// the whole grid without paying for a bounds check per cell.
+    /// The backing storage, in the layout above, for sweeping the grid without a bounds check
+    /// per cell.
     #[must_use]
     pub fn cells(&self) -> &[T] {
         &self.cells
@@ -74,11 +67,8 @@ impl<T> Grid<T> {
 }
 
 impl<T: Clone> Grid<T> {
-    /// A grid of `size` with every cell holding `value`.
-    ///
-    /// The fill is an argument rather than a property of the grid, so a caller that wants
-    /// cells which mean "nothing is here yet" has to say so at the call site instead of
-    /// leaving it implied.
+    /// A grid of `size` with every cell holding `value`. The fill is an argument so that a
+    /// caller wanting cells meaning "nothing here yet" says so rather than implying it.
     #[must_use]
     pub fn filled(size: (u32, u32), value: T) -> Self {
         Self {

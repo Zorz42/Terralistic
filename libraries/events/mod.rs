@@ -20,7 +20,7 @@ impl Event {
 
 unsafe impl Send for Event {}
 
-/// Event manager can be used to push and pop events to and from a queue.
+/// A queue of type-erased events, pushed at one end and drained at the other.
 pub struct EventManager {
     event_queue: VecDeque<Event>,
 }
@@ -39,9 +39,8 @@ impl EventManager {
         self.event_queue.pop_front()
     }
 
-    /// How many events are waiting. Only the tests ask: the game drains the queue rather than
-    /// measuring it, but how *big* the queue gets is a property worth pinning - see the
-    /// generation test in `integration_tests/server_lifecycle.rs`.
+    /// How many events are waiting. Only tests ask - the game drains rather than measures -
+    /// but how big the queue gets is worth pinning; see `integration_tests/server_lifecycle.rs`.
     #[cfg(test)]
     #[must_use]
     pub fn queued_count(&self) -> usize {

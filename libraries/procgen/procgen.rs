@@ -6,11 +6,11 @@ use rand::Rng;
 /// of the last.
 const TURBULENCE_OCTAVES: u32 = 3;
 
-/// Fractal noise: several octaves of Perlin summed, each half the size of the one before.
+/// Fractal noise: several octaves of Perlin summed, each half the size of the one before, roughly
+/// in `-1..1`.
 ///
-/// The result is roughly in `-1..1`. One octave is smooth and featureless; summing a few
-/// gives the coarse shape a large detail plus the roughness of the small ones, which is what
-/// makes generated terrain look like terrain rather than a sine wave.
+/// One octave is smooth and featureless; a few give a coarse shape plus the roughness that makes
+/// terrain look like terrain rather than a sine wave.
 #[must_use]
 pub fn turbulence(noise: &Perlin, x: f32, y: f32) -> f32 {
     let mut value = 0.0;
@@ -24,12 +24,11 @@ pub fn turbulence(noise: &Perlin, x: f32, y: f32) -> f32 {
     value / 2.0
 }
 
-/// Smooths an array by replacing each element with the mean of the `size` elements around it.
+/// Smooths an array by replacing each element with the mean of the `size` around it.
 ///
-/// **The window is clipped at the ends rather than wrapped or padded**, so the first and last
-/// few elements are the mean of however many neighbours they actually have. That is what a
-/// caller smoothing a per-column array across the edges of a world wants: the edge should
-/// look like its neighbours, not like a fade to zero.
+/// **The window is clipped at the ends, not wrapped or padded**, so an edge element is the mean of
+/// however many neighbours it has - a world's edge should look like its neighbours rather than fade
+/// to zero.
 #[must_use]
 pub fn convolve(array: &[f32], size: i32) -> Vec<f32> {
     let mut result = Vec::with_capacity(array.len());
@@ -58,11 +57,8 @@ pub fn convolve(array: &[f32], size: i32) -> Vec<f32> {
     result
 }
 
-/// Picks one of `weighted` in proportion to its weight, or `None` if there is nothing to
-/// pick or every weight is zero or less.
-///
-/// This is the step of a weighted random walk over a graph: the items are the edges out of
-/// wherever the walk currently is, and the weight is how likely each is to be taken.
+/// Picks one of `weighted` in proportion to its weight, or `None` if there is nothing to pick.
+/// One step of a weighted random walk: the items are the edges out of where the walk is.
 pub fn pick_weighted<'items, Item, Source: Rng>(weighted: &'items [(i32, Item)], rng: &mut Source) -> Option<&'items Item> {
     let total: i32 = weighted.iter().map(|(weight, _)| *weight).filter(|weight| *weight > 0).sum();
     if total <= 0 {
@@ -80,6 +76,6 @@ pub fn pick_weighted<'items, Item, Source: Rng>(weighted: &'items [(i32, Item)],
         }
     }
 
-    // unreachable while the weights do not change under us, but a fallback beats an unwrap
+    // Unreachable while the weights hold still, but a fallback beats an unwrap.
     weighted.last().map(|(_weight, item)| item)
 }

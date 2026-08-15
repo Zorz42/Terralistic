@@ -201,14 +201,11 @@ mod tests {
         assert!(Surface::deserialize_from_bytes(&[1, 2, 3, 4, 5]).is_err());
     }
 
-    /// A surface's serialized form is its pixels and its size, with nothing tying the two
-    /// together, so the bytes can perfectly well describe a 64x64 image holding four pixels.
-    ///
-    /// Everything downstream takes `get_size` at its word, and `GpuDevice::create_texture` in
-    /// particular tells wgpu the texture is that big and hands it the short buffer - which is a
-    /// validation error, which wgpu turns into a panic ("Copy at offset 0 for 16384 bytes would
-    /// end up overrunning the bounds of the Source buffer of size 16"). Surfaces are read out
-    /// of `.mod` files, which are ordinary files on disk, so this has to be caught at the door.
+    /// A surface's serialized form is its pixels and its size with nothing tying the two
+    /// together, so the bytes can describe a 64x64 image holding four pixels. Everything
+    /// downstream takes `get_size` at its word - `GpuDevice::create_texture` hands wgpu the
+    /// short buffer, which is a validation error and so a panic. Surfaces come out of `.mod`
+    /// files, so this has to be caught at the door.
     #[test]
     fn test_a_surface_that_lies_about_its_size_is_rejected() {
         /// The same shape as `Surface`, which is all postcard encodes: fields in order, no names.
@@ -540,14 +537,11 @@ mod tests {
     // Draw list tests
     //
     // Drawing records a `DrawCommand` rather than issuing a GPU call, so what a primitive
-    // draws is assertable without a window. This is the only tier of rendering coverage
-    // `cargo test` can run - the golden images need a real context on the main thread.
-    //
-    // Every primitive reaches here, because building one without a device is a supported
-    // state rather than a failure: `RectArray` stages its vertices until an `upload` that
-    // never happens, and `ShadowContext` and `Font` get textures that know their size and own
-    // nothing. What these cannot see is the pixels - whether a command lands where it says
-    // it does is the golden suite's job.
+    // draws is assertable without a window - the only tier `cargo test` can run. Every
+    // primitive reaches here, because building one without a device is a supported state:
+    // `RectArray` stages vertices for an upload that never happens, and `ShadowContext` and
+    // `Font` get textures that know their size and own nothing. What these cannot see is the
+    // pixels, which is the golden suite's job.
     // ---------------------------------------------------------------------------------
 
     use gfx::{BlendMode, DrawCommand, DrawList, DrawRecorder, DrawTarget};
@@ -913,12 +907,9 @@ mod tests {
         }
     }
 
-    /// And the other direction: the band of `FADE` pixels around the rectangle is covered by
-    /// the pieces with no gaps.
-    ///
-    /// This is what the tiling exists for. A rectangle taller than 300 pixels outgrows the two
-    /// edge pieces, which are capped so that opposite corners meet rather than overlapping, and
-    /// the middle of the texture is repeated down the gap they leave. An off-by-one there is a
+    /// And the other direction: the `FADE` band around the rectangle is covered with no gaps.
+    /// This is what the tiling exists for - a rectangle over 300 pixels tall outgrows the two
+    /// capped edge pieces, and an off-by-one in the middle repeated down the gap is a
     /// transparent stripe up the side of a menu.
     #[test]
     fn test_a_shadow_covers_the_whole_band_around_the_rectangle() {

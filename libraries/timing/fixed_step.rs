@@ -1,34 +1,23 @@
-/// How much of a backlog an animating timer will walk before it gives up and skips to the
-/// present.
+/// How much backlog an animating timer walks before skipping to the present.
 ///
 /// Steps are owed for *elapsed* time, not for time the owner spent looking, so a widget that
-/// exists but is not stepped for a while comes back owing one step per millisecond. That is
-/// not hypothetical: a pause menu whose buttons are built when the world loads and first
-/// drawn when the player opens the menu owed 3.6 million animation steps per button after an
-/// hour of play.
-///
-/// Skipping them changes nothing that could be seen. An animation that closes the remaining
-/// distance geometrically and snaps once it is inside an epsilon has settled on its target in
-/// well under this many steps.
+/// is not stepped for a while comes back owing one step per millisecond - a pause menu's
+/// buttons, built when the world loads and first drawn an hour later, owed 3.6 million each.
+/// Nothing visible is lost: an animation settles well inside this many steps.
 pub const MAX_CATCHUP_FRAMES: i64 = 2000;
 
-/// Hands out one step per `step_ms` milliseconds of elapsed time.
+/// Hands out one step per `step_ms` milliseconds of elapsed time, accumulating - after 1000ms with
+/// a 100ms step, `step` answers true ten times.
 ///
-/// It accumulates: after waiting 1000ms with a 100ms step, `step` returns true ten times and
-/// false on the eleventh. That is what makes a fixed rate simulation independent of how often
-/// it is driven - the caller loops `while timer.step()` and gets the same number of steps per
-/// second whatever the frame rate.
+/// A `while timer.step()` loop therefore runs at the same rate whatever the frame rate.
 ///
-/// # Catching up is a policy, and it is chosen at construction
+/// **Catching up is a policy chosen at construction.** `new` owes every step, because a
+/// simulation that skips one has silently run slower and nothing downstream can tell.
+/// `for_animation` caps the backlog at `MAX_CATCHUP_FRAMES`, because frames nobody saw are
+/// worth nothing and repaying them is a burst of thousands of steps in one frame.
 ///
-/// `new` owes every step: a simulation that skips one has silently run slower than it should
-/// have, and nothing downstream can tell. `for_animation` caps the backlog at
-/// `MAX_CATCHUP_FRAMES`, because the frames nobody was there to see are worth nothing and
-/// paying them all back at once is a burst of thousands of steps in one frame.
-///
-/// Both count **absolute milliseconds since construction**, not deltas, and are 64 bit for
-/// that reason - as `i32` they overflowed after 24.8 days of uptime, which stopped every
-/// animation in the game for good.
+/// Both count **absolute milliseconds since construction** and are 64 bit for it: as `i32`
+/// they overflowed after 24.8 days of uptime and every animation in the game stopped for good.
 #[derive(Debug)]
 pub struct FixedStep {
     step_ms: i64,
@@ -60,8 +49,8 @@ impl FixedStep {
         }
     }
 
-    /// An animating timer that has already been running for `ms`, so a test can ask what a
-    /// widget does after an hour of not being drawn without waiting an hour for it.
+    /// An animating timer already `ms` old, so a test can ask what a widget does after an hour
+    /// of not being drawn without waiting an hour.
     #[cfg(test)]
     #[must_use]
     pub fn for_animation_started_ago(step_ms: i64, ms: u64) -> Self {
@@ -72,8 +61,8 @@ impl FixedStep {
         }
     }
 
-    /// Stops the timer from ever reporting another step, so a golden image does not depend on
-    /// how long the run took to reach the widget.
+    /// Stops the timer reporting another step, so a golden does not depend on how long the run
+    /// took to reach the widget.
     #[cfg(feature = "render-tests")]
     pub const fn freeze(&mut self) {
         self.stepped_ms = i64::MAX;
@@ -91,9 +80,8 @@ impl FixedStep {
         let elapsed = self.start_time.elapsed().as_millis() as i64;
 
         if let Some(limit) = self.catchup_limit_ms {
-            // Drop whatever backlog is older than the bound instead of walking it. A `max`
-            // rather than an assignment, so a frozen timer stays frozen and a timer that is
-            // keeping up is untouched.
+            // Drop backlog older than the bound rather than walking it. A `max`, so a frozen
+            // timer stays frozen and one that is keeping up is untouched.
             self.stepped_ms = self.stepped_ms.max(elapsed.saturating_sub(limit));
         }
 

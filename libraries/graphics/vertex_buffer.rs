@@ -14,11 +14,9 @@ pub struct Vertex {
     pub(super) tex_pos: gfx::FloatPos,
 }
 
-/// Vertices on their way to the GPU, and the id of the buffer once they get there.
-///
-/// `upload` is what creates the GPU resource, so a buffer that is filled and never uploaded
-/// costs nothing but the `Vec` - and one that *is* uploaded gives the `Vec` back, because the
-/// GPU has the data at that point and every caller builds an array once and then only draws it.
+/// Vertices on their way to the GPU, and the buffer's id once they get there. `upload` creates
+/// the resource, so a buffer that is filled and never uploaded costs only its `Vec` - and one
+/// that is uploaded gives the `Vec` back, the GPU having the data by then.
 pub struct VertexBuffer {
     /// Staged vertices, emptied by `upload`.
     vertices: Vec<f32>,
@@ -53,18 +51,15 @@ impl VertexBuffer {
         ]);
     }
 
-    /// Sends the staged vertices to the GPU and drops the CPU copy. Without a device this does
-    /// nothing, and the mesh draws nothing.
+    /// Sends the staged vertices to the GPU and drops the CPU copy.
     ///
-    /// **Taking the vertices rather than borrowing them is the point.** A mesh is built once and
-    /// then only drawn - every `RectArray` in the game is thrown away and rebuilt wholesale when
-    /// it changes - so holding the data after the GPU has it is a second copy of every chunk
-    /// mesh in RAM, ~50 KB a chunk across three caches of a thousand.
+    /// **Taking the vertices rather than borrowing is the point**: a mesh is built once and
+    /// then only drawn, so keeping them is a second copy of every chunk mesh in RAM - ~50 KB
+    /// each across three caches of a thousand.
     ///
     /// With nothing staged there is nothing to send, so an already uploaded mesh is left alone
-    /// rather than replaced by an empty one. With no device the vertices are left staged for
-    /// the same reason they are kept in `Texture::load_from_surface`: not having one is a
-    /// supported state, not a failure, and throwing the data away would make it one.
+    /// rather than emptied. With no device the vertices stay staged: not having one is a
+    /// supported state, and throwing the data away would make it a failure.
     pub fn upload(&mut self) {
         let Some(gpu) = gpu_device::get() else { return };
         if self.vertices.is_empty() {
@@ -78,10 +73,8 @@ impl VertexBuffer {
         self.id = gpu.create_mesh(&vertices);
     }
 
-    /// The backend's name for this mesh, which is what a `DrawCommand` carries.
-    ///
-    /// A handle may outlive the buffer it names: the GPU resource is parked on drop and only
-    /// released once the frame's commands have run.
+    /// The backend's name for this mesh, which is what a `DrawCommand` carries. It may outlive
+    /// the buffer: the resource is parked on drop and released after the frame runs.
     pub(super) const fn get_handle(&self) -> MeshHandle {
         MeshHandle(self.id)
     }

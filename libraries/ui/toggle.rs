@@ -75,11 +75,9 @@ impl UiElement for Toggle {
 
         // The border is the container itself; the bar is that rectangle inset by the padding.
         //
-        // Inset in absolute coordinates, **not** by re-laying out a smaller container: a
-        // container is placed by its orientation, so shrinking one moves it by the orientation
-        // too. That is only symmetric at `CENTER` - a `RIGHT` toggle, which is what the
-        // settings menu uses, came out flush against its right edge with twice the padding
-        // showing on the left.
+        // Inset in absolute coordinates, **not** by re-laying out a smaller container: that
+        // moves it by its orientation too, which is only symmetric at `CENTER`. The settings
+        // menu's `RIGHT` toggles came out flush right with twice the padding on the left.
         let border = *container.get_absolute_rect();
         border.render(graphics, self.border_color);
         let bar = gfx::Rect::new(

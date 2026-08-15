@@ -1,21 +1,16 @@
 use anyhow::{bail, Result};
 
-/// A partition of a grid into fixed size square chunks.
+/// A partition of a grid into fixed size square chunks: the addressing only.
 ///
-/// This is the addressing only - which chunk a cell is in, how many chunks there are, and
-/// what index a chunk has. What a chunk *holds* is the caller's, which is why this is a
-/// separate type from `Grid` rather than a method on it: the three things that partition a
-/// grid here all store something different per chunk.
+/// What a chunk *holds* is the caller's, which is why this is a type of its own - the three things
+/// that partition a grid all store something different per chunk.
 ///
-/// # Layout
+/// Chunk indices are **row major** (`index = x + y * chunks_wide`) where `Grid`'s cells are
+/// column major. Both are internally consistent, and swapping either to match reinterprets
+/// every index computed with the old one, so don't "fix" one in isolation.
 ///
-/// Chunk indices are **row major**: `index = x + y * chunks_wide`. `Grid`'s cells are
-/// column major. The two disagree on purpose - both are internally consistent, and
-/// swapping either to match the other silently reinterprets every index that was computed
-/// with the old one. Don't "fix" one in isolation.
-///
-/// A grid whose size is not a whole number of chunks **truncates**: the partial chunk along
-/// the edge is not addressable, and no chunk index ever refers to a cell outside the grid.
+/// A grid that is not a whole number of chunks **truncates**: the partial edge chunk is not
+/// addressable, and no chunk index ever refers to a cell outside the grid.
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub struct Chunks {
     /// Size of the partitioned grid, in cells.
@@ -25,10 +20,8 @@ pub struct Chunks {
 }
 
 impl Chunks {
-    /// Partitions a grid of `grid_size` cells into chunks `chunk_size` cells across.
-    ///
-    /// A `chunk_size` below 1 is raised to 1 rather than rejected: every operation here
-    /// divides by it, and a partition of nothing has no useful meaning to return.
+    /// Partitions a grid of `grid_size` cells into chunks `chunk_size` across. Below 1 is
+    /// raised to 1 rather than rejected: every operation here divides by it.
     #[must_use]
     pub const fn new(grid_size: (u32, u32), chunk_size: i32) -> Self {
         Self {
@@ -51,9 +44,8 @@ impl Chunks {
     /// Total number of chunks, which is how big a per-chunk `Vec` has to be.
     #[must_use]
     pub const fn count(&self) -> usize {
-        // the parentheses matter: `/` and `*` are left associative, so without them this
-        // reads as `((w / chunk) * h) / chunk`, which is a different number whenever the
-        // height is not a multiple of the chunk size
+        // Via `get_size`, so both divisions truncate before the multiply: written out inline
+        // it reads as `((w / chunk) * h) / chunk`, which is a different number.
         let (width, height) = self.get_size();
         (width * height) as usize
     }

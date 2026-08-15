@@ -28,19 +28,14 @@ enum Command {
 
 /// Accepts connections and carries `Packet`s to and from them.
 ///
-/// The socket lives on a thread of its own and talks to the owner through a channel pair, so
-/// the owner's loop only ever touches the channels. `poll` is where everything surfaces:
-/// the events that arrived, and any error the thread died of.
+/// The socket lives on its own thread and talks to the owner through a channel pair, so the owner's
+/// loop only touches the channels; `poll` surfaces both the events and any error the thread died
+/// of.
 ///
-/// # Not in scope
-///
-/// Who is allowed to connect, what has to be said first, and what counts as a peer being
-/// ready. This layer will hand over every packet from every peer that completed a TCP
-/// connection, including one it is about to refuse - deciding that is the owner's, and
-/// `disconnect` is how it acts on the decision.
-///
-/// `send` takes the connections to send to rather than having a notion of "everyone",
-/// because which peers count as everyone is exactly that same policy.
+/// **Not in scope**: who may connect and what has to be said first. This hands over every
+/// packet from every peer that completed a TCP connection, including one it is about to
+/// refuse, and `disconnect` is how the owner acts. `send` takes the connections to send to
+/// rather than knowing about "everyone", which is the same policy.
 pub struct PacketServer {
     port: u16,
     bind_address: BindAddress,
@@ -78,13 +73,10 @@ impl PacketServer {
         self.bind_address
     }
 
-    /// Starts the networking thread.
-    ///
-    /// **The bind happens on that thread, so its failure arrives late.** This returns before
-    /// the port has even been attempted, and a port that is already taken surfaces through a
-    /// later `poll`, when the finished thread is joined. A server whose port is taken would
-    /// otherwise look like one that started and then accepted nobody forever, so the error
-    /// names the address it could not bind rather than being a bare `AddrInUse`.
+    /// Starts the networking thread. **The bind happens there, so its failure arrives late**:
+    /// this returns before the port is attempted, and a taken one surfaces through a later
+    /// `poll` that joins the finished thread. Since the alternative reads as a server that
+    /// started and accepts nobody, the error names the address rather than being `AddrInUse`.
     pub fn listen(&mut self) {
         let (event_sender, event_receiver) = mpsc::channel();
         let (command_sender, command_receiver) = mpsc::channel();
@@ -106,12 +98,9 @@ impl PacketServer {
         );
     }
 
-    /// True once the networking thread has actually bound the port and is accepting.
-    ///
-    /// `listen` only spawns that thread, so there is a window where the server exists and
-    /// nothing is listening yet. Anyone who needs to know the difference has to be told by
-    /// the thread that binds - probing the port from outside means *binding* it, which races
-    /// the bind being waited for and can lose it the port entirely.
+    /// True once the thread has bound the port. `listen` only spawns it, so there is a window
+    /// where the server exists and nothing listens - and this is the only way to tell, since
+    /// probing the port means *binding* it, which races the bind being waited for.
     #[must_use]
     pub fn is_listening(&self) -> bool {
         self.is_listening.load(Ordering::Relaxed)
@@ -127,8 +116,8 @@ impl PacketServer {
     ) -> Result<()> {
         let (handler, listener) = node::split::<()>();
 
-        // the error is worth naming: a port already in use is the common way this fails, and
-        // it otherwise surfaces only as a server that silently never accepts anyone
+        // Named, because a port in use is the common failure and otherwise surfaces only as a
+        // server that silently never accepts anyone.
         handler
             .network()
             .listen(Transport::FramedTcp, listen_addr)
@@ -154,8 +143,7 @@ impl PacketServer {
                     }
                 }
                 NetEvent::Message(peer, data) => {
-                    // a malformed frame from one peer must not take down networking for
-                    // everyone, so drop the packet and keep serving the other connections
+                    // One peer's malformed frame must not take networking down for everyone.
                     let packet: Packet = match serialization::deserialize(data) {
                         Ok(packet) => packet,
                         Err(e) => {
@@ -177,9 +165,8 @@ impl PacketServer {
                 while let Ok(command) = command_receiver.try_recv() {
                     match command {
                         Command::Send { data, conn } => {
-                            // sending routinely fails when the peer has gone away between
-                            // queueing and sending, which is normal and must not kill the
-                            // networking thread
+                            // A peer that went away between queueing and sending is normal,
+                            // and must not kill the networking thread.
                             if let Err(e) = Self::send_now(&handler, &data, &conn) {
                                 log(LogLevel::Warning, &format!("Failed to send a packet to [{conn}]: {e}"));
                             }
@@ -203,20 +190,15 @@ impl PacketServer {
                 SendStatus::Sent => break,
                 SendStatus::MaxPacketSizeExceeded => bail!("Max packet size exceeded"),
                 SendStatus::ResourceNotFound => bail!("Resource not found"),
-                SendStatus::ResourceNotAvailable => {
-                    // wait a bit and try again
-                    std::thread::sleep(std::time::Duration::from_millis(1));
-                }
+                SendStatus::ResourceNotAvailable => std::thread::sleep(std::time::Duration::from_millis(1)),
             }
         }
 
         Ok(())
     }
 
-    /// Everything that arrived since the last call.
-    ///
-    /// Also where the networking thread's own failure is reported: it is joined once it has
-    /// finished, and whatever it returned is returned from here.
+    /// Everything that arrived since the last call, and where the networking thread's own
+    /// failure surfaces: a finished thread is joined and whatever it returned comes back here.
     pub fn poll(&mut self) -> Result<Vec<ServerEvent>> {
         let mut events = Vec::new();
         if let Some(event_receiver) = &self.event_receiver {

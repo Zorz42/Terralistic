@@ -1,11 +1,8 @@
 use crate::libraries::graphics as gfx;
 use crate::libraries::ui::{approach, BaseUiElement, Container, RenderRect, Scrollable, UiContext, BLUR, BOTTOM, SHADOW_INTENSITY, SPACING, TOP, TRANSPARENCY};
 
-/// One entry in a `ListPage`.
-///
-/// The page owns the vertical arrangement, so a row only has to say how tall it is and take
-/// the position it is given. Everything else about a row - what it contains, what its buttons
-/// do - is the caller's.
+/// One entry in a `ListPage`. The page owns the arrangement, so a row says how tall it is and
+/// takes the position it is given; what it contains is the caller's.
 pub trait ListRow: BaseUiElement {
     /// How tall this row is. Rows may differ.
     fn get_row_height(&self) -> f32;
@@ -13,11 +10,8 @@ pub trait ListRow: BaseUiElement {
     /// Where the page has decided this row goes, relative to the page.
     fn set_row_pos(&mut self, pos: gfx::FloatPos);
 
-    /// Whether the row should respond to the mouse.
-    ///
-    /// The page calls this with `false` while the pointer is over the bars, so a row
-    /// scrolled underneath one does not light up through it. A row with nothing hoverable
-    /// can ignore it.
+    /// Whether the row responds to the mouse. The page says `false` while the pointer is over
+    /// a bar, so a row scrolled under one does not light up through it.
     fn set_row_enabled(&mut self, enabled: bool) {
         let _ = enabled;
     }
@@ -25,16 +19,10 @@ pub trait ListRow: BaseUiElement {
 
 /// A full-screen page holding a scrolling list of rows between a title bar and a button bar.
 ///
-/// The page owns the two bars, the scrollable, and the arrangement: rows are stacked from the
-/// top with `SPACING` between them, the scroll extent follows their total height, and the top
-/// bar fades in once the list has been scrolled off its start - so a title sits flat against
-/// the list until there is something underneath it to separate.
-///
-/// # Not in scope
-///
-/// What is in the bars and what is in the rows. The page positions and reveals; the caller
-/// owns the title, the buttons and every row, and puts them in its own `get_sub_elements`
-/// alongside `top_rect`, `bottom_rect` and `scrollable`.
+/// It owns the two bars, the scrollable and the arrangement: rows stacked from the top with
+/// `SPACING` between, a scroll extent following their total height, and a top bar that fades
+/// in once there is something under it to separate. What goes *in* the bars and rows is not in
+/// scope - the caller owns those and lists them in its own `get_sub_elements`.
 pub struct ListPage {
     /// The bar behind the title. Fades in as the list scrolls under it.
     pub top_rect: RenderRect,
@@ -73,8 +61,7 @@ impl ListPage {
         }
     }
 
-    /// Whether the list is long enough to scroll, which is also when the bottom bar earns
-    /// its place.
+    /// Whether the list is long enough to scroll, which is when the bottom bar earns its place.
     #[must_use]
     pub fn is_scrollable(&self) -> bool {
         self.scrollable.scroll_size > self.scrollable.rect.size.1
@@ -86,10 +73,8 @@ impl ListPage {
         self.top_rect_visibility > 0.0
     }
 
-    /// Lays the rows out, sizes the bars and the scroll extent, and fades the top bar.
-    ///
-    /// Call this from the page owner's `update_inner`, once per frame, before anything that
-    /// reads a row's position.
+    /// Lays the rows out, sizes the bars and the scroll extent, and fades the top bar. Call it
+    /// once per frame from the owner's `update_inner`, before anything reads a row's position.
     pub fn update(&mut self, graphics: &dyn UiContext, parent_container: &Container, rows: &mut [&mut dyn ListRow]) {
         // `get_scroll_y` already carries the scrollable's own `SPACING` offset
         let mut current_y = self.scrollable.get_scroll_y() + self.top_rect.size.1;
@@ -103,8 +88,8 @@ impl ListPage {
         // the gap after the last row is not part of the list
         self.scrollable.scroll_size = (total_height - SPACING).max(0.0);
 
-        // A row scrolled under a bar must not light up through it, so hovering is switched
-        // off for the whole list while the pointer is over either bar.
+        // A row under a bar must not light up through it, so the whole list stops hovering
+        // while the pointer is over either one.
         let mouse_y = graphics.get_mouse_pos().1;
         let hoverable = mouse_y > self.top_rect.size.1 && mouse_y < graphics.get_window_size().1 - self.bottom_rect.size.1;
         for row in rows {
@@ -115,9 +100,8 @@ impl ListPage {
         self.bottom_rect.size.0 = parent_container.get_absolute_rect().size.0;
         self.scrollable.rect.size.1 = graphics.get_window_size().1 - self.top_rect.size.1 - self.bottom_rect.size.1;
 
-        // The top bar appears once the list has been scrolled far enough that something is
-        // actually underneath it. 5 pixels rather than 0, so a list resting at the top does
-        // not flicker the bar in and out as the scroll settles.
+        // 5 pixels rather than 0, so a list resting at the top does not flicker the bar in and
+        // out as the scroll settles.
         let visible_target = if self.scrollable.get_scroll_pos() > 5.0 { 1.0 } else { 0.0 };
         self.top_rect_visibility = approach(self.top_rect_visibility, visible_target, 20.0, 0.01);
 

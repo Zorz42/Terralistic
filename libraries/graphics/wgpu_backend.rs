@@ -1,21 +1,12 @@
 //! The wgpu half of the renderer: how a `DrawList` becomes pixels.
 //!
-//! `execute` runs in two phases. The first walks the command list and turns it into a flat
-//! list of `Segment`s plus one `Uniforms` entry per draw, because wgpu wants all the uniform
-//! data written before any of it is encoded. The second encodes the segments into render
-//! passes. A `Blur` command splits the frame, since blurring means sampling what has already
-//! been drawn and wgpu cannot sample the texture it is currently drawing into.
+//! `execute` plans then encodes: wgpu wants every uniform written before any is encoded, so
+//! the first pass flattens the commands into `Segment`s plus one `Uniforms` each. A `Blur`
+//! splits the frame into separate passes - wgpu cannot sample the texture it draws into.
 //!
-//! Two things about the output are deliberate and easy to undo by accident:
-//!
-//! - **Rectangle outlines are four thin quads, not line primitives.** Line rasterisation rules
-//!   differ between Metal, Vulkan and DX12, which would make the output depend on the machine
-//!   - the opposite of what the golden images are for. Quads put the border exactly on the
-//!   rectangle's own pixels.
-//! - **Texture draws are snapped to a whole pixel** of the offscreen. See `plan_command`.
-//! - **The blur runs on a shrunken copy of its region**, not on the frame. See
-//!   `MIN_BLUR_DOWNSCALE`: at full resolution it costs more than the rest of the frame put
-//!   together.
+//! Deliberate and easy to undo by accident: outlines are four quads, not line primitives
+//! (rasterisation rules differ per backend); texture draws snap to a whole offscreen pixel
+//! (`plan_command`); the blur runs on a shrunken copy (`MIN_BLUR_DOWNSCALE`).
 
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -30,14 +21,14 @@ use super::draw_list::{BlendMode, DrawCommand, DrawList};
 use super::gpu_device::{self, GpuDevice, MeshEntry};
 use super::transformation::Transformation;
 
-/// One vertex: position, colour, texture coordinate. Matches `VertexBuffer`'s packing so a
-/// `RectArray` and the built-in quad can share a pipeline.
+/// Position, colour, texture coordinate. Matches `VertexBuffer`, so meshes and the built-in
+/// quad share a pipeline.
 pub(super) const VERTEX_FLOATS: usize = 8;
 
 const SHADER: &str = include_str!("shaders.wgsl");
 
-/// The per-draw uniform block. Laid out by hand to match WGSL's rules: a `mat3x3` occupies
-/// three 16 byte columns, and the whole struct aligns to 16.
+/// The per-draw uniform block, laid out by hand for WGSL: a `mat3x3` is three 16 byte
+/// columns, and the struct aligns to 16.
 #[repr(C)]
 #[derive(Clone, Copy, bytemuck::Pod, bytemuck::Zeroable)]
 struct Uniforms {
@@ -72,23 +63,20 @@ const fn expand(transform: &Transformation) -> [[f32; 4]; 3] {
     [[m[0], m[1], m[2], 0.0], [m[3], m[4], m[5], 0.0], [m[6], m[7], m[8], 0.0]]
 }
 
-/// What to draw with, once a command has been resolved against the registry.
+/// What to draw with, once a command has been resolved against the registry. Every rect and
+/// texture draw is a transform of the unit quad.
 #[derive(Clone, Copy)]
 enum Geometry {
-    /// The built-in unit quad, which every rect and texture draw is a transform of.
     Quad,
-    /// A mesh from the registry, by id.
     Mesh(u32),
 }
 
-/// What a draw samples from.
+/// What a draw samples from: the white dummy, a registry id, or - for the blur's upsample
+/// only - one of the scratch textures, sampled linearly.
 #[derive(Clone, Copy)]
 enum TextureRef {
-    /// The white dummy, for a draw with no texture of its own.
     White,
-    /// A registry id.
     Registry(u32),
-    /// One of the blur's scratch textures, sampled linearly. Only the upsample uses this.
     Scratch(usize),
 }
 
@@ -139,8 +127,8 @@ impl Plan {
         self.uniforms.push(uniform);
     }
 
-    /// The blurred region stretched back over the frame. An ordinary draw, so it joins whatever
-    /// pass comes after the blur instead of costing a full-size one of its own.
+    /// The blurred region stretched back over the frame. An ordinary draw, so it joins the
+    /// pass after the blur instead of costing a full-size one of its own.
     fn blur_upsample(&mut self, uniform: Uniforms, scratch: usize) {
         self.segments.push(Segment::Draw {
             uniform: self.uniforms.len() as u32,
@@ -164,7 +152,6 @@ impl Plan {
 /// A texture the renderer draws into and then samples: the frame itself, and the reduced
 /// resolution pair the blur ping-pongs between.
 struct Offscreen {
-    /// Only the golden-image readback needs the texture itself; the view keeps it alive.
     #[cfg_attr(not(feature = "render-tests"), allow(dead_code, reason = "only read back when capturing goldens"))]
     texture: wgpu::Texture,
     view: wgpu::TextureView,
@@ -201,34 +188,19 @@ impl Offscreen {
     }
 }
 
-/// How much the blur shrinks the region before working on it, as a divisor of offscreen pixels.
+/// How much the blur shrinks its region first, as a divisor of offscreen pixels.
 ///
-/// **The blur is the only thing in the toolkit whose cost is the region's area**, and it pays it
-/// four to six times over: every pass is thirteen taps for every pixel of the region, and every
-/// pass used to be a render pass whose attachment was the whole frame. A menu blurring most of a
-/// fullscreen window on a `HiDPI` display is seven million pixels through half a billion
-/// samples, which measured at 7.3 ms of GPU on an M-series Mac - most of a 60 fps frame, on its
-/// own, on top of everything else the frame does.
-///
-/// So the region is shrunk first, blurred small, and stretched back. A blur has nothing in it
-/// finer than its own kernel, so almost nothing is lost by sampling it on a coarser grid:
-/// against the full resolution result, over vertical one pixel stripes, no channel of the
-/// measured frame moved by more than 6 of 255. The same frame's blur now measures under the
-/// half millisecond the harness can resolve.
-///
-/// The pair is allocated at `MIN_BLUR_DOWNSCALE`, which is what makes a whole-window region fit
-/// in it at the finest downscale the blur will ever pick.
+/// **The blur is the frame's one area-priced effect**: four to six passes of thirteen taps per
+/// pixel, which fullscreen on a `HiDPI` display measured at 7.3 ms of GPU. Shrinking first
+/// loses almost nothing - a blur has nothing finer than its own kernel, and no channel moved
+/// more than 6 of 255 against the full resolution result. The scratch pair is allocated at
+/// `MIN_BLUR_DOWNSCALE`, so a whole-window region always fits.
 const MIN_BLUR_DOWNSCALE: f32 = 2.0;
 const MAX_BLUR_DOWNSCALE: f32 = 4.0;
 
-/// A scratch texel is at most a quarter of the widest tap spacing, which keeps the grid fine
-/// enough to hold everything the narrow passes put into the image.
-///
-/// Tying the downscale to the radius is also what stops a *small* one being over-blurred by the
-/// round trip, since shrinking and stretching back is itself a blur about a texel wide. A radius
-/// of a pixel or two still comes out slightly softer than asked for, and the only thing that
-/// ever asks for one is the first frame or two of a fade - where the alternative is the fade
-/// itself dropping the frame rate.
+/// A scratch texel is at most a quarter of the widest tap spacing. Following the radius is
+/// also what stops a *small* one being over-blurred, since the round trip is itself a blur
+/// about a texel wide.
 const BLUR_TEXELS_PER_RADIUS: f32 = 4.0;
 
 pub struct WgpuBackend {
@@ -244,13 +216,11 @@ pub struct WgpuBackend {
     blur_scratch: [Offscreen; 2],
     blur_scratch_size: gfx::IntSize,
 
-    /// Indexed by `BlendMode`; the blend state is baked into a wgpu pipeline, so switching
-    /// modes mid-frame means switching pipeline.
+    /// Blend state is baked into a wgpu pipeline, so switching mode means switching pipeline.
     alpha_pipeline: wgpu::RenderPipeline,
     multiply_pipeline: wgpu::RenderPipeline,
     blur_pipeline: wgpu::RenderPipeline,
-    /// The blur's upsample: a plain textured quad, but sampled linearly and written rather than
-    /// blended, so it needs a pipeline of its own.
+    /// The upsample: a textured quad, but sampled linearly and written rather than blended.
     blur_upsample_pipeline: wgpu::RenderPipeline,
     present_pipeline: wgpu::RenderPipeline,
 
@@ -263,7 +233,7 @@ pub struct WgpuBackend {
     uniform_capacity: u64,
     /// Distance between consecutive uniform entries, rounded up to the device's alignment.
     uniform_stride: u32,
-    /// Staging bytes for `write_uniforms`, kept so a frame does not allocate.
+    /// Staging bytes, kept between frames so a steady state frame does not allocate.
     uniform_bytes: Vec<u8>,
 
     normalization_transform: Transformation,
@@ -277,10 +247,9 @@ pub struct WgpuBackend {
 impl WgpuBackend {
     /// Brings up the device, publishes it for resource creation, and builds the pipelines.
     ///
-    /// Takes the window by `Arc` so the surface can own a share of it. That is what makes
-    /// the surface `'static` without the unsafe raw-handle constructor, and it means the
-    /// window cannot be dropped out from under wgpu no matter what order anything else
-    /// holding one is destroyed in.
+    /// The window comes by `Arc` so the surface can own a share of it: that is what makes the
+    /// surface `'static` without the unsafe raw-handle constructor, and it keeps the window
+    /// alive under wgpu whatever else is dropped.
     pub(super) fn new(window: &Arc<winit::window::Window>, size: gfx::IntSize, drawable_size: gfx::IntSize) -> Result<Self> {
         let instance = wgpu::Instance::new(wgpu::InstanceDescriptor {
             backends: wgpu::Backends::PRIMARY,
@@ -303,14 +272,10 @@ impl WgpuBackend {
         let (device, queue) = pollster::block_on(adapter.request_device(&wgpu::DeviceDescriptor {
             label: Some("terralistic"),
             required_features: wgpu::Features::empty(),
-            // The toolkit draws textured triangles and nothing else, so the lowest common
-            // denominator is enough and keeps the oldest hardware working - except for
-            // texture size, which is not a matter of taste: the offscreen pair and the
-            // surface are as big as the window, and `downlevel_defaults` caps a texture at
-            // 2048. A 1670x1050 window on a 2x display is already 3340 pixels across, so the
-            // default would refuse to configure the surface at all. `using_resolution` keeps
-            // everything else conservative and takes only the dimension limits from the
-            // adapter.
+            // Textured triangles need nothing more than the downlevel defaults - except
+            // texture size: they cap it at 2048, and a 1670x1050 window on a 2x display is
+            // 3340 across, which fails `Surface::configure` outright. `using_resolution`
+            // takes the dimension limits from the adapter and leaves the rest conservative.
             required_limits: wgpu::Limits::downlevel_defaults().using_resolution(adapter.limits()),
             experimental_features: wgpu::ExperimentalFeatures::disabled(),
             memory_hints: wgpu::MemoryHints::default(),
@@ -340,9 +305,8 @@ impl WgpuBackend {
         let quad_buffer = build_quad_buffer(gpu);
         let white_bind_group = build_white_bind_group(gpu);
 
-        // Rounded up to the alignment rather than just `max`ed against it: a dynamic offset has
-        // to be a multiple of it, and `max` only happens to give one because the requested
-        // limits pin the alignment at 256 and `Uniforms` is smaller than that.
+        // Rounded up rather than `max`ed: a dynamic offset has to be a *multiple* of the
+        // alignment, which `max` only happens to give at the alignment the limits pin.
         let uniform_stride = (std::mem::size_of::<Uniforms>() as u32).next_multiple_of(gpu.device.limits().min_uniform_buffer_offset_alignment);
         let uniform_capacity = u64::from(uniform_stride) * 256;
         let uniform_buffer = gpu.device.create_buffer(&wgpu::BufferDescriptor {
@@ -407,12 +371,9 @@ impl WgpuBackend {
         );
     }
 
-    /// Reallocates the offscreen pair and reconfigures the surface.
-    ///
-    /// `offscreen_size` is the resolution the frame is *drawn* at and `surface_size` the one
-    /// it is presented at. The game normally asks for both to be the display's real pixel
-    /// size, so nothing is upscaled; the golden-image harness asks for a logical-sized
-    /// offscreen instead - see `GraphicsContext::handle_window_resize`.
+    /// Reallocates the offscreens and reconfigures the surface. The frame is *drawn* at
+    /// `offscreen_size` and presented at `surface_size`; the game asks for both to be the
+    /// display's real pixel size, the golden harness for a logical-sized offscreen.
     pub(super) fn resize(&mut self, offscreen_size: gfx::IntSize, surface_size: gfx::IntSize) {
         let Some(gpu) = gpu_device::get() else { return };
         if offscreen_size != self.size {
@@ -430,11 +391,8 @@ impl WgpuBackend {
         }
     }
 
-    /// Rounds a destination position onto a whole offscreen pixel.
-    ///
-    /// The coordinates a command carries are logical, and the offscreen usually has more
-    /// than one pixel per logical unit, so this is a finer grid than "whole logical pixel" -
-    /// which is the point. It is what a smooth animation gets to move along.
+    /// Rounds a destination position onto a whole *offscreen* pixel - a finer grid than the
+    /// logical one, which is what leaves a smooth animation somewhere to move.
     fn snap_to_pixel(&self, pos: gfx::FloatPos, window_size: gfx::FloatSize) -> gfx::FloatPos {
         let per_logical_x = self.size.0 as f32 / window_size.0;
         let per_logical_y = self.size.1 as f32 / window_size.1;
@@ -452,10 +410,8 @@ impl WgpuBackend {
         }
     }
 
-    /// Recomputes the transform that maps window pixel coordinates onto clip space.
-    ///
-    /// The negative y scale is the graphics convention: clip space is y up, while every
-    /// coordinate in this toolkit is y down from the top left.
+    /// Recomputes the transform mapping window pixels onto clip space. The negative y scale is
+    /// the convention gap: clip space is y up, this toolkit is y down from the top left.
     pub(super) fn update_normalization_transform(&mut self, window_size: gfx::FloatSize) {
         self.normalization_transform = Transformation::new();
         self.normalization_transform.translate(gfx::FloatPos(-1.0, 1.0));
@@ -492,8 +448,7 @@ impl WgpuBackend {
                 plan.draw(self.rect_uniform(rect, color), None, Geometry::Quad);
             }
             DrawCommand::RectOutline { rect, color } => {
-                // Four one pixel quads on the rectangle's own edge pixels. See the module
-                // docs: a line primitive would rasterise differently per backend.
+                // Four one pixel quads, not a line primitive - see `outline_edges`.
                 for edge in outline_edges(rect) {
                     plan.draw(self.rect_uniform(edge, color), None, Geometry::Quad);
                 }
@@ -507,22 +462,14 @@ impl WgpuBackend {
                 flipped,
                 color,
             } => {
-                // **Snapped to a whole pixel**, which keeps a texel from coming out a pixel
-                // wider than its neighbour.
-                //
-                // Sampling is `NEAREST`, so a destination pixel takes whichever texel its
-                // centre falls in. With the quad starting on a whole pixel and an integer
-                // scale, those centres land halfway through a texel and every texel gets the
-                // same number of pixels. Off by half and they land exactly *on* the boundaries
-                // instead, where which side they fall on comes down to the last bit of a float
-                // interpolated across the quad - so a 3x glyph pixel comes out 2 or 4 wide,
-                // and differently along the string, which reads as uneven, faintly slanted
-                // text. Layout puts things on half pixels constantly.
-                //
-                // The grid is the offscreen's, not the logical one, so on a `HiDPI` display
-                // this still leaves half a logical pixel of movement to animate along. Meshes
-                // are **not** snapped: `RectArray` maps texture coordinates per vertex, and
-                // the world would jitter against the camera.
+                // **Snapped to a whole pixel**, or a texel comes out wider than its neighbour.
+                // Sampling is `NEAREST`: starting on a whole pixel puts the destination
+                // centres halfway through a texel, so every texel gets the same number of
+                // them. Half a pixel off they land *on* the boundaries, where a float's last
+                // bit decides the side - a 3x glyph pixel 2 or 4 wide, unevenly along the
+                // string. Layout puts things on half pixels constantly. Meshes are **not**
+                // snapped: `RectArray` maps texture coordinates per vertex, and the world
+                // would jitter against the camera.
                 let pos = self.snap_to_pixel(pos, window_size);
 
                 let mut transform = self.normalization_transform.clone();
@@ -533,11 +480,10 @@ impl WgpuBackend {
                 transform.translate(pos);
                 transform.stretch((src_rect.size.0 * scale, src_rect.size.1 * scale));
 
-                // The unit square maps onto the source rectangle and then onto [0,1] of the
-                // whole texture. The stretch is by exactly `src_rect.size` - **no fudge
-                // factor**. Sampling happens at texel centres, so the last output column
-                // already lands strictly inside the region; inflating the region pushes it
-                // into the neighbouring texel, which shows up as a sliver of the wrong sprite.
+                // The unit square onto the source rectangle, then onto [0,1] of the texture,
+                // stretched by exactly `src_rect.size` - **no fudge factor**. Sampling is at
+                // texel centres, so the last column already lands inside the region;
+                // inflating it reaches the next texel, which is a sliver of the wrong sprite.
                 let mut texture_transform = texel_scale(texture_size);
                 texture_transform.translate(src_rect.pos);
                 texture_transform.stretch((src_rect.size.0, src_rect.size.1));
@@ -574,13 +520,10 @@ impl WgpuBackend {
         Uniforms::new(&transform, &Transformation::new(), color, false)
     }
 
-    /// Turns one blur command into its passes: two gaussians per axis, plus a wider pair once
-    /// the radius is large enough to need it, and the upsample that puts the result back.
-    ///
-    /// The first pass reads the region out of the frame and writes it into the scratch pair,
-    /// shrunk by `downscale`; the rest run entirely on the scratch, at a fraction of the pixels
-    /// the frame has. **The tap spacings do not change** - they stay the same distances in
-    /// window coordinates, so the blur is the same blur, only sampled on a coarser grid.
+    /// Turns one blur command into its passes: two gaussians per axis, a wider pair once the
+    /// radius earns it, and the upsample that puts the result back. The first pass shrinks the
+    /// region into the scratch pair and the rest stay there. **The tap spacings do not
+    /// change** - same distances in window coordinates, sampled on a coarser grid.
     fn plan_blur(&self, rect: gfx::Rect, radius: i32, window_size: gfx::FloatSize, plan: &mut Plan) {
         let radius = radius as f32 * self.blur_intensity / 5.0;
         if radius < 1.0 {
@@ -597,12 +540,12 @@ impl WgpuBackend {
         }
 
         // Offscreen pixels per window coordinate: the offscreen is the display's real
-        // resolution, so the radius the eye sees is this much bigger than the radius asked for.
+        // resolution, so the radius the eye sees is this much bigger than the one asked for.
         let per_window = gfx::FloatSize(self.size.0 as f32 / window_size.0, self.size.1 as f32 / window_size.1);
         let downscale = (radius * per_window.0.min(per_window.1) / BLUR_TEXELS_PER_RADIUS).clamp(MIN_BLUR_DOWNSCALE, MAX_BLUR_DOWNSCALE);
 
-        // How much of the scratch pair this region occupies, from its top left corner. The
-        // pair is allocated for a whole-window region at the finest downscale, so this fits.
+        // How much of the scratch pair the region occupies, from its top left corner. The pair
+        // is allocated for a whole-window region at the finest downscale, so this fits.
         let scratch = gfx::FloatSize(self.blur_scratch_size.0 as f32, self.blur_scratch_size.1 as f32);
         let used = gfx::FloatSize(
             (rect.size.0 * per_window.0 / downscale).ceil().clamp(1.0, scratch.0),
@@ -610,7 +553,7 @@ impl WgpuBackend {
         );
 
         // The unit quad onto that corner of the scratch, in clip space. `normalization_transform`
-        // is no use here: it maps window coordinates onto the frame, and this target is neither.
+        // is no use: it maps window coordinates onto the frame, and this target is neither.
         let mut to_scratch = Transformation::new();
         to_scratch.translate(gfx::FloatPos(-1.0, 1.0));
         to_scratch.stretch((2.0 / scratch.0, -2.0 / scratch.1));
@@ -629,15 +572,14 @@ impl WgpuBackend {
             (rect.pos.1 + 1.0) / window_size.1,
         ];
 
-        // The same for the scratch: texel for texel onto the corner in use, clamped to the
-        // centres of its outermost texels so a pass cannot read whatever an earlier, larger
-        // region left in the rest of the texture.
+        // The same for the scratch: texel for texel onto the corner in use, clamped to its
+        // outermost texel centres so a pass cannot read what an earlier, larger region left.
         let mut scratch_uv = Transformation::new();
         scratch_uv.stretch((used.0 / scratch.0, used.1 / scratch.1));
         let scratch_limit = [(used.0 - 0.5) / scratch.0, (used.1 - 0.5) / scratch.1, 0.5 / scratch.0, 0.5 / scratch.1];
 
-        // Tap spacings in window coordinates. Two narrow passes, two wide ones, and a fixed two
-        // pixel pair once there is enough radius for it to add anything.
+        // Tap spacings in window coordinates: two narrow passes, two wide, and a fixed two
+        // pixel pair once the radius is enough for it to add anything.
         let mut spacings = vec![
             gfx::FloatSize(0.0, radius / 10.0),
             gfx::FloatSize(radius / 10.0, 0.0),
@@ -651,8 +593,7 @@ impl WgpuBackend {
 
         let mut target = 0;
         for (index, spacing) in spacings.iter().enumerate() {
-            // The first pass is the one that shrinks the region, so it is the only one reading
-            // the frame; everything after it reads the scratch it just wrote.
+            // The first pass shrinks the region, so it is the only one reading the frame.
             let (source, texture_transform, limit, offset) = if index == 0 {
                 (BlurSource::Frame, &region_uv, region_limit, [spacing.0 / window_size.0, spacing.1 / window_size.1])
             } else {
@@ -671,15 +612,13 @@ impl WgpuBackend {
             target = 1 - target;
         }
 
-        // Back over the region at full size. The quad is exactly the one the old full
-        // resolution blur wrote, so the pixels it covers are the same ones.
+        // Back over the region at full size.
         let mut transform = self.normalization_transform.clone();
         transform.translate(rect.pos);
         transform.stretch((rect.size.0, rect.size.1));
 
-        // Mapping the region's edges onto the *centres* of the outermost texels rather than
-        // onto its corners is half a texel of stretch, and it is what keeps the linear sampler
-        // from reaching outside the part of the scratch that was written.
+        // The region's edges map onto the outermost texel *centres* rather than the corners:
+        // half a texel of stretch, and what keeps the linear sampler inside what was written.
         let mut upsample_uv = Transformation::new();
         upsample_uv.stretch((1.0 / scratch.0, 1.0 / scratch.1));
         upsample_uv.translate(gfx::FloatPos(0.5, 0.5));
@@ -702,7 +641,6 @@ impl WgpuBackend {
             self.uniform_bind_group = build_uniform_bind_group(gpu, &self.uniform_layout, &self.uniform_buffer);
         }
 
-        // Kept between frames so a steady state frame does not allocate.
         let stride = self.uniform_stride as usize;
         self.uniform_bytes.clear();
         self.uniform_bytes.resize(stride * uniforms.len(), 0);
@@ -715,17 +653,13 @@ impl WgpuBackend {
         gpu.queue.write_buffer(&self.uniform_buffer, 0, &self.uniform_bytes);
     }
 
-    /// Turns the planned segments into render passes.
-    ///
-    /// A frame is one pass per run of draws, split wherever a blur needs to read back what
-    /// has been drawn so far.
+    /// Turns the planned segments into render passes: one per run of draws, split wherever a
+    /// blur has to read back what was drawn so far.
     fn encode(&self, gpu: &GpuDevice, encoder: &mut wgpu::CommandEncoder, segments: &[Segment], clear: bool) {
-        // The clear gets a pass of its own, on the frame's own target. Folding it into
-        // whichever pass happens to come first is wrong for a frame that opens with a blur:
-        // the first pass of one writes the *back* texture, so the clear landed there, the
-        // front kept the previous frame, and the blur then read that back in as its source.
-        // It also covers the frame that records nothing at all and still has to come out
-        // empty rather than showing what was there before.
+        // The clear needs a pass of its own, on the frame's target. Folded into the first
+        // pass of a frame opening with a blur it lands on the *back* texture instead, leaving
+        // the front to be read back as the blur's source. It also covers the frame that
+        // records nothing and still has to come out empty.
         if clear {
             drop(begin_pass(encoder, &self.front.view, true));
         }
@@ -750,11 +684,9 @@ impl WgpuBackend {
         }
     }
 
-    /// One gaussian pass, into one of the scratch textures.
-    ///
-    /// The attachment is a scratch texture rather than the frame, which is most of why this is
-    /// cheap: on a tiled GPU a pass costs its attachment's whole area to load and store however
-    /// small the quad drawn into it is, and the frame is up to sixteen times the pixels.
+    /// One gaussian pass, into one of the scratch textures. The attachment being scratch
+    /// rather than the frame is most of why it is cheap: on a tiled GPU a pass costs its
+    /// attachment's whole area however small the quad is, and the frame is 16x the pixels.
     fn encode_blur(&self, encoder: &mut wgpu::CommandEncoder, uniform: u32, source: BlurSource, target: usize) {
         let source = match source {
             BlurSource::Frame => &self.front,
@@ -781,8 +713,8 @@ impl WgpuBackend {
                 continue;
             };
 
-            // A missing entry means the resource was created without a device, which can
-            // only happen in a process that cannot render anyway.
+            // A missing entry is a resource created without a device, which only happens in
+            // a process that cannot render anyway.
             let bind_group = match texture {
                 TextureRef::White => &self.white_bind_group,
                 TextureRef::Registry(id) => match textures.get(&id) {
@@ -814,17 +746,15 @@ impl WgpuBackend {
         }
     }
 
-    /// Copies the offscreen texture onto the window.
-    ///
-    /// The surface is configured at the real drawable size and the offscreen is drawn over it
-    /// as a nearest-sampled quad, so this is normally a copy rather than a scale.
+    /// Copies the offscreen texture onto the window. Both are the real drawable size and the
+    /// quad is nearest-sampled, so this is normally a copy rather than a scale.
     pub(super) fn present(&mut self) -> Result<()> {
         let Some(gpu) = gpu_device::get() else { return Ok(()) };
 
         let frame = match self.surface.get_current_texture() {
             wgpu::CurrentSurfaceTexture::Success(frame) | wgpu::CurrentSurfaceTexture::Suboptimal(frame) => frame,
-            // Lost or outdated just means the window changed under us, so reconfigure and
-            // let the next frame have it. The others are all "try again later".
+            // Lost or outdated is the window having changed under us: reconfigure and let the
+            // next frame have it. The others are all "try again later".
             wgpu::CurrentSurfaceTexture::Lost | wgpu::CurrentSurfaceTexture::Outdated => {
                 self.configure_surface();
                 return Ok(());
@@ -866,8 +796,8 @@ impl WgpuBackend {
         self.blur_enabled = enable;
     }
 
-    /// Jumps the blur fade to its target, so a golden does not depend on how many 10 ms
-    /// frames happened to elapse before the capture.
+    /// Jumps the blur fade to its target, so a golden does not depend on how many 10 ms frames
+    /// elapsed before the capture.
     #[cfg(feature = "render-tests")]
     pub(super) const fn settle_blur(&mut self) {
         self.blur_intensity = if self.blur_enabled { 1.0 } else { 0.0 };
@@ -879,16 +809,14 @@ impl WgpuBackend {
         self.clear_next_frame = true;
     }
 
-    /// Reads the offscreen texture back into a `Surface`.
-    ///
-    /// Upstream of `present`, so what a golden records is what the game drew rather than what
-    /// the display scaled it to.
+    /// Reads the offscreen texture back into a `Surface`. Upstream of `present`, so a golden
+    /// records what the game drew rather than what the display scaled it to.
     #[cfg(feature = "render-tests")]
     pub(super) fn read_pixels(&self) -> Result<gfx::Surface> {
         let gpu = gpu_device::get().ok_or_else(|| anyhow!("no gpu device"))?;
         let size = self.size;
-        // Buffer rows have to start on a 256 byte boundary, so the readback is usually
-        // wider than the image and has to be un-padded row by row.
+        // Buffer rows start on a 256 byte boundary, so the readback is usually wider than the
+        // image and has to be un-padded row by row.
         let bytes_per_row = (size.0 * 4).div_ceil(256) * 256;
 
         let buffer = gpu.device.create_buffer(&wgpu::BufferDescriptor {
@@ -924,10 +852,8 @@ impl WgpuBackend {
 
         let slice = buffer.slice(..);
         let (sender, receiver) = std::sync::mpsc::channel();
-        slice.map_async(wgpu::MapMode::Read, move |result| {
-            // Nothing to do if the receiver has gone: the capture was abandoned.
-            drop(sender.send(result));
-        });
+        // A gone receiver is an abandoned capture, so the send is allowed to fail.
+        slice.map_async(wgpu::MapMode::Read, move |result| drop(sender.send(result)));
         gpu.device.poll(wgpu::PollType::wait_indefinitely())?;
         receiver.recv()??;
 
@@ -955,9 +881,8 @@ struct Pipelines {
     present_pipeline: wgpu::RenderPipeline,
 }
 
-/// Compiles the shader and builds one pipeline per blend mode, plus the blur and present
-/// pipelines. Blend state and target format are baked into a wgpu pipeline, which is why
-/// there are four rather than one with switchable state.
+/// Compiles the shader and builds one pipeline per blend mode, plus blur and present. Blend
+/// state and target format are baked into a pipeline, which is why there are five.
 fn build_pipelines(gpu: &GpuDevice, surface_format: wgpu::TextureFormat) -> Pipelines {
     let shader = gpu.device.create_shader_module(wgpu::ShaderModuleDescriptor {
         label: Some("terralistic"),
@@ -1027,8 +952,7 @@ fn build_pipelines(gpu: &GpuDevice, surface_format: wgpu::TextureFormat) -> Pipe
     Pipelines {
         alpha_pipeline: make_pipeline("alpha", &pipeline_layout, "fragment_main", offscreen, Some(blend_state(BlendMode::Alpha))),
         multiply_pipeline: make_pipeline("multiply", &pipeline_layout, "fragment_main", offscreen, Some(blend_state(BlendMode::Multiply))),
-        // The blur writes a finished pixel rather than compositing one, both on the way into
-        // the scratch pair and on the way back out of it.
+        // The blur writes a finished pixel rather than compositing, both ways.
         blur_pipeline: make_pipeline("blur", &blur_pipeline_layout, "fragment_blur", offscreen, None),
         blur_upsample_pipeline: make_pipeline("blur upsample", &blur_pipeline_layout, "fragment_main", offscreen, None),
         present_pipeline: make_pipeline("present", &pipeline_layout, "fragment_main", surface_format, None),
@@ -1036,28 +960,20 @@ fn build_pipelines(gpu: &GpuDevice, surface_format: wgpu::TextureFormat) -> Pipe
     }
 }
 
-/// The size of each half of the blur's scratch pair.
-///
-/// Big enough for a region covering the whole frame at the finest downscale the blur will pick,
-/// so `plan_blur` never has to check whether a region fits.
+/// The size of each half of the blur's scratch pair: big enough for a whole-frame region at
+/// the finest downscale, so `plan_blur` never has to check whether one fits.
 fn blur_scratch_size(offscreen_size: gfx::IntSize) -> gfx::IntSize {
     let divisor = MIN_BLUR_DOWNSCALE as u32;
     gfx::IntSize(offscreen_size.0.div_ceil(divisor).max(1), offscreen_size.1.div_ceil(divisor).max(1))
 }
 
-/// The four one pixel edges of a rectangle border, as rectangles.
+/// The four one pixel edges of a rectangle border, as rectangles. They cover the rectangle's
+/// own footprint and nothing outside it - what a UI border should be, and machine-independent
+/// where a line primitive is not. `Rect::render_outline` drops empty rects before they get here.
 ///
-/// They cover the rectangle's own footprint and nothing outside it, which is both what a UI
-/// border should look like and what keeps the goldens machine-independent. That only holds
-/// for a rectangle with room for an edge, which is why `Rect::render_outline` drops empty
-/// ones before they get here.
-///
-/// The horizontal edges run corner to corner and the vertical ones do too, so **the four
-/// corner pixels are drawn twice**. With an opaque colour that is idempotent; with a
-/// translucent one - a `Button`'s border part way through its hover fade is the only place the
-/// toolkit produces one - the corners blend twice and come out slightly darker than the rest
-/// of the border. Four pixels for a fraction of a second, and the alternative is edges whose
-/// extent depends on the rectangle being at least two pixels each way, so it is left alone.
+/// Both pairs run corner to corner, so **the four corner pixels are drawn twice** and a
+/// translucent border (only a `Button` mid-hover-fade) blends them slightly darker. The
+/// alternative is edges whose extent depends on the rect being two pixels each way.
 pub(super) fn outline_edges(rect: gfx::Rect) -> [gfx::Rect; 4] {
     let gfx::Rect { pos, size } = rect;
     [
@@ -1075,10 +991,9 @@ fn texel_scale(texture_size: gfx::FloatSize) -> Transformation {
     result
 }
 
-/// The blend factors, which apply to the alpha channel as well as to colour.
-///
-/// That means a translucent draw lowers the framebuffer's alpha. Invisible on screen, because
-/// the final blit ignores alpha, but it shows up in a capture and the goldens record it.
+/// The blend factors, which apply to alpha as well as to colour - so a translucent draw lowers
+/// the framebuffer's alpha. Invisible on screen, since the blit ignores it, but the goldens
+/// record it.
 const fn blend_state(mode: BlendMode) -> wgpu::BlendState {
     let component = match mode {
         BlendMode::Alpha => wgpu::BlendComponent {
@@ -1103,8 +1018,8 @@ fn begin_pass<'encoder>(encoder: &'encoder mut wgpu::CommandEncoder, view: &wgpu
             depth_slice: None,
             resolve_target: None,
             ops: wgpu::Operations {
-                // The game never clears: it draws an opaque background over the whole window
-                // every frame. Only the golden-image harness asks for one.
+                // The game draws an opaque background every frame, so only the golden-image
+                // harness ever asks for a clear.
                 load: if clear { wgpu::LoadOp::Clear(wgpu::Color::TRANSPARENT) } else { wgpu::LoadOp::Load },
                 store: wgpu::StoreOp::Store,
             },
@@ -1132,13 +1047,9 @@ fn build_quad_buffer(gpu: &GpuDevice) -> wgpu::Buffer {
     buffer
 }
 
-/// A 1x1 white texture, bound whenever a draw has no texture of its own.
-///
-/// WGSL has no way to leave a binding empty, and the shader ignores the sample when
-/// `has_texture` is zero, so what this contains never reaches the output. It lives for the
-/// whole process, so it is built straight off the device rather than through the registry;
-/// dropping the `wgpu::Texture` here is fine, since the view and the bind group hold their own
-/// references to it.
+/// A 1x1 white texture, bound whenever a draw has no texture of its own: WGSL cannot leave a
+/// binding empty, and the shader ignores the sample when `has_texture` is zero. It lives for
+/// the process, so it skips the registry - the view and bind group keep the texture alive.
 fn build_white_bind_group(gpu: &GpuDevice) -> wgpu::BindGroup {
     let size = wgpu::Extent3d {
         width: 1,

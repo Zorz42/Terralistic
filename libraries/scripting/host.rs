@@ -18,14 +18,11 @@ pub fn get_module_id(context: Context) -> Result<i32, LuaError> {
     globals.get::<_, i32>(MODULE_ID_IDENT)
 }
 
-/// One script module: its source, its resources, and an interpreter state of its own.
+/// One script module: source, resources, and an interpreter state of its own.
 ///
-/// **Each module gets its own `Lua`**, so two modules cannot see or clobber each other's
-/// globals. Everything a module is allowed to reach outside itself is a host function the
-/// owner registered.
-///
-/// Resources are arbitrary named bytes that travel with the source - textures, data files,
-/// anything the module needs at runtime. The key is a path with `:` for a separator.
+/// **Each module gets its own `Lua`**, so two cannot clobber each other's globals, and
+/// everything a module reaches outside itself is a host function the owner registered.
+/// Resources are named bytes travelling with the source, keyed by a `:` separated path.
 pub struct ScriptModule {
     name: String,
     source: String,
@@ -112,11 +109,9 @@ impl ScriptModule {
         result
     }
 
-    /// The globals whose name starts with `prefix`, with the prefix removed.
-    ///
-    /// This is how an owner discovers what a module offers by convention rather than by
-    /// declaration - a module that defines `command_teleport` has a `teleport` command
-    /// without having registered it anywhere. What the convention *means* is the owner's.
+    /// The globals whose name starts with `prefix`, with the prefix removed - how an owner
+    /// discovers what a module offers by convention rather than declaration. A module defining
+    /// `command_teleport` has a `teleport` command; what that *means* is the owner's.
     #[must_use]
     pub fn symbols_with_prefix(&self, prefix: &str) -> Vec<String> {
         self.get_all_symbols().iter().filter_map(|symbol| symbol.strip_prefix(prefix).map(str::to_owned)).collect()
@@ -160,15 +155,11 @@ impl<'de> Deserialize<'de> for ScriptModule {
 
 /// A set of script modules, driven together.
 ///
-/// Host functions registered here go to every module, under `function_prefix` - which is
-/// what keeps the host's names from colliding with a module's own, and is the host's to
-/// choose rather than this library's.
+/// Host functions registered here reach every module under `function_prefix`, which keeps the
+/// host's names out of a module's way and is the host's to choose rather than this library's.
 ///
-/// # Not in scope
-///
-/// What the lifecycle hooks mean, what functions are registered, and what a symbol named by
-/// convention implies. This calls `init`, `update` and `stop` when it is told to and reports
-/// what a module defines; everything else belongs to whoever owns the host.
+/// **Not in scope**: what the lifecycle hooks mean, which functions are registered, and what a
+/// symbol named by convention implies. This calls `init`, `update` and `stop` when told to.
 pub struct ScriptHost {
     modules: Vec<ScriptModule>,
     function_prefix: &'static str,
@@ -215,10 +206,8 @@ impl ScriptHost {
         Ok(())
     }
 
-    /// Looks a resource up across every module.
-    ///
-    /// Searched **last module first**, so a module loaded later can replace a resource an
-    /// earlier one provided.
+    /// Looks a resource up across every module, **last first**, so a module loaded later can
+    /// replace a resource an earlier one provided.
     #[must_use]
     pub fn get_resource(&self, path: &str) -> Option<&Vec<u8>> {
         for module in self.modules.iter().rev() {

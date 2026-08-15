@@ -87,12 +87,10 @@ impl From<FloatSize> for IntSize {
     }
 }
 
-/// Float positions and sizes compare with a tolerance, because they come out of layout
-/// arithmetic and asking two of those to be bit-equal is asking for a flicker.
-///
-/// **They deliberately do not implement `Hash`.** Two values a hair apart are equal here but
-/// would hash differently, which breaks the contract every hash container relies on. Round
-/// to integers before keying a map on one.
+/// Float positions and sizes compare with a tolerance: they come out of layout arithmetic, and
+/// asking two of those to be bit-equal is asking for a flicker. **They deliberately do not
+/// implement `Hash`** - two values a hair apart are equal here and would hash differently,
+/// which breaks the contract. Round to integers before keying a map on one.
 impl PartialEq for FloatPos {
     fn eq(&self, other: &Self) -> bool {
         (self.0 - other.0).abs() < 0.0001 && (self.1 - other.1).abs() < 0.0001

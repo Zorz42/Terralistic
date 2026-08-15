@@ -30,14 +30,11 @@ impl Scrollable {
         }
     }
 
-    /// Where a list should start drawing: the scrollable's own offset, less how far it has been
-    /// scrolled. Laying a container out to read this back would give the same number -
-    /// `Container::rect` is the position and size it was handed - so it does not need one.
+    /// Where a list should start drawing: the scrollable's offset, less how far it is scrolled.
     ///
-    /// **This is the vertical axis, and everything else here is too**: `scroll_pos` is bounded
-    /// against `rect.size.1`, and both callers add the result to a y coordinate. It used to be
-    /// `get_scroll_x` and read `rect.pos.0`, which only ever gave the right answer because the
-    /// two menus leave their x at zero and add the y offset back by hand.
+    /// **Vertical, and so is everything else here**: `scroll_pos` is bounded against
+    /// `rect.size.1` and both callers add the result to a y coordinate. Adding a horizontal one
+    /// means adding the axis, not reinterpreting this.
     #[must_use]
     pub const fn get_scroll_y(&self) -> f32 {
         self.rect.pos.1 - self.scroll_pos
@@ -48,16 +45,11 @@ impl Scrollable {
         self.scroll_pos
     }
 
-    /// One frame of scrolling: the velocity moves the position, the position is pulled back
-    /// inside its bounds, and the velocity decays.
-    ///
-    /// Both pulls are `super::approach`, like every other animation in the toolkit, which is
-    /// what makes them *land* rather than close in on the target forever. Subtracting a
-    /// fraction of the remaining distance - which is all this used to do - leaves a list
-    /// flicked past its end a fraction of a pixel past it for as long as the menu is open.
-    ///
-    /// Split out of `update_inner` because that takes a `GraphicsContext` a headless test has
-    /// no way to build, even though none of this needs one.
+    /// One frame of scrolling: velocity moves the position, the position is pulled back inside
+    /// its bounds, and the velocity decays. Both pulls are `super::approach`, whose epsilon is
+    /// what makes them *land* rather than leave a flicked list a fraction of a pixel past its
+    /// end forever. Split out of `update_inner`, which needs a `GraphicsContext` and this does
+    /// not.
     pub(super) fn advance_frame(&mut self) {
         self.scroll_pos += self.scroll_velocity;
 
@@ -73,13 +65,10 @@ impl Scrollable {
 }
 
 impl UiElement for Scrollable {
-    /// Advances the scroll, and does nothing else.
-    ///
-    /// **`update_inner`, not `render_inner`** - moving is not drawing, and stepping it while
-    /// rendering froze the scroll for any caller that laid the list out without drawing it, a
-    /// menu sliding offscreen for instance. The parent reads `get_scroll_y` from its own
-    /// `update_inner`, which the recursion in `BaseUiElement::update` runs first, so it sees
-    /// the previous frame's position.
+    /// Advances the scroll, and nothing else. **`update_inner`, not `render_inner`**: stepping
+    /// while rendering froze the scroll for any caller that lays the list out without drawing
+    /// it - a menu sliding offscreen. The parent reads `get_scroll_y` from its own
+    /// `update_inner`, which runs first, so it sees the previous frame's position.
     fn update_inner(&mut self, _: &mut gfx::GraphicsContext, _: &super::Container) {
         while self.animation_timer.step() {
             self.advance_frame();

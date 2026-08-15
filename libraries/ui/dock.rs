@@ -2,24 +2,20 @@ use serde_derive::{Deserialize, Serialize};
 
 use crate::libraries::graphics as gfx;
 
-/// Which way a `DockSplit` divides its area.
-///
-/// `Vertical` puts `first` on the left and `second` on the right; `Horizontal` puts `first`
-/// on top and `second` below.
+/// Which way a `DockSplit` divides: `Vertical` puts `first` left and `second` right,
+/// `Horizontal` puts `first` on top.
 #[derive(Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Debug)]
 pub enum SplitType {
     Vertical,
     Horizontal,
 }
 
-/// A node in a dock layout: nothing, a split into two more nodes, or a named pane.
-///
-/// The name is all this layer knows about a pane. What is drawn there is looked up by the
-/// owner, which is what keeps this a layout and not a widget container.
+/// A node in a dock layout: nothing, a split, or a named pane. The name is all this layer
+/// knows - the owner looks up what to draw there, which keeps this a layout and not a
+/// widget container.
 #[derive(Serialize, Deserialize, Debug)]
 pub enum DockNode {
-    /// An empty area. Ideally unused - a split into a pane and nothing should just be the
-    /// pane - but it is what an area being edited passes through.
+    /// An empty area: what an area being edited passes through.
     Nothing,
     Split(Box<DockSplit>),
     Pane(String),
@@ -61,10 +57,7 @@ impl DockNode {
     }
 }
 
-/// A node divided in two.
-///
-/// `split_pos` runs 0 to 1 and is the fraction of the area given to `first`; the rest goes
-/// to `second`.
+/// A node divided in two. `split_pos` runs 0 to 1 and is `first`'s share of the area.
 #[derive(Serialize, Deserialize, Debug)]
 pub struct DockSplit {
     pub orientation: SplitType,
@@ -73,13 +66,10 @@ pub struct DockSplit {
     pub second: DockNode,
 }
 
-/// Where a node sits inside its dock, as fractions of the whole area.
+/// Where a node sits inside its dock, as fractions of the whole area - so a layout survives a
+/// resize and can be saved without recording the size it was saved at.
 ///
-/// Fractions rather than pixels, so a layout survives the window being resized and can be
-/// saved without recording the size it was saved at.
-///
-/// No `Eq`: these are fractions, and two areas that describe the same region can differ in
-/// the last bit after a few nestings.
+/// No `Eq`: two areas covering the same region can differ in the last bit after a few nestings.
 #[allow(clippy::derive_partial_eq_without_eq, reason = "fractions do not compare exactly")]
 #[derive(Clone, Copy, PartialEq, Debug)]
 pub struct DockArea {
@@ -97,10 +87,8 @@ impl DockArea {
         }
     }
 
-    /// This area's own subdivision, expressed in the parent's fractions.
-    ///
-    /// Nesting is a multiply and an offset rather than a second coordinate system, which is
-    /// what lets a path of any depth resolve by folding this along it.
+    /// This area's own subdivision, in the parent's fractions. A multiply and an offset rather
+    /// than a second coordinate system, so a path of any depth resolves by folding this.
     #[must_use]
     pub fn nest(self, inner: Self) -> Self {
         Self {
@@ -139,10 +127,8 @@ impl DockArea {
     }
 }
 
-/// The area a path leads to, and how deep it actually got.
-///
-/// The depth comes back because a path can be longer than the tree - the node it names may
-/// not be a split - and the caller usually wants to know where it really landed.
+/// The area a path leads to, and how deep it got - a path can be longer than the tree, and the
+/// caller usually wants to know where it really landed.
 #[must_use]
 pub fn area_at_path(root: &DockNode, path: &[bool], max_depth: usize) -> (DockArea, usize) {
     fn walk(node: &DockNode, path: &[bool], depth: usize, max_depth: usize) -> (DockArea, usize) {

@@ -14,11 +14,9 @@ pub struct Surface {
 }
 
 impl Surface {
-    /// Creates a new surface with all transparent pixels.
-    ///
-    /// The pixel count is computed in `usize` rather than in `u32`, because everything
-    /// downstream trusts that it matches `size` - see `deserialize_from_bytes` - and a `u32`
-    /// product that wrapped would hand out a surface smaller than it claims to be.
+    /// A surface of transparent pixels. The count is computed in `usize`, not `u32`: a wrapped
+    /// product would hand out a surface smaller than it claims to be, which everything
+    /// downstream trusts it is not.
     #[must_use]
     pub fn new(size: gfx::IntSize) -> Self {
         Self {
@@ -27,22 +25,17 @@ impl Surface {
         }
     }
 
-    /// Serializes the surface into a vector of bytes.
-    /// It goes through `libraries::serialization` and is compressed with snap.
+    /// Serializes the surface through `libraries::serialization`, compressed with snap.
     pub fn serialize_to_bytes(&self) -> Result<Vec<u8>> {
         let mut buffer = Vec::new();
         serialization::serialize_into(&mut buffer, &self)?;
         Ok(snap::raw::Encoder::new().compress_vec(&buffer)?)
     }
 
-    /// Deserializes a surface from a vector of bytes the same way it was serialized.
-    ///
-    /// **The pixel count is checked against the declared size**, because everything downstream
-    /// takes `get_size` at its word. `GpuDevice::create_texture` in particular tells wgpu the
-    /// texture is `size` big and hands it `pixels`; a surface claiming 64x64 while holding four
-    /// pixels is a validation error, and wgpu turns that into a panic. Surfaces are read out of
-    /// `.mod` files - ordinary files a player can replace - so a well formed one is not
-    /// something this is entitled to assume.
+    /// The inverse of `serialize_to_bytes`. **The pixel count is checked against the declared
+    /// size**, because nothing downstream re-checks: `GpuDevice::create_texture` tells wgpu the
+    /// texture is `size` big and hands it `pixels`, and a mismatch is a validation error, which
+    /// is a panic. Surfaces come out of `.mod` files, which a player can replace.
     pub fn deserialize_from_bytes(buffer: &[u8]) -> Result<Self> {
         let decompressed = snap::raw::Decoder::new().decompress_vec(buffer)?;
         let surface: Self = serialization::deserialize(&decompressed)?;
@@ -54,7 +47,7 @@ impl Surface {
         Ok(surface)
     }
 
-    /// Converts a 2D location into an index into the colour array.
+    /// A 2D location as an index into the colour array.
     fn get_index(&self, pos: gfx::IntPos) -> Result<usize> {
         if pos.0 < 0 || pos.0 >= self.size.0 as i32 || pos.1 < 0 || pos.1 >= self.size.1 as i32 {
             bail!("Pixel out of bounds");
@@ -63,13 +56,11 @@ impl Surface {
         Ok((pos.1 * self.size.0 as i32 + pos.0) as usize)
     }
 
-    /// Retrieves the pixel color on a specified location.
     pub fn get_pixel(&self, pos: gfx::IntPos) -> Result<&Color> {
         let index = self.get_index(pos)?;
         self.pixels.get(index).ok_or_else(|| anyhow!("Pixel array malformed"))
     }
 
-    /// Retrieves the pixel color on a specified location, mutably.
     pub fn get_pixel_mut(&mut self, pos: gfx::IntPos) -> Result<&mut Color> {
         let index = self.get_index(pos)?;
         self.pixels.get_mut(index).ok_or_else(|| anyhow!("Pixel array malformed"))
@@ -90,10 +81,8 @@ impl Surface {
         Ok(())
     }
 
-    /// Every pixel with its position, row by row.
-    ///
-    /// Walks the backing slice and derives the position from the index rather than the other
-    /// way round, which is the same order and skips a bounds check and a `Result` per pixel.
+    /// Every pixel with its position, row by row. Walks the slice and derives the position
+    /// from the index, which is the same order and skips a bounds check per pixel.
     pub fn iter(&self) -> impl Iterator<Item = (gfx::IntPos, &Color)> {
         let width = self.size.0 as i32;
         self.pixels.iter().enumerate().map(move |(index, pixel)| (index_to_pos(index, width), pixel))

@@ -18,10 +18,9 @@ mod tests {
     // ---------------------------------------------------------------------------------
     // Headless UI tests
     //
-    // Everything below drives real widgets through a `HeadlessContext` - no window, no
-    // GPU device, no window. Layout, hit testing and event handling all go through
-    // `UiContext`, so they behave exactly as they do in the running client; only drawing
-    // is missing. See `libraries/graphics/ui_context.rs`.
+    // Everything below drives real widgets through a `HeadlessContext` - no window and no
+    // GPU. Layout, hit testing and event handling go through `UiContext`, so they behave
+    // exactly as in the running client; only drawing is missing.
     // ---------------------------------------------------------------------------------
 
     use std::cell::Cell;
@@ -513,12 +512,9 @@ mod tests {
         assert_close(travelled_in_one_frame(&mut scrollable), 0.0);
     }
 
-    /// A list flicked past its end is pulled back *onto* the end, and stops there.
-    ///
-    /// The pull used to subtract a fraction of the overshoot per frame with nothing to finish
-    /// it off, so it only ever approached the boundary asymptotically. Too small to see, but
-    /// it is the reason the toolkit funnels every animation through `approach`: the epsilon is
-    /// what turns "close enough" into "done".
+    /// A list flicked past its end is pulled back *onto* it and stops. Subtracting a fraction
+    /// of the overshoot only ever approaches the boundary - which is why every animation goes
+    /// through `approach`, whose epsilon turns "close enough" into "done".
     #[test]
     #[allow(clippy::float_cmp, reason = "landing exactly on the boundary is what is being asserted")]
     fn test_scrolling_past_the_top_settles_exactly_back_on_it() {
@@ -560,11 +556,9 @@ mod tests {
         input
     }
 
-    /// A selected input that already contains `text`, typed in the way a user would.
-    ///
-    /// This types rather than calling `set_text` on purpose: `set_text` leaves the cursor
-    /// where it was, so a test that used it would be operating at offset 0 with nothing
-    /// selected. See `test_set_text_leaves_the_cursor_at_the_start`.
+    /// A selected input already containing `text`, typed the way a user would. Typing rather
+    /// than `set_text`, which leaves the cursor where it was - a test using it would be at
+    /// offset 0. See `test_set_text_leaves_the_cursor_at_the_start`.
     fn input_containing(graphics: &mut ui::HeadlessContext, text: &str) -> ui::TextInput {
         let mut input = selected_input();
         let root = root_container(graphics);
@@ -996,12 +990,9 @@ mod tests {
         input
     }
 
-    /// The visible window into a long value follows the cursor.
-    ///
-    /// It used to be pinned to the end of the text whatever the cursor was doing, so walking
-    /// the cursor left through a long value walked it straight out of the left edge of the
-    /// box. The cursor is a filled white rectangle and nothing here clips, so it went on being
-    /// drawn over whatever sat beside the input.
+    /// The visible window into a long value follows the cursor. Pinned to the end of the text
+    /// instead, walking the cursor left walked it out of the box - and since the cursor is a
+    /// filled rectangle and nothing here clips, it went on painting over the widget beside.
     #[test]
     fn test_the_view_follows_the_cursor_out_of_a_long_value() {
         let mut graphics = ui::HeadlessContext::new();
@@ -1038,11 +1029,9 @@ mod tests {
         assert_close(input.visible_text_rect(&font).pos.0, hidden);
     }
 
-    /// A selection is as wide as the text it covers, and the text is allowed to be wider than
-    /// the box - so the highlight has to be clipped to the widget. Nothing here clips, and the
-    /// highlight is a filled rectangle, so one let past the left edge paints a bar over
-    /// whatever sits beside the input. Selecting the whole of a long value reached ~120 pixels
-    /// past it.
+    /// A selection is as wide as the text it covers, which the box need not be, so the
+    /// highlight is clipped to the widget - one let past the left edge paints a bar over the
+    /// widget beside it, ~120 pixels of one for a long value selected whole.
     #[test]
     fn test_a_selection_wider_than_the_box_is_clipped_to_it() {
         let mut graphics = ui::HeadlessContext::new();
@@ -1069,12 +1058,9 @@ mod tests {
         }
     }
 
-    /// A selection the box has room for has to be visible in full.
-    ///
-    /// The view is placed from the end of the cursor the user is moving. Holding that end
-    /// against the *left* edge - which is what it used to do - scrolls everything selected by
-    /// shift and the right arrow off the screen behind it, so making a selection showed no
-    /// selection at all.
+    /// A selection the box has room for has to be visible in full. The view is placed from the
+    /// cursor's moving end; holding that end against the *left* edge scrolls everything
+    /// shift-and-right-arrow selected off behind it, so making a selection showed none.
     #[test]
     fn test_a_selection_that_fits_is_shown_in_full() {
         let mut graphics = ui::HeadlessContext::new();

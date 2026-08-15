@@ -1,16 +1,13 @@
 use std::time::{Duration, Instant};
 
-/// How much of a frame a piece of optional work is allowed to take.
+/// How much of a frame a piece of optional work may take.
 ///
-/// A budget is started once and then handed to everything that may spend it, each of which
-/// asks `has_time_left` before doing another unit of work and stops when the answer is no.
-/// That keeps the frame rate up while a large amount of background work - rebuilding meshes,
-/// loading, decompressing - is still outstanding, at the cost of the work taking more frames.
+/// Started once and handed to everything that may spend it, each asking `has_time_left` before
+/// another unit of work - which keeps the frame rate up while meshes rebuild or a world loads, at
+/// the cost of more frames.
 ///
-/// The point of it being a type rather than an `Instant` and a comparison at each call site
-/// is that the limit travels with the clock. Passed as a bare `Instant`, the limit is a
-/// literal written out again everywhere it is checked, and a caller that forgets the check
-/// spends the whole frame without anything saying so.
+/// A type rather than an `Instant` and a comparison per call site so that the limit travels
+/// with the clock: as a bare `Instant` it is a literal rewritten at every check.
 #[derive(Clone, Copy, Debug)]
 pub struct Budget {
     start: Instant,

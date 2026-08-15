@@ -1,37 +1,28 @@
 //! What to draw, as plain data, with no idea of how it gets drawn.
 //!
-//! A primitive's `render` method *records* a `DrawCommand` into a `DrawList`, and something
-//! that knows about a GPU - today `wgpu_backend::WgpuBackend` - replays the list once per
-//! frame. So swapping the backend means writing one `execute` rather than rewriting every
-//! widget, and a frame is inspectable: `DrawRecorder` is a `DrawTarget` with no window behind
-//! it, which makes "what does this widget draw?" an ordinary `#[test]`.
+//! A primitive's `render` *records* a `DrawCommand`, and the backend replays the list once per
+//! frame. So swapping backends is one `execute` rather than every widget, and a frame is
+//! inspectable: `DrawRecorder` is a `DrawTarget` with no window, which makes "what does this
+//! widget draw?" an ordinary `#[test]`.
 //!
-//! Coordinates in a command are window pixels, y-down from the top left, exactly as the
-//! caller gave them. Clip space is the backend's business.
-//!
-//! Commands name textures and meshes by handle rather than by reference, because the list has
-//! to outlive the borrow of whatever recorded into it. `Texture` and `VertexBuffer` still own
-//! their GPU objects, so a handle can outlive its owner - see `gpu_device` for why that is
-//! safe.
+//! Coordinates are window pixels, y-down from the top left, exactly as the caller gave them;
+//! clip space is the backend's business. Textures and meshes are named by handle, because the
+//! list outlives the borrow of whatever recorded into it - see `gpu_device`.
 
 use crate::libraries::graphics as gfx;
 
 /// How a draw combines with what is already in the framebuffer.
 ///
-/// This is baked into a render pipeline rather than being a state switch, so the backend
-/// keeps one pipeline per mode. Changing it mid-frame has to keep its place in the draw
-/// order, which is why callers record a `SetBlendMode` command through
-/// `DrawTarget::set_blend_mode` instead of calling anything directly.
+/// Baked into a pipeline rather than a state switch, and it has to keep its place in the draw order
+/// - which is why callers record a `SetBlendMode` through `DrawTarget::set_blend_mode`.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum BlendMode {
     Alpha,
     Multiply,
 }
 
-/// A texture living in the renderer backend.
-///
-/// Opaque outside the backend: today it is an index into `gpu_device`'s registry. The point
-/// is that a command can name a resource without borrowing it.
+/// A texture living in the renderer backend - an index into `gpu_device`'s registry, opaque
+/// outside it. The point is that a command can name a resource without borrowing it.
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 pub struct TextureHandle(pub(super) u32);
 
@@ -46,11 +37,8 @@ impl TextureHandle {
     }
 }
 
-/// An uploaded triangle mesh living in the renderer backend.
-///
-/// Same contract as `TextureHandle`. The vertex count is not carried here: the registry entry
-/// is the one that survives a `VertexBuffer` being replaced mid-frame, so it is the only
-/// honest answer to how many vertices the command should draw.
+/// An uploaded triangle mesh, on the same contract as `TextureHandle`. The vertex count stays
+/// in the registry entry, which is what survives a `VertexBuffer` being replaced mid-frame.
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 pub struct MeshHandle(pub(super) u32);
 
@@ -62,12 +50,11 @@ impl MeshHandle {
     }
 }
 
-/// One drawing operation, in window pixel coordinates.
+/// One drawing operation, in window pixels.
 ///
-/// The arguments are stored exactly as the caller passed them rather than pre-multiplied into
-/// a destination rectangle, so the backend can rebuild the transform from the same inputs in
-/// the same order and land on bit-identical floats. That is what keeps the golden images
-/// exact.
+/// The arguments are stored exactly as passed rather than pre-multiplied into a destination, so the
+/// backend rebuilds the transform from the same inputs in the same order and lands on bit-identical
+/// floats - which keeps the goldens exact.
 #[derive(Clone, Copy, PartialEq, Debug)]
 pub enum DrawCommand {
     /// A filled rectangle.
@@ -138,11 +125,9 @@ impl DrawList {
 
 /// Somewhere drawing commands can be recorded.
 ///
-/// `push_draw_command` takes `&self` because the toolkit is full of places that draw through
-/// a shared borrow - `graphics.font.render_text(graphics, ..)` and
-/// `graphics.shadow_context.render(graphics, ..)` both borrow the context twice. The
-/// implementation keeps that working with a `RefCell`; the borrow is only ever held for the
-/// length of a `push`, and nothing called from inside one can record.
+/// `push_draw_command` takes `&self` because the toolkit draws through shared borrows -
+/// `graphics.font.render_text(graphics, ..)` borrows the context twice - so implementations use a
+/// `RefCell`, held only for the push itself.
 pub trait DrawTarget {
     /// Records one command.
     fn push_draw_command(&self, command: DrawCommand);
@@ -150,9 +135,8 @@ pub trait DrawTarget {
     /// Size of the drawable area in logical pixels, for culling.
     fn get_draw_area(&self) -> gfx::FloatSize;
 
-    /// Changes how everything recorded after this point blends with what is underneath.
-    /// Recorded rather than applied, because it only means anything relative to the
-    /// surrounding draw order.
+    /// Changes how everything after this blends. Recorded rather than applied, because it only
+    /// means anything relative to the surrounding draw order.
     fn set_blend_mode(&self, blend_mode: BlendMode) {
         self.push_draw_command(DrawCommand::SetBlendMode(blend_mode));
     }

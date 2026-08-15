@@ -1,13 +1,11 @@
 use anyhow::{anyhow, Result};
 use std::collections::BTreeSet;
 
-/// Tracks chunks and their modification time
-/// allows you to get the earliest modified chunk
-/// used to delete unused chunks to save memory
+/// Tracks when each chunk was last touched and hands back the oldest, so a caller can evict
+/// what it has not used.
 pub struct ChunkTracker {
-    /// Time each chunk was last touched, or `None` if it is not currently tracked.
-    /// This has to be an `Option` rather than a `0` sentinel, because `0` is a
-    /// legitimate elapsed time for the whole first second the tracker is alive.
+    /// When each chunk was last touched, or `None` if untracked. An `Option` rather than a `0`
+    /// sentinel: `0` is a real elapsed time for the tracker's whole first second.
     modified_time: Vec<Option<u32>>,
     timer: std::time::Instant,
     queue: BTreeSet<(u32, usize)>,
@@ -29,8 +27,7 @@ impl ChunkTracker {
 
     pub fn update(&mut self, chunk: usize) -> Result<()> {
         let time = self.timer.elapsed().as_secs() as u32;
-        // drop the previous queue entry first, otherwise the chunk would be left in the
-        // queue twice under two different times
+        // Drop the previous entry first, or the chunk is queued twice under two times.
         self.remove_chunk(chunk)?;
         *self.get_modified_time(chunk)? = Some(time);
         self.queue.insert((time, chunk));

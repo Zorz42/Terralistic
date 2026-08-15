@@ -20,10 +20,8 @@ impl LogLevel {
     }
 }
 
-/// Prefixes a message with the current local time, as `[MM-DD HH:MM:SS]`.
-///
-/// A clock that cannot be read gives `???` rather than failing: a log line is not worth
-/// propagating an error for, and a line with no time on it is still the line.
+/// Prefixes a message with the local time, as `[MM-DD HH:MM:SS]`. An unreadable clock gives
+/// `???` rather than an error - a line with no time on it is still the line.
 #[must_use]
 pub fn format_timestamp(message: &str) -> String {
     let timestamp = chrono::Local::now().naive_local().and_utc().timestamp();
@@ -40,16 +38,11 @@ pub fn format_line(level: LogLevel, message: &str) -> String {
 /// Somewhere for log lines to go, besides the terminal.
 type Sink = Box<dyn Fn(LogLevel, &str) + Send>;
 
-/// The process-wide extra destination for log lines.
-///
-/// **This is global because the code that logs usually has nothing to reach through.** A
-/// free function called from all over a server has no server handle, and threading one to
-/// every call site to carry a `Sender` is a worse trade than this. The first sink installed
-/// wins and later ones are ignored, so a second server in the same process does not steal
-/// the first one's output.
-///
-/// A `Box<dyn Fn>` is `Send` but not `Sync`, so this needs the `Mutex` rather than a
-/// `OnceLock`.
+/// The process-wide extra destination for log lines. **Global because the code that logs has
+/// nothing to reach through**: a free function called from all over a server has no server
+/// handle, and threading one to every call site is the worse trade. The first sink installed
+/// wins, so a second server does not steal the first's output. A `Box<dyn Fn>` is `Send` but
+/// not `Sync`, hence the `Mutex` rather than a `OnceLock`.
 static SINK: Mutex<Option<Sink>> = Mutex::new(None);
 
 /// Installs the extra destination, if there is not one already.
@@ -60,8 +53,8 @@ pub fn set_sink(sink: Sink) {
     }
 }
 
-/// Forgets the installed sink. Only for tests, which would otherwise have the first test to
-/// run decide where every later test's output goes.
+/// Forgets the installed sink. Only for tests, where the first to run would otherwise decide
+/// where every later test's output goes.
 #[cfg(test)]
 pub fn clear_sink() {
     *SINK.lock().unwrap_or_else(PoisonError::into_inner) = None;
@@ -69,9 +62,9 @@ pub fn clear_sink() {
 
 /// Prints one line to the terminal and hands it to the sink.
 ///
-/// **A message containing newlines becomes one line each**, so a multi-line report is still
-/// a sequence of timestamped lines rather than one line with the rest hanging off the end of
-/// it. An empty message is nothing at all.
+/// **A message with newlines becomes one line each**, so a multi-line report stays a sequence of
+/// timestamped lines rather than one line with the rest hanging off it. An empty message is nothing
+/// at all.
 pub fn log(level: LogLevel, message: &str) {
     if message.is_empty() {
         return;

@@ -12,14 +12,10 @@ pub struct TextureAtlas<KeyType> {
 }
 
 impl<KeyType: Eq + Hash + Clone + Ord> TextureAtlas<KeyType> {
-    /// Packs every surface into one texture, left to right in key order.
-    ///
-    /// **The key order matters**, hence the `Ord` bound: packing in `HashMap` iteration order
-    /// gives a different layout on every launch, since Rust randomises it per process, and
-    /// anything drawn from the atlas then depends on which run it was.
-    ///
-    /// The result is one row - as wide as the surfaces laid end to end, as tall as the
-    /// tallest.
+    /// Packs every surface into one texture, left to right **in key order** - hence the `Ord`
+    /// bound. Packing in `HashMap` order gives a different layout every launch, Rust
+    /// randomising it per process. The result is one row: the surfaces end to end, as tall as
+    /// the tallest.
     #[must_use]
     pub fn new(surfaces: &HashMap<KeyType, Surface>) -> Self {
         if surfaces.is_empty() {

@@ -1,20 +1,16 @@
 //! A TCP transport that carries Rust values.
 //!
-//! A `Packet` is any serializable type, identified on the wire by a hash of that type, so
-//! there is no registry to keep in step and no ids to allocate. `PacketServer` accepts
-//! connections and `PacketClient` makes one; both run their socket on a thread of their own
-//! and hand everything to the owner through `poll`.
+//! A `Packet` is any serializable type, identified on the wire by a hash of that type, so there is
+//! no registry to keep in step and no ids to allocate. `PacketServer` accepts connections and
+//! `PacketClient` makes one; both run their socket on a thread of their own and hand everything
+//! over through `poll`.
 //!
-//! # Not in scope
+//! **Not in scope: the protocol.** Who may connect, what is said first, and what a packet
+//! means are the owner's. Every packet from every connected peer is reported, including from
+//! one about to be refused; `PacketServer::disconnect` acts on a refusal, and the client's
+//! handshake is a greeting plus a predicate saying which packet ends it.
 //!
-//! **The protocol.** Who is allowed to connect, what has to be said first, what counts as a
-//! peer being ready, and what any packet means are all the owner's. This layer will report
-//! every packet from every peer that finished a TCP connection, including one the owner is
-//! about to refuse; `PacketServer::disconnect` is how a refusal is acted on, and the
-//! handshake phase on the client is described by two things the owner supplies - a greeting
-//! to send and a predicate saying which packet ends it.
-//!
-//! Authentication and encryption. There is neither, and a `PacketServer` on
+//! Authentication and encryption: there is neither, so a `PacketServer` on
 //! `BindAddress::AllInterfaces` is reachable by anyone who can reach the port.
 
 pub use client::*;

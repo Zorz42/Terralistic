@@ -9,12 +9,9 @@ mod tests {
     /// runs them on parallel threads within one process.
     static SINK_LOCK: Mutex<()> = Mutex::new(());
 
-    /// Installs a sink, runs `body`, and returns the lines whose message contains `tag`.
-    ///
-    /// **The filter is not cosmetic.** Everything in the process logs through the same sink,
-    /// and the rest of the suite is running servers on other threads while this one holds the
-    /// lock - so a capture that took every line it was handed picked up whatever a server
-    /// happened to say and failed on the count.
+    /// Installs a sink, runs `body`, and returns the lines whose message contains `tag`. **The
+    /// filter is not cosmetic**: the whole process logs through one sink, and the rest of the
+    /// suite runs servers on other threads, so an unfiltered capture fails on the count.
     fn capture(tag: &str, body: impl FnOnce()) -> Vec<(LogLevel, String)> {
         let _guard = SINK_LOCK.lock().unwrap_or_else(std::sync::PoisonError::into_inner);
         clear_sink();

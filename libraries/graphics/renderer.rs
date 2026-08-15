@@ -18,38 +18,31 @@ use crate::libraries::ui::UiContext;
 /// handful, so this is only ever reached by a loop that presents without reading its input.
 const MAX_QUEUED_EVENTS: usize = 1024;
 
-/// The window, the input, and the frame currently being recorded.
+/// The window, the input, and the frame being recorded.
 ///
-/// Drawing does not happen here. A `render` call appends to `draw_list`, and `update_window`
-/// hands the whole list to `backend`, which is the only part of the toolkit that knows about
-/// wgpu. Everything between those two points is plain data - see `gfx::draw_list`.
+/// Drawing does not happen here: a `render` call appends to `draw_list`, and `update_window`
+/// hands the list to `backend`, the only part of the toolkit that knows wgpu exists.
 pub struct GraphicsContext {
     backend: WgpuBackend,
     window: Window,
-    /// The frame being recorded. Behind a `RefCell` because drawing takes `&self`: the toolkit
-    /// is full of `graphics.font.render_text(graphics, ..)` shaped calls that borrow the
-    /// context twice.
+    /// Behind a `RefCell` because drawing takes `&self`: calls shaped like
+    /// `graphics.font.render_text(graphics, ..)` borrow the context twice.
     draw_list: RefCell<DrawList>,
-    /// Events read off the window but not yet handed to the caller.
     events_queue: VecDeque<gfx::Event>,
-    /// Whether the window has *ever* been pumped. It is never cleared, and that is the point:
-    /// once `update_window` has run a frame it collects the input at the end of every one, so
-    /// the only pump `get_event` ever has to do itself is the one before the first frame.
+    /// Whether the window has *ever* been pumped, never cleared. `update_window` collects input
+    /// at the end of every frame, so the only pump `get_event` owes is the one before the first.
     window_pumped: bool,
-    /// Draw into a logical-sized offscreen rather than a device-sized one. Only the
-    /// golden-image harness asks for this: its images are committed at the window's logical
-    /// size and have to be the same whatever the DPI of the machine running them.
+    /// Draw into a logical-sized offscreen rather than a device-sized one. Only the golden
+    /// harness asks: its images have to be the same whatever the DPI of the machine.
     render_at_logical_resolution: bool,
     window_open: bool,
-    /// Which keys are currently held, maintained from the press and release events as they go
-    /// past - a UI element asks "is shift down" far more often than it reacts to shift.
+    /// Which keys are held, maintained from the events as they go past - a UI element asks "is
+    /// shift down" far more often than it reacts to shift.
     key_states: HashSet<gfx::Key>,
-    /// `pub(crate)` rather than private because `RenderRect` draws its own shadow and lives
-    /// in `libraries::ui`. Nothing outside the libraries should reach for either of these -
-    /// the widget that needs them is the interface.
+    /// `pub(crate)` because `RenderRect` draws its own shadow and lives in `libraries::ui`.
     pub(crate) shadow_context: ShadowContext,
-    /// `None` where the system has no clipboard to offer. Copy and paste stop working; nothing
-    /// else does, which is why this is not a reason to refuse to open the window.
+    /// `None` where the system offers no clipboard: copy and paste stop working and nothing
+    /// else does, so it is not a reason to refuse to open the window.
     clipboard_context: Option<Clipboard>,
     pub block_key_states: bool,
     pub scale: f32,
@@ -68,12 +61,9 @@ impl GraphicsContext {
         Self::new_with_visibility(window_width, window_height, window_title, font, font_mono, true)
     }
 
-    /// Same as `new`, but the window is never mapped on screen and the frame is drawn at the
-    /// window's logical resolution.
-    ///
-    /// Rendering goes to an offscreen texture rather than to the surface, so a hidden window is
-    /// enough to drive the whole renderer - only `present` needs a visible one. This is what
-    /// the golden-image tests use, so running them does not flash windows across the desktop.
+    /// Same as `new`, but the window is never mapped and the frame is drawn at logical
+    /// resolution. Rendering goes to an offscreen texture, so a hidden window drives the whole
+    /// renderer - only `present` needs a visible one. The golden-image tests use this.
     #[cfg(feature = "render-tests")]
     pub fn new_hidden(window_width: u32, window_height: u32, font: &[u8], font_mono: Option<&[u8]>) -> Result<Self> {
         Self::new_with_visibility(window_width, window_height, "Terralistic render tests", font, font_mono, false)
@@ -114,20 +104,17 @@ impl GraphicsContext {
         Ok(result)
     }
 
-    /// Reallocates everything sized in window pixels. Called when the window is resized, which
-    /// `poll_window` notices, and once at startup.
+    /// Reallocates everything sized in window pixels, on a resize and once at startup.
     ///
-    /// The frame is drawn at the display's **real** resolution, not the logical one. Layout is
-    /// in logical pixels either way - the transform onto clip space is a ratio and does not
-    /// care how many pixels the target has - but drawing at the real resolution lets a smooth
-    /// animation move one device pixel at a time instead of jumping two, and makes the final
-    /// blit a copy rather than an upscale. This is the one place the offscreen size is chosen.
+    /// The frame is drawn at the display's **real** resolution. Layout is logical either way -
+    /// the transform onto clip space is a ratio - but the real resolution lets an animation
+    /// move one device pixel at a time and makes the blit a copy rather than an upscale. This
+    /// is the one place the offscreen size is chosen.
     ///
-    /// The clip space transform is recomputed here too, and has to be. It is otherwise only
-    /// touched at the end of `update_window`, so the frame recorded before the *first* one drew
-    /// through the identity - the whole window's worth of drawing landing in the top left
-    /// two-by-two pixels of clip space - and the frame after a resize drew through the previous
-    /// size. Both are one frame long, which is exactly why neither was ever noticed.
+    /// The clip space transform is recomputed here too, and must be: it is otherwise only set
+    /// at the end of `update_window`, so the first frame drew through the identity - the whole
+    /// window collapsed into the top left two-by-two of clip space - and the frame after a
+    /// resize through the previous size. Both last one frame, which is why neither was noticed.
     fn handle_window_resize(&mut self) {
         let surface_size = self.window.drawable_size();
         let offscreen_size = if self.render_at_logical_resolution { self.window.size() } else { surface_size };
@@ -151,17 +138,16 @@ impl GraphicsContext {
         self.draw_list.borrow_mut().clear();
     }
 
-    /// Executes whatever the case recorded, then reads the frame back into a `Surface`. The
-    /// flush happens here rather than in `update_window` because a captured case never
-    /// presents - there is nothing to show on a hidden window.
+    /// Executes what the case recorded and reads the frame back. The flush is here rather than
+    /// in `update_window` because a captured case never presents.
     #[cfg(feature = "render-tests")]
     pub fn capture_frame(&mut self) -> Result<gfx::Surface> {
         self.flush_draw_list();
         self.backend.read_pixels()
     }
 
-    /// Jumps the scale and blur fades straight to their targets, both being driven by the wall
-    /// clock, so a golden does not depend on how long the test took.
+    /// Jumps the wall-clock-driven scale and blur fades to their targets, so a golden does not
+    /// depend on how long the test took.
     #[cfg(feature = "render-tests")]
     pub const fn settle_animations(&mut self) {
         self.real_scale = self.scale;
@@ -179,9 +165,8 @@ impl GraphicsContext {
         if poll.closed {
             self.close_window();
         }
-        // Nothing reaches an unfocused window, so anything held at that moment would stay held
-        // forever - the release arrives at whichever window took the focus. This is why
-        // alt-tabbing mid-stride does not leave the player walking.
+        // The release goes to whichever window took the focus, so anything held would stay
+        // held forever - this is why alt-tabbing mid-stride does not leave the player walking.
         if poll.focus_lost {
             self.key_states.clear();
         }
@@ -199,17 +184,15 @@ impl GraphicsContext {
             self.events_queue.push_back(event);
         }
 
-        // Dropping the oldest is the right end to drop: what a caller that has ignored a
-        // thousand events wants, if it ever looks, is the recent ones.
+        // The oldest is the right end to drop: a caller that has ignored a thousand events
+        // wants the recent ones if it ever looks.
         while self.events_queue.len() > MAX_QUEUED_EVENTS {
             self.events_queue.pop_front();
         }
     }
 
-    /// The next event, or `None` once there are none left this frame.
-    ///
-    /// This just drains the queue `update_window` filled at the end of the previous frame. It
-    /// only pumps the window itself before the very first one, when nothing has yet.
+    /// The next event, or `None` once this frame has none left. Drains the queue
+    /// `update_window` filled; only pumps the window itself before the very first frame.
     pub fn get_event(&mut self) -> Option<gfx::Event> {
         if self.events_queue.is_empty() && !self.window_pumped {
             self.poll_window();
@@ -227,13 +210,11 @@ impl GraphicsContext {
         self.window_open = false;
     }
 
-    /// Ends the frame: executes what was recorded, presents it, and collects the next frame's
-    /// input.
+    /// Ends the frame: executes what was recorded, presents it, collects the next frame's input.
     pub fn update_window(&mut self) {
-        // The flush comes first, before the animations advance and before the transform is
-        // recomputed. That is what makes deferring the frame's drawing to here invisible: a
-        // command executes with exactly the transform and blur intensity it would have been
-        // drawn with immediately. Don't reorder it.
+        // The flush comes first, before the animations advance and the transform is recomputed.
+        // That is what makes deferral invisible: a command executes with exactly the transform
+        // and blur intensity it would have had immediately. Don't reorder it.
         self.flush_draw_list();
 
         self.backend.update_blur();
@@ -250,13 +231,10 @@ impl GraphicsContext {
 
         self.limit_framerate();
 
-        // Collecting input here, at the frame boundary, is about *where the waiting happens* -
-        // the events are the same ones, delivered at the same point in the next frame either
-        // way. On macOS pumping the event loop is what services the layer's pending drawable,
-        // so with any slack in the frame the wait for the display lands in the pump, and it
-        // can be most of a frame. `client/game/core_client.rs` gives `walls.rs` and `lights.rs`
-        // the first 10ms of its loop to rebuild chunk meshes; a pump inside that window spends
-        // the budget on waiting and the world takes minutes to finish drawing.
+        // Collecting input at the frame boundary is about *where the waiting happens*: the
+        // events are the same ones either way, but on macOS pumping is what services the
+        // layer's pending drawable, so the wait for the display lands here and can be most of
+        // a frame. Inside the client's first 10ms it would spend the chunk-meshing budget.
         self.poll_window();
     }
 

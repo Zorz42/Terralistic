@@ -1,15 +1,10 @@
-//! Golden-image tests for the graphics library.
+//! Golden-image tests: every case draws into the renderer's offscreen texture, reads it back
+//! with `capture_frame`, and compares it against a committed `Surface` in `goldens/` - which
+//! makes the pixels a checked-in specification rather than something only an eye verifies.
 //!
-//! Every case draws into the offscreen texture the renderer already uses, reads it back with
-//! `GraphicsContext::capture_frame`, and compares it against a committed `Surface` in
-//! `goldens/`. That makes the pixels the renderer produces a checked-in specification rather
-//! than something only a human eye ever verifies.
-//!
-//! # Why these are not `#[test]`s
-//!
-//! They need a real window to hang a GPU surface off. On macOS that has to be the main thread,
-//! and libtest always runs a test body on a spawned worker - even under `--test-threads=1`. So
-//! the suite gets its own main-thread entry point:
+//! **These cannot be `#[test]`s.** They need a real window to hang a GPU surface off, macOS
+//! requires that on the main thread, and libtest always runs a test body on a spawned worker.
+//! So the suite gets its own entry point, and `cargo test` stays untouched:
 //!
 //! ```text
 //! cargo run --features render-tests -- rendertest             # check against goldens
@@ -17,33 +12,18 @@
 //! cargo run --features render-tests -- rendertest dump        # also write viewable PPMs
 //! ```
 //!
-//! `cargo test` is deliberately untouched, and still needs no graphics context at all.
+//! **Determinism** is the whole game, and three things fight it, each with a
+//! `#[cfg(feature = "render-tests")]` hook: wall-clock animations (`FixedStep::freeze`,
+//! `Button::settle_hover`, `Toggle::settle_animation`, `TextInput::settle_animation`), the
+//! blur and scale fades (`GraphicsContext::settle_animations`), and hover states reading the
+//! real mouse - which the settle hooks also neutralise. **Run a new case five times before
+//! committing its golden.**
 //!
-//! # Determinism
-//!
-//! A golden is only useful if the same code always produces the same pixels. Three things in
-//! this toolkit fight that, and each has a `#[cfg(feature = "render-tests")]` hook to pin it:
-//! animations driven by `Instant::elapsed` (`AnimationTimer::freeze`, `Button::settle_hover`,
-//! `Toggle::settle_animation`, `TextInput::settle_animation`), the blur and scale fades on the
-//! context itself (`GraphicsContext::settle_animations`), and hover states that read the real
-//! mouse position - which the settle hooks also neutralise, because they stop the animation
-//! advancing towards whatever target hover reports.
-//!
-//! **Run a new case five times before committing its golden.** Iteration order and sampling
-//! error are the two things that make a case pass once and fail later.
-//!
-//! # What these cover that the draw-list tests cannot
-//!
-//! Drawing records a `DrawCommand` and the backend replays it, so `cargo test` can assert on
-//! what a primitive *asks* for without a window - see the draw list tests in `tests.rs`, which
-//! every primitive reaches, because building one without a device is a supported state. These
-//! cases are the other half, and the only one: whether the backend turns those commands into
-//! the right pixels.
-//!
-//! They are also a hard test of deferred resource release. `fixture_texture()` returns a
-//! temporary, so `fixture_texture().render(graphics, ..)` drops the texture at the end of the
-//! statement, long before the frame is executed in `capture_frame`. These cases only match
-//! their goldens because `gpu_device` parks the resource until the frame has run.
+//! These are the second of two tiers. The draw-list tests in `tests.rs` assert what a
+//! primitive *asks* for without a window; these assert that the backend turns those commands
+//! into the right pixels. They are also the real test of deferred release:
+//! `fixture_texture().render(..)` drops the texture at the end of the statement, well before
+//! the frame executes.
 
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
@@ -60,12 +40,10 @@ use crate::libraries::ui::{BaseUiElement, UiContext};
 const WINDOW_WIDTH: u32 = 320;
 const WINDOW_HEIGHT: u32 = 240;
 
-/// How far a capture may drift from its golden before the case fails.
-///
-/// The two knobs compose: a pixel is *over tolerance* when a channel moved further than
-/// `max_channel_delta`, and the case fails when more than `max_differing_fraction` of the frame
-/// is over tolerance. Small drift everywhere is allowed, and so is a handful of pixels that
-/// moved a lot - but not a whole region that did.
+/// How far a capture may drift from its golden. The two knobs compose: a pixel is over
+/// tolerance when a channel moved further than `max_channel_delta`, and the case fails when
+/// more than `max_differing_fraction` of the frame is. Small drift everywhere is allowed, and
+/// so are a few pixels that moved a lot - but not a whole region that did.
 #[derive(Clone, Copy)]
 struct Tolerance {
     /// Largest difference on any single channel that still counts as the same pixel.
@@ -75,21 +53,16 @@ struct Tolerance {
 }
 
 impl Tolerance {
-    /// Flat colour and `NEAREST`-sampled geometry, which has no interpolation anywhere in
-    /// it, should come back bit for bit identical.
+    /// Flat colour and `NEAREST` sampling interpolate nothing, so they come back identical.
     const EXACT: Self = Self {
         max_channel_delta: 0,
         max_differing_fraction: 0.0,
     };
 
-    /// Only for the gaussian blur shader, whose float error differs between drivers and
-    /// between GPU and software rasterisers.
-    ///
-    /// Use this sparingly - a loose tolerance hides real changes, and this one once absorbed a
-    /// genuine one pixel shift in the text input cases. The shadow looks like it belongs here
-    /// and does not: `ShadowContext` bakes its gaussian into a CPU `Surface` and draws it as an
-    /// ordinary `NEAREST` texture, so it is exactly reproducible. Everything except
-    /// `render_rect_blur` holds at `EXACT`.
+    /// Only for the gaussian blur shader, whose float error differs between drivers. Use it
+    /// sparingly: it once absorbed a real one pixel shift in the text input cases. The shadow
+    /// looks like it belongs and does not - `ShadowContext` bakes its gaussian into a CPU
+    /// `Surface` - so everything but `render_rect_blur` holds at `EXACT`.
     const BLURRY: Self = Self {
         max_channel_delta: 4,
         max_differing_fraction: 0.02,
@@ -127,11 +100,8 @@ macro_rules! cases {
 
 // --- fixtures -------------------------------------------------------------------------
 
-/// An 8x8 image with four differently coloured quadrants, a translucent one among them, and
-/// a single white pixel in the top left corner.
-///
-/// The asymmetry is the point: a flipped, rotated or offset blit is obvious in the diff
-/// rather than silently matching.
+/// An 8x8 image: four coloured quadrants, one of them translucent, and a white pixel in the
+/// top left. The asymmetry is the point - a flipped or offset blit shows up in the diff.
 fn fixture_surface() -> gfx::Surface {
     let mut surface = gfx::Surface::new(gfx::IntSize(8, 8));
     for (pos, pixel) in surface.iter_mut() {
@@ -325,16 +295,10 @@ fn case_text_scaled(graphics: &mut gfx::GraphicsContext) {
     graphics.font.render_text(graphics, "Scale 3", gfx::FloatPos(20.0, 100.0), 3.0);
 }
 
-/// The same text drawn four times, a quarter of a pixel further along each time.
-///
-/// All four rows must come out **identical**, which is the whole point: the backend snaps a
-/// texture draw to a whole pixel, so where layout happened to put it between pixels cannot
-/// change which texel a destination pixel takes. Without that snap the half pixel row
-/// rendered its 3x glyph pixels 2 and 4 wide instead of 3 - uneven and faintly slanted - and
-/// at scale 1 it swallowed the one pixel gaps between strokes outright.
-///
-/// This is what the world list looked like: every row sat on a fractional offset from the
-/// scroll position, so every world name was drawn wrong in its own way.
+/// The same text four times, a quarter of a pixel further along each time. All four rows must
+/// come out **identical**: the backend snaps a texture draw to a whole pixel, so a fractional
+/// layout position cannot change which texel a pixel takes. Without it the half pixel row drew
+/// its 3x glyph pixels 2 and 4 wide - which is what every row of the world list looked like.
 fn case_text_on_fractional_offsets(graphics: &mut gfx::GraphicsContext) {
     background(graphics);
     let texture = gfx::Texture::load_from_surface(&graphics.font.create_text_surface("World", None));
@@ -452,17 +416,10 @@ fn case_render_rect_blur(graphics: &mut gfx::GraphicsContext) {
     rect.render(graphics, &parent);
 }
 
-/// A frame whose *first* command is a blur, which is what a menu drawing a blurred panel over
-/// nothing else records.
-///
-/// The blur pass writes the back offscreen texture and reads the front, so this is the case
-/// that pins the frame's clear onto the front rather than onto whichever attachment the first
-/// pass happens to use. Get that wrong and the blur reads back the previous frame - here, the
-/// previous case's image - and everything outside the blurred region keeps it.
-///
-/// Blurring a cleared frame is exact despite the shader: every tap reads the same transparent
-/// black, so there is nothing for a driver's float error to disagree about. The region comes
-/// out opaque because the shader's accumulator starts its alpha at 255 rather than 0.
+/// A frame whose *first* command is a blur, as a menu over nothing else records. This pins the
+/// clear onto the front offscreen rather than whichever attachment the first pass uses - get it
+/// wrong and the blur reads back the previous frame. Exact despite the shader: every tap reads
+/// the same transparent black, and the region is opaque because the accumulator starts at 255.
 fn case_blur_over_a_cleared_frame(graphics: &mut gfx::GraphicsContext) {
     graphics.blur_rect(gfx::Rect::new(gfx::FloatPos(60.0, 50.0), gfx::FloatSize(200.0, 140.0)), 30);
 }
@@ -617,14 +574,10 @@ fn case_toggle_mid_travel(graphics: &mut gfx::GraphicsContext) {
     toggle_at(ui::CENTER, true, 0.5).render(graphics, &parent);
 }
 
-/// A toggle that is not centred, laid out against the right edge of a row the way the settings
-/// menu does it.
-///
-/// The border has to show evenly on all four sides. It used not to: the bar was drawn by
-/// shrinking the toggle's container and laying it out again, which also moves it by the
-/// orientation, so at `RIGHT` the bar came out flush against the right edge with twice the
-/// padding on the left. Every other toggle case is `CENTER`, where that happens to be correct,
-/// which is why nothing caught it.
+/// A toggle against the right edge of a row, as the settings menu lays them out. The border
+/// has to show evenly on all four sides: drawing the bar by re-laying out a shrunken container
+/// moves it by the orientation too, so at `RIGHT` it came out flush right with twice the
+/// padding on the left. Every other toggle case is `CENTER`, where that happens to be right.
 fn case_toggle_right_oriented(graphics: &mut gfx::GraphicsContext) {
     background(graphics);
     let root = parent_of(graphics);

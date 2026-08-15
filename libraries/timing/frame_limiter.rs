@@ -1,12 +1,9 @@
 /// How long the frames so far *should* have taken against how long they did, in milliseconds.
 ///
-/// The limit is an **average** rather than a per-frame cap: the sleep at the end of a frame is
-/// the difference between the two sides, so a frame that overran is made up by the next ones
-/// instead of pushing the whole session behind.
-///
-/// Both sides only ever grow, which is why they are `f64`: as `f32` a 16ms increment stops
-/// being representable after about four hours, the elapsed side stalls while the target side
-/// climbs, and the sleep grows without bound.
+/// The limit is an **average**, not a per-frame cap: the sleep is the difference between the
+/// two sides, so an overrun is made up by the next frames rather than pushing the session
+/// behind. Both sides only grow, hence `f64`: as `f32` a 16ms increment stops being
+/// representable after four hours, the elapsed side stalls, and the sleep grows without bound.
 #[derive(Default, Debug)]
 pub struct FrameLimiter {
     /// Zero means unlimited.
@@ -16,13 +13,12 @@ pub struct FrameLimiter {
 }
 
 impl FrameLimiter {
-    /// Caps the frame rate at `fps`. A non-positive `fps` means no limit, rather than a
-    /// division by zero and a sleep measured in centuries.
+    /// Caps the frame rate at `fps`; non-positive means no limit rather than a division by
+    /// zero and a sleep measured in centuries.
     ///
-    /// The ledger is only cleared when the limit actually changes: it means nothing across a
-    /// change of target, but re-setting the *same* limit has to be free, because a settings
-    /// menu applies every setting on every event it sees. Clearing it each time would leave
-    /// the limiter capping each frame on its own rather than averaging over them.
+    /// The ledger is cleared only when the limit changes. It means nothing across a change of
+    /// target, but re-setting the *same* limit has to be free - a settings menu applies every
+    /// setting on every event, and clearing each time caps frames instead of averaging them.
     pub fn set_fps_limit(&mut self, fps: f32) {
         let min_ms_per_frame = if fps > 0.0 { 1000.0 / f64::from(fps) } else { 0.0 };
         if (min_ms_per_frame - self.min_ms_per_frame).abs() > f64::EPSILON {
@@ -36,16 +32,12 @@ impl FrameLimiter {
 
     /// Books a frame that took `elapsed_ms` and answers how long to sleep for.
     ///
-    /// **The debt is capped at one frame.** Without that the ledger is repaid at full speed
-    /// however long it took to run up, so anything that stops the loop for a while - a world
-    /// loading, a laptop waking, a breakpoint - buys that many frames of completely uncapped
-    /// rendering afterwards. A five minute pause at a 60 fps limit is eighteen thousand of
-    /// them. Making up a frame or two of jitter is the point; making up a stall the caller did
-    /// not ask for is not.
+    /// **The debt is capped at one frame.** Otherwise anything that stalls the loop - a world
+    /// loading, a laptop waking, a breakpoint - buys that many frames of uncapped rendering
+    /// afterwards, which for a five minute pause at 60 fps is eighteen thousand of them.
     ///
-    /// Deliberately not `#[must_use]`: booking the frame is half the point, and a caller
-    /// that only wants the ledger kept - a test, or a loop that sleeps some other way - is
-    /// not making a mistake by ignoring the answer.
+    /// Not `#[must_use]`: booking the frame is half the point, so a caller that only wants the
+    /// ledger kept is not making a mistake by ignoring the answer.
     pub fn owed_ms(&mut self, elapsed_ms: f64) -> f64 {
         if self.min_ms_per_frame <= 0.0 {
             return 0.0;

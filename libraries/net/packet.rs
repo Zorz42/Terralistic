@@ -8,8 +8,7 @@ use serde_derive::{Deserialize, Serialize};
 
 use crate::libraries::serialization;
 
-/// This function returns a hash of a type. The hash is always the same for the same type
-/// on every run of the program and on every machine and is unique for every type.
+/// A hash of a type: the same on every run and every machine, and unique per type.
 fn get_type_id<Type: 'static>() -> u64 {
     let mut hasher = FnvHasher::default();
     let type_id = TypeId::of::<Type>();
@@ -19,18 +18,14 @@ fn get_type_id<Type: 'static>() -> u64 {
 
 /// A message on the wire: an id and some bytes.
 ///
-/// The id is a hash of the rust type the bytes were serialized from, so **any serializable
-/// type is a packet** - there is no registry to add to, no id to allocate, and no way for
-/// two packet types to end up sharing a number. A receiver offers an incoming packet to each
-/// type it knows about with `try_deserialize`, and only the right one answers.
+/// The id is a hash of the rust type the bytes came from, so **any serializable type is a
+/// packet**: no registry, no allocated ids, and no way for two types to share a number. A
+/// receiver offers each type it knows to `try_deserialize`, and only the right one answers. The
+/// price is worth knowing:
 ///
-/// The price of that is written down here because it is easy to be caught by:
-///
-/// - `TypeId` is not stable across compiler versions, so both ends must be built by the same
-///   rustc. Nothing in here can detect that; a protocol version packet sent first is how a
-///   caller makes it diagnosable.
-/// - Renaming a packet struct silently changes its id, which is a wire break with no
-///   compile error anywhere.
+/// - `TypeId` is not stable across compiler versions, so both ends need the same rustc.
+///   Nothing here detects that; a version packet sent first is how a caller diagnoses it.
+/// - Renaming a packet struct silently changes its id - a wire break with no compile error.
 #[derive(Serialize, Deserialize)]
 pub struct Packet {
     pub id: u64,
@@ -38,16 +33,14 @@ pub struct Packet {
 }
 
 impl Packet {
-    /// This function creates a new packet from a serializable object.
+    /// Serializes a value into a packet tagged with its type.
     pub fn new<T: serde::Serialize + 'static>(data: T) -> Result<Self> {
         let id = get_type_id::<T>();
         let data = serialization::serialize(&data)?;
         Ok(Self { id, data })
     }
 
-    /// This function deserializes the data in the packet to the type that the packet was created from.
-    /// If the type of the packet is not the same as the type that you are trying to deserialize to,
-    /// it will return None.
+    /// The packet's contents as a `T`, or `None` if it carries something else.
     #[must_use]
     pub fn try_deserialize<T: DeserializeOwned + 'static>(&self) -> Option<T> {
         if self.id == get_type_id::<T>() {

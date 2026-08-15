@@ -33,6 +33,16 @@ pub enum Setting {
     },
 }
 
+impl Setting {
+    /// The key this setting is persisted under.
+    #[must_use]
+    pub fn config_label(&self) -> &str {
+        match self {
+            Self::Toggle { config_label, .. } | Self::Choice { config_label, .. } | Self::Slider { config_label, .. } => config_label,
+        }
+    }
+}
+
 pub struct Settings {
     settings: HashMap<i32, Setting>,
     config_path: PathBuf,
@@ -54,27 +64,18 @@ impl Settings {
         }
     }
 
-    /// Adds a new setting, returns the id of the setting.
+    /// Adds a setting, restoring its saved value if the config has one, and returns its id.
     pub fn register_setting(&mut self, mut setting: Setting) -> i32 {
-        let config_label = match setting.clone() {
-            Setting::Toggle { config_label, .. } | Setting::Choice { config_label, .. } | Setting::Slider { config_label, .. } => config_label,
-        };
-
-        if let Some(config_value) = self.config_data.get(&config_label) {
-            let config_value = *config_value;
+        if let Some(&value) = self.config_data.get(setting.config_label()) {
             match &mut setting {
-                Setting::Toggle { toggled, .. } => {
-                    *toggled = config_value != 0;
-                }
-                Setting::Choice { selected, .. } => {
-                    *selected = config_value;
-                }
+                Setting::Toggle { toggled, .. } => *toggled = value != 0,
+                Setting::Choice { selected, .. } => *selected = value,
                 Setting::Slider { selected, choices, lower_limit, .. } => {
-                    if config_value < choices.len() as i32 {
-                        *selected = SliderSelection::Choice(config_value);
+                    *selected = if value < choices.len() as i32 {
+                        SliderSelection::Choice(value)
                     } else {
-                        *selected = SliderSelection::Slider(config_value - choices.len() as i32 + *lower_limit);
-                    }
+                        SliderSelection::Slider(value - choices.len() as i32 + *lower_limit)
+                    };
                 }
             }
         }
@@ -84,37 +85,22 @@ impl Settings {
         self.curr_setting_id
     }
 
+    /// Removes a setting, keeping its value in the config so the next registration finds it.
     pub fn remove_setting(&mut self, id: i32) -> Result<()> {
-        let setting = self.settings.get(&id);
-
-        if let Some(setting) = setting {
-            let (config_label, value) = match setting {
-                Setting::Toggle { config_label, toggled, .. } => (config_label.clone(), i32::from(*toggled)),
-
-                Setting::Choice { config_label, selected, .. } => (config_label.clone(), *selected),
-
-                Setting::Slider {
-                    config_label,
-                    selected,
-                    choices,
-                    lower_limit,
-                    ..
-                } => {
-                    let val = match selected {
-                        SliderSelection::Slider(value) => *value + choices.len() as i32 - *lower_limit,
-
-                        SliderSelection::Choice(value) => *value,
-                    };
-
-                    (config_label.clone(), val)
-                }
-            };
-
-            self.config_data.insert(config_label, value);
-        } else {
+        let Some(setting) = self.settings.get(&id) else {
             anyhow::bail!("Setting with id does not exist");
-        }
+        };
 
+        let value = match setting {
+            Setting::Toggle { toggled, .. } => i32::from(*toggled),
+            Setting::Choice { selected, .. } => *selected,
+            Setting::Slider { selected, choices, lower_limit, .. } => match selected {
+                SliderSelection::Slider(value) => *value + choices.len() as i32 - *lower_limit,
+                SliderSelection::Choice(value) => *value,
+            },
+        };
+
+        self.config_data.insert(setting.config_label().to_owned(), value);
         self.settings.remove(&id);
         Ok(())
     }

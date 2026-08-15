@@ -1,14 +1,9 @@
-//! Id-indexed registries of named things.
+//! Id-indexed registries of named things: register a value, get a typed handle back, look it
+//! up by handle or by name. One registry per kind of thing, kept apart at compile time by the
+//! handle type.
 //!
-//! Register a value, get a typed handle back; look it up by handle or by name; iterate
-//! every handle. One registry per kind of thing, with the handle type keeping them apart at
-//! compile time.
-//!
-//! # Not in scope
-//!
-//! What the entries mean, when they are registered, and whether the same set is registered
-//! twice. Removal, too: handles are never reused, so nothing here can invalidate one that
-//! has already been handed out.
+//! **Not in scope**: what the entries mean, when they are registered, and removal - handles
+//! are never reused, so nothing here can invalidate one already handed out.
 
 pub use registry::*;
 

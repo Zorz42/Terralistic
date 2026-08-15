@@ -1,16 +1,12 @@
-//! The arithmetic behind procedural generation.
+//! The arithmetic behind procedural generation: fractal noise, a 1D box filter, and a weighted pick
+//! over a list of edges.
 //!
-//! Fractal noise, a 1D box filter for smoothing a per-column array, and a weighted pick over
-//! a list of edges. Three small functions that are easy to get subtly wrong and hard to test
-//! where they are used, since the thing around them is a whole world.
+//! Three small functions that are easy to get subtly wrong and hard to test where they are used,
+//! the thing around them being a whole world.
 //!
-//! # Not in scope
-//!
-//! What is being generated, and in what order. Nothing here knows about terrain, biomes,
-//! ores or caves; a caller feeds it numbers and decides what they mean.
-//!
-//! Reproducibility is the caller's too: everything here that needs randomness takes an `Rng`,
-//! so seeding - and therefore whether the same seed gives the same world - is decided
+//! **Not in scope**: what is being generated. Nothing here knows about terrain, biomes, ores
+//! or caves - a caller feeds it numbers and decides what they mean. Reproducibility is the
+//! caller's too: everything that needs randomness takes an `Rng`, so seeding is decided
 //! outside.
 
 pub use procgen::*;

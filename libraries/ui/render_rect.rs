@@ -50,9 +50,8 @@ impl super::UiElement for RenderRect {
         let container = self.get_container(graphics, parent_container);
         let rect = container.get_absolute_rect();
 
-        // Both are off for most rects, and neither draws anything when it is off. Skipping
-        // them here rather than letting them record is worth it because the shadow is not one
-        // command but nine or more.
+        // Both are off for most rects, and the shadow is nine commands or more, so skipping
+        // is worth more than letting them record nothing.
         if self.blur_radius > 0 {
             graphics.blur_rect(*rect, self.blur_radius);
         }

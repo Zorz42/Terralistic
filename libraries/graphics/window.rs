@@ -1,30 +1,15 @@
-//! The window and the input, which is everything the toolkit needs from the operating system.
+//! The window and the input: everything the toolkit needs from the operating system, and the
+//! only module that knows winit exists. Above it `GraphicsContext` deals in `gfx::Event` and
+//! `gfx::IntSize`; beside it `WgpuBackend` sees only something to hang a surface off.
 //!
-//! This is the only module that knows winit exists. `GraphicsContext` above it deals in
-//! `gfx::Event` and `gfx::IntSize`, and `WgpuBackend` beside it only ever sees the window as
-//! something to hang a surface off.
+//! **The event loop is pumped, not run.** winit's `run_app` wants to own the process and call
+//! back; the game's three main loops drive their own simulation and rendering, and inverting
+//! them was not worth it. `pump_app_events` dispatches what is queued and returns. It costs a
+//! repaint *during* a resize drag on macOS, and is desktop only - which is all this builds for.
 //!
-//! # Why the event loop is pumped rather than run
-//!
-//! winit wants to own the process: you hand `run_app` an `ApplicationHandler` and it calls you
-//! back. The game is the opposite shape - `while graphics.is_window_open() { .. }` in
-//! `client/game/core_client.rs`, `client/menus/title_screen_renderer.rs` and
-//! `server/server_ui/ui_manager.rs`, all of which drive simulation and rendering themselves.
-//! `EventLoopExtPumpEvents::pump_app_events` keeps that shape: it dispatches whatever the
-//! window system has queued and returns. Inverting three main loops around a callback was not
-//! worth it.
-//!
-//! It costs two things. A platform that drives painting through a callback (macOS `drawRect`)
-//! can show artifacts while a window is being dragged to a new size, so what is given up is a
-//! repaint *during* the drag; and `pump_app_events` is desktop only - Windows, macOS, X11 and
-//! Wayland, which are the only targets this game builds for.
-//!
-//! # Keys are physical, not what the key is labelled
-//!
-//! `translate_key` maps winit's `KeyCode`, which names a *position* on a US layout, so `Key::W`
-//! is whichever key sits where W sits on QWERTY. That is what a game wants: WASD stays a square
-//! on AZERTY and on Dvorak. Typing is unaffected, because text arrives separately as
-//! `Event::TextInput` with whatever the layout actually produced.
+//! **Keys are physical positions, not labels.** `translate_key` maps winit's `KeyCode`, which
+//! names a position on a US layout, so WASD stays a square on AZERTY. Typing is unaffected:
+//! text arrives separately as `Event::TextInput`.
 
 use std::sync::Arc;
 use std::time::Duration;
@@ -40,17 +25,12 @@ use winit::window::{WindowAttributes, WindowId};
 
 use crate::libraries::graphics as gfx;
 
-/// A scroll wheel notch, in pixels.
-///
-/// Wheels report whole lines and touchpads report pixels, but everything downstream of
-/// `Event::MouseScroll` - `Scrollable`, the server console, the module editor - is written
-/// in notches. This is the conversion for the devices that report the other unit.
+/// A scroll wheel notch, in pixels. Wheels report lines and touchpads pixels; everything
+/// downstream of `Event::MouseScroll` is written in notches, so pixels convert through this.
 const PIXELS_PER_SCROLL_NOTCH: f32 = 16.0;
 
-/// What one round of pumping the event loop produced.
-///
-/// Deliberately a snapshot rather than a stream of `gfx::Event`s: a resize and a close are
-/// not things a UI element can handle, so they never reach the event queue.
+/// What one round of pumping produced. A snapshot rather than more `gfx::Event`s: a resize or
+/// a close is not something a UI element can handle, so they never reach the event queue.
 pub(super) struct Poll {
     pub events: Vec<gfx::Event>,
     /// The window changed size, or moved to a display with a different scale factor.
@@ -68,14 +48,12 @@ pub(super) struct Window {
 }
 
 impl Window {
-    /// Opens a window and returns once the window system has actually produced it.
-    ///
-    /// winit only hands out an `ActiveEventLoop` - the one thing that can create a window -
-    /// from inside a callback, so this pumps the loop until `resumed` has run.
+    /// Opens a window and returns once the window system has produced it. winit only hands out
+    /// an `ActiveEventLoop` - the one thing that creates a window - from inside a callback, so
+    /// this pumps until `resumed` has run.
     pub(super) fn new(title: &str, size: gfx::IntSize, visible: bool) -> Result<Self> {
         let event_loop = EventLoop::new()?;
-        // The external loop decides when the next frame happens, and every pump below uses a
-        // zero timeout, so winit is never the thing that waits.
+        // The game's loop decides when the next frame is, so winit never waits.
         event_loop.set_control_flow(ControlFlow::Poll);
 
         let attributes = WindowAttributes::default()
@@ -99,9 +77,8 @@ impl Window {
             },
         };
 
-        // One pump is enough on every platform this builds for, but the number of round
-        // trips a backend needs is not part of winit's contract, so this waits on the
-        // outcome rather than on a fixed count.
+        // One pump is enough everywhere this builds, but the number of round trips is not part
+        // of winit's contract, so this waits on the outcome rather than a fixed count.
         let deadline = std::time::Instant::now() + Duration::from_secs(5);
         while result.state.window.is_none() && result.state.creation_error.is_none() {
             if std::time::Instant::now() > deadline {
@@ -116,11 +93,8 @@ impl Window {
         Ok(result)
     }
 
-    /// The window itself, for the backend to create its surface from.
-    ///
-    /// An `Arc` rather than a borrow so that the surface can be `Surface<'static>` without
-    /// the unsafe raw-handle constructor: it keeps the window alive for as long as wgpu
-    /// needs it, whatever order the fields around it drop in.
+    /// The window, for the backend to create its surface from. An `Arc` rather than a borrow
+    /// so the surface can be `Surface<'static>` without the unsafe raw-handle constructor.
     pub(super) fn handle(&self) -> Result<Arc<winit::window::Window>> {
         self.state.window.clone().ok_or_else(|| anyhow!("the window is gone"))
     }
@@ -154,17 +128,11 @@ impl Window {
     }
 }
 
-/// How big the window is, cached.
-///
-/// **This has to be cached, and the reason is performance, not tidiness.** Layout asks for the
-/// window size constantly - every `Container`, the camera's visible bounds, and every chunk
-/// deciding whether it is on screen - which measures ~540 calls per frame. winit does not
-/// cache: `inner_size` and `scale_factor` are objc message sends on macOS at roughly 12us a
-/// call, so asking every time cost ~6.7ms of every 16ms frame, 40% of the game's wall clock,
-/// and starved the 10ms budget `walls.rs` and `lights.rs` rebuild chunk meshes in.
-///
-/// The size only changes when the window system says so, and it always says so, so the resize
-/// events are the authority and reading back is unnecessary.
+/// How big the window is, cached - **for performance, not tidiness**. Layout asks ~540 times a
+/// frame (every `Container`, the camera bounds, every chunk testing visibility), and winit does
+/// not cache: `inner_size` and `scale_factor` are objc message sends on macOS at ~12us, which
+/// measured at 40% of the game's wall clock and starved the chunk-meshing budget. The resize
+/// events are the authority, so nothing is ever read back.
 #[derive(Clone, Copy)]
 struct Geometry {
     /// Real device pixels. What the surface is configured at.
@@ -175,8 +143,7 @@ struct Geometry {
 }
 
 impl Geometry {
-    /// A window that has gone away reports 1x1 rather than 0x0: every size here ends up as a
-    /// divisor somewhere downstream, and zero would take the layout arithmetic with it.
+    /// A window that has gone away reports 1x1, not 0x0: these sizes end up as divisors.
     const FALLBACK: Self = Self {
         physical_size: gfx::IntSize(1, 1),
         logical_size: gfx::IntSize(1, 1),
@@ -233,10 +200,9 @@ impl State {
             }
         }
 
-        // The characters a keypress produces, which is a separate question from which key it
-        // was: shift, dead keys and the layout all sit between the two. Control characters
-        // are filtered out because a text field wants the *text*, and backspace, enter and
-        // friends already arrived above as keys.
+        // Which characters a press produces is a separate question from which key it was:
+        // shift, dead keys and the layout sit between. Control characters are dropped - a text
+        // field wants the *text*, and backspace and friends already arrived above as keys.
         if event.state.is_pressed() {
             if let Some(text) = &event.text {
                 let text: String = text.chars().filter(|c| !c.is_control()).collect();
@@ -259,18 +225,16 @@ impl State {
 }
 
 impl ApplicationHandler for State {
-    /// Where the window is created. Called once on desktop, once per resume on mobile, hence
-    /// the guard: the game has exactly one window for its whole life.
+    /// Where the window is created. Called once per resume, hence the guard: the game has
+    /// exactly one window for its whole life.
     fn resumed(&mut self, event_loop: &ActiveEventLoop) {
         if self.window.is_some() {
             return;
         }
         match event_loop.create_window(self.attributes.clone()) {
             Ok(window) => {
-                // A game window that opens behind whatever the player launched it from is
-                // useless, and nothing else ever asks for the focus. macOS in particular
-                // will not raise a window for an application it does not consider active,
-                // which is exactly the state a pumped event loop leaves it in.
+                // Nothing else asks for focus, and macOS does not raise a window for an app it
+                // does not consider active - which is what a pumped event loop leaves it.
                 window.focus_window();
                 self.geometry = Geometry::of(&window);
                 self.window = Some(Arc::new(window));
@@ -286,10 +250,9 @@ impl ApplicationHandler for State {
                 self.geometry = Geometry::new(size, self.geometry.scale_factor);
                 self.resized = true;
             }
-            // A scale factor change is a resize as far as the surface is concerned, even
-            // when the logical size is unchanged: the drawable size moved. The new physical
-            // size is not in the event, so this is the one place that reads it back - it
-            // happens when a window moves between displays, not every frame.
+            // A scale change is a resize to the surface even at an unchanged logical size: the
+            // drawable moved. The new physical size is not in the event, so this is the one
+            // place that reads back - on a move between displays, not every frame.
             WindowEvent::ScaleFactorChanged { scale_factor, .. } => {
                 let physical = self
                     .window
@@ -298,18 +261,16 @@ impl ApplicationHandler for State {
                 self.geometry = Geometry::new(physical, scale_factor);
                 self.resized = true;
             }
-            // Only ever set, like `resized` and `closed`, and cleared by the `poll` that
-            // collects it. Assigning `!focused` instead loses a loss that is followed by a
-            // regain inside the same pump - which is a fast alt-tab, and leaves exactly the
-            // keys stuck down that clearing them exists to prevent.
+            // Only ever set, and cleared by the `poll` that collects it. Assigning `!focused`
+            // loses a loss followed by a regain in the same pump - a fast alt-tab, which
+            // leaves exactly the keys stuck down that clearing them prevents.
             WindowEvent::Focused(focused) => self.focus_lost |= !focused,
             WindowEvent::CursorMoved { position, .. } => {
                 let position = position.to_logical::<f64>(self.geometry.scale_factor);
                 self.mouse_pos = gfx::FloatPos(position.x as f32, position.y as f32);
             }
-            // `is_synthetic` marks the events a platform replays to describe the keyboard
-            // state at focus change. They are not presses the user made, and taking them
-            // would type a character for every key that happened to be down.
+            // `is_synthetic` marks the events replayed to describe the keyboard at a focus
+            // change: not presses anyone made, and taking them types every key that is down.
             WindowEvent::KeyboardInput { event, is_synthetic: false, .. } => self.handle_keyboard(&event),
             WindowEvent::MouseWheel { delta, .. } => self.handle_mouse_wheel(delta),
             WindowEvent::MouseInput { state, button, .. } => {
@@ -357,8 +318,7 @@ const fn translate_key(code: KeyCode) -> Option<gfx::Key> {
         KeyCode::KeyX => Key::X,
         KeyCode::KeyY => Key::Y,
         KeyCode::KeyZ => Key::Z,
-        // The number row and the numeric keypad both count: the hotbar is bound to these,
-        // and which one the player reaches for is up to them.
+        // Row and keypad both count: the hotbar is bound to these.
         KeyCode::Digit0 | KeyCode::Numpad0 => Key::Num0,
         KeyCode::Digit1 | KeyCode::Numpad1 => Key::Num1,
         KeyCode::Digit2 | KeyCode::Numpad2 => Key::Num2,

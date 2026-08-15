@@ -274,15 +274,11 @@ mod tests {
         assert_eq!(tracker.get_num_chunks(), 1);
     }
 
-    /// The tracker used to store `0` to mean "not tracked", which collides with a real
-    /// elapsed time of 0 seconds - that is every update during the tracker's first
-    /// second of life. A chunk first touched in that window was never removed from the
-    /// queue on its next update, so it appeared twice under two different times:
-    /// `get_num_chunks` over-reported and `get_oldest_chunk` kept returning a chunk that
-    /// had just been used.
-    ///
-    /// This needs a real second to pass, since the collision only shows up once
-    /// `timer.elapsed().as_secs()` moves off 0.
+    /// `0` used to mean "not tracked", colliding with a real elapsed time of 0 - every update
+    /// in the tracker's first second. A chunk touched then was never removed from the queue on
+    /// its next update, so it appeared twice: `get_num_chunks` over-reported and
+    /// `get_oldest_chunk` kept returning a chunk that had just been used. Needs a real second
+    /// to pass, since the collision only shows once `as_secs()` moves off 0.
     #[test]
     fn test_chunk_touched_in_the_first_second_is_not_duplicated() {
         let mut tracker = ChunkTracker::new(4);

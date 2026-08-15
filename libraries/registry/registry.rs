@@ -2,15 +2,11 @@ use std::marker::PhantomData;
 
 use anyhow::{anyhow, bail, Result};
 
-/// A typed handle into a `Registry`.
+/// A typed handle into a `Registry`, implemented by a newtype around whatever integer it is
+/// sent as - so a `BlockId` will not compile where a `WallId` is wanted, both being `i8`.
 ///
-/// Implemented by a newtype around whatever integer the handle is stored and sent as, so
-/// that two registries cannot be confused for one another: a `BlockId` will not compile
-/// where a `WallId` is wanted, even though both are an `i8` underneath.
-///
-/// An id is a **handle, not a position**. `index` is how the registry finds the entry, and
-/// it is an implementation detail of that lookup - nothing outside a registry should lay
-/// anything out by it or assume the handles it holds are contiguous.
+/// An id is a **handle, not a position**: `index` is an implementation detail of the lookup,
+/// and nothing outside a registry should lay anything out by it.
 pub trait RegistryId: Copy + Eq {
     /// What these ids identify, for error messages: "block type", "recipe".
     const KIND: &'static str;
@@ -18,16 +14,13 @@ pub trait RegistryId: Copy + Eq {
     /// The handle for the entry at `index`. Called once per registration.
     fn from_index(index: usize) -> Self;
 
-    /// Where to look for this handle's entry, or `None` if the handle refers to nothing -
-    /// which is what the "undefined" value every one of these newtypes has is for.
+    /// Where to look for this handle's entry, or `None` for the "undefined" value every one
+    /// of these newtypes has.
     fn index(self) -> Option<usize>;
 }
 
-/// An entry that is told its own handle when it is registered.
-///
-/// Entries carry their id because they are handed around on their own, away from the
-/// registry that owns them - a block type is passed to rendering, which has no registry to
-/// ask.
+/// An entry told its own handle when it is registered, because entries are handed around away
+/// from the registry - a block type reaches rendering, which has no registry to ask.
 pub trait RegistryEntry<Id: RegistryId> {
     fn set_id(&mut self, id: Id);
 }
@@ -40,19 +33,14 @@ pub trait NamedEntry {
 
 /// Register a value, get a typed handle back.
 ///
-/// Handles are handed out in registration order and never reused, entries are never
-/// removed, and every lookup is checked - an unknown handle is an error naming what kind of
-/// thing it failed to find, rather than a panic or a read of whatever entry the arithmetic
-/// landed on.
+/// Handles are handed out in registration order and never reused, entries are never removed, and
+/// every lookup is checked - an unknown handle names what it failed to find rather than panicking
+/// or reading whatever the arithmetic hit.
 ///
-/// # Not in scope
-///
-/// Persistence. A registry is rebuilt from whatever defines its entries, and what is saved
-/// refers to entries by *name* or is written knowing the registry will be rebuilt the same
-/// way - saving the handles themselves would freeze registration order into the file.
-///
-/// Lookup by name is a linear scan, which is right for a registry with tens of entries
-/// consulted at load time and wrong for one with thousands consulted per frame.
+/// **Not in scope**: persistence. A registry is rebuilt from whatever defines its entries, and
+/// saves refer to them by *name* - saving handles would freeze registration order into the
+/// file. Lookup by name is a linear scan, right for tens of entries consulted at load time and
+/// wrong for thousands consulted per frame.
 pub struct Registry<Id, T> {
     entries: Vec<T>,
     marker: PhantomData<Id>,
@@ -110,8 +98,8 @@ impl<Id: RegistryId, T> Registry<Id, T> {
 }
 
 impl<Id: RegistryId, T: RegistryEntry<Id>> Registry<Id, T> {
-    /// Adds an entry and returns its handle, stamping the handle into the entry first so
-    /// that an entry handed out on its own still knows what it is.
+    /// Adds an entry and returns its handle, stamping it in first so an entry handed out on
+    /// its own still knows what it is.
     pub fn register(&mut self, mut entry: T) -> Id {
         let id = Id::from_index(self.entries.len());
         entry.set_id(id);

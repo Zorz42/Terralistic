@@ -57,11 +57,10 @@ mod tests {
         assert_eq!(timer.stepped_ms(), steps * 5, "stepped_ms must agree with how many steps were taken");
     }
 
-    /// A widget that exists but is not stepped for a long time owes a step for every
-    /// millisecond of it, and a pause menu's buttons really do sit unrendered for a whole
-    /// session before their first frame. Walking that backlog is an hour of animation in one
-    /// frame; skipping it lands on the same value, because every animation here has settled
-    /// long before the bound.
+    /// A widget not stepped for a long time owes a step per millisecond, and a pause menu's
+    /// buttons really do sit unrendered for a whole session. Walking that is an hour of
+    /// animation in one frame; skipping it lands on the same value, every animation having
+    /// settled long before the bound.
     #[test]
     fn test_an_animating_timer_skips_a_backlog_it_could_never_walk() {
         let hour_ms = 60 * 60 * 1000;
