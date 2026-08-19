@@ -22,6 +22,34 @@ mod tests {
         assert!((3..=6).contains(&steps), "expected about 4 steps, got {steps}");
     }
 
+    /// The fraction is what a renderer draws between two simulation steps at. It runs from 0
+    /// at the start of the step the simulation has taken to just under 1 at its end, and never
+    /// leaves that range - a value outside it would draw an entity somewhere no tick put it.
+    #[test]
+    fn test_fixed_step_fraction_stays_within_the_step() {
+        let mut timer = FixedStep::new(5);
+        std::thread::sleep(std::time::Duration::from_millis(12));
+        while timer.step() {}
+
+        let fraction = timer.fraction_of_step();
+        assert!((0.0..=1.0).contains(&fraction), "expected a fraction of a step, got {fraction}");
+    }
+
+    /// Time passing inside one step moves the fraction forward without a step being handed
+    /// out, which is the whole point: the frames between two ticks are drawn further along.
+    #[test]
+    fn test_fixed_step_fraction_advances_between_steps() {
+        let mut timer = FixedStep::new(500);
+        std::thread::sleep(std::time::Duration::from_millis(1));
+        while timer.step() {}
+        let early = timer.fraction_of_step();
+
+        std::thread::sleep(std::time::Duration::from_millis(100));
+        assert!(!timer.step(), "a fifth of a 500ms step is not another step");
+
+        assert!(timer.fraction_of_step() > early, "the fraction should advance as the step is walked");
+    }
+
     #[test]
     fn test_fixed_step_has_nothing_ready_immediately() {
         let mut timer = FixedStep::for_animation(1000);

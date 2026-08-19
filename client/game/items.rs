@@ -6,10 +6,11 @@ use anyhow::{anyhow, Result};
 
 use crate::client::game::camera::Camera;
 use crate::libraries::events::{Event, EventManager};
+use crate::libraries::fixed::Fixed;
 use crate::libraries::graphics as gfx;
 use crate::libraries::scripting::ScriptHost;
 use crate::shared::blocks::{RENDER_BLOCK_WIDTH, RENDER_SCALE};
-use crate::shared::entities::{Entities, PhysicsComponent, PositionComponent};
+use crate::shared::entities::{drawn_position, Entities, PhysicsComponent, PositionComponent};
 use crate::shared::items::{init_items_mod_interface, ItemComponent, ItemId, ItemSpawnPacket, Items};
 use crate::shared::packet::Packet;
 
@@ -72,18 +73,19 @@ impl ClientItems {
         Ok(())
     }
 
-    pub fn render(&self, graphics: &gfx::GraphicsContext, camera: &Camera, entities: &mut Entities) -> Result<()> {
-        for (position, item) in entities.ecs.query_mut::<(&PositionComponent, &ItemComponent)>() {
+    pub fn render(&self, graphics: &gfx::GraphicsContext, camera: &Camera, entities: &mut Entities, fraction_of_step: Fixed) -> Result<()> {
+        for (position, physics, item) in entities.ecs.query_mut::<(&PositionComponent, &PhysicsComponent, &ItemComponent)>() {
             let mut src_rect = *self.atlas.get_rect(&item.get_item_type()).ok_or_else(|| anyhow!("Item not found in atlas"))?;
             src_rect.size.0 /= 2.0;
             let top_left = camera.get_top_left(graphics);
+            let drawn = drawn_position(position, physics, fraction_of_step);
 
             self.atlas.get_texture().render(
                 graphics,
                 RENDER_SCALE,
                 gfx::FloatPos(
-                    (position.x().to_f32() * RENDER_BLOCK_WIDTH - top_left.0 * RENDER_BLOCK_WIDTH + 0.5 * RENDER_BLOCK_WIDTH - src_rect.size.0 / 2.0 * RENDER_SCALE).round(),
-                    (position.y().to_f32() * RENDER_BLOCK_WIDTH - top_left.1 * RENDER_BLOCK_WIDTH + 0.5 * RENDER_BLOCK_WIDTH - src_rect.size.1 / 2.0 * RENDER_SCALE).round(),
+                    drawn.0.to_f32() * RENDER_BLOCK_WIDTH - top_left.0 * RENDER_BLOCK_WIDTH + 0.5 * RENDER_BLOCK_WIDTH - src_rect.size.0 / 2.0 * RENDER_SCALE,
+                    drawn.1.to_f32() * RENDER_BLOCK_WIDTH - top_left.1 * RENDER_BLOCK_WIDTH + 0.5 * RENDER_BLOCK_WIDTH - src_rect.size.1 / 2.0 * RENDER_SCALE,
                 ),
                 Some(src_rect),
                 false,

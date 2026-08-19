@@ -16,6 +16,13 @@ pub struct Camera {
     target_position_y: f32,
     position_x: f32,
     position_y: f32,
+    /// Where the camera was one tick ago, and how far through the current one the frame being
+    /// drawn is. In steady state the camera moves at exactly the speed it is following, so a
+    /// camera left on tick boundaries judders the whole world by as much as an uninterpolated
+    /// player judders against it.
+    previous_position_x: f32,
+    previous_position_y: f32,
+    fraction_of_step: f32,
     detached: bool,
     detached_text: ui::Sprite,
 }
@@ -27,6 +34,9 @@ impl Camera {
             target_position_y: 0.0,
             position_x: 0.0,
             position_y: 0.0,
+            previous_position_x: 0.0,
+            previous_position_y: 0.0,
+            fraction_of_step: 0.0,
             detached: false,
             detached_text: ui::Sprite::new(),
         }
@@ -49,12 +59,29 @@ impl Camera {
     }
 
     pub const fn get_position(&self) -> gfx::FloatPos {
-        gfx::FloatPos(self.position_x, self.position_y)
+        let (x, y) = self.render_position();
+        gfx::FloatPos(x, y)
+    }
+
+    /// How far through the current tick the frame being drawn is. Set once a frame, before
+    /// anything renders.
+    pub const fn set_fraction_of_step(&mut self, fraction: f32) {
+        self.fraction_of_step = fraction;
+    }
+
+    /// Where to draw from: between the last two ticks rather than on the newer of them.
+    const fn render_position(&self) -> (f32, f32) {
+        (
+            self.previous_position_x + (self.position_x - self.previous_position_x) * self.fraction_of_step,
+            self.previous_position_y + (self.position_y - self.previous_position_y) * self.fraction_of_step,
+        )
     }
 
     pub fn update_ms(&mut self, graphics: &gfx::GraphicsContext) {
         // 0.03 is 1/33.3, which is what this used to be written as - the only smoothing in
         // the game that was spelled as a multiply
+        self.previous_position_x = self.position_x;
+        self.previous_position_y = self.position_y;
         self.position_x = ui::approach(self.position_x, self.target_position_x, CAMERA_SMOOTH_FACTOR, CAMERA_EPSILON);
         self.position_y = ui::approach(self.position_y, self.target_position_y, CAMERA_SMOOTH_FACTOR, CAMERA_EPSILON);
 
@@ -87,14 +114,16 @@ impl Camera {
     pub fn get_top_left(&self, graphics: &gfx::GraphicsContext) -> (f32, f32) {
         let width = graphics.get_window_size().0 / RENDER_BLOCK_WIDTH;
         let height = graphics.get_window_size().1 / RENDER_BLOCK_WIDTH;
-        (self.position_x - width / 2.0, self.position_y - height / 2.0)
+        let (x, y) = self.render_position();
+        (x - width / 2.0, y - height / 2.0)
     }
 
     /// This function gets the position of the bottom right corner of the screen in world coordinates.
     pub fn get_bottom_right(&self, graphics: &gfx::GraphicsContext) -> (f32, f32) {
         let width = graphics.get_window_size().0 / RENDER_BLOCK_WIDTH;
         let height = graphics.get_window_size().1 / RENDER_BLOCK_WIDTH;
-        (self.position_x + width / 2.0, self.position_y + height / 2.0)
+        let (x, y) = self.render_position();
+        (x + width / 2.0, y + height / 2.0)
     }
 
     pub fn on_event(&mut self, event: &Event) {

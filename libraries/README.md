@@ -31,7 +31,7 @@ Each `mod.rs` holds the real contract, including what it refuses to do.
 | [`graphics`](graphics/) | 3,426 | 1,843 | The renderer: records draw commands and turns them into pixels through wgpu. Owns the window and input |
 | [`ui`](ui/) | 1,645 | 1,371 | The widget toolkit: layout, hit testing, input routing, widgets, and the composites built from them |
 | [`net`](net/) | 727 | 325 | A TCP transport carrying Rust values, both halves, on background threads. The transport, not the protocol |
-| [`timing`](timing/) | 367 | 315 | Clocks: fixed-step accumulators, a frame limiter, work budgets, frame statistics |
+| [`timing`](timing/) | 381 | 343 | Clocks: fixed-step accumulators, a frame limiter, work budgets, frame statistics |
 | [`scripting`](scripting/) | 324 | 180 | Sandboxed lua modules with named binary resources, and their on-disk package format |
 | [`grid`](grid/) | 242 | 318 | Bounded 2D grids, chunk addressing, and least-recently-touched eviction |
 | [`config`](config/) | 145 | 273 | Settings registered at runtime, persisted as a flat key-to-number file |

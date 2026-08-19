@@ -10,12 +10,12 @@ use crate::libraries::graphics as gfx;
 use crate::libraries::scripting::ScriptHost;
 use crate::libraries::ui::UiContext;
 use crate::shared::blocks::{Blocks, BLOCK_WIDTH, RENDER_BLOCK_WIDTH, RENDER_SCALE};
-use crate::shared::entities::{state_hash, Entities, EntityDespawnEvent, EntityState, EntitySyncPacket, HealthComponent, PhysicsComponent, PositionComponent};
+use crate::shared::entities::{drawn_position, state_hash, Entities, EntityDespawnEvent, EntityState, EntitySyncPacket, HealthComponent, PhysicsComponent, PositionComponent};
 use crate::shared::liquids::Liquids;
 use crate::shared::packet::Packet;
 use crate::shared::players::{
-    spawn_player, update_players_ms, Direction, MovingType, PlayerComponent, PlayerInput, PlayerInputPacket, PlayerInputPacketToClient, PlayerSpawnPacket, PlayerStateHashPacket, PLAYER_HEIGHT,
-    PLAYER_MAX_HEALTH, PLAYER_WIDTH,
+    attract_items_to_players, spawn_player, update_players_ms, Direction, MovingType, PlayerComponent, PlayerInput, PlayerInputPacket, PlayerInputPacketToClient, PlayerSpawnPacket,
+    PlayerStateHashPacket, PLAYER_HEIGHT, PLAYER_MAX_HEALTH, PLAYER_WIDTH,
 };
 use crate::shared::STATE_CHECK_INTERVAL_TICKS;
 
@@ -90,6 +90,12 @@ impl ClientPlayers {
         }
 
         update_players_ms(entities, blocks, liquids);
+        // In the same place the server does it. The pull is strong and grows as the item
+        // closes, so a client that does not apply it has an item falling to the ground while
+        // the server has it flying to the player - a difference the sync then has to drag out
+        // ten times a second, which is what made a pickup look like the item trailed behind.
+        // Whether the item is actually *picked up* is still the server's to decide.
+        attract_items_to_players(entities);
 
         Ok(())
     }
@@ -119,11 +125,12 @@ impl ClientPlayers {
         Ok(())
     }
 
-    pub fn render(&self, graphics: &gfx::GraphicsContext, entities: &mut Entities, camera: &Camera) {
-        for (entity, position, player_component) in entities.ecs.query_mut::<(Entity, &PositionComponent, &PlayerComponent)>() {
+    pub fn render(&self, graphics: &gfx::GraphicsContext, entities: &mut Entities, camera: &Camera, fraction_of_step: Fixed) {
+        for (entity, position, physics, player_component) in entities.ecs.query_mut::<(Entity, &PositionComponent, &PhysicsComponent, &PlayerComponent)>() {
             let offset = self.draw_offset(entity);
-            let x = (position.x() + offset.0).to_f32() * RENDER_BLOCK_WIDTH - camera.get_top_left(graphics).0 * RENDER_BLOCK_WIDTH;
-            let y = (position.y() + offset.1).to_f32() * RENDER_BLOCK_WIDTH - camera.get_top_left(graphics).1 * RENDER_BLOCK_WIDTH;
+            let drawn = drawn_position(position, physics, fraction_of_step);
+            let x = (drawn.0 + offset.0).to_f32() * RENDER_BLOCK_WIDTH - camera.get_top_left(graphics).0 * RENDER_BLOCK_WIDTH;
+            let y = (drawn.1 + offset.1).to_f32() * RENDER_BLOCK_WIDTH - camera.get_top_left(graphics).1 * RENDER_BLOCK_WIDTH;
 
             let src_rect = gfx::Rect::new(
                 gfx::FloatPos(player_component.animation_frame as f32 * PLAYER_WIDTH.to_f32() * BLOCK_WIDTH, 0.0),
@@ -135,7 +142,10 @@ impl ClientPlayers {
                 Direction::Right => false,
             };
 
-            self.player_texture.render(graphics, RENDER_SCALE, gfx::FloatPos(x.round(), y.round()), Some(src_rect), flipped, None);
+            // not rounded: the backend already snaps a texture to the offscreen's own pixel
+            // grid, and rounding here snaps to a *logical* pixel, which is two of those on a
+            // hidpi display - half the smoothness for nothing.
+            self.player_texture.render(graphics, RENDER_SCALE, gfx::FloatPos(x, y), Some(src_rect), flipped, None);
         }
     }
 
@@ -194,11 +204,10 @@ impl ClientPlayers {
         let (position_component, physics_component, player_component) = entities.ecs.query_one_mut::<(&mut PositionComponent, &mut PhysicsComponent, &mut PlayerComponent)>(main_player)?;
 
         let server_position = PositionComponent::new(state.x, state.y);
-        let mut server_physics = *physics_component;
-        server_physics.velocity_x = state.velocity_x;
-        server_physics.velocity_y = state.velocity_y;
-
-        if let Some((position, physics)) = self.prediction.reconcile(tick, server_position, server_physics, player_component, blocks, liquids) {
+        if let Some((position, physics)) = self
+            .prediction
+            .reconcile(tick, server_position, (state.velocity_x, state.velocity_y), player_component, blocks, liquids)
+        {
             *position_component = position;
             *physics_component = physics;
         }

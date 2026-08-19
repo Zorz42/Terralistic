@@ -29,7 +29,7 @@ cargo build --profile dist # what you ship: release + LTO, 4.63 MB vs 5.49 MB
 cargo run -- server       # server with GUI
 cargo run -- server nogui # headless server
 cargo run -- version      # print version
-cargo test                # 578 tests, all should pass
+cargo test                # 586 tests, all should pass
 cargo clippy --all-targets
 ./coverage.sh             # coverage via config-coverage.toml
 
@@ -703,6 +703,27 @@ four hours.
   next frames. The debt is capped at one frame, or a stall buys that many frames of uncapped
   rendering afterwards.
 
+**The simulation moves in whole ticks and the screen refreshes on its own clock, so
+everything that moves is drawn *between* two ticks.** At 60 fps a 5 ms tick advances three
+ticks on one frame and four on the next, and a steady walk drawn on tick boundaries is a
+stutter at any frame rate — this is what "jittery movement" almost always is, and it is
+independent of the network. `FixedStep::fraction_of_step` is how far real time has got into
+the step already taken, and there are two users of it:
+
+- `shared::entities::drawn_position` walks the last step *back* by the part of it that has not
+  happened yet. That is interpolating from the previous tick without keeping a copy of it —
+  the step was the velocity — and an entity a collision stopped dead has none left, so it is
+  drawn where the simulation put it rather than sliding into the wall.
+- `Camera::set_fraction_of_step`, because in steady state the camera moves at exactly the
+  speed of what it is following. A camera left on tick boundaries judders the whole world by
+  as much as an uninterpolated player judders against it, so interpolating one without the
+  other fixes nothing.
+
+**Entity draws are not rounded, and must not be.** `WgpuBackend::plan_command` already snaps a
+texture to the offscreen's own pixel grid, which is the *display's* resolution; rounding in the
+game rounds to a **logical** pixel, two of those on a HiDPI display, and throws away half the
+smoothness the interpolation just bought for nothing.
+
 **The frame's first 10 ms are a budget, and it is easy to spend by accident.**
 `core_client.rs` starts a `timing::Budget::of_ms(10)` at the top of its loop and passes it to
 `walls.rs` and `lights.rs`, which rebuild chunk meshes only while `budget.has_time_left()`.
@@ -762,11 +783,31 @@ entities times thirty-odd bytes, while a liquid grid snapshot is 10.5 MB and twe
 them is 211 MB. It also keeps mods, item drop RNG and `init_server()` out of the determinism
 problem entirely — they are events, not something the client must reproduce.
 
+**A snapshot is corrected against the tick it names, never against the present.**
+`ClientEntities` keeps a second of every entity's position and `apply_state` takes the
+difference at `packet.tick`, then applies it to where the entity is *now*. Comparing against
+the current position instead measures how far the entity moved while the packet was in flight
+and drags it back by exactly that much on every snapshot — the same "tolerance on a position
+from the past" mistake the player's 2.0 block check was, and the reason an item being pulled
+toward a player faster than the 10 Hz sync rate looked like it trailed behind and never
+arrived. An entity that agreed is not moved at all.
+
 **`step_entity` and `step_player` are pure**, and have to stay that way: state, blocks,
-liquids, nothing else. No clock, no randomness, nothing about any *other* entity. That is why
-item pickup is `attract_items_to_players` and runs on the server alone — it reads every other
-entity, and aims a strong uncapped force at a player position the client only has to snapshot
-accuracy, so predicting it could never come out right.
+liquids, nothing else. No clock, no randomness, nothing about any *other* entity.
+`attract_items_to_players` is the one part that reads every other entity, so it sits outside
+them and runs on both sides in the same place in the tick. It has to run on the client: the
+pull is strong and grows as the item closes, so a client that skips it has the item falling to
+the ground while the server has it flying to the player, and the sync then has to drag that
+whole difference out ten times a second. Whether an item is actually *picked up* stays the
+server's decision — that is `remove_all_picked_items`, and it is server only.
+
+**The reconciliation compares only what the server actually sent.** `EntitySyncPacket` carries
+a position and a velocity; the acceleration the held key implies and the collision box are the
+client's own and never go on the wire, so `with_velocity` takes them from the tick being
+corrected rather than from the present. Comparing a whole `PhysicsComponent` fired a correction
+every time the player changed direction between the two ticks, on a state the server had not
+disagreed with at all — which made the corrections counter useless as the diagnostic it exists
+to be.
 
 **Desyncs name a tick.** The client sends `PlayerStateHashPacket` every 20 ticks; the server
 keeps 200 ticks of its own hashes and logs a mismatch with the tick and both values. This only

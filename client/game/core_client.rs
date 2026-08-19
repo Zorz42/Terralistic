@@ -24,6 +24,7 @@ use crate::client::menus::{BackgroundRect, LoadingScreen, MenuBack, MENU_WIDTH};
 use crate::libraries::config::Settings;
 use crate::libraries::events;
 use crate::libraries::events::EventManager;
+use crate::libraries::fixed::Fixed;
 use crate::libraries::graphics as gfx;
 use crate::libraries::timing::{Budget, FixedStep, FrameStats};
 use crate::libraries::ui;
@@ -142,7 +143,7 @@ pub fn run_game(
     let mut blocks = ClientBlocks::new();
     let mut walls = ClientWalls::new(&mut blocks.get_blocks());
     let mut liquids = ClientLiquids::new();
-    let entities = ClientEntities::new();
+    let mut entities = ClientEntities::new();
     let mut items = ClientItems::new();
 
     // The welcome names the tick the server was on. The world still has to load after this,
@@ -249,7 +250,14 @@ pub fn run_game(
             entities.get_entities().update_entities_ms(&blocks.get_blocks(), &liquids.get_liquids(), &mut events)?;
             // after the physics, so the frame is the finished tick the server will report on
             players.record_tick(current_tick, &mut entities.get_entities(), &mut networking)?;
+            entities.record_tick(current_tick);
         }
+
+        // The simulation moves in whole ticks and the screen refreshes on its own clock, so
+        // everything that moves is drawn between the last two rather than on the newer of them.
+        let fraction_of_step = simulation_tick.fraction_of_step();
+        camera.set_fraction_of_step(fraction_of_step);
+        let fraction_of_step = Fixed::from_f32(fraction_of_step);
 
         respawn_screen.is_shown = players.get_main_player().is_none() && !players.is_waiting_for_player();
 
@@ -258,8 +266,8 @@ pub fn run_game(
         background.render(graphics, &camera);
         walls.render(graphics, &camera, &frame_budget)?;
         blocks.render(graphics, &camera /*&frame_budget*/)?;
-        players.render(graphics, &mut entities.get_entities(), &camera);
-        items.render(graphics, &camera, &mut entities.get_entities())?;
+        players.render(graphics, &mut entities.get_entities(), &camera, fraction_of_step);
+        items.render(graphics, &camera, &mut entities.get_entities(), fraction_of_step)?;
         // after everything that stands in it, so a player wading through water is behind
         // the surface rather than pasted on top of it. Before the floating damage text,
         // which has to stay readable.

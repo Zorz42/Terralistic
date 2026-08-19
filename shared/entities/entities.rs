@@ -82,6 +82,25 @@ pub fn is_touching_ground(position: &PositionComponent, physics: &PhysicsCompone
     ) && physics.velocity_y.abs() <= DIRECTION_SIZE
 }
 
+/// Where to draw an entity part way through a simulation step.
+///
+/// The simulation moves in whole `TICK_MS` steps and the screen refreshes on its own clock,
+/// so drawing the newest tick's position on every frame advances an entity three ticks on one
+/// frame and four on the next - a steady walk drawn as a stutter, whatever the frame rate.
+///
+/// This walks the last step back by however much of it real time has not reached yet, which
+/// is interpolating from the previous tick's position without keeping a copy of it: the step
+/// *was* the velocity. An entity the step stopped dead has no velocity left, so it is drawn
+/// exactly where the simulation put it rather than sliding into the wall it just hit.
+#[must_use]
+pub fn drawn_position(position: &PositionComponent, physics: &PhysicsComponent, fraction_of_step: Fixed) -> (Fixed, Fixed) {
+    let remaining = Fixed::ONE - fraction_of_step;
+    (
+        position.x() - physics.velocity_x * remaining / TICKS_PER_SECOND,
+        position.y() - physics.velocity_y * remaining / TICKS_PER_SECOND,
+    )
+}
+
 /// Advances one entity by one tick: gravity, buoyancy, a collision march along each axis, then
 /// drag. Returns how much its velocity changed, which is what a landing is judged by.
 ///
@@ -329,6 +348,13 @@ pub struct EntityDespawnEvent {
 impl EntityId {
     #[must_use]
     const fn new(id: u32) -> Self {
+        Self { id }
+    }
+
+    /// An id chosen by hand, for tests standing in for the server naming an entity.
+    #[cfg(test)]
+    #[must_use]
+    pub const fn from_raw(id: u32) -> Self {
         Self { id }
     }
 }

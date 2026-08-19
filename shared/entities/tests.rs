@@ -5,7 +5,8 @@ mod tests {
     use crate::libraries::fixed::Fixed;
     use crate::shared::blocks::{Block, BlockId, Blocks};
     use crate::shared::entities::{
-        collides_with_blocks, is_touching_ground, reduce_by, state_hash, step_entity, Entities, EntityDespawnEvent, HealthChangeEvent, HealthComponent, PhysicsComponent, PositionComponent,
+        collides_with_blocks, drawn_position, is_touching_ground, reduce_by, state_hash, step_entity, Entities, EntityDespawnEvent, HealthChangeEvent, HealthComponent, PhysicsComponent,
+        PositionComponent,
     };
     use crate::shared::liquids::Liquids;
 
@@ -501,5 +502,30 @@ mod tests {
             step_entity(&mut b.0, &mut b.1, &blocks, &liquids);
             assert_eq!(state_hash(&a.0, &a.1), state_hash(&b.0, &b.1), "the two runs parted company at tick {tick}");
         }
+    }
+
+    /// At the end of the step the drawn position is the simulated one; at its start it is one
+    /// step back, which is where the previous tick left the entity. Between them it walks, so
+    /// a frame drawn part way through a tick is drawn part way along the move.
+    #[test]
+    fn test_drawn_position_walks_the_last_step() {
+        let position = PositionComponent::new(Fixed::from_int(10), Fixed::from_int(20));
+        let mut physics = PhysicsComponent::new(Fixed::ONE, Fixed::from_int(2));
+        physics.velocity_x = Fixed::from_int(200);
+
+        assert_eq!(drawn_position(&position, &physics, Fixed::ONE).0, Fixed::from_int(10));
+        // 200 blocks a second is exactly one block per 5ms tick
+        assert_eq!(drawn_position(&position, &physics, Fixed::ZERO).0, Fixed::from_int(9));
+        assert_eq!(drawn_position(&position, &physics, Fixed::from_num(1, 2)).0, Fixed::from_num(19, 2));
+    }
+
+    /// An entity the step stopped dead has no velocity left to walk back along, so it is drawn
+    /// exactly where the simulation put it rather than sliding into the block it just hit.
+    #[test]
+    fn test_drawn_position_of_a_stopped_entity_is_where_it_is() {
+        let position = PositionComponent::new(Fixed::from_int(3), Fixed::from_int(4));
+        let physics = PhysicsComponent::new(Fixed::ONE, Fixed::from_int(2));
+
+        assert_eq!(drawn_position(&position, &physics, Fixed::ZERO), (position.x(), position.y()));
     }
 }

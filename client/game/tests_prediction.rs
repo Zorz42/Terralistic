@@ -57,7 +57,7 @@ mod tests {
         let (_position, _physics, mut player) = run(&mut prediction, 40, moving(MovingType::MovingRight), &blocks, &liquids);
 
         let (agreed_position, agreed_physics) = prediction.state_at(20).unwrap();
-        let correction = prediction.reconcile(20, agreed_position, agreed_physics, &mut player, &blocks, &liquids);
+        let correction = prediction.reconcile(20, agreed_position, (agreed_physics.velocity_x, agreed_physics.velocity_y), &mut player, &blocks, &liquids);
 
         assert!(correction.is_none(), "an agreeing server state should not correct anything");
         assert_eq!(prediction.corrections, 0);
@@ -76,7 +76,9 @@ mod tests {
         let (mut server_position, server_physics) = prediction.state_at(20).unwrap();
         server_position.set_x(server_position.x() - Fixed::ONE);
 
-        let (corrected, _corrected_physics) = prediction.reconcile(20, server_position, server_physics, &mut player, &blocks, &liquids).unwrap();
+        let (corrected, _corrected_physics) = prediction
+            .reconcile(20, server_position, (server_physics.velocity_x, server_physics.velocity_y), &mut player, &blocks, &liquids)
+            .unwrap();
 
         assert_eq!(prediction.corrections, 1);
         // the correction moved the player back by about the block the server disagreed by...
@@ -101,13 +103,13 @@ mod tests {
         let (position_20, physics_20) = prediction.state_at(20).unwrap();
         let mut nudged = physics_20;
         nudged.velocity_x += Fixed::ONE;
-        prediction.reconcile(20, position_20, nudged, &mut player, &blocks, &liquids).unwrap();
+        prediction.reconcile(20, position_20, (nudged.velocity_x, nudged.velocity_y), &mut player, &blocks, &liquids).unwrap();
         let after_nudge = prediction.state_at(60).unwrap().0;
 
         assert_ne!(after_nudge, original, "a different velocity should have produced a different path");
 
         let (position_again, _) = prediction.state_at(20).unwrap();
-        prediction.reconcile(20, position_again, physics_20, &mut player, &blocks, &liquids);
+        prediction.reconcile(20, position_again, (physics_20.velocity_x, physics_20.velocity_y), &mut player, &blocks, &liquids);
 
         assert_eq!(prediction.state_at(60).unwrap().0, original, "replaying the original state must reproduce the original path");
     }
@@ -123,7 +125,9 @@ mod tests {
         let stale = PositionComponent::new(Fixed::ZERO, Fixed::ZERO);
         let stale_physics = PhysicsComponent::new(Fixed::ONE, Fixed::from_int(2));
 
-        assert!(prediction.reconcile(0, stale, stale_physics, &mut player, &blocks, &liquids).is_none());
+        assert!(prediction
+            .reconcile(0, stale, (stale_physics.velocity_x, stale_physics.velocity_y), &mut player, &blocks, &liquids)
+            .is_none());
         assert_eq!(prediction.corrections, 0);
     }
 
@@ -147,7 +151,9 @@ mod tests {
 
         let (mut server_position, server_physics) = prediction.state_at(20).unwrap();
         server_position.set_x(server_position.x() - Fixed::ONE);
-        prediction.reconcile(20, server_position, server_physics, &mut player, &blocks, &liquids).unwrap();
+        prediction
+            .reconcile(20, server_position, (server_physics.velocity_x, server_physics.velocity_y), &mut player, &blocks, &liquids)
+            .unwrap();
 
         assert_ne!(prediction.visual_offset().0, Fixed::ZERO, "the correction should be visible as an offset to work off");
 
@@ -168,7 +174,9 @@ mod tests {
 
         let (mut server_position, server_physics) = prediction.state_at(20).unwrap();
         server_position.set_x(server_position.x() - Fixed::ONE);
-        prediction.reconcile(20, server_position, server_physics, &mut player, &blocks, &liquids).unwrap();
+        prediction
+            .reconcile(20, server_position, (server_physics.velocity_x, server_physics.velocity_y), &mut player, &blocks, &liquids)
+            .unwrap();
 
         prediction.forget();
 
@@ -186,7 +194,9 @@ mod tests {
 
         let (mut server_position, server_physics) = prediction.state_at(20).unwrap();
         server_position.set_x(server_position.x() + Fixed::from_int(500));
-        prediction.reconcile(20, server_position, server_physics, &mut player, &blocks, &liquids).unwrap();
+        prediction
+            .reconcile(20, server_position, (server_physics.velocity_x, server_physics.velocity_y), &mut player, &blocks, &liquids)
+            .unwrap();
 
         assert_eq!(prediction.visual_offset(), (Fixed::ZERO, Fixed::ZERO), "a teleport should look like a teleport");
     }
@@ -201,12 +211,17 @@ mod tests {
         let (_position, _physics, mut player) = run(&mut prediction, 40, moving(MovingType::MovingRight), &blocks, &liquids);
 
         let ahead = PositionComponent::new(Fixed::from_int(30), Fixed::from_int(12));
-        let ahead_physics = PhysicsComponent::new(Fixed::ONE, Fixed::from_int(2));
+        let velocity = (Fixed::from_int(7), Fixed::from_int(-3));
+        let (_, before) = prediction.state_at(40).unwrap();
 
-        let (position, physics) = prediction.reconcile(9999, ahead, ahead_physics, &mut player, &blocks, &liquids).unwrap();
+        let (position, physics) = prediction.reconcile(9999, ahead, velocity, &mut player, &blocks, &liquids).unwrap();
 
         assert_eq!(position, ahead, "a state from the future should be taken as given");
-        assert_eq!(physics, ahead_physics);
+        assert_eq!((physics.velocity_x, physics.velocity_y), velocity, "and so should the velocity it came with");
+        assert_eq!(
+            physics.acceleration_x, before.acceleration_x,
+            "the acceleration the held key implies is this client's own and is not on the wire, so it survives"
+        );
         assert_eq!(prediction.history_len(), 0, "there is nothing left to replay onto");
     }
 }

@@ -32,6 +32,17 @@ impl Prediction {
     }
 }
 
+/// The server reports a position and a velocity. The rest of the physics - the acceleration
+/// the current input implies, the collision box - is this client's own and never goes on the
+/// wire, so it is taken from the tick being corrected rather than from the present. Comparing
+/// the present acceleration against a past tick's fired a correction every time the player
+/// changed direction between the two, on a state the server had not disagreed with at all.
+const fn with_velocity(mut physics: PhysicsComponent, velocity: (Fixed, Fixed)) -> PhysicsComponent {
+    physics.velocity_x = velocity.0;
+    physics.velocity_y = velocity.1;
+    physics
+}
+
 /// One tick of the local player: what it was told to do, and where that put it.
 #[derive(Clone, Copy)]
 struct Frame {
@@ -96,21 +107,23 @@ impl Prediction {
         &mut self,
         tick: u64,
         server_position: PositionComponent,
-        server_physics: PhysicsComponent,
+        server_velocity: (Fixed, Fixed),
         player: &mut PlayerComponent,
         blocks: &Blocks,
         liquids: &Liquids,
     ) -> Option<(PositionComponent, PhysicsComponent)> {
         let Some(index) = self.frames.iter().position(|frame| frame.tick == tick) else {
-            if tick <= self.frames.back()?.tick {
+            let newest = *self.frames.back()?;
+            if tick <= newest.tick {
                 return None;
             }
             // fallen behind the server: nothing to replay, so start again from its answer
             self.corrections += 1;
             self.forget();
-            return Some((server_position, server_physics));
+            return Some((server_position, with_velocity(newest.physics, server_velocity)));
         };
         let frame = *self.frames.get(index)?;
+        let server_physics = with_velocity(frame.physics, server_velocity);
 
         if frame.position == server_position && frame.physics == server_physics {
             return None;

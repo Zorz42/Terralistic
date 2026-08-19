@@ -74,6 +74,20 @@ impl FixedStep {
         self.stepped_ms
     }
 
+    /// How far real time has got through the step the simulation has already taken, from 0 at
+    /// its start to just under 1 at its end.
+    ///
+    /// A renderer draws on the display's clock and the simulation moves in whole steps, so a
+    /// 5ms tick drawn at 60fps advances three ticks on one frame and four on the next - a
+    /// steady walk drawn as a stutter. This is the fraction to draw at, in between.
+    ///
+    /// Measured in microseconds, since a millisecond is a fifth of the tick it divides.
+    #[must_use]
+    pub fn fraction_of_step(&self) -> f32 {
+        let into_step = self.start_time.elapsed().as_micros() as i64 - (self.stepped_ms - self.step_ms) * 1000;
+        (into_step as f32 / (self.step_ms * 1000) as f32).clamp(0.0, 1.0)
+    }
+
     /// Takes one step if one is owed. Call it in a `while` loop to catch up to real time.
     #[must_use]
     pub fn step(&mut self) -> bool {
