@@ -1,4 +1,4 @@
-use std::collections::{BTreeMap, HashMap};
+use std::collections::{BTreeMap, HashMap, VecDeque};
 use std::ops::Deref;
 
 use anyhow::{anyhow, Result};
@@ -12,15 +12,15 @@ use crate::server::server_core::blocks::ServerBlocks;
 use crate::server::server_core::networking::{Connection, DisconnectEvent, NewConnectionWelcomedEvent, PacketFromClientEvent, SendTarget, ServerNetworking};
 use crate::server::server_core::print_to_console;
 use crate::shared::blocks::Blocks;
-use crate::shared::entities::{Entities, HealthChangeEvent, PhysicsComponent, PositionComponent};
+use crate::shared::entities::{state_hash, Entities, HealthChangeEvent, PhysicsComponent, PositionComponent};
 use crate::shared::entities::{HealthChangePacket, HealthComponent};
 use crate::shared::inventory::{Inventory, InventoryCraftPacket, InventoryPacket, InventorySelectPacket, InventorySwapPacket, Slot};
 use crate::shared::items::Items;
 use crate::shared::liquids::Liquids;
 use crate::shared::packet::Packet;
 use crate::shared::players::{
-    attract_items_to_players, remove_all_picked_items, spawn_player, update_players_ms, PlayerComponent, PlayerInput, PlayerInputPacket, PlayerInputPacketToClient, PlayerSpawnPacket, RespawnPacket,
-    PLAYER_HEIGHT, PLAYER_INVENTORY_SIZE, PLAYER_MAX_HEALTH, PLAYER_WIDTH,
+    attract_items_to_players, remove_all_picked_items, spawn_player, update_players_ms, PlayerComponent, PlayerInput, PlayerInputPacket, PlayerInputPacketToClient, PlayerSpawnPacket,
+    PlayerStateHashPacket, RespawnPacket, PLAYER_HEIGHT, PLAYER_INVENTORY_SIZE, PLAYER_MAX_HEALTH, PLAYER_WIDTH,
 };
 
 #[derive(Serialize, Deserialize)]
@@ -65,11 +65,20 @@ impl InputQueue {
     }
 }
 
+/// How many ticks of state checksums to keep per player. Comfortably more than the client's
+/// lead plus a round trip, so a checksum always arrives while its tick is still remembered.
+const STATE_HISTORY_TICKS: usize = 200;
+
 pub struct ServerPlayers {
     conns_to_players: HashMap<Connection, Option<Entity>>,
     players_to_conns: HashMap<Entity, Connection>,
     saved_players: HashMap<String, SavedPlayerData>,
     inputs: HashMap<Entity, InputQueue>,
+    /// What the server's own copy of each player hashed to, per recent tick, so a client's
+    /// checksum can be compared against the same moment. Bounded by `STATE_HISTORY_TICKS`.
+    hashes: HashMap<Entity, VecDeque<(u64, u64)>>,
+    /// Ticks at which a client disagreed with the server about its own player.
+    desyncs: u64,
     /// The tick the simulation is on, so an arriving input can be told it is already late.
     current_tick: u64,
 }
@@ -81,6 +90,8 @@ impl ServerPlayers {
             players_to_conns: HashMap::new(),
             saved_players: HashMap::new(),
             inputs: HashMap::new(),
+            hashes: HashMap::new(),
+            desyncs: 0,
             current_tick: 0,
         }
     }
@@ -129,6 +140,8 @@ impl ServerPlayers {
                     input: packet.input,
                 })?;
                 networking.send_packet(&relayed, SendTarget::AllExcept(packet_event.conn.clone()))?;
+            } else if let Some(packet) = packet_event.packet.try_deserialize::<PlayerStateHashPacket>() {
+                self.check_state_hash(&packet, player_entity, &networking.get_connection_name(&packet_event.conn));
             } else if let Some(packet) = packet_event.packet.try_deserialize::<InventorySelectPacket>() {
                 let mut inventory = entities.ecs.get::<&mut Inventory>(player_entity)?;
                 inventory.selected_slot = packet.slot;
@@ -171,6 +184,50 @@ impl ServerPlayers {
         }
 
         Ok(())
+    }
+
+    /// Compares a client's checksum of its own player against the server's at the same tick.
+    ///
+    /// A mismatch means the two simulations have genuinely parted company - not that a
+    /// correction happened, which is ordinary. Naming the tick is the point: without it a
+    /// desync is only ever visible as a player complaining that they get pulled backwards.
+    fn check_state_hash(&mut self, packet: &PlayerStateHashPacket, player_entity: Entity, name: &str) {
+        let Some(history) = self.hashes.get(&player_entity) else { return };
+        // a tick the server no longer remembers says nothing either way
+        let Some((_, ours)) = history.iter().find(|(tick, _)| *tick == packet.tick) else {
+            return;
+        };
+
+        if *ours != packet.hash {
+            self.desyncs += 1;
+            print_to_console(
+                &format!("[\"{name}\"] simulation disagrees at tick {}: server {ours:016x}, client {:016x}", packet.tick, packet.hash),
+                1,
+            );
+        }
+    }
+
+    /// Records what each player hashed to at the end of a tick.
+    pub fn record_tick(&mut self, tick: u64, entities: &Entities) {
+        for entity in self.players_to_conns.keys() {
+            let (Ok(position), Ok(physics)) = (entities.ecs.get::<&PositionComponent>(*entity), entities.ecs.get::<&PhysicsComponent>(*entity)) else {
+                continue;
+            };
+            let hash = state_hash(&position, &physics);
+
+            let history = self.hashes.entry(*entity).or_default();
+            if history.len() >= STATE_HISTORY_TICKS {
+                history.pop_front();
+            }
+            history.push_back((tick, hash));
+        }
+    }
+
+    /// Only read by tests; in the game the log line above is the surface that matters.
+    #[cfg(test)]
+    #[must_use]
+    pub const fn desyncs(&self) -> u64 {
+        self.desyncs
     }
 
     fn spawn_player(&mut self, name: &String, blocks: &Blocks, entities: &mut Entities, networking: &mut ServerNetworking, connection: &Connection) -> Result<()> {
@@ -258,6 +315,7 @@ impl ServerPlayers {
 
                     self.players_to_conns.remove(&player_entity);
                     self.inputs.remove(&player_entity);
+                    self.hashes.remove(&player_entity);
                     let player_id = entities.get_id_from_entity(player_entity)?;
                     entities.despawn_entity(player_id, events)?;
                 }
@@ -303,6 +361,7 @@ impl ServerPlayers {
                     self.conns_to_players.insert(player_conn, None);
                     self.players_to_conns.remove(&entity);
                     self.inputs.remove(&entity);
+                    self.hashes.remove(&entity);
                 }
             }
         }

@@ -296,6 +296,9 @@ impl Server {
             self.entities
                 .get_entities()
                 .update_entities_ms(&self.blocks.get_blocks(), &self.liquids.get_liquids(), &mut self.events)?;
+            // after the physics, so the checksum is of the finished tick - the same moment
+            // the client records, or the two would disagree every time by one step
+            self.players.record_tick(self.current_tick, &self.entities.get_entities());
         }
 
         if self.current_tick >= self.next_sync_tick {
@@ -401,6 +404,15 @@ impl Server {
     #[must_use]
     pub const fn get_current_tick(&self) -> u64 {
         self.current_tick
+    }
+
+    /// How many times a client's checksum of its own player has disagreed with the server's.
+    /// Zero is the only healthy value: the two run the same inputs through the same
+    /// deterministic step, so any disagreement is a bug rather than latency.
+    #[cfg(test)]
+    #[must_use]
+    pub const fn get_desyncs(&self) -> u64 {
+        self.players.desyncs()
     }
 
     #[cfg(test)]

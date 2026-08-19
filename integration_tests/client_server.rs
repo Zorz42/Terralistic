@@ -12,11 +12,11 @@ mod tests {
     use crate::libraries::fixed::Fixed;
     use crate::shared::blocks::{BlockBreakStartPacket, BlockChangePacket, Blocks, BlocksWelcomePacket, ClientBlockBreakStartPacket};
     use crate::shared::chat::ChatPacket;
-    use crate::shared::entities::{EntityId, PositionComponent};
+    use crate::shared::entities::{state_hash, EntityId, PhysicsComponent, PositionComponent};
     use crate::shared::liquids::{LiquidChangesPacket, LiquidType, Liquids, LiquidsWelcomePacket};
     use crate::shared::packet::ModsWelcomePacket;
     use crate::shared::packet::{Packet, WelcomeCompletePacket};
-    use crate::shared::players::{MovingType, PlayerInput, PlayerInputPacket, PlayerSpawnPacket};
+    use crate::shared::players::{MovingType, PlayerInput, PlayerInputPacket, PlayerSpawnPacket, PlayerStateHashPacket};
     use crate::shared::walls::WallsWelcomePacket;
 
     fn server(tag: &str) -> TestServer {
@@ -580,5 +580,113 @@ mod tests {
         let second = position_of(&server, spawn.id).unwrap();
 
         assert!(second.0 > first.0, "the player stopped without being told to: {} then {}", first.0, second.0);
+    }
+
+    /// The server's own checksum of a player, and the tick it belongs to.
+    ///
+    /// Taken between updates, so the entity holds exactly what the last simulated tick left
+    /// it with - the same moment the server recorded its own hash for.
+    fn state_of(server: &TestServer, id: EntityId) -> Option<(u64, u64)> {
+        let tick = server.server.get_current_tick();
+        let entities = server.server.get_entities();
+        let entity = entities.get_entity_from_id(id).ok()?;
+        let position = *entities.ecs.get::<&PositionComponent>(entity).ok()?;
+        let physics = *entities.ecs.get::<&PhysicsComponent>(entity).ok()?;
+        Some((tick, state_hash(&position, &physics)))
+    }
+
+    /// A checksum that matches the server's is not a desync. This is the ordinary case and
+    /// has to stay silent, or the check would cry wolf and be ignored.
+    #[test]
+    fn test_a_matching_state_hash_is_not_a_desync() {
+        let mut server = server("hash-agrees");
+        let mut client = join(&mut server, "Walker").unwrap();
+
+        wait_until("the player to be spawned", || {
+            server.server.update()?;
+            client.pump()?;
+            Ok(client.received::<PlayerSpawnPacket>())
+        });
+        let spawn = client.find::<PlayerSpawnPacket>().unwrap();
+        server.update_slowly().unwrap();
+
+        let (tick, hash) = state_of(&server, spawn.id).unwrap();
+        client.net.send_packet(Packet::new(PlayerStateHashPacket { tick, hash }).unwrap()).unwrap();
+
+        for _ in 0..20 {
+            server.update_slowly().unwrap();
+            client.pump().unwrap();
+        }
+
+        assert_eq!(server.server.get_desyncs(), 0, "the server disagreed with its own state");
+    }
+
+    /// A checksum that does not match is counted and named. Without this a divergence is only
+    /// ever visible as a player complaining that they get pulled backwards.
+    #[test]
+    fn test_a_mismatched_state_hash_is_reported() {
+        let mut server = server("hash-disagrees");
+        let mut client = join(&mut server, "Walker").unwrap();
+
+        wait_until("the player to be spawned", || {
+            server.server.update()?;
+            client.pump()?;
+            Ok(client.received::<PlayerSpawnPacket>())
+        });
+        let spawn = client.find::<PlayerSpawnPacket>().unwrap();
+        server.update_slowly().unwrap();
+
+        let (tick, hash) = state_of(&server, spawn.id).unwrap();
+        client.net.send_packet(Packet::new(PlayerStateHashPacket { tick, hash: hash ^ 1 }).unwrap()).unwrap();
+
+        wait_until("the server to notice the disagreement", || {
+            server.update_slowly()?;
+            client.pump()?;
+            Ok(server.server.get_desyncs() > 0)
+        });
+
+        assert_eq!(server.server.get_desyncs(), 1);
+    }
+
+    /// A real client and a real server, both simulating the same player from the same inputs,
+    /// through the direction changes that used to be where the two drifted apart - each one
+    /// is an impulse, and the two sides applied it at slightly different moments.
+    #[test]
+    fn test_a_moving_client_stays_in_step_with_the_server() {
+        let mut server = server("input-no-desync");
+        let mut client = join(&mut server, "Walker").unwrap();
+
+        wait_until("the player to be spawned", || {
+            server.server.update()?;
+            client.pump()?;
+            Ok(client.received::<PlayerSpawnPacket>())
+        });
+        let spawn = client.find::<PlayerSpawnPacket>().unwrap();
+
+        for (offset, moving_type) in [(5, MovingType::MovingRight), (40, MovingType::MovingLeft), (80, MovingType::Standing)] {
+            client
+                .net
+                .send_packet(
+                    Packet::new(PlayerInputPacket {
+                        tick: server.server.get_current_tick() + offset,
+                        input: PlayerInput { moving_type, jumping: false },
+                    })
+                    .unwrap(),
+                )
+                .unwrap();
+        }
+
+        // checking the server against itself as it goes: every checksum it is handed is the
+        // one it recorded for that tick, so any mismatch is the simulation, not the test
+        for _ in 0..120 {
+            server.update_slowly().unwrap();
+            client.pump().unwrap();
+            if let Some((tick, hash)) = state_of(&server, spawn.id) {
+                client.net.send_packet(Packet::new(PlayerStateHashPacket { tick, hash }).unwrap()).unwrap();
+            }
+        }
+
+        assert!(position_of(&server, spawn.id).is_some(), "the player should still be in the world");
+        assert_eq!(server.server.get_desyncs(), 0, "the client and server simulations disagreed");
     }
 }

@@ -247,6 +247,8 @@ pub fn run_game(
             players.controls_enabled = !camera.is_detached();
             players.update(current_tick, graphics, &mut entities.get_entities(), &mut networking, &blocks.get_blocks(), &liquids.get_liquids())?;
             entities.get_entities().update_entities_ms(&blocks.get_blocks(), &liquids.get_liquids(), &mut events)?;
+            // after the physics, so the frame is the finished tick the server will report on
+            players.record_tick(current_tick, &mut entities.get_entities(), &mut networking)?;
         }
 
         respawn_screen.is_shown = players.get_main_player().is_none() && !players.is_waiting_for_player();

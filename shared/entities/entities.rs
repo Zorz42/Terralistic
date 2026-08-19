@@ -152,6 +152,37 @@ pub fn step_entity(position: &mut PositionComponent, physics: &mut PhysicsCompon
     (velocity_x_change * velocity_x_change + velocity_y_change * velocity_y_change).sqrt()
 }
 
+/// A checksum of one entity's simulation state.
+///
+/// FNV-1a over the raw fixed-point words, written out rather than reached for from the
+/// standard library: this number crosses the network and has to mean the same thing at both
+/// ends, and `DefaultHasher` promises nothing about staying the same between builds.
+///
+/// It is only meaningful because the state is integers. Two float simulations that agree to
+/// within a rounding error hash differently, so the check would report a desync every tick
+/// and tell nobody anything.
+#[must_use]
+pub fn state_hash(position: &PositionComponent, physics: &PhysicsComponent) -> u64 {
+    const FNV_OFFSET: u64 = 0xcbf2_9ce4_8422_2325;
+    const FNV_PRIME: u64 = 0x0000_0100_0000_01b3;
+
+    let mut hash = FNV_OFFSET;
+    for word in [
+        position.x().raw(),
+        position.y().raw(),
+        physics.velocity_x.raw(),
+        physics.velocity_y.raw(),
+        physics.acceleration_x.raw(),
+        physics.acceleration_y.raw(),
+    ] {
+        for byte in word.to_le_bytes() {
+            hash ^= u64::from(byte);
+            hash = hash.wrapping_mul(FNV_PRIME);
+        }
+    }
+    hash
+}
+
 pub struct Entities {
     pub ecs: hecs::World,
     current_id: u32,

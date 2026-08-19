@@ -5,7 +5,7 @@ mod tests {
     use crate::libraries::fixed::Fixed;
     use crate::shared::blocks::{Block, BlockId, Blocks};
     use crate::shared::entities::{
-        collides_with_blocks, is_touching_ground, reduce_by, step_entity, Entities, EntityDespawnEvent, HealthChangeEvent, HealthComponent, PhysicsComponent, PositionComponent,
+        collides_with_blocks, is_touching_ground, reduce_by, state_hash, step_entity, Entities, EntityDespawnEvent, HealthChangeEvent, HealthComponent, PhysicsComponent, PositionComponent,
     };
     use crate::shared::liquids::Liquids;
 
@@ -464,5 +464,42 @@ mod tests {
         }
 
         assert_eq!(hash(&a.0, &a.1), hash(&b.0, &b.1));
+    }
+
+    /// The checksum that crosses the network. Equal states must hash equally, or the desync
+    /// check would cry wolf; different ones must not, or it would never notice.
+    #[test]
+    fn test_state_hash_distinguishes_states() {
+        let position = PositionComponent::new(Fixed::from_int(3), Fixed::from_int(4));
+        let physics = PhysicsComponent::new(Fixed::ONE, Fixed::ONE);
+
+        assert_eq!(state_hash(&position, &physics), state_hash(&position, &physics), "the same state must hash the same");
+
+        let moved = PositionComponent::new(Fixed::from_int(3) + Fixed::EPSILON, Fixed::from_int(4));
+        assert_ne!(state_hash(&position, &physics), state_hash(&moved, &physics), "one step of position should change the hash");
+
+        let mut faster = physics;
+        faster.velocity_x += Fixed::EPSILON;
+        assert_ne!(state_hash(&position, &physics), state_hash(&position, &faster), "one step of velocity should change the hash");
+    }
+
+    /// Two runs of the same simulation hash the same at every tick. This is the property the
+    /// desync check relies on - and the one floats could not give, since two float
+    /// simulations agreeing to within a rounding error still hash differently.
+    #[test]
+    fn test_two_identical_runs_hash_the_same_every_tick() {
+        let blocks = world_with_ground(9);
+        let liquids = dry_world();
+
+        let mut a = (PositionComponent::new(Fixed::from_num(5, 2), Fixed::ZERO), PhysicsComponent::new(Fixed::ONE, Fixed::ONE));
+        let mut b = a;
+        a.1.velocity_x = Fixed::from_num(31, 10);
+        b.1.velocity_x = Fixed::from_num(31, 10);
+
+        for tick in 0..300 {
+            step_entity(&mut a.0, &mut a.1, &blocks, &liquids);
+            step_entity(&mut b.0, &mut b.1, &blocks, &liquids);
+            assert_eq!(state_hash(&a.0, &a.1), state_hash(&b.0, &b.1), "the two runs parted company at tick {tick}");
+        }
     }
 }

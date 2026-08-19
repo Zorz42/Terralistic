@@ -10,13 +10,14 @@ use crate::libraries::graphics as gfx;
 use crate::libraries::scripting::ScriptHost;
 use crate::libraries::ui::UiContext;
 use crate::shared::blocks::{Blocks, BLOCK_WIDTH, RENDER_BLOCK_WIDTH, RENDER_SCALE};
-use crate::shared::entities::{Entities, EntityDespawnEvent, EntityState, EntitySyncPacket, HealthComponent, PhysicsComponent, PositionComponent};
+use crate::shared::entities::{state_hash, Entities, EntityDespawnEvent, EntityState, EntitySyncPacket, HealthComponent, PhysicsComponent, PositionComponent};
 use crate::shared::liquids::Liquids;
 use crate::shared::packet::Packet;
 use crate::shared::players::{
-    spawn_player, update_players_ms, Direction, MovingType, PlayerComponent, PlayerInput, PlayerInputPacket, PlayerInputPacketToClient, PlayerSpawnPacket, PLAYER_HEIGHT, PLAYER_MAX_HEALTH,
-    PLAYER_WIDTH,
+    spawn_player, update_players_ms, Direction, MovingType, PlayerComponent, PlayerInput, PlayerInputPacket, PlayerInputPacketToClient, PlayerSpawnPacket, PlayerStateHashPacket, PLAYER_HEIGHT,
+    PLAYER_MAX_HEALTH, PLAYER_WIDTH,
 };
+use crate::shared::STATE_CHECK_INTERVAL_TICKS;
 
 pub struct ClientPlayers {
     main_player: Option<Entity>,
@@ -66,7 +67,7 @@ impl ClientPlayers {
     /// force, so walking across the world is two packets rather than one per tick. The tick
     /// is what makes that safe - the server applies it at the moment it was meant for
     /// instead of whenever the packet happened to land.
-    pub fn update(&mut self, tick: u64, graphics: &gfx::GraphicsContext, entities: &mut Entities, networking: &mut ClientNetworking, blocks: &Blocks, liquids: &Liquids) -> Result<()> {
+    pub fn update(&self, tick: u64, graphics: &gfx::GraphicsContext, entities: &mut Entities, networking: &mut ClientNetworking, blocks: &Blocks, liquids: &Liquids) -> Result<()> {
         if let Some(main_player) = self.main_player {
             let input = PlayerInput {
                 moving_type: match (
@@ -90,11 +91,27 @@ impl ClientPlayers {
 
         update_players_ms(entities, blocks, liquids);
 
-        // Remember where this tick left the player. A server state for the same tick can then
-        // be compared against what this client actually had, rather than snapped to blind.
+        Ok(())
+    }
+
+    /// Remembers where a tick left this client's player, so a server state for the same tick
+    /// can be compared against what the client actually had rather than snapped to blind.
+    ///
+    /// **Called after the physics step, not inside `update`.** The server's state for a tick
+    /// is what it holds once that tick is fully simulated; a frame recorded a step earlier
+    /// would differ from it every single time, and every sync would look like a correction.
+    pub fn record_tick(&mut self, tick: u64, entities: &mut Entities, networking: &mut ClientNetworking) -> Result<()> {
         if let Some(main_player) = self.main_player {
             if let Ok((position, physics, player)) = entities.ecs.query_one_mut::<(&PositionComponent, &PhysicsComponent, &PlayerComponent)>(main_player) {
                 self.prediction.record(tick, player.get_input(), *position, *physics);
+
+                // The two sides run the same inputs through the same deterministic step, so
+                // these must agree exactly and forever. Sending one now and then is what
+                // turns "it sometimes pulls me backwards" into a tick number to look at.
+                if tick.is_multiple_of(STATE_CHECK_INTERVAL_TICKS) {
+                    let hash = state_hash(position, physics);
+                    networking.send_packet(Packet::new(PlayerStateHashPacket { tick, hash })?)?;
+                }
             }
         }
         self.prediction.decay_visual_error();

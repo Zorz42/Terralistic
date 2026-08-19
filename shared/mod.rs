@@ -55,3 +55,6 @@ pub const INPUT_LEAD_TICKS: u64 = 20;
 /// server updates, and - because both sides now simulate the same deterministic physics -
 /// most of what it carries agrees with what the client already had.
 pub const ENTITY_SYNC_INTERVAL_TICKS: u64 = 20;
+
+/// How often the client sends a checksum of its own player for the server to check, in ticks.
+pub const STATE_CHECK_INTERVAL_TICKS: u64 = 20;

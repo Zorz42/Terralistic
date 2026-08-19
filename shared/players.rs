@@ -315,6 +315,18 @@ pub struct PlayerInputPacket {
     pub input: PlayerInput,
 }
 
+/// A client's checksum of its own player at a tick.
+///
+/// The two sides simulate the same inputs through the same deterministic step, so these
+/// should match exactly, forever. When one does not, the tick it names is where the two
+/// simulations first parted company - which turns "it sometimes rubber-bands" into something
+/// that can be looked at.
+#[derive(Serialize, Deserialize)]
+pub struct PlayerStateHashPacket {
+    pub tick: u64,
+    pub hash: u64,
+}
+
 /// The same, relayed to everyone else, so their copy of that player simulates what it did.
 #[derive(Serialize, Deserialize)]
 pub struct PlayerInputPacketToClient {
