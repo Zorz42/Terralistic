@@ -538,6 +538,108 @@ mod tests {
         assert_eq!(scrollable.get_scroll_pos(), 0.0, "the list should come to rest on the top, not near it");
     }
 
+    /// A hard flick used to run its whole momentum into the boundary pull: the overshoot was
+    /// the velocity times `boundary_smooth_factor`, hundreds of pixels for a trackpad swipe.
+    /// The rubber band eats the velocity leaving the bounds instead, so the overshoot saturates.
+    #[test]
+    fn test_a_hard_flick_is_resisted_at_the_boundary() {
+        let mut graphics = ui::HeadlessContext::new();
+        let mut scrollable = ui::Scrollable::new();
+        scrollable.scroll_smooth_factor = 100.0;
+        scrollable.boundary_smooth_factor = 40.0;
+        scrollable.scroll_size = 1000.0;
+        scrollable.rect.size.1 = 400.0;
+
+        let root = root_container(&graphics);
+        scrollable.on_event(&mut graphics, &gfx::Event::MouseScroll(25.0), &root);
+
+        let mut deepest = 0.0_f32;
+        for _ in 0..2000 {
+            scrollable.advance_frame();
+            deepest = deepest.max(-scrollable.get_scroll_pos());
+        }
+        assert!(deepest > 0.0, "the flick should still bounce");
+        assert!(deepest < 40.0, "the bounce should stay inside the overscroll limit, went {deepest}");
+        assert_close(scrollable.get_scroll_pos(), 0.0);
+    }
+
+    // --- ListPage ---
+
+    /// A row that is nothing but a height and the position the page hands it.
+    struct TestRow {
+        height: f32,
+        pos: FloatPos,
+    }
+
+    impl UiElement for TestRow {
+        fn get_container(&self, graphics: &dyn UiContext, parent_container: &ui::Container) -> ui::Container {
+            ui::Container::new(graphics, self.pos, FloatSize(100.0, self.height), ui::TOP_LEFT, Some(parent_container))
+        }
+    }
+
+    impl ui::ListRow for TestRow {
+        fn get_row_height(&self) -> f32 {
+            self.height
+        }
+
+        fn set_row_pos(&mut self, pos: FloatPos) {
+            self.pos = pos;
+        }
+    }
+
+    /// One frame of the page's layout. `ListPage::update` takes the rows as trait objects, which
+    /// a `[TestRow]` needs a pass to become.
+    fn lay_out(page: &mut ui::ListPage, rows: &mut [TestRow], graphics: &dyn UiContext, root: &ui::Container) {
+        let mut refs: Vec<&mut dyn ui::ListRow> = rows.iter_mut().map(|row| row as &mut dyn ui::ListRow).collect();
+        page.update(graphics, root, &mut refs);
+    }
+
+    /// The list is inset by `SPACING` below the top bar, so scrolled fully down it has to end
+    /// `SPACING` above the bottom bar. The extent used to drop the gap after the last row, which
+    /// left that row's bottom `SPACING` underneath the bar with no way to bring it out.
+    #[test]
+    fn test_the_last_row_clears_the_bottom_bar_at_full_scroll() {
+        let mut graphics = ui::HeadlessContext::new();
+        graphics.set_window_size(FloatSize(1000.0, 800.0));
+        let root = root_container(&graphics);
+        let mut page = ui::ListPage::new(500.0, 100.0, 100.0);
+        let mut rows = [
+            TestRow {
+                height: 200.0,
+                pos: FloatPos(0.0, 0.0),
+            },
+            TestRow {
+                height: 200.0,
+                pos: FloatPos(0.0, 0.0),
+            },
+            TestRow {
+                height: 200.0,
+                pos: FloatPos(0.0, 0.0),
+            },
+            TestRow {
+                height: 200.0,
+                pos: FloatPos(0.0, 0.0),
+            },
+            TestRow {
+                height: 200.0,
+                pos: FloatPos(0.0, 0.0),
+            },
+        ];
+
+        lay_out(&mut page, &mut rows, &graphics, &root);
+        assert!(page.is_scrollable());
+
+        // scroll to the end and let the bounce settle
+        page.scrollable.on_event(&mut graphics, &gfx::Event::MouseScroll(-100.0), &root);
+        for _ in 0..2000 {
+            page.scrollable.advance_frame();
+        }
+        lay_out(&mut page, &mut rows, &graphics, &root);
+
+        let last_row_bottom = rows[4].pos.1 + rows[4].height;
+        assert_close(last_row_bottom, 800.0 - 100.0 - ui::SPACING);
+    }
+
     #[test]
     fn test_scrollable_ignores_unrelated_events() {
         let mut graphics = ui::HeadlessContext::new();

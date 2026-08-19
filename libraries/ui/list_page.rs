@@ -85,8 +85,11 @@ impl ListPage {
             current_y += height + SPACING;
             total_height += height + SPACING;
         }
-        // the gap after the last row is not part of the list
-        self.scrollable.scroll_size = (total_height - SPACING).max(0.0);
+        // The list is inset by `SPACING` below the top bar - the scrollable's own offset, which
+        // is not part of `scroll_size` - so the extent keeps the gap after the last row to
+        // match. Dropping it instead left the last row's bottom `SPACING` under the bottom bar
+        // at full scroll, with no way to bring it out.
+        self.scrollable.scroll_size = if total_height > 0.0 { total_height + SPACING } else { 0.0 };
 
         // A row under a bar must not light up through it, so the whole list stops hovering
         // while the pointer is over either one.
