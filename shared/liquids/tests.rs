@@ -94,7 +94,7 @@ mod tests {
     /// Runs the simulation for `steps` flow steps of the fast liquid.
     fn run(liquids: &mut Liquids, blocks: &Blocks, events: &mut EventManager, steps: i32) {
         for _ in 0..steps {
-            liquids.update_liquids(blocks, events, 100.0).unwrap();
+            liquids.update_liquids(blocks, events, 20).unwrap();
         }
     }
 
@@ -151,7 +151,7 @@ mod tests {
         let poured = total_liquid(&liquids);
 
         for _ in 0..60 {
-            liquids.update_liquids(&blocks, &mut events, 100.0).unwrap();
+            liquids.update_liquids(&blocks, &mut events, 20).unwrap();
             assert_eq!(total_liquid(&liquids), poured, "flowing changed how much liquid there is");
         }
     }
@@ -223,7 +223,7 @@ mod tests {
         liquids.set_liquid(4, 1, tar, MAX_LIQUID_LEVEL, &mut events).unwrap();
 
         // one water step, a tenth of a tar step
-        liquids.update_liquids(&blocks, &mut events, 100.0).unwrap();
+        liquids.update_liquids(&blocks, &mut events, 20).unwrap();
 
         assert_eq!(liquids.get_liquid_level(2, 1).unwrap(), 0, "water should have moved on its first step");
         assert_eq!(liquids.get_liquid_level(4, 1).unwrap(), MAX_LIQUID_LEVEL, "tar flows every 1000ms and should not have moved yet");

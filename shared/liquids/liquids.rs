@@ -10,6 +10,7 @@ use crate::libraries::registry::{Registry, RegistryId};
 use crate::libraries::timing::Interval;
 use crate::shared::blocks::Blocks;
 use crate::shared::liquids::LiquidType;
+use crate::shared::TICK_MS;
 
 /// A cell filled to the brim.
 ///
@@ -249,8 +250,11 @@ impl Liquids {
     /// owed the steps it missed, for the same reason `AnimationTimer` gives up after
     /// `MAX_CATCHUP_FRAMES`: nobody was watching, and catching up would be a burst of
     /// hundreds of steps in one tick.
-    pub fn update_liquids(&mut self, blocks: &Blocks, events: &mut EventManager, frame_length: f32) -> Result<()> {
-        self.elapsed_ms += f64::from(frame_length);
+    /// Advances the flow simulation by one tick. Counted in ticks rather than in wall-clock
+    /// milliseconds, so a cell flows on the same tick everywhere and a change can be stamped
+    /// with one.
+    pub fn update_liquids(&mut self, blocks: &Blocks, events: &mut EventManager, ticks: i64) -> Result<()> {
+        self.elapsed_ms += (ticks * TICK_MS) as f64;
 
         let elapsed_ms = self.elapsed_ms;
         let due: Vec<bool> = self.flow_intervals.iter_mut().map(|interval| interval.is_due(elapsed_ms)).collect();

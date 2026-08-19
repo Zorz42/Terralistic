@@ -288,7 +288,7 @@ mod tests {
         let mut events = EventManager::new();
         for _ in 0..300 {
             let blocks = server.server.get_blocks();
-            server.server.get_liquids().update_liquids(&blocks, &mut events, 100.0).unwrap();
+            server.server.get_liquids().update_liquids(&blocks, &mut events, 20).unwrap();
         }
 
         let after: u32 = liquid_grid(&server).iter().map(|level| u32::from(*level)).sum();

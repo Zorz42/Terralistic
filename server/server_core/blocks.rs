@@ -271,10 +271,14 @@ impl ServerBlocks {
         }
     }
 
-    pub fn update(&self, events: &mut EventManager, frame_length: f32) -> Result<()> {
+    /// Per server update: hand over whatever the mods queued.
+    pub fn update(&self, events: &mut EventManager) {
         self.flush_mods_events(events);
+    }
 
-        self.get_blocks().update_breaking_blocks(events, frame_length)
+    /// Per simulation tick: advance whatever is being broken.
+    pub fn tick(&self, events: &mut EventManager) -> Result<()> {
+        self.get_blocks().update_breaking_blocks(events, 1)
     }
 }
 

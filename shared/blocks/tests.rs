@@ -185,7 +185,7 @@ mod tests {
 
         blocks.set_block(&mut events, 1, 1, unbreakable).unwrap();
         blocks.set_break_progress(1, 1, 5000).unwrap();
-        blocks.update_breaking_blocks(&mut events, 0.0).unwrap();
+        blocks.update_breaking_blocks(&mut events, 0).unwrap();
 
         assert!(blocks.get_block(1, 1).unwrap() == unbreakable, "an unbreakable block was destroyed");
     }
@@ -229,10 +229,36 @@ mod tests {
         blocks.start_breaking_block(&mut events, 1, 1, None, 0).unwrap();
 
         for _ in 0..3 {
-            blocks.update_breaking_blocks(&mut events, 1000.0).unwrap();
+            blocks.update_breaking_blocks(&mut events, 200).unwrap();
         }
 
         assert!(blocks.get_block(1, 1).unwrap() == blocks.air(), "a breakable block was not broken");
+    }
+
+    /// Breaking advances by whole ticks, so how the ticks are grouped cannot change when a
+    /// block gives way. Driven by frame length it could: the accumulator took
+    /// `frame_length as i32`, so 60fps threw away 0.67ms of every frame and broke 4% slow,
+    /// while a different frame rate lost a different amount. The tick a block breaks on is
+    /// now a fact both sides agree on rather than a property of the machine.
+    #[test]
+    fn test_breaking_depends_on_total_ticks_not_on_their_grouping() {
+        let broken_after = |calls: i64, per_call: i64| {
+            let (mut blocks, breakable, _unbreakable) = blocks_with_break_types();
+            let mut events = EventManager::new();
+            blocks.set_block(&mut events, 1, 1, breakable).unwrap();
+            blocks.start_breaking_block(&mut events, 1, 1, None, 0).unwrap();
+            for _ in 0..calls {
+                blocks.update_breaking_blocks(&mut events, per_call).unwrap();
+            }
+            blocks.get_block(1, 1).unwrap() == blocks.air()
+        };
+
+        // the same 200 ticks, delivered three ways
+        assert_eq!(broken_after(200, 1), broken_after(20, 10), "grouping changed the outcome");
+        assert_eq!(broken_after(200, 1), broken_after(1, 200), "grouping changed the outcome");
+        // and one tick short of it is still one tick short, however it was delivered
+        assert!(!broken_after(199, 1), "199 ticks should not have broken it");
+        assert!(!broken_after(1, 199), "199 ticks should not have broken it");
     }
 
     // --- block types and tools ---

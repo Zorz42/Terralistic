@@ -58,10 +58,16 @@ impl ServerLiquids {
         Ok(())
     }
 
-    pub fn update(&mut self, blocks: &Blocks, events: &mut EventManager, networking: &mut ServerNetworking, frame_length: f32) -> Result<()> {
+    /// Per server update: hand over mod events and send the tick's worth of changes as one
+    /// packet, which is what keeps a stream of water from being a packet per cell.
+    pub fn update(&mut self, events: &mut EventManager, networking: &mut ServerNetworking) -> Result<()> {
         self.flush_mods_events(events);
-        self.send_pending_changes(networking)?;
-        self.get_liquids().update_liquids(blocks, events, frame_length)
+        self.send_pending_changes(networking)
+    }
+
+    /// Per simulation tick: flow.
+    pub fn tick(&self, blocks: &Blocks, events: &mut EventManager) -> Result<()> {
+        self.get_liquids().update_liquids(blocks, events, 1)
     }
 
     /// Sends everything that changed since the last update as one packet.

@@ -290,7 +290,9 @@ impl ClientBlocks {
         Ok(())
     }
 
-    pub fn update(&self, frame_length: f32, events: &mut EventManager) -> Result<()> {
-        self.get_blocks().update_breaking_blocks(events, frame_length)
+    /// Per simulation tick, not per frame: breaking has to land on the same tick the server
+    /// breaks it on, and a frame is however long the last one took.
+    pub fn tick(&self, events: &mut EventManager) -> Result<()> {
+        self.get_blocks().update_breaking_blocks(events, 1)
     }
 }

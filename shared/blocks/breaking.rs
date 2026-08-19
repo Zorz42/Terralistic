@@ -3,6 +3,7 @@ use serde_derive::{Deserialize, Serialize};
 
 use crate::libraries::events::{Event, EventManager};
 use crate::shared::blocks::{BlockId, ToolId};
+use crate::shared::TICK_MS;
 
 use super::Blocks;
 
@@ -130,10 +131,18 @@ impl Blocks {
     }
 
     /// Updates the breaking progress of all blocks that are being broken.
-    pub fn update_breaking_blocks(&mut self, events: &mut EventManager, frame_length: f32) -> Result<()> {
+    /// Advances every block being broken by one simulation tick.
+    ///
+    /// Counted in ticks rather than in however long the last frame took, so the tick a block
+    /// breaks on is the same on the client and the server and can be named in a packet.
+    /// Wall-clock frame lengths also truncated to whole milliseconds each frame, which at
+    /// 60fps threw away 0.67ms of every 16.67 - breaking ran 4% slow, and slower still at
+    /// frame rates that divided less kindly.
+    pub fn update_breaking_blocks(&mut self, events: &mut EventManager, ticks: i64) -> Result<()> {
+        let elapsed_ms = (ticks * TICK_MS) as i32;
         for breaking_block in &mut self.breaking_blocks {
             if breaking_block.is_breaking {
-                breaking_block.break_progress += frame_length as i32;
+                breaking_block.break_progress += elapsed_ms;
             }
         }
 

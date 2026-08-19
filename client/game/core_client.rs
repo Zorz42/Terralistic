@@ -215,7 +215,6 @@ pub fn run_game(
 
         networking.update(&mut events)?;
         mods.update()?;
-        blocks.update(frame_stats.get_delta_time(), &mut events)?;
         walls.update(frame_stats.get_delta_time(), &mut events)?;
 
         if let Some(main_player) = players.get_main_player() {
@@ -225,6 +224,7 @@ pub fn run_game(
         }
 
         while simulation_tick.step() {
+            blocks.tick(&mut events)?;
             camera.update_ms(graphics);
             players.controls_enabled = !camera.is_detached();
             players.update(graphics, &mut entities.get_entities(), &mut networking, &blocks.get_blocks(), &liquids.get_liquids())?;

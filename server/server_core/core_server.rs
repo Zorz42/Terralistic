@@ -263,15 +263,19 @@ impl Server {
         // update modules
         self.networking.update(&mut self.events)?;
         self.mods.update()?;
-        self.blocks.update(&mut self.events, delta_time)?;
+        self.blocks.update(&mut self.events);
         self.walls.update(delta_time, &mut self.events)?;
-        self.liquids.update(&self.blocks.get_blocks(), &mut self.events, &mut self.networking, delta_time)?;
+        self.liquids.update(&mut self.events, &mut self.networking)?;
         self.items.update(&mut self.events);
 
         // handle events
         self.handle_events()?;
 
         while self.simulation_tick.step() {
+            // everything the simulation owns advances on this clock, so every event it
+            // produces can be named by a tick number rather than by when a frame happened
+            self.blocks.tick(&mut self.events)?;
+            self.liquids.tick(&self.blocks.get_blocks(), &mut self.events)?;
             self.players.update(
                 &mut self.entities.get_entities(),
                 &self.blocks.get_blocks(),
