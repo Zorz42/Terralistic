@@ -206,8 +206,9 @@ impl GraphicsContext {
         self.window_open
     }
 
-    pub const fn close_window(&mut self) {
+    pub fn close_window(&mut self) {
         self.window_open = false;
+        self.window.hide();
     }
 
     /// Ends the frame: executes what was recorded, presents it, collects the next frame's input.

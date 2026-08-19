@@ -6,9 +6,14 @@
 //! wrong means someone's world reads as the wrong blocks or does not open at all.
 #![allow(clippy::unwrap_used)] // tests assert on results directly
 mod tests {
+    use std::cell::RefCell;
     use std::collections::HashMap;
+    use std::rc::Rc;
 
+    use crate::client::game::private_world::PrivateWorld;
+    use crate::client::global_settings::GlobalSettings;
     use crate::integration_tests::harness::{expect_start_error, write_world_save, TempDir, TestServer};
+    use crate::libraries::config::Settings;
     use crate::libraries::events::EventManager;
     use crate::libraries::serialization;
     use crate::shared::versions::{WORLD_SAVE_HEADER_LEN, WORLD_SAVE_MAGIC, WORLD_SAVE_VERSION};
@@ -189,5 +194,26 @@ mod tests {
         server.server.stop(&status, &nested).unwrap();
 
         assert!(nested.exists(), "the world was not written to a new directory");
+    }
+
+    /// **Closing the window has to save the world, and that means waiting for the server.**
+    ///
+    /// A closed window ends the title screen's loop, so `PrivateWorld`'s state machine never
+    /// runs again and the join it would have done in `StoppingServer` never happens. Without
+    /// the `Drop`, the process exits while the singleplayer server is still writing, and an
+    /// hour of play comes back as the world was opened. Dropping one may not return until
+    /// the save on disk is the server's own.
+    #[test]
+    fn test_dropping_a_private_world_waits_for_the_world_to_be_saved() {
+        let dir = TempDir::new("private-world-drop");
+        write_world_save(&dir.world_path(), (60, 40));
+        let written_by_the_test = std::fs::read(dir.world_path()).unwrap();
+
+        let settings = Rc::new(RefCell::new(Settings::new(dir.path().join("settings.txt"))));
+        let world = PrivateWorld::new(&dir.world_path(), settings, Rc::new(RefCell::new(GlobalSettings::new()))).unwrap();
+        drop(world);
+
+        let on_disk = std::fs::read(dir.world_path()).unwrap();
+        assert!(on_disk != written_by_the_test, "the drop returned before the server had saved the world");
     }
 }

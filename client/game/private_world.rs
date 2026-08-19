@@ -101,6 +101,34 @@ impl PrivateWorld {
             global_settings,
         })
     }
+
+    /// Waits for the server to finish stopping, answering what went wrong if anything did.
+    fn join_server(&mut self) -> Option<String> {
+        match self.server_thread.take()?.join() {
+            Err(e) => {
+                println!("{e:?}");
+                // a panic's payload is not worth showing, but the fact of it is
+                Some("the world's server crashed - see the console".to_owned())
+            }
+            Ok(Err(e)) => {
+                println!("{e}");
+                Some(e.to_string())
+            }
+            Ok(Ok(())) => None,
+        }
+    }
+}
+
+/// Exits the world however this menu ends, which is what saves it.
+///
+/// Closing the window ends the title screen's loop, and with it the state machine below, so
+/// the join in `StoppingServer` is never reached: the process would exit while the server was
+/// still writing the save, and a world played for an hour would come back as it was opened.
+impl Drop for PrivateWorld {
+    fn drop(&mut self) {
+        self.server_running.store(false, Ordering::Relaxed);
+        self.join_server();
+    }
 }
 
 impl ui::UiElement for PrivateWorld {
@@ -153,24 +181,10 @@ impl Menu for PrivateWorld {
                 None
             }
             PrivateWorldState::StoppingServer => {
-                if let Some(thread) = self.server_thread.take() {
-                    let thread_result = thread.join();
-
-                    match thread_result {
-                        Err(e) => {
-                            println!("{e:?}");
-                            // a panic's payload is not worth showing, but the fact of it is
-                            self.error = Some("the world's server crashed - see the console".to_owned());
-                        }
-                        Ok(res) => {
-                            if let Err(e) = res {
-                                println!("{e}");
-                                // the server's own error is the cause of whatever the client
-                                // then made of it, so it wins over one from `run_game`
-                                self.error = Some(e.to_string());
-                            }
-                        }
-                    }
+                // the server's own error is the cause of whatever the client then made of
+                // it, so it wins over one from `run_game`
+                if let Some(error) = self.join_server() {
+                    self.error = Some(error);
                 }
 
                 let Some(error) = self.error.take() else {

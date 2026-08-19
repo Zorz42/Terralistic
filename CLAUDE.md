@@ -29,7 +29,7 @@ cargo build --profile dist # what you ship: release + LTO, 4.63 MB vs 5.49 MB
 cargo run -- server       # server with GUI
 cargo run -- server nogui # headless server
 cargo run -- version      # print version
-cargo test                # 598 tests, all should pass
+cargo test                # 599 tests, all should pass
 cargo clippy --all-targets
 ./coverage.sh             # coverage via config-coverage.toml
 
@@ -994,6 +994,13 @@ Things worth knowing before adding one:
   thread is exactly the case that leaves nobody to clear it. The guard clears the running flag
   *before* the text: the other order lets the menu see the screen finish while the server still
   looks alive, and try to join a world that is not there.
+- **Closing the window exits the world, and that is what saves it.** Both `run_game` and the
+  title screen loop end on `is_window_open`, so the menu never runs again and
+  `PrivateWorld`'s state machine never reaches the join in `StoppingServer` - the process
+  exited while the singleplayer server was still writing, and a session was lost. `Drop` on
+  `PrivateWorld` clears the running flag and joins the thread, so however the menu ends the
+  save is finished first. `close_window` hides the real window for the same reason: the wait
+  should look like an app that has closed rather than one that has hung.
 - **`Server::run` shuts the networking thread down on every exit path**, which is why it wraps
   `run_until_stopped` instead of being it. `start` binds the port early and everything after it
   can fail; a `?` returning while that thread ran left it holding the port with its channel's

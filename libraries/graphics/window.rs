@@ -121,6 +121,14 @@ impl Window {
         self.state.mouse_pos
     }
 
+    /// Takes the window off the screen without dropping it, so an app that still has shutting
+    /// down to do - saving a world - looks closed while it finishes rather than frozen.
+    pub(super) fn hide(&self) {
+        if let Some(window) = &self.state.window {
+            window.set_visible(false);
+        }
+    }
+
     pub(super) fn set_min_size(&self, size: gfx::FloatSize) {
         if let Some(window) = &self.state.window {
             window.set_min_inner_size(Some(LogicalSize::new(size.0, size.1)));
