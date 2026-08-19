@@ -29,7 +29,7 @@ cargo build --profile dist # what you ship: release + LTO, 4.63 MB vs 5.49 MB
 cargo run -- server       # server with GUI
 cargo run -- server nogui # headless server
 cargo run -- version      # print version
-cargo test                # 603 tests, all should pass
+cargo test                # 604 tests, all should pass
 cargo clippy --all-targets
 ./coverage.sh             # coverage via config-coverage.toml
 
@@ -685,10 +685,16 @@ Six UI pieces predate the `UiElement` trait and are hand-rolled, marked by `//TO
   glide the last one was still running, `max` rather than `+` meant the fastest part of a
   swipe set the distance for all of it, and out of bounds each restart shoved the list back
   out of an edge it was in the middle of returning to.
-- **Past its end the target is resisted, then pulled home.** A scroll leaving the bounds is
-  scaled by how much of `OVERSCROLL_LIMIT` is used up, so the band stiffens: 0.5 px/ms of
-  gesture stretches it 5 px, 20 px/ms only reaches 115. Nothing pushing, it returns at
-  `boundary_smooth_factor` - under 110 ms from any of those.
+- **Past its end the band is a mapping, not a spring.** `stretched_position` compresses
+  whatever the push has gone past an end into `LIMIT * push / (LIMIT + push)`, a plain function
+  of the push - 18 px of stretch for a nudge, saturating at 75. A spring there fights the
+  gesture: it pulls every millisecond while the events arrive every frame, so it took three
+  quarters of the stretch back between two events of one push and each event put it straight
+  back. That is a shake at frame frequency, and a test pins that the list never changes
+  direction while a gesture is still pushing.
+- **The return waits `GESTURE_GAP_MS` for the gesture to finish**, because a trackpad's stream
+  carries on after the finger lifts and there is no other way to tell "still pushing" from "let
+  go". Then the push returns to the bound at `boundary_smooth_factor`, 160-200 ms.
 - **`ui::Menu` / `ui::MenuStack`** is a stack of screens where the top one is live: it gets
   the events and the updates, `open_menu` pushes a successor, `should_close` pops, and
   whatever a pop reveals is told it has focus.

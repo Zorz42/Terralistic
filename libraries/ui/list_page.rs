@@ -50,7 +50,7 @@ impl ListPage {
         scrollable.rect.pos.1 = SPACING;
         scrollable.rect.size.0 = width;
         scrollable.scroll_smooth_factor = 8.0;
-        scrollable.boundary_smooth_factor = 12.0;
+        scrollable.boundary_smooth_factor = 18.0;
         scrollable.orientation = TOP;
 
         Self {

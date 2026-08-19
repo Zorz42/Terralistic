@@ -446,7 +446,7 @@ mod tests {
     fn scrollable_with_room() -> ui::Scrollable {
         let mut scrollable = ui::Scrollable::new();
         scrollable.scroll_smooth_factor = 8.0;
-        scrollable.boundary_smooth_factor = 12.0;
+        scrollable.boundary_smooth_factor = 18.0;
         scrollable.scroll_size = 1000.0;
         scrollable.rect.size.1 = 400.0;
         scrollable
@@ -559,55 +559,76 @@ mod tests {
         assert_eq!(scrollable.get_scroll_pos(), 0.0, "the list should come to rest on the top, not near it");
     }
 
-    /// A gesture that runs off the top of the list, `pixels` at a time every 8 ms - so the
-    /// argument is a speed, a slow drag being a few pixels and a hard fling tens. Answers how
-    /// far the band stretched and how long it took to come home once the gesture stopped, in
-    /// milliseconds.
-    fn overscroll_gesture(pixels_per_step: f32) -> (f32, usize) {
+    /// What one gesture past the top of the list does: `events` scroll events of `step` pixels,
+    /// delivered a frame apart the way a trackpad delivers one, and then let go. Answers how far
+    /// the band stretched, how many times the list changed direction while the gesture was still
+    /// pushing, and how long after the last event it took to come home, in milliseconds.
+    fn overscroll_gesture(step: f32, events: usize) -> (f32, usize, usize) {
         let mut graphics = ui::HeadlessContext::new();
         let mut scrollable = scrollable_with_room();
         let root = root_container(&graphics);
 
-        let mut deepest = 0.0_f32;
-        for _ in 0..40 {
-            scrollable.on_event(&mut graphics, &gfx::Event::MouseScroll(pixels_per_step), &root);
-            advance(&mut scrollable, 8);
-            deepest = deepest.max(-scrollable.get_scroll_pos());
+        let (mut deepest, mut reversals, mut previous, mut outwards) = (0.0_f32, 0, 0.0_f32, true);
+        for _ in 0..events {
+            scrollable.on_event(&mut graphics, &gfx::Event::MouseScroll(step), &root);
+            for _ in 0..16 {
+                scrollable.advance_frame();
+                let stretch = -scrollable.get_scroll_pos();
+                if outwards && stretch < previous - 0.01 {
+                    reversals += 1;
+                    outwards = false;
+                } else if !outwards && stretch > previous + 0.01 {
+                    outwards = true;
+                }
+                (previous, deepest) = (stretch, deepest.max(stretch));
+            }
         }
 
-        let mut settled_at = 0;
-        for frame in 0..2000 {
+        let mut home_after = 0;
+        for frame in 0..3000 {
             scrollable.advance_frame();
-            deepest = deepest.max(-scrollable.get_scroll_pos());
             if scrollable.get_scroll_pos() != 0.0 {
-                settled_at = frame + 1;
+                home_after = frame + 1;
             }
         }
         assert_close(scrollable.get_scroll_pos(), 0.0);
-        (deepest, settled_at)
+        (deepest, reversals, home_after)
     }
 
-    /// The band stretches with how hard the list is being pushed, which is what makes it read as
-    /// a rubber band rather than a wall - but it stiffens as it goes, so scrolling twenty times
-    /// as fast is nothing like twenty times the stretch.
+    /// **The band does not fight the gesture.** The stretch is a plain function of how far the
+    /// gesture has pushed, so it only grows while the pushing lasts. It used to be a spring
+    /// running every millisecond against events arriving every frame: the pull took three
+    /// quarters of the stretch back between two events of one push and each event put it
+    /// straight back, which is a shake at frame frequency.
+    #[test]
+    fn test_the_band_does_not_fight_the_gesture() {
+        for (step, events) in [(12.0, 5), (30.0, 10), (80.0, 30)] {
+            let (_, reversals, _) = overscroll_gesture(step, events);
+            assert_eq!(reversals, 0, "the list changed direction {reversals} times during a push of {events} x {step} px");
+        }
+    }
+
+    /// The band stretches with the gesture, which is what makes it read as a rubber band rather
+    /// than a wall - but it stiffens as it goes, so a gesture fifteen times as long is nothing
+    /// like fifteen times the stretch.
     #[test]
     fn test_the_band_stretches_with_the_gesture_and_stiffens() {
-        let (drag, _) = overscroll_gesture(4.0);
-        let (fling, _) = overscroll_gesture(80.0);
+        let (nudge, _, _) = overscroll_gesture(12.0, 2);
+        let (shove, _, _) = overscroll_gesture(12.0, 30);
 
-        assert!(drag > 2.0, "a slow drag past the end should still stretch, went {drag}");
-        assert!(fling > 3.0 * drag, "a fling should stretch much further, {fling} against {drag}");
-        assert!(fling < 20.0 * drag, "but not in proportion to its speed, {fling} against {drag}");
+        assert!(nudge > 5.0, "a nudge past the end should still stretch, went {nudge}");
+        assert!(shove > 2.0 * nudge, "a long push should stretch further, {shove} against {nudge}");
+        assert!(shove < 8.0 * nudge, "but not in proportion to its length, {shove} against {nudge}");
     }
 
-    /// Coming home is one movement, not a crawl. The scroll carries no momentum of its own -
-    /// the platform's deltas are the whole gesture, and a second momentum on top of them kept
+    /// Coming home is one movement, not a crawl. The scroll carries no momentum of its own - the
+    /// platform's deltas are the whole gesture, and a second momentum on top of them kept
     /// shoving the list back out of a boundary it was in the middle of returning to.
     #[test]
     fn test_the_band_comes_home_quickly() {
-        for speed in [4.0, 16.0, 80.0] {
-            let (_, settled_at) = overscroll_gesture(speed);
-            assert!(settled_at < 200, "a gesture of {speed} pixels a step took {settled_at} ms to settle");
+        for (step, events) in [(12.0, 2), (30.0, 5), (80.0, 30)] {
+            let (_, _, home_after) = overscroll_gesture(step, events);
+            assert!(home_after < 300, "a push of {events} x {step} px took {home_after} ms to settle");
         }
     }
 
