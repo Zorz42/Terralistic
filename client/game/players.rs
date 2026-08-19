@@ -3,12 +3,14 @@ use hecs::Entity;
 
 use crate::client::game::camera::Camera;
 use crate::client::game::networking::ClientNetworking;
+use crate::client::game::prediction::Prediction;
 use crate::libraries::events::Event;
+use crate::libraries::fixed::Fixed;
 use crate::libraries::graphics as gfx;
 use crate::libraries::scripting::ScriptHost;
 use crate::libraries::ui::UiContext;
 use crate::shared::blocks::{Blocks, BLOCK_WIDTH, RENDER_BLOCK_WIDTH, RENDER_SCALE};
-use crate::shared::entities::{Entities, EntityDespawnEvent, HealthComponent, PhysicsComponent, PositionComponent};
+use crate::shared::entities::{Entities, EntityDespawnEvent, EntityPositionVelocityPacket, HealthComponent, PhysicsComponent, PositionComponent};
 use crate::shared::liquids::Liquids;
 use crate::shared::packet::Packet;
 use crate::shared::players::{
@@ -18,6 +20,7 @@ use crate::shared::players::{
 
 pub struct ClientPlayers {
     main_player: Option<Entity>,
+    prediction: Prediction,
     main_player_name: String,
     player_texture: gfx::Texture,
     waiting_for_player: bool,
@@ -28,6 +31,7 @@ impl ClientPlayers {
     pub fn new(player_name: &str) -> Self {
         Self {
             main_player: None,
+            prediction: Prediction::new(),
             main_player_name: player_name.to_owned(),
             player_texture: gfx::Texture::new(),
             controls_enabled: true,
@@ -62,7 +66,7 @@ impl ClientPlayers {
     /// force, so walking across the world is two packets rather than one per tick. The tick
     /// is what makes that safe - the server applies it at the moment it was meant for
     /// instead of whenever the packet happened to land.
-    pub fn update(&self, tick: u64, graphics: &gfx::GraphicsContext, entities: &mut Entities, networking: &mut ClientNetworking, blocks: &Blocks, liquids: &Liquids) -> Result<()> {
+    pub fn update(&mut self, tick: u64, graphics: &gfx::GraphicsContext, entities: &mut Entities, networking: &mut ClientNetworking, blocks: &Blocks, liquids: &Liquids) -> Result<()> {
         if let Some(main_player) = self.main_player {
             let input = PlayerInput {
                 moving_type: match (
@@ -86,13 +90,23 @@ impl ClientPlayers {
 
         update_players_ms(entities, blocks, liquids);
 
+        // Remember where this tick left the player. A server state for the same tick can then
+        // be compared against what this client actually had, rather than snapped to blind.
+        if let Some(main_player) = self.main_player {
+            if let Ok((position, physics, player)) = entities.ecs.query_one_mut::<(&PositionComponent, &PhysicsComponent, &PlayerComponent)>(main_player) {
+                self.prediction.record(tick, player.get_input(), *position, *physics);
+            }
+        }
+        self.prediction.decay_visual_error();
+
         Ok(())
     }
 
     pub fn render(&self, graphics: &gfx::GraphicsContext, entities: &mut Entities, camera: &Camera) {
-        for (position, player_component) in entities.ecs.query_mut::<(&PositionComponent, &PlayerComponent)>() {
-            let x = position.x().to_f32() * RENDER_BLOCK_WIDTH - camera.get_top_left(graphics).0 * RENDER_BLOCK_WIDTH;
-            let y = position.y().to_f32() * RENDER_BLOCK_WIDTH - camera.get_top_left(graphics).1 * RENDER_BLOCK_WIDTH;
+        for (entity, position, player_component) in entities.ecs.query_mut::<(Entity, &PositionComponent, &PlayerComponent)>() {
+            let offset = self.draw_offset(entity);
+            let x = (position.x() + offset.0).to_f32() * RENDER_BLOCK_WIDTH - camera.get_top_left(graphics).0 * RENDER_BLOCK_WIDTH;
+            let y = (position.y() + offset.1).to_f32() * RENDER_BLOCK_WIDTH - camera.get_top_left(graphics).1 * RENDER_BLOCK_WIDTH;
 
             let src_rect = gfx::Rect::new(
                 gfx::FloatPos(player_component.animation_frame as f32 * PLAYER_WIDTH.to_f32() * BLOCK_WIDTH, 0.0),
@@ -108,8 +122,11 @@ impl ClientPlayers {
         }
     }
 
-    pub fn on_event(&mut self, event: &Event, entities: &mut Entities) -> Result<()> {
+    pub fn on_event(&mut self, event: &Event, entities: &mut Entities, blocks: &Blocks, liquids: &Liquids) -> Result<()> {
         if let Some(packet_event) = event.downcast::<Packet>() {
+            if let Some(packet) = packet_event.try_deserialize::<EntityPositionVelocityPacket>() {
+                self.reconcile_main_player(&packet, entities, blocks, liquids)?;
+            }
             if let Some(packet) = packet_event.try_deserialize::<PlayerSpawnPacket>() {
                 let player = spawn_player(entities, packet.x, packet.y, &packet.name, packet.id, HealthComponent::new(PLAYER_MAX_HEALTH, PLAYER_MAX_HEALTH))?;
                 if packet.name == self.main_player_name {
@@ -141,6 +158,54 @@ impl ClientPlayers {
         }
 
         Ok(())
+    }
+
+    /// Checks the server's answer for one tick against what this client had, and rewinds and
+    /// replays if they differ.
+    ///
+    /// A forced state - a spawn, a respawn, a teleport - is the server deciding where the
+    /// player is rather than reporting where the simulation put it, so it is taken as given
+    /// and the history is dropped: there is nothing to replay onto a decision.
+    fn reconcile_main_player(&mut self, packet: &EntityPositionVelocityPacket, entities: &mut Entities, blocks: &Blocks, liquids: &Liquids) -> Result<()> {
+        let Some(main_player) = self.main_player else { return Ok(()) };
+        if entities.get_entity_from_id(packet.id)? != main_player {
+            return Ok(());
+        }
+
+        let (position_component, physics_component, player_component) = entities.ecs.query_one_mut::<(&mut PositionComponent, &mut PhysicsComponent, &mut PlayerComponent)>(main_player)?;
+
+        let server_position = PositionComponent::new(packet.x, packet.y);
+        let mut server_physics = *physics_component;
+        server_physics.velocity_x = packet.velocity_x;
+        server_physics.velocity_y = packet.velocity_y;
+
+        if packet.force {
+            *position_component = server_position;
+            *physics_component = server_physics;
+            self.prediction.forget();
+            return Ok(());
+        }
+
+        if let Some((position, physics)) = self.prediction.reconcile(packet.tick, server_position, server_physics, player_component, blocks, liquids) {
+            *position_component = position;
+            *physics_component = physics;
+        }
+
+        Ok(())
+    }
+
+    /// Where to draw the main player, which trails a correction the simulation already took.
+    fn draw_offset(&self, entity: Entity) -> (Fixed, Fixed) {
+        if Some(entity) == self.main_player {
+            self.prediction.visual_offset()
+        } else {
+            (Fixed::ZERO, Fixed::ZERO)
+        }
+    }
+
+    #[must_use]
+    pub const fn corrections(&self) -> u64 {
+        self.prediction.corrections
     }
 
     pub const fn get_main_player(&self) -> Option<Entity> {

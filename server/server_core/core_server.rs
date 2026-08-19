@@ -299,7 +299,7 @@ impl Server {
 
         let simulated_seconds = (self.simulation_tick.stepped_ms() / 1000) as i32;
         if self.seconds_counter < simulated_seconds {
-            self.entities.sync_entities(&mut self.networking)?;
+            self.entities.sync_entities(self.current_tick, &mut self.networking)?;
             self.seconds_counter = simulated_seconds;
         }
 

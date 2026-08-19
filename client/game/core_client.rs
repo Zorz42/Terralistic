@@ -279,6 +279,10 @@ pub fn run_game(
                 format!("FPS: {}", frame_stats.get_fps()),
                 format!("{:.2} ms max", frame_stats.get_max_frame_time()),
                 format!("{:.2} ms avg", frame_stats.get_avg_frame_time()),
+                format!("tick {current_tick}"),
+                // healthy is zero: the two sides simulate the same inputs deterministically,
+                // so a count that climbs means something is genuinely diverging
+                format!("{} corrections", players.corrections()),
             ],
         );
 
@@ -294,7 +298,7 @@ pub fn run_game(
             entities.on_event(&event, &mut events, &players)?;
             items.on_event(&event, &mut entities.get_entities(), &mut events)?;
             block_selector.on_event(graphics, &mut networking, &camera, &event, &mut events)?;
-            players.on_event(&event, &mut entities.get_entities())?;
+            players.on_event(&event, &mut entities.get_entities(), &blocks.get_blocks(), &liquids.get_liquids())?;
             lights.on_event(&event, &blocks.get_blocks())?;
             camera.on_event(&event);
             health.on_event(&event, graphics, &mut floating_text, &players, &entities.get_entities());

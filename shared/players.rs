@@ -61,57 +61,66 @@ pub fn spawn_player(entities: &mut Entities, x: Fixed, y: Fixed, name: &str, id:
 /// the one part that reads every *other* entity, is `attract_items_to_players` instead.
 pub fn update_players_ms(entities: &mut Entities, blocks: &Blocks, liquids: &Liquids) {
     for (position, physics, player) in entities.ecs.query_mut::<(&PositionComponent, &mut PhysicsComponent, &mut PlayerComponent)>() {
-        if player.jumping {
-            if is_touching_ground(position, physics, blocks) {
-                physics.velocity_y += -PLAYER_JUMP_SPEED;
-            } else {
-                // Swimming is the jump key held down in a liquid: an upward push every tick
-                // rather than one impulse, capped, so a player rises steadily to the surface
-                // instead of leaping out of it.
-                let (submersion, _speed_multiplier) = liquid_submersion(position, physics, liquids);
-                if submersion > SWIMMABLE_SUBMERSION {
-                    physics.velocity_y = (physics.velocity_y - PLAYER_SWIM_ACCELERATION / TICKS_PER_SECOND).max(-PLAYER_SWIM_SPEED);
-                }
+        step_player(position, physics, player, blocks, liquids);
+    }
+}
+
+/// One player's own tick: what the jump key does, and which walk frame to draw.
+///
+/// Split out of the loop so a single player can be advanced on its own, which is what a
+/// replay does - it re-simulates one player over the ticks whose answers have to change,
+/// and knows nothing about the others.
+pub fn step_player(position: &PositionComponent, physics: &mut PhysicsComponent, player: &mut PlayerComponent, blocks: &Blocks, liquids: &Liquids) {
+    if player.jumping {
+        if is_touching_ground(position, physics, blocks) {
+            physics.velocity_y += -PLAYER_JUMP_SPEED;
+        } else {
+            // Swimming is the jump key held down in a liquid: an upward push every tick
+            // rather than one impulse, capped, so a player rises steadily to the surface
+            // instead of leaping out of it.
+            let (submersion, _speed_multiplier) = liquid_submersion(position, physics, liquids);
+            if submersion > SWIMMABLE_SUBMERSION {
+                physics.velocity_y = (physics.velocity_y - PLAYER_SWIM_ACCELERATION / TICKS_PER_SECOND).max(-PLAYER_SWIM_SPEED);
             }
         }
+    }
 
-        // animation frame for being in air is 0
-        // animation frames from 1 to 9 inclusive are for walking
-        // animation frame 1 is for standing
-        // animation frame changes every n calls to this function
-        let n = 15;
+    // animation frame for being in air is 0
+    // animation frames from 1 to 9 inclusive are for walking
+    // animation frame 1 is for standing
+    // animation frame changes every n calls to this function
+    let n = 15;
 
-        match player.moving_type {
-            MovingType::Standing => {
-                player.animation_frame = 1;
-            }
-            MovingType::MovingRight | MovingType::MovingLeft => {
-                if player.moving_type == MovingType::MovingRight {
-                    player.direction = Direction::Right;
-                } else {
-                    player.direction = Direction::Left;
-                }
-
-                player.frame_progress += 1;
-                if player.frame_progress >= n {
-                    player.frame_progress = 0;
-                    player.animation_frame += 1;
-                }
-
-                if player.animation_frame < 1 || player.animation_frame > 9 {
-                    player.animation_frame = 1;
-                    player.frame_progress = 0;
-                }
-            }
-        }
-
-        if !is_touching_ground(position, physics, blocks) {
-            player.animation_frame = 0;
-        }
-
-        if physics.velocity_x.abs() < Fixed::from_num(1, 100) && (player.moving_type == MovingType::MovingRight || player.moving_type == MovingType::MovingLeft) {
+    match player.moving_type {
+        MovingType::Standing => {
             player.animation_frame = 1;
         }
+        MovingType::MovingRight | MovingType::MovingLeft => {
+            if player.moving_type == MovingType::MovingRight {
+                player.direction = Direction::Right;
+            } else {
+                player.direction = Direction::Left;
+            }
+
+            player.frame_progress += 1;
+            if player.frame_progress >= n {
+                player.frame_progress = 0;
+                player.animation_frame += 1;
+            }
+
+            if player.animation_frame < 1 || player.animation_frame > 9 {
+                player.animation_frame = 1;
+                player.frame_progress = 0;
+            }
+        }
+    }
+
+    if !is_touching_ground(position, physics, blocks) {
+        player.animation_frame = 0;
+    }
+
+    if physics.velocity_x.abs() < Fixed::from_num(1, 100) && (player.moving_type == MovingType::MovingRight || player.moving_type == MovingType::MovingLeft) {
+        player.animation_frame = 1;
     }
 }
 
@@ -227,6 +236,18 @@ impl PlayerComponent {
     /// client applying its own and the server applying the one it was sent run the same code.
     pub fn apply_input(&mut self, input: PlayerInput, physics: &mut PhysicsComponent) {
         self.set_moving_type(input.moving_type, physics);
+        self.jumping = input.jumping;
+    }
+
+    /// Puts an input back in force *without* its effect on physics, for rewinding to a
+    /// remembered tick.
+    ///
+    /// `apply_input` is a transition - changing direction is an impulse and a change of
+    /// acceleration - so replaying a run of inputs only comes out right if the component
+    /// starts from what it held at the checkpoint. The velocity that goes with it is
+    /// restored separately, from the same frame.
+    pub const fn restore_input(&mut self, input: PlayerInput) {
+        self.moving_type = input.moving_type;
         self.jumping = input.jumping;
     }
 

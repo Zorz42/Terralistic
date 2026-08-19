@@ -257,6 +257,9 @@ impl Entities {
 #[derive(Serialize, Deserialize)]
 pub struct EntityPositionVelocityPacket {
     pub id: EntityId,
+    /// Which tick this state is the answer for. Without it a client could only snap to a
+    /// state of unknown age; with it, it can look up what it thought at that same tick.
+    pub tick: u64,
     pub x: Fixed,
     pub y: Fixed,
     pub velocity_x: Fixed,
