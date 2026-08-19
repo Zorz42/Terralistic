@@ -229,6 +229,12 @@ impl ClientPlayers {
         self.prediction.corrections
     }
 
+    /// How far the last correction moved the player, in blocks.
+    #[must_use]
+    pub const fn last_correction(&self) -> Fixed {
+        self.prediction.last_correction
+    }
+
     pub const fn get_main_player(&self) -> Option<Entity> {
         self.main_player
     }

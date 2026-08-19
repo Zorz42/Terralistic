@@ -70,6 +70,10 @@ pub struct Prediction {
     /// How many corrections have been applied. Zero is the healthy number; a count that
     /// climbs while nothing unusual is happening means the two sides are diverging.
     pub corrections: u64,
+    /// How far the last correction actually moved the player. A count on its own does not
+    /// separate "the server nudged me by a millimetre" from "the server pulled me back a
+    /// block", and those are different problems.
+    pub last_correction: Fixed,
 }
 
 impl Prediction {
@@ -78,6 +82,7 @@ impl Prediction {
             frames: VecDeque::with_capacity(HISTORY_TICKS),
             error: (Fixed::ZERO, Fixed::ZERO),
             corrections: 0,
+            last_correction: Fixed::ZERO,
         }
     }
 
@@ -164,7 +169,10 @@ impl Prediction {
     /// Remembers how far the correction moved the player on screen, so the jump can be drawn
     /// as a slide. A correction big enough to be a teleport is shown as one.
     fn note_visual_error(&mut self, before: PositionComponent, after: PositionComponent) {
-        let error = (self.error.0 + before.x() - after.x(), self.error.1 + before.y() - after.y());
+        let (dx, dy) = (before.x() - after.x(), before.y() - after.y());
+        self.last_correction = (dx * dx + dy * dy).sqrt();
+
+        let error = (self.error.0 + dx, self.error.1 + dy);
         self.error = if error.0.abs() > MAX_SMOOTHED_ERROR || error.1.abs() > MAX_SMOOTHED_ERROR {
             (Fixed::ZERO, Fixed::ZERO)
         } else {

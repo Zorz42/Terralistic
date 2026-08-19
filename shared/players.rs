@@ -32,8 +32,13 @@ pub const PLAYER_PICKUP_MIN_SPEED: Fixed = Fixed::from_int(6);
 pub const PLAYER_PICKUP_MAX_SPEED: Fixed = Fixed::from_int(30);
 /// How much of the gap between an item's velocity and the pull is closed each tick.
 const PICKUP_GRIP: Fixed = Fixed::from_num(1, 8);
-/// How close an item has to get before it is taken, squared.
-const PICKUP_REACH_SQUARED: Fixed = Fixed::from_num(3, 10);
+/// How close an item has to get before it is taken, and the same squared.
+///
+/// The player's own half-height, so a drop vanishes as it reaches them rather than after
+/// burying itself in the middle of them - which is what it looked like at half a block, well
+/// inside a body two blocks wide and three tall.
+const PICKUP_REACH: Fixed = Fixed::from_num(3, 2);
+const PICKUP_REACH_SQUARED: Fixed = Fixed::from_num(9, 4);
 /// An item is drawn from the middle of its cell, so its centre is half a block along each axis.
 const ITEM_HALF_SIZE: Fixed = Fixed::from_num(1, 2);
 pub const PLAYER_INVENTORY_SIZE: usize = 20;
@@ -191,7 +196,7 @@ pub fn remove_all_picked_items(entities: &mut Entities, events: &mut EventManage
             let dx = player_position.0 - item_position.x() - ITEM_HALF_SIZE;
             let dy = player_position.1 - item_position.y() - ITEM_HALF_SIZE;
 
-            if dx.abs() < Fixed::ONE && dy.abs() < Fixed::ONE && dx * dx + dy * dy < PICKUP_REACH_SQUARED {
+            if dx.abs() < PICKUP_REACH && dy.abs() < PICKUP_REACH && dx * dx + dy * dy < PICKUP_REACH_SQUARED {
                 items_to_remove.push(entity);
             }
         }

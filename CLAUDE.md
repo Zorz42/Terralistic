@@ -29,7 +29,7 @@ cargo build --profile dist # what you ship: release + LTO, 4.63 MB vs 5.49 MB
 cargo run -- server       # server with GUI
 cargo run -- server nogui # headless server
 cargo run -- version      # print version
-cargo test                # 594 tests, all should pass
+cargo test                # 595 tests, all should pass
 cargo clippy --all-targets
 ./coverage.sh             # coverage via config-coverage.toml
 
@@ -768,8 +768,12 @@ Keeping only the newest input due — the obvious reading of "the last thing the
 is what a tap cannot survive: a tap is a press and a release, and collapsing them keeps only
 the release, which is a no-op. The player moved on their own screen and never moved on the
 server's. The slip preserves the *gaps*, so a three tick tap is still three ticks long, and it
-is paid back a tick at a time once nothing is waiting — otherwise one hiccup would leave that
-player running behind for the rest of the session.
+is paid back a tick at a time whenever nothing is *due* — not whenever nothing is pending. The
+client stamps every input a lead ahead, so during a burst of direction changes the queue is
+never empty, and a slip repayable only on an empty queue would last as long as the burst: every
+input late, and a correction on every sync for as long as the player kept tapping. Repaying
+shortens the gaps it walks through, so a held key can come out a tick short while it catches
+up, which is much the cheaper of the two.
 
 **The client keeps two seconds of `(tick, input, state)` and replays.** On a state for tick T
 (`EntitySyncPacket`, 10 Hz), `Prediction::reconcile` compares against what it had at T. Equal
@@ -825,6 +829,10 @@ orbits the player until it happens to clip the pickup radius — which is what a
 like. Closing to a velocity damps that component out and the item comes straight in. Making
 that velocity absolute then turns the pull's own speed into a limit, and a player falling at
 `DEFAULT_GRAVITY` drops away from an item it is supposedly collecting.
+
+`PICKUP_REACH` is the player's own half-height rather than half a block, so a drop vanishes as
+it reaches them instead of after burying itself in the middle of a body two blocks wide and
+three tall.
 
 **The reconciliation compares only what the server actually sent.** `EntitySyncPacket` carries
 a position and a velocity; the acceleration the held key implies and the collision box are the

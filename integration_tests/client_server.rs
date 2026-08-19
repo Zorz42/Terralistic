@@ -801,4 +801,87 @@ mod tests {
             "the server should have run the tap on exactly the ticks it was stamped for"
         );
     }
+
+    /// **Spamming A and D is the worst case for the input path**, and the one a player notices.
+    /// Every direction change is a `PLAYER_INITIAL_SPEED` impulse and its removal, so a change
+    /// applied a tick out, twice, or not at all leaves the two sides moving at different
+    /// speeds - and unlike a steady walk there is a fresh chance to get it wrong several times
+    /// a second.
+    ///
+    /// The server is compared against a reference simulation of the same schedule, so this
+    /// fails on any input dropped, reordered or shifted rather than on a threshold.
+    #[test]
+    fn test_alternating_directions_land_on_the_ticks_they_were_stamped_for() {
+        let mut server = server("input-spam");
+        let mut client = join(&mut server, "Spammer").unwrap();
+
+        wait_until("the player to be spawned", || {
+            server.server.update()?;
+            client.pump()?;
+            Ok(client.received::<PlayerSpawnPacket>())
+        });
+        let spawn = client.find::<PlayerSpawnPacket>().unwrap();
+
+        let (start_tick, start_position, start_physics) = player_state(&server, spawn.id).unwrap();
+
+        // a direction change every three ticks for a hundred ticks, the way a hand on the
+        // keyboard produces them, all stamped ahead the way the client's lead does it
+        let schedule: Vec<(u64, MovingType)> = (0..33)
+            .map(|n| {
+                let moving_type = if n % 2 == 0 { MovingType::MovingRight } else { MovingType::MovingLeft };
+                (start_tick + 20 + n * 3, moving_type)
+            })
+            .collect();
+
+        for (tick, moving_type) in &schedule {
+            client
+                .net
+                .send_packet(
+                    Packet::new(PlayerInputPacket {
+                        tick: *tick,
+                        input: PlayerInput {
+                            moving_type: *moving_type,
+                            jumping: false,
+                        },
+                    })
+                    .unwrap(),
+                )
+                .unwrap();
+        }
+
+        let last = schedule.last().unwrap().0;
+        wait_until("the server to pass the whole burst", || {
+            server.update_slowly()?;
+            client.pump()?;
+            Ok(server.server.get_current_tick() > last + 20)
+        });
+
+        let (end_tick, server_position, server_physics) = player_state(&server, spawn.id).unwrap();
+
+        let mut position = start_position;
+        let mut physics = start_physics;
+        let mut player = PlayerComponent::new("reference");
+        let blocks = server.server.get_blocks();
+        let liquids = server.server.get_liquids();
+        for tick in start_tick + 1..=end_tick {
+            if let Some((_, moving_type)) = schedule.iter().find(|(at, _)| *at == tick) {
+                player.apply_input(
+                    PlayerInput {
+                        moving_type: *moving_type,
+                        jumping: false,
+                    },
+                    &mut physics,
+                );
+            }
+            step_player(&position, &mut physics, &mut player, &blocks, &liquids);
+            step_entity(&mut position, &mut physics, &blocks, &liquids);
+        }
+
+        assert_eq!(
+            (server_position, server_physics.velocity_x, server_physics.velocity_y),
+            (position, physics.velocity_x, physics.velocity_y),
+            "the server should have run every direction change on the tick it was stamped for"
+        );
+        assert_eq!(server.server.get_desyncs(), 0);
+    }
 }

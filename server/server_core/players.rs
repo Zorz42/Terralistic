@@ -65,10 +65,16 @@ impl InputQueue {
             self.current = input;
         }
 
-        // With nothing waiting there is no order left to preserve, so the slip is paid back a
-        // tick at a time. Without this one late packet would leave this player running behind
-        // for the rest of the session, and every hiccup would add to it.
-        if self.pending.is_empty() {
+        // The slip is paid back a tick at a time whenever nothing is *due* - not whenever
+        // nothing is pending. During a burst of direction changes the queue is never empty,
+        // since the client stamps every input a lead ahead, so a slip that could only be
+        // repaid on an empty queue would last as long as the burst: every input applied late,
+        // and the client corrected on every sync for as long as the player kept tapping.
+        //
+        // The cost is that repaying shortens the gaps it walks through, so a held key can come
+        // out a tick or two short while the queue catches up. That is a great deal cheaper
+        // than running behind for the rest of the burst.
+        if self.pending.first_key_value().is_none_or(|(next, _)| *next > tick + 1) {
             self.lag = self.lag.saturating_sub(1);
         }
 

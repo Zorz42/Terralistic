@@ -291,8 +291,9 @@ pub fn run_game(
                 format!("{:.2} ms avg", frame_stats.get_avg_frame_time()),
                 format!("tick {current_tick}"),
                 // healthy is zero: the two sides simulate the same inputs deterministically,
-                // so a count that climbs means something is genuinely diverging
-                format!("{} corrections", players.corrections()),
+                // so a count that climbs means something is genuinely diverging. The size is
+                // what separates a nudge from being pulled back a block.
+                format!("{} corrections, last {:.2} blocks", players.corrections(), players.last_correction().to_f32()),
             ],
         );
 
