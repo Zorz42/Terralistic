@@ -29,7 +29,7 @@ cargo build --profile dist # what you ship: release + LTO, 4.63 MB vs 5.49 MB
 cargo run -- server       # server with GUI
 cargo run -- server nogui # headless server
 cargo run -- version      # print version
-cargo test                # 601 tests, all should pass
+cargo test                # 602 tests, all should pass
 cargo clippy --all-targets
 ./coverage.sh             # coverage via config-coverage.toml
 
@@ -671,11 +671,14 @@ Six UI pieces predate the `UiElement` trait and are hand-rolled, marked by `//TO
   scrollable's own `rect.pos.1`, which is not part of `scroll_size`, so an extent stopping at
   the last row is one gap short and the bottom row sits under the bottom bar at full scroll,
   unreachable.
-- **`Scrollable`'s overscroll is bounded by resistance, not by the pull back.** Velocity
-  leaving the bounds is scaled by how much of `OVERSCROLL_LIMIT` is already used up, so it is
-  spent by the time the limit is reached. Without it the bounce was the velocity times
-  `boundary_smooth_factor` - 400 pixels and most of a second for a trackpad swipe, since one
-  event carries as many notches as the swipe was long.
+- **Outside its bounds a `Scrollable` belongs to the boundary, not to the momentum.** The
+  velocity decays at `boundary_smooth_factor` there rather than `scroll_smooth_factor`, and
+  movement leaving the bounds is compressed by how much of `OVERSCROLL_LIMIT` is already used
+  up. Both halves are load-bearing. Without the compression the bounce is the velocity times
+  the factor, hundreds of pixels for a trackpad swipe - one event carries as many notches as
+  the swipe was long. Without the fast decay the pull brings the list to the edge and the
+  surviving momentum pushes it straight back out, so one bounce reads as a slow crawl home.
+  Together: 5 px and 145 ms for a notch, 86 px and 203 ms for a hard flick.
 - **`ui::Menu` / `ui::MenuStack`** is a stack of screens where the top one is live: it gets
   the events and the updates, `open_menu` pushes a successor, `should_close` pops, and
   whatever a pop reveals is told it has focus.

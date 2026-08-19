@@ -538,29 +538,54 @@ mod tests {
         assert_eq!(scrollable.get_scroll_pos(), 0.0, "the list should come to rest on the top, not near it");
     }
 
-    /// A hard flick used to run its whole momentum into the boundary pull: the overshoot was
-    /// the velocity times `boundary_smooth_factor`, hundreds of pixels for a trackpad swipe.
-    /// The rubber band eats the velocity leaving the bounds instead, so the overshoot saturates.
-    #[test]
-    fn test_a_hard_flick_is_resisted_at_the_boundary() {
+    /// A list flicked past its end and let go: how deep it goes and how long it takes to come
+    /// home. A frame is a millisecond, so `frames_to_settle` reads as milliseconds.
+    fn bounce(wheel: f32) -> (f32, usize) {
         let mut graphics = ui::HeadlessContext::new();
         let mut scrollable = ui::Scrollable::new();
+        // what `ListPage` uses
         scrollable.scroll_smooth_factor = 100.0;
-        scrollable.boundary_smooth_factor = 40.0;
+        scrollable.boundary_smooth_factor = 18.0;
         scrollable.scroll_size = 1000.0;
         scrollable.rect.size.1 = 400.0;
 
         let root = root_container(&graphics);
-        scrollable.on_event(&mut graphics, &gfx::Event::MouseScroll(25.0), &root);
+        scrollable.on_event(&mut graphics, &gfx::Event::MouseScroll(wheel), &root);
 
-        let mut deepest = 0.0_f32;
-        for _ in 0..2000 {
+        let (mut deepest, mut settled_at) = (0.0_f32, 0);
+        for frame in 0..2000 {
             scrollable.advance_frame();
             deepest = deepest.max(-scrollable.get_scroll_pos());
+            if scrollable.get_scroll_pos() != 0.0 {
+                settled_at = frame + 1;
+            }
         }
-        assert!(deepest > 0.0, "the flick should still bounce");
-        assert!(deepest < 40.0, "the bounce should stay inside the overscroll limit, went {deepest}");
         assert_close(scrollable.get_scroll_pos(), 0.0);
+        (deepest, settled_at)
+    }
+
+    /// The bounce follows how hard the list was flicked, which is what makes it read as a rubber
+    /// band rather than a wall - but it is compressed the further out it goes, so a hard swipe
+    /// does not throw the list a whole screen past its end.
+    #[test]
+    fn test_the_bounce_grows_with_the_flick_and_is_compressed() {
+        let (gentle, _) = bounce(1.0);
+        let (hard, _) = bounce(25.0);
+
+        assert!(gentle > 1.0, "even a single notch should bounce, went {gentle}");
+        assert!(hard > 4.0 * gentle, "a hard flick should bounce much deeper, {hard} against {gentle}");
+        assert!(hard < 25.0 * gentle, "and be compressed rather than proportional, {hard} against {gentle}");
+    }
+
+    /// Coming home is one movement, not a crawl. Outside the bounds the momentum decays into the
+    /// boundary rather than at its own leisurely rate; left on the latter it kept pushing the
+    /// list back out for as long as a flick lasts, and a bounce took most of a second to resolve.
+    #[test]
+    fn test_the_bounce_comes_home_quickly() {
+        for wheel in [1.0, 3.0, 10.0, 25.0] {
+            let (_, settled_at) = bounce(wheel);
+            assert!(settled_at < 250, "a bounce of {wheel} notches took {settled_at} ms to settle");
+        }
     }
 
     // --- ListPage ---

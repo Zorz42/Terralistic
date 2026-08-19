@@ -2,11 +2,11 @@ use super::UiElement;
 use crate::libraries::graphics as gfx;
 use crate::libraries::timing;
 
-/// How far past either end the list may be pushed. Velocity leaving the bounds is scaled by
-/// how much of this is already used up, so it is gone by the time the limit is reached: a hard
-/// flick eases into the end instead of shooting a few hundred pixels past it - the overshoot is
-/// the velocity times `boundary_smooth_factor`, and a trackpad swipe is worth several hundred.
-const OVERSCROLL_LIMIT: f32 = 40.0;
+/// How far past either end the list may be pushed. Movement leaving the bounds is scaled by how
+/// much of this is already used up, so a flick is compressed the further out it gets rather than
+/// running on: 377 pixels of overshoot for a hard trackpad swipe becomes 150. It only binds on
+/// the hard ones - an ordinary notch bounces 5 pixels and never notices it.
+const OVERSCROLL_LIMIT: f32 = 200.0;
 
 /// A scroll position with momentum, which the world and server lists offset their rows by.
 /// It draws nothing itself.
@@ -51,20 +51,31 @@ impl Scrollable {
         self.scroll_pos
     }
 
-    /// One frame of scrolling: the rubber band eats the velocity leaving the bounds, velocity
-    /// moves the position, the position is pulled back inside its bounds, and the velocity
-    /// decays. Both pulls are `super::approach`, whose epsilon is what makes them *land* rather
-    /// than leave a flicked list a fraction of a pixel past its end forever. Split out of
-    /// `update_inner`, which needs a `GraphicsContext` and this does not.
+    /// One frame of scrolling: velocity moves the position, compressed while it is leaving the
+    /// bounds; outside them the flick is spent into the boundary and the position pulled back
+    /// onto it; then the velocity decays. Every pull is `super::approach`, whose epsilon is what
+    /// makes them *land* rather than leave a flicked list a fraction of a pixel past its end
+    /// forever. Split out of `update_inner`, which needs a `GraphicsContext` and this does not.
+    ///
+    /// **Outside the bounds the flick belongs to the boundary, not to the momentum**, which is
+    /// why the velocity decays at `boundary_smooth_factor` there rather than the scroll's own.
+    /// Left on the scroll's, a bounce is fed by momentum for as long as that lasts: the pull
+    /// brings the list to the edge, the momentum pushes it back out, and what should be one
+    /// bounce becomes a slow crawl home three times as long as the pull alone.
     pub(super) fn advance_frame(&mut self) {
         let upper_bound = f32::max(self.scroll_size - self.rect.size.1, 0.0);
         let overscroll = f32::max(-self.scroll_pos, self.scroll_pos - upper_bound).max(0.0);
-        if self.is_leaving_bounds(upper_bound) {
-            self.scroll_velocity *= 1.0 - (overscroll / OVERSCROLL_LIMIT).clamp(0.0, 1.0);
+        let resistance = if self.is_leaving_bounds(upper_bound) {
+            1.0 - (overscroll / OVERSCROLL_LIMIT).clamp(0.0, 1.0)
+        } else {
+            1.0
+        };
+
+        self.scroll_pos += self.scroll_velocity * resistance;
+
+        if overscroll > 0.0 {
+            self.scroll_velocity = super::approach(self.scroll_velocity, 0.0, self.boundary_smooth_factor, 0.01);
         }
-
-        self.scroll_pos += self.scroll_velocity;
-
         if self.scroll_pos < 0.0 {
             self.scroll_pos = super::approach(self.scroll_pos, 0.0, self.boundary_smooth_factor, 0.01);
         } else if self.scroll_pos > upper_bound {
@@ -75,7 +86,7 @@ impl Scrollable {
     }
 
     /// Whether the velocity is carrying the list further out of bounds, as opposed to back in.
-    /// Only the former is resisted - a list on its way home is not fighting anything.
+    /// Only the former is compressed - a list on its way home is not fighting anything.
     fn is_leaving_bounds(&self, upper_bound: f32) -> bool {
         (self.scroll_pos < 0.0 && self.scroll_velocity < 0.0) || (self.scroll_pos > upper_bound && self.scroll_velocity > 0.0)
     }
