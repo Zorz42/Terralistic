@@ -190,4 +190,23 @@ mod tests {
 
         assert_eq!(prediction.visual_offset(), (Fixed::ZERO, Fixed::ZERO), "a teleport should look like a teleport");
     }
+
+    /// A state newer than anything this client remembers means it has fallen behind the
+    /// server - it normally runs ahead - so there is nothing to replay and the server's
+    /// answer is taken whole. Without this the player would stay wrong permanently.
+    #[test]
+    fn test_a_state_newer_than_the_buffer_is_taken_whole() {
+        let (blocks, liquids) = world();
+        let mut prediction = Prediction::new();
+        let (_position, _physics, mut player) = run(&mut prediction, 40, moving(MovingType::MovingRight), &blocks, &liquids);
+
+        let ahead = PositionComponent::new(Fixed::from_int(30), Fixed::from_int(12));
+        let ahead_physics = PhysicsComponent::new(Fixed::ONE, Fixed::from_int(2));
+
+        let (position, physics) = prediction.reconcile(9999, ahead, ahead_physics, &mut player, &blocks, &liquids).unwrap();
+
+        assert_eq!(position, ahead, "a state from the future should be taken as given");
+        assert_eq!(physics, ahead_physics);
+        assert_eq!(prediction.history_len(), 0, "there is nothing left to replay onto");
+    }
 }

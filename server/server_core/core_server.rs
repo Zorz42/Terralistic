@@ -18,7 +18,7 @@ use crate::server::server_core::networking::{DisconnectEvent, NewConnectionEvent
 use crate::server::server_core::players::ServerPlayers;
 use crate::server::server_ui::{ConsoleMessageType, PlayerEventType, ServerState, UiMessageType};
 use crate::shared::versions::WORLD_SAVE_FORMAT;
-use crate::shared::TICK_MS;
+use crate::shared::{ENTITY_SYNC_INTERVAL_TICKS, TICK_MS};
 
 use super::blocks::ServerBlocks;
 use super::commands::CommandManager;
@@ -65,7 +65,8 @@ pub struct Server {
     /// counts from, handed to each client in its `WelcomeCompletePacket`.
     current_tick: u64,
     /// Whole seconds already stepped, used to rate limit entity syncing.
-    seconds_counter: i32,
+    /// The tick the next entity sync is due on.
+    next_sync_tick: u64,
     /// Measures how long the previous update took.
     delta_timer: DeltaTimer,
 }
@@ -95,7 +96,7 @@ impl Server {
             commands,
             simulation_tick: FixedStep::new(TICK_MS),
             current_tick: 0,
-            seconds_counter: 0,
+            next_sync_tick: 0,
             delta_timer: DeltaTimer::new(),
         }
     }
@@ -297,10 +298,9 @@ impl Server {
                 .update_entities_ms(&self.blocks.get_blocks(), &self.liquids.get_liquids(), &mut self.events)?;
         }
 
-        let simulated_seconds = (self.simulation_tick.stepped_ms() / 1000) as i32;
-        if self.seconds_counter < simulated_seconds {
+        if self.current_tick >= self.next_sync_tick {
             self.entities.sync_entities(self.current_tick, &mut self.networking)?;
-            self.seconds_counter = simulated_seconds;
+            self.next_sync_tick = self.current_tick + ENTITY_SYNC_INTERVAL_TICKS;
         }
 
         Ok(())

@@ -47,3 +47,11 @@ pub const TICKS_PER_SECOND: i32 = 1000 / TICK_MS as i32;
 /// chosen here; measuring how early inputs actually arrive and adapting would be better on a
 /// bad connection, and is the obvious next change.
 pub const INPUT_LEAD_TICKS: u64 = 20;
+
+/// How often the server tells every client where all the entities are, in ticks.
+///
+/// This was once a second, which for anything moving was long enough that the correction
+/// when it arrived was a visible jump. Ten times a second costs one batched packet per two
+/// server updates, and - because both sides now simulate the same deterministic physics -
+/// most of what it carries agrees with what the client already had.
+pub const ENTITY_SYNC_INTERVAL_TICKS: u64 = 20;

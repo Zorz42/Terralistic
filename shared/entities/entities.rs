@@ -254,17 +254,30 @@ impl Entities {
     }
 }
 
-#[derive(Serialize, Deserialize)]
-pub struct EntityPositionVelocityPacket {
+/// One entity's authoritative state, as of the tick its packet names.
+#[derive(Clone, Copy, Serialize, Deserialize)]
+pub struct EntityState {
     pub id: EntityId,
-    /// Which tick this state is the answer for. Without it a client could only snap to a
-    /// state of unknown age; with it, it can look up what it thought at that same tick.
-    pub tick: u64,
     pub x: Fixed,
     pub y: Fixed,
     pub velocity_x: Fixed,
     pub velocity_y: Fixed,
-    pub force: bool,
+}
+
+/// Every entity's state as of one tick, in one packet.
+///
+/// One packet per entity to every client was a burst of hundreds of small packets on the
+/// same tick for a world with items scattered about it - the same shape of problem
+/// `LiquidChangesPacket` already avoids by batching a tick's worth of cells.
+///
+/// The tick matters as much as the states do. A client that knows *when* a state was true can
+/// look up what it thought at that same moment and correct itself against it; a client handed
+/// a state of unknown age can only snap to it, which is what made a correction throw away
+/// everything the player had done since.
+#[derive(Serialize, Deserialize)]
+pub struct EntitySyncPacket {
+    pub tick: u64,
+    pub entities: Vec<EntityState>,
 }
 
 #[derive(Serialize, Deserialize)]

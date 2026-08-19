@@ -82,9 +82,16 @@ impl Prediction {
     /// differ, rewinds and replays. Returns the corrected state, or `None` when there was
     /// nothing to correct.
     ///
-    /// A tick older than the buffer cannot be checked - there is nothing to compare and
-    /// nothing to replay - so it is left alone rather than snapped to. Accepting it would
-    /// undo every input since, which is the rubber-band this exists to remove.
+    /// Three cases, and the difference between them matters:
+    ///
+    /// - **A tick in the buffer**: compare, and replay if it differs. The normal path.
+    /// - **A tick newer than anything in the buffer**: this client has fallen behind the
+    ///   server, so there is nothing to replay and its answer is taken whole. Should not
+    ///   happen - the client runs `INPUT_LEAD_TICKS` ahead - but a long stall would do it,
+    ///   and without this the player would stay wrong for good.
+    /// - **A tick older than the buffer**: ignored. There is nothing to compare and nothing
+    ///   to replay, and snapping to it would undo every input since, which is the
+    ///   rubber-band this exists to remove.
     pub fn reconcile(
         &mut self,
         tick: u64,
@@ -94,7 +101,15 @@ impl Prediction {
         blocks: &Blocks,
         liquids: &Liquids,
     ) -> Option<(PositionComponent, PhysicsComponent)> {
-        let index = self.frames.iter().position(|frame| frame.tick == tick)?;
+        let Some(index) = self.frames.iter().position(|frame| frame.tick == tick) else {
+            if tick <= self.frames.back()?.tick {
+                return None;
+            }
+            // fallen behind the server: nothing to replay, so start again from its answer
+            self.corrections += 1;
+            self.forget();
+            return Some((server_position, server_physics));
+        };
         let frame = *self.frames.get(index)?;
 
         if frame.position == server_position && frame.physics == server_physics {

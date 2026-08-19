@@ -10,7 +10,7 @@ use crate::libraries::graphics as gfx;
 use crate::libraries::scripting::ScriptHost;
 use crate::libraries::ui::UiContext;
 use crate::shared::blocks::{Blocks, BLOCK_WIDTH, RENDER_BLOCK_WIDTH, RENDER_SCALE};
-use crate::shared::entities::{Entities, EntityDespawnEvent, EntityPositionVelocityPacket, HealthComponent, PhysicsComponent, PositionComponent};
+use crate::shared::entities::{Entities, EntityDespawnEvent, EntityState, EntitySyncPacket, HealthComponent, PhysicsComponent, PositionComponent};
 use crate::shared::liquids::Liquids;
 use crate::shared::packet::Packet;
 use crate::shared::players::{
@@ -124,8 +124,13 @@ impl ClientPlayers {
 
     pub fn on_event(&mut self, event: &Event, entities: &mut Entities, blocks: &Blocks, liquids: &Liquids) -> Result<()> {
         if let Some(packet_event) = event.downcast::<Packet>() {
-            if let Some(packet) = packet_event.try_deserialize::<EntityPositionVelocityPacket>() {
-                self.reconcile_main_player(&packet, entities, blocks, liquids)?;
+            if let Some(packet) = packet_event.try_deserialize::<EntitySyncPacket>() {
+                if let Some(main_player) = self.main_player {
+                    let mine = packet.entities.iter().find(|state| entities.get_entity_from_id(state.id).is_ok_and(|entity| entity == main_player));
+                    if let Some(state) = mine {
+                        self.reconcile_main_player(packet.tick, state, entities, blocks, liquids)?;
+                    }
+                }
             }
             if let Some(packet) = packet_event.try_deserialize::<PlayerSpawnPacket>() {
                 let player = spawn_player(entities, packet.x, packet.y, &packet.name, packet.id, HealthComponent::new(PLAYER_MAX_HEALTH, PLAYER_MAX_HEALTH))?;
@@ -166,27 +171,17 @@ impl ClientPlayers {
     /// A forced state - a spawn, a respawn, a teleport - is the server deciding where the
     /// player is rather than reporting where the simulation put it, so it is taken as given
     /// and the history is dropped: there is nothing to replay onto a decision.
-    fn reconcile_main_player(&mut self, packet: &EntityPositionVelocityPacket, entities: &mut Entities, blocks: &Blocks, liquids: &Liquids) -> Result<()> {
+    fn reconcile_main_player(&mut self, tick: u64, state: &EntityState, entities: &mut Entities, blocks: &Blocks, liquids: &Liquids) -> Result<()> {
         let Some(main_player) = self.main_player else { return Ok(()) };
-        if entities.get_entity_from_id(packet.id)? != main_player {
-            return Ok(());
-        }
 
         let (position_component, physics_component, player_component) = entities.ecs.query_one_mut::<(&mut PositionComponent, &mut PhysicsComponent, &mut PlayerComponent)>(main_player)?;
 
-        let server_position = PositionComponent::new(packet.x, packet.y);
+        let server_position = PositionComponent::new(state.x, state.y);
         let mut server_physics = *physics_component;
-        server_physics.velocity_x = packet.velocity_x;
-        server_physics.velocity_y = packet.velocity_y;
+        server_physics.velocity_x = state.velocity_x;
+        server_physics.velocity_y = state.velocity_y;
 
-        if packet.force {
-            *position_component = server_position;
-            *physics_component = server_physics;
-            self.prediction.forget();
-            return Ok(());
-        }
-
-        if let Some((position, physics)) = self.prediction.reconcile(packet.tick, server_position, server_physics, player_component, blocks, liquids) {
+        if let Some((position, physics)) = self.prediction.reconcile(tick, server_position, server_physics, player_component, blocks, liquids) {
             *position_component = position;
             *physics_component = physics;
         }
