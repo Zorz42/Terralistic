@@ -445,8 +445,8 @@ mod tests {
     /// A scrollable with room to scroll and the smoothing both lists use.
     fn scrollable_with_room() -> ui::Scrollable {
         let mut scrollable = ui::Scrollable::new();
-        scrollable.scroll_smooth_factor = 8.0;
-        scrollable.boundary_smooth_factor = 18.0;
+        scrollable.scroll_smooth_factor = 20.0;
+        scrollable.boundary_smooth_factor = 40.0;
         scrollable.scroll_size = 1000.0;
         scrollable.rect.size.1 = 400.0;
         scrollable
@@ -457,6 +457,15 @@ mod tests {
         for _ in 0..frames {
             scrollable.advance_frame();
         }
+    }
+
+    /// Where the list came to rest, to within a hundredth of a pixel. A scroll is a sum of
+    /// events applied a fraction at a time, so it carries the rounding of an `f32` that has been
+    /// added to a few hundred times - which `assert_close`'s `f32::EPSILON` does not allow for.
+    #[track_caller]
+    fn assert_scrolled_to(scrollable: &ui::Scrollable, expected: f32) {
+        let actual = scrollable.get_scroll_pos();
+        assert!((actual - expected).abs() < 0.01, "expected the list at {expected}, found it at {actual}");
     }
 
     /// A scroll event is a distance, and a negative one scrolls the content down. The position
@@ -471,7 +480,7 @@ mod tests {
         assert_close(scrollable.get_scroll_pos(), 0.0);
 
         advance(&mut scrollable, 500);
-        assert_close(scrollable.get_scroll_pos(), 120.0);
+        assert_scrolled_to(&scrollable, 120.0);
     }
 
     /// **The events of one gesture add up.** A trackpad reports a gesture as a stream of small
@@ -489,7 +498,7 @@ mod tests {
         }
         advance(&mut scrollable, 500);
 
-        assert_close(scrollable.get_scroll_pos(), 120.0);
+        assert_scrolled_to(&scrollable, 120.0);
     }
 
     #[test]
@@ -538,7 +547,7 @@ mod tests {
         assert!(travelled_in_one_frame(&mut scrollable) > 0.0, "the scroll should move the list");
         advance(&mut scrollable, 500);
         assert_close(travelled_in_one_frame(&mut scrollable), 0.0);
-        assert_close(scrollable.get_scroll_pos(), 200.0);
+        assert_scrolled_to(&scrollable, 200.0);
     }
 
     /// A list pushed past its end is pulled back *onto* it and stops. Subtracting a fraction of
@@ -559,76 +568,94 @@ mod tests {
         assert_eq!(scrollable.get_scroll_pos(), 0.0, "the list should come to rest on the top, not near it");
     }
 
-    /// What one gesture past the top of the list does: `events` scroll events of `step` pixels,
-    /// delivered a frame apart the way a trackpad delivers one, and then let go. Answers how far
-    /// the band stretched, how many times the list changed direction while the gesture was still
-    /// pushing, and how long after the last event it took to come home, in milliseconds.
-    fn overscroll_gesture(step: f32, events: usize) -> (f32, usize, usize) {
+    /// What one trackpad gesture past the top of the list does. `events` deltas of `step` pixels
+    /// a frame apart while the finger is down, and then **the momentum macOS sends after it
+    /// lifts** - a decaying stream of ordinary scroll events of its own, which is the case the
+    /// scrollable has to get right: those deltas are the platform's inertia, not the user still
+    /// pushing.
+    ///
+    /// Answers how far the band stretched, how many times the list visibly changed direction,
+    /// and how long after the *last* event it took to come home, in milliseconds - home meaning
+    /// within half a pixel, since `approach` walks the last hundredth of one out over as long
+    /// again and nobody sees it.
+    fn trackpad_gesture(step: f32, events: usize) -> (f32, usize, usize) {
         let mut graphics = ui::HeadlessContext::new();
         let mut scrollable = scrollable_with_room();
         let root = root_container(&graphics);
 
-        let (mut deepest, mut reversals, mut previous, mut outwards) = (0.0_f32, 0, 0.0_f32, true);
-        for _ in 0..events {
-            scrollable.on_event(&mut graphics, &gfx::Event::MouseScroll(step), &root);
+        let mut deltas: Vec<f32> = (0..events).map(|_| step).collect();
+        let mut momentum = step * 2.0;
+        while momentum > 1.0 {
+            deltas.push(momentum);
+            momentum *= 0.88;
+        }
+
+        let (mut deepest, mut direction_changes, mut extreme, mut rising) = (0.0_f32, 0, 0.0_f32, true);
+        for delta in &deltas {
+            scrollable.on_event(&mut graphics, &gfx::Event::MouseScroll(*delta), &root);
             for _ in 0..16 {
                 scrollable.advance_frame();
                 let stretch = -scrollable.get_scroll_pos();
-                if outwards && stretch < previous - 0.01 {
-                    reversals += 1;
-                    outwards = false;
-                } else if !outwards && stretch > previous + 0.01 {
-                    outwards = true;
+                // a change of direction only counts once it is something anyone could see
+                if rising && stretch > extreme {
+                    extreme = stretch;
+                } else if rising && extreme - stretch > 1.0 {
+                    (direction_changes, rising, extreme) = (direction_changes + 1, false, stretch);
+                } else if !rising && stretch < extreme {
+                    extreme = stretch;
+                } else if !rising && stretch - extreme > 1.0 {
+                    (direction_changes, rising, extreme) = (direction_changes + 1, true, stretch);
                 }
-                (previous, deepest) = (stretch, deepest.max(stretch));
+                deepest = deepest.max(stretch);
             }
         }
 
         let mut home_after = 0;
         for frame in 0..3000 {
             scrollable.advance_frame();
-            if scrollable.get_scroll_pos() != 0.0 {
+            if scrollable.get_scroll_pos().abs() > 0.5 {
                 home_after = frame + 1;
             }
         }
         assert_close(scrollable.get_scroll_pos(), 0.0);
-        (deepest, reversals, home_after)
+        (deepest, direction_changes, home_after)
     }
 
-    /// **The band does not fight the gesture.** The stretch is a plain function of how far the
-    /// gesture has pushed, so it only grows while the pushing lasts. It used to be a spring
-    /// running every millisecond against events arriving every frame: the pull took three
-    /// quarters of the stretch back between two events of one push and each event put it
-    /// straight back, which is a shake at frame frequency.
+    /// **The band follows the gesture out and back in one movement.** It stretches while the
+    /// stream is pushing hard and eases home as the momentum decays, so the only direction
+    /// change in the whole gesture is the turn at the top. A return running against events
+    /// applied whole is a sawtooth at frame frequency - a 19 pixel shake here - and holding the
+    /// return off until the events stop instead keeps the band stretched for the whole momentum
+    /// tail and then lets go, which is the hang and the snap.
     #[test]
-    fn test_the_band_does_not_fight_the_gesture() {
-        for (step, events) in [(12.0, 5), (30.0, 10), (80.0, 30)] {
-            let (_, reversals, _) = overscroll_gesture(step, events);
-            assert_eq!(reversals, 0, "the list changed direction {reversals} times during a push of {events} x {step} px");
+    fn test_the_band_turns_once_over_a_whole_gesture() {
+        for (step, events) in [(12.0, 5), (30.0, 8), (80.0, 20)] {
+            let (_, direction_changes, _) = trackpad_gesture(step, events);
+            assert!(direction_changes <= 1, "the list turned {direction_changes} times during one gesture of {events} x {step} px");
         }
     }
 
-    /// The band stretches with the gesture, which is what makes it read as a rubber band rather
-    /// than a wall - but it stiffens as it goes, so a gesture fifteen times as long is nothing
-    /// like fifteen times the stretch.
+    /// The band stretches with how hard the gesture pushes, which is what makes it read as a
+    /// rubber band rather than a wall - and stiffens as it goes, so a gesture pushing seven
+    /// times as hard does not stretch it seven times as far.
     #[test]
     fn test_the_band_stretches_with_the_gesture_and_stiffens() {
-        let (nudge, _, _) = overscroll_gesture(12.0, 2);
-        let (shove, _, _) = overscroll_gesture(12.0, 30);
+        let (nudge, _, _) = trackpad_gesture(12.0, 3);
+        let (shove, _, _) = trackpad_gesture(80.0, 20);
 
-        assert!(nudge > 5.0, "a nudge past the end should still stretch, went {nudge}");
-        assert!(shove > 2.0 * nudge, "a long push should stretch further, {shove} against {nudge}");
-        assert!(shove < 8.0 * nudge, "but not in proportion to its length, {shove} against {nudge}");
+        assert!(nudge > 3.0, "a nudge past the end should still stretch, went {nudge}");
+        assert!(shove > 2.0 * nudge, "a hard gesture should stretch further, {shove} against {nudge}");
+        assert!(shove < 7.0 * nudge, "but not in proportion to how hard, {shove} against {nudge}");
     }
 
-    /// Coming home is one movement, not a crawl. The scroll carries no momentum of its own - the
-    /// platform's deltas are the whole gesture, and a second momentum on top of them kept
-    /// shoving the list back out of a boundary it was in the middle of returning to.
+    /// The band is home right after the gesture is, rather than waiting to be told the gesture
+    /// is over - which cannot be told, since the platform's momentum is scroll events like any
+    /// other.
     #[test]
-    fn test_the_band_comes_home_quickly() {
-        for (step, events) in [(12.0, 2), (30.0, 5), (80.0, 30)] {
-            let (_, _, home_after) = overscroll_gesture(step, events);
-            assert!(home_after < 300, "a push of {events} x {step} px took {home_after} ms to settle");
+    fn test_the_band_is_home_as_the_gesture_ends() {
+        for (step, events) in [(12.0, 3), (30.0, 5), (80.0, 20)] {
+            let (_, _, home_after) = trackpad_gesture(step, events);
+            assert!(home_after < 250, "a gesture of {events} x {step} px left the band out {home_after} ms after its last event");
         }
     }
 

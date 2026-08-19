@@ -675,26 +675,28 @@ Six UI pieces predate the `UiElement` trait and are hand-rolled, marked by `//TO
   scrollable's own `rect.pos.1`, which is not part of `scroll_size`, so an extent stopping at
   the last row is one gap short and the bottom row sits under the bottom bar at full scroll,
   unreachable.
-- **A `Scrollable`'s input is a distance, not a speed, and it carries no momentum of its
-  own.** `scroll_target` is the sum of the scroll events, so it tracks a trackpad finger
-  exactly, and `scroll_pos` follows it at `scroll_smooth_factor` - small, because that is the
-  smoothing that turns a wheel detent into a glide rather than a glide of its own. It was a
-  velocity the events raised and a decay that spent it, which is momentum, and **a macOS
-  trackpad already sends its own**: a gesture is a stream of pixel deltas that carries on
-  after the finger lifts. Two momenta over one gesture is the jitter. Every event restarted a
-  glide the last one was still running, `max` rather than `+` meant the fastest part of a
-  swipe set the distance for all of it, and out of bounds each restart shoved the list back
-  out of an edge it was in the middle of returning to.
-- **Past its end the band is a mapping, not a spring.** `stretched_position` compresses
-  whatever the push has gone past an end into `LIMIT * push / (LIMIT + push)`, a plain function
-  of the push - 18 px of stretch for a nudge, saturating at 75. A spring there fights the
-  gesture: it pulls every millisecond while the events arrive every frame, so it took three
-  quarters of the stretch back between two events of one push and each event put it straight
-  back. That is a shake at frame frequency, and a test pins that the list never changes
-  direction while a gesture is still pushing.
-- **The return waits `GESTURE_GAP_MS` for the gesture to finish**, because a trackpad's stream
-  carries on after the finger lifts and there is no other way to tell "still pushing" from "let
-  go". Then the push returns to the bound at `boundary_smooth_factor`, 160-200 ms.
+- **A `Scrollable`'s input is a distance, not a speed, and it carries no momentum of its own.**
+  `scroll_push` is the sum of the scroll events and `scroll_pos` is where the ends put that. It
+  was a velocity the events raised and a decay that spent it, which is momentum - and **a macOS
+  trackpad already sends its own**. Two momenta over one gesture is the jitter: every event
+  restarted a glide the last one was still running, and `max` rather than `+` meant the fastest
+  part of a swipe set the distance for all of it.
+  **That momentum arrives as ordinary scroll events**, a decaying stream a frame apart carrying
+  on for a third of a second after the finger lifts, and nothing in them says which side of the
+  lift they are from - `TouchPhase` does not either, since winit reports the momentum phase
+  beginning as `Started` exactly like a finger landing. So there is no "gesture ended" to wait
+  for, and waiting for a gap long enough to cover the tail holds the band stretched for all of
+  it and then lets go: a list that hangs and snaps.
+- **A scroll event is spread over `scroll_smooth_factor` ms, not applied whole**, and that is
+  what lets the boundary return run continuously without fighting the input. An event applied
+  whole is a frame of scrolling in one millisecond against a return that pulls every
+  millisecond - a sawtooth at frame frequency, measured at 19 px. Drained, the push is a rate,
+  the two settle against each other, and the same drain is what turns a wheel detent into a
+  glide. The test is that one gesture turns the list around exactly once.
+- **Past its end the band is a mapping, not a spring.** `stretched_position` compresses whatever
+  the push has gone past an end into `LIMIT * push / (LIMIT + push)`: 17 px of stretch for a
+  gentle gesture, 74 for a hard one, and home 95 ms after the gesture's last event - it eases
+  back as the momentum decays rather than waiting for it to stop.
 - **`ui::Menu` / `ui::MenuStack`** is a stack of screens where the top one is live: it gets
   the events and the updates, `open_menu` pushes a successor, `should_close` pops, and
   whatever a pop reveals is told it has focus.
