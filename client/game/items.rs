@@ -82,8 +82,8 @@ impl ClientItems {
                 graphics,
                 RENDER_SCALE,
                 gfx::FloatPos(
-                    (position.x() * RENDER_BLOCK_WIDTH - top_left.0 * RENDER_BLOCK_WIDTH + 0.5 * RENDER_BLOCK_WIDTH - src_rect.size.0 / 2.0 * RENDER_SCALE).round(),
-                    (position.y() * RENDER_BLOCK_WIDTH - top_left.1 * RENDER_BLOCK_WIDTH + 0.5 * RENDER_BLOCK_WIDTH - src_rect.size.1 / 2.0 * RENDER_SCALE).round(),
+                    (position.x().to_f32() * RENDER_BLOCK_WIDTH - top_left.0 * RENDER_BLOCK_WIDTH + 0.5 * RENDER_BLOCK_WIDTH - src_rect.size.0 / 2.0 * RENDER_SCALE).round(),
+                    (position.y().to_f32() * RENDER_BLOCK_WIDTH - top_left.1 * RENDER_BLOCK_WIDTH + 0.5 * RENDER_BLOCK_WIDTH - src_rect.size.1 / 2.0 * RENDER_SCALE).round(),
                 ),
                 Some(src_rect),
                 false,

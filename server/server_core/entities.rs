@@ -29,7 +29,7 @@ impl ServerEntities {
     pub fn sync_entities(&self, networking: &mut ServerNetworking) -> Result<()> {
         let mut entity_list = Vec::new();
         for (entity, position, physics) in &mut self.get_entities().ecs.query::<(Entity, &PositionComponent, &PhysicsComponent)>() {
-            entity_list.push((entity, position.clone(), physics.clone()));
+            entity_list.push((entity, *position, *physics));
         }
 
         for (entity, position, physics) in entity_list {

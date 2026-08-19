@@ -157,6 +157,7 @@ pub mod libraries {
     pub mod config;
     pub mod container_file;
     pub mod events;
+    pub mod fixed;
     pub mod graphics;
     pub mod grid;
     pub mod log;

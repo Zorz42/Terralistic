@@ -2,11 +2,12 @@
 #![cfg(test)]
 mod tests {
     use crate::libraries::events::EventManager;
+    use crate::libraries::fixed::Fixed;
     use crate::shared::entities::Entities;
     use crate::shared::inventory::Inventory;
     use crate::shared::items::{Item, ItemComponent, ItemId, ItemStack, Items, Recipe};
 
-    const DROP_POS: (f32, f32) = (0.0, 0.0);
+    const DROP_POS: (Fixed, Fixed) = (Fixed::ZERO, Fixed::ZERO);
 
     /// Builds an `Items` with a single registered type of the given stack limit.
     fn items_with_max_stack(max_stack: i32) -> (Items, ItemId) {

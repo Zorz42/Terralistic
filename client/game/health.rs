@@ -5,6 +5,7 @@ use anyhow::Result;
 
 use crate::gfx;
 use crate::libraries::events::Event;
+use crate::libraries::fixed::Fixed;
 use crate::libraries::scripting::ScriptHost;
 use crate::shared::entities::{Entities, HealthChangePacket, PositionComponent};
 use crate::shared::packet::Packet;
@@ -81,8 +82,8 @@ impl ClientHealth {
                     let player_pos = players.get_main_player().and_then(|player| entities.ecs.get::<&PositionComponent>(player).ok());
 
                     if let Some(player_pos) = player_pos {
-                        let x = player_pos.x() + PLAYER_WIDTH / 2.0;
-                        let y = player_pos.y() - 0.5;
+                        let x = (player_pos.x() + PLAYER_WIDTH / 2).to_f32();
+                        let y = (player_pos.y() - Fixed::from_num(1, 2)).to_f32();
 
                         let (val, color) = match self.health.cmp(&packet.health) {
                             std::cmp::Ordering::Less => (packet.health - self.health, gfx::Color::new(0, 200, 0, 255)),

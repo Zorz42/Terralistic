@@ -3,6 +3,7 @@
 #![cfg(test)]
 mod tests {
     use crate::libraries::events::EventManager;
+    use crate::libraries::fixed::Fixed;
     use crate::libraries::serialization;
     use crate::shared::blocks::{Block, BlockId, Blocks};
     use crate::shared::chat::ChatPacket;
@@ -264,7 +265,7 @@ mod tests {
         use crate::shared::entities::PhysicsComponent;
 
         let mut player = PlayerComponent::new("p");
-        let mut physics = PhysicsComponent::new(1.0, 1.0);
+        let mut physics = PhysicsComponent::new(Fixed::from_int(1), Fixed::from_int(1));
         let neutral = physics.acceleration_x;
 
         player.set_moving_type(MovingType::MovingRight, &mut physics);
@@ -274,7 +275,7 @@ mod tests {
         assert!(physics.acceleration_x < neutral, "moving left should accelerate left");
 
         player.set_moving_type(MovingType::Standing, &mut physics);
-        assert!((physics.acceleration_x - neutral).abs() < f32::EPSILON, "standing should restore the neutral acceleration");
+        assert_eq!(physics.acceleration_x, neutral, "standing should restore the neutral acceleration");
     }
 
     #[test]
@@ -282,13 +283,13 @@ mod tests {
         use crate::shared::entities::PhysicsComponent;
 
         let mut player = PlayerComponent::new("p");
-        let mut physics = PhysicsComponent::new(1.0, 1.0);
+        let mut physics = PhysicsComponent::new(Fixed::from_int(1), Fixed::from_int(1));
 
         player.set_moving_type(MovingType::MovingRight, &mut physics);
         let after_one = physics.acceleration_x;
         player.set_moving_type(MovingType::MovingRight, &mut physics);
 
-        assert!((physics.acceleration_x - after_one).abs() < f32::EPSILON, "repeating a move should be a no-op");
+        assert_eq!(physics.acceleration_x, after_one, "repeating a move should be a no-op");
     }
 
     #[test]
@@ -298,11 +299,19 @@ mod tests {
 
         let mut entities = Entities::new();
         let id = entities.new_id();
-        let entity = spawn_player(&mut entities, 3.0, 4.0, "jakob", id, HealthComponent::new(PLAYER_MAX_HEALTH, PLAYER_MAX_HEALTH)).unwrap();
+        let entity = spawn_player(
+            &mut entities,
+            Fixed::from_int(3),
+            Fixed::from_int(4),
+            "jakob",
+            id,
+            HealthComponent::new(PLAYER_MAX_HEALTH, PLAYER_MAX_HEALTH),
+        )
+        .unwrap();
 
         let position = entities.ecs.get::<&PositionComponent>(entity).unwrap();
-        assert!((position.x() - 3.0).abs() < f32::EPSILON);
-        assert!((position.y() - 4.0).abs() < f32::EPSILON);
+        assert_eq!(position.x(), Fixed::from_int(3));
+        assert_eq!(position.y(), Fixed::from_int(4));
 
         assert_eq!(entities.ecs.get::<&PlayerComponent>(entity).unwrap().get_name(), "jakob");
         assert_eq!(entities.ecs.get::<&Inventory>(entity).unwrap().get_size(), PLAYER_INVENTORY_SIZE);
@@ -312,8 +321,8 @@ mod tests {
     /// These are compile time constants, so this is a static check rather than a test
     /// that could ever fail at runtime. It still fails the build if someone makes the
     /// player wider than it is tall, which would break collision against 1x1 tiles.
-    const _: () = assert!(PLAYER_WIDTH > 0.0);
-    const _: () = assert!(PLAYER_HEIGHT > PLAYER_WIDTH);
+    const _: () = assert!(PLAYER_WIDTH.raw() > 0);
+    const _: () = assert!(PLAYER_HEIGHT.raw() > PLAYER_WIDTH.raw());
 
     // ---------------- small shared types ----------------
 

@@ -1,5 +1,4 @@
 use std::cell::RefCell;
-use std::ops::Deref;
 use std::rc::Rc;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
@@ -220,9 +219,9 @@ pub fn run_game(
         walls.update(frame_stats.get_delta_time(), &mut events)?;
 
         if let Some(main_player) = players.get_main_player() {
-            let player_pos = entities.get_entities().ecs.get::<&PositionComponent>(main_player)?.deref().clone();
+            let player_pos = *entities.get_entities().ecs.get::<&PositionComponent>(main_player)?;
 
-            camera.set_position(player_pos.x(), player_pos.y());
+            camera.set_position(player_pos.x().to_f32(), player_pos.y().to_f32());
         }
 
         while simulation_tick.step() {

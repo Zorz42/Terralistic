@@ -3,24 +3,33 @@ use hecs::Entity;
 use serde_derive::{Deserialize, Serialize};
 
 use crate::libraries::events::EventManager;
+use crate::libraries::fixed::Fixed;
 use crate::shared::blocks::{Blocks, BLOCK_WIDTH};
 use crate::shared::entities::{is_touching_ground, liquid_submersion, reduce_by, Entities, EntityId, HealthComponent, PhysicsComponent, PositionComponent};
 use crate::shared::inventory::Inventory;
 use crate::shared::items::{ItemComponent, ItemStack, Items};
 use crate::shared::liquids::Liquids;
+use crate::shared::TICKS_PER_SECOND;
 
-pub const PLAYER_HEIGHT: f32 = 24.0 / BLOCK_WIDTH;
-pub const PLAYER_WIDTH: f32 = 16.0 / BLOCK_WIDTH;
+pub const PLAYER_HEIGHT: Fixed = Fixed::from_num(24, BLOCK_WIDTH as i32);
+pub const PLAYER_WIDTH: Fixed = Fixed::from_num(16, BLOCK_WIDTH as i32);
 pub const PLAYER_MAX_HEALTH: i32 = 100;
-pub const PLAYER_ACCELERATION: f32 = 30.0;
-pub const PLAYER_INITIAL_SPEED: f32 = 5.0;
-pub const PLAYER_JUMP_SPEED: f32 = 30.0;
+pub const PLAYER_ACCELERATION: Fixed = Fixed::from_int(30);
+pub const PLAYER_INITIAL_SPEED: Fixed = Fixed::from_int(5);
+pub const PLAYER_JUMP_SPEED: Fixed = Fixed::from_int(30);
 /// How hard a swimming player pushes upwards, and how fast that can get them going.
-pub const PLAYER_SWIM_ACCELERATION: f32 = 90.0;
-pub const PLAYER_SWIM_SPEED: f32 = 8.0;
-pub const PLAYER_PICKUP_RADIUS: f32 = 6.0;
-pub const PLAYER_PICKUP_COEFFICIENT: f32 = 0.005;
-pub const PLAYER_PICKUP_MIN_SPEED: f32 = 0.8;
+pub const PLAYER_SWIM_ACCELERATION: Fixed = Fixed::from_int(90);
+pub const PLAYER_SWIM_SPEED: Fixed = Fixed::from_int(8);
+/// How full a cell has to be before the jump key swims rather than doing nothing, which is
+/// what keeps a puddle from being climbable.
+const SWIMMABLE_SUBMERSION: Fixed = Fixed::from_num(1, 2);
+pub const PLAYER_PICKUP_RADIUS: Fixed = Fixed::from_int(6);
+pub const PLAYER_PICKUP_COEFFICIENT: Fixed = Fixed::from_num(1, 200);
+pub const PLAYER_PICKUP_MIN_SPEED: Fixed = Fixed::from_num(4, 5);
+/// How close an item has to get before it is taken, squared.
+const PICKUP_REACH_SQUARED: Fixed = Fixed::from_num(3, 10);
+/// An item is drawn from the middle of its cell, so its centre is half a block along each axis.
+const ITEM_HALF_SIZE: Fixed = Fixed::from_num(1, 2);
 pub const PLAYER_INVENTORY_SIZE: usize = 20;
 
 #[derive(PartialEq, Eq, Copy, Clone, Serialize, Deserialize)]
@@ -30,7 +39,7 @@ pub enum MovingType {
     MovingRight,
 }
 
-pub fn spawn_player(entities: &mut Entities, x: f32, y: f32, name: &str, id: EntityId, health_component: HealthComponent) -> Result<Entity> {
+pub fn spawn_player(entities: &mut Entities, x: Fixed, y: Fixed, name: &str, id: EntityId, health_component: HealthComponent) -> Result<Entity> {
     let entity = entities.ecs.spawn((
         PositionComponent::new(x, y),
         PhysicsComponent::new(PLAYER_WIDTH, PLAYER_HEIGHT),
@@ -44,6 +53,11 @@ pub fn spawn_player(entities: &mut Entities, x: f32, y: f32, name: &str, id: Ent
     Ok(entity)
 }
 
+/// Advances every player by one tick: jumping, swimming and the walk animation.
+///
+/// Runs on both sides. Like `step_entity` it touches nothing outside the player it is
+/// looking at, so the client can replay it - which is why pulling items towards a player,
+/// the one part that reads every *other* entity, is `attract_items_to_players` instead.
 pub fn update_players_ms(entities: &mut Entities, blocks: &Blocks, liquids: &Liquids) {
     for (position, physics, player) in entities.ecs.query_mut::<(&PositionComponent, &mut PhysicsComponent, &mut PlayerComponent)>() {
         if player.jumping {
@@ -52,11 +66,10 @@ pub fn update_players_ms(entities: &mut Entities, blocks: &Blocks, liquids: &Liq
             } else {
                 // Swimming is the jump key held down in a liquid: an upward push every tick
                 // rather than one impulse, capped, so a player rises steadily to the surface
-                // instead of leaping out of it. It needs the cell to be at least half full,
-                // which is what keeps a puddle from being climbable.
+                // instead of leaping out of it.
                 let (submersion, _speed_multiplier) = liquid_submersion(position, physics, liquids);
-                if submersion > 0.5 {
-                    physics.velocity_y = (physics.velocity_y - PLAYER_SWIM_ACCELERATION / 200.0).max(-PLAYER_SWIM_SPEED);
+                if submersion > SWIMMABLE_SUBMERSION {
+                    physics.velocity_y = (physics.velocity_y - PLAYER_SWIM_ACCELERATION / TICKS_PER_SECOND).max(-PLAYER_SWIM_SPEED);
                 }
             }
         }
@@ -95,39 +108,44 @@ pub fn update_players_ms(entities: &mut Entities, blocks: &Blocks, liquids: &Liq
             player.animation_frame = 0;
         }
 
-        if physics.velocity_x.abs() < 0.01 && (player.moving_type == MovingType::MovingRight || player.moving_type == MovingType::MovingLeft) {
+        if physics.velocity_x.abs() < Fixed::from_num(1, 100) && (player.moving_type == MovingType::MovingRight || player.moving_type == MovingType::MovingLeft) {
             player.animation_frame = 1;
         }
     }
+}
 
+/// Pulls nearby items towards each player, the step before they are picked up.
+///
+/// **Server only, deliberately.** The force is strong, uncapped and aimed at a player's exact
+/// position, so two sides holding slightly different positions send an item off in visibly
+/// different directions - and the client's copy of a *remote* player is only as fresh as the
+/// last packet. Predicting this cannot come out right, and the item is about to be taken and
+/// despawned anyway, so the client simply watches the server's answer arrive.
+pub fn attract_items_to_players(entities: &mut Entities) {
     let mut positions = Vec::new();
     for (position, _player) in entities.ecs.query_mut::<(&PositionComponent, &PlayerComponent)>() {
-        positions.push((position.x() + PLAYER_WIDTH / 2.0, position.y() + PLAYER_HEIGHT / 2.0));
+        positions.push((position.x() + PLAYER_WIDTH / 2, position.y() + PLAYER_HEIGHT / 2));
     }
 
     for player_position in positions {
-        // loop through all items in the world and
-        // check if the player is near them, if so
-        // the item should be accelerated towards the player
-        // a square of the distance is calculated as d^2, and
-        // size of the speed change is c * (r^2 - d^2), where r is the
-        // pickup range of the player and c is a constant
-        // the speed change is applied to the item's velocity
-        // in the direction of the player
-
+        // the speed change is c * (r^2 - d^2), where r is the pickup range, d the distance
+        // and c a constant, applied along the line from the item to the player
         for (item_position, item_physics, _item) in entities.ecs.query_mut::<(&PositionComponent, &mut PhysicsComponent, &ItemComponent)>() {
-            let dx = player_position.0 - item_position.x() - 0.5;
-            let dy = player_position.1 - item_position.y() - 0.5;
+            let dx = player_position.0 - item_position.x() - ITEM_HALF_SIZE;
+            let dy = player_position.1 - item_position.y() - ITEM_HALF_SIZE;
+
+            // squaring a world-sized distance would saturate, so anything obviously out of
+            // range is dropped before the multiply rather than after it
+            if dx.abs() > PLAYER_PICKUP_RADIUS || dy.abs() > PLAYER_PICKUP_RADIUS {
+                continue;
+            }
+
             let d2 = dx * dx + dy * dy;
-            let r2 = PLAYER_PICKUP_RADIUS * PLAYER_PICKUP_RADIUS;
-            let c = PLAYER_PICKUP_COEFFICIENT;
-            let size = c * (r2 - d2) + PLAYER_PICKUP_MIN_SPEED;
-            if size > PLAYER_PICKUP_MIN_SPEED {
-                let d2s = d2.sqrt();
-                let speed_change_x = size * dx / d2s;
-                let speed_change_y = size * dy / d2s;
-                item_physics.velocity_x += speed_change_x;
-                item_physics.velocity_y += speed_change_y;
+            let size = PLAYER_PICKUP_COEFFICIENT * (PLAYER_PICKUP_RADIUS * PLAYER_PICKUP_RADIUS - d2) + PLAYER_PICKUP_MIN_SPEED;
+            let d2s = d2.sqrt();
+            if size > PLAYER_PICKUP_MIN_SPEED && d2s > Fixed::ZERO {
+                item_physics.velocity_x += size * dx / d2s;
+                item_physics.velocity_y += size * dy / d2s;
             }
         }
     }
@@ -136,17 +154,16 @@ pub fn update_players_ms(entities: &mut Entities, blocks: &Blocks, liquids: &Liq
 pub fn remove_all_picked_items(entities: &mut Entities, events: &mut EventManager, items: &Items) -> Result<()> {
     let mut positions = Vec::new();
     for (entity, position, _player) in entities.ecs.query_mut::<(Entity, &PositionComponent, &PlayerComponent)>() {
-        positions.push(((position.x() + PLAYER_WIDTH / 2.0, position.y() + PLAYER_HEIGHT / 2.0), entity));
+        positions.push(((position.x() + PLAYER_WIDTH / 2, position.y() + PLAYER_HEIGHT / 2), entity));
     }
 
     for (player_position, player_entity) in positions {
         let mut items_to_remove = Vec::new();
         for (entity, item_position, _item) in entities.ecs.query_mut::<(Entity, &PositionComponent, &ItemComponent)>() {
-            let dx = player_position.0 - item_position.x() - 0.5;
-            let dy = player_position.1 - item_position.y() - 0.5;
-            let d2 = dx * dx + dy * dy;
+            let dx = player_position.0 - item_position.x() - ITEM_HALF_SIZE;
+            let dy = player_position.1 - item_position.y() - ITEM_HALF_SIZE;
 
-            if d2 < 0.3 {
+            if dx.abs() < Fixed::ONE && dy.abs() < Fixed::ONE && dx * dx + dy * dy < PICKUP_REACH_SQUARED {
                 items_to_remove.push(entity);
             }
         }
@@ -253,8 +270,8 @@ pub struct PlayerMovingPacketToServer {
 #[derive(Serialize, Deserialize)]
 pub struct PlayerSpawnPacket {
     pub id: EntityId,
-    pub x: f32,
-    pub y: f32,
+    pub x: Fixed,
+    pub y: Fixed,
     pub name: String,
 }
 
@@ -269,6 +286,6 @@ pub struct NamePacket {
 // client sends its player position to the server and if its not far off, the server will correct it
 #[derive(Serialize, Deserialize)]
 pub struct PlayerPositionPacketToServer {
-    pub x: f32,
-    pub y: f32,
+    pub x: Fixed,
+    pub y: Fixed,
 }

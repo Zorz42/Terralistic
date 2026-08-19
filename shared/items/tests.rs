@@ -3,6 +3,7 @@
 #![cfg(test)]
 mod tests {
     use crate::libraries::events::EventManager;
+    use crate::libraries::fixed::Fixed;
     use crate::shared::blocks::Blocks;
     use crate::shared::entities::{Entities, PositionComponent};
     use crate::shared::items::{Item, ItemComponent, ItemStack, Items, Recipe, TileDrop};
@@ -133,11 +134,11 @@ mod tests {
         let mut events = EventManager::new();
 
         let entity_id = entities.new_id();
-        let entity = items.spawn_item(&mut events, &mut entities, id, 3.0, 4.0, entity_id).unwrap();
+        let entity = items.spawn_item(&mut events, &mut entities, id, Fixed::from_int(3), Fixed::from_int(4), entity_id).unwrap();
 
         let position = entities.ecs.get::<&PositionComponent>(entity).unwrap();
-        assert!((position.x() - 3.0).abs() < f32::EPSILON);
-        assert!((position.y() - 4.0).abs() < f32::EPSILON);
+        assert_eq!(position.x(), Fixed::from_int(3));
+        assert_eq!(position.y(), Fixed::from_int(4));
 
         let component = entities.ecs.get::<&ItemComponent>(entity).unwrap();
         assert_eq!(component.get_item_type(), id);
@@ -152,8 +153,8 @@ mod tests {
         let mut events = EventManager::new();
 
         let entity_id = entities.new_id();
-        items.spawn_item(&mut events, &mut entities, id, 0.0, 0.0, entity_id).unwrap();
-        items.spawn_item(&mut events, &mut entities, id, 0.0, 0.0, entity_id).unwrap_err();
+        items.spawn_item(&mut events, &mut entities, id, Fixed::from_int(0), Fixed::from_int(0), entity_id).unwrap();
+        items.spawn_item(&mut events, &mut entities, id, Fixed::from_int(0), Fixed::from_int(0), entity_id).unwrap_err();
     }
 
     /// Dropping spawns an item and gives it some velocity, so drops scatter.
@@ -164,7 +165,7 @@ mod tests {
         let mut entities = Entities::new();
         let mut events = EventManager::new();
 
-        items.drop_item(&mut events, &mut entities, id, 0.0, 0.0).unwrap();
+        items.drop_item(&mut events, &mut entities, id, Fixed::from_int(0), Fixed::from_int(0)).unwrap();
 
         let count = entities.ecs.query_mut::<&ItemComponent>().into_iter().count();
         assert_eq!(count, 1);

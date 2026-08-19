@@ -25,3 +25,12 @@ pub const CHUNK_SIZE: i32 = 16;
 /// in a mod. It is here rather than in the scripting library because the prefix is what keeps
 /// *this* game's names out of a mod's way, and a different host would want its own.
 pub const MOD_FUNCTION_PREFIX: &str = "terralistic_";
+
+/// How long one simulation tick is, in milliseconds, and how many of them make a second.
+///
+/// The simulation is stepped at this rate on both the client and the server - see the
+/// `FixedStep::new(TICK_MS)` in each main loop - so it is also the unit every timestamp on
+/// the wire is counted in. Physics constants are expressed per second and divided by
+/// `TICKS_PER_SECOND` at the point of use, which is what the bare `/ 200` divisors used to be.
+pub const TICK_MS: i64 = 5;
+pub const TICKS_PER_SECOND: i32 = 1000 / TICK_MS as i32;

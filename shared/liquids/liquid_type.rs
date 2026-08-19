@@ -1,3 +1,4 @@
+use crate::libraries::fixed::Fixed;
 use crate::libraries::registry::{NamedEntry, RegistryEntry};
 use crate::shared::liquids::LiquidId;
 
@@ -10,7 +11,7 @@ pub struct LiquidType {
     pub flow_time: i32,
     /// How fast an entity moves through this liquid, as a fraction of how fast it moves
     /// through air. 1.0 is a liquid that does not slow anything down.
-    pub speed_multiplier: f32,
+    pub speed_multiplier: Fixed,
     pub name: String,
 }
 
@@ -20,7 +21,7 @@ impl LiquidType {
         Self {
             id: LiquidId::undefined(),
             flow_time: 100,
-            speed_multiplier: 1.0,
+            speed_multiplier: Fixed::ONE,
             name: String::new(),
         }
     }

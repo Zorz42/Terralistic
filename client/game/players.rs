@@ -112,12 +112,12 @@ impl ClientPlayers {
 
     pub fn render(&self, graphics: &gfx::GraphicsContext, entities: &mut Entities, camera: &Camera) {
         for (position, player_component) in entities.ecs.query_mut::<(&PositionComponent, &PlayerComponent)>() {
-            let x = position.x() * RENDER_BLOCK_WIDTH - camera.get_top_left(graphics).0 * RENDER_BLOCK_WIDTH;
-            let y = position.y() * RENDER_BLOCK_WIDTH - camera.get_top_left(graphics).1 * RENDER_BLOCK_WIDTH;
+            let x = position.x().to_f32() * RENDER_BLOCK_WIDTH - camera.get_top_left(graphics).0 * RENDER_BLOCK_WIDTH;
+            let y = position.y().to_f32() * RENDER_BLOCK_WIDTH - camera.get_top_left(graphics).1 * RENDER_BLOCK_WIDTH;
 
             let src_rect = gfx::Rect::new(
-                gfx::FloatPos(player_component.animation_frame as f32 * PLAYER_WIDTH * BLOCK_WIDTH, 0.0),
-                gfx::FloatSize(PLAYER_WIDTH * BLOCK_WIDTH, PLAYER_HEIGHT * BLOCK_WIDTH),
+                gfx::FloatPos(player_component.animation_frame as f32 * PLAYER_WIDTH.to_f32() * BLOCK_WIDTH, 0.0),
+                gfx::FloatSize(PLAYER_WIDTH.to_f32() * BLOCK_WIDTH, PLAYER_HEIGHT.to_f32() * BLOCK_WIDTH),
             );
 
             let flipped = match player_component.direction {
@@ -139,7 +139,7 @@ impl ClientPlayers {
                 }
             } else if let Some(packet) = packet_event.try_deserialize::<PlayerMovingPacketToClient>() {
                 let entity = entities.get_entity_from_id(packet.player_id)?;
-                let mut physics_component = entities.ecs.query_one::<&mut PhysicsComponent>(entity).get()?.clone();
+                let mut physics_component = *entities.ecs.query_one::<&mut PhysicsComponent>(entity).get()?;
                 {
                     let player_component = entities.ecs.query_one_mut::<&mut PlayerComponent>(entity)?;
                     player_component.set_moving_type(packet.moving_type, &mut physics_component);

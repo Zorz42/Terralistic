@@ -9,6 +9,7 @@
 mod tests {
     use crate::integration_tests::harness::{join, wait_until, TestServer};
     use crate::libraries::events::EventManager;
+    use crate::libraries::fixed::Fixed;
     use crate::shared::blocks::{BlockBreakStartPacket, BlockChangePacket, Blocks, BlocksWelcomePacket, ClientBlockBreakStartPacket};
     use crate::shared::chat::ChatPacket;
     use crate::shared::entities::{EntityId, PositionComponent};
@@ -26,7 +27,7 @@ mod tests {
     ///
     /// One lock at a time: the guard is dropped before this returns, so a caller can step the
     /// server again on the next line.
-    fn position_of(server: &TestServer, id: EntityId) -> Option<(f32, f32)> {
+    fn position_of(server: &TestServer, id: EntityId) -> Option<(Fixed, Fixed)> {
         let entities = server.server.get_entities();
         let entity = entities.get_entity_from_id(id).ok()?;
         let position = entities.ecs.get::<&PositionComponent>(entity).ok()?;
@@ -424,7 +425,7 @@ mod tests {
         }
 
         let mut left_at = position_of(&server, first_spawn.id).unwrap();
-        assert!(left_at.1 > first_spawn.y + 1.0, "the player did not move, so this would pass without remembering anything");
+        assert!(left_at.1 > first_spawn.y + Fixed::ONE, "the player did not move, so this would pass without remembering anything");
 
         client.stop().unwrap();
 
@@ -458,7 +459,7 @@ mod tests {
         // a tick of slack, for the physics step between the last position this saw and the one
         // the disconnect saved
         assert!(
-            (second_spawn.x - left_at.0).abs() < 1.0 && (second_spawn.y - left_at.1).abs() < 1.0,
+            (second_spawn.x - left_at.0).abs() < Fixed::ONE && (second_spawn.y - left_at.1).abs() < Fixed::ONE,
             "the player came back somewhere else: left at ({}, {}), came back at ({}, {})",
             left_at.0,
             left_at.1,

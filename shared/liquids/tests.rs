@@ -2,6 +2,7 @@
 #![cfg(test)]
 mod tests {
     use crate::libraries::events::EventManager;
+    use crate::libraries::fixed::Fixed;
     use crate::shared::blocks::{Block, Blocks};
     use crate::shared::liquids::{LiquidChangeEvent, LiquidId, LiquidType, Liquids, MAX_LIQUID_LEVEL};
 
@@ -64,13 +65,13 @@ mod tests {
         let mut water = LiquidType::new();
         "water".clone_into(&mut water.name);
         water.flow_time = 100;
-        water.speed_multiplier = 0.4;
+        water.speed_multiplier = Fixed::from_num(2, 5);
         let water_id = liquids.register_new_liquid_type(water);
 
         let mut tar = LiquidType::new();
         "tar".clone_into(&mut tar.name);
         tar.flow_time = 1000;
-        tar.speed_multiplier = 0.1;
+        tar.speed_multiplier = Fixed::from_num(1, 10);
         let tar_id = liquids.register_new_liquid_type(tar);
 
         liquids.create((WIDTH as u32, HEIGHT as u32));

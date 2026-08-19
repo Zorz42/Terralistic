@@ -16,7 +16,7 @@ pub const VERSION: &str = env!("CARGO_PKG_VERSION");
 /// 5: the block, wall and liquid grids became `libraries::grid::Grid`, which carries its
 ///    own size - the walls and liquids containers used to write their cells first and
 ///    their size after, so the two halves swapped places
-pub const WORLD_SAVE_VERSION: u32 = 5;
+pub const WORLD_SAVE_VERSION: u32 = 6;
 
 /// The world file's container format: what it starts with, and which version this build
 /// reads. `libraries::container_file` owns the mechanism; this is the game's instance of it.

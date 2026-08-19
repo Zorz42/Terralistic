@@ -1,3 +1,4 @@
+use crate::libraries::fixed::Fixed;
 use std::sync::{Arc, Mutex, PoisonError};
 
 use anyhow::Result;
@@ -11,7 +12,9 @@ pub fn init_liquids_mod_interface(mods: &mut ScriptHost, liquids: &Arc<Mutex<Liq
         let mut liquid_type = LiquidType::new();
         liquid_type.name = name;
         liquid_type.flow_time = flow_time;
-        liquid_type.speed_multiplier = speed_multiplier;
+        // lua deals in doubles; the simulation does not, so the conversion happens here
+        // at registration rather than anywhere a tick could reach.
+        liquid_type.speed_multiplier = Fixed::from_f32(speed_multiplier);
 
         let result = liquids2.lock().unwrap_or_else(PoisonError::into_inner).register_new_liquid_type(liquid_type);
         Ok(result)

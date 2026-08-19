@@ -6,6 +6,7 @@ use hecs::Entity;
 use serde_derive::{Deserialize, Serialize};
 
 use crate::libraries::events::{Event, EventManager};
+use crate::libraries::fixed::Fixed;
 use crate::libraries::serialization;
 use crate::server::server_core::blocks::ServerBlocks;
 use crate::server::server_core::networking::{Connection, DisconnectEvent, NewConnectionWelcomedEvent, PacketFromClientEvent, SendTarget, ServerNetworking};
@@ -44,25 +45,25 @@ impl ServerPlayers {
         }
     }
 
-    fn get_spawn_coords(blocks: &Blocks) -> (f32, f32) {
-        let spawn_x = blocks.get_size().0 as f32 / 2.0;
-        let mut spawn_y = 0.0;
+    fn get_spawn_coords(blocks: &Blocks) -> (Fixed, Fixed) {
+        let spawn_column = blocks.get_size().0 as i32 / 2;
+        let mut spawn_y = Fixed::ZERO;
         // find a spawn point
         // iterate from the top of the map to the bottom
-        for y in (0..blocks.get_size().1).rev() {
-            for x in 0..(PLAYER_WIDTH.ceil() as i32) {
-                let block_type = blocks.get_block_type(blocks.get_block(spawn_x as i32 + x, y as i32).unwrap_or_else(|_| blocks.air()));
+        for y in (0..blocks.get_size().1 as i32).rev() {
+            for x in 0..PLAYER_WIDTH.ceil_to_int() {
+                let block_type = blocks.get_block_type(blocks.get_block(spawn_column + x, y).unwrap_or_else(|_| blocks.air()));
 
                 let is_ghost = block_type.ok().is_some_and(|block_type| block_type.ghost);
 
                 if !is_ghost {
-                    spawn_y = y as f32 - PLAYER_HEIGHT;
+                    spawn_y = Fixed::from_int(y) - PLAYER_HEIGHT;
                     break;
                 }
             }
         }
 
-        (spawn_x, spawn_y)
+        (Fixed::from_int(spawn_column), spawn_y)
     }
 
     pub fn handle_client_packet(
@@ -124,13 +125,13 @@ impl ServerPlayers {
 
                 *entities.ecs.get::<&mut Inventory>(player_entity)? = inventory;
             } else if let Some(packet) = packet_event.packet.try_deserialize::<PlayerPositionPacketToServer>() {
-                let velocity = entities.ecs.get::<&mut PhysicsComponent>(player_entity)?.clone();
+                let velocity = *entities.ecs.get::<&mut PhysicsComponent>(player_entity)?;
                 let mut position = entities.ecs.get::<&mut PositionComponent>(player_entity)?;
                 // calculate distance
                 let dx = packet.x - position.x();
                 let dy = packet.y - position.y();
                 let distance = dx * dx + dy * dy;
-                let tolerance = 2.0;
+                let tolerance = Fixed::from_int(2);
 
                 if distance < tolerance * tolerance {
                     position.set_x(packet.x);
@@ -214,7 +215,7 @@ impl ServerPlayers {
         self.saved_players.insert(
             name.to_owned(),
             SavedPlayerData {
-                position: position.deref().clone(),
+                position: *position,
                 inventory: inventory.deref().clone(),
                 health: health.deref().clone(),
             },

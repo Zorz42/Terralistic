@@ -91,7 +91,7 @@ pub fn init_items_mod_interface(items: &Arc<Mutex<Items>>, entities: &Arc<Mutex<
                         Ok(player_pos) => player_pos,
                         Err(err) => return Err(rlua::Error::RuntimeError(err.to_string())),
                     };
-                    player_pos.clone()
+                    *player_pos
                 },
                 {
                     let inventory = ecs.query_one_mut::<&mut Inventory>(entity);

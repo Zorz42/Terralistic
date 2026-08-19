@@ -5,51 +5,56 @@ use hecs::Entity;
 use serde_derive::{Deserialize, Serialize};
 
 use crate::libraries::events::{Event, EventManager};
+use crate::libraries::fixed::Fixed;
 use crate::shared::blocks::Blocks;
 use crate::shared::liquids::{Liquids, MAX_LIQUID_LEVEL};
+use crate::shared::TICKS_PER_SECOND;
 
-pub const DEFAULT_GRAVITY: f32 = 80.0;
-pub const FRICTION_COEFFICIENT: f32 = 0.2;
-pub const AIR_RESISTANCE_COEFFICIENT: f32 = 0.005;
+/// Downward acceleration, in blocks per second per second.
+pub const DEFAULT_GRAVITY: Fixed = Fixed::from_int(80);
+/// How much of the velocity along one axis is carried into the other when a collision stops it.
+pub const FRICTION_COEFFICIENT: Fixed = Fixed::from_num(1, 5);
+/// Fraction of its velocity an entity loses per tick to the air. Terminal speed is whatever
+/// acceleration per tick divided by this comes to, so it sets how fast anything can ever go.
+pub const AIR_RESISTANCE_COEFFICIENT: Fixed = Fixed::from_num(1, 200);
 /// How much of its velocity an entity loses per tick to a liquid that stops it completely
 /// (`speed_multiplier` of 0). A liquid's own multiplier scales this down.
-pub const LIQUID_RESISTANCE_COEFFICIENT: f32 = 0.05;
+pub const LIQUID_RESISTANCE_COEFFICIENT: Fixed = Fixed::from_num(1, 20);
 /// How much of gravity a liquid holds an entity up against when it is fully submerged.
-/// Below 1.0, so an entity in water still sinks - slowly.
-pub const BUOYANCY_COEFFICIENT: f32 = 0.75;
-const DIRECTION_SIZE: f32 = 0.01;
+/// Below 1.0, so an entity in a liquid still sinks - slowly.
+pub const BUOYANCY_COEFFICIENT: Fixed = Fixed::from_num(3, 4);
+/// The step the collision march advances by. Small enough to not tunnel through a block at
+/// terminal speed, large enough that the march is tens of iterations rather than thousands.
+const DIRECTION_SIZE: Fixed = Fixed::from_num(1, 100);
+/// Velocity change in one tick above which the landing hurts, and how much per block over.
+const FALL_DAMAGE_THRESHOLD: Fixed = Fixed::from_int(40);
+const FALL_DAMAGE_PER_BLOCK: i32 = 4;
 
-/// How deeply an entity sits in liquid, from 0.0 to 1.0, and how much that liquid slows it.
-///
-/// Measured from the cell the entity's middle is in, so wading through a puddle barely
-/// counts and being under the surface counts fully. Partly filled cells scale everything by
-/// how full they are, which is what stops a splash of liquid a hundredth of a cell deep from
-/// braking a falling player as hard as an ocean would.
 #[must_use]
-pub fn liquid_submersion(position: &PositionComponent, physics: &PhysicsComponent, liquids: &Liquids) -> (f32, f32) {
-    let x = (position.x + physics.collision_width / 2.0) as i32;
-    let y = (position.y + physics.collision_height / 2.0) as i32;
+pub fn liquid_submersion(position: &PositionComponent, physics: &PhysicsComponent, liquids: &Liquids) -> (Fixed, Fixed) {
+    let x = (position.x + physics.collision_width / 2).floor_to_int();
+    let y = (position.y + physics.collision_height / 2).floor_to_int();
 
     let Ok(liquid) = liquids.get_liquid(x, y) else {
-        return (0.0, 1.0);
+        return (Fixed::ZERO, Fixed::ONE);
     };
 
     if liquid.level == 0 {
-        return (0.0, 1.0);
+        return (Fixed::ZERO, Fixed::ONE);
     }
 
-    let speed_multiplier = liquids.get_liquid_type(liquid.id).map_or(1.0, |liquid_type| liquid_type.speed_multiplier);
+    let speed_multiplier = liquids.get_liquid_type(liquid.id).map_or(Fixed::ONE, |liquid_type| liquid_type.speed_multiplier);
 
-    (f32::from(liquid.level) / f32::from(MAX_LIQUID_LEVEL), speed_multiplier)
+    (Fixed::from_num(i32::from(liquid.level), i32::from(MAX_LIQUID_LEVEL)), speed_multiplier)
 }
 
 #[must_use]
 pub fn collides_with_blocks(position: &PositionComponent, physics: &PhysicsComponent, blocks: &Blocks) -> bool {
-    let block_x = position.x as i32;
-    let block_y = position.y as i32;
+    let block_x = position.x.floor_to_int();
+    let block_y = position.y.floor_to_int();
 
-    let block_x2 = (position.x + physics.collision_width - 2.0 * DIRECTION_SIZE).ceil() as i32;
-    let block_y2 = (position.y + physics.collision_height - 2.0 * DIRECTION_SIZE).ceil() as i32;
+    let block_x2 = (position.x + physics.collision_width - DIRECTION_SIZE * 2).ceil_to_int();
+    let block_y2 = (position.y + physics.collision_height - DIRECTION_SIZE * 2).ceil_to_int();
 
     for x in block_x..block_x2 {
         for y in block_y..block_y2 {
@@ -70,11 +75,81 @@ pub fn is_touching_ground(position: &PositionComponent, physics: &PhysicsCompone
     collides_with_blocks(
         &PositionComponent {
             x: position.x,
-            y: position.y + DIRECTION_SIZE * 2.0,
+            y: position.y + DIRECTION_SIZE * 2,
         },
         physics,
         blocks,
-    ) && physics.velocity_y.abs() <= 0.01
+    ) && physics.velocity_y.abs() <= DIRECTION_SIZE
+}
+
+/// Advances one entity by one tick: gravity, buoyancy, a collision march along each axis, then
+/// drag. Returns how much its velocity changed, which is what a landing is judged by.
+///
+/// **Pure in everything it touches.** The result depends only on the two components, the block
+/// grid and the liquid grid - no clock, no randomness, and nothing about any *other* entity.
+/// That is what lets the client store a tick's input, replay it later against a corrected
+/// state and arrive at the same answer the server did.
+pub fn step_entity(position: &mut PositionComponent, physics: &mut PhysicsComponent, blocks: &Blocks, liquids: &Liquids) -> Fixed {
+    let velocity_x_before = physics.velocity_x;
+    let velocity_y_before = physics.velocity_y;
+
+    let (submersion, speed_multiplier) = liquid_submersion(position, physics, liquids);
+
+    physics.velocity_x += physics.acceleration_x / TICKS_PER_SECOND;
+    physics.velocity_y += physics.acceleration_y / TICKS_PER_SECOND;
+
+    // buoyancy cancels most of the gravity the entity was just given, rather than
+    // being a force of its own, so an entity in a liquid sinks slowly instead of
+    // fighting a second constant that has to be kept in step with `DEFAULT_GRAVITY`
+    physics.velocity_y -= submersion * BUOYANCY_COEFFICIENT * physics.acceleration_y / TICKS_PER_SECOND;
+
+    let target_x = position.x + physics.velocity_x / TICKS_PER_SECOND;
+    let target_y = position.y + physics.velocity_y / TICKS_PER_SECOND;
+
+    let direction_x = if physics.velocity_x > Fixed::ZERO { DIRECTION_SIZE } else { -DIRECTION_SIZE };
+    loop {
+        if (direction_x > Fixed::ZERO && position.x > target_x + direction_x) || (direction_x < Fixed::ZERO && position.x < target_x + direction_x) {
+            position.x = target_x;
+            break;
+        }
+
+        position.x += direction_x;
+
+        if collides_with_blocks(position, physics, blocks) {
+            position.x -= direction_x;
+            reduce_by(&mut physics.velocity_y, physics.velocity_x * FRICTION_COEFFICIENT);
+            physics.velocity_x = Fixed::ZERO;
+            break;
+        }
+    }
+
+    let direction_y = if physics.velocity_y > Fixed::ZERO { DIRECTION_SIZE } else { -DIRECTION_SIZE };
+    loop {
+        if (direction_y > Fixed::ZERO && position.y > target_y + direction_y) || (direction_y < Fixed::ZERO && position.y < target_y + direction_y) {
+            position.y = target_y;
+            break;
+        }
+
+        position.y += direction_y;
+
+        if collides_with_blocks(position, physics, blocks) {
+            position.y -= direction_y;
+            reduce_by(&mut physics.velocity_x, physics.velocity_y * FRICTION_COEFFICIENT);
+            physics.velocity_y = Fixed::ZERO;
+            break;
+        }
+    }
+
+    let resistance = AIR_RESISTANCE_COEFFICIENT + submersion * LIQUID_RESISTANCE_COEFFICIENT * (Fixed::ONE - speed_multiplier).clamp(Fixed::ZERO, Fixed::ONE);
+    physics.velocity_x *= Fixed::ONE - resistance;
+    physics.velocity_y *= Fixed::ONE - resistance;
+
+    let velocity_x_change = physics.velocity_x - velocity_x_before;
+    let velocity_y_change = physics.velocity_y - velocity_y_before;
+
+    // hypot would do this, but it is libm rather than an IEEE-specified operation and so is
+    // one of the few float calls that genuinely differs between platforms. This is exact.
+    (velocity_x_change * velocity_x_change + velocity_y_change * velocity_y_change).sqrt()
 }
 
 pub struct Entities {
@@ -85,17 +160,17 @@ pub struct Entities {
 }
 
 /// Reduce a by b, but never go below 0. if a is negative, increase it by b but never go above 0.
-pub fn reduce_by(a: &mut f32, b: f32) {
+pub fn reduce_by(a: &mut Fixed, b: Fixed) {
     let b = b.abs();
-    if *a > 0.0 {
+    if *a > Fixed::ZERO {
         *a -= b;
-        if *a < 0.0 {
-            *a = 0.0;
+        if *a < Fixed::ZERO {
+            *a = Fixed::ZERO;
         }
     } else {
         *a += b;
-        if *a > 0.0 {
-            *a = 0.0;
+        if *a > Fixed::ZERO {
+            *a = Fixed::ZERO;
         }
     }
 }
@@ -115,72 +190,14 @@ impl Entities {
         let mut vec = Vec::new();
 
         for (entity, position, physics) in self.ecs.query_mut::<(Entity, &mut PositionComponent, &mut PhysicsComponent)>() {
-            let velocity_x_before = physics.velocity_x;
-            let velocity_y_before = physics.velocity_y;
-
-            let (submersion, speed_multiplier) = liquid_submersion(position, physics, liquids);
-
-            physics.velocity_x += physics.acceleration_x / 200.0;
-            physics.velocity_y += physics.acceleration_y / 200.0;
-
-            // buoyancy cancels most of the gravity the entity was just given, rather than
-            // being a force of its own, so an entity in a liquid sinks slowly instead of
-            // fighting a second constant that has to be kept in step with `DEFAULT_GRAVITY`
-            physics.velocity_y -= submersion * BUOYANCY_COEFFICIENT * physics.acceleration_y / 200.0;
-
-            let target_x = position.x + physics.velocity_x / 200.0;
-            let target_y = position.y + physics.velocity_y / 200.0;
-
-            let direction_x = if physics.velocity_x > 0.0 { 1.0 } else { -1.0 } * DIRECTION_SIZE;
-            loop {
-                if (direction_x > 0.0 && position.x > target_x + direction_x) || (direction_x < 0.0 && position.x < target_x + direction_x) {
-                    position.x = target_x;
-                    break;
-                }
-
-                position.x += direction_x;
-
-                if collides_with_blocks(position, physics, blocks) {
-                    position.x -= direction_x;
-                    reduce_by(&mut physics.velocity_y, physics.velocity_x * FRICTION_COEFFICIENT);
-                    physics.velocity_x = 0.0;
-                    break;
-                }
-            }
-
-            let direction_y = if physics.velocity_y > 0.0 { 1.0 } else { -1.0 } * DIRECTION_SIZE;
-            loop {
-                if (direction_y > 0.0 && position.y > target_y + direction_y) || (direction_y < 0.0 && position.y < target_y + direction_y) {
-                    position.y = target_y;
-                    break;
-                }
-
-                position.y += direction_y;
-
-                if collides_with_blocks(position, physics, blocks) {
-                    position.y -= direction_y;
-                    reduce_by(&mut physics.velocity_x, physics.velocity_y * FRICTION_COEFFICIENT);
-                    physics.velocity_y = 0.0;
-                    break;
-                }
-            }
-
-            let resistance = AIR_RESISTANCE_COEFFICIENT + submersion * LIQUID_RESISTANCE_COEFFICIENT * (1.0 - speed_multiplier).clamp(0.0, 1.0);
-            physics.velocity_x *= 1.0 - resistance;
-            physics.velocity_y *= 1.0 - resistance;
-
-            let velocity_x_change = physics.velocity_x - velocity_x_before;
-            let velocity_y_change = physics.velocity_y - velocity_y_before;
-            let velocity_change = f32::hypot(velocity_x_change, velocity_y_change);
-
-            vec.push((entity, velocity_change));
+            vec.push((entity, step_entity(position, physics, blocks, liquids)));
         }
 
         for (entity, velocity_change) in vec {
             let id = self.get_id_from_entity(entity)?;
             if let Ok(health_component) = self.ecs.query_one_mut::<&mut HealthComponent>(entity) {
-                if velocity_change > 40.0 {
-                    health_component.increase_health(-((velocity_change - 40.0) * 4.0) as i32, events, id);
+                if velocity_change > FALL_DAMAGE_THRESHOLD {
+                    health_component.increase_health(-(velocity_change - FALL_DAMAGE_THRESHOLD).to_int() * FALL_DAMAGE_PER_BLOCK, events, id);
                 }
             }
         }
@@ -240,10 +257,10 @@ impl Entities {
 #[derive(Serialize, Deserialize)]
 pub struct EntityPositionVelocityPacket {
     pub id: EntityId,
-    pub x: f32,
-    pub y: f32,
-    pub velocity_x: f32,
-    pub velocity_y: f32,
+    pub x: Fixed,
+    pub y: Fixed,
+    pub velocity_x: Fixed,
+    pub velocity_y: Fixed,
     pub force: bool,
 }
 
@@ -269,54 +286,63 @@ impl EntityId {
     }
 }
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug, Serialize, Deserialize)]
 pub struct PositionComponent {
-    x: f32,
-    y: f32,
+    x: Fixed,
+    y: Fixed,
 }
 
 impl PositionComponent {
     #[must_use]
-    pub const fn new(x: f32, y: f32) -> Self {
+    pub const fn new(x: Fixed, y: Fixed) -> Self {
         Self { x, y }
     }
 
+    /// For spawn points and other whole-block coordinates.
     #[must_use]
-    pub const fn x(&self) -> f32 {
+    pub const fn from_blocks(x: i32, y: i32) -> Self {
+        Self {
+            x: Fixed::from_int(x),
+            y: Fixed::from_int(y),
+        }
+    }
+
+    #[must_use]
+    pub const fn x(&self) -> Fixed {
         self.x
     }
 
     #[must_use]
-    pub const fn y(&self) -> f32 {
+    pub const fn y(&self) -> Fixed {
         self.y
     }
 
-    pub const fn set_x(&mut self, x: f32) {
+    pub const fn set_x(&mut self, x: Fixed) {
         self.x = x;
     }
 
-    pub const fn set_y(&mut self, y: f32) {
+    pub const fn set_y(&mut self, y: Fixed) {
         self.y = y;
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 pub struct PhysicsComponent {
-    pub velocity_x: f32,
-    pub velocity_y: f32,
-    pub acceleration_x: f32,
-    pub acceleration_y: f32,
-    collision_width: f32,
-    collision_height: f32,
+    pub velocity_x: Fixed,
+    pub velocity_y: Fixed,
+    pub acceleration_x: Fixed,
+    pub acceleration_y: Fixed,
+    collision_width: Fixed,
+    collision_height: Fixed,
 }
 
 impl PhysicsComponent {
     #[must_use]
-    pub const fn new(collision_width: f32, collision_height: f32) -> Self {
+    pub const fn new(collision_width: Fixed, collision_height: Fixed) -> Self {
         Self {
-            velocity_x: 0.0,
-            velocity_y: 0.0,
-            acceleration_x: 0.0,
+            velocity_x: Fixed::ZERO,
+            velocity_y: Fixed::ZERO,
+            acceleration_x: Fixed::ZERO,
             acceleration_y: DEFAULT_GRAVITY,
             collision_width,
             collision_height,

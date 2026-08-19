@@ -1,3 +1,4 @@
+use crate::libraries::fixed::Fixed;
 use std::collections::HashMap;
 
 use anyhow::{anyhow, Result};
@@ -12,6 +13,8 @@ use crate::shared::items::Item;
 use crate::shared::walls::WallId;
 
 const VELOCITY_RANGE: f32 = 5.0;
+/// An item is one block square.
+const ITEM_SIZE: Fixed = Fixed::ONE;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 pub struct ItemId {
@@ -137,8 +140,10 @@ impl Items {
     }
 
     /// this function spawns an item into the world
-    pub fn spawn_item(&self, events: &mut EventManager, entities: &mut Entities, item_id: ItemId, x: f32, y: f32, id: EntityId) -> Result<Entity> {
-        let entity = entities.ecs.spawn((PositionComponent::new(x, y), PhysicsComponent::new(1.0, 1.0), ItemComponent::new(item_id)));
+    pub fn spawn_item(&self, events: &mut EventManager, entities: &mut Entities, item_id: ItemId, x: Fixed, y: Fixed, id: EntityId) -> Result<Entity> {
+        let entity = entities
+            .ecs
+            .spawn((PositionComponent::new(x, y), PhysicsComponent::new(ITEM_SIZE, ITEM_SIZE), ItemComponent::new(item_id)));
 
         entities.assign_id(entity, id)?;
 
@@ -149,15 +154,17 @@ impl Items {
     }
 
     /// spawns an item with random velocity
-    pub fn drop_item(&self, events: &mut EventManager, entities: &mut Entities, item: ItemId, x: f32, y: f32) -> Result<()> {
+    pub fn drop_item(&self, events: &mut EventManager, entities: &mut Entities, item: ItemId, x: Fixed, y: Fixed) -> Result<()> {
         let id = entities.new_id();
         let entity = self.spawn_item(events, entities, item, x, y, id)?;
         let velocity_x = rand::random::<f32>() * 2.0 * VELOCITY_RANGE - VELOCITY_RANGE;
         let velocity_y = -rand::random::<f32>() * 4.0 * VELOCITY_RANGE;
 
         let mut physics = entities.ecs.get::<&mut PhysicsComponent>(entity)?;
-        physics.velocity_x = velocity_x;
-        physics.velocity_y = velocity_y;
+        // the throw is server-side randomness, converted here and then carried on the spawn
+        // packet - the client never rolls it, so there is nothing for it to reproduce
+        physics.velocity_x = Fixed::from_f32(velocity_x);
+        physics.velocity_y = Fixed::from_f32(velocity_y);
 
         Ok(())
     }
@@ -238,10 +245,10 @@ pub struct ItemSpawnEvent {
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct ItemSpawnPacket {
     pub item_type: ItemId,
-    pub x: f32,
-    pub y: f32,
-    pub velocity_x: f32,
-    pub velocity_y: f32,
+    pub x: Fixed,
+    pub y: Fixed,
+    pub velocity_x: Fixed,
+    pub velocity_y: Fixed,
     pub id: EntityId,
 }
 

@@ -1,3 +1,4 @@
+use crate::libraries::fixed::Fixed;
 use anyhow::{anyhow, bail, Result};
 use serde_derive::{Deserialize, Serialize};
 
@@ -72,7 +73,7 @@ impl Inventory {
         true
     }
 
-    pub fn craft(&mut self, recipe: &Recipe, drop_pos: (f32, f32), items: &Items, entities: &mut Entities, events: &mut EventManager) -> Result<()> {
+    pub fn craft(&mut self, recipe: &Recipe, drop_pos: (Fixed, Fixed), items: &Items, entities: &mut Entities, events: &mut EventManager) -> Result<()> {
         if !self.can_craft(recipe) {
             bail!("can't craft")
         }
@@ -102,7 +103,7 @@ impl Inventory {
     /// This function adds an item to the
     /// inventory. If the item can't be added
     /// it is dropped in the world.
-    pub fn give_item(&mut self, mut item: ItemStack, drop_pos: (f32, f32), items: &Items, entities: &mut Entities, events: &mut EventManager) -> Result<()> {
+    pub fn give_item(&mut self, mut item: ItemStack, drop_pos: (Fixed, Fixed), items: &Items, entities: &mut Entities, events: &mut EventManager) -> Result<()> {
         for slot in self.items.iter_mut().flatten() {
             if slot.item == item.item {
                 let max = items.get_item_type(slot.item)?.max_stack;

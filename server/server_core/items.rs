@@ -4,6 +4,7 @@ use std::sync::{Arc, Mutex, MutexGuard, PoisonError};
 use anyhow::Result;
 
 use crate::libraries::events::{Event, EventManager};
+use crate::libraries::fixed::Fixed;
 use crate::libraries::scripting::ScriptHost;
 use crate::server::server_core::networking::{SendTarget, ServerNetworking};
 use crate::shared::blocks::BlockBreakEvent;
@@ -44,7 +45,7 @@ impl ServerItems {
             if let Ok(drop) = drop {
                 // spawn item at random chance. drop.chance is a float between 0 and 1
                 if rand::random::<f32>() <= drop.chance {
-                    self.get_items().drop_item(events, entities, drop.item, event.x as f32, event.y as f32)?;
+                    self.get_items().drop_item(events, entities, drop.item, Fixed::from_int(event.x), Fixed::from_int(event.y))?;
                 }
             }
         }

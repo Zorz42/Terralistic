@@ -753,7 +753,8 @@ an ocean and paid by a dry one too.
 **The header versions the container, not the contents.** Any change to the shape of
 `BlocksData`, `SavedPlayerData` or the wall and liquid equivalents still breaks existing
 worlds silently unless you bump `WORLD_SAVE_VERSION` by hand — that is what it is for.
-Adding the liquid grid took it to 4; `Grid` carrying its own size took it to 5.
+Adding the liquid grid took it to 4; `Grid` carrying its own size took it to 5; entity
+positions becoming `Fixed` took it to 6.
 
 ### Build pipeline
 
