@@ -17,6 +17,13 @@ pub const PLAYER_MAX_HEALTH: i32 = 100;
 pub const PLAYER_ACCELERATION: Fixed = Fixed::from_int(30);
 pub const PLAYER_INITIAL_SPEED: Fixed = Fixed::from_int(5);
 pub const PLAYER_JUMP_SPEED: Fixed = Fixed::from_int(30);
+/// How much of its horizontal speed a player loses per tick to the ground under it.
+///
+/// **It applies only to speed the input is not asking for** - standing still, or still moving
+/// the way you have stopped asking to go. Applied to a held key it would be a speed limit
+/// instead: top speed is acceleration divided by drag, and at this size that is under a block
+/// a second. Stopping and turning round get quick; the top speed of a held key is unchanged.
+pub const GROUND_FRICTION_COEFFICIENT: Fixed = Fixed::from_num(1, 5);
 /// How hard a swimming player pushes upwards, and how fast that can get them going.
 pub const PLAYER_SWIM_ACCELERATION: Fixed = Fixed::from_int(90);
 pub const PLAYER_SWIM_SPEED: Fixed = Fixed::from_int(8);
@@ -82,8 +89,18 @@ pub fn update_players_ms(entities: &mut Entities, blocks: &Blocks, liquids: &Liq
 /// replay does - it re-simulates one player over the ticks whose answers have to change,
 /// and knows nothing about the others.
 pub fn step_player(position: &PositionComponent, physics: &mut PhysicsComponent, player: &mut PlayerComponent, blocks: &Blocks, liquids: &Liquids) {
+    let on_ground = is_touching_ground(position, physics, blocks);
+
+    // Ground friction. The only drag before this was the air's, applied to a player standing
+    // on stone exactly as to one falling through the sky - so letting go of a key slid the
+    // player twelve blocks, and a change of direction spent a quarter of a second cancelling
+    // the momentum of the last one. Both read as the game lagging behind the keyboard.
+    if on_ground && player.is_coasting(physics) {
+        physics.velocity_x *= Fixed::ONE - GROUND_FRICTION_COEFFICIENT;
+    }
+
     if player.jumping {
-        if is_touching_ground(position, physics, blocks) {
+        if on_ground {
             physics.velocity_y += -PLAYER_JUMP_SPEED;
         } else {
             // Swimming is the jump key held down in a liquid: an upward push every tick
@@ -126,7 +143,7 @@ pub fn step_player(position: &PositionComponent, physics: &mut PhysicsComponent,
         }
     }
 
-    if !is_touching_ground(position, physics, blocks) {
+    if !on_ground {
         player.animation_frame = 0;
     }
 
@@ -245,6 +262,18 @@ impl PlayerComponent {
     #[must_use]
     pub const fn get_moving_type(&self) -> MovingType {
         self.moving_type
+    }
+
+    /// Whether the player is moving in a direction it is not asking to move in - standing
+    /// still, or still carrying the speed of a direction it has stopped holding. This is the
+    /// velocity ground friction is allowed to take away.
+    #[must_use]
+    pub const fn is_coasting(&self, physics: &PhysicsComponent) -> bool {
+        match self.moving_type {
+            MovingType::Standing => true,
+            MovingType::MovingLeft => physics.velocity_x.raw() > 0,
+            MovingType::MovingRight => physics.velocity_x.raw() < 0,
+        }
     }
 
     #[must_use]

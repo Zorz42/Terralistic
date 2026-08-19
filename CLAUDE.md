@@ -29,7 +29,7 @@ cargo build --profile dist # what you ship: release + LTO, 4.63 MB vs 5.49 MB
 cargo run -- server       # server with GUI
 cargo run -- server nogui # headless server
 cargo run -- version      # print version
-cargo test                # 595 tests, all should pass
+cargo test                # 598 tests, all should pass
 cargo clippy --all-targets
 ./coverage.sh             # coverage via config-coverage.toml
 
@@ -698,6 +698,14 @@ four hours.
   update".
 - Physics constants live in `shared/entities/entities.rs` and `shared/players.rs`; the `/ 200.0`
   divisors are the 5 ms tick as a fraction of a second.
+- **`GROUND_FRICTION_COEFFICIENT` applies only to speed the input is not asking for** —
+  standing still, or still carrying the speed of a direction you have stopped holding
+  (`PlayerComponent::is_coasting`). Applied to a held key it would be a speed limit rather than
+  friction: top speed is acceleration over drag, and at this size that is under a block a
+  second. Before it existed the only drag was the air's, applied to a player standing on stone
+  exactly as to one falling through the sky; stopping took 85 ticks and 1.71 blocks and turning
+  round took 80 ms, against 13 ticks, 0.15 blocks and 35 ms now. Top speed is unchanged at
+  13.51 blocks a second, and a test pins that.
 - The fps limit is an **average**, not a per-frame cap: `FrameLimiter` keeps a ledger of what
   the frames so far should have taken against what they did, so an overrun is made up by the
   next frames. The debt is capped at one frame, or a stall buys that many frames of uncapped

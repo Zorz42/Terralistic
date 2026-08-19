@@ -528,4 +528,106 @@ mod tests {
 
         assert!(picked_up, "a falling player left its own item behind");
     }
+
+    // ---------------- movement feel ----------------
+
+    /// A player standing on solid ground, with enough of it either side to walk at full speed
+    /// for several seconds - a player that runs off the end is a player in free fall, and
+    /// ground friction rightly does not apply to one of those.
+    fn standing_player() -> (Entities, Blocks, Liquids, hecs::Entity) {
+        let mut blocks = Blocks::new();
+        let mut solid = Block::new();
+        solid.name = "solid".to_owned();
+        solid.ghost = false;
+        let solid_id = blocks.register_new_block_type(solid);
+        blocks.create((400, 60));
+        let mut events = EventManager::new();
+        for x in 0..400 {
+            for y in 33..60 {
+                blocks.set_block(&mut events, x, y, solid_id).unwrap();
+            }
+        }
+
+        let mut liquids = Liquids::new();
+        liquids.create((400, 60));
+
+        let mut entities = Entities::new();
+        let player = spawn_player(
+            &mut entities,
+            Fixed::from_int(30),
+            Fixed::from_int(30),
+            "Walker",
+            EntityId::from_raw(1000),
+            crate::shared::entities::HealthComponent::new(PLAYER_MAX_HEALTH, PLAYER_MAX_HEALTH),
+        )
+        .unwrap();
+
+        (entities, blocks, liquids, player)
+    }
+
+    /// Runs the player for `ticks`, returning where it ended up and how fast it was going.
+    fn walk(entities: &mut Entities, blocks: &Blocks, liquids: &Liquids, player: hecs::Entity, ticks: u32) -> (Fixed, Fixed) {
+        let mut events = EventManager::new();
+        for _ in 0..ticks {
+            crate::shared::players::update_players_ms(entities, blocks, liquids);
+            entities.update_entities_ms(blocks, liquids, &mut events).unwrap();
+        }
+        let position = *entities.ecs.query_one_mut::<&PositionComponent>(player).unwrap();
+        let physics = *entities.ecs.query_one_mut::<&PhysicsComponent>(player).unwrap();
+        (position.x(), physics.velocity_x)
+    }
+
+    fn hold(entities: &mut Entities, player: hecs::Entity, moving_type: MovingType) {
+        let (physics, component) = entities.ecs.query_one_mut::<(&mut PhysicsComponent, &mut PlayerComponent)>(player).unwrap();
+        component.set_moving_type(moving_type, physics);
+    }
+
+    /// **Letting go of a key has to stop the player.** The only drag used to be the air's,
+    /// applied to a player standing on stone exactly as to one falling through the sky, so a
+    /// release slid twelve blocks - six times the player's own width - and the game felt like
+    /// it was lagging behind the keyboard.
+    #[test]
+    fn test_releasing_a_key_stops_the_player_within_a_block() {
+        let (mut entities, blocks, liquids, player) = standing_player();
+        hold(&mut entities, player, MovingType::MovingRight);
+        let (_, top_speed) = walk(&mut entities, &blocks, &liquids, player, 600);
+        assert!(top_speed > Fixed::from_int(10), "the player never got up to speed: {top_speed}");
+
+        let (released_at, _) = walk(&mut entities, &blocks, &liquids, player, 0);
+        hold(&mut entities, player, MovingType::Standing);
+        let (stopped_at, speed) = walk(&mut entities, &blocks, &liquids, player, 100);
+
+        // 0.15 blocks in 13 ticks, against 1.71 blocks over 85 ticks with no ground friction
+        assert!(speed.abs() < Fixed::from_num(1, 10), "still moving at {speed} half a second after letting go");
+        assert!(stopped_at - released_at < Fixed::from_num(1, 2), "slid {} blocks after letting go", stopped_at - released_at);
+    }
+
+    /// Friction must not become a speed limit. It applies only to speed the input is not
+    /// asking for, so a held key still reaches the same top speed it always did - drag on a
+    /// commanded direction would cap it at acceleration over friction, under a block a second.
+    #[test]
+    fn test_ground_friction_does_not_cap_a_held_key() {
+        let (mut entities, blocks, liquids, player) = standing_player();
+        hold(&mut entities, player, MovingType::MovingRight);
+        let (_, speed) = walk(&mut entities, &blocks, &liquids, player, 600);
+
+        // 13.51 blocks a second, which is what it was before there was any ground friction at
+        // all - the same run with the friction taken out reaches exactly the same speed
+        assert!(speed > Fixed::from_int(13), "a held key should still reach the walking speed it always did, got {speed}");
+    }
+
+    /// Turning round is the case A/D spam is made of, and the one that felt worst: the speed
+    /// of the direction you have just stopped holding is exactly what friction is for.
+    #[test]
+    fn test_turning_round_does_not_take_a_quarter_of_a_second() {
+        let (mut entities, blocks, liquids, player) = standing_player();
+        hold(&mut entities, player, MovingType::MovingRight);
+        walk(&mut entities, &blocks, &liquids, player, 600);
+
+        hold(&mut entities, player, MovingType::MovingLeft);
+        // twenty ticks is a tenth of a second
+        let (_, speed) = walk(&mut entities, &blocks, &liquids, player, 20);
+
+        assert!(speed < Fixed::ZERO, "still travelling the old way a tenth of a second after turning: {speed}");
+    }
 }
