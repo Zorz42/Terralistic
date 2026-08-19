@@ -40,6 +40,15 @@ pub struct SavedPlayerData {
 pub(super) struct InputQueue {
     pending: BTreeMap<u64, PlayerInput>,
     current: PlayerInput,
+    /// How far behind the ticks they were stamped for this queue is running, in ticks.
+    ///
+    /// The server cannot un-simulate, so an input that arrives for a tick already gone has to
+    /// be applied late. Dropping it is what a tap cannot survive: a tap is a press and a
+    /// release, and if both come due at once only the release is kept - which is a no-op, so
+    /// the player moved on their own screen and not at all on the server's. Slipping the whole
+    /// queue back instead keeps the *gaps* between inputs, so a three tick tap is still three
+    /// ticks long, just late, and the client's rollback absorbs the shift.
+    lag: u64,
     /// Inputs that arrived after the server had already simulated their tick. The server
     /// cannot un-simulate, so it applies them late and the client is corrected instead;
     /// a count that climbs means `INPUT_LEAD_TICKS` is too small for this connection.
@@ -50,16 +59,27 @@ impl InputQueue {
     /// Whatever the client said to do at or before `tick`, with the newest winning.
     /// Returns the input in force, changed or not.
     pub(super) fn advance_to(&mut self, tick: u64) -> PlayerInput {
+        let tick = tick.saturating_sub(self.lag);
         let future = self.pending.split_off(&(tick + 1));
         if let Some((_, input)) = std::mem::replace(&mut self.pending, future).into_iter().next_back() {
             self.current = input;
         }
+
+        // With nothing waiting there is no order left to preserve, so the slip is paid back a
+        // tick at a time. Without this one late packet would leave this player running behind
+        // for the rest of the session, and every hiccup would add to it.
+        if self.pending.is_empty() {
+            self.lag = self.lag.saturating_sub(1);
+        }
+
         self.current
     }
 
     pub(super) fn accept(&mut self, tick: u64, input: PlayerInput, now: u64) {
-        if tick <= now {
+        if tick <= now.saturating_sub(self.lag) {
             self.late += 1;
+            // far enough back that this input is due on the next tick rather than gone
+            self.lag = now + 1 - tick;
         }
         self.pending.insert(tick, input);
     }
@@ -77,6 +97,13 @@ pub struct ServerPlayers {
     /// What the server's own copy of each player hashed to, per recent tick, so a client's
     /// checksum can be compared against the same moment. Bounded by `STATE_HISTORY_TICKS`.
     hashes: HashMap<Entity, VecDeque<(u64, u64)>>,
+    /// Checksums a client has sent for ticks the server has not simulated yet.
+    ///
+    /// **Every checksum arrives early**, because the client runs `INPUT_LEAD_TICKS` ahead by
+    /// design. Comparing on arrival therefore found nothing in `hashes` and returned quietly,
+    /// which left the whole check dead - it could never fire, however far apart the two
+    /// simulations drifted. They are held here and checked when the server reaches the tick.
+    claimed_hashes: HashMap<Entity, BTreeMap<u64, u64>>,
     /// Ticks at which a client disagreed with the server about its own player.
     desyncs: u64,
     /// The tick the simulation is on, so an arriving input can be told it is already late.
@@ -91,6 +118,7 @@ impl ServerPlayers {
             saved_players: HashMap::new(),
             inputs: HashMap::new(),
             hashes: HashMap::new(),
+            claimed_hashes: HashMap::new(),
             desyncs: 0,
             current_tick: 0,
         }
@@ -141,7 +169,7 @@ impl ServerPlayers {
                 })?;
                 networking.send_packet(&relayed, SendTarget::AllExcept(packet_event.conn.clone()))?;
             } else if let Some(packet) = packet_event.packet.try_deserialize::<PlayerStateHashPacket>() {
-                self.check_state_hash(&packet, player_entity, &networking.get_connection_name(&packet_event.conn));
+                self.check_state_hash(&packet, player_entity);
             } else if let Some(packet) = packet_event.packet.try_deserialize::<InventorySelectPacket>() {
                 let mut inventory = entities.ecs.get::<&mut Inventory>(player_entity)?;
                 inventory.selected_slot = packet.slot;
@@ -191,23 +219,12 @@ impl ServerPlayers {
     /// A mismatch means the two simulations have genuinely parted company - not that a
     /// correction happened, which is ordinary. Naming the tick is the point: without it a
     /// desync is only ever visible as a player complaining that they get pulled backwards.
-    fn check_state_hash(&mut self, packet: &PlayerStateHashPacket, player_entity: Entity, name: &str) {
-        let Some(history) = self.hashes.get(&player_entity) else { return };
-        // a tick the server no longer remembers says nothing either way
-        let Some((_, ours)) = history.iter().find(|(tick, _)| *tick == packet.tick) else {
-            return;
-        };
-
-        if *ours != packet.hash {
-            self.desyncs += 1;
-            print_to_console(
-                &format!("[\"{name}\"] simulation disagrees at tick {}: server {ours:016x}, client {:016x}", packet.tick, packet.hash),
-                1,
-            );
-        }
+    fn check_state_hash(&mut self, packet: &PlayerStateHashPacket, player_entity: Entity) {
+        self.claimed_hashes.entry(player_entity).or_default().insert(packet.tick, packet.hash);
     }
 
-    /// Records what each player hashed to at the end of a tick.
+    /// Records what each player hashed to at the end of a tick, and settles any claim the
+    /// client has already made about it.
     pub fn record_tick(&mut self, tick: u64, entities: &Entities) {
         for entity in self.players_to_conns.keys() {
             let (Ok(position), Ok(physics)) = (entities.ecs.get::<&PositionComponent>(*entity), entities.ecs.get::<&PhysicsComponent>(*entity)) else {
@@ -220,6 +237,17 @@ impl ServerPlayers {
                 history.pop_front();
             }
             history.push_back((tick, hash));
+
+            let Some(claimed) = self.claimed_hashes.get_mut(entity) else { continue };
+            // anything the server has passed without a claim arriving can never be checked
+            *claimed = claimed.split_off(&tick);
+            let Some(theirs) = claimed.remove(&tick) else { continue };
+
+            if theirs != hash {
+                self.desyncs += 1;
+                let name = entities.ecs.get::<&PlayerComponent>(*entity).map_or_else(|_| "?".to_owned(), |player| player.get_name().to_owned());
+                print_to_console(&format!("[\"{name}\"] simulation disagrees at tick {tick}: server {hash:016x}, client {theirs:016x}"), 1);
+            }
         }
     }
 
@@ -316,6 +344,7 @@ impl ServerPlayers {
                     self.players_to_conns.remove(&player_entity);
                     self.inputs.remove(&player_entity);
                     self.hashes.remove(&player_entity);
+                    self.claimed_hashes.remove(&player_entity);
                     let player_id = entities.get_id_from_entity(player_entity)?;
                     entities.despawn_entity(player_id, events)?;
                 }
@@ -362,6 +391,7 @@ impl ServerPlayers {
                     self.players_to_conns.remove(&entity);
                     self.inputs.remove(&entity);
                     self.hashes.remove(&entity);
+                    self.claimed_hashes.remove(&entity);
                 }
             }
         }

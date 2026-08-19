@@ -40,13 +40,23 @@ pub const TICKS_PER_SECOND: i32 = 1000 / TICK_MS as i32;
 /// An input stamped for tick T is only useful if it reaches the server before the server
 /// simulates T, so the client counts from a tick the server has not reached yet. The server
 /// looks at its inbox once per update - 50ms at 20 TPS, ten ticks - and the rest of the
-/// budget is network and a margin, which at 100ms covers a loopback and a typical connection.
+/// budget is the server's own coarseness first, and the network second.
 ///
-/// Too small and inputs land late, which costs a rollback rather than being wrong. Too large
-/// and the player's own actions reach everyone else later than they need to. A fixed lead is
-/// chosen here; measuring how early inputs actually arrive and adapting would be better on a
-/// bad connection, and is the obvious next change.
-pub const INPUT_LEAD_TICKS: u64 = 20;
+/// **The server is the larger term and it is easy to forget.** It updates at `tps_limit`, 20
+/// times a second, and each update reads its packets and *then* runs the ten 5ms ticks it
+/// owes in one burst. So an input can wait a whole update to be read (10 ticks) and the
+/// server's tick can be most of a burst behind real time when it is (10 ticks) - 20 ticks of
+/// slack before a single byte crosses a wire. At a lead of 20 the worst case margin was
+/// exactly zero, and which side of it a tap fell on came down to where in the burst cycle the
+/// client happened to have been welcomed. That is what made tapping a key sometimes not move
+/// the player on the server at all.
+///
+/// Too small and inputs land late, which `InputQueue` now survives but still costs a
+/// correction. Too large and the player's own actions reach everyone else later than they
+/// need to - it costs the local player nothing, since this client predicts its own input the
+/// instant the key goes down. A fixed lead is chosen here; measuring how early inputs actually
+/// arrive and adapting would be better on a bad connection, and is the obvious next change.
+pub const INPUT_LEAD_TICKS: u64 = 40;
 
 /// How often the server tells every client where all the entities are, in ticks.
 ///

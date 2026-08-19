@@ -122,8 +122,9 @@ mod tests {
         assert_eq!(queue.advance_to(100), moving(MovingType::Standing));
     }
 
-    /// Several inputs falling in one step - a client running well ahead, or a server that
-    /// stalled - collapse to the newest. The older ones are superseded, not replayed.
+    /// Several inputs falling inside one *skipped span* collapse to the newest. Only a caller
+    /// that jumps the tick counter sees this; the server calls `advance_to` on every tick, and
+    /// inputs that are merely late are slipped rather than collapsed - see the tap below.
     #[test]
     fn test_the_newest_input_at_or_before_the_tick_wins() {
         let mut queue = InputQueue::default();
@@ -153,5 +154,45 @@ mod tests {
         let mut queue = InputQueue::default();
         queue.accept(30, moving(MovingType::MovingRight), 10);
         assert_eq!(queue.late, 0);
+    }
+
+    /// **A tap that arrives late has to survive as a tap.**
+    ///
+    /// A tap is a press and a release, and the server cannot un-simulate the ticks they were
+    /// stamped for. Keeping only the newest input due - the obvious reading of "the last thing
+    /// the client said" - throws the press away and keeps the release, which does nothing: the
+    /// player moved on their own screen and never moved on the server's. The queue slips back
+    /// instead, so both are applied, in order, with the three ticks between them intact.
+    #[test]
+    fn test_a_late_tap_is_still_a_tap() {
+        let mut queue = InputQueue::default();
+        // both stamped for ticks the server has already run
+        queue.accept(10, moving(MovingType::MovingRight), 20);
+        queue.accept(13, moving(MovingType::Standing), 20);
+
+        let held: Vec<MovingType> = (21..=25).map(|tick| queue.advance_to(tick).moving_type).collect();
+
+        assert_eq!(
+            held,
+            vec![MovingType::MovingRight, MovingType::MovingRight, MovingType::MovingRight, MovingType::Standing, MovingType::Standing],
+            "the press must not be swallowed by the release that followed it"
+        );
+        assert_eq!(queue.late, 1, "only the press was actually late");
+    }
+
+    /// The slip is paid back once nothing is waiting, or one hiccup would leave a player
+    /// running behind for the rest of the session and every later one would add to it.
+    #[test]
+    fn test_the_slip_from_a_late_input_is_paid_back() {
+        let mut queue = InputQueue::default();
+        queue.accept(10, moving(MovingType::MovingRight), 20);
+        for tick in 21..60 {
+            queue.advance_to(tick);
+        }
+
+        // caught back up, so an input for a tick just ahead is early again rather than late
+        queue.accept(61, moving(MovingType::Standing), 60);
+        assert_eq!(queue.late, 1, "the second input should not have counted as late");
+        assert_eq!(queue.advance_to(61).moving_type, MovingType::Standing);
     }
 }

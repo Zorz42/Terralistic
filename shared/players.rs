@@ -24,8 +24,14 @@ pub const PLAYER_SWIM_SPEED: Fixed = Fixed::from_int(8);
 /// what keeps a puddle from being climbable.
 const SWIMMABLE_SUBMERSION: Fixed = Fixed::from_num(1, 2);
 pub const PLAYER_PICKUP_RADIUS: Fixed = Fixed::from_int(6);
-pub const PLAYER_PICKUP_COEFFICIENT: Fixed = Fixed::from_num(1, 200);
-pub const PLAYER_PICKUP_MIN_SPEED: Fixed = Fixed::from_num(4, 5);
+/// How fast an item is drawn in, at the edge of the pickup radius and at the player.
+///
+/// It closes faster the nearer it gets, so a drop drifts over and then leaps the last block
+/// rather than crawling in.
+pub const PLAYER_PICKUP_MIN_SPEED: Fixed = Fixed::from_int(6);
+pub const PLAYER_PICKUP_MAX_SPEED: Fixed = Fixed::from_int(30);
+/// How much of the gap between an item's velocity and the pull is closed each tick.
+const PICKUP_GRIP: Fixed = Fixed::from_num(1, 8);
 /// How close an item has to get before it is taken, squared.
 const PICKUP_REACH_SQUARED: Fixed = Fixed::from_num(3, 10);
 /// An item is drawn from the middle of its cell, so its centre is half a block along each axis.
@@ -132,14 +138,12 @@ pub fn step_player(position: &PositionComponent, physics: &mut PhysicsComponent,
 /// last packet. Predicting this cannot come out right, and the item is about to be taken and
 /// despawned anyway, so the client simply watches the server's answer arrive.
 pub fn attract_items_to_players(entities: &mut Entities) {
-    let mut positions = Vec::new();
-    for (position, _player) in entities.ecs.query_mut::<(&PositionComponent, &PlayerComponent)>() {
-        positions.push((position.x() + PLAYER_WIDTH / 2, position.y() + PLAYER_HEIGHT / 2));
+    let mut players = Vec::new();
+    for (position, physics, _player) in entities.ecs.query_mut::<(&PositionComponent, &PhysicsComponent, &PlayerComponent)>() {
+        players.push(((position.x() + PLAYER_WIDTH / 2, position.y() + PLAYER_HEIGHT / 2), (physics.velocity_x, physics.velocity_y)));
     }
 
-    for player_position in positions {
-        // the speed change is c * (r^2 - d^2), where r is the pickup range, d the distance
-        // and c a constant, applied along the line from the item to the player
+    for (player_position, player_velocity) in players {
         for (item_position, item_physics, _item) in entities.ecs.query_mut::<(&PositionComponent, &mut PhysicsComponent, &ItemComponent)>() {
             let dx = player_position.0 - item_position.x() - ITEM_HALF_SIZE;
             let dy = player_position.1 - item_position.y() - ITEM_HALF_SIZE;
@@ -150,13 +154,27 @@ pub fn attract_items_to_players(entities: &mut Entities) {
                 continue;
             }
 
-            let d2 = dx * dx + dy * dy;
-            let size = PLAYER_PICKUP_COEFFICIENT * (PLAYER_PICKUP_RADIUS * PLAYER_PICKUP_RADIUS - d2) + PLAYER_PICKUP_MIN_SPEED;
-            let d2s = d2.sqrt();
-            if size > PLAYER_PICKUP_MIN_SPEED && d2s > Fixed::ZERO {
-                item_physics.velocity_x += size * dx / d2s;
-                item_physics.velocity_y += size * dy / d2s;
+            let distance = (dx * dx + dy * dy).sqrt();
+            let closeness = Fixed::ONE - distance / PLAYER_PICKUP_RADIUS;
+            if closeness <= Fixed::ZERO || distance <= Fixed::ZERO {
+                continue;
             }
+
+            // **The pull sets a velocity rather than adding a force.** A force aimed at a
+            // point leaves whatever sideways velocity the item already had untouched, and an
+            // item that arrives off-centre keeps it - so it misses, swings past and orbits the
+            // player until it happens to clip the pickup radius. Closing the gap to a velocity
+            // pointed at the player damps that sideways component out instead, and the item
+            // comes straight in.
+            //
+            // **The speed is relative to the player**, or it would also be a speed limit: a
+            // running or falling player moves faster than the pull on its own ever does, and
+            // an item told to travel at 30 blocks a second in world coordinates would simply
+            // be left behind by one falling at eighty.
+            let speed = PLAYER_PICKUP_MIN_SPEED + (PLAYER_PICKUP_MAX_SPEED - PLAYER_PICKUP_MIN_SPEED) * closeness;
+            let target = (player_velocity.0 + speed * dx / distance, player_velocity.1 + speed * dy / distance);
+            item_physics.velocity_x += (target.0 - item_physics.velocity_x) * PICKUP_GRIP;
+            item_physics.velocity_y += (target.1 - item_physics.velocity_y) * PICKUP_GRIP;
         }
     }
 }

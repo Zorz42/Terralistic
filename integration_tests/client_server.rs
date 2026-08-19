@@ -12,11 +12,11 @@ mod tests {
     use crate::libraries::fixed::Fixed;
     use crate::shared::blocks::{BlockBreakStartPacket, BlockChangePacket, Blocks, BlocksWelcomePacket, ClientBlockBreakStartPacket};
     use crate::shared::chat::ChatPacket;
-    use crate::shared::entities::{state_hash, EntityId, PhysicsComponent, PositionComponent};
+    use crate::shared::entities::{state_hash, step_entity, EntityId, PhysicsComponent, PositionComponent};
     use crate::shared::liquids::{LiquidChangesPacket, LiquidType, Liquids, LiquidsWelcomePacket};
     use crate::shared::packet::ModsWelcomePacket;
     use crate::shared::packet::{Packet, WelcomeCompletePacket};
-    use crate::shared::players::{MovingType, PlayerInput, PlayerInputPacket, PlayerSpawnPacket, PlayerStateHashPacket};
+    use crate::shared::players::{step_player, MovingType, PlayerComponent, PlayerInput, PlayerInputPacket, PlayerSpawnPacket, PlayerStateHashPacket};
     use crate::shared::walls::WallsWelcomePacket;
 
     fn server(tag: &str) -> TestServer {
@@ -595,8 +595,25 @@ mod tests {
         Some((tick, state_hash(&position, &physics)))
     }
 
+    /// What the server's checksum for this player *will* be at `target`, worked out the way
+    /// the client does: from the state now, forward through the same deterministic step.
+    fn predicted_hash(server: &TestServer, id: EntityId, target: u64) -> u64 {
+        let (tick, mut position, mut physics) = player_state(server, id).unwrap();
+        let mut player = PlayerComponent::new("reference");
+        let blocks = server.server.get_blocks();
+        let liquids = server.server.get_liquids();
+        for _ in tick..target {
+            step_player(&position, &mut physics, &mut player, &blocks, &liquids);
+            step_entity(&mut position, &mut physics, &blocks, &liquids);
+        }
+        state_hash(&position, &physics)
+    }
+
     /// A checksum that matches the server's is not a desync. This is the ordinary case and
     /// has to stay silent, or the check would cry wolf and be ignored.
+    ///
+    /// Claimed for a tick the server has *not* reached, the way a real client does it - it
+    /// runs `INPUT_LEAD_TICKS` ahead, so every checksum it sends is early.
     #[test]
     fn test_a_matching_state_hash_is_not_a_desync() {
         let mut server = server("hash-agrees");
@@ -608,21 +625,25 @@ mod tests {
             Ok(client.received::<PlayerSpawnPacket>())
         });
         let spawn = client.find::<PlayerSpawnPacket>().unwrap();
-        server.update_slowly().unwrap();
-
-        let (tick, hash) = state_of(&server, spawn.id).unwrap();
+        let tick = server.server.get_current_tick() + 30;
+        let hash = predicted_hash(&server, spawn.id, tick);
         client.net.send_packet(Packet::new(PlayerStateHashPacket { tick, hash }).unwrap()).unwrap();
 
-        for _ in 0..20 {
-            server.update_slowly().unwrap();
-            client.pump().unwrap();
-        }
+        wait_until("the server to pass the claimed tick", || {
+            server.update_slowly()?;
+            client.pump()?;
+            Ok(server.server.get_current_tick() > tick + 5)
+        });
 
         assert_eq!(server.server.get_desyncs(), 0, "the server disagreed with its own state");
     }
 
     /// A checksum that does not match is counted and named. Without this a divergence is only
     /// ever visible as a player complaining that they get pulled backwards.
+    ///
+    /// **This is the test that a checksum sent ahead of the server is checked at all.** The
+    /// check used to run on arrival, look the tick up in a history that could not contain it
+    /// yet, and return - so it never fired for a real client however far the two had drifted.
     #[test]
     fn test_a_mismatched_state_hash_is_reported() {
         let mut server = server("hash-disagrees");
@@ -634,9 +655,8 @@ mod tests {
             Ok(client.received::<PlayerSpawnPacket>())
         });
         let spawn = client.find::<PlayerSpawnPacket>().unwrap();
-        server.update_slowly().unwrap();
-
-        let (tick, hash) = state_of(&server, spawn.id).unwrap();
+        let tick = server.server.get_current_tick() + 30;
+        let hash = predicted_hash(&server, spawn.id, tick);
         client.net.send_packet(Packet::new(PlayerStateHashPacket { tick, hash: hash ^ 1 }).unwrap()).unwrap();
 
         wait_until("the server to notice the disagreement", || {
@@ -688,5 +708,97 @@ mod tests {
 
         assert!(position_of(&server, spawn.id).is_some(), "the player should still be in the world");
         assert_eq!(server.server.get_desyncs(), 0, "the client and server simulations disagreed");
+    }
+
+    /// The server's whole state for a player, and the tick it belongs to.
+    fn player_state(server: &TestServer, id: EntityId) -> Option<(u64, PositionComponent, PhysicsComponent)> {
+        let tick = server.server.get_current_tick();
+        let entities = server.server.get_entities();
+        let entity = entities.get_entity_from_id(id).ok()?;
+        let position = *entities.ecs.get::<&PositionComponent>(entity).ok()?;
+        let physics = *entities.ecs.get::<&PhysicsComponent>(entity).ok()?;
+        Some((tick, position, physics))
+    }
+
+    /// **A tap is the hardest input to get right**, because `set_moving_type` is a transition
+    /// with an impulse in it: a key held for three ticks is a `PLAYER_INITIAL_SPEED` kick and
+    /// its removal, and both have to land on the same ticks the client used or the two sides
+    /// end up moving at different speeds from then on.
+    ///
+    /// This runs a tap through the real queue and compares the server against a reference
+    /// simulation of the same schedule - the same thing the client's prediction does. Anything
+    /// that drops an input, applies it a tick early or late, or applies it twice moves the two
+    /// apart, and the difference is exactly the "tap D and get pulled back" the player sees.
+    #[test]
+    fn test_a_tapped_input_lands_on_the_ticks_it_was_stamped_for() {
+        let mut server = server("input-tap");
+        let mut client = join(&mut server, "Tapper").unwrap();
+
+        wait_until("the player to be spawned", || {
+            server.server.update()?;
+            client.pump()?;
+            Ok(client.received::<PlayerSpawnPacket>())
+        });
+        let spawn = client.find::<PlayerSpawnPacket>().unwrap();
+
+        let (start_tick, start_position, start_physics) = player_state(&server, spawn.id).unwrap();
+        let press = start_tick + 20;
+        let release = press + 3;
+
+        for (tick, moving_type) in [(press, MovingType::MovingRight), (release, MovingType::Standing)] {
+            client
+                .net
+                .send_packet(
+                    Packet::new(PlayerInputPacket {
+                        tick,
+                        input: PlayerInput { moving_type, jumping: false },
+                    })
+                    .unwrap(),
+                )
+                .unwrap();
+        }
+
+        wait_until("the server to pass the tap", || {
+            server.update_slowly()?;
+            client.pump()?;
+            Ok(server.server.get_current_tick() > release + 20)
+        });
+
+        let (end_tick, server_position, server_physics) = player_state(&server, spawn.id).unwrap();
+
+        // the same ticks, the same schedule, the same order the server runs them in
+        let mut position = start_position;
+        let mut physics = start_physics;
+        let mut player = PlayerComponent::new("reference");
+        let blocks = server.server.get_blocks();
+        let liquids = server.server.get_liquids();
+        for tick in start_tick + 1..=end_tick {
+            if tick == press {
+                player.apply_input(
+                    PlayerInput {
+                        moving_type: MovingType::MovingRight,
+                        jumping: false,
+                    },
+                    &mut physics,
+                );
+            }
+            if tick == release {
+                player.apply_input(
+                    PlayerInput {
+                        moving_type: MovingType::Standing,
+                        jumping: false,
+                    },
+                    &mut physics,
+                );
+            }
+            step_player(&position, &mut physics, &mut player, &blocks, &liquids);
+            step_entity(&mut position, &mut physics, &blocks, &liquids);
+        }
+
+        assert_eq!(
+            (server_position, server_physics.velocity_x, server_physics.velocity_y),
+            (position, physics.velocity_x, physics.velocity_y),
+            "the server should have run the tap on exactly the ticks it was stamped for"
+        );
     }
 }

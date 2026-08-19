@@ -224,4 +224,81 @@ mod tests {
         );
         assert_eq!(prediction.history_len(), 0, "there is nothing left to replay onto");
     }
+
+    /// Simulates a *tap*: standing, three ticks of holding a direction, then standing again.
+    ///
+    /// `set_moving_type` is a transition with an impulse in it, so a buffer holding one is the
+    /// case a replay can get wrong in a way a constant input never shows.
+    fn run_tap(prediction: &mut Prediction, ticks: u64, press: u64, release: u64, blocks: &Blocks, liquids: &Liquids) -> (PositionComponent, PhysicsComponent, PlayerComponent) {
+        let mut position = PositionComponent::new(Fixed::from_int(5), Fixed::from_int(12));
+        let mut physics = PhysicsComponent::new(Fixed::ONE, Fixed::from_int(2));
+        let mut player = PlayerComponent::new("test");
+
+        for tick in 1..=ticks {
+            let input = if (press..release).contains(&tick) {
+                moving(MovingType::MovingRight)
+            } else {
+                moving(MovingType::Standing)
+            };
+            player.apply_input(input, &mut physics);
+            step_player(&position, &mut physics, &mut player, blocks, liquids);
+            step_entity(&mut position, &mut physics, blocks, liquids);
+            prediction.record(tick, input, position, physics);
+        }
+        (position, physics, player)
+    }
+
+    /// **Replaying across a tap has to reproduce it exactly.** A tap is a
+    /// `PLAYER_INITIAL_SPEED` impulse and its removal three ticks later, so a replay that
+    /// applies either one twice, or neither, leaves the player moving at a speed the server
+    /// never had - which is felt as a small pull backwards a moment after tapping a key.
+    #[test]
+    fn test_replay_across_an_input_transition_reproduces_it() {
+        let (blocks, liquids) = world();
+        let mut prediction = Prediction::new();
+        let (live_position, live_physics, mut player) = run_tap(&mut prediction, 40, 10, 13, &blocks, &liquids);
+
+        let (at_five, physics_at_five) = prediction.state_at(5).unwrap();
+
+        // a correction that moves the player, so the whole tap is replayed onto it
+        let mut nudged = at_five;
+        nudged.set_x(nudged.x() + Fixed::ONE);
+        prediction
+            .reconcile(5, nudged, (physics_at_five.velocity_x, physics_at_five.velocity_y), &mut player, &blocks, &liquids)
+            .unwrap();
+
+        // and now the server turns out to have agreed after all: replaying the same tap onto
+        // the same state has to land back on exactly what the live simulation produced
+        let (position, physics) = prediction
+            .reconcile(5, at_five, (physics_at_five.velocity_x, physics_at_five.velocity_y), &mut player, &blocks, &liquids)
+            .unwrap();
+
+        assert_eq!(position, live_position, "replaying a tap should reproduce the position it produced live");
+        assert_eq!(physics, live_physics, "and the velocity it left behind");
+    }
+
+    /// The tap has to be replayed at the ticks it was recorded for, not merely somewhere. A
+    /// replay that shifted it by a tick would leave a player who tapped once standing slightly
+    /// off from a player who did the same thing with no correction in the way.
+    #[test]
+    fn test_a_tap_replayed_after_a_correction_keeps_its_timing() {
+        let (blocks, liquids) = world();
+
+        let mut undisturbed = Prediction::new();
+        let (expected_position, expected_physics, _) = run_tap(&mut undisturbed, 40, 10, 13, &blocks, &liquids);
+
+        let mut corrected = Prediction::new();
+        let (_, _, mut player) = run_tap(&mut corrected, 40, 10, 13, &blocks, &liquids);
+        let (at_two, physics_at_two) = corrected.state_at(2).unwrap();
+        let mut nudged = at_two;
+        nudged.set_y(nudged.y() - Fixed::from_num(1, 4));
+        corrected
+            .reconcile(2, nudged, (physics_at_two.velocity_x, physics_at_two.velocity_y), &mut player, &blocks, &liquids)
+            .unwrap();
+        let (position, physics) = corrected
+            .reconcile(2, at_two, (physics_at_two.velocity_x, physics_at_two.velocity_y), &mut player, &blocks, &liquids)
+            .unwrap();
+
+        assert_eq!((position, physics), (expected_position, expected_physics));
+    }
 }

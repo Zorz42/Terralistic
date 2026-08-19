@@ -7,9 +7,11 @@ mod tests {
     use crate::libraries::serialization;
     use crate::shared::blocks::{Block, BlockId, Blocks};
     use crate::shared::chat::ChatPacket;
-    use crate::shared::entities::{Entities, PositionComponent};
+    use crate::shared::entities::{Entities, EntityId, PhysicsComponent, PositionComponent};
+    use crate::shared::items::Items;
     use crate::shared::lights::{LightColor, Lights};
-    use crate::shared::players::{spawn_player, MovingType, PlayerComponent, PLAYER_HEIGHT, PLAYER_INVENTORY_SIZE, PLAYER_MAX_HEALTH, PLAYER_WIDTH};
+    use crate::shared::liquids::Liquids;
+    use crate::shared::players::{attract_items_to_players, remove_all_picked_items, spawn_player, MovingType, PlayerComponent, PLAYER_HEIGHT, PLAYER_INVENTORY_SIZE, PLAYER_MAX_HEALTH, PLAYER_WIDTH};
     use crate::shared::versions::{VersionPacket, VERSION, WORLD_SAVE_HEADER_LEN, WORLD_SAVE_MAGIC, WORLD_SAVE_VERSION};
 
     // ---------------- lights ----------------
@@ -361,5 +363,169 @@ mod tests {
     fn test_block_id_undefined_round_trips() {
         let bytes = serialization::serialize(&BlockId::undefined()).unwrap();
         assert!(serialization::deserialize::<BlockId>(&bytes).unwrap() == BlockId::undefined());
+    }
+
+    // ---------------- item pickup ----------------
+
+    /// A player standing in an empty world, an item beside it, and enough of a world for the
+    /// physics step to read.
+    fn player_and_item(offset: (i32, i32), velocity: (Fixed, Fixed), ground: bool) -> (Entities, Blocks, Liquids, Items, hecs::Entity) {
+        // with ground under it, so the player stands where a real one would rather than
+        // falling out of the world while the test measures it
+        let mut blocks = Blocks::new();
+        let mut solid = Block::new();
+        solid.name = "solid".to_owned();
+        solid.ghost = false;
+        let solid_id = blocks.register_new_block_type(solid);
+        blocks.create((60, 60));
+        let mut events = EventManager::new();
+        if ground {
+            for x in 0..60 {
+                for y in 33..60 {
+                    blocks.set_block(&mut events, x, y, solid_id).unwrap();
+                }
+            }
+        }
+        let mut liquids = Liquids::new();
+        liquids.create((60, 60));
+
+        let mut items = Items::new();
+        let item_type = items.register_item_type(crate::shared::items::Item::new());
+
+        let mut entities = Entities::new();
+        spawn_player(
+            &mut entities,
+            Fixed::from_int(30),
+            Fixed::from_int(30),
+            "Collector",
+            EntityId::from_raw(1000),
+            crate::shared::entities::HealthComponent::new(PLAYER_MAX_HEALTH, PLAYER_MAX_HEALTH),
+        )
+        .unwrap();
+
+        let item = items
+            .spawn_item(
+                &mut events,
+                &mut entities,
+                item_type,
+                Fixed::from_int(30 + offset.0),
+                Fixed::from_int(30 + offset.1),
+                EntityId::from_raw(1001),
+            )
+            .unwrap();
+        {
+            let mut physics = entities.ecs.get::<&mut PhysicsComponent>(item).unwrap();
+            physics.velocity_x = velocity.0;
+            physics.velocity_y = velocity.1;
+        }
+
+        (entities, blocks, liquids, items, item)
+    }
+
+    /// How far the item is from the player it is being pulled towards.
+    fn gap(entities: &mut Entities, item: hecs::Entity) -> Fixed {
+        let player = {
+            let mut found = (Fixed::ZERO, Fixed::ZERO);
+            for (position, _player) in entities.ecs.query_mut::<(&PositionComponent, &PlayerComponent)>() {
+                found = (position.x(), position.y());
+            }
+            found
+        };
+        let position = *entities.ecs.query_one_mut::<&PositionComponent>(item).unwrap();
+        let (dx, dy) = (player.0 - position.x(), player.1 - position.y());
+        (dx * dx + dy * dy).sqrt()
+    }
+
+    /// **An item thrown past a player must not go into orbit around it.**
+    ///
+    /// The pull used to be a force added to whatever the item was already doing, so an item
+    /// arriving off-centre kept its sideways velocity, missed, swung round and came back -
+    /// circling until it happened to clip the pickup radius. The pull closes the gap to a
+    /// velocity aimed at the player instead, which damps that component out.
+    #[test]
+    fn test_an_item_thrown_sideways_does_not_orbit_the_player() {
+        // beside the player and moving fast across it, which is the worst case for an orbit
+        let (mut entities, blocks, liquids, items, item) = player_and_item((-3, 0), (Fixed::ZERO, Fixed::from_int(-14)), true);
+        let mut events = EventManager::new();
+
+        let mut ticks_taken = None;
+        for tick in 0..400_i32 {
+            attract_items_to_players(&mut entities);
+            crate::shared::players::update_players_ms(&mut entities, &blocks, &liquids);
+            entities.update_entities_ms(&blocks, &liquids, &mut events).unwrap();
+            remove_all_picked_items(&mut entities, &mut events, &items).unwrap();
+
+            if entities.ecs.query_one_mut::<&PositionComponent>(item).is_err() {
+                ticks_taken = Some(tick);
+                break;
+            }
+        }
+
+        // three blocks away at a pull that reaches 30 blocks a second; never, or anything
+        // near the 400 tick limit, means it went round rather than in
+        let ticks_taken = ticks_taken.unwrap_or(i32::MAX);
+        assert!(ticks_taken < 120, "the item took {ticks_taken} ticks to be picked up, which is a lap not a line");
+    }
+
+    /// **Once the pull has hold of an item, the gap only ever closes.** An orbit shows up here
+    /// as the distance growing again after it has started shrinking, whether or not the item
+    /// is eventually caught - which is what made a pickup look like the item was circling.
+    #[test]
+    fn test_the_gap_to_the_player_only_ever_closes() {
+        // thrown up and away from the player, so the pull has to turn it around first
+        let (mut entities, blocks, liquids, items, item) = player_and_item((-4, -2), (Fixed::from_int(-6), Fixed::from_int(-10)), true);
+        let mut events = EventManager::new();
+
+        let mut previous = gap(&mut entities, item);
+        let mut closing = false;
+        let mut picked_up = false;
+        for _ in 0..300 {
+            attract_items_to_players(&mut entities);
+            crate::shared::players::update_players_ms(&mut entities, &blocks, &liquids);
+            entities.update_entities_ms(&blocks, &liquids, &mut events).unwrap();
+            remove_all_picked_items(&mut entities, &mut events, &items).unwrap();
+
+            if entities.ecs.query_one_mut::<&PositionComponent>(item).is_err() {
+                picked_up = true;
+                break;
+            }
+
+            let now = gap(&mut entities, item);
+            if closing {
+                assert!(now <= previous + Fixed::from_num(1, 10), "the item swung back out, from {previous} to {now}");
+            }
+            closing |= now < previous;
+            previous = now;
+        }
+
+        assert!(closing, "the item never closed on the player at all");
+        assert!(picked_up, "the item never reached the player");
+    }
+
+    /// **The pull is a speed relative to the player, not through the world.**
+    ///
+    /// A player falling in open air reaches `DEFAULT_GRAVITY` blocks a second, well over the
+    /// fastest the pull closes at. Aiming the item at a fixed world speed makes that speed a
+    /// limit, and the player simply drops away from an item it is supposedly collecting.
+    #[test]
+    fn test_an_item_keeps_up_with_a_player_falling_faster_than_the_pull() {
+        // no ground, so the player is at terminal velocity within a second
+        let (mut entities, blocks, liquids, items, item) = player_and_item((-2, 0), (Fixed::ZERO, Fixed::ZERO), false);
+        let mut events = EventManager::new();
+
+        let mut picked_up = false;
+        for _ in 0..400 {
+            attract_items_to_players(&mut entities);
+            crate::shared::players::update_players_ms(&mut entities, &blocks, &liquids);
+            entities.update_entities_ms(&blocks, &liquids, &mut events).unwrap();
+            remove_all_picked_items(&mut entities, &mut events, &items).unwrap();
+
+            if entities.ecs.query_one_mut::<&PositionComponent>(item).is_err() {
+                picked_up = true;
+                break;
+            }
+        }
+
+        assert!(picked_up, "a falling player left its own item behind");
     }
 }

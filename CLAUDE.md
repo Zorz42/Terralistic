@@ -29,7 +29,7 @@ cargo build --profile dist # what you ship: release + LTO, 4.63 MB vs 5.49 MB
 cargo run -- server       # server with GUI
 cargo run -- server nogui # headless server
 cargo run -- version      # print version
-cargo test                # 586 tests, all should pass
+cargo test                # 594 tests, all should pass
 cargo clippy --all-targets
 ./coverage.sh             # coverage via config-coverage.toml
 
@@ -754,6 +754,23 @@ plus `INPUT_LEAD_TICKS` — it runs *ahead* so its inputs arrive before the serv
 tick they are stamped for. `InputQueue` (`server/server_core/players.rs`) holds them until it
 gets there and counts any that arrive late.
 
+**The lead has to cover the server's own coarseness before it covers the network, and that is
+the larger term.** The server updates 20 times a second and each update reads its packets and
+*then* runs the ten 5 ms ticks it owes in one burst, so an input can wait a whole update to be
+read and the server's tick can be most of a burst behind real time when it is — 20 ticks of
+slack before a byte crosses a wire. At the original lead of 20 the worst case margin was
+exactly zero, and which side of it an input fell on came down to where in the burst cycle the
+client happened to have been welcomed.
+
+**A late input is slipped, never dropped.** `InputQueue` carries a `lag`, and an input for a
+tick already simulated pushes the whole queue back far enough to make it due next tick.
+Keeping only the newest input due — the obvious reading of "the last thing the client said" —
+is what a tap cannot survive: a tap is a press and a release, and collapsing them keeps only
+the release, which is a no-op. The player moved on their own screen and never moved on the
+server's. The slip preserves the *gaps*, so a three tick tap is still three ticks long, and it
+is paid back a tick at a time once nothing is waiting — otherwise one hiccup would leave that
+player running behind for the rest of the session.
+
 **The client keeps two seconds of `(tick, input, state)` and replays.** On a state for tick T
 (`EntitySyncPacket`, 10 Hz), `Prediction::reconcile` compares against what it had at T. Equal
 is the common case and costs nothing. Different means rewind to T, put the server's answer
@@ -801,6 +818,14 @@ the ground while the server has it flying to the player, and the sync then has t
 whole difference out ten times a second. Whether an item is actually *picked up* stays the
 server's decision — that is `remove_all_picked_items`, and it is server only.
 
+**The pull closes the gap to a velocity rather than adding a force**, and the velocity is
+relative to the player. Both halves are load-bearing. A force aimed at a point leaves whatever
+sideways velocity the item already had, so an item arriving off-centre keeps it, misses, and
+orbits the player until it happens to clip the pickup radius — which is what a pickup looked
+like. Closing to a velocity damps that component out and the item comes straight in. Making
+that velocity absolute then turns the pull's own speed into a limit, and a player falling at
+`DEFAULT_GRAVITY` drops away from an item it is supposedly collecting.
+
 **The reconciliation compares only what the server actually sent.** `EntitySyncPacket` carries
 a position and a velocity; the acceleration the held key implies and the collision box are the
 client's own and never go on the wire, so `with_velocity` takes them from the tick being
@@ -813,6 +838,12 @@ to be.
 keeps 200 ticks of its own hashes and logs a mismatch with the tick and both values. This only
 works because the state is integers — two float simulations agreeing to within a rounding
 error hash differently, so the check would fire constantly and say nothing.
+
+**The checksum is held until the server reaches the tick, and that is the whole check.** Every
+one arrives *early* — the client runs `INPUT_LEAD_TICKS` ahead by design — so comparing on
+arrival looked the tick up in a history that could not contain it yet and returned quietly. The
+check could never fire, however far apart the two simulations drifted, and it never had.
+`claimed_hashes` holds them and `record_tick` settles each one as it reaches its tick.
 
 **A singleplayer client watches its own server's flag** (`run_game`'s `server_alive`, which is
 `PrivateWorld`'s `server_running`). A welcome that is not coming is otherwise indistinguishable
