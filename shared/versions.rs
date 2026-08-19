@@ -16,6 +16,8 @@ pub const VERSION: &str = env!("CARGO_PKG_VERSION");
 /// 5: the block, wall and liquid grids became `libraries::grid::Grid`, which carries its
 ///    own size - the walls and liquids containers used to write their cells first and
 ///    their size after, so the two halves swapped places
+/// 6: entity positions and velocities became `libraries::fixed::Fixed`, so `SavedPlayerData`
+///    holds 16.16 integers where it held floats
 pub const WORLD_SAVE_VERSION: u32 = 6;
 
 /// The world file's container format: what it starts with, and which version this build

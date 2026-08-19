@@ -15,6 +15,7 @@ use crate::client::game::inventory::ClientInventory;
 use crate::client::game::items::ClientItems;
 use crate::client::game::lights::ClientLights;
 use crate::client::game::liquids::ClientLiquids;
+use crate::client::game::networking::WelcomePacketEvent;
 use crate::client::game::pause_menu::PauseMenu;
 use crate::client::game::players::ClientPlayers;
 use crate::client::game::respawn_screen::RespawnScreen;
@@ -27,6 +28,8 @@ use crate::libraries::graphics as gfx;
 use crate::libraries::timing::{Budget, FixedStep, FrameStats};
 use crate::libraries::ui;
 use crate::shared::entities::PositionComponent;
+use crate::shared::packet::WelcomeCompletePacket;
+use crate::shared::{INPUT_LEAD_TICKS, TICK_MS};
 use ui::BaseUiElement;
 
 use super::background::Background;
@@ -142,8 +145,19 @@ pub fn run_game(
     let entities = ClientEntities::new();
     let mut items = ClientItems::new();
 
+    // The welcome names the tick the server was on. The world still has to load after this,
+    // which takes seconds, so the moment is remembered too and the clock is started from
+    // where the server will have got to by then rather than from where it was.
+    let welcome_at = std::time::Instant::now();
+    let mut server_tick_at_welcome = 0;
+
     // the welcome packets, which carry the mods and the whole world
     while let Some(event) = pre_events.pop_event() {
+        if let Some(welcome) = event.downcast::<WelcomePacketEvent>() {
+            if let Some(packet) = welcome.packet.try_deserialize::<WelcomeCompletePacket>() {
+                server_tick_at_welcome = packet.server_tick;
+            }
+        }
         mods.on_event(&event)?;
         blocks.on_event(&event, &mut pre_events, &mut networking)?;
         walls.on_event(&event)?;
@@ -170,7 +184,10 @@ pub fn run_game(
     let mut debug_menu = DebugMenu::new();
     let mut frame_stats = FrameStats::new();
     // the client simulates its own player on the same fixed tick the server runs
-    let mut simulation_tick = FixedStep::new(5);
+    let mut simulation_tick = FixedStep::new(TICK_MS);
+    // Counted in the server's ticks, and deliberately ahead of it: an input stamped for tick
+    // T has to arrive before the server simulates T. See `INPUT_LEAD_TICKS`.
+    let mut current_tick = server_tick_at_welcome + welcome_at.elapsed().as_millis() as u64 / TICK_MS as u64 + INPUT_LEAD_TICKS;
     let mut chat = ClientChat::new(graphics);
     let mut health = ClientHealth::new();
     let mut floating_text = FloatingTextManager::new();
@@ -224,10 +241,11 @@ pub fn run_game(
         }
 
         while simulation_tick.step() {
+            current_tick += 1;
             blocks.tick(&mut events)?;
             camera.update_ms(graphics);
             players.controls_enabled = !camera.is_detached();
-            players.update(graphics, &mut entities.get_entities(), &mut networking, &blocks.get_blocks(), &liquids.get_liquids())?;
+            players.update(current_tick, graphics, &mut entities.get_entities(), &mut networking, &blocks.get_blocks(), &liquids.get_liquids())?;
             entities.get_entities().update_entities_ms(&blocks.get_blocks(), &liquids.get_liquids(), &mut events)?;
         }
 
@@ -273,7 +291,7 @@ pub fn run_game(
             blocks.on_event(&event, &mut events, &mut networking)?;
             walls.on_event(&event)?;
             liquids.on_event(&event, &mut events)?;
-            entities.on_event(&event, &mut events, &players, &mut networking)?;
+            entities.on_event(&event, &mut events, &players)?;
             items.on_event(&event, &mut entities.get_entities(), &mut events)?;
             block_selector.on_event(graphics, &mut networking, &camera, &event, &mut events)?;
             players.on_event(&event, &mut entities.get_entities())?;

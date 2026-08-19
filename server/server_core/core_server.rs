@@ -18,6 +18,7 @@ use crate::server::server_core::networking::{DisconnectEvent, NewConnectionEvent
 use crate::server::server_core::players::ServerPlayers;
 use crate::server::server_ui::{ConsoleMessageType, PlayerEventType, ServerState, UiMessageType};
 use crate::shared::versions::WORLD_SAVE_FORMAT;
+use crate::shared::TICK_MS;
 
 use super::blocks::ServerBlocks;
 use super::commands::CommandManager;
@@ -60,6 +61,9 @@ pub struct Server {
     commands: CommandManager,
     /// The fixed 5ms tick the player and entity physics run on, caught up to real time.
     simulation_tick: FixedStep,
+    /// Ticks simulated since the server started. The origin every timestamp on the wire
+    /// counts from, handed to each client in its `WelcomeCompletePacket`.
+    current_tick: u64,
     /// Whole seconds already stepped, used to rate limit entity syncing.
     seconds_counter: i32,
     /// Measures how long the previous update took.
@@ -89,7 +93,8 @@ impl Server {
             players: ServerPlayers::new(),
             ui_event_receiver,
             commands,
-            simulation_tick: FixedStep::new(5),
+            simulation_tick: FixedStep::new(TICK_MS),
+            current_tick: 0,
             seconds_counter: 0,
             delta_timer: DeltaTimer::new(),
         }
@@ -272,11 +277,14 @@ impl Server {
         self.handle_events()?;
 
         while self.simulation_tick.step() {
+            self.current_tick += 1;
+            self.networking.set_current_tick(self.current_tick);
             // everything the simulation owns advances on this clock, so every event it
             // produces can be named by a tick number rather than by when a frame happened
             self.blocks.tick(&mut self.events)?;
             self.liquids.tick(&self.blocks.get_blocks(), &mut self.events)?;
             self.players.update(
+                self.current_tick,
                 &mut self.entities.get_entities(),
                 &self.blocks.get_blocks(),
                 &self.liquids.get_liquids(),
@@ -389,6 +397,12 @@ impl Server {
 
     /// How many events are waiting to be handled, for the test that checks generation does not
     /// leave one per block behind it.
+    #[cfg(test)]
+    #[must_use]
+    pub const fn get_current_tick(&self) -> u64 {
+        self.current_tick
+    }
+
     #[cfg(test)]
     #[must_use]
     pub fn queued_event_count(&self) -> usize {

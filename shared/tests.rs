@@ -254,7 +254,7 @@ mod tests {
     fn test_player_component_defaults() {
         let player = PlayerComponent::new("jakob");
         assert_eq!(player.get_name(), "jakob");
-        assert!(player.get_moving_type() == MovingType::Standing);
+        assert_eq!(player.get_moving_type(), MovingType::Standing);
         assert!(!player.jumping);
     }
 

@@ -32,8 +32,9 @@ const PICKUP_REACH_SQUARED: Fixed = Fixed::from_num(3, 10);
 const ITEM_HALF_SIZE: Fixed = Fixed::from_num(1, 2);
 pub const PLAYER_INVENTORY_SIZE: usize = 20;
 
-#[derive(PartialEq, Eq, Copy, Clone, Serialize, Deserialize)]
+#[derive(PartialEq, Eq, Copy, Clone, Hash, Debug, Default, Serialize, Deserialize)]
 pub enum MovingType {
+    #[default]
     Standing,
     MovingLeft,
     MovingRight,
@@ -214,6 +215,21 @@ impl PlayerComponent {
         self.moving_type
     }
 
+    #[must_use]
+    pub const fn get_input(&self) -> PlayerInput {
+        PlayerInput {
+            moving_type: self.moving_type,
+            jumping: self.jumping,
+        }
+    }
+
+    /// Puts an input in force. The one way a player's controls reach its physics, so the
+    /// client applying its own and the server applying the one it was sent run the same code.
+    pub fn apply_input(&mut self, input: PlayerInput, physics: &mut PhysicsComponent) {
+        self.set_moving_type(input.moving_type, physics);
+        self.jumping = input.jumping;
+    }
+
     pub fn set_moving_type(&mut self, moving_type: MovingType, physics: &mut PhysicsComponent) {
         if self.moving_type == moving_type {
             return;
@@ -254,17 +270,36 @@ impl PlayerComponent {
     }
 }
 
-#[derive(Serialize, Deserialize)]
-pub struct PlayerMovingPacketToClient {
+/// Everything a client controls about its own player on one tick.
+///
+/// This is the *whole* of what a client is allowed to say about itself. It used to send a
+/// position, which the server compared against its own and either adopted or overruled - but
+/// a position sampled on the client is always from the past by the time the server reads it,
+/// so the comparison was really measuring latency and the tolerance was a speed limit.
+/// An input has no such problem: it is true whenever it arrives, and the position follows
+/// from simulating it.
+#[derive(PartialEq, Eq, Copy, Clone, Hash, Debug, Default, Serialize, Deserialize)]
+pub struct PlayerInput {
     pub moving_type: MovingType,
     pub jumping: bool,
-    pub player_id: EntityId,
 }
 
+/// A client saying what it did and which tick it did it on.
+///
+/// Sent only when the input changes: it is a held state, so the server keeps the last one in
+/// force until told otherwise, and the transport is ordered and reliable.
 #[derive(Serialize, Deserialize)]
-pub struct PlayerMovingPacketToServer {
-    pub moving_type: MovingType,
-    pub jumping: bool,
+pub struct PlayerInputPacket {
+    pub tick: u64,
+    pub input: PlayerInput,
+}
+
+/// The same, relayed to everyone else, so their copy of that player simulates what it did.
+#[derive(Serialize, Deserialize)]
+pub struct PlayerInputPacketToClient {
+    pub tick: u64,
+    pub player_id: EntityId,
+    pub input: PlayerInput,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -281,11 +316,4 @@ pub struct RespawnPacket;
 #[derive(Serialize, Deserialize)]
 pub struct NamePacket {
     pub name: String,
-}
-
-// client sends its player position to the server and if its not far off, the server will correct it
-#[derive(Serialize, Deserialize)]
-pub struct PlayerPositionPacketToServer {
-    pub x: Fixed,
-    pub y: Fixed,
 }

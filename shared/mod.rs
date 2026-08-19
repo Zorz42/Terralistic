@@ -34,3 +34,16 @@ pub const MOD_FUNCTION_PREFIX: &str = "terralistic_";
 /// `TICKS_PER_SECOND` at the point of use, which is what the bare `/ 200` divisors used to be.
 pub const TICK_MS: i64 = 5;
 pub const TICKS_PER_SECOND: i32 = 1000 / TICK_MS as i32;
+
+/// How far ahead of the server the client runs its own simulation.
+///
+/// An input stamped for tick T is only useful if it reaches the server before the server
+/// simulates T, so the client counts from a tick the server has not reached yet. The server
+/// looks at its inbox once per update - 50ms at 20 TPS, ten ticks - and the rest of the
+/// budget is network and a margin, which at 100ms covers a loopback and a typical connection.
+///
+/// Too small and inputs land late, which costs a rollback rather than being wrong. Too large
+/// and the player's own actions reach everyone else later than they need to. A fixed lead is
+/// chosen here; measuring how early inputs actually arrive and adapting would be better on a
+/// bad connection, and is the obvious next change.
+pub const INPUT_LEAD_TICKS: u64 = 20;

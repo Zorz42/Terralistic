@@ -13,8 +13,14 @@ pub use crate::libraries::net::Packet;
 mod tests;
 
 /// This packet is sent when all the welcome packets have been sent.
+///
+/// It carries the server's tick counter, which is what starts the client's own. Every
+/// timestamp afterwards - on an input, on a block change, on a state correction - is counted
+/// in the same ticks from the same origin, so the two sides can talk about *when*.
 #[derive(Serialize, Deserialize)]
-pub struct WelcomeCompletePacket;
+pub struct WelcomeCompletePacket {
+    pub server_tick: u64,
+}
 
 /// The mods themselves, as serialized `ScriptModule`s. The server sends the client the
 /// content it is about to be asked to render.

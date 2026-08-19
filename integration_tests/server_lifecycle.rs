@@ -10,6 +10,7 @@ mod tests {
     use crate::server::server_core::{BindAddress, Server};
     use crate::server::server_ui::ServerState;
     use crate::shared::liquids::MAX_LIQUID_LEVEL;
+    use crate::shared::TICK_MS;
 
     /// A world small enough to generate and assert about in a test. The real game asks
     /// for 4400x1200, which would take long enough to make this suite useless.
@@ -85,6 +86,39 @@ mod tests {
         let after = block_grid(&server);
 
         assert!(before == after, "an idle server changed the world underneath itself");
+
+        server.stop().unwrap();
+    }
+
+    /// The tick counter counts simulation steps, not updates. It is the origin every
+    /// timestamp on the wire is measured from, so it has to advance with the simulation
+    /// rather than with however often the loop happened to run.
+    #[test]
+    fn test_the_tick_counter_follows_the_simulation() {
+        let mut server = TestServer::start_on_small_world("lifecycle-ticks", (40, 30)).unwrap();
+
+        assert_eq!(server.server.get_current_tick(), 0, "nothing simulated yet");
+
+        // A tight loop of updates measures no elapsed time at all, so the clock has to be
+        // let run - the same reason `update_slowly` exists. Both ends are measured, because
+        // the accumulator's origin is `Server::new` and predates anything this test can see.
+        let mut settle = 0;
+        while settle < 10 {
+            server.update_slowly().unwrap();
+            settle += 1;
+        }
+
+        let (tick_before, time_before) = (server.server.get_current_tick(), std::time::Instant::now());
+        for _ in 0..40 {
+            server.update_slowly().unwrap();
+        }
+        let elapsed_ticks = time_before.elapsed().as_millis() as u64 / TICK_MS as u64;
+        let stepped = server.server.get_current_tick() - tick_before;
+
+        assert!(stepped > 0, "the simulation ran but the tick counter did not move");
+        // one step of slack at each end for where the accumulator's boundaries fell
+        assert!(stepped <= elapsed_ticks + 1, "the counter ran ahead of the clock: {stepped} ticks in {elapsed_ticks} ticks of time");
+        assert!(stepped + 1 >= elapsed_ticks, "the counter fell behind the clock: {stepped} ticks in {elapsed_ticks} ticks of time");
 
         server.stop().unwrap();
     }

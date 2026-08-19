@@ -1,9 +1,7 @@
-use crate::client::game::networking::ClientNetworking;
 use crate::client::game::players::ClientPlayers;
 use crate::libraries::events::{Event, EventManager};
 use crate::shared::entities::{Entities, EntityDespawnPacket, EntityPositionVelocityPacket, PhysicsComponent, PositionComponent};
 use crate::shared::packet::Packet;
-use crate::shared::players::PlayerPositionPacketToServer;
 use anyhow::Result;
 use std::sync::{Arc, Mutex, MutexGuard, PoisonError};
 
@@ -26,18 +24,16 @@ impl ClientEntities {
         self.entities.clone()
     }
 
-    pub fn on_event(&self, event: &Event, events: &mut EventManager, players: &ClientPlayers, networking: &mut ClientNetworking) -> Result<()> {
+    pub fn on_event(&self, event: &Event, events: &mut EventManager, players: &ClientPlayers) -> Result<()> {
         if let Some(packet) = event.downcast::<Packet>() {
             if let Some(packet) = packet.try_deserialize::<EntityPositionVelocityPacket>() {
                 let entity = self.get_entities().get_entity_from_id(packet.id)?;
 
+                // This client's own player is simulated here from its own inputs, and the
+                // server is simulating the same inputs through the same deterministic step,
+                // so an ordinary sync has nothing to tell it. Only a correction the server
+                // *meant* - a spawn, a respawn, a teleport - is applied.
                 if !packet.force && Some(entity) == players.get_main_player() {
-                    let position_component = *self.get_entities().ecs.query_one_mut::<&mut PositionComponent>(entity)?;
-                    let packet = Packet::new(PlayerPositionPacketToServer {
-                        x: position_component.x(),
-                        y: position_component.y(),
-                    })?;
-                    networking.send_packet(packet)?;
                     return Ok(());
                 }
 

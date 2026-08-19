@@ -31,6 +31,9 @@ pub struct ServerNetworking {
     /// Peers that sent a version this build accepts. A `NamePacket` from anyone else means a
     /// client too old to send a version at all.
     accepted_peers: HashSet<Connection>,
+    /// The simulation tick the server is on, so a client joining mid-game is told where the
+    /// clock has got to rather than starting its own from zero.
+    current_tick: u64,
 }
 
 impl ServerNetworking {
@@ -38,6 +41,7 @@ impl ServerNetworking {
     pub fn new(server_port: u16, bind_address: BindAddress) -> Self {
         Self {
             server: PacketServer::new(server_port, bind_address, server_console_logger()),
+            current_tick: 0,
             connections: Vec::new(),
             connection_names: HashMap::new(),
             accepted_peers: HashSet::new(),
@@ -60,6 +64,10 @@ impl ServerNetworking {
         self.connection_names.get(conn).unwrap_or(&unknown).clone()
     }
 
+    pub const fn set_current_tick(&mut self, tick: u64) {
+        self.current_tick = tick;
+    }
+
     pub fn init(&mut self) {
         self.server.listen();
 
@@ -76,7 +84,7 @@ impl ServerNetworking {
         if let Some(event) = event.downcast::<NewConnectionEvent>() {
             self.connection_names.insert(event.conn.clone(), event.name.clone());
 
-            self.send_packet(&Packet::new(WelcomeCompletePacket {})?, SendTarget::Connection(event.conn.clone()))?;
+            self.send_packet(&Packet::new(WelcomeCompletePacket { server_tick: self.current_tick })?, SendTarget::Connection(event.conn.clone()))?;
             self.connections.push(event.conn.clone());
             events.push_event(Event::new(NewConnectionWelcomedEvent { conn: event.conn.clone() }));
         }

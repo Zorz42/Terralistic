@@ -16,7 +16,7 @@ mod tests {
     use crate::shared::liquids::{LiquidChangesPacket, LiquidType, Liquids, LiquidsWelcomePacket};
     use crate::shared::packet::ModsWelcomePacket;
     use crate::shared::packet::{Packet, WelcomeCompletePacket};
-    use crate::shared::players::PlayerSpawnPacket;
+    use crate::shared::players::{MovingType, PlayerInput, PlayerInputPacket, PlayerSpawnPacket};
     use crate::shared::walls::WallsWelcomePacket;
 
     fn server(tag: &str) -> TestServer {
@@ -489,5 +489,96 @@ mod tests {
 
         second.stop().unwrap();
         server.stop().unwrap();
+    }
+
+    // --- input based movement ---
+
+    /// The whole input path, end to end: a client says what it is doing and which tick it is
+    /// doing it on, and the server moves that player when it *reaches* that tick.
+    ///
+    /// This is what replaced the client sending its position for the server to accept or
+    /// overrule. A position is only true at the instant it was sampled, so by the time the
+    /// server compared it the difference was mostly just how far the player had moved in
+    /// flight - which made the tolerance a speed limit and the correction a rubber-band.
+    #[test]
+    fn test_a_clients_input_moves_its_player_on_the_server() {
+        let mut server = server("input-moves-player");
+        let mut client = join(&mut server, "Walker").unwrap();
+
+        wait_until("the player to be spawned", || {
+            server.server.update()?;
+            client.pump()?;
+            Ok(client.received::<PlayerSpawnPacket>())
+        });
+        let spawn = client.find::<PlayerSpawnPacket>().unwrap();
+        let start = position_of(&server, spawn.id).unwrap();
+
+        // stamped for a tick the server has not reached, the way a real client's lead does it
+        let tick = server.server.get_current_tick() + 5;
+        client
+            .net
+            .send_packet(
+                Packet::new(PlayerInputPacket {
+                    tick,
+                    input: PlayerInput {
+                        moving_type: MovingType::MovingRight,
+                        jumping: false,
+                    },
+                })
+                .unwrap(),
+            )
+            .unwrap();
+
+        wait_until("the player to move right", || {
+            server.update_slowly()?;
+            client.pump()?;
+            Ok(position_of(&server, spawn.id).is_some_and(|now| now.0 > start.0))
+        });
+
+        let moved = position_of(&server, spawn.id).unwrap();
+        assert!(moved.0 > start.0, "the player should have moved right, from {} to {}", start.0, moved.0);
+    }
+
+    /// The input is a held state: the client sends it once and the server keeps applying it.
+    /// If it lapsed, a player walking would have to send a packet every tick.
+    #[test]
+    fn test_one_input_keeps_moving_the_player() {
+        let mut server = server("input-held");
+        let mut client = join(&mut server, "Walker").unwrap();
+
+        wait_until("the player to be spawned", || {
+            server.server.update()?;
+            client.pump()?;
+            Ok(client.received::<PlayerSpawnPacket>())
+        });
+        let spawn = client.find::<PlayerSpawnPacket>().unwrap();
+
+        client
+            .net
+            .send_packet(
+                Packet::new(PlayerInputPacket {
+                    tick: server.server.get_current_tick() + 5,
+                    input: PlayerInput {
+                        moving_type: MovingType::MovingRight,
+                        jumping: false,
+                    },
+                })
+                .unwrap(),
+            )
+            .unwrap();
+
+        wait_until("the player to start moving", || {
+            server.update_slowly()?;
+            client.pump()?;
+            Ok(position_of(&server, spawn.id).is_some_and(|now| now.0 > Fixed::ZERO))
+        });
+
+        let first = position_of(&server, spawn.id).unwrap();
+        for _ in 0..30 {
+            server.update_slowly().unwrap();
+        }
+        let second = position_of(&server, spawn.id).unwrap();
+
+        assert!(second.0 > first.0, "the player stopped without being told to: {} then {}", first.0, second.0);
     }
 }

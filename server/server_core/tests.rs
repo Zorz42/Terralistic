@@ -84,4 +84,74 @@ mod tests {
         }
         panic!("networking never reported that it could not bind");
     }
+
+    // --- the input queue ---
+
+    use crate::server::server_core::players::InputQueue;
+    use crate::shared::players::{MovingType, PlayerInput};
+
+    fn moving(moving_type: MovingType) -> PlayerInput {
+        PlayerInput { moving_type, jumping: false }
+    }
+
+    /// An input arrives stamped for a tick the server has not reached - that is the whole
+    /// point of the client's lead - and must wait there rather than taking effect early.
+    #[test]
+    fn test_an_input_for_a_future_tick_waits_for_it() {
+        let mut queue = InputQueue::default();
+        queue.accept(50, moving(MovingType::MovingRight), 10);
+
+        assert_eq!(queue.advance_to(10), moving(MovingType::Standing), "applied early");
+        assert_eq!(queue.advance_to(49), moving(MovingType::Standing), "applied a tick early");
+        assert_eq!(queue.advance_to(50), moving(MovingType::MovingRight), "not applied on its own tick");
+    }
+
+    /// An input is a held state, not an edit: it stays in force with no further packets,
+    /// which is what makes walking across the world cost two packets rather than hundreds.
+    #[test]
+    fn test_an_input_stays_in_force_until_replaced() {
+        let mut queue = InputQueue::default();
+        queue.accept(5, moving(MovingType::MovingLeft), 0);
+        queue.advance_to(5);
+
+        for tick in 6..100 {
+            assert_eq!(queue.advance_to(tick), moving(MovingType::MovingLeft), "input lapsed at tick {tick}");
+        }
+
+        queue.accept(100, moving(MovingType::Standing), 99);
+        assert_eq!(queue.advance_to(100), moving(MovingType::Standing));
+    }
+
+    /// Several inputs falling in one step - a client running well ahead, or a server that
+    /// stalled - collapse to the newest. The older ones are superseded, not replayed.
+    #[test]
+    fn test_the_newest_input_at_or_before_the_tick_wins() {
+        let mut queue = InputQueue::default();
+        queue.accept(10, moving(MovingType::MovingLeft), 0);
+        queue.accept(11, moving(MovingType::MovingRight), 0);
+        queue.accept(12, moving(MovingType::Standing), 0);
+        queue.accept(30, moving(MovingType::MovingLeft), 0);
+
+        assert_eq!(queue.advance_to(20), moving(MovingType::Standing), "should hold the newest input up to tick 20");
+        assert_eq!(queue.advance_to(30), moving(MovingType::MovingLeft));
+    }
+
+    /// An input whose tick has already been simulated cannot be un-simulated, so it is
+    /// applied anyway and counted. A count that climbs is how `INPUT_LEAD_TICKS` being too
+    /// small for a connection shows up, rather than as unexplained correction.
+    #[test]
+    fn test_a_late_input_is_counted_and_still_applied() {
+        let mut queue = InputQueue::default();
+        queue.accept(5, moving(MovingType::MovingRight), 20);
+
+        assert_eq!(queue.late, 1, "an input for an already-simulated tick should be counted late");
+        assert_eq!(queue.advance_to(21), moving(MovingType::MovingRight), "a late input must still take effect");
+    }
+
+    #[test]
+    fn test_an_input_arriving_in_time_is_not_counted_late() {
+        let mut queue = InputQueue::default();
+        queue.accept(30, moving(MovingType::MovingRight), 10);
+        assert_eq!(queue.late, 0);
+    }
 }

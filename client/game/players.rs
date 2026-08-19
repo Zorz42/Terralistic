@@ -12,7 +12,8 @@ use crate::shared::entities::{Entities, EntityDespawnEvent, HealthComponent, Phy
 use crate::shared::liquids::Liquids;
 use crate::shared::packet::Packet;
 use crate::shared::players::{
-    spawn_player, update_players_ms, Direction, MovingType, PlayerComponent, PlayerMovingPacketToClient, PlayerMovingPacketToServer, PlayerSpawnPacket, PLAYER_HEIGHT, PLAYER_MAX_HEALTH, PLAYER_WIDTH,
+    spawn_player, update_players_ms, Direction, MovingType, PlayerComponent, PlayerInput, PlayerInputPacket, PlayerInputPacketToClient, PlayerSpawnPacket, PLAYER_HEIGHT, PLAYER_MAX_HEALTH,
+    PLAYER_WIDTH,
 };
 
 pub struct ClientPlayers {
@@ -54,54 +55,32 @@ impl ClientPlayers {
         Ok(())
     }
 
-    fn send_moving_state(networking: &mut ClientNetworking, player_component: &PlayerComponent) -> Result<()> {
-        let packet = Packet::new(PlayerMovingPacketToServer {
-            moving_type: player_component.get_moving_type(),
-            jumping: player_component.jumping,
-        })?;
-
-        networking.send_packet(packet)?;
-        Ok(())
-    }
-
-    fn set_jumping(networking: &mut ClientNetworking, player_component: &mut PlayerComponent, jumping: bool) -> Result<()> {
-        if jumping == player_component.jumping {
-            return Ok(());
-        }
-
-        player_component.jumping = jumping;
-
-        Self::send_moving_state(networking, player_component)?;
-
-        Ok(())
-    }
-
-    fn set_moving_type(networking: &mut ClientNetworking, moving_type: MovingType, player_component: &mut PlayerComponent, physics: &mut PhysicsComponent) -> Result<()> {
-        if moving_type == player_component.get_moving_type() {
-            return Ok(());
-        }
-
-        player_component.set_moving_type(moving_type, physics);
-        Self::send_moving_state(networking, player_component)?;
-
-        Ok(())
-    }
-
-    pub fn update(&self, graphics: &gfx::GraphicsContext, entities: &mut Entities, networking: &mut ClientNetworking, blocks: &Blocks, liquids: &Liquids) -> Result<()> {
+    /// Reads the keys, applies them to this client's own player, and tells the server what
+    /// they were and which tick they were for.
+    ///
+    /// The input is sent only when it changes: it is a held state that the server keeps in
+    /// force, so walking across the world is two packets rather than one per tick. The tick
+    /// is what makes that safe - the server applies it at the moment it was meant for
+    /// instead of whenever the packet happened to land.
+    pub fn update(&self, tick: u64, graphics: &gfx::GraphicsContext, entities: &mut Entities, networking: &mut ClientNetworking, blocks: &Blocks, liquids: &Liquids) -> Result<()> {
         if let Some(main_player) = self.main_player {
-            if let Ok((physics, player_component)) = entities.ecs.query_one_mut::<(&mut PhysicsComponent, &mut PlayerComponent)>(main_player) {
-                Self::set_jumping(networking, player_component, graphics.get_key_state(gfx::Key::Space) && self.controls_enabled)?;
-
-                let key_a_pressed = graphics.get_key_state(gfx::Key::A) && self.controls_enabled;
-                let key_d_pressed = graphics.get_key_state(gfx::Key::D) && self.controls_enabled;
-
-                let moving_type = match (key_a_pressed, key_d_pressed) {
+            let input = PlayerInput {
+                moving_type: match (
+                    graphics.get_key_state(gfx::Key::A) && self.controls_enabled,
+                    graphics.get_key_state(gfx::Key::D) && self.controls_enabled,
+                ) {
                     (true, false) => MovingType::MovingLeft,
                     (false, true) => MovingType::MovingRight,
                     _ => MovingType::Standing,
-                };
+                },
+                jumping: graphics.get_key_state(gfx::Key::Space) && self.controls_enabled,
+            };
 
-                Self::set_moving_type(networking, moving_type, player_component, physics)?;
+            if let Ok((physics, player_component)) = entities.ecs.query_one_mut::<(&mut PhysicsComponent, &mut PlayerComponent)>(main_player) {
+                if player_component.get_input() != input {
+                    player_component.apply_input(input, physics);
+                    networking.send_packet(Packet::new(PlayerInputPacket { tick, input })?)?;
+                }
             }
         }
 
@@ -137,13 +116,15 @@ impl ClientPlayers {
                     self.main_player = Some(player);
                     self.waiting_for_player = false;
                 }
-            } else if let Some(packet) = packet_event.try_deserialize::<PlayerMovingPacketToClient>() {
+            } else if let Some(packet) = packet_event.try_deserialize::<PlayerInputPacketToClient>() {
+                // another player's controls. Applied on arrival rather than at `packet.tick`:
+                // this client does not predict a remote player, so there is nothing to rewind,
+                // and the difference is the fraction of a second the input spent in flight.
                 let entity = entities.get_entity_from_id(packet.player_id)?;
                 let mut physics_component = *entities.ecs.query_one::<&mut PhysicsComponent>(entity).get()?;
                 {
                     let player_component = entities.ecs.query_one_mut::<&mut PlayerComponent>(entity)?;
-                    player_component.set_moving_type(packet.moving_type, &mut physics_component);
-                    player_component.jumping = packet.jumping;
+                    player_component.apply_input(packet.input, &mut physics_component);
                 }
 
                 entities.ecs.insert_one(entity, physics_component)?;

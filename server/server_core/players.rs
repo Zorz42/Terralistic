@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::{BTreeMap, HashMap};
 use std::ops::Deref;
 
 use anyhow::{anyhow, Result};
@@ -12,14 +12,14 @@ use crate::server::server_core::blocks::ServerBlocks;
 use crate::server::server_core::networking::{Connection, DisconnectEvent, NewConnectionWelcomedEvent, PacketFromClientEvent, SendTarget, ServerNetworking};
 use crate::server::server_core::print_to_console;
 use crate::shared::blocks::Blocks;
-use crate::shared::entities::{Entities, EntityPositionVelocityPacket, HealthChangeEvent, PhysicsComponent, PositionComponent};
+use crate::shared::entities::{Entities, HealthChangeEvent, PhysicsComponent, PositionComponent};
 use crate::shared::entities::{HealthChangePacket, HealthComponent};
 use crate::shared::inventory::{Inventory, InventoryCraftPacket, InventoryPacket, InventorySelectPacket, InventorySwapPacket, Slot};
 use crate::shared::items::Items;
 use crate::shared::liquids::Liquids;
 use crate::shared::packet::Packet;
 use crate::shared::players::{
-    remove_all_picked_items, spawn_player, update_players_ms, PlayerComponent, PlayerMovingPacketToClient, PlayerMovingPacketToServer, PlayerPositionPacketToServer, PlayerSpawnPacket, RespawnPacket,
+    attract_items_to_players, remove_all_picked_items, spawn_player, update_players_ms, PlayerComponent, PlayerInput, PlayerInputPacket, PlayerInputPacketToClient, PlayerSpawnPacket, RespawnPacket,
     PLAYER_HEIGHT, PLAYER_INVENTORY_SIZE, PLAYER_MAX_HEALTH, PLAYER_WIDTH,
 };
 
@@ -30,10 +30,48 @@ pub struct SavedPlayerData {
     pub health: HealthComponent,
 }
 
+/// What a client has told the server it is doing, and when it said it was doing it.
+///
+/// Inputs arrive stamped with a tick the server has usually not reached yet - the client runs
+/// `INPUT_LEAD_TICKS` ahead precisely so they do - and are held here until it does. An input
+/// is a *state*, not an edit, so the last one applied stays in force with no packets at all
+/// while a key is held.
+#[derive(Default)]
+pub(super) struct InputQueue {
+    pending: BTreeMap<u64, PlayerInput>,
+    current: PlayerInput,
+    /// Inputs that arrived after the server had already simulated their tick. The server
+    /// cannot un-simulate, so it applies them late and the client is corrected instead;
+    /// a count that climbs means `INPUT_LEAD_TICKS` is too small for this connection.
+    pub(super) late: u64,
+}
+
+impl InputQueue {
+    /// Whatever the client said to do at or before `tick`, with the newest winning.
+    /// Returns the input in force, changed or not.
+    pub(super) fn advance_to(&mut self, tick: u64) -> PlayerInput {
+        let future = self.pending.split_off(&(tick + 1));
+        if let Some((_, input)) = std::mem::replace(&mut self.pending, future).into_iter().next_back() {
+            self.current = input;
+        }
+        self.current
+    }
+
+    pub(super) fn accept(&mut self, tick: u64, input: PlayerInput, now: u64) {
+        if tick <= now {
+            self.late += 1;
+        }
+        self.pending.insert(tick, input);
+    }
+}
+
 pub struct ServerPlayers {
     conns_to_players: HashMap<Connection, Option<Entity>>,
     players_to_conns: HashMap<Entity, Connection>,
     saved_players: HashMap<String, SavedPlayerData>,
+    inputs: HashMap<Entity, InputQueue>,
+    /// The tick the simulation is on, so an arriving input can be told it is already late.
+    current_tick: u64,
 }
 
 impl ServerPlayers {
@@ -42,6 +80,8 @@ impl ServerPlayers {
             conns_to_players: HashMap::new(),
             players_to_conns: HashMap::new(),
             saved_players: HashMap::new(),
+            inputs: HashMap::new(),
+            current_tick: 0,
         }
     }
 
@@ -77,19 +117,18 @@ impl ServerPlayers {
     ) -> Result<()> {
         let player_entity = self.get_player_from_connection(&packet_event.conn)?;
         if let Some(player_entity) = player_entity {
-            if let Some(packet) = packet_event.packet.try_deserialize::<PlayerMovingPacketToServer>() {
-                let mut player_component = entities.ecs.get::<&mut PlayerComponent>(player_entity)?;
-                let mut physics_component = entities.ecs.get::<&mut PhysicsComponent>(player_entity)?;
-                player_component.set_moving_type(packet.moving_type, &mut physics_component);
-                player_component.jumping = packet.jumping;
+            if let Some(packet) = packet_event.packet.try_deserialize::<PlayerInputPacket>() {
+                // queued rather than applied: it is stamped for a tick the server has not
+                // reached, and applying it now would run it early by the whole lead
+                self.inputs.entry(player_entity).or_default().accept(packet.tick, packet.input, self.current_tick);
 
                 let id = entities.get_id_from_entity(player_entity)?;
-                let packet = Packet::new(PlayerMovingPacketToClient {
-                    moving_type: packet.moving_type,
-                    jumping: packet.jumping,
+                let relayed = Packet::new(PlayerInputPacketToClient {
+                    tick: packet.tick,
                     player_id: id,
+                    input: packet.input,
                 })?;
-                networking.send_packet(&packet, SendTarget::AllExcept(packet_event.conn.clone()))?;
+                networking.send_packet(&relayed, SendTarget::AllExcept(packet_event.conn.clone()))?;
             } else if let Some(packet) = packet_event.packet.try_deserialize::<InventorySelectPacket>() {
                 let mut inventory = entities.ecs.get::<&mut Inventory>(player_entity)?;
                 inventory.selected_slot = packet.slot;
@@ -124,31 +163,6 @@ impl ServerPlayers {
                 inventory.craft(&recipe, (position_x, position_y), items, entities, events)?;
 
                 *entities.ecs.get::<&mut Inventory>(player_entity)? = inventory;
-            } else if let Some(packet) = packet_event.packet.try_deserialize::<PlayerPositionPacketToServer>() {
-                let velocity = *entities.ecs.get::<&mut PhysicsComponent>(player_entity)?;
-                let mut position = entities.ecs.get::<&mut PositionComponent>(player_entity)?;
-                // calculate distance
-                let dx = packet.x - position.x();
-                let dy = packet.y - position.y();
-                let distance = dx * dx + dy * dy;
-                let tolerance = Fixed::from_int(2);
-
-                if distance < tolerance * tolerance {
-                    position.set_x(packet.x);
-                    position.set_y(packet.y);
-                } else {
-                    // send entity packet again but with force
-                    let id = entities.get_id_from_entity(player_entity)?;
-                    let packet = Packet::new(EntityPositionVelocityPacket {
-                        id,
-                        x: position.x(),
-                        y: position.y(),
-                        velocity_x: velocity.velocity_x,
-                        velocity_y: velocity.velocity_y,
-                        force: true,
-                    })?;
-                    networking.send_packet(&packet, SendTarget::Connection(packet_event.conn.clone()))?;
-                }
             }
         }
 
@@ -243,6 +257,7 @@ impl ServerPlayers {
                     self.save_player(&name, entities)?;
 
                     self.players_to_conns.remove(&player_entity);
+                    self.inputs.remove(&player_entity);
                     let player_id = entities.get_id_from_entity(player_entity)?;
                     entities.despawn_entity(player_id, events)?;
                 }
@@ -287,6 +302,7 @@ impl ServerPlayers {
                     entities.despawn_entity(health_change_event.entity, events)?;
                     self.conns_to_players.insert(player_conn, None);
                     self.players_to_conns.remove(&entity);
+                    self.inputs.remove(&entity);
                 }
             }
         }
@@ -294,8 +310,26 @@ impl ServerPlayers {
         Ok(())
     }
 
-    pub fn update(&self, entities: &mut Entities, blocks: &Blocks, liquids: &Liquids, events: &mut EventManager, items: &Items, networking: &mut ServerNetworking) -> Result<()> {
+    pub fn update(&mut self, tick: u64, entities: &mut Entities, blocks: &Blocks, liquids: &Liquids, events: &mut EventManager, items: &Items, networking: &mut ServerNetworking) -> Result<()> {
+        self.current_tick = tick;
+
+        // Each player's controls for *this* tick, taken from what its client said it would
+        // be doing. A player whose client has gone quiet keeps the last input it sent, which
+        // is what makes a held key cost no packets.
+        for (entity, queue) in &mut self.inputs {
+            let input = queue.advance_to(tick);
+            if let Ok((player, physics)) = entities.ecs.query_one_mut::<(&mut PlayerComponent, &mut PhysicsComponent)>(*entity) {
+                if player.get_input() != input {
+                    let mut owned = *physics;
+                    player.apply_input(input, &mut owned);
+                    *physics = owned;
+                }
+            }
+        }
+
         update_players_ms(entities, blocks, liquids);
+        // server side only: it reads every other entity, so no client could agree with it
+        attract_items_to_players(entities);
         remove_all_picked_items(entities, events, items)?;
 
         for (conn, player) in &self.conns_to_players {
