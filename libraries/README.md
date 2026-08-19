@@ -35,6 +35,7 @@ Each `mod.rs` holds the real contract, including what it refuses to do.
 | [`scripting`](scripting/) | 324 | 180 | Sandboxed lua modules with named binary resources, and their on-disk package format |
 | [`grid`](grid/) | 242 | 318 | Bounded 2D grids, chunk addressing, and least-recently-touched eviction |
 | [`config`](config/) | 145 | 273 | Settings registered at runtime, persisted as a flat key-to-number file |
+| [`fixed`](fixed/) | 260 | 151 | Deterministic 16.16 fixed-point numbers: exact, comparable, hashable |
 | [`registry`](registry/) | 138 | 187 | Register a value, get a typed handle back; look it up by handle or by name |
 | [`container_file`](container_file/) | 101 | 102 | Versioned binary files: a magic string, a format version, then named sections |
 | [`log`](log/) | 98 | 110 | Timestamped, levelled lines, and one process-global place for them to go |

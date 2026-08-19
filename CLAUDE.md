@@ -11,7 +11,7 @@ server-with-GUI. Rendering is wgpu through a hand-written UI toolkit, with winit
 and input. Game content (blocks, items, walls, liquids, biomes, recipes, commands) lives in
 **Lua mods**, not in Rust — `base_game` is itself a mod.
 
-~14k lines of game Rust, on top of ~7.5k lines of libraries that know nothing about it, plus
+~14k lines of game Rust, on top of ~7.8k lines of libraries that know nothing about it, plus
 ~10k lines of tests. Small enough to read in full; do that before large refactors.
 
 **`libraries/` is the boundary that keeps it that way.** Nothing under it may name a game
@@ -29,7 +29,7 @@ cargo build --profile dist # what you ship: release + LTO, 4.63 MB vs 5.49 MB
 cargo run -- server       # server with GUI
 cargo run -- server nogui # headless server
 cargo run -- version      # print version
-cargo test                # 532 tests, all should pass
+cargo test                # 578 tests, all should pass
 cargo clippy --all-targets
 ./coverage.sh             # coverage via config-coverage.toml
 
@@ -70,7 +70,7 @@ add a local `#[allow(...)]` with a reason comment, which is the existing convent
 | `server/server_ui/` | Optional GUI for the server (console, player list, stats) |
 | `client/game/` | In-game client: rendering, input, prediction |
 | `client/menus/` | Title screen, world selector, settings, multiplayer |
-| `libraries/` | The 14 game-agnostic libraries. **`libraries/README.md` is the index** — one line each, plus the rule they all follow |
+| `libraries/` | The 15 game-agnostic libraries. **`libraries/README.md` is the index** — one line each, plus the rule they all follow |
 | `base_game/` | Lua mod: all actual game content |
 | `resources/` | Client-side assets (fonts, icons, UI textures) |
 | `integration_tests/` | Tests that drive several subsystems against each other |
@@ -681,7 +681,7 @@ them. There were five hand-rolled ones, two already fixed for the same class of 
 apart: an `i32` of milliseconds overflowing after 24.8 days, an `f32` ledger stalling after
 four hours.
 
-- Server: fixed 20 TPS (`tps_limit`), with a `FixedStep::new(5)` inside `update()` driving
+- Server: fixed 20 TPS (`tps_limit`), with a `FixedStep::new(TICK_MS)` inside `update()` driving
   player and entity physics. Client: renders as fast as allowed, with the same 5 ms `FixedStep`
   for simulation and a `FrameStats` for the debug menu.
 - **The two `FixedStep` constructors are the catch-up policy, and picking the wrong one is a
@@ -714,9 +714,64 @@ event loop at the top of the frame instead of at the end of `update_window`. Mea
 `frame_budget.elapsed()` at `walls.render` if chunk loading looks slow — healthy is under
 0.1 ms.
 
-Client-side prediction: the client simulates its own player and periodically sends
-`PlayerPositionPacketToServer`; the server accepts it if within a tolerance of 2.0 blocks,
-otherwise force-corrects (`server/server_core/players.rs`).
+### Prediction and reconciliation
+
+**The client sends what it *did*, not where it ended up.** `PlayerInputPacket { tick, input }`,
+sent only when the input changes — an input is a held state the server keeps in force, so
+walking across the world is two packets rather than one per tick.
+
+This replaced the client sending its position for the server to accept within a 2.0 block
+tolerance or overrule. A position is only true at the instant it was sampled, so what that
+comparison mostly measured was how far the player moved while the packet was in flight: at a
+20 TPS server tick, running crossed 2.0 blocks in 66 ms and falling crossed it in 25 ms, so a
+fall rubber-banded almost every time with no network involved. **Any tolerance on a position
+from the past is a speed limit in disguise.**
+
+**Both sides count the same ticks from the same origin.** `TICK_MS` is 5, the server's counter
+rides on `WelcomeCompletePacket`, and the client starts from it plus however long loading took
+plus `INPUT_LEAD_TICKS` — it runs *ahead* so its inputs arrive before the server simulates the
+tick they are stamped for. `InputQueue` (`server/server_core/players.rs`) holds them until it
+gets there and counts any that arrive late.
+
+**The client keeps two seconds of `(tick, input, state)` and replays.** On a state for tick T
+(`EntitySyncPacket`, 10 Hz), `Prediction::reconcile` compares against what it had at T. Equal
+is the common case and costs nothing. Different means rewind to T, put the server's answer
+there, and re-simulate every input since — so a correction does not throw away what the player
+has done in the meantime, which is what the snap used to do.
+
+Three tick cases, and the difference matters: one in the buffer is compared and replayed, one
+newer than the whole buffer means the client has fallen behind and is taken whole, one older
+is ignored rather than undoing every input since.
+
+**The simulation snaps; only the drawing slides.** The residual is decayed in
+`render` alone, so a real correction reads as a slide. One too large to slide (a respawn) is
+shown as the jump it is.
+
+**Three categories of entity, three models**, and this is the thing to keep straight:
+
+| Category | Model | Why |
+|---|---|---|
+| The local player | predict + replay | must answer the keyboard at zero latency |
+| Items and other entities | dead-reckon; `EntitySyncPacket` eases them in | deterministic, so they agree for free |
+| Remote players | apply relayed inputs on arrival | their input is unknowable; predicting it is guessing |
+
+**Blocks and liquids are timestamped replicated inputs to the entity simulation, not
+co-simulated systems.** The client applies the server's changes and never derives them. This
+is deliberate and it is what keeps rollback affordable: rolling back entities is a hundred
+entities times thirty-odd bytes, while a liquid grid snapshot is 10.5 MB and twenty ticks of
+them is 211 MB. It also keeps mods, item drop RNG and `init_server()` out of the determinism
+problem entirely — they are events, not something the client must reproduce.
+
+**`step_entity` and `step_player` are pure**, and have to stay that way: state, blocks,
+liquids, nothing else. No clock, no randomness, nothing about any *other* entity. That is why
+item pickup is `attract_items_to_players` and runs on the server alone — it reads every other
+entity, and aims a strong uncapped force at a player position the client only has to snapshot
+accuracy, so predicting it could never come out right.
+
+**Desyncs name a tick.** The client sends `PlayerStateHashPacket` every 20 ticks; the server
+keeps 200 ticks of its own hashes and logs a mismatch with the tick and both values. This only
+works because the state is integers — two float simulations agreeing to within a rounding
+error hash differently, so the check would fire constantly and say nothing.
 
 **A singleplayer client watches its own server's flag** (`run_game`'s `server_alive`, which is
 `PrivateWorld`'s `server_running`). A welcome that is not coming is otherwise indistinguishable
@@ -894,7 +949,9 @@ Things worth knowing before adding one:
   out of `.mod` files, so a hand-edited or truncated one used to take the client down.
 - **Liquid levels are whole numbers, and that is what makes water settle.** Held as `f32` and
   compared as `level as i32`, two cells that are never quite equal average each other forever —
-  on a server, a cell sending a change packet twenty times a second and never stopping.
+  on a server, a cell sending a change packet twenty times a second and never stopping. Entity
+  physics has the same rule for the same reason since it moved to `libraries/fixed`: a velocity
+  below the resolution truncates to zero, so a sliding entity actually *stops*.
 - Server `Liquids` is created empty and sized in `Server::start`, *after* the world is
   loaded or generated, because the grid has to be exactly as big as the block grid. A save
   whose liquid grid disagrees is discarded rather than read.
