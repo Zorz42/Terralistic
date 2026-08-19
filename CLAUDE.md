@@ -29,7 +29,7 @@ cargo build --profile dist # what you ship: release + LTO, 4.63 MB vs 5.49 MB
 cargo run -- server       # server with GUI
 cargo run -- server nogui # headless server
 cargo run -- version      # print version
-cargo test                # 602 tests, all should pass
+cargo test                # 603 tests, all should pass
 cargo clippy --all-targets
 ./coverage.sh             # coverage via config-coverage.toml
 
@@ -401,6 +401,10 @@ winit's `run_app` callback was not worth it. It costs a repaint mid-resize-drag 
 
 Three things about it are load-bearing:
 
+- **`Event::MouseScroll` is in pixels**, so a trackpad's deltas pass through untouched and a
+  wheel detent is worth `PIXELS_PER_SCROLL_LINE`. It used to be in notches, with pixels
+  divided down to reach them - which put a unit conversion in front of the one device that
+  was already reporting exactly what the UI wanted.
 - **Keys are physical positions, not labels.** `translate_key` maps winit's `KeyCode`, so
   `Key::W` is wherever W sits on QWERTY and WASD stays a square on AZERTY. Typing is
   unaffected: text arrives separately as `Event::TextInput`.
@@ -671,14 +675,20 @@ Six UI pieces predate the `UiElement` trait and are hand-rolled, marked by `//TO
   scrollable's own `rect.pos.1`, which is not part of `scroll_size`, so an extent stopping at
   the last row is one gap short and the bottom row sits under the bottom bar at full scroll,
   unreachable.
-- **Outside its bounds a `Scrollable` belongs to the boundary, not to the momentum.** The
-  velocity decays at `boundary_smooth_factor` there rather than `scroll_smooth_factor`, and
-  movement leaving the bounds is compressed by how much of `OVERSCROLL_LIMIT` is already used
-  up. Both halves are load-bearing. Without the compression the bounce is the velocity times
-  the factor, hundreds of pixels for a trackpad swipe - one event carries as many notches as
-  the swipe was long. Without the fast decay the pull brings the list to the edge and the
-  surviving momentum pushes it straight back out, so one bounce reads as a slow crawl home.
-  Together: 5 px and 145 ms for a notch, 86 px and 203 ms for a hard flick.
+- **A `Scrollable`'s input is a distance, not a speed, and it carries no momentum of its
+  own.** `scroll_target` is the sum of the scroll events, so it tracks a trackpad finger
+  exactly, and `scroll_pos` follows it at `scroll_smooth_factor` - small, because that is the
+  smoothing that turns a wheel detent into a glide rather than a glide of its own. It was a
+  velocity the events raised and a decay that spent it, which is momentum, and **a macOS
+  trackpad already sends its own**: a gesture is a stream of pixel deltas that carries on
+  after the finger lifts. Two momenta over one gesture is the jitter. Every event restarted a
+  glide the last one was still running, `max` rather than `+` meant the fastest part of a
+  swipe set the distance for all of it, and out of bounds each restart shoved the list back
+  out of an edge it was in the middle of returning to.
+- **Past its end the target is resisted, then pulled home.** A scroll leaving the bounds is
+  scaled by how much of `OVERSCROLL_LIMIT` is used up, so the band stiffens: 0.5 px/ms of
+  gesture stretches it 5 px, 20 px/ms only reaches 115. Nothing pushing, it returns at
+  `boundary_smooth_factor` - under 110 ms from any of those.
 - **`ui::Menu` / `ui::MenuStack`** is a stack of screens where the top one is live: it gets
   the events and the updates, `open_menu` pushes a successor, `should_close` pops, and
   whatever a pop reveals is told it has focus.

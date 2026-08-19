@@ -243,7 +243,8 @@ impl ModuleManager {
         if self.mode == EditMode::Resize {
             let node = self.get_node_mut(None, self.depth);
             if let DockNode::Split(split) = node {
-                split.split_pos += scroll * 0.01;
+                // a line of scroll nudges the split by a hundredth of the pane
+                split.split_pos += scroll / gfx::PIXELS_PER_SCROLL_LINE * 0.01;
                 split.split_pos = split.split_pos.clamp(0.0, 1.0);
                 self.changed = true;
                 self.recalculate_selection_rect();

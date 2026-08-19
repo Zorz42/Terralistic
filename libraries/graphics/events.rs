@@ -12,7 +12,8 @@ pub enum Event {
     KeyPress(Key, bool),
     /// A key came back up. The flag mirrors `KeyPress`.
     KeyRelease(Key, bool),
-    /// Scroll wheel movement, in notches. Positive is away from the user.
+    /// Scroll movement, in pixels. Positive is away from the user. A trackpad reports pixels
+    /// natively, so this tracks the finger; a wheel detent is worth `PIXELS_PER_SCROLL_LINE`.
     MouseScroll(f32),
     /// Text the user typed, already resolved through the keyboard layout. This is what a
     /// text field consumes; `KeyPress` is what a key binding consumes.

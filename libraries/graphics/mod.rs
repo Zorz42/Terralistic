@@ -22,6 +22,7 @@ pub use surface::Surface;
 pub use text::Font;
 pub use texture::Texture;
 pub use texture_atlas::TextureAtlas;
+pub use window::PIXELS_PER_SCROLL_LINE;
 
 mod color;
 /// What to draw, as backend-agnostic data. The seam the renderer is built around.

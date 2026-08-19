@@ -152,10 +152,10 @@ impl ui_manager::ModuleTrait for Console {
     fn on_event(&mut self, event: &gfx::Event, graphics_context: &mut gfx::GraphicsContext) {
         self.input.on_event(graphics_context, event, &self.container);
         match event {
-            //move the view on mouse scroll
+            //move the view on mouse scroll, which is in pixels and so needs no conversion
             gfx::Event::MouseScroll(scroll) => {
                 let offset = self.text_lines.first().map_or_else(|| 0.0, |line| line.sprite.get_texture().get_texture_size().1 + EDGE_SPACING);
-                self.scroll += scroll * offset;
+                self.scroll += scroll;
                 self.scroll = self.scroll.min(offset * (self.text_lines.len() - 1) as f32);
                 self.scroll = self.scroll.max(0.0);
                 self.position_lines();

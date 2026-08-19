@@ -2,22 +2,35 @@ use super::UiElement;
 use crate::libraries::graphics as gfx;
 use crate::libraries::timing;
 
-/// How far past either end the list may be pushed. Movement leaving the bounds is scaled by how
-/// much of this is already used up, so a flick is compressed the further out it gets rather than
-/// running on: 377 pixels of overshoot for a hard trackpad swipe becomes 150. It only binds on
-/// the hard ones - an ordinary notch bounces 5 pixels and never notices it.
+/// How far past either end the list may be pushed. Scrolling that leaves the bounds is scaled
+/// by how much of this is already used up, so the band stiffens the further out it gets and a
+/// hard swipe cannot throw the list a screen past its end. An ordinary scroll never reaches far
+/// enough to notice it.
 const OVERSCROLL_LIMIT: f32 = 200.0;
 
-/// A scroll position with momentum, which the world and server lists offset their rows by.
-/// It draws nothing itself.
+/// A scroll position, which the world and server lists offset their rows by. It draws nothing
+/// itself.
+///
+/// **The input is a distance, not a speed.** `scroll_target` is the sum of the scroll events,
+/// so it tracks a trackpad finger exactly, and `scroll_pos` follows it. It used to be a
+/// velocity the events raised and a decay that spent it, which is momentum - and a macOS
+/// trackpad already sends its own, as a stream of pixel deltas that carries on after the finger
+/// lifts. Two momenta over one gesture is the jitter: every event in the stream restarted a
+/// glide the last one was still running, and out of bounds each restart shoved the list back
+/// out of a boundary it was in the middle of returning to.
 pub struct Scrollable {
     pub rect: gfx::Rect,
     pub orientation: super::Orientation,
-    scroll_velocity: f32,
+    /// Where the scroll has been asked to be, before smoothing. Outside the bounds while the
+    /// band is stretched, and pulled back onto them once nothing is pushing.
+    scroll_target: f32,
     scroll_pos: f32,
     pub scroll_size: f32,
     animation_timer: timing::FixedStep,
+    /// How closely the drawn position follows the target. Small: this is the smoothing that
+    /// turns a wheel detent into a glide, not a glide of its own.
     pub scroll_smooth_factor: f32,
+    /// How quickly a stretched band returns to its end.
     pub boundary_smooth_factor: f32,
 }
 
@@ -27,7 +40,7 @@ impl Scrollable {
         Self {
             rect: gfx::Rect::new(gfx::FloatPos(0.0, 0.0), gfx::FloatSize(0.0, 0.0)),
             orientation: super::TOP_LEFT,
-            scroll_velocity: 0.0,
+            scroll_target: 0.0,
             scroll_pos: 0.0,
             scroll_size: 0.0,
             animation_timer: timing::FixedStep::for_animation(1),
@@ -51,44 +64,29 @@ impl Scrollable {
         self.scroll_pos
     }
 
-    /// One frame of scrolling: velocity moves the position, compressed while it is leaving the
-    /// bounds; outside them the flick is spent into the boundary and the position pulled back
-    /// onto it; then the velocity decays. Every pull is `super::approach`, whose epsilon is what
-    /// makes them *land* rather than leave a flicked list a fraction of a pixel past its end
-    /// forever. Split out of `update_inner`, which needs a `GraphicsContext` and this does not.
-    ///
-    /// **Outside the bounds the flick belongs to the boundary, not to the momentum**, which is
-    /// why the velocity decays at `boundary_smooth_factor` there rather than the scroll's own.
-    /// Left on the scroll's, a bounce is fed by momentum for as long as that lasts: the pull
-    /// brings the list to the edge, the momentum pushes it back out, and what should be one
-    /// bounce becomes a slow crawl home three times as long as the pull alone.
-    pub(super) fn advance_frame(&mut self) {
-        let upper_bound = f32::max(self.scroll_size - self.rect.size.1, 0.0);
-        let overscroll = f32::max(-self.scroll_pos, self.scroll_pos - upper_bound).max(0.0);
-        let resistance = if self.is_leaving_bounds(upper_bound) {
-            1.0 - (overscroll / OVERSCROLL_LIMIT).clamp(0.0, 1.0)
-        } else {
-            1.0
-        };
-
-        self.scroll_pos += self.scroll_velocity * resistance;
-
-        if overscroll > 0.0 {
-            self.scroll_velocity = super::approach(self.scroll_velocity, 0.0, self.boundary_smooth_factor, 0.01);
-        }
-        if self.scroll_pos < 0.0 {
-            self.scroll_pos = super::approach(self.scroll_pos, 0.0, self.boundary_smooth_factor, 0.01);
-        } else if self.scroll_pos > upper_bound {
-            self.scroll_pos = super::approach(self.scroll_pos, upper_bound, self.boundary_smooth_factor, 0.01);
-        }
-
-        self.scroll_velocity = super::approach(self.scroll_velocity, 0.0, self.scroll_smooth_factor, 0.01);
+    /// How far the list can be scrolled before it runs out of rows. Zero when they all fit.
+    fn upper_bound(&self) -> f32 {
+        f32::max(self.scroll_size - self.rect.size.1, 0.0)
     }
 
-    /// Whether the velocity is carrying the list further out of bounds, as opposed to back in.
-    /// Only the former is compressed - a list on its way home is not fighting anything.
-    fn is_leaving_bounds(&self, upper_bound: f32) -> bool {
-        (self.scroll_pos < 0.0 && self.scroll_velocity < 0.0) || (self.scroll_pos > upper_bound && self.scroll_velocity > 0.0)
+    /// How far the target is currently past either end, or zero inside them.
+    fn overscroll(&self) -> f32 {
+        f32::max(-self.scroll_target, self.scroll_target - self.upper_bound()).max(0.0)
+    }
+
+    /// One frame of scrolling: a stretched band returns to its end, and the drawn position
+    /// follows the target. Both are `super::approach`, whose epsilon is what makes them *land*
+    /// rather than leave a scrolled list a fraction of a pixel short forever. Split out of
+    /// `update_inner`, which needs a `GraphicsContext` and this does not.
+    pub(super) fn advance_frame(&mut self) {
+        let upper_bound = self.upper_bound();
+        if self.scroll_target < 0.0 {
+            self.scroll_target = super::approach(self.scroll_target, 0.0, self.boundary_smooth_factor, 0.01);
+        } else if self.scroll_target > upper_bound {
+            self.scroll_target = super::approach(self.scroll_target, upper_bound, self.boundary_smooth_factor, 0.01);
+        }
+
+        self.scroll_pos = super::approach(self.scroll_pos, self.scroll_target, self.scroll_smooth_factor, 0.01);
     }
 }
 
@@ -103,14 +101,15 @@ impl UiElement for Scrollable {
         }
     }
 
+    /// Adds the scrolled distance to the target, resisted while it leaves the bounds. Coming
+    /// back is never resisted - a list on its way home is not fighting anything.
     fn on_event_inner(&mut self, _: &mut dyn super::UiContext, event: &gfx::Event, _: &super::Container) -> bool {
-        if let gfx::Event::MouseScroll(delta) = event {
-            let delta = -*delta * 0.8;
-            if delta > 0.0 {
-                self.scroll_velocity = f32::max(self.scroll_velocity, delta);
-            } else if delta < 0.0 {
-                self.scroll_velocity = f32::min(self.scroll_velocity, delta);
+        if let gfx::Event::MouseScroll(pixels) = event {
+            let mut delta = -*pixels;
+            if (self.scroll_target < 0.0 && delta < 0.0) || (self.scroll_target > self.upper_bound() && delta > 0.0) {
+                delta *= 1.0 - (self.overscroll() / OVERSCROLL_LIMIT).clamp(0.0, 1.0);
             }
+            self.scroll_target += delta;
         }
         false
     }

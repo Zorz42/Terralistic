@@ -25,9 +25,13 @@ use winit::window::{WindowAttributes, WindowId};
 
 use crate::libraries::graphics as gfx;
 
-/// A scroll wheel notch, in pixels. Wheels report lines and touchpads pixels; everything
-/// downstream of `Event::MouseScroll` is written in notches, so pixels convert through this.
-const PIXELS_PER_SCROLL_NOTCH: f32 = 16.0;
+/// How far one detent of a discrete wheel scrolls.
+///
+/// Wheels report lines and trackpads report pixels; `Event::MouseScroll` is in pixels, so this
+/// is what a line is worth and a trackpad needs no conversion at all - which is the point. A
+/// trackpad's deltas already carry macOS's own smoothing and its post-lift momentum, and
+/// anything reinterpreting them fights both.
+pub const PIXELS_PER_SCROLL_LINE: f32 = 50.0;
 
 /// What one round of pumping produced. A snapshot rather than more `gfx::Event`s: a resize or
 /// a close is not something a UI element can handle, so they never reach the event queue.
@@ -222,12 +226,12 @@ impl State {
     }
 
     fn handle_mouse_wheel(&mut self, delta: MouseScrollDelta) {
-        let notches = match delta {
-            MouseScrollDelta::LineDelta(_, y) => y,
-            MouseScrollDelta::PixelDelta(PhysicalPosition { y, .. }) => y as f32 / PIXELS_PER_SCROLL_NOTCH,
+        let pixels = match delta {
+            MouseScrollDelta::LineDelta(_, y) => y * PIXELS_PER_SCROLL_LINE,
+            MouseScrollDelta::PixelDelta(PhysicalPosition { y, .. }) => y as f32,
         };
-        if notches != 0.0 {
-            self.events.push(gfx::Event::MouseScroll(notches));
+        if pixels != 0.0 {
+            self.events.push(gfx::Event::MouseScroll(pixels));
         }
     }
 }

@@ -442,20 +442,54 @@ mod tests {
 
     // --- Scrollable ---
 
-    /// Scroll deltas are negated and damped by 0.8, so a positive wheel event scrolls the
-    /// content up.
-    #[test]
-    fn test_scroll_sets_velocity_in_the_opposite_direction() {
-        let mut graphics = ui::HeadlessContext::new();
+    /// A scrollable with room to scroll and the smoothing both lists use.
+    fn scrollable_with_room() -> ui::Scrollable {
         let mut scrollable = ui::Scrollable::new();
+        scrollable.scroll_smooth_factor = 8.0;
+        scrollable.boundary_smooth_factor = 12.0;
+        scrollable.scroll_size = 1000.0;
+        scrollable.rect.size.1 = 400.0;
+        scrollable
+    }
+
+    /// Runs `frames` milliseconds of scrolling.
+    fn advance(scrollable: &mut ui::Scrollable, frames: usize) {
+        for _ in 0..frames {
+            scrollable.advance_frame();
+        }
+    }
+
+    /// A scroll event is a distance, and a negative one scrolls the content down. The position
+    /// only moves while updating, so the event alone changes nothing on screen.
+    #[test]
+    fn test_a_scroll_moves_the_list_by_the_distance_scrolled() {
+        let mut graphics = ui::HeadlessContext::new();
+        let mut scrollable = scrollable_with_room();
         let root = root_container(&graphics);
 
-        scrollable.on_event(&mut graphics, &gfx::Event::MouseScroll(10.0), &root);
+        scrollable.on_event(&mut graphics, &gfx::Event::MouseScroll(-120.0), &root);
+        assert_close(scrollable.get_scroll_pos(), 0.0);
 
-        // the velocity is private, but a scroll of the same sign should not increase it
-        // further, which is what the max/min in the handler is for
-        scrollable.on_event(&mut graphics, &gfx::Event::MouseScroll(1.0), &root);
-        assert_close(scrollable.get_scroll_pos(), 0.0); // position only moves while updating, not on the event
+        advance(&mut scrollable, 500);
+        assert_close(scrollable.get_scroll_pos(), 120.0);
+    }
+
+    /// **The events of one gesture add up.** A trackpad reports a gesture as a stream of small
+    /// pixel deltas, so anything that takes the largest instead of the sum - which is what
+    /// raising a velocity did - scrolls by whichever part of the swipe happened to be fastest.
+    #[test]
+    fn test_the_events_of_one_gesture_add_up() {
+        let mut graphics = ui::HeadlessContext::new();
+        let mut scrollable = scrollable_with_room();
+        let root = root_container(&graphics);
+
+        for _ in 0..10 {
+            scrollable.on_event(&mut graphics, &gfx::Event::MouseScroll(-12.0), &root);
+            advance(&mut scrollable, 8);
+        }
+        advance(&mut scrollable, 500);
+
+        assert_close(scrollable.get_scroll_pos(), 120.0);
     }
 
     #[test]
@@ -486,18 +520,14 @@ mod tests {
         assert_close(scrollable.get_scroll_y(), 40.0);
     }
 
-    /// A flick loses speed until it stops, rather than decaying towards a velocity that is
-    /// merely very small - `approach` snaps once it is inside its epsilon.
+    /// A scroll lands exactly on the distance asked for and then stops, rather than approaching
+    /// it forever - `approach` snaps once it is inside its epsilon.
     #[test]
-    fn test_a_flick_comes_to_a_complete_stop() {
+    fn test_a_scroll_lands_on_its_target_and_stops() {
         let mut graphics = ui::HeadlessContext::new();
-        let mut scrollable = ui::Scrollable::new();
-        scrollable.scroll_smooth_factor = 10.0;
-        // room to scroll into, so the flick is not fighting the boundary pull
-        scrollable.scroll_size = 10000.0;
-        scrollable.rect.size.1 = 400.0;
+        let mut scrollable = scrollable_with_room();
         let root = root_container(&graphics);
-        scrollable.on_event(&mut graphics, &gfx::Event::MouseScroll(-10.0), &root);
+        scrollable.on_event(&mut graphics, &gfx::Event::MouseScroll(-200.0), &root);
 
         let travelled_in_one_frame = |scrollable: &mut ui::Scrollable| {
             let before = scrollable.get_scroll_pos();
@@ -505,54 +535,47 @@ mod tests {
             scrollable.get_scroll_pos() - before
         };
 
-        assert!(travelled_in_one_frame(&mut scrollable) > 0.0, "the flick should move the list");
-        for _ in 0..200 {
-            scrollable.advance_frame();
-        }
+        assert!(travelled_in_one_frame(&mut scrollable) > 0.0, "the scroll should move the list");
+        advance(&mut scrollable, 500);
         assert_close(travelled_in_one_frame(&mut scrollable), 0.0);
+        assert_close(scrollable.get_scroll_pos(), 200.0);
     }
 
-    /// A list flicked past its end is pulled back *onto* it and stops. Subtracting a fraction
-    /// of the overshoot only ever approaches the boundary - which is why every animation goes
+    /// A list pushed past its end is pulled back *onto* it and stops. Subtracting a fraction of
+    /// the overshoot only ever approaches the boundary - which is why every animation goes
     /// through `approach`, whose epsilon turns "close enough" into "done".
     #[test]
     #[allow(clippy::float_cmp, reason = "landing exactly on the boundary is what is being asserted")]
     fn test_scrolling_past_the_top_settles_exactly_back_on_it() {
         let mut graphics = ui::HeadlessContext::new();
-        let mut scrollable = ui::Scrollable::new();
-        // what both menus use
-        scrollable.scroll_smooth_factor = 100.0;
-        scrollable.boundary_smooth_factor = 40.0;
-        scrollable.scroll_size = 1000.0;
-        scrollable.rect.size.1 = 400.0;
-
+        let mut scrollable = scrollable_with_room();
         let root = root_container(&graphics);
-        scrollable.on_event(&mut graphics, &gfx::Event::MouseScroll(10.0), &root);
+        scrollable.on_event(&mut graphics, &gfx::Event::MouseScroll(50.0), &root);
 
         scrollable.advance_frame();
         assert!(scrollable.get_scroll_pos() < 0.0, "scrolling up from the top should overshoot");
 
-        for _ in 0..2000 {
-            scrollable.advance_frame();
-        }
+        advance(&mut scrollable, 2000);
         assert_eq!(scrollable.get_scroll_pos(), 0.0, "the list should come to rest on the top, not near it");
     }
 
-    /// A list flicked past its end and let go: how deep it goes and how long it takes to come
-    /// home. A frame is a millisecond, so `frames_to_settle` reads as milliseconds.
-    fn bounce(wheel: f32) -> (f32, usize) {
+    /// A gesture that runs off the top of the list, `pixels` at a time every 8 ms - so the
+    /// argument is a speed, a slow drag being a few pixels and a hard fling tens. Answers how
+    /// far the band stretched and how long it took to come home once the gesture stopped, in
+    /// milliseconds.
+    fn overscroll_gesture(pixels_per_step: f32) -> (f32, usize) {
         let mut graphics = ui::HeadlessContext::new();
-        let mut scrollable = ui::Scrollable::new();
-        // what `ListPage` uses
-        scrollable.scroll_smooth_factor = 100.0;
-        scrollable.boundary_smooth_factor = 18.0;
-        scrollable.scroll_size = 1000.0;
-        scrollable.rect.size.1 = 400.0;
-
+        let mut scrollable = scrollable_with_room();
         let root = root_container(&graphics);
-        scrollable.on_event(&mut graphics, &gfx::Event::MouseScroll(wheel), &root);
 
-        let (mut deepest, mut settled_at) = (0.0_f32, 0);
+        let mut deepest = 0.0_f32;
+        for _ in 0..40 {
+            scrollable.on_event(&mut graphics, &gfx::Event::MouseScroll(pixels_per_step), &root);
+            advance(&mut scrollable, 8);
+            deepest = deepest.max(-scrollable.get_scroll_pos());
+        }
+
+        let mut settled_at = 0;
         for frame in 0..2000 {
             scrollable.advance_frame();
             deepest = deepest.max(-scrollable.get_scroll_pos());
@@ -564,27 +587,27 @@ mod tests {
         (deepest, settled_at)
     }
 
-    /// The bounce follows how hard the list was flicked, which is what makes it read as a rubber
-    /// band rather than a wall - but it is compressed the further out it goes, so a hard swipe
-    /// does not throw the list a whole screen past its end.
+    /// The band stretches with how hard the list is being pushed, which is what makes it read as
+    /// a rubber band rather than a wall - but it stiffens as it goes, so scrolling twenty times
+    /// as fast is nothing like twenty times the stretch.
     #[test]
-    fn test_the_bounce_grows_with_the_flick_and_is_compressed() {
-        let (gentle, _) = bounce(1.0);
-        let (hard, _) = bounce(25.0);
+    fn test_the_band_stretches_with_the_gesture_and_stiffens() {
+        let (drag, _) = overscroll_gesture(4.0);
+        let (fling, _) = overscroll_gesture(80.0);
 
-        assert!(gentle > 1.0, "even a single notch should bounce, went {gentle}");
-        assert!(hard > 4.0 * gentle, "a hard flick should bounce much deeper, {hard} against {gentle}");
-        assert!(hard < 25.0 * gentle, "and be compressed rather than proportional, {hard} against {gentle}");
+        assert!(drag > 2.0, "a slow drag past the end should still stretch, went {drag}");
+        assert!(fling > 3.0 * drag, "a fling should stretch much further, {fling} against {drag}");
+        assert!(fling < 20.0 * drag, "but not in proportion to its speed, {fling} against {drag}");
     }
 
-    /// Coming home is one movement, not a crawl. Outside the bounds the momentum decays into the
-    /// boundary rather than at its own leisurely rate; left on the latter it kept pushing the
-    /// list back out for as long as a flick lasts, and a bounce took most of a second to resolve.
+    /// Coming home is one movement, not a crawl. The scroll carries no momentum of its own -
+    /// the platform's deltas are the whole gesture, and a second momentum on top of them kept
+    /// shoving the list back out of a boundary it was in the middle of returning to.
     #[test]
-    fn test_the_bounce_comes_home_quickly() {
-        for wheel in [1.0, 3.0, 10.0, 25.0] {
-            let (_, settled_at) = bounce(wheel);
-            assert!(settled_at < 250, "a bounce of {wheel} notches took {settled_at} ms to settle");
+    fn test_the_band_comes_home_quickly() {
+        for speed in [4.0, 16.0, 80.0] {
+            let (_, settled_at) = overscroll_gesture(speed);
+            assert!(settled_at < 200, "a gesture of {speed} pixels a step took {settled_at} ms to settle");
         }
     }
 
@@ -654,11 +677,12 @@ mod tests {
         lay_out(&mut page, &mut rows, &graphics, &root);
         assert!(page.is_scrollable());
 
-        // scroll to the end and let the bounce settle
-        page.scrollable.on_event(&mut graphics, &gfx::Event::MouseScroll(-100.0), &root);
-        for _ in 0..2000 {
+        // scroll to the end the way a trackpad would, and let the band settle
+        for _ in 0..100 {
+            page.scrollable.on_event(&mut graphics, &gfx::Event::MouseScroll(-12.0), &root);
             page.scrollable.advance_frame();
         }
+        advance(&mut page.scrollable, 2000);
         lay_out(&mut page, &mut rows, &graphics, &root);
 
         let last_row_bottom = rows[4].pos.1 + rows[4].height;
